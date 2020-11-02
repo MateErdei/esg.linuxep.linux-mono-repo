@@ -60,6 +60,10 @@ class dummyMCSConnection(mcsrouter.mcsclient.mcs_connection.MCSConnection):
         super(dummyMCSConnection, self).__init__(config)
         self.__m_kwargs = kwargs
 
+        self.m_jwt_token = None
+        self.m_device_id = None
+        self.m_tenant_id = None
+
     def _MCSConnection__create_connection_and_get_response(self, requestData):
         print "in good one"
         if not self._MCSConnection__m_connection:

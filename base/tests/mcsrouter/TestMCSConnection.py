@@ -311,7 +311,7 @@ class TestMCSConnection(unittest.TestCase):
         assert_message_in_logs("WARNING:mcsrouter.mcsclient.mcs_connection:Failed direct connection to localhost:443", logs.output, log_level="WARNING")
         assert_message_not_in_logs("Traceback", logs.output)
 
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1", return_value="")
     def test_send_datafeeds_sends_result_when_body_valid(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
@@ -320,9 +320,9 @@ class TestMCSConnection(unittest.TestCase):
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
-        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1.called)
 
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1", return_value="")
     @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeeds._datafeed_result_is_alive", return_value=False)
     def test_send_datafeeds_does_not_send_old_result_files(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
@@ -332,9 +332,9 @@ class TestMCSConnection(unittest.TestCase):
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
         datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
-        self.assertFalse(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
+        self.assertFalse(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1.called)
 
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1", return_value="")
     @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeeds._datafeed_result_is_too_large", return_value=True)
     def test_send_datafeeds_does_not_send_result_files_that_are_too_large(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
@@ -344,10 +344,10 @@ class TestMCSConnection(unittest.TestCase):
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
         datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
-        self.assertFalse(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
+        self.assertFalse(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1.called)
 
 
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1", return_value="")
     @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeed.get_json_body_size", return_value=6)
     @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeeds.get_max_backlog", return_value=20)
     def test_send_datafeeds_prunes_backlog_before_sending(self, *mockargs):
@@ -361,9 +361,9 @@ class TestMCSConnection(unittest.TestCase):
             file_path = f"{feed_id}-{timestamp}.json"
             self.assertTrue(datafeed_container.add_datafeed_result(file_path, feed_id, timestamp, content))
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
-        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.call_count, 3)
+        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1.call_count, 3)
 
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1", return_value="")
     @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeed.get_json_body_size", return_value=6)
     @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeeds.get_max_backlog", return_value=20)
     def test_send_datafeeds_prunes_backlog_before_sending(self, *mockargs):
@@ -377,9 +377,9 @@ class TestMCSConnection(unittest.TestCase):
             file_path = f"{feed_id}-{timestamp}.json"
             self.assertTrue(datafeed_container.add_datafeed_result(file_path, feed_id, timestamp, content))
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
-        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.call_count, 3)
+        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1.call_count, 3)
 
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1")
     @mock.patch("os.remove")
     def test_mcs_purges_datafeeds_after_receiving_429_from_central(self, *mockargs):
         start_of_test = datetime.datetime.now().timestamp()
@@ -387,7 +387,7 @@ class TestMCSConnection(unittest.TestCase):
             "Retry-After": 100
         }
         side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpTooManyRequestsException(429, headers, '{"purge":true}')
-        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect = side_effects
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1.side_effect = side_effects
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
@@ -400,11 +400,11 @@ class TestMCSConnection(unittest.TestCase):
         self.assertEqual(os.remove.call_count, 1)
         self.assertGreaterEqual(datafeed_container.get_backoff_until_time(), start_of_test + 100)
 
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1")
     @mock.patch("os.remove")
     def test_mcs_purges_datafeeds_after_receiving_429_from_central_no_purge_no_retry_header(self, *mockargs):
         side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpTooManyRequestsException(429, "", "")
-        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect=side_effects
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1.side_effect=side_effects
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
@@ -417,14 +417,14 @@ class TestMCSConnection(unittest.TestCase):
         self.assertEqual(os.remove.call_count, 1)
 
 
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1")
     @mock.patch("os.remove")
     def test_mcs_purges_datafeeds_after_receiving_429_from_central_purge_false_retry_header_set(self, *mockargs):
         headers = {
             "Retry-After": 100
         }
         side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpTooManyRequestsException(429, headers, '{"purge":false}')
-        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect=side_effects
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1.side_effect=side_effects
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
@@ -450,59 +450,54 @@ class TestMCSConnection(unittest.TestCase):
                 expected_header_string = "request headers={'Authorization': 'Basic Og==', 'Accept': 'application/json', 'Content-Length': 32, 'Content-Encoding': 'deflate', 'X-Uncompressed-Content-Length': 32, 'User-Agent': 'Sophos MCS Client"
                 assert_message_in_logs(expected_header_string, logs.output, log_level="DEBUG")
 
-    def test_get_jwt_token_settings_returns_none_when_no_endpoint_id(self, *mockargs):
+    def test_set_jwt_token_settings_returns_none_when_no_endpoint_id(self, *mockargs):
         with self.assertLogs(level="WARNING") as logs:
             mcs_connection = TestMCSResponse.dummyMCSConnection()
-            jwt_token, device_id, tenant_id = \
-                mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token_settings(mcs_connection)
-            self.assertEqual(jwt_token, None)
-            self.assertEqual(device_id, None)
-            self.assertEqual(tenant_id, None)
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
+            self.assertEqual(mcs_connection.m_jwt_token, None)
+            self.assertEqual(mcs_connection.m_device_id, None)
+            self.assertEqual(mcs_connection.m_tenant_id, None)
             assert_message_in_logs("No Endpoint ID so cannot retrieve JWT tokens", logs.output, log_level="WARNING")
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id"}')
-    def test_get_jwt_token_settings_returns_values_when_valid(self, *mockargs):
+    def test_set_jwt_token_settings_returns_values_when_valid(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
-        jwt_token, device_id, tenant_id = \
-            mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token_settings(mcs_connection)
-        self.assertEqual(jwt_token, "jwt-token")
-        self.assertEqual(device_id, "device-id")
-        self.assertEqual(tenant_id, "tenant-id")
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
+        self.assertEqual(mcs_connection.m_jwt_token, "jwt-token")
+        self.assertEqual(mcs_connection.m_device_id, "device-id")
+        self.assertEqual(mcs_connection.m_tenant_id, "tenant-id")
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","tenant_id":"tenant-id"}')
-    def test_get_jwt_token_settings_returns_values_when_valid_but_one_missing(self, *mockargs):
+    def test_set_jwt_token_settings_returns_values_when_valid_but_one_missing(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
-        jwt_token, device_id, tenant_id = \
-            mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token_settings(mcs_connection)
-        self.assertEqual(jwt_token, "jwt-token")
-        self.assertEqual(device_id, None)
-        self.assertEqual(tenant_id, "tenant-id")
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
+        self.assertEqual(mcs_connection.m_jwt_token, "jwt-token")
+        self.assertEqual(mcs_connection.m_device_id, None)
+        self.assertEqual(mcs_connection.m_tenant_id, "tenant-id")
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"not-relevant":"jwt-token","example-field":"tenant-id"}')
-    def test_get_jwt_token_settings_returns_none_when_valid_json_but_fields_missing(self, *mockargs):
+    def test_set_jwt_token_settings_returns_none_when_valid_json_but_fields_missing(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
-        jwt_token, device_id, tenant_id = \
-            mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token_settings(mcs_connection)
-        self.assertEqual(jwt_token, None)
-        self.assertEqual(device_id, None)
-        self.assertEqual(tenant_id, None)
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
+        self.assertEqual(mcs_connection.m_jwt_token, None)
+        self.assertEqual(mcs_connection.m_device_id, None)
+        self.assertEqual(mcs_connection.m_tenant_id, None)
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id"')
-    def test_get_jwt_token_settings_returns_none_when_response_is_invalid_json(self, *mockargs):
+    def test_set_jwt_token_settings_returns_none_when_response_is_invalid_json(self, *mockargs):
         with self.assertLogs(level="ERROR") as logs:
             mcs_connection = TestMCSResponse.dummyMCSConnection()
-            jwt_token, device_id, tenant_id = \
-                mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token_settings(mcs_connection)
-            self.assertEqual(jwt_token, None)
-            self.assertEqual(device_id, None)
-            self.assertEqual(tenant_id, None)
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
+            self.assertEqual(mcs_connection.m_jwt_token, None)
+            self.assertEqual(mcs_connection.m_device_id, None)
+            self.assertEqual(mcs_connection.m_tenant_id, None)
             self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
             assert_message_in_logs("Invalid JWT Token received", logs.output, log_level="ERROR")
 

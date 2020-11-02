@@ -655,9 +655,11 @@ class MCS:
                     last_flag_time_check = self.get_flags(last_flag_time_check)
                     flags.combine_flags_files()
 
-                    if not self.__m_jwt_token or not self.__m_device_id or not self.__m_tenant_id:
-                        self.__m_jwt_token, self.__m_device_id, self.__m_tenant_id = \
-                            self.__m_comms.get_jwt_token_settings()
+                    if self.__m_comms:
+                        if not self.__m_comms.m_jwt_token \
+                                or not self.__m_comms.m_device_id \
+                                or not self.__m_comms.m_tenant_id:
+                            self.__m_comms.set_jwt_token_settings()
 
                     # get all pending datafeeds
                     gather_datafeed_files()

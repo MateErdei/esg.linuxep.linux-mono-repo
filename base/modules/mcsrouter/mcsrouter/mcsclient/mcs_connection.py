@@ -223,6 +223,10 @@ class MCSConnection:
         self.__m_proxy_authenticators = {}
         self.__m_last_seen_http_error = None
 
+        self.m_jwt_token = None
+        self.m_device_id = None
+        self.m_tenant_id = None
+
     def ca_cert(self):
         return self.__m_ca_file
 
@@ -1086,7 +1090,7 @@ class MCSConnection:
                 LOGGER.debug("Can't send anymore datafeed results, at limit for now. Limit: {}".format(max_upload_at_once))
                 break
             try:
-                self.send_datafeed_result(datafeed_result)
+                self.send_datafeed_result_v1(datafeed_result)
                 LOGGER.info(f"Sent result, datafeed ID: {datafeeds.get_feed_id()}, file: {datafeed_result.m_file_path}")
                 LOGGER.debug(
                     f"Result content for datafeed ID: {datafeeds.get_feed_id()}, content: {datafeed_result.m_json_body}")
@@ -1130,7 +1134,7 @@ class MCSConnection:
         if next_normal_send_at > datafeeds.get_backoff_until_time():
             datafeeds.set_backoff_until_time(next_normal_send_at)
 
-    def send_datafeed_result(self, datafeed):
+    def send_datafeed_result_v1(self, datafeed):
         """
         prepare a HTTP request to send to central containing a data feed result
         :param datafeed: A Datafeed object (datafeeds.py) which contains data, e.g. a scheduled query.
@@ -1235,34 +1239,28 @@ class MCSConnection:
         LOGGER.debug("Request policy fragment from {}".format(base_path + path))
         return self.send_message(path)
 
-    def get_jwt_token_settings(self):
+    def set_jwt_token_settings(self):
         """
-        get_jwt_token_settings
+        set_jwt_token_settings
         """
-        jwt_token = None
-        device_id = None
-        tenant_id = None
 
         if not self.get_id():
             LOGGER.warning("No Endpoint ID so cannot retrieve JWT tokens")
-            return None, None, None
+            return
 
         full_token_response = self.get_jwt_token()
         try:
             token_dict = json.loads(full_token_response)
         except ValueError as error:
             LOGGER.error(f"Invalid JWT Token received: {full_token_response} with error: {error}")
-            return None, None, None
+            return
 
         if "access_token" in token_dict:
             LOGGER.debug(f"""Setting JWT Token: {token_dict["access_token"]}""")
-            jwt_token = token_dict["access_token"]
+            self.m_jwt_token = token_dict["access_token"]
         if "device_id" in token_dict:
             LOGGER.debug(f"""Setting Device ID: {token_dict["device_id"]}""")
-            device_id = token_dict["device_id"]
+            self.m_device_id = token_dict["device_id"]
         if "tenant_id" in token_dict:
             LOGGER.debug(f"""Setting Tenant ID: {token_dict["tenant_id"]}""")
-            tenant_id = token_dict["tenant_id"]
-
-        return jwt_token, device_id, tenant_id
-
+            self.m_tenant_id = token_dict["tenant_id"]
