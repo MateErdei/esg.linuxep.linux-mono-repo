@@ -11,8 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
+#include <Common/UtilityImpl/FileUtils.h>
 
 namespace
 {
@@ -90,17 +89,13 @@ namespace Telemetry
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(filePath))
         {
-            try
+            std::string value = Common::UtilityImpl::FileUtils::extractValueFromFile(filePath,key);
+            if (value.empty())
             {
-                boost::property_tree::ptree ptree;
-                boost::property_tree::read_ini(filePath, ptree);
-                return ptree.get<std::string>(key);
-            }
-            catch (boost::property_tree::ptree_error& ex)
-            {
-                LOGWARN("Failed to find key: " << key << " in file: " << filePath <<". Error: " << ex.what());
+                LOGWARN("Failed to find key: " << key << " in file: " << filePath);
                 return std::nullopt;
             }
+            return value;
         }
 
         LOGWARN("Could not find file to extract data from, file path: " << filePath);

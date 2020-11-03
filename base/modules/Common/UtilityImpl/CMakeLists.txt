@@ -19,6 +19,8 @@ add_library(utilityimplobject OBJECT
         StringUtils.cpp
         ConfigException.h
         ConfigException.cpp
+        FileUtils.cpp
+        FileUtils.h
         ${CMAKE_CURRENT_BINARY_DIR}/ProjectNames.cpp
         SophosSplUsers.h
         SophosSplUsers.cpp
