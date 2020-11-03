@@ -32,6 +32,8 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
+                supplements:
+                    - scheduled-query-pack-supp
 
     ssplmdr-wh:
         components:
