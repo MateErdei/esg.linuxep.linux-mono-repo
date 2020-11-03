@@ -101,14 +101,14 @@ AV plugin runs scheduled scan
     Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     Wait Until AV Plugin Log Contains  Completed scan  timeout=180
 
-
 AV plugin runs multiple scheduled scans
     Check AV Plugin Installed With Base
     Send Sav Policy With Multiple Imminent Scheduled Scans To Base
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=150
-    Wait Until AV Plugin Log Contains  Completed scan  timeout=180
+    Wait Until AV Plugin Log Contains  Refusing to run a second Scan named: Sophos Cloud Scheduled Scan timeout=120
+
 
 AV plugin runs scheduled scan after restart
     Check AV Plugin Installed With Base
