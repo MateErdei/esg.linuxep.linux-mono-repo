@@ -23,13 +23,17 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
  *
  * hopefully fixed in googletest v1.10.0
  */
+#if __cplusplus >= 201703L && __has_include(<filesystem>)
+namespace std::filesystem // NOLINT
+#else
 namespace std::experimental::filesystem // NOLINT
+#endif
 {
     void PrintTo(const path& p, std::ostream* os)
     {
         *os << p;
     }
-} // namespace std::experimental::filesystem
+}
 
 namespace fs = sophos_filesystem;
 
