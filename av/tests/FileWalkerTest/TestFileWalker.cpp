@@ -183,6 +183,33 @@ TEST_F(TestFileWalker, currentDirIsDeleted) // NOLINT
     filewalker::walk(startingPoint, *callbacks);
 }
 
+TEST_F(TestFileWalker, DISABLED_treeChangesWhileWalking) // NOLINT
+{
+    std::vector<fs::path> files = {
+        "sandbox/a/a/file1.txt", "sandbox/a/b/file2.txt", "sandbox/b/a/file3.txt", "sandbox/b/b/file4.txt"
+    };
+
+    for (auto& p : files)
+    {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p).close();
+    }
+
+    fs::path startingPoint = fs::path("sandbox");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(_, _)).Times(AtLeast(1));
+
+    auto deleteGrandparent = [](const fs::path& filepath, bool /*symlinkTarget*/) {
+        fs::remove_all(filepath.parent_path().parent_path());
+    };
+    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(deleteGrandparent);
+
+    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+}
+
 TEST_F(TestFileWalker, excludeDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
