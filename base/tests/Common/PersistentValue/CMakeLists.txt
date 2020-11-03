@@ -2,7 +2,7 @@ include(GoogleTest)
 add_executable(TestPersistentValue
         ${CMAKE_SOURCE_DIR}/modules/Common/PersistentValue/PersistentValue.h
         ${CMAKE_SOURCE_DIR}/modules/Common/PersistentValue/Logger.h
-        ${CMAKE_SOURCE_DIR}/modules/Common/PersistentValue/Logger.cpp
+#        ${CMAKE_SOURCE_DIR}/modules/Common/PersistentValue/Logger.cpp
         TestPersistentValue.cpp)
 target_include_directories(TestPersistentValue SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CMAKE_SOURCE_DIR})
 target_include_directories(TestPersistentValue BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" )
@@ -17,7 +17,7 @@ gtest_discover_tests(TestPersistentValue)
 #install(TARGETS TestPersistentValue
 #        LIBRARY DESTINATION files/base/lib64)
 
-#
+
 #target_link_libraries(httpsenderimpl PUBLIC
 #        -L"${CMAKE_BINARY_DIR}/libs"
 #        ssl

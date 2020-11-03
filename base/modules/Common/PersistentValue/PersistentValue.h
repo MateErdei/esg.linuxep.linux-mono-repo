@@ -5,7 +5,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
-#include "Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 
@@ -45,7 +44,7 @@ namespace Common
                 }
                 catch (std::exception& exception)
                 {
-                    LOGERROR("Could not load value from: " << m_pathToFile);
+//                  LOGERROR_PERSISTVALUE("Could not load value from: " << m_pathToFile);
                     m_value = m_defaultValue;
                 }
             }
@@ -58,7 +57,7 @@ namespace Common
                 }
                 catch (std::exception& exception)
                 {
-                  LOGERROR("Could not persist value: " << m_pathToFile);
+//                  LOGERROR_PERSISTVALUE("Could not persist value: " << m_pathToFile);
                 }
             }
 
@@ -102,5 +101,4 @@ namespace Common
                 fs->writeFile(m_pathToFile, valueAsString.str());
             }
         };
-
 } // namespace Common
