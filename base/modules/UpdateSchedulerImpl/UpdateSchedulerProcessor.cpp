@@ -206,7 +206,7 @@ namespace UpdateSchedulerImpl
             }
 
             writeConfigurationData(settingsHolder.configurationData);
-            m_scheduledUpdateConfig = settingsHolder.configurationData.getSchedule();
+            m_scheduledUpdateConfig = settingsHolder.weeklySchedule;
             char buffer[20];
             std::tm scheduledTime{};
             scheduledTime.tm_wday = m_scheduledUpdateConfig.weekDay;

@@ -250,18 +250,19 @@ namespace UpdateSchedulerImpl
             auto delayUpdating = attributesMap.lookup("AUConfigurations/AUConfig/delay_updating");
             std::string delayUpdatingDay = delayUpdating.value("Day");
             std::string delayUpdatingTime = delayUpdating.value("Time");
+            SettingsHolder::WeekDayAndTimeForDelay weeklySchedule{};
+
             if (!delayUpdatingDay.empty() && !delayUpdatingDay.empty())
             {
                 std::string delayUpdatingDayAndTime = delayUpdatingDay + "," + delayUpdatingTime;
                 std::tm scheduledUpdateTime{};
                 if (strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime))
                 {
-                    config.setSchedule(
-                        {
+                    weeklySchedule = {
                           .enabled = true,
                           .weekDay = scheduledUpdateTime.tm_wday,
                           .hour = scheduledUpdateTime.tm_hour,
-                          .minute = scheduledUpdateTime.tm_min });
+                          .minute = scheduledUpdateTime.tm_min };
                 }
             }
 
@@ -371,7 +372,7 @@ namespace UpdateSchedulerImpl
                 periodInt = std::stoi(period);
             }
             m_updatePolicy.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
-            return SettingsHolder{ config, certificateFileContent, std::chrono::minutes(periodInt)};
+            return SettingsHolder{ config, certificateFileContent, std::chrono::minutes(periodInt), weeklySchedule};
         }
 
         std::string UpdatePolicyTranslator::cacheID(const std::string& hostname) const

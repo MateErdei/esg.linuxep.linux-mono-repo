@@ -62,12 +62,4 @@ message ConfigurationSettings
      */
     optional bool useSlowSupplements = 17 [default=false];
 
-    /**
-     * Configuration for scheduled updates
-     */
-    optional bool  enabled_scheduling = 18 [default=false];
-    optional int32 schedule_day = 19 [default=0];
-    optional int32 schedule_hour = 20 [default=0];
-    optional int32 schedule_minute = 21 [default=0];
-
 }

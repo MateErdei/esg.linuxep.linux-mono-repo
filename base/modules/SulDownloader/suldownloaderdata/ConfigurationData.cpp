@@ -467,14 +467,6 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     configurationData.setUseSlowSupplements(settings.useslowsupplements());
 
-    WeekDayAndTimeForDelay schedule{
-        .enabled = settings.enabled_scheduling(),
-        .weekDay = settings.schedule_day(),
-        .hour = settings.schedule_hour(),
-        .minute = settings.schedule_minute()
-    };
-    configurationData.setSchedule(schedule);
-
     return configurationData;
 }
 
@@ -608,11 +600,6 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     }
 
     settings.set_useslowsupplements(configurationData.getUseSlowSupplements());
-    WeekDayAndTimeForDelay schedule = configurationData.getSchedule();
-    settings.set_enabled_scheduling(schedule.enabled);
-    settings.set_schedule_day(schedule.weekDay);
-    settings.set_schedule_hour(schedule.hour);
-    settings.set_schedule_minute(schedule.minute);
 
     for (const auto& optionalManifestName : configurationData.getOptionalManifestNames())
     {
@@ -706,14 +693,4 @@ void ConfigurationData::setUseSlowSupplements(bool useSlowSupplements)
 bool ConfigurationData::getUseSlowSupplements() const
 {
     return m_useSlowSupplements;
-}
-
-void ConfigurationData::setSchedule(WeekDayAndTimeForDelay schedule)
-{
-    m_scheduledUpdate = schedule;
-}
-
-WeekDayAndTimeForDelay ConfigurationData::getSchedule() const
-{
-    return m_scheduledUpdate;
 }

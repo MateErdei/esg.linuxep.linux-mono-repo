@@ -476,7 +476,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     EXPECT_TRUE(config.getPolicyProxy().empty());
 
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(50));
-    EXPECT_EQ(config.getSchedule().enabled, false);
+    EXPECT_EQ(settingsHolder.weeklySchedule.enabled, false);
     Common::OSUtilitiesImpl::restoreDnsLookup();
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
@@ -571,7 +571,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     };
     EXPECT_EQ(config.getPolicyProxy(), expectedProxy);
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
-    EXPECT_EQ(config.getSchedule().enabled, false);
+    EXPECT_EQ(settingsHolder.weeklySchedule.enabled, false);
 }
 
 TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLINT
@@ -605,7 +605,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
                                                   "HBT",      "MTD", "NTP",  "SAV", "SDU",      "WEBCNTRL" };
     EXPECT_EQ(features, expectedFeatures);
 
-    auto schedule = config.getSchedule();
+    auto schedule = settingsHolder.weeklySchedule;
     EXPECT_EQ(schedule.enabled, true);
     EXPECT_EQ(schedule.weekDay, 3);
     EXPECT_EQ(schedule.hour, 17);
@@ -831,7 +831,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
 
     EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
-    auto schedule = config.getSchedule();
+    auto schedule = settingsHolder.weeklySchedule;
     EXPECT_EQ(schedule.enabled, true);
     EXPECT_EQ(schedule.weekDay, 3);
     EXPECT_EQ(schedule.hour, 11);
@@ -890,7 +890,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // 
 
     EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
-    auto schedule = config.getSchedule();
+    auto schedule = settingsHolder.weeklySchedule;
     EXPECT_EQ(schedule.enabled, true);
     EXPECT_EQ(schedule.weekDay, 3);
     EXPECT_EQ(schedule.hour, 11);

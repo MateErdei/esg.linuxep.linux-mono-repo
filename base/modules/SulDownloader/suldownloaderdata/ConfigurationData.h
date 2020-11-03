@@ -321,22 +321,6 @@ namespace SulDownloader::suldownloaderdata
 
 
         /**
-         * Set the schedule to determine whether to download supplements only, or product updates as well as supplements.
-         *
-         * https://jira.sophos.net/browse/LINUXDAR-2093
-         * https://wiki.sophos.net/display/SL/Outside+in+-+Scheduled+and+Suspended
-         *
-         * @param schedule
-         */
-        void setSchedule(WeekDayAndTimeForDelay schedule);
-
-        /**
-         * Get the schedule to determine whether to download supplements only, or product updates as well as supplements.
-         * @return
-         */
-        [[nodiscard]] WeekDayAndTimeForDelay getSchedule() const;
-
-        /**
          * Used to verify all required settings stored in the ConfigurationData object
          * @test sophosUpdateUrls list is not empty
          * @test productSelection list is not empty
