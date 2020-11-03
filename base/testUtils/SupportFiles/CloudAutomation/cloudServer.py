@@ -1513,7 +1513,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         endpoint.handle_response(app_id, correlation_id, response_body)
         return self.ret("")
 
-    def datafeed(self):
+    def datafeed_v1(self):
         match_object = re.match(r"^/mcs/data_feed/endpoint/([^/]*)/feed_id/([^/]*)$", self.path)
         if not match_object:
             return self.ret("Bad response path", 400)
@@ -1529,8 +1529,29 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
         datafeed_body = self.getBody()
         endpoint.handle_datafeed_ep(feed_id, datafeed_body)
+        logger.debug("Received and processed data via the v1 method")
         return self.ret("")
 
+    def datafeed_v2(self):
+        match_object = re.match(r"^/mcs/v2/data_feed/device/([^/]*)/feed_id/([^/]*)$", self.path)
+        if not match_object:
+            return self.ret("Bad response path", 400)
+        feed_id = match_object.group(2)
+
+        if SERVER_500:
+            return self.ret("Internal Server Error", 500)
+
+        datafeed_body = self.getBody()
+        try:
+            decompressed_body = zlib.decompress(datafeed_body)
+        except Exception as e:
+            logger.error("Failed to decompress datafeed body content: {}".format(e))
+            return
+        logger.info("{} datafeed = {}".format(feed_id, decompressed_body.decode()))
+        with open(os.path.join(_get_log_dir(), "last_datafeed_result.json"), 'w') as last_datafeed_file:
+            last_datafeed_file.write(decompressed_body.decode())
+        logger.debug("Received and processed data via the v2 method")
+        return self.ret("")
 
     def do_POST_mcs(self):
         if self.path == "/mcs/register":
@@ -1549,11 +1570,13 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path.startswith("/mcs/responses/endpoint"):
             return self.edr_response()
         elif self.path.startswith("/mcs/data_feed/endpoint"):
-            return self.datafeed()
+            return self.datafeed_v1()
+        elif self.path.startswith("/mcs/v2/data_feed/device"):
+            return self.datafeed_v2()
         elif self.path.startswith("/mcs/authenticate/endpoint/"):
             return self.mcs_jwt_token()
 
-        logger.warn("unknown do_POST_mcs: %s", self.path)
+        logger.warning("unknown do_POST_mcs: %s", self.path)
         return self.ret("Unknown MCS command", code=500)
 
     def do_POST(self):

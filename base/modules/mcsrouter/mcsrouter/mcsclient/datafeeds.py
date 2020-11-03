@@ -34,15 +34,24 @@ class Datafeed(object):
             except Exception as ex:
                 LOGGER.error("Could not remove datafeed file: {}".format(self.m_file_path))
 
-    def get_command_path(self, endpoint_id):
+    def get_command_path_v1(self, endpoint_id):
         """
-        get_command_path
+        get_command_path_v1
         :param endpoint_id:
         :return: command_path as string
         """
         if self.m_datafeed_id:
             return "/data_feed/endpoint/{}/feed_id/{}".format(endpoint_id, self.m_datafeed_id)
+        return None
 
+    def get_command_path_v2(self, device_id):
+        """
+        get_command_path_v2
+        :param device_id:
+        :return: command_path as string
+        """
+        if self.m_datafeed_id:
+            return "/v2/data_feed/device/{}/feed_id/{}".format(device_id, self.m_datafeed_id)
         return None
 
     def get_creation_time(self):

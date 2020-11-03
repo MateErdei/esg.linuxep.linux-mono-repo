@@ -952,6 +952,11 @@ class MCSConnection:
         bytes_to_be_encoded = bytes_to_be_encoded.encode("utf-8")
         return "Basic {}".format(to_utf8(base64.b64encode(bytes_to_be_encoded)))
 
+    def _get_jwt_authorization_header(self):
+        bytes_to_be_encoded = self.m_jwt_token
+        bytes_to_be_encoded = bytes_to_be_encoded.encode("utf-8")
+        return "Bearer {}".format(to_utf8(base64.b64encode(bytes_to_be_encoded)))
+
     def send_message(self, command_path, body="", method="GET"):
         """
         send_message
@@ -993,7 +998,6 @@ class MCSConnection:
             "Content-Type":  "application/json",
             "ActualSize": response.m_json_body_size
         }
-
         LOGGER.debug(
             "MCS request url={} body size={}".format(
                 command_path,
@@ -1091,9 +1095,7 @@ class MCSConnection:
                 break
             try:
                 if v2_datafeed_available:
-                    LOGGER.debug("Attempting use of V2 datafeed method")
-                    # TODO LINUXDAR-2380: Replace this function with a copy of it that uses the v2 method and remove log line
-                    self.send_datafeed_result_v1(datafeed_result)
+                    self.send_datafeed_result_v2(datafeed_result)
                 else:
                     self.send_datafeed_result_v1(datafeed_result)
                 LOGGER.info(f"Sent result, datafeed ID: {datafeeds.get_feed_id()}, file: {datafeed_result.m_file_path}")
@@ -1145,7 +1147,7 @@ class MCSConnection:
         :param datafeed: A Datafeed object (datafeeds.py) which contains data, e.g. a scheduled query.
         :return: The compressed body of the datafeed file
         """
-        command_path = datafeed.get_command_path(self.get_id())
+        command_path = datafeed.get_command_path_v1(self.get_id())
 
         headers = {
             "Authorization": self._get_basic_authorization_header(),
@@ -1154,7 +1156,29 @@ class MCSConnection:
             "Content-Encoding": "deflate",
             "X-Uncompressed-Content-Length": datafeed.m_json_body_size
         }
+        LOGGER.debug(
+            "MCS request url={} body size={}".format(
+                command_path,
+                datafeed.m_compressed_body_size))
+        (headers, body) = self.__request(command_path, headers, datafeed.m_compressed_body, "POST")
+        return body
 
+    def send_datafeed_result_v2(self, datafeed):
+        """
+        prepare a HTTP request to send to central containing a data feed result using the new method with jwt tokens
+        :param datafeed: A Datafeed object (datafeeds.py) which contains data, e.g. a scheduled query.
+        :return: The compressed body of the datafeed file
+        """
+        command_path = datafeed.get_command_path_v2(self.m_device_id)
+        headers = {
+            "Authorization": self._get_jwt_authorization_header(),
+            "Accept": "application/json",
+            "Content-Length": datafeed.m_compressed_body_size,
+            "Content-Encoding": "deflate",
+            "X-Uncompressed-Content-Length": datafeed.m_json_body_size,
+            "X-Device-ID": self.m_device_id,
+            "X-Tenant-ID": self.m_tenant_id
+        }
         LOGGER.debug(
             "MCS request url={} body size={}".format(
                 command_path,
