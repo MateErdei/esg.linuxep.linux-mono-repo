@@ -51,3 +51,8 @@ ssplpflags:
     fileset: ..\redist\flags2
     canonical-name: SSPLFLAGS
     line-id: SSPLFLAGS
+scheduled-query-pack:
+    fileset: ..\redist\scheduled-query-pack-sdds
+    canonical-name: ScheduledQueryPack
+    line-id: ScheduledQueryPack
+    mountpoint: scheduled_query_pack
