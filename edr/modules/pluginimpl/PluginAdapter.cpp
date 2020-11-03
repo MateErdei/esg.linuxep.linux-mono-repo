@@ -351,6 +351,8 @@ namespace Plugin
             queue->pushOsqueryProcessFinished();
         });
         // block here till osquery new instance is started.
+        m_loggerExtension.Stop();
+        m_sophosExtension.Stop();
         osqueryStarted.wait_started();
 
         if (m_isXDR)
