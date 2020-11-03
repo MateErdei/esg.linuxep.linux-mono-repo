@@ -23,7 +23,7 @@
       <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-      <development-version branch="develop"/>
+      <development-version branch="feature/LINUXDAR-2195-suldownloader-downloads-scheduled-queries-and-saves-to-file-on-disk"/>
       <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">

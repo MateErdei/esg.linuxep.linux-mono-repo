@@ -42,6 +42,10 @@
       <development-version branch="develop"/>
       <include artifact-path="sspl-flags/SDDS-SSPL-FLAGS" dest-dir="redist/flags2"/>
     </build-asset>
+    <build-asset project="em" repo="esg">
+      <development-version branch="develop"/>
+      <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
+    </build-asset>
   </inputs>
 
   <buildcommands>
