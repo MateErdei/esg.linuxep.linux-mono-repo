@@ -49,6 +49,7 @@ std::optional<Proc::ProcStat> Proc::parseProcStat(const std::string& contentOfPr
     // this will be at least called from the comms component at a time when the logging has not been setup
 
     static std::string finishedStates = "xXZ";
+    static std::string validStates = "RSDZTtWXxKWP";
 
     std::stringstream sstream;
     sstream.str(contentOfProcStat);
@@ -58,13 +59,20 @@ std::optional<Proc::ProcStat> Proc::parseProcStat(const std::string& contentOfPr
     sstream >> procStat.comm;
     char state;
     sstream >> state;
-    if (finishedStates.find(state) != std::string::npos)
+    if (validStates.find(state) != std::string::npos)
     {
-        procStat.state = Proc::ProcStat::ProcState::Finished;
+        if (finishedStates.find(state) != std::string::npos)
+        {
+            procStat.state = Proc::ProcStat::ProcState::Finished;
+        }
+        else
+        {
+            procStat.state = Proc::ProcStat::ProcState::Active;
+        }
     }
     else
     {
-        procStat.state = Proc::ProcStat::ProcState::Active;
+        return std::optional<Proc::ProcStat> {};
     }
 
     sstream >> procStat.ppid;
@@ -121,11 +129,7 @@ int Proc::getUserIdFromStatus(const long pid)
 
     int uid = -1;
 
-    std::string pathRoot("/proc/");
-
-    std::string pathString = Common::FileSystem::join(pathRoot, std::to_string(pid), "status");
-
-    std::optional<std::string> content = Common::FileSystem::fileSystem()->readProcFile(pid, pathString);
+    std::optional<std::string> content = Common::FileSystem::fileSystem()->readProcFile(pid, "status");
 
     if(content == std::nullopt)
     {
@@ -144,7 +148,7 @@ int Proc::getUserIdFromStatus(const long pid)
             int iterator = 0; //position 0 of the line
             int tempUid = -1;
             int count = 0; // no digit found yet
-            while (uid == -1)
+            while (uid == -1 && iterator<(int)line.size()-1)
             {
                 if (isdigit(line[iterator])) //we found the first digit of the uid
                 {
