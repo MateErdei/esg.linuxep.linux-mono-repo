@@ -20,25 +20,35 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace CommsComponent;
 
-const char * TestSplitProc="/tmp/TestSplitProcesses";
+static const auto GL_TEST_SPLIT_PROC = "/tmp/TestSplitProcesses";
+
 class TestSplitProcesses : public ::testing::Test
 {
 
 public:
     static void SetUpTestCase()
     {
-        Common::FileSystem::fileSystem()->makedirs(TestSplitProc);
-        Common::FileSystem::filePermissions()->chmod(TestSplitProc, 0777);
+        Common::FileSystem::fileSystem()->makedirs(GL_TEST_SPLIT_PROC);
+        Common::FileSystem::filePermissions()->chmod(GL_TEST_SPLIT_PROC, 0777);
     }
 
     static void TearDownTestCase()
     {
-        Common::FileSystem::fileSystem()->removeFileOrDirectory(TestSplitProc);
+        // Can't delete the directory since tests may be run in parallel in other processes
+//        Common::FileSystem::fileSystem()->removeFileOrDirectory(GL_TEST_SPLIT_PROC);
     }
 
-    TestSplitProcesses() : m_rootPath(TestSplitProc)
+    TestSplitProcesses() : m_rootPath(GL_TEST_SPLIT_PROC)
     {
         testing::FLAGS_gtest_death_test_style = "threadsafe";
+    }
+
+    void TearDown() override
+    {
+        if (!m_sophosInstall.empty())
+        {
+            Common::FileSystem::fileSystem()->removeFileOrDirectory(m_sophosInstall);
+        }
     }
 
     UserConf m_lowPrivChildUser = {"lp", "lp", "child"};
