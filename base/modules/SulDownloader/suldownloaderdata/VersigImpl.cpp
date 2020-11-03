@@ -21,7 +21,7 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
     auto fileSystem = Common::FileSystem::fileSystem();
 
     auto manifestPaths = configurationData.getManifestNames();
-    if (manifestPaths.size() == 0)
+    if (manifestPaths.empty())
     {
         // a manifest.dat file should exits for each component.
         manifestPaths.emplace_back("manifest.dat");
@@ -97,6 +97,7 @@ IVersig::VerifySignature VersigImpl::verify(
     for (auto& relativeManifestPath : manifestPaths)
     {
         // Check each manifest is correct
+        LOGINFO("Verifying manifest file: " << relativeManifestPath);
         auto dir = Common::FileSystem::dirName(relativeManifestPath);
         auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
         auto manifestPath = Common::FileSystem::join(productDirectoryPath, relativeManifestPath);
@@ -120,6 +121,7 @@ IVersig::VerifySignature VersigImpl::verify(
             auto output = process->output();
             LOGSUPPORT(output);
             exitCode = process->exitCode();
+            LOGINFO("Successfully verified manifest file: " << relativeManifestPath);
         }
         catch (Common::Process::IProcessException& ex)
         {

@@ -358,7 +358,7 @@ namespace UpdateSchedulerImpl
             config.setManifestNames({ "manifest.dat" });
 
             // To add optional manifest file names call here
-            config.setOptionalManifestNames({"flags_manifest.dat"});
+            config.setOptionalManifestNames({"flags_manifest.dat", "sophos-scheduled-query-pack.manifest.dat"});
 
 
             auto delay_supplements = attributesMap.lookup("AUConfigurations/AUConfig/delay_supplements");
