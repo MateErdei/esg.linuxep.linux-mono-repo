@@ -1,5 +1,7 @@
 SophosAddTest(TestOsqueryExtension
         TestResultSender.cpp
+        TestSophosServerTable.cpp
+        MockQueryContext.h
         PROJECTS OsqueryExtensions pluginimpl
         LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest pluginimpl
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
