@@ -92,7 +92,7 @@ fi
 # Copy supplements into place
 if [[ -f  ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf ]]
 then
-  cp ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf
+  cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
   chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 fi
 
