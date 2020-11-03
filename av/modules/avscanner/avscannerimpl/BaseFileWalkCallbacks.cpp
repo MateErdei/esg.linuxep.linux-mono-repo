@@ -73,11 +73,13 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path
 
 bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::path& path)
 {
+    const std::string pathWithSlash = PathUtils::appendForwardSlashToPath(path);
+
     for (const auto& exclusion: m_userDefinedExclusions)
     {
-        if (exclusion.appliesToPath(PathUtils::appendForwardSlashToPath(path), true))
+        if (exclusion.appliesToPath(pathWithSlash, true))
         {
-            LOGINFO("Excluding directory: " << PathUtils::appendForwardSlashToPath(path));
+            LOGINFO("Excluding directory: " << pathWithSlash);
             return true;
         }
     }

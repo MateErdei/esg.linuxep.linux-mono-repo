@@ -282,6 +282,56 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
+TEST_F(TestCommandLineScanRunner, scanDirectoryExcludedAsFilePath) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("sandbox/a/b/d/e");
+    std::ofstream("sandbox/a/b/file1.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back("sandbox");
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back(fs::absolute("sandbox"));
+    exclusions.emplace_back("sandbox");
+    Options options(false, paths, exclusions, false);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_TRUE(appenderContains("Archive scanning enabled: no"));
+
+    ASSERT_EQ(socket->m_paths.size(), 1);
+    EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
+}
+
+TEST_F(TestCommandLineScanRunner, scanFileExcludedAsDirectoryPath) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("sandbox/a/b/d/e");
+    std::ofstream("sandbox/a/b/file1.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back("sandbox/a/b/file1.txt");
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back(fs::absolute("sandbox/a/b/file1.txt/"));
+    exclusions.emplace_back("sandbox/a/b/file1.txt/");
+    Options options(false, paths, exclusions, false);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_TRUE(appenderContains("Archive scanning enabled: no"));
+
+    ASSERT_EQ(socket->m_paths.size(), 1);
+    EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
+}
+
 TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
