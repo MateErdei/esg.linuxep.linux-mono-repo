@@ -27,6 +27,11 @@ Send Sav Policy With Imminent Scheduled Scan To Base
     Create Sav Policy With Scheduled Scan  ${TEMP_SAV_POLICY_FILENAME}  ${time}
     Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
 
+Send Sav Policy With Multiple Imminent Scheduled Scans To Base
+    ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
+    Create Sav Policy With Multiple Scheduled Scans  ${TEMP_SAV_POLICY_FILENAME}  ${time}
+    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
+
 Send Sav Policy With Invalid Scan Time
     Create Badly Configured Sav Policy Time  ${TEMP_SAV_POLICY_FILENAME}
     Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}

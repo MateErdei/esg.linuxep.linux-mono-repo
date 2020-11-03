@@ -86,6 +86,7 @@ CLS No args
 
 
 CLS Can Scan Clean File
+    ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
 
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file
