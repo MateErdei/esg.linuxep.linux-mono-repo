@@ -553,7 +553,7 @@ namespace Plugin
         if (flagsHaveChanged)
         {
             LOGINFO("Flags have changed so restarting EDR");
-            m_queueTask->pushStop();
+            stopOsquery();
         }
     }
 
