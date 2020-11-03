@@ -54,6 +54,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/Exceptions
         COMMAND mkdir -p pluginapi/include/Common/FileSystem
         COMMAND mkdir -p pluginapi/include/Common/Logging
+        COMMAND mkdir -p pluginapi/include/Common/PersistentValue
         COMMAND mkdir -p pluginapi/include/Common/Process
         COMMAND mkdir -p pluginapi/include/Common/ProcessMonitoring
         COMMAND mkdir -p pluginapi/include/Common/PluginApi
@@ -114,6 +115,7 @@ add_copy_directory(Common/Exceptions)
 add_copy_directory(Common/FileSystem)
 add_copy_directory(Common/Logging)
 add_copy_directory(Common/PluginApi)
+add_copy_directory(Common/PersistentValue)
 add_copy_directory(Common/Process)
 add_copy_directory(Common/ProcessMonitoring)
 add_copy_directory(Common/Reactor)
