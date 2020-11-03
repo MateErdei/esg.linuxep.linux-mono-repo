@@ -106,25 +106,7 @@ namespace Plugin
                 fileSystem->removeFileOrDirectory(osquerySocket);
             }
 
-            bool isXDR;
-            try
-            {
-                isXDR = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
-            }
-            catch (const std::runtime_error& ex)
-            {
-                LOGWARN("Unable to retrieve XDR mode from config due to: " << ex.what());
-                isXDR = false;
-            }
-
-            std::string configFilePath = Plugin::osqueryConfigFilePath();
-            if (isXDR)
-            {
-                LOGINFO("Redirecting OSQuery to use XDR config file");
-                configFilePath = Plugin::osqueryXDRConfigFilePath();
-            }
-
-            std::vector<std::string> arguments = { "--config_path=" + configFilePath,
+            std::vector<std::string> arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
                                                    "--flagfile=" + Plugin::osqueryFlagsFilePath() };
 
             if (getPluginLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))

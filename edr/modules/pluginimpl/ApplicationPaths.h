@@ -31,4 +31,5 @@ namespace Plugin
     std::string osQueryLensesPath();
     std::string livequeryResponsePath();
     std::string etcDir();
+    std::string varDir();
 } // namespace Plugin

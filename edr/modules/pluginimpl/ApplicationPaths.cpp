@@ -132,3 +132,7 @@ std::string Plugin::etcDir()
     return fromRelative("etc");
 }
 
+std::string Plugin::varDir()
+{
+    return fromRelative("var");
+}

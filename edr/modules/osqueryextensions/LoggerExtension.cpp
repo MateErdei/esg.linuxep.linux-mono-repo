@@ -13,11 +13,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 LoggerExtension::LoggerExtension(
     const std::string& intermediaryPath,
     const std::string& datafeedPath,
-    const std::string& osqueryXDRConfigFilePath)
-:m_resultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath)
+    const std::string& osqueryXDRConfigFilePath,
+    const std::string& pluginVarDir,
+    unsigned int dataLimit,
+    unsigned int periodInSeconds)
+:m_resultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath, pluginVarDir, dataLimit, periodInSeconds)
 {
-    m_flags.interval = 10;
-    m_flags.timeout = 30;
+    m_flags.interval = 1;
+    m_flags.timeout = 3;
 }
 
 LoggerExtension::~LoggerExtension()
@@ -84,4 +87,11 @@ void LoggerExtension::Run()
         Start(m_flags.socket, m_flags.verbose, m_maxBatchBytes, m_maxBatchSeconds);
     }
 }
-
+void LoggerExtension::setDataLimit(unsigned int limitBytes)
+{
+    m_resultsSender.setDataLimit(limitBytes);
+}
+void LoggerExtension::setDataPeriod(unsigned int periodSeconds)
+{
+    m_resultsSender.setDataPeriod(periodSeconds);
+}

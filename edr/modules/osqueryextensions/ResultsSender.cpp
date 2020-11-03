@@ -17,10 +17,21 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ResultsSender::ResultsSender(
     const std::string& intermediaryPath,
     const std::string& datafeedPath,
-    const std::string& osqueryXDRConfigFilePath) :
+    const std::string& osqueryXDRConfigFilePath,
+    const std::string& pluginVarDir,
+    unsigned int dataLimit,
+    unsigned int periodInSeconds) :
     m_intermediaryPath(intermediaryPath),
     m_datafeedPath(datafeedPath),
-    m_osqueryXDRConfigFilePath(osqueryXDRConfigFilePath)
+    m_osqueryXDRConfigFilePath(osqueryXDRConfigFilePath),
+    m_currentDataUsage(pluginVarDir, "xdrDataUsage", 0),
+    m_periodStartTimestamp(
+        pluginVarDir,
+        "xdrPeriodTimestamp",
+        std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
+    m_dataLimit(dataLimit),
+    m_periodInSeconds(periodInSeconds),
+    m_hitLimitThisPeriod(pluginVarDir, "xdrLimitHit", false)
 
 {
     LOGDEBUG("Created results sender");
@@ -58,6 +69,34 @@ ResultsSender::~ResultsSender()
 void ResultsSender::Add(const std::string& result)
 {
     LOGDEBUG("Adding XDR results to intermediary file: " << result);
+
+    // The total current data usage if we were to add this result
+    unsigned int incrementedDataUsage = m_currentDataUsage.getValue() + result.length();
+
+    // Check if it has been longer than the data limit period, if it has then reset the data counter.
+    unsigned int now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    if (now - m_periodStartTimestamp.getValue() > m_periodInSeconds)
+    {
+        m_currentDataUsage.setValue(0);
+        m_periodStartTimestamp.setValue(now);
+        m_hitLimitThisPeriod.setValue(false);
+    }
+
+    // Discard data if it causes us to go over limit.
+    if (incrementedDataUsage > m_dataLimit)
+    {
+        // Don't fill up the log file with messages, log the warning once.
+        if (!m_hitLimitThisPeriod.getValue())
+        {
+            LOGWARN("Discarding this result because it would exceed the XDR data limit for this period");
+            m_hitLimitThisPeriod.setValue(true);
+        }
+        else
+        {
+            LOGDEBUG("Discarding this result because it would exceed the XDR data limit for this period");
+        }
+        return;
+    }
 
     Json::Value logLine;
     try
@@ -102,6 +141,8 @@ void ResultsSender::Add(const std::string& result)
     auto filesystem = Common::FileSystem::fileSystem();
     filesystem->appendFile(m_intermediaryPath, stringToAppend);
     m_firstEntry = false;
+
+    m_currentDataUsage.setValue(incrementedDataUsage);
 }
 
 void ResultsSender::Send()
@@ -208,4 +249,12 @@ std::map<std::string, std::pair<std::string, std::string>> ResultsSender::getQue
         queryTagMap.insert(std::make_pair(query.queryNameWithPack, std::make_pair(query.queryName, query.tag)));
     }
     return queryTagMap;
+}
+void ResultsSender::setDataLimit(unsigned int limitbytes)
+{
+    m_dataLimit = limitbytes;
+}
+void ResultsSender::setDataPeriod(unsigned int periodSeconds)
+{
+    m_periodInSeconds = periodSeconds;
 }

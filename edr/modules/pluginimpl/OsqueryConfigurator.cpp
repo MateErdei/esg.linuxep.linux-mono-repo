@@ -50,6 +50,10 @@ namespace Plugin
                 "socket_events": {
                     "query": "select count(*) as socket_events_count from socket_events;",
                     "interval": 86400
+                },
+                "syslog_events": {
+                    "query": "select count(*) as syslog_events_count from syslog_events;",
+                    "interval": 86400
                 }
             }
         })";
@@ -59,7 +63,8 @@ namespace Plugin
 
     void OsqueryConfigurator::regenerateOSQueryFlagsFile(
         const std::string& osqueryFlagsFilePath,
-        bool enableAuditEventCollection)
+        bool enableAuditEventCollection,
+        bool xdrEnabled)
     {
         LOGINFO("Creating osquery flags file");
         auto fileSystem = Common::FileSystem::fileSystem();
@@ -72,7 +77,6 @@ namespace Plugin
         std::vector<std::string> flags { "--host_identifier=uuid",
                                          "--log_result_events=true",
                                          "--utc",
-                                         "--disable_extensions=false",
                                          "--logger_stderr=false",
                                          "--logger_mode=420",
                                          "--logger_min_stderr=1",
@@ -99,6 +103,14 @@ namespace Plugin
                                          "--enable_killswitch=false",
                                          "--events_max=50000" };
 
+        if (xdrEnabled)
+        {
+            LOGDEBUG("Adding XDR flags to osquery flags file.");
+            flags.emplace_back("--extensions_timeout=10");
+            flags.emplace_back("--extensions_require=SophosLoggerPlugin");
+            flags.emplace_back("--logger_plugin=SophosLoggerPlugin");
+        }
+
         bool networkTables;
         try
         {
@@ -112,7 +124,8 @@ namespace Plugin
 
         if (!networkTables)
         {
-            flags.push_back("--disable_tables=curl,curl_certificate");
+            LOGDEBUG("Adding disable tables flag to osquery flags file.");
+            flags.emplace_back("--disable_tables=curl,curl_certificate");
         }
 
         flags.push_back("--syslog_pipe_path=" + Plugin::syslogPipe());
@@ -134,15 +147,24 @@ namespace Plugin
         fileSystem->writeFile(osqueryFlagsFilePath, flagsAsString.str());
     }
 
-    void OsqueryConfigurator::prepareSystemForPlugin()
+    void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled)
     {
         bool disableAuditD = disableSystemAuditDAndTakeOwnershipOfNetlink();
         bool disableAuditDataGathering = enableAuditDataCollection();
 
         SystemConfigurator::setupOSForAudit(disableAuditD);
 
-        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditDataGathering);
+        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditDataGathering, false);
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
+
+        if (xdrEnabled)
+        {
+            enableQueryPack(Plugin::osqueryXDRConfigFilePath());
+        }
+        else
+        {
+            disableQueryPack(Plugin::osqueryXDRConfigFilePath());
+        }
     }
 
     bool OsqueryConfigurator::retrieveDisableAuditFlagFromSettingsFile() const
@@ -250,6 +272,41 @@ namespace Plugin
             }
         }
         LOGWARN("CA path not found");
+    }
+
+    void OsqueryConfigurator::enableQueryPack(const std::string& queryPackFilePath)
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        std::string disabledPath = queryPackFilePath + ".DISABLED";
+        if (fs->isFile(disabledPath))
+        {
+            try
+            {
+                fs->moveFile(disabledPath, queryPackFilePath);
+                LOGDEBUG("Enabled query pack conf file");
+            }
+            catch (std::exception& ex)
+            {
+                LOGERROR("Failed to enabled query pack conf file: " << ex.what());
+            }
+        }
+    }
+
+    void OsqueryConfigurator::disableQueryPack(const std::string& queryPackFilePath)
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->isFile(queryPackFilePath))
+        {
+            try
+            {
+                fs->moveFile(queryPackFilePath, queryPackFilePath + ".DISABLED");
+                LOGDEBUG("Disabled query pack conf file");
+            }
+            catch (std::exception& ex)
+            {
+                LOGERROR("Failed to disable query pack conf file: " << ex.what());
+            }
+        }
     }
 
 } // namespace Plugin

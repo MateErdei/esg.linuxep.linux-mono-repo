@@ -96,8 +96,10 @@ namespace Plugin
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
 
         // XDR consts
-        static const int DEFAULT_MAX_BATCH_SIZE_BYTES = 2000000;
+        static const int DEFAULT_MAX_BATCH_SIZE_BYTES = 2000000; // 2MB
         static const int DEFAULT_MAX_BATCH_TIME_SECONDS = 15;
+        static const int DEFAULT_XDR_DATA_LIMIT_BYTES = 250000000; // 250MB
+        static const int DEFAULT_XDR_PERIOD_SECONDS = 86400; // 1 day
 
         void processQuery(const std::string& query, const std::string& correlationId);
         void processFlags(const std::string& flagsContent);
@@ -109,6 +111,7 @@ namespace Plugin
         void cleanUpOldOsqueryFiles();
         void databasePurge();
         static bool pluginMemoryAboveThreshold();
+        void loadXdrFlags();
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
 

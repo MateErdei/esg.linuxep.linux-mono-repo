@@ -60,6 +60,13 @@ TEST_F(TestPluginAdapterWithLogger, processALCPolicyShouldInstructRestartOnChang
 { // NOLINT
     testing::internal::CaptureStderr();
 
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(_)).Times(5);
+    EXPECT_CALL(*mockFileSystem, readFile(_)).Times(1);
+    EXPECT_CALL(*mockFileSystem, isFile(_)).Times(8);
+    EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(3);
+
     Tests::TempDir tempDir("/tmp");
     // set the config file to enable audit by default. Hence, the rest is configured by policy.
     tempDir.createFile("plugins/edr/etc/plugin.conf", "disable_auditd=1\n");

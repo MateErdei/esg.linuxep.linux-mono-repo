@@ -39,7 +39,7 @@ public:
         const std::string filepath = "anyfile";
         std::string fileContent;
         auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
-        EXPECT_CALL(*mockFileSystem, isFile(_)).Times(2).WillOnce(Return(true));
+        EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, isFile(filepath)).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(true));
@@ -49,7 +49,7 @@ public:
 
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
-        OsqueryConfigurator::regenerateOSQueryFlagsFile(filepath, enableAuditEventCollection);
+        OsqueryConfigurator::regenerateOSQueryFlagsFile(filepath, enableAuditEventCollection, false);
 
         Tests::restoreFileSystem();
         return fileContent;
@@ -181,4 +181,26 @@ TEST_F(TestOsqueryConfigurator, AuditCollectionIsDisabledForNotEnabledAuditDataC
     osqueryFlags = disabledOption.regenerateOSQueryFlagsFile(false);
 
     EXPECT_THAT(osqueryFlags, ::testing::HasSubstr("--disable_audit=true"));
+}
+
+
+// TODO
+TEST_F(TestOsqueryConfigurator, enableQueryPackRenamesQueryPack) // NOLINT
+{
+
+//    Tests::TempDir tempDir("/tmp");
+//
+//    tempDir.createFile("plugins/edr/etc/plugin.conf", "network_tables=1\n");
+//    Common::ApplicationConfiguration::applicationConfiguration().setData(
+//        Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
+//    TestableOsqueryConfigurator enabledOption(true);
+//
+//    std::string osqueryFlags = enabledOption.regenerateOSQueryFlagsFile(true);
+//
+//    EXPECT_THAT(osqueryFlags, ::testing::HasSubstr("--disable_audit=false"));
+//
+//    TestableOsqueryConfigurator disabledOption(false);
+//    osqueryFlags = disabledOption.regenerateOSQueryFlagsFile(false);
+//
+//    EXPECT_THAT(osqueryFlags, ::testing::HasSubstr("--disable_audit=true"));
 }

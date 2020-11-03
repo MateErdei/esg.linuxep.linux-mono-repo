@@ -411,6 +411,7 @@ function build()
         cp -a build64/symbols output/
     fi
 
+    date
     echo "Build Successful"
     return 0
 }

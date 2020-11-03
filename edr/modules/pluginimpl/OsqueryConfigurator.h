@@ -20,9 +20,14 @@ namespace Plugin
         bool enableAuditDataCollection() const;
 
         void loadALCPolicy(const std::string& alcPolicy);
-        void prepareSystemForPlugin();
-        static void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection);
+        void prepareSystemForPlugin(bool xdrEnabled);
+        static void regenerateOSQueryFlagsFile(
+            const std::string& osqueryFlagsFilePath,
+            bool enableAuditEventCollection,
+            bool xdrEnabled);
         static void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
+        static void enableQueryPack(const std::string& queryPackFilePath);
+        static void disableQueryPack(const std::string& queryPackFilePath);
         static void addTlsServerCertsOsqueryFlag(std::vector<std::string>& flags);
 
     protected:

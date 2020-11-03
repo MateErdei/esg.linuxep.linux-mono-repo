@@ -63,7 +63,6 @@ public:
     }
 };
 
-
 namespace Plugin
 {
     PluginAdapter::PluginAdapter(
@@ -74,9 +73,13 @@ namespace Plugin
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_parallelQueryProcessor{queryrunner::createQueryRunner(Plugin::osquerySocket(), Plugin::livequeryExecutable())},
-        m_loggerExtension(Plugin::osqueryXDRResultSenderIntermediaryFilePath(),
-                          Plugin::osqueryXDROutputDatafeedFilePath(),
-                          Plugin::osqueryXDRConfigFilePath()),
+        m_loggerExtension(
+            Plugin::osqueryXDRResultSenderIntermediaryFilePath(),
+            Plugin::osqueryXDROutputDatafeedFilePath(),
+            Plugin::osqueryXDRConfigFilePath(),
+            Plugin::varDir(),
+            DEFAULT_XDR_DATA_LIMIT_BYTES,
+            DEFAULT_XDR_PERIOD_SECONDS),
         m_timesOsqueryProcessFailedToStart(0),
         m_osqueryConfigurator()
     {
@@ -118,28 +121,16 @@ namespace Plugin
         LOGINFO("Entering the main loop");
         m_callback->initialiseTelemetry();
         ensureMCSCanReadOldResponses();
-
         std::string alcPolicy = waitForTheFirstALCPolicy(*m_queueTask, std::chrono::seconds(5), 5);
+        // TODO LINUXDAR-2358
+        //   Wait for XDR policy, if we get one then:
+        //   m_loggerExtension.setDataLimit(<VALUE FROM POLICY>)
+
         LOGSUPPORT("Processing ALC Policy");
         processALCPolicy(alcPolicy, true);
         LOGSUPPORT("Cleanup Old Osquery Files");
         cleanUpOldOsqueryFiles();
-        try
-        {
-            m_isXDR = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
-        }
-        catch (const std::runtime_error& ex)
-        {
-            LOGWARN("Running mode not set in plugin.conf file. Using the default running mode EDR");
-        }
-        if (m_isXDR)
-        {
-            LOGINFO("Flags running mode is XDR");
-        }
-        else
-        {
-            LOGINFO("Flags running mode is EDR");
-        }
+        loadXdrFlags();
         LOGSUPPORT("Start Osquery");
         setUpOsqueryMonitor();
 
@@ -306,7 +297,7 @@ namespace Plugin
     void PluginAdapter::setUpOsqueryMonitor()
     {
         LOGINFO("Prepare system for running osquery");
-        m_osqueryConfigurator.prepareSystemForPlugin();
+        m_osqueryConfigurator.prepareSystemForPlugin(false);
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;
@@ -335,15 +326,44 @@ namespace Plugin
             }
             queue->pushOsqueryProcessFinished();
         });
-
         // block here till osquery new instance is started.
         osqueryStarted.wait_started();
+
+        if (m_isXDR)
+        {
+            registerAndStartLoggerPlugin();
+        }
+    }
+
+    void PluginAdapter::registerAndStartLoggerPlugin()
+    {
+        try
+        {
+            auto fs = Common::FileSystem::fileSystem();
+            if (!fs->waitForFile(Plugin::osquerySocket(), 10000))
+            {
+                LOGERROR("OSQuery socket does not exist after waiting 10 seconds. Restarting EDR");
+                m_queueTask->pushStop();
+                return;
+            }
+            m_loggerExtension.Start(Plugin::osquerySocket(),
+                                    false,
+                                    DEFAULT_MAX_BATCH_SIZE_BYTES,
+                                    DEFAULT_MAX_BATCH_TIME_SECONDS);
+        }
+        catch (const std::exception& ex)
+        {
+            LOGERROR("Failed to start logger extension, loggerExtension.Start threw: " << ex.what());
+        }
     }
 
     void PluginAdapter::stopOsquery()
     {
         try
         {
+            // Call stop on logger extension, this is ok to call whether running or not.
+            m_loggerExtension.Stop();
+
             while (m_osqueryProcess && m_monitor.valid())
             {
                 LOGINFO("Issue request to stop to osquery.");
@@ -525,5 +545,26 @@ namespace Plugin
             LOGERROR("Could not read plugin memory usage");
         }
         return false;
+    }
+
+    void PluginAdapter::loadXdrFlags()
+    {
+        try
+        {
+            m_isXDR = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
+        }
+        catch (const std::runtime_error& ex)
+        {
+            LOGWARN("Running mode not set in plugin.conf file. Using the default running mode EDR");
+        }
+
+        if (m_isXDR)
+        {
+            LOGINFO("Flags running mode is XDR");
+        }
+        else
+        {
+            LOGINFO("Flags running mode is EDR");
+        }
     }
 } // namespace Plugin

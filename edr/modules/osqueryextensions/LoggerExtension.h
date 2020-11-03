@@ -16,10 +16,15 @@ class LoggerExtension : public IServiceExtension
 public:
     LoggerExtension( const std::string& intermediaryPath,
                      const std::string& datafeedPath,
-                     const std::string& osqueryXDRConfigFilePath);
+                     const std::string& osqueryXDRConfigFilePath,
+                     const std::string& pluginVarDir,
+                     unsigned int dataLimit,
+                     unsigned int periodInSeconds);
     ~LoggerExtension();
     void Start(const std::string& socket, bool verbose, uintmax_t maxBatchBytes, unsigned int maxBatchSeconds) override;
     void Stop() override;
+    void setDataLimit(unsigned int limitBytes);
+    void setDataPeriod(unsigned int periodSeconds);
 
 private:
     void Run();
