@@ -8,4 +8,11 @@ warehouses:
                    - base-version: 1
                      tag: RECOMMENDED
 
+    scheduled-query-pack-wh:
+      components:
+        scheduled-query-pack:
+          release-tags:
+            - base-version: 1
+              tag: RECOMMENDED
+
 customer-files: []

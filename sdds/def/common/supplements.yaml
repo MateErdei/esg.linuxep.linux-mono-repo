@@ -7,3 +7,11 @@ ssplflags-supp:
   line-id: SSPLFLAGS
   tag: RECOMMENDED
   warehouse: ssplflags-wh
+
+scheduled-query-pack-supp:
+  base-version: 1
+  canonical-name: ScheduledQueryPack
+  decode-path: .
+  line-id: ScheduledQueryPack
+  tag: RECOMMENDED
+  warehouse: scheduled-query-pack-wh

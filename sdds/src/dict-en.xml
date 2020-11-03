@@ -127,6 +127,15 @@
         </Language>
       </Label>
     </Identity>
+    <Identity>
+      <Label>
+        <Token>ScheduledQueryPack</Token>
+        <Language lang="en">
+          <LongDesc>Sophos Scheduled Query Pack</LongDesc>
+          <ShortDesc>ScheduledQueryPack</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
     <ReleaseTags>
       <Label>
         <Token>RECOMMENDED</Token>
