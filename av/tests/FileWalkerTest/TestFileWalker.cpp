@@ -4,62 +4,45 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-
 #include <filewalker/FileWalker.h>
+#include <gtest/gtest.h>
 #include <tests/common/LogInitializedTests.h>
 
-#include <string>
-#include <fstream>
 #include <cerrno>
+#include <fstream>
+#include <string>
 
 #include <unistd.h>
 
+/*
+ * hack to allow gtest/gmock to interact with mock methods passing fs::path parameters
+ *
+ * See: https://github.com/google/googletest/issues/521
+ *      https://github.com/google/googletest/issues/1614
+ *      https://github.com/google/googletest/pull/1186
+ *
+ * hopefully fixed in googletest v1.10.0
+ */
+namespace std::experimental::filesystem // NOLINT
+{
+    void PrintTo(const path& p, std::ostream* os)
+    {
+        *os << p;
+    }
+} // namespace std::experimental::filesystem
+
 namespace fs = sophos_filesystem;
+
+using namespace ::testing;
 
 namespace
 {
-    class FakeCallbacks : public filewalker::IFileWalkCallbacks
+    class MockCallbacks : public filewalker::IFileWalkCallbacks
     {
     public:
-        FakeCallbacks() = default;
-
-        void processFile(const sophos_filesystem::path& filepath, bool /*symlinkTarget*/) override
-        {
-            FAIL() << "Managed to get a file" << filepath;
-        }
-
-        bool includeDirectory(const sophos_filesystem::path& filepath) override
-        {
-            return !(filepath.filename() == "b");
-        }
-
-        bool userDefinedExclusionCheck(const sophos_filesystem::path& filepath) override
-        {
-            return (filepath.filename() == "b");
-        }
-    };
-
-    class CollectCallbacks : public filewalker::IFileWalkCallbacks
-    {
-    public:
-        CollectCallbacks() = default;
-        std::vector<fs::path> m_paths;
-        void processFile(const sophos_filesystem::path& filepath, bool /*symlinkTarget*/) override
-        {
-            m_paths.emplace_back(filepath);
-        }
-
-        bool includeDirectory(const sophos_filesystem::path&) override
-        {
-            return true;
-        }
-
-        bool userDefinedExclusionCheck(const sophos_filesystem::path&) override
-        {
-            return false;
-        }
-
+        MOCK_METHOD2(processFile, void(const fs::path& filepath, bool symlinkTarget));
+        MOCK_METHOD1(includeDirectory, bool(const fs::path& filepath));
+        MOCK_METHOD1(userDefinedExclusionCheck, bool(const fs::path& filepath));
     };
 
     class TestFileWalker : public LogInitializedTests
@@ -84,62 +67,69 @@ namespace
 
         fs::path m_testDir;
     };
-}
+} // namespace
 
-TEST_F (TestFileWalker, includeFiles) // NOLINT
+TEST_F(TestFileWalker, includeDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
 
-    CollectCallbacks callbacks;
-    filewalker::walk("sandbox", callbacks);
-    fs::remove_all("sandbox");
+    fs::path startingPoint = fs::path("sandbox");
 
-    ASSERT_EQ(callbacks.m_paths.size(), 1);
-    EXPECT_EQ(callbacks.m_paths.at(0), "sandbox/a/b/file1.txt");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/a/b/file1.txt"), false)).WillOnce(Return());
+
+    filewalker::walk(startingPoint, *callbacks);
 }
-
 
 TEST_F(TestFileWalker, absoluteIncludePath) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
 
-    fs::path startingpoint = fs::absolute("sandbox");
+    fs::path startingPoint = fs::absolute("sandbox");
 
-    CollectCallbacks callbacks;
-    filewalker::walk(startingpoint, callbacks);
-    fs::remove_all("sandbox");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
-    ASSERT_EQ(callbacks.m_paths.size(), 1);
-    std::string firstPath = callbacks.m_paths.at(0);
-//    PRINT(firstPath);
-    EXPECT_EQ(firstPath, startingpoint / "a/b/file1.txt");
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(fs::absolute("sandbox/a/b/file1.txt"), false)).WillOnce(Return());
+
+    filewalker::walk(startingPoint, *callbacks);
 }
-
 
 TEST_F(TestFileWalker, excludeDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
 
-    FakeCallbacks callbacks;
-    filewalker::walk("sandbox", callbacks);
-    fs::remove_all("sandbox");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, includeDirectory(fs::path("sandbox/a/b"))).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/a/b/file1.txt"), _)).Times(0);
+
+    filewalker::walk("sandbox", *callbacks);
 }
 
 TEST_F(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
 {
-    FakeCallbacks callbacks;
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
     try
     {
-        filewalker::walk("FileThatDoesNotExist", callbacks);
+        filewalker::walk("FileThatDoesNotExist", *callbacks);
     }
     catch (fs::filesystem_error& e)
     {
-        EXPECT_EQ(e.what(),
-                  std::string("filesystem error: Failed to scan "
-                              "\"FileThatDoesNotExist\": file/folder does not exist: No such file or directory"));
+        EXPECT_EQ(
+            e.what(),
+            std::string("filesystem error: Failed to scan "
+                        "\"FileThatDoesNotExist\": file/folder does not exist: No such file or directory"));
         EXPECT_EQ(e.code().value(), ENOENT);
     }
 }
@@ -166,11 +156,16 @@ TEST_F(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
     }
 
     fs::current_path(startingPath);
-    FakeCallbacks callbacks;
-    filewalker::walk("TestHugePathFileWalker", callbacks);
 
-    auto traverse_and_delete_huge_directory = [](const sophos_filesystem::path& startingPath, int targetDirectory)
-    {
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
+
+    EXPECT_NO_THROW(filewalker::walk("TestHugePathFileWalker", *callbacks));
+
+    auto traverse_and_delete_huge_directory = [](const sophos_filesystem::path& startingPath, int targetDirectory) {
         fs::current_path("TestHugePathFileWalker");
         for (int depth = 0; depth < targetDirectory; ++depth)
         {
@@ -208,15 +203,22 @@ TEST_F(TestFileWalker, hugeStartingFilePath) // NOLINT
 
     const fs::path& pathToScan = fs::current_path();
     fs::current_path(startingPath);
-    FakeCallbacks callbacks;
+
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).Times(0);
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).Times(0);
+    EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
     try
     {
-        filewalker::walk(pathToScan, callbacks);
+        filewalker::walk(pathToScan, *callbacks);
     }
     catch (fs::filesystem_error& e)
     {
-        EXPECT_EQ(e.what(), std::string("filesystem error: Failed to start scan: Starting Path too long: File name too long"));
+        EXPECT_EQ(
+            e.what(),
+            std::string("filesystem error: Failed to start scan: Starting Path too long: File name too long"));
         EXPECT_EQ(e.code().value(), ENAMETOOLONG);
     }
 
