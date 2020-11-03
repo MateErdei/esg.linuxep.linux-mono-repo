@@ -11,10 +11,10 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include <Common/UtilityImpl/FileUtils.h>
 
 #include <thread>
+#include <iterator>
 
 namespace Plugin
 {
@@ -175,15 +175,14 @@ namespace Plugin
         std::string configpath = Plugin::edrConfigFilePath();
         if (fileSystem->isFile(configpath))
         {
-            try
+            std::string value = Common::UtilityImpl::FileUtils::extractValueFromFile(configpath, "disable_auditd");
+            if (value.empty())
             {
-                boost::property_tree::ptree ptree;
-                boost::property_tree::read_ini(configpath, ptree);
-                disableAuditD = (ptree.get<std::string>("disable_auditd") == "1");
+                LOGWARN("Failed to read disable_auditd configuration from config file using default value");
             }
-            catch (boost::property_tree::ptree_error& ex)
+            else
             {
-                LOGWARN("Failed to read disable_auditd configuration from config file, using default value");
+                disableAuditD = (value == "1");
             }
         }
         else

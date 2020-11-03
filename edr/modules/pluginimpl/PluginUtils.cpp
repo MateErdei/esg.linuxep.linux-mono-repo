@@ -10,8 +10,8 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
-#include <redist/boost/include/boost/property_tree/ini_parser.hpp>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/UtilityImpl/FileUtils.h>
 #include <Common/FileSystem/IFileSystemException.h>
 
 namespace Plugin
@@ -49,17 +49,14 @@ namespace Plugin
 
         if (fileSystem->isFile(configPath))
         {
-            try
-            {
-                boost::property_tree::ptree ptree;
-                boost::property_tree::read_ini(configPath, ptree);
-                bool isXDR = (ptree.get<std::string>(flag) == "0");
-                return isXDR;
-            }
-            catch (boost::property_tree::ptree_error& ex)
+            std::string value = Common::UtilityImpl::FileUtils::extractValueFromFile(configPath, flag);
+            if (value.empty())
             {
                 LOGWARN("Failed to read " << flag << " configuration from config file");
+                throw std::runtime_error(flag + " not set in plugin setting file");
             }
+            bool isFlag = (value == "0");
+            return isFlag;
         }
         else
         {

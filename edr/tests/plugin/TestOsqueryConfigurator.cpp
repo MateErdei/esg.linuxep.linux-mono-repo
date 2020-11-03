@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/TempDir.h>
 #include <modules/pluginimpl/OsqueryConfigurator.h>
+#include <modules/pluginimpl/ApplicationPaths.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 #include <gtest/gtest.h>
@@ -39,7 +40,7 @@ public:
         const std::string filepath = "anyfile";
         std::string fileContent;
         auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
-        EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(true));
+        EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(true));
         EXPECT_CALL(*mockFileSystem, isFile(filepath)).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(true));
@@ -49,7 +50,7 @@ public:
 
         Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
-        OsqueryConfigurator::regenerateOSQueryFlagsFile(filepath, enableAuditEventCollection, false);
+        OsqueryConfigurator::regenerateOSQueryFlagsFile(filepath, enableAuditEventCollection);
 
         Tests::restoreFileSystem();
         return fileContent;
@@ -181,19 +182,4 @@ TEST_F(TestOsqueryConfigurator, AuditCollectionIsDisabledForNotEnabledAuditDataC
     osqueryFlags = disabledOption.regenerateOSQueryFlagsFile(false);
 
     EXPECT_THAT(osqueryFlags, ::testing::HasSubstr("--disable_audit=true"));
-}
-
-TEST_F(TestOsqueryConfigurator, enableAnddisableQueryPackRenamesQueryPack) // NOLINT
-{
-    std::string queryPackPath = "querypackpath";
-    std::string queryPackPathDisabled = "querypackpath.DISABLED";
-
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(_)).Times(2).WillRepeatedly(Return(true));
-    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPathDisabled,queryPackPath));
-    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPath,queryPackPathDisabled));
-    TestableOsqueryConfigurator::enableQueryPack(queryPackPath);
-    TestableOsqueryConfigurator::disableQueryPack(queryPackPath);
-
 }

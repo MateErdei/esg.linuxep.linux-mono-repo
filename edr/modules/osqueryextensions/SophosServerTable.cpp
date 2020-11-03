@@ -7,11 +7,11 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include "SophosServerTable.h"
 #include "Logger.h"
 
-#include <iostream>
-#include <redist/boost/include/boost/property_tree/ini_parser.hpp>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/UtilityImpl/FileUtils.h>
+
+#include <iostream>
 
 namespace OsquerySDK
 {
@@ -40,32 +40,28 @@ namespace OsquerySDK
 
         if (fileSystem->isFile(mcsConfigPath))
         {
-            try
+            r["endpoint_id"] = Common::UtilityImpl::FileUtils::extractValueFromFile(mcsConfigPath,"MCSID");
+            if (r["endpoint_id"].empty())
             {
-                boost::property_tree::ptree ptree;
-                boost::property_tree::read_ini(mcsConfigPath, ptree);
-                r["endpoint_id"]  = ptree.get<std::string>("MCSID") ;
-
+                LOGWARN("Failed to read MCSID configuration from config file: " << mcsConfigPath << " with error: file doesn't contain key MCSID");
             }
-            catch (boost::property_tree::ptree_error& ex)
-            {
-                LOGWARN("Failed to read MCSID configuration from config file: " << mcsConfigPath << " with error: " << ex.what());
-            }
+        }
+        else
+        {
+            LOGWARN("Failed to read MCSID configuration from config file: " << mcsConfigPath << " with error: file doesn't exist");
         }
 
         if (fileSystem->isFile(mcsPolicyConfigPath))
         {
-            try
+            r["customer_id"] = Common::UtilityImpl::FileUtils::extractValueFromFile(mcsPolicyConfigPath,"customerId");
+            if (r["customer_id"].empty())
             {
-                boost::property_tree::ptree ptree;
-                boost::property_tree::read_ini(mcsPolicyConfigPath, ptree);
-                r["customer_id"]  = ptree.get<std::string>("customerId") ;
-
+                LOGWARN("Failed to read customerID configuration from config file: " << mcsPolicyConfigPath << " with error: file doesn't contain key customerId");
             }
-            catch (boost::property_tree::ptree_error& ex)
-            {
-                LOGWARN("Failed to read MCSID configuration from config file: " << mcsPolicyConfigPath << " with error: " << ex.what());
-            }
+        }
+        else
+        {
+            LOGWARN("Failed to read customerID configuration from config file: " << mcsPolicyConfigPath << " with error: file doesn't exist");
         }
         results.push_back(std::move(r));
         return results;
