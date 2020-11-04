@@ -33,7 +33,7 @@ UpdateScheduler Delayed Updating
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  Check Log Contains   Scheduling updates for Sunday 12:00    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
+    ...  Check Log Contains   Scheduling product updates for Sunday 12:00    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
 
 UpdateScheduler Should Fail if Warehouse Does not Have Required Feature
     [Setup]  Setup For Test With Warehouse Containing Base
