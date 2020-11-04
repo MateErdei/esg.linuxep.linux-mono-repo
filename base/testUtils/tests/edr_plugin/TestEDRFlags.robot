@@ -68,15 +68,8 @@ EDR changes running mode when XDR enabled flags are sent
     Wait Until Keyword Succeeds
     ...  10
     ...  1
-    ...  Check EDR Log Contains  Plugin Finished.
+    ...  Check EDR Log Contains  osquery stopped. Scheduling its restart in 0 seconds.
 
-    Wait Until Keyword Succeeds
-    ...  25
-    ...  1
-    ...  Check Log Contains In Order
-            ...  ${SOPHOS_INSTALL}/logs/base/watchdog.log
-            ...  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/edr/bin/edr exited
-            ...  ProcessMonitoringImpl <> Starting /opt/sophos-spl/plugins/edr/bin/edr
 
     Wait Until Keyword Succeeds
     ...   30 secs
@@ -126,20 +119,13 @@ EDR disables curl tables when network available flag becomes false
     Wait Until Keyword Succeeds
     ...  10
     ...  1
-    ...  Check EDR Log Contains  Plugin Finished.
+    ...  Check EDR Log Contains  osquery stopped. Scheduling its restart in 0 seconds.
 
-    Wait Until Keyword Succeeds
-    ...  25
-    ...  1
-    ...  Check Log Contains In Order
-            ...  ${SOPHOS_INSTALL}/logs/base/watchdog.log
-            ...  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/edr/bin/edr exited
-            ...  ProcessMonitoringImpl <> Starting /opt/sophos-spl/plugins/edr/bin/edr
 
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   5 secs
-    ...   EDR Plugin Is Running
+    ...   Check EDR Osquery Executable Running
 
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_network_tables_disabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
@@ -164,7 +150,7 @@ EDR Test Teardown
     Stop Local Cloud Server
     Run Keyword if Test Failed    Report Audit Link Ownership
     Run Keyword If Test Failed    Dump Cloud Server Log
-    General Test Teardown
+    MCSRouter Default Test Teardown
     Uninstall EDR Plugin
 
 EDR Suite Setup
