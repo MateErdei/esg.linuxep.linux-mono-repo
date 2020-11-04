@@ -138,6 +138,15 @@ Check Threat Detector Copied Files To Chroot
     Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/base/etc/machine_id.txt
     Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/plugins/av/VERSION.ini
 
+    File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf
+    File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/machine_id.txt
+    File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/VERSION.ini
+    File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/nsswitch.conf
+    File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/resolv.conf
+    File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/ld.so.cache
+    File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/host.conf
+    File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/hosts
+
 Increase Threat Detector Log To Max Size
     increase_threat_detector_log_to_max_size_by_path  ${THREAT_DETECTOR_LOG_PATH}
 
