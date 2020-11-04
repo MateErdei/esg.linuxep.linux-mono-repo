@@ -256,19 +256,20 @@ UpdateScheduler Performs Update After Receiving Policy For The First Time
 
 UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     [Tags]  SLOW  UPDATE_SCHEDULER
-    [Timeout]    65 minutes
+    [Timeout]    20 minutes
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     # There are three types of updates scheduled:
     # 1. Immediately after getting the first ALC policy - to install plugins
     # 2. 5-10 minutes after starting up - to ensure machines that have been switched off for a period get updated quickly
-    # 3. Updates based off the update period (40 minutes for this policy)
+    # 3. Updates based off the update period (5 minutes for this policy)
     ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
     ${Date} =  Get Current Date
-    ${ScheduledDate} =  Add Time To Date  ${Date}  15 minutes
+    ${ScheduledDate} =  Add Time To Date  ${Date}  11 minutes
     ${ScheduledDay} =  Convert Date  ${ScheduledDate}  result_format=%A
     ${ScheduledTime} =  Convert Date  ${ScheduledDate}  result_format=%H:%M:00
     ${NewPolicyXml} =  Replace String  ${BasicPolicyXml}  REPLACE_DAY  ${ScheduledDay}
     ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  REPLACE_TIME  ${ScheduledTime}
+    ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  Frequency="40"  Frequency="5"
     Create File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml  ${NewPolicyXml}
     Log File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
     Send Policy To UpdateScheduler  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
@@ -277,20 +278,25 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     ${eventPath} =  Check Event File Generated  wait_time_seconds=60
     Remove File  ${eventPath}
     ${reportPath} =  Get latest report path
+    Log File   ${reportPath}
+    Check report was a product update  ${reportPath}
     Remove File  ${reportPath}
 
     #Update after 5-10 minutes (boot storm avoiding update)
     ${eventPath} =  Check Event File Generated  wait_time_seconds=600
     Remove File  ${eventPath}
     ${reportPath} =  Get latest report path
+    Check report was a product update  ${reportPath}
     Remove File  ${reportPath}
 
-    #Scheduled update - 40 minutes after the previous update
-    ${eventPath} =  Check Event File Generated  wait_time_seconds=2500
+    #Scheduled update - 5 minutes after the previous update
+    ${eventPath} =  Check Event File Generated  wait_time_seconds=360
+    ${reportPath} =  Get latest report path
+    Check report was a product update  ${reportPath}
 
     ${ActualUpdateDate} =  Get Current Date
     ${TimeDiff} =  Subtract Date From Date  ${ActualUpdateDate}  ${ScheduledDate}
-    Run Keyword Unless  -60 < ${TimeDiff} < 2400  Fail
+    Run Keyword Unless  -60 < ${TimeDiff} < 360  Fail
 
 
 UpdateScheduler Performs Update After Receiving Policy With Different Features
@@ -451,8 +457,21 @@ Configure Hosts File
     Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
     Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
 
+
+
+Check report was a product update
+    [Arguments]  ${reportPath}
+    ${contents} =    Get File  ${reportPath}
+    Should Contain  ${contents}  "supplementOnlyUpdate": false
+
+Check report was supplement-only update
+    [Arguments]  ${reportPath}
+    ${contents} =    Get File  ${reportPath}
+    Should Contain  ${contents}  "supplementOnlyUpdate": true
+
 Teardown For Test
     Log SystemCtl Update Status
     Run Keyword If Test Failed  Dump Mcs Router Dir Contents
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
     General Test Teardown
+

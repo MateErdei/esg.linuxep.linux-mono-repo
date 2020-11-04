@@ -120,6 +120,8 @@ namespace SulDownloader
                 return m_supplementOnly;
             }
 
+            [[nodiscard]] bool isSuccesfulProductUpdateCheck() const;
+
         private:
             WarehouseStatus m_status= WarehouseStatus::UNSPECIFIED;
             std::string m_description;

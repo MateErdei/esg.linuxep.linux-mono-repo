@@ -170,7 +170,7 @@ namespace
     {
         auto rind = std::find_if(
             reports.rbegin(), reports.rend(), [](const DownloadReportsAnalyser::DownloadReport& report) {
-              return !report.isSupplementOnlyUpdate();
+              return report.isSuccesfulProductUpdateCheck();
             });
         return std::distance(reports.begin(), rind.base()) - 1;
     }
@@ -414,6 +414,7 @@ namespace UpdateSchedulerImpl
 
             DownloadReportVectorDifferenceType indexOfLastGoodSync = lastGoodSync(reportCollection);
             DownloadReportVectorDifferenceType indexOfLastUpgrade = lastUpgrade(reportCollection);
+            int indexOfProductUpdateCheck = lastProductUpdateCheck(reportCollection); // must be signed to allow -1
             ReportCollectionResult collectionResult;
 
             const auto& lastReport = reportCollection.at(lastIndex);
@@ -457,6 +458,12 @@ namespace UpdateSchedulerImpl
             else
             {
                 collectionResult.SchedulerStatus.FirstFailedTime = reportCollection.at(0).getStartTime();
+            }
+
+            if (indexOfProductUpdateCheck != -1)
+            {
+                collectionResult.IndicesOfSignificantReports.at(indexOfProductUpdateCheck) =
+                    ReportCollectionResult::SignificantReportMark::MustKeepReport;
             }
 
             if (reportCollection.size() == 1)
@@ -553,7 +560,11 @@ namespace UpdateSchedulerImpl
 
             for (const auto& reportHolder :  reportCollection )
             {
-                if (!reportHolder.report.isSupplementOnlyUpdate())
+                /*
+                 * Only consider successful update-checks
+                 * If updates are failing, then try product-update-check every time.
+                 */
+                if (reportHolder.report.isSuccesfulProductUpdateCheck())
                 {
                     return convertStringTimeToTimet(reportHolder.report.getStartTime());
                 }

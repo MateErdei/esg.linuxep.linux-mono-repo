@@ -452,6 +452,15 @@ namespace SulDownloader
 
     void DownloadReport::setProcessedReport(bool isProcessed) { m_processedReport = isProcessed; }
 
+    bool DownloadReport::isSuccesfulProductUpdateCheck() const
+    {
+        if (m_supplementOnly)
+        {
+            return false;
+        }
+        return getStatus() == SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
+    }
+
     std::string ProductReport::statusToString() const
     {
         switch (productStatus)

@@ -11,6 +11,11 @@ namespace Common
 {
     namespace UtilityImpl
     {
+        /**
+         * Wraps a std::uniform_int_distribution.
+         *
+         * Generates random int in the range [minValue, maxValue] (i.e. including generating minValue and maxValue)
+         */
         class UniformIntDistribution
         {
         public:

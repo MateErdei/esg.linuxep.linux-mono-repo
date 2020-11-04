@@ -152,12 +152,6 @@ namespace SulDownloader
         auto warehouseRepository = WarehouseRepositoryFactory::instance().createWarehouseRepository();
         assert(warehouseRepository);
 
-        // connect and read metadata
-        if (forceReinstallAllProducts)
-        {
-            // If we need to reinstall products, then we can't do a supplement-only update
-            supplementOnly = false;
-        }
         if (supplementOnly)
         {
             LOGINFO("Doing supplement-only update");
@@ -165,6 +159,14 @@ namespace SulDownloader
         else
         {
             LOGINFO("Doing product and supplement update");
+        }
+
+        // connect and read metadata
+        if (forceReinstallAllProducts)
+        {
+            // If we need to reinstall products, then we can't do a supplement-only update
+            LOGINFO("Forcing product update due previous update failure or change in configuration");
+            supplementOnly = false;
         }
 
         bool success = false;
@@ -182,7 +184,7 @@ namespace SulDownloader
         }
         if (supplementOnly && !success)
         {
-            LOGDEBUG("Retry with product update, in case the supplement config has changed");
+            LOGINFO("Retry with product update, in case the supplement config has changed");
             // retry with product update, in case the supplement config has changed
             supplementOnly = false;
             for (const auto& connectionSetup : candidates)
