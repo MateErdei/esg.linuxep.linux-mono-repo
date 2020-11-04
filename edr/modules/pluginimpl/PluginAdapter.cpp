@@ -552,8 +552,9 @@ namespace Plugin
 
         if (flagsHaveChanged)
         {
-            LOGINFO("Flags have changed so restarting EDR");
+            LOGINFO("Flags have changed so restarting osquery");
             stopOsquery();
+            m_restartNoDelay = true;
         }
     }
 
