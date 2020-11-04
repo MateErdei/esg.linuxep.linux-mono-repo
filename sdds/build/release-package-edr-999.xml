@@ -19,7 +19,7 @@
       <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
     </build-asset>
     <build-asset project="linuxep" repo="everest-base">
-      <development-version branch="develop"/>
+      <development-version branch="feature/LINUXDAR-2195-999"/>
       <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-edr-component">

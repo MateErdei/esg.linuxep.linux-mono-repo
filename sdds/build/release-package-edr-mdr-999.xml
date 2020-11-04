@@ -46,7 +46,7 @@
     <!-- Use a different branch to test that the query back is changed on upgrading the
        query pack in develop should be different to the one in release branch chosen here-->
     <build-asset project="em" repo="esg">
-      <development-version branch="release/2020.41-querypack"/>
+      <development-version branch="develop"/>
       <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
     </build-asset>
   </inputs>
