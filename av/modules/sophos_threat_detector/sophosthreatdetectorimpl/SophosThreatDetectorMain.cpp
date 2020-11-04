@@ -62,7 +62,8 @@ static void attempt_dns_query()
 
 static void copy_etc_file_if_present(const fs::path& etcDest, const fs::path& etcSrcFile)
 {
-    fs::path targetFile = etcDest / etcSrcFile.filename();
+    fs::path targetFile = etcDest;
+    targetFile /= etcSrcFile.filename();
 
     LOGSUPPORT("Copying " << etcSrcFile << " to: " << targetFile);
     std::error_code ec;
@@ -92,7 +93,9 @@ copy_etc /etc/host.conf
 copy_etc /etc/hosts
 
      */
-    fs::path etcDest = chrootPath / "etc";
+    fs::path etcDest = chrootPath;
+    etcDest /= "etc";
+
     copy_etc_file_if_present(etcDest, "/etc/nsswitch.conf");
     copy_etc_file_if_present(etcDest, "/etc/resolv.conf");
     copy_etc_file_if_present(etcDest, "/etc/ld.so.cache");
@@ -110,9 +113,14 @@ static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chr
 
     for (const std::string& file : fileVector)
     {
-        fs::path sourceFile = sophosInstall / file;
-        fs::path targetFile = chrootPath / sophosInstall / file;
-        LOGINFO("Copying " << sourceFile.string() << " to: " << targetFile.string());
+        fs::path sourceFile = sophosInstall;
+        sourceFile /= file;
+
+        fs::path targetFile = chrootPath;
+        targetFile /= sophosInstall;
+        targetFile /= file;
+
+        LOGINFO("Copying " << sourceFile << " to: " << targetFile);
 
         try
         {
