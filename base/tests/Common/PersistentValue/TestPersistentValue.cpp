@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 class TestPersistentValue:  public ::testing::Test {};
 
-TEST_F(TestPersistentValue, persistentValueDeafaultsIfNoFilePresent) // NOLINT
+TEST_F(TestPersistentValue, persistentValueDefaultsIfNoFilePresent) // NOLINT
 {
     std::string pathToVarDir = "var";
     std::string valueName = "aPersistedValue";
