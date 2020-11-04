@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ThreatReporterServerConnectionThread.h"
 
-#include "../Logger.h"
+#include "unixsocket/Logger.h"
 
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/StringUtils.h"
@@ -99,6 +99,39 @@ void ThreatReporterServerConnectionThread::run()
     setIsRunning(true);
     announceThreadStarted();
 
+    try
+    {
+        inner_run();
+    }
+    catch (const kj::Exception& ex)
+    {
+        if (ex.getType() == kj::Exception::Type::UNIMPLEMENTED)
+        {
+            // Fatal since this means we have a coding error that calls something unimplemented in kj.
+            LOGFATAL("Terminated ThreatReporterServerConnectionThread with serialisation unimplemented exception: "
+                         << ex.getDescription().cStr());
+        }
+        else
+        {
+            LOGERROR(
+                "Terminated ThreatReporterServerConnectionThread with serialisation exception: "
+                    << ex.getDescription().cStr());
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        LOGERROR("Terminated ThreatReporterServerConnectionThread with exception: " << ex.what());
+    }
+    catch (...)
+    {
+        // Fatal since this means we have thrown something that isn't a subclass of std::exception
+        LOGFATAL("Terminated ThreatReporterServerConnectionThread with unknown exception");
+    }
+    setIsRunning(false);
+}
+
+void ThreatReporterServerConnectionThread::inner_run()
+{
     datatypes::AutoFd socket_fd(std::move(m_fd));
     LOGDEBUG("Got connection " << socket_fd.fd());
     uint32_t buffer_size = 512;
@@ -197,6 +230,4 @@ void ThreatReporterServerConnectionThread::run()
             // TO DO: HANDLE ANY SOCKET ERRORS
         }
     }
-
-    setIsRunning(false);
 }

@@ -28,6 +28,8 @@ namespace unixsocket
         void run() override;
 
     private:
+        void inner_run();
+
         datatypes::AutoFd m_fd;
         std::shared_ptr<IMessageCallback> m_callback;
     };
