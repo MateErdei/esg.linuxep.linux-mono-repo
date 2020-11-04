@@ -205,7 +205,7 @@ VersionCopy File in the Wrong Location Is Removed
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
 We Can Downgrade From Master To A Release Without Unexpected Errors
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
     [Timeout]  600
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndEdrVUTPolicy}
@@ -234,6 +234,10 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     # Note when downgrading from a release with live response to a release without live response
     # results in a second update.
     Override LogConf File as Global Level  DEBUG
+    Create File  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Run Process  chown  -R  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -248,6 +252,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...   10 secs
     ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
+    Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
@@ -264,8 +269,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
-
-    #Check All Product Logs Do Not Contain Error
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctlActions <> Plugin "edr" not in registry
+    Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
     Check EAP Release Installed Correctly
@@ -329,6 +334,18 @@ We Can Upgrade From A Release With EDR To Master With Live Response
     ${ma_before_pid}=  Get Pid Of Process   sophos_managementagent
     ${wd_before_pid}=  Get Pid Of Process   sophos_watchdog
     ${lr_before_pid}=  Get Pid Of Process   liveresponse
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   5 secs
+    ...   Check EDR Log Contains   Flags have changed so restarting EDR
+    Wait Until Keyword Succeeds
+    ...   5 secs
+    ...   1 secs
+    ...   Check EDR Log Contains   edr <> Plugin Finished.
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   5 secs
+    ...   Get Pid Of Process  edr
     ${edr_before_pid}=  Get Pid Of Process  edr
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
@@ -830,7 +847,6 @@ Check Update Reports Have Been Processed
    Log  ${filesInUpdateVar}
 
    ${ProcessedFileCount}=  Get length   ${files_in_processed_dir}
-   #TODO LINUXDAR-2285 change number of reports back to 1
    Should Be Equal As Numbers  ${ProcessedFileCount}   2
    Should Contain  ${files_in_processed_dir}[0]  update_report
    Should Not Contain  ${files_in_processed_dir}[0]  update_report.json

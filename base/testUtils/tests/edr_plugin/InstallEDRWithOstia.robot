@@ -361,15 +361,12 @@ Install master of base and edr and mtr and upgrade to edr 999
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
     ${query_pack_vut} =  Get File  ${Sophos_Scheduled_Query_Pack}
-    Log To Console  Debug BASE & EDR MTR VUT wait debug
-    Sleep  200
-    Log To Console  Debug BASE & EDR MTR VUT done waiting
 
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  120 secs
+    ...  150 secs
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
 
@@ -397,8 +394,7 @@ Install master of base and edr and mtr and upgrade to edr 999
 
     ${query_pack_99} =  Get File  ${Sophos_Scheduled_Query_Pack}
     Should Not Be Equal As Strings  ${query_pack_99}  ${query_pack_vut}
-    Log To Console  Debug BASE & EDR 999 wait debug
-    Sleep  200
+
 
 Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
