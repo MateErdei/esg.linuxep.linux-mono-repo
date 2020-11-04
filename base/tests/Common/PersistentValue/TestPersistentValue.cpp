@@ -107,3 +107,17 @@ TEST_F(TestPersistentValue, setStringPersistentValue) // NOLINT
     value.setValue("another value");
     ASSERT_EQ(value.getValue(), "another value");
 }
+
+TEST_F(TestPersistentValue, filesystemExceptionsSafelyIgnored) // NOLINT
+{
+    std::string pathToVarDir = "var";
+    std::string valueName = "aPersistedValue";
+    std::string path = Common::FileSystem::join(pathToVarDir, "persist-" + valueName);
+    std::string defaultValue = "someValue";
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(path)).WillOnce(Throw(std::runtime_error("TEST")));
+    EXPECT_CALL(*mockFileSystem, writeFile(path, defaultValue)).WillOnce(Throw(std::runtime_error("TEST")));
+    Common::PersistentValue<std::string> value(pathToVarDir,valueName, defaultValue);
+    ASSERT_EQ(value.getValue(), defaultValue);
+}
