@@ -20,7 +20,10 @@ ResultsSender::ResultsSender(
     const std::string& osqueryXDRConfigFilePath,
     const std::string& pluginVarDir,
     unsigned int dataLimit,
-    unsigned int periodInSeconds) :
+    unsigned int periodInSeconds
+    ,std::function<void(void)> dataExceededCallback
+    )
+    :
     m_intermediaryPath(intermediaryPath),
     m_datafeedPath(datafeedPath),
     m_osqueryXDRConfigFilePath(osqueryXDRConfigFilePath),
@@ -31,8 +34,8 @@ ResultsSender::ResultsSender(
         std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
     m_dataLimit(dataLimit),
     m_periodInSeconds(periodInSeconds),
+    m_dataExceededCallback(dataExceededCallback),
     m_hitLimitThisPeriod(pluginVarDir, "xdrLimitHit", false)
-
 {
     LOGDEBUG("Created results sender");
     try
@@ -85,6 +88,8 @@ void ResultsSender::Add(const std::string& result)
     // Discard data if it causes us to go over limit.
     if (incrementedDataUsage > m_dataLimit)
     {
+        m_dataExceededCallback();
+
         // Don't fill up the log file with messages, log the warning once.
         if (!m_hitLimitThisPeriod.getValue())
         {

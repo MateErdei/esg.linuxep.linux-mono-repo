@@ -112,6 +112,7 @@ namespace Plugin
         void databasePurge();
         static bool pluginMemoryAboveThreshold();
         void loadXdrFlags();
+        void dataFeedExceededCallback();
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
 

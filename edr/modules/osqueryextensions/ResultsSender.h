@@ -8,8 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/PersistentValue/PersistentValue.h>
 #include <redist/jsoncpp/include/json/value.h>
-
 #include <ResultsSenderInterface.h>
+#include <functional>
 
 struct ScheduledQuery
 {
@@ -27,7 +27,9 @@ public:
         const std::string& osqueryXDRConfigFilePath,
         const std::string& pluginVarDir,
         unsigned int dataLimit,
-        unsigned int periodInSeconds);
+        unsigned int periodInSeconds
+        ,std::function<void(void)> dataExceededCallback
+        );
     ~ResultsSender();
     void Add(const std::string& result) override;
     void Send() override;
@@ -51,6 +53,7 @@ private:
     Common::PersistentValue<unsigned int> m_periodStartTimestamp;
     unsigned int m_dataLimit;
     unsigned int m_periodInSeconds;
+    std::function<void(void)> m_dataExceededCallback;
 
     // This is set to true once we have hit the limit during the period so we limit number of statuses and logs.
     // This is done like this to allows us to still send up small results after a potentially large result that would

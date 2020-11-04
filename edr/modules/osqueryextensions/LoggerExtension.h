@@ -19,7 +19,8 @@ public:
                      const std::string& osqueryXDRConfigFilePath,
                      const std::string& pluginVarDir,
                      unsigned int dataLimit,
-                     unsigned int periodInSeconds);
+                     unsigned int periodInSeconds,
+                     std::function<void(void)> dataExceededCallback);
     ~LoggerExtension();
     void Start(const std::string& socket, bool verbose, uintmax_t maxBatchBytes, unsigned int maxBatchSeconds) override;
     void Stop() override;

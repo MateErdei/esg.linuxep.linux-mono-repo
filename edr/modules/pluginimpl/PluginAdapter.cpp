@@ -79,7 +79,9 @@ namespace Plugin
             Plugin::osqueryXDRConfigFilePath(),
             Plugin::varDir(),
             DEFAULT_XDR_DATA_LIMIT_BYTES,
-            DEFAULT_XDR_PERIOD_SECONDS),
+            DEFAULT_XDR_PERIOD_SECONDS,
+            [this] { dataFeedExceededCallback(); }
+            ),
         m_timesOsqueryProcessFailedToStart(0),
         m_osqueryConfigurator()
     {
@@ -369,7 +371,7 @@ namespace Plugin
                 LOGINFO("Issue request to stop to osquery.");
                 m_osqueryProcess->requestStop();
 
-                if (m_monitor.wait_for(std::chrono::seconds(2)) == std::future_status::timeout)
+                if (m_monitor.wait_for(std::chrono::seconds(5)) == std::future_status::timeout)
                 {
                     LOGWARN("Timeout while waiting for osquery monitoring to finish.");
                     continue;
@@ -566,5 +568,16 @@ namespace Plugin
         {
             LOGINFO("Flags running mode is EDR");
         }
+    }
+    void PluginAdapter::dataFeedExceededCallback()
+    {
+        LOGWARN("Datafeed limit has been hit. Disabling scheduled queries");
+
+        //TODO LINUXDAR-2357, send status
+
+        stopOsquery();
+        m_osqueryConfigurator.disableQueryPack(Plugin::osqueryXDRConfigFilePath());
+        // osquery will automatically be restarted but set this to make sure there is no delay.
+        m_restartNoDelay = true;
     }
 } // namespace Plugin

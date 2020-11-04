@@ -16,8 +16,10 @@ LoggerExtension::LoggerExtension(
     const std::string& osqueryXDRConfigFilePath,
     const std::string& pluginVarDir,
     unsigned int dataLimit,
-    unsigned int periodInSeconds)
-:m_resultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath, pluginVarDir, dataLimit, periodInSeconds)
+    unsigned int periodInSeconds,
+    std::function<void(void)> dataExceededCallback)
+    :
+    m_resultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath, pluginVarDir, dataLimit, periodInSeconds, dataExceededCallback)
 {
     m_flags.interval = 1;
     m_flags.timeout = 3;

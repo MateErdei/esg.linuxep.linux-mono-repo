@@ -83,7 +83,7 @@ public:
     ResultSenderForUnitTests(const std::string& intermediaryPath,
                              const std::string& datafeedPath,
                              const std::string& osqueryXDRConfigFilePath) :
-        ResultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath,PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS)
+        ResultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath,PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS, []() { })
     {}
 
     std::vector<ScheduledQuery> getQueryTags()
@@ -156,7 +156,16 @@ TEST_F(TestResultSender, resetRemovesExistingBatchFile) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
     EXPECT_CALL(*mockFileSystem, removeFile(INTERMEDIARY_PATH)).Times(1);
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "[")).Times(1);
     resultsSender.Reset();
@@ -175,7 +184,16 @@ TEST_F(TestResultSender, addWritesToFile) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, testResult)).Times(1);
     resultsSender.Add(testResult);
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
@@ -193,7 +211,15 @@ TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
     std::string testResultString1 = R"({"name":"","test":"value"})";
     std::string testResultString2 = R"({"name":"","test2":"value2"})";
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, testResultString1)).Times(1);
@@ -215,7 +241,15 @@ TEST_F(TestResultSender, addThrowsInvalidJsonLog) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
     EXPECT_CALL(*mockFileSystem, appendFile(_, _)).Times(0);
     EXPECT_THROW(resultsSender.Add(R"(not json)"), std::exception);
 }
@@ -232,7 +266,15 @@ TEST_F(TestResultSender, addThrowsWhenAppendThrows) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
     EXPECT_CALL(*mockFileSystem, appendFile(_, _)).WillOnce(Throw(std::runtime_error("TEST")));
     EXPECT_THROW(resultsSender.Add("{\"test\":\"value\"}"), std::runtime_error);
 }
@@ -254,7 +296,15 @@ TEST_F(TestResultSender, getFileSizeQueriesFile) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
     EXPECT_CALL(*mockFileSystem, fileSize(INTERMEDIARY_PATH)).WillOnce(Return(1));
 
     // 3 is due to the 2 added in GetFileSize() (for the , and ] that gets added) and the 1 from the above line mock here
@@ -275,7 +325,15 @@ TEST_F(TestResultSender, getFileSizeZeroWhenFileDoesNotExist) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
     ASSERT_EQ(resultsSender.GetFileSize(), 0);
 }
 
@@ -291,7 +349,15 @@ TEST_F(TestResultSender, getFileSizePropagatesException) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
     EXPECT_CALL(*mockFileSystem, fileSize(INTERMEDIARY_PATH)).WillOnce(Throw(std::runtime_error("TEST")));
     EXPECT_THROW(resultsSender.GetFileSize(), std::runtime_error);
 }
@@ -313,7 +379,15 @@ TEST_F(TestResultSender, sendMovesBatchFile) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
 
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
     EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query"))).Times(1);
@@ -333,7 +407,15 @@ TEST_F(TestResultSender, SendDoesNotMoveNoBatchFileIfItDoesNotExist) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
     EXPECT_CALL(*mockFileSystem, moveFile(_, _)).Times(0);
 
     resultsSender.Send();
@@ -356,7 +438,15 @@ TEST_F(TestResultSender, sendThrowsWhenFileMoveThrows) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
     EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query")))
         .WillOnce(Throw(std::runtime_error("TEST")));
@@ -382,7 +472,15 @@ TEST_F(TestResultSender, sendIfFileExistsAtStart) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
 
 }
 
@@ -403,7 +501,15 @@ TEST_F(TestResultSender, sendIfFileExistsAtShutdown) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
 }
 
 TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
@@ -418,7 +524,15 @@ TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
     std::string testJsonResult = R"({"name":"","test":"value"})";
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, testJsonResult))
         .Times(2)
@@ -461,5 +575,45 @@ TEST_F(TestResultSender, initialExistsThrowsExceptionContinuesConstructor)  // N
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    ResultsSender resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH, PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
 }
+
+TEST_F(TestResultSender, dataLimitHitInvokesCallback)  // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH))
+        .WillOnce(Throw(std::runtime_error("TEST")))
+        .WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    std::string testResult = R"({"name":"","test":"value"})";
+    bool callbackCalled = false;
+
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        5,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
+    resultsSender.Add(testResult);
+
+    ASSERT_TRUE(callbackCalled);
+}
+
