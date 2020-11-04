@@ -952,11 +952,6 @@ class MCSConnection:
         bytes_to_be_encoded = bytes_to_be_encoded.encode("utf-8")
         return "Basic {}".format(to_utf8(base64.b64encode(bytes_to_be_encoded)))
 
-    def _get_jwt_authorization_header(self):
-        bytes_to_be_encoded = self.m_jwt_token
-        bytes_to_be_encoded = bytes_to_be_encoded.encode("utf-8")
-        return "Bearer {}".format(to_utf8(base64.b64encode(bytes_to_be_encoded)))
-
     def send_message(self, command_path, body="", method="GET"):
         """
         send_message
@@ -1171,7 +1166,7 @@ class MCSConnection:
         """
         command_path = datafeed.get_command_path_v2(self.m_device_id)
         headers = {
-            "Authorization": self._get_jwt_authorization_header(),
+            "Authorization": self.m_jwt_token,
             "Accept": "application/json",
             "Content-Length": datafeed.m_compressed_body_size,
             "Content-Encoding": "deflate",
