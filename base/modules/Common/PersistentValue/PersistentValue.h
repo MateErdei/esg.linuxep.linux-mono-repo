@@ -44,7 +44,7 @@ namespace Common
                 }
                 catch (std::exception& exception)
                 {
-//                  LOGERROR_PERSISTVALUE("Could not load value from: " << m_pathToFile);
+                    // Could not load value from file
                     m_value = m_defaultValue;
                 }
             }
@@ -57,7 +57,7 @@ namespace Common
                 }
                 catch (std::exception& exception)
                 {
-//                  LOGERROR_PERSISTVALUE("Could not persist value: " << m_pathToFile);
+                    // Not a lot we can do if this happens
                 }
             }
 
