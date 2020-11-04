@@ -553,6 +553,7 @@ namespace Plugin
         if (flagsHaveChanged)
         {
             LOGINFO("Flags have changed so restarting osquery");
+            m_isXDR = isXDR;
             stopOsquery();
             m_restartNoDelay = true;
         }
