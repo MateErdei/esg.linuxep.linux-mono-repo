@@ -34,7 +34,6 @@ IDE update doesnt restart av plugin
     Wait Until Sophos Threat Detector Log Contains With Offset  SUSI update finished successfully  timeout=120
 
     # Check we can detect EICAR following update
-    ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/eicar.com
     Should Be Equal As Integers  ${rc}  69
@@ -57,10 +56,23 @@ IDE can be removed
     Run installer from install set
     Check IDE absent from installation
 
+CLS Can Scan Executable File
+    Add IDE to Install Set
+    Run Installer From Install Set
+    Check IDE Present In Installation
+
+    # Check we can detect PEEND
+    Copy File   ${RESOURCES_PATH}/file_samples/peend.exe  ${SCAN_DIRECTORY}
+    ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/peend.exe
+    Log To Console  ${output}
+    Should Be Equal As Integers  ${rc}  69
+    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/peend.exe" is infected with PE/ENDTEST
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl
 ${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
+${SCAN_DIRECTORY}   /home/vagrant/this/is/a/directory/for/scanning
 
 *** Keywords ***
 Installer Suite Setup

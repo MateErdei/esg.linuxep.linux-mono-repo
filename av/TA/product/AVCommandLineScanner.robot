@@ -151,7 +151,6 @@ CLS Can Scan MlExecutable File
       ${value} =  Check Second Score  ${primary_score}
       Should Be Equal As Integers  ${value}  1
 
-
 CLS Can Scan Archive File
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
       Create Directory  ${ARCHIVE_DIR}
