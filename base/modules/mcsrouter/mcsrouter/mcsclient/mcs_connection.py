@@ -1166,7 +1166,7 @@ class MCSConnection:
         """
         command_path = datafeed.get_command_path_v2(self.m_device_id)
         headers = {
-            "Authorization": self.m_jwt_token,
+            "Authorization": "Bearer {}".format(self.m_jwt_token),
             "Accept": "application/json",
             "Content-Length": datafeed.m_compressed_body_size,
             "Content-Encoding": "deflate",
