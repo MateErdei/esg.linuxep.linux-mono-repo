@@ -39,6 +39,7 @@ ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/Live
 ${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${SULDownloaderLogDowngrade}        ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${WDCTL_LOG_PATH}                   ${SOPHOS_INSTALL}/logs/base/wdctl.log
+${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
 *** Test Cases ***
 Verify that the edr installer works correctly
@@ -359,6 +360,11 @@ Install master of base and edr and mtr and upgrade to edr 999
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
+    ${query_pack_vut} =  Get File  ${Sophos_Scheduled_Query_Pack}
+    Log To Console  Debug BASE & EDR MTR VUT wait debug
+    Sleep  200
+    Log To Console  Debug BASE & EDR MTR VUT done waiting
+
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
     Trigger Update Now
 
@@ -388,6 +394,11 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...  ${WDCTL_LOG_PATH}
     ...  wdctl <> stop edr
     ...  wdctl <> start edr
+
+    ${query_pack_99} =  Get File  ${Sophos_Scheduled_Query_Pack}
+    Should Not Be Equal As Strings  ${query_pack_99}  ${query_pack_vut}
+    Log To Console  Debug BASE & EDR 999 wait debug
+    Sleep  200
 
 Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
