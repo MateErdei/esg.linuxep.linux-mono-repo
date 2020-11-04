@@ -173,6 +173,7 @@ int CommandLineScanRunner::run()
         }
         catch (fs::filesystem_error& e)
         {
+            LOGERROR("Failed to completely scan " << path << " due to an error: " << e.what());
             m_returnCode = e.code().value();
         }
         catch (const AbortScanException& e)
@@ -189,6 +190,11 @@ int CommandLineScanRunner::run()
     else if (callbacks.returnCode() != E_CLEAN)
     {
         m_returnCode = callbacks.returnCode();
+    }
+
+    if (m_returnCode != E_CLEAN && m_returnCode != E_VIRUS_FOUND)
+    {
+        LOGERROR("Failed to scan one or more files due to an error");
     }
 
     scanCallbacks->logSummary();

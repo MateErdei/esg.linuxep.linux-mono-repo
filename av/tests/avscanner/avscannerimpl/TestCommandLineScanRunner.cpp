@@ -743,7 +743,8 @@ TEST_F(TestCommandLineScanRunner, RelativePathDoesntExist) // NOLINT
     std::ofstream("sandbox/a/b/file1.txt");
 
     std::vector<std::string> paths;
-    paths.emplace_back("notsandbox");
+    fs::path nonexistentRelPath("notsandbox");
+    paths.emplace_back(nonexistentRelPath);
     std::vector<std::string> exclusions;
     Options options(false, paths, exclusions, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
@@ -751,9 +752,15 @@ TEST_F(TestCommandLineScanRunner, RelativePathDoesntExist) // NOLINT
     auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);
 
-    EXPECT_EQ(runner.run(), 2);
+    EXPECT_EQ(runner.run(), ENOENT);
 
     ASSERT_EQ(socket->m_paths.size(), 0);
+
+    std::stringstream expectedErrMsg;
+    expectedErrMsg << "Failed to completely scan " << nonexistentRelPath.string() << " due to an error: filesystem error: Failed to scan \"";
+    expectedErrMsg << fs::absolute(nonexistentRelPath).string() << "\": file/folder does not exist: No such file or directory";
+    EXPECT_TRUE(appenderContains(expectedErrMsg.str()));
+    EXPECT_TRUE(appenderContains("Failed to scan one or more files due to an error"));
 }
 
 TEST_F(TestCommandLineScanRunner, AbsolutePathDoesntExist) // NOLINT
@@ -764,7 +771,8 @@ TEST_F(TestCommandLineScanRunner, AbsolutePathDoesntExist) // NOLINT
     std::ofstream("sandbox/a/b/file1.txt");
 
     std::vector<std::string> paths;
-    paths.emplace_back(fs::absolute("notsandbox"));
+    fs::path nonexistentAbsPath = fs::absolute("notsandbox");
+    paths.emplace_back(nonexistentAbsPath);
     std::vector<std::string> exclusions;
     Options options(false, paths, exclusions, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
@@ -772,7 +780,13 @@ TEST_F(TestCommandLineScanRunner, AbsolutePathDoesntExist) // NOLINT
     auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);
 
-    EXPECT_EQ(runner.run(), 2);
+    EXPECT_EQ(runner.run(), ENOENT);
 
     ASSERT_EQ(socket->m_paths.size(), 0);
+
+    std::stringstream expectedErrMsg;
+    expectedErrMsg << "Failed to completely scan " << nonexistentAbsPath.string() << " due to an error: filesystem error: Failed to scan \"";
+    expectedErrMsg << nonexistentAbsPath.string() << "\": file/folder does not exist: No such file or directory";
+    EXPECT_TRUE(appenderContains(expectedErrMsg.str()));
+    EXPECT_TRUE(appenderContains("Failed to scan one or more files due to an error"));
 }
