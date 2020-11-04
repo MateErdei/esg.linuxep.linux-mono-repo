@@ -29,6 +29,8 @@ AV plugin Can Start sophos_threat_detector
     ...  3 secs
     ...  Check sophos_threat_detector Running
 
+    Check Threat Detector Copied Files To Chroot
+
 AV plugin runs scan now
     Check AV Plugin Installed With Base
     Configure and check scan now
