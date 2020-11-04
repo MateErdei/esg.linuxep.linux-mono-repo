@@ -19,11 +19,11 @@
       <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
     </build-asset>
     <build-asset project="linuxep" repo="everest-base">
-      <development-version branch="feature/LINUXDAR-2195-suldownloader-downloads-scheduled-queries-and-saves-to-file-on-disk"/>
+      <development-version branch="develop"/>
       <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-      <development-version branch="feature/LINUXDAR-2195-suldownloader-downloads-scheduled-queries-and-saves-to-file-on-disk"/>
+      <development-version branch="develop"/>
       <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
@@ -34,7 +34,7 @@
       <include artifact-path="output/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
-      <development-version branch="feature/LINUXDAR-2195"/>
+      <development-version branch="develop"/>
       <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-edr-componentsuite"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-anti-virus">

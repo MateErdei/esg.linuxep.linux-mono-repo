@@ -19,11 +19,11 @@
       <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
     </build-asset>
     <build-asset project="linuxep" repo="everest-base">
-      <development-version branch="feature/LINUXDAR-2195-999"/>
+      <development-version branch="develop"/>
       <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-      <development-version branch="feature/LINUXDAR-2195-999"/>
+      <development-version branch="feature/EDR-999-build"/>
       <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
@@ -45,6 +45,8 @@
       <development-version branch="develop"/>
       <include artifact-path="sspl-flags/SDDS-SSPL-FLAGS" dest-dir="redist/flags2"/>
     </build-asset>
+    <!-- Use a different branch to test that the query back is changed on upgrading the
+   query pack in develop should be different to the one in release branch chosen here-->
     <build-asset project="em" repo="esg">
       <development-version branch="release/2020.41-querypack"/>
       <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
