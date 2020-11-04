@@ -256,8 +256,12 @@ UpdateScheduler Performs Update After Receiving Policy For The First Time
 
 UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     [Tags]  SLOW  UPDATE_SCHEDULER
-    [Timeout]    40 minutes
+    [Timeout]    65 minutes
     [Setup]  Setup Current Update Scheduler Environment Without Policy
+    # There are three types of updates scheduled:
+    # 1. Immediately after getting the first ALC policy - to install plugins
+    # 2. 5-10 minutes after starting up - to ensure machines that have been switched off for a period get updated quickly
+    # 3. Updates based off the update period (40 minutes for this policy)
     ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
     ${Date} =  Get Current Date
     ${ScheduledDate} =  Add Time To Date  ${Date}  15 minutes
@@ -281,12 +285,12 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     ${reportPath} =  Get latest report path
     Remove File  ${reportPath}
 
-    #Scheduled update
-    ${eventPath} =  Check Event File Generated  wait_time_seconds=1200
+    #Scheduled update - 40 minutes after the previous update
+    ${eventPath} =  Check Event File Generated  wait_time_seconds=2500
 
     ${ActualUpdateDate} =  Get Current Date
     ${TimeDiff} =  Subtract Date From Date  ${ActualUpdateDate}  ${ScheduledDate}
-    Run Keyword Unless  -60 < ${TimeDiff} < 600  Fail
+    Run Keyword Unless  -60 < ${TimeDiff} < 2400  Fail
 
 
 UpdateScheduler Performs Update After Receiving Policy With Different Features
