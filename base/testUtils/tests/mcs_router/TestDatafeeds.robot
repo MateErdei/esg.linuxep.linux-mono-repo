@@ -223,7 +223,7 @@ Ensure correct sending protocol handles all possible datafeed states at same tim
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-2900000015.json
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-3000000001.json
 
-MCS Reads Flags Policy And Sends Data Using V2 Method
+MCS Reads Flags Policy And Has Correct
     Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true", "mcs.v2.data_feed.available": "true"}
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
@@ -237,16 +237,11 @@ MCS Reads Flags Policy And Sends Data Using V2 Method
 
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Cloud Server Log Contains    POST - /mcs/v2/data_feed/device/example-device-id/feed_id/scheduled_query
+    Check Cloud Server Log For Scheduled Query   scheduled_query
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send}
     Cloud Server Log Should Not Contain  Failed to decompress response body content
-    Cloud Server Log Should Contain  Received and processed data via the v2 method
-    Check MCS Router Log Contains  MCS request url=/v2/data_feed/device/example-device-id/feed_id/scheduled_query body size=24
-    Check Mcsrouter Log Does Not Contain  MCS request url=/data_feed/endpoint/ThisIsAnMCSID+1001/feed_id/scheduled_query
-
+    # TODO LINUXDAR-2380 Adapt this test for 2380 and remove the check for this log message
+    Check MCS Router Log Contains  Attempting use of V2 datafeed method
 
 *** Keywords ***
 Test Teardown
