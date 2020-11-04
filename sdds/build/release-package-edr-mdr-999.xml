@@ -23,7 +23,7 @@
       <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-      <development-version branch="feature/EDR-999-build"/>
+      <development-version branch="feature/LINUXDAR-2195-999"/>
       <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component"/>
     </build-asset>
     <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
