@@ -1,7 +1,7 @@
 include(GoogleTest)
 add_executable(TestPersistentValue
         ${CMAKE_SOURCE_DIR}/modules/Common/PersistentValue/PersistentValue.h
-        ${CMAKE_SOURCE_DIR}/modules/Common/PersistentValue/Logger.h
+#        ${CMAKE_SOURCE_DIR}/modules/Common/PersistentValue/Logger.h
 #        ${CMAKE_SOURCE_DIR}/modules/Common/PersistentValue/Logger.cpp
         TestPersistentValue.cpp)
 target_include_directories(TestPersistentValue SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CMAKE_SOURCE_DIR})
