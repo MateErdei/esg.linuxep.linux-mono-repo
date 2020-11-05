@@ -137,13 +137,9 @@ namespace Plugin
         ensureMCSCanReadOldResponses();
         std::string alcPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "ALC");
         std::string liveQueryPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "LiveQuery");
-        // TODO LINUXDAR-2358
-        //   Wait for XDR policy, if we get one then:
-        //   m_loggerExtension.setDataLimit(<VALUE FROM POLICY>)
 
         processALCPolicy(alcPolicy, true);
-        unsigned int dataLimit = getDataLimit(liveQueryPolicy);
-        m_loggerExtension.setDataLimit(dataLimit);
+        m_loggerExtension.setDataLimit(getDataLimit(liveQueryPolicy));
         cleanUpOldOsqueryFiles();
         loadXdrFlags();
         LOGSUPPORT("Start Osquery");
@@ -212,8 +208,7 @@ namespace Plugin
                         }
                         else if (task.m_appId == "LiveQuery")
                         {
-                            dataLimit = getDataLimit(task.m_content);
-                            m_loggerExtension.setDataLimit(dataLimit);
+                            m_loggerExtension.setDataLimit(getDataLimit(task.m_content));
                         }
                         else{
                             LOGWARN("Received " << task.m_appId << " policy unexpectedly");
@@ -540,9 +535,9 @@ namespace Plugin
         }
     }
 
-    std::string PluginAdapter::waitForTheFirstPolicy(QueueTask &queueTask, std::chrono::seconds timeoutInS,
+    std::string PluginAdapter::waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS,
                                                      int maxTasksThreshold,
-                                                     const std::string &policyAppId)
+                                                     const std::string& policyAppId)
     {
         std::vector<Plugin::Task> nonPolicyTasks;
         std::string policyContent;

@@ -60,8 +60,8 @@ namespace Plugin
          * */
 
         static std::string
-        waitForTheFirstPolicy(QueueTask &queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
-                              const std::string &policyAppId);
+        waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
+                              const std::string& policyAppId);
 
         PluginAdapter(
             std::shared_ptr<QueueTask> queueTask,
