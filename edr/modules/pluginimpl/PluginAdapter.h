@@ -71,6 +71,8 @@ namespace Plugin
         void mainLoop();
         ~PluginAdapter();
 
+        static unsigned int getDataLimit(const std::string &liveQueryPolicy);
+
     protected:
         /*
          * Process ALC policies received given that the plugin subscribes to ALC policy.
@@ -80,7 +82,7 @@ namespace Plugin
          * But, on arrival of policies, (firstTime=false) it may also push to the queue a RestartRequired.
          */
         void processALCPolicy(const std::string&, bool firstTime);
-        unsigned int getDataLimit(const std::string &liveQueryPolicy);
+
         void ensureMCSCanReadOldResponses();
         OsqueryConfigurator& osqueryConfigurator();
 

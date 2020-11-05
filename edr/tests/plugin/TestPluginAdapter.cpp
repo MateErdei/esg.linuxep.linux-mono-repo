@@ -351,3 +351,61 @@ TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNothingI
 
     pluginAdapter.ensureMCSCanReadOldResponses();
 }
+
+TEST_F(TestPluginAdapterWithoutLogger, testGetDataLimit)
+{ // NOLINT
+    std::string liveQueryPolicy100000 = "<?xml version=\"1.0\"?>\n"
+                                        "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                        "    <configuration>\n"
+                                        "        <scheduled>\n"
+                                        "            <dailyDataLimit>100000</dailyDataLimit>\n"
+                                        "            <queryPacks>\n"
+                                        "                <queryPack id=\"queryPackId\" />\n"
+                                        "            </queryPacks>\n"
+                                        "        </scheduled>\n"
+                                        "    </configuration>\n"
+                                        "</policy>";
+    EXPECT_EQ(Plugin::PluginAdapter::getDataLimit(liveQueryPolicy100000), 100000);
+
+    std::string liveQueryPolicy234567 = "<?xml version=\"1.0\"?>\n"
+                                        "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                        "    <configuration>\n"
+                                        "        <scheduled>\n"
+                                        "            <dailyDataLimit>234567</dailyDataLimit>\n"
+                                        "            <queryPacks>\n"
+                                        "                <queryPack id=\"queryPackId\" />\n"
+                                        "            </queryPacks>\n"
+                                        "        </scheduled>\n"
+                                        "    </configuration>\n"
+                                        "</policy>";
+    EXPECT_EQ(Plugin::PluginAdapter::getDataLimit(liveQueryPolicy234567), 234567);
+
+    std::string nonsense = "asdfbhasdlfhasdflasdhfasd";
+    EXPECT_EQ(Plugin::PluginAdapter::getDataLimit(nonsense), 250000000);
+
+    std::string validXmlWithMissingField = liveQueryPolicy234567 = "<?xml version=\"1.0\"?>\n"
+                                                                   "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                                                   "    <configuration>\n"
+                                                                   "        <scheduled>\n"
+                                                                   "            <notDailyDataLimit>234567</notDailyDataLimit>\n"
+                                                                   "            <queryPacks>\n"
+                                                                   "                <queryPack id=\"queryPackId\" />\n"
+                                                                   "            </queryPacks>\n"
+                                                                   "        </scheduled>\n"
+                                                                   "    </configuration>\n"
+                                                                   "</policy>";
+    EXPECT_EQ(Plugin::PluginAdapter::getDataLimit(validXmlWithMissingField), 250000000);
+
+    std::string validXmlWithInvalidFieldData = liveQueryPolicy234567 = "<?xml version=\"1.0\"?>\n"
+                                                                       "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                                                       "    <configuration>\n"
+                                                                       "        <scheduled>\n"
+                                                                       "            <notDailyDataLimit>notAnInteger</notDailyDataLimit>\n"
+                                                                       "            <queryPacks>\n"
+                                                                       "                <queryPack id=\"queryPackId\" />\n"
+                                                                       "            </queryPacks>\n"
+                                                                       "        </scheduled>\n"
+                                                                       "    </configuration>\n"
+                                                                       "</policy>";
+    EXPECT_EQ(Plugin::PluginAdapter::getDataLimit(validXmlWithInvalidFieldData), 250000000);
+}

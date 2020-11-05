@@ -100,6 +100,7 @@ void LoggerExtension::Run()
 
 void LoggerExtension::setDataLimit(unsigned int limitBytes)
 {
+    LOGDEBUG("Setting Data Limit to " << limitBytes);
     m_resultsSender.setDataLimit(limitBytes);
 }
 

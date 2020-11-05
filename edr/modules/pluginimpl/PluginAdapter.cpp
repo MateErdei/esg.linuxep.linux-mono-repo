@@ -99,6 +99,17 @@ namespace Plugin
             LOGINFO("No policy available right now for app: ALC");
             // Ignore no Policy Available errors
         }
+
+        try
+        {
+            m_baseService->requestPolicies("LiveQuery");
+        }
+        catch (const Common::PluginApi::NoPolicyAvailableException&)
+        {
+            LOGINFO("No policy available right now for app: LiveQuery");
+            // Ignore no Policy Available errors
+        }
+
         try
         {
             m_baseService->requestPolicies("FLAGS");
@@ -198,6 +209,11 @@ namespace Plugin
                         else if (task.m_appId == "ALC")
                         {
                             processALCPolicy(task.m_content, false);
+                        }
+                        else if (task.m_appId == "LiveQuery")
+                        {
+                            dataLimit = getDataLimit(task.m_content);
+                            m_loggerExtension.setDataLimit(dataLimit);
                         }
                         else{
                             LOGWARN("Received " << task.m_appId << " policy unexpectedly");
@@ -445,19 +461,23 @@ namespace Plugin
 
     unsigned int PluginAdapter::getDataLimit(const std::string &liveQueryPolicy)
     {
-        if(!liveQueryPolicy.empty())
+        try
         {
-            Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
-            const std::string dataLimitPath{"policy/configuration/scheduled"};
-            Common::XmlUtilities::Attributes attributes = attributesMap.lookup(dataLimitPath);
-//            return !attributes.empty();
-            std::string value = attributes.value("dailyDataLimit", "");
-            if (value.empty())
+            if(!liveQueryPolicy.empty())
             {
-                LOGDEBUG("Could not find dailyDataLimit, using default: " << DEFAULT_XDR_DATA_LIMIT_BYTES);
-                return DEFAULT_XDR_DATA_LIMIT_BYTES;
+                Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
+                const std::string dataLimitPath{"policy/configuration/scheduled/dailyDataLimit"};
+                Common::XmlUtilities::Attributes attributes = attributesMap.lookup(dataLimitPath);
+
+                std::string policyDataLimitAsString = attributes.contents();
+                int policyDataLimitAsInt = std::stoi(policyDataLimitAsString);
+                LOGDEBUG("Using dailyDataLimit from LiveQuery Policy: " << policyDataLimitAsInt);
+                return  policyDataLimitAsInt;
             }
-            LOGDEBUG("Using dailyDataLimit: " << value);
+        }
+        catch (std::exception& error)
+        {
+            LOGWARN("Failed to get dailyDataLimit from LiveQueyr Policy, reason: " << error.what());
         }
         LOGDEBUG("Using default dailyDataLimit: " << DEFAULT_XDR_DATA_LIMIT_BYTES);
         return DEFAULT_XDR_DATA_LIMIT_BYTES;
@@ -606,6 +626,7 @@ namespace Plugin
         LOGWARN("Datafeed limit has been hit. Disabling scheduled queries");
 
         //TODO LINUXDAR-2357, send status
+//        m_baseService->sendStatus()
 
         stopOsquery();
         m_osqueryConfigurator.disableQueryPack(Plugin::osqueryXDRConfigFilePath());

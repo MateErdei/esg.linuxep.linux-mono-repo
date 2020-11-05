@@ -7,14 +7,15 @@ Library         OperatingSystem
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot
 
-Suite Setup     Install With Base SDDS
-Suite Teardown  Uninstall And Revert Setup
+Suite Setup     No Operation
+Suite Teardown  No Operation
 
-Test Setup      No Operation
-Test Teardown   EDR And Base Teardown
+Test Setup      Install With Base SDDS
+Test Teardown   Test Teardown
 
 *** Test Cases ***
 EDR Plugin outputs XDR results and Its Answer is available to MCSRouter
+    [Setup]  Install With Base SDDS
     Check EDR Plugin Installed With Base
     Add Uptime Query to Scheduled Queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
@@ -24,7 +25,40 @@ EDR Plugin outputs XDR results and Its Answer is available to MCSRouter
     ...  5 secs
     ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
+EDR Plugin Detects Data Limit From Policy
+    [Setup]  No Operation
+    Install Base For Component Tests
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Install EDR Directly from SDDS
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  First LiveQuery policy received
+    Expect New Datalimit  100000
+
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_250000000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Expect New Datalimit  250000000
+
+
 *** Keywords ***
+Move File Atomically
+    [Arguments]  ${source}  ${destination}
+    Copy File  ${source}  /opt/NotARealFile
+    Move File  /opt/NotARealFile  ${destination}
+
+Expect New Datalimit
+    [Arguments]  ${limit}
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Using dailyDataLimit from LiveQuery Policy: ${limit}
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Setting Data Limit to ${limit}
+
 Enable XDR
     Create File  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json  {"xdr.enabled": true}
     ${result} =  Run Process  chown  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json
@@ -51,3 +85,7 @@ Add Uptime Query to Scheduled Queries
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": 1}}}
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  {"schedule": {"uptime": {"query": "select * from uptime;","interval": 1}}}
+
+Test Teardown
+    EDR And Base Teardown
+    Uninstall And Revert Setup
