@@ -20,7 +20,7 @@ namespace Plugin
 {
     void OsqueryConfigurator::regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath)
     {
-        LOGINFO("Creating osquery scheduled pack");
+        LOGINFO("Creating osquery root scheduled pack");
         auto fileSystem = Common::FileSystem::fileSystem();
         if (fileSystem->isFile(osqueryConfigFilePath))
         {
@@ -154,7 +154,7 @@ namespace Plugin
 
         SystemConfigurator::setupOSForAudit(disableAuditD);
 
-        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditDataGathering, false);
+        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditDataGathering, xdrEnabled);
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
 
         if (xdrEnabled)

@@ -21,7 +21,7 @@ LoggerExtension::LoggerExtension(
     :
     m_resultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath, pluginVarDir, dataLimit, periodInSeconds, dataExceededCallback)
 {
-    m_flags.interval = 1;
+    m_flags.interval = 3;
     m_flags.timeout = 3;
 }
 
@@ -61,7 +61,7 @@ void LoggerExtension::Stop()
 {
     if (!m_stopped)
     {
-        LOGINFO("LoggerExtension::Stop");
+        LOGDEBUG("LoggerExtension::Stopping");
         m_stopped = true;
         m_extension->Stop();
         if (m_runnerThread)
@@ -69,6 +69,7 @@ void LoggerExtension::Stop()
             m_runnerThread->join();
             m_runnerThread.reset();
         }
+        LOGINFO("LoggerExtension::Stopped");
     }
 }
 
@@ -86,14 +87,20 @@ void LoggerExtension::Run()
 
         LOGWARN(L"Service extension stopped unexpectedly. Calling reset.");
         Stop();
-        Start(m_flags.socket, m_flags.verbose, m_maxBatchBytes, m_maxBatchSeconds);
     }
 }
+
 void LoggerExtension::setDataLimit(unsigned int limitBytes)
 {
     m_resultsSender.setDataLimit(limitBytes);
 }
+
 void LoggerExtension::setDataPeriod(unsigned int periodSeconds)
 {
     m_resultsSender.setDataPeriod(periodSeconds);
+}
+
+bool LoggerExtension::checkDataPeriodHasElapsed()
+{
+    return m_resultsSender.checkDataPeriodElapsed();
 }

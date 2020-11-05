@@ -73,34 +73,18 @@ void ResultsSender::Add(const std::string& result)
 {
     LOGDEBUG("Adding XDR results to intermediary file: " << result);
 
-    // The total current data usage if we were to add this result
+    // Check if it has been longer than the data limit period, if it has then reset the data counter.
+    checkDataPeriodElapsed();
+
+    // The total data usage if we were to add this result
     unsigned int incrementedDataUsage = m_currentDataUsage.getValue() + result.length();
 
-    // Check if it has been longer than the data limit period, if it has then reset the data counter.
-    unsigned int now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    if (now - m_periodStartTimestamp.getValue() > m_periodInSeconds)
-    {
-        m_currentDataUsage.setValue(0);
-        m_periodStartTimestamp.setValue(now);
-        m_hitLimitThisPeriod.setValue(false);
-    }
-
-    // Discard data if it causes us to go over limit.
+    // Record that this data has caused us to go over limit.
     if (incrementedDataUsage > m_dataLimit)
     {
+        LOGWARN("XDR data limit for this period exceeded");
         m_dataExceededCallback();
-
-        // Don't fill up the log file with messages, log the warning once.
-        if (!m_hitLimitThisPeriod.getValue())
-        {
-            LOGWARN("Discarding this result because it would exceed the XDR data limit for this period");
-            m_hitLimitThisPeriod.setValue(true);
-        }
-        else
-        {
-            LOGDEBUG("Discarding this result because it would exceed the XDR data limit for this period");
-        }
-        return;
+        m_hitLimitThisPeriod.setValue(true);
     }
 
     Json::Value logLine;
@@ -152,21 +136,24 @@ void ResultsSender::Add(const std::string& result)
 
 void ResultsSender::Send()
 {
-    LOGDEBUG("Send XDR Results");
+    if (m_hitLimitThisPeriod.getValue())
+    {
+        return;
+    }
     auto filesystem = Common::FileSystem::fileSystem();
     if (filesystem->exists(m_intermediaryPath))
     {
         filesystem->appendFile(m_intermediaryPath, "]");
-        auto filepermissions = Common::FileSystem::filePermissions();
-        filepermissions->chown(m_intermediaryPath, "sophos-spl-local", "sophos-spl-group");
-        filepermissions->chmod(m_intermediaryPath, 0640);
+        auto filePermissions = Common::FileSystem::filePermissions();
+        filePermissions->chown(m_intermediaryPath, "sophos-spl-local", "sophos-spl-group");
+        filePermissions->chmod(m_intermediaryPath, 0640);
         Common::UtilityImpl::FormattedTime time;
         std::string now = time.currentEpochTimeInSeconds();
         std::stringstream fileName;
         fileName << std::string("scheduled_query-") << now << ".json";
         Path outputFilePath = Common::FileSystem::join(m_datafeedPath, fileName.str());
 
-        LOGINFO("Sending batched XDR scheduled query results - " << outputFilePath);
+        LOGDEBUG("Sending batched XDR scheduled query results - " << outputFilePath);
 
         filesystem->moveFile(m_intermediaryPath, outputFilePath);
     }
@@ -219,7 +206,23 @@ Json::Value ResultsSender::readJsonFile(const std::string& path)
 void ResultsSender::loadScheduledQueryTags()
 {
     std::vector<ScheduledQuery> scheduledQueries;
-    auto confJsonRoot = readJsonFile(m_osqueryXDRConfigFilePath);
+    auto fs = Common::FileSystem::fileSystem();
+    Json::Value confJsonRoot;
+    std::string disabledQueryPackPath = m_osqueryXDRConfigFilePath + ".DISABLED";
+    if (fs->exists(m_osqueryXDRConfigFilePath))
+    {
+        confJsonRoot = readJsonFile(m_osqueryXDRConfigFilePath);
+    }
+    else if (fs->exists(disabledQueryPackPath))
+    {
+        confJsonRoot = readJsonFile(disabledQueryPackPath);
+    }
+    else
+    {
+        LOGERROR("Failed to find query pack to extract scheduled query tags from");
+        return;
+    }
+
     auto scheduleRoot = confJsonRoot["schedule"];
     for (Json::Value::const_iterator scheduledItr = scheduleRoot.begin(); scheduledItr != scheduleRoot.end();
          scheduledItr++)
@@ -255,11 +258,26 @@ std::map<std::string, std::pair<std::string, std::string>> ResultsSender::getQue
     }
     return queryTagMap;
 }
+
 void ResultsSender::setDataLimit(unsigned int limitbytes)
 {
     m_dataLimit = limitbytes;
 }
+
 void ResultsSender::setDataPeriod(unsigned int periodSeconds)
 {
     m_periodInSeconds = periodSeconds;
+}
+
+bool ResultsSender::checkDataPeriodElapsed()
+{
+    unsigned int now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    if (now - m_periodStartTimestamp.getValue() > m_periodInSeconds)
+    {
+        m_currentDataUsage.setValue(0);
+        m_periodStartTimestamp.setValue(now);
+        m_hitLimitThisPeriod.setValue(false);
+        return true;
+    }
+    return false;
 }

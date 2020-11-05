@@ -36,11 +36,17 @@ public:
     void Reset() override;
     void setDataLimit(unsigned int limitBytes);
     void setDataPeriod(unsigned int periodSeconds);
+
+    // This needs to be called periodically so that the result sender re-enables itself once the period has elapsed.
+    // Returns true if the period has elapsed so that any calling method knows, e.g. plugin adapter
+    // (via logger extension) can re-enable the query pack config file if this returns true.
+    bool checkDataPeriodElapsed();
+
     uintmax_t GetFileSize() override;
 
     // Protected so we can unit test things
 protected:
-    std::vector<ScheduledQuery> m_scheduledQueryTags;
+    std::vector<ScheduledQuery> m_scheduledQueryTags{};
 
     std::map<std::string, std::pair<std::string, std::string>> getQueryTagMap();
 
@@ -55,9 +61,7 @@ private:
     unsigned int m_periodInSeconds;
     std::function<void(void)> m_dataExceededCallback;
 
-    // This is set to true once we have hit the limit during the period so we limit number of statuses and logs.
-    // This is done like this to allows us to still send up small results after a potentially large result that would
-    // have pushed us over the limit
+    // This is set to true once we have hit the limit during the period.
     Common::PersistentValue<bool> m_hitLimitThisPeriod;
 
     Json::Value readJsonFile(const std::string& path);

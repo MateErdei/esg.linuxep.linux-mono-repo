@@ -139,6 +139,14 @@ namespace Plugin
         std::unique_ptr<WaitUpTo> m_delayedRestart;
         while (true)
         {
+            // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
+            // make sure that the query pack is either still enabled or becomes enabled.
+            // enableQueryPack is safe to call even when the query pack is already enabled.
+            if (m_isXDR && m_loggerExtension.checkDataPeriodHasElapsed())
+            {
+                m_osqueryConfigurator.enableQueryPack(Plugin::osqueryXDRConfigFilePath());
+            }
+
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
@@ -299,7 +307,7 @@ namespace Plugin
     void PluginAdapter::setUpOsqueryMonitor()
     {
         LOGINFO("Prepare system for running osquery");
-        m_osqueryConfigurator.prepareSystemForPlugin(false);
+        m_osqueryConfigurator.prepareSystemForPlugin(m_isXDR);
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;
@@ -569,6 +577,7 @@ namespace Plugin
             LOGINFO("Flags running mode is EDR");
         }
     }
+
     void PluginAdapter::dataFeedExceededCallback()
     {
         LOGWARN("Datafeed limit has been hit. Disabling scheduled queries");

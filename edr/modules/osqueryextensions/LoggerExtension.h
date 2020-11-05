@@ -26,6 +26,7 @@ public:
     void Stop() override;
     void setDataLimit(unsigned int limitBytes);
     void setDataPeriod(unsigned int periodSeconds);
+    bool checkDataPeriodHasElapsed();
 
 private:
     void Run();
