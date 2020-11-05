@@ -97,7 +97,7 @@ IVersig::VerifySignature VersigImpl::verify(
     for (auto& relativeManifestPath : manifestPaths)
     {
         // Check each manifest is correct
-        LOGINFO("Verifying manifest file: " << relativeManifestPath);
+        LOGDEBUG("Verifying manifest file: " << relativeManifestPath);
         auto dir = Common::FileSystem::dirName(relativeManifestPath);
         auto manifestDirectory = Common::FileSystem::join(productDirectoryPath, dir);
         auto manifestPath = Common::FileSystem::join(productDirectoryPath, relativeManifestPath);
@@ -121,7 +121,7 @@ IVersig::VerifySignature VersigImpl::verify(
             auto output = process->output();
             LOGSUPPORT(output);
             exitCode = process->exitCode();
-            LOGINFO("Successfully verified manifest file: " << relativeManifestPath);
+            LOGDEBUG("Successfully verified manifest file: " << relativeManifestPath);
         }
         catch (Common::Process::IProcessException& ex)
         {
