@@ -106,10 +106,10 @@ copy_etc /etc/hosts
 static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chrootPath)
 {
     std::vector<std::string> fileVector;
-    fileVector.emplace_back("/base/etc/logger.conf");
-    fileVector.emplace_back("/base/etc/machine_id.txt");
-    fileVector.emplace_back("/base/update/var/update_config.json");
-    fileVector.emplace_back("/plugins/av/VERSION.ini");
+    fileVector.emplace_back("base/etc/logger.conf");
+    fileVector.emplace_back("base/etc/machine_id.txt");
+    fileVector.emplace_back("base/update/var/update_config.json");
+    fileVector.emplace_back("plugins/av/VERSION.ini");
 
     for (const std::string& file : fileVector)
     {
@@ -128,7 +128,7 @@ static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chr
         }
         catch (fs::filesystem_error& e)
         {
-            LOGERROR("Failed to copy: " << file);
+            LOGERROR("Failed to copy: " << sourceFile);
         }
     }
 }
