@@ -1,8 +1,6 @@
 include(GoogleTest)
 add_executable(ProcUtilImplTests TestProcUtilImpl.cpp)
-target_include_directories(ProcUtilImplTests PUBLIC)
 target_include_directories(ProcUtilImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
 target_include_directories(ProcUtilImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" ${CMAKE_SOURCE_DIR})
-target_link_libraries(ProcUtilImplTests gtest gtest_main)
 target_link_libraries(ProcUtilImplTests procutilimpl gtest gtest_main testhelpers)
 gtest_discover_tests(ProcUtilImplTests)
