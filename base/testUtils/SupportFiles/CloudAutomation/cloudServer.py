@@ -1824,8 +1824,9 @@ def setDefaultPolicies(options):
 
 def main(argv):
     try:
-        options = parseArguments()
         setupLogging()
+        logger.info("Starting cloud Server")
+        options = parseArguments()
 
         global HEARTBEAT_ENABLED
         HEARTBEAT_ENABLED = options.heartbeat
@@ -1833,7 +1834,7 @@ def main(argv):
         reset_cookies()
         runServer(options)
     except Exception as e:
-        logger.warn("Exception from cloudServer.py: %s", e)
+        logger.exception("Exception from cloudServer.py: %s", e)
         return 1
     logger.info("Server stopped")
     return 0

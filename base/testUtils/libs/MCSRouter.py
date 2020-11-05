@@ -313,9 +313,7 @@ class MCSRouter(object):
         time.sleep(1)
         poll_return = self.cloud_server_process.poll()
         if poll_return:
-            out, err = self.cloud_server_process.communicate()
-            raise AssertionError("Failed to start server {}.\n Stdout: {} \n Stderr: {}".format(
-                poll_return, out.decode(), err.decode()))
+            raise AssertionError("Failed to start server {}.".format(poll_return))
 
     def stop_local_cloud_server(self):
         logger.info(self.cloud_server_process)
