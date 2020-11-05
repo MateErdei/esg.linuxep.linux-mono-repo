@@ -73,7 +73,7 @@ Is XDR Enabled in Plugin Conf
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  EDR Plugin Log Contains   Flags running mode is XDR
+    ...  EDR Plugin Log Contains   Redirecting OSQuery to use XDR config file
     ${EDR_CONFIG_CONTENT}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=0
 
