@@ -113,10 +113,10 @@ static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chr
 
     for (const std::string& file : fileVector)
     {
-        fs::path sourceFile = sophosInstall;
+        fs::path sourceFile (sophosInstall);
         sourceFile /= file;
 
-        fs::path targetFile = chrootPath;
+        fs::path targetFile (chrootPath);
         targetFile /= sophosInstall;
         targetFile /= file;
 
