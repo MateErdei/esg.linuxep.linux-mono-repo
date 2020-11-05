@@ -128,6 +128,7 @@ CLS Can Scan MlExecutable File
       Copy File  ${RESOURCES_PATH}/file_samples/MLengHighScore.exe  ${NORMAL_DIRECTORY}
       Copy File  ${RESOURCES_PATH}/file_samples/MLengLowScore.exe  ${NORMAL_DIRECTORY}
 
+      Mark Sophos Threat Detector Log
       ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
       Log To Console  return code is ${rc}
@@ -135,11 +136,13 @@ CLS Can Scan MlExecutable File
       Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
       Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with Generic ML PUA
 
-      ${primary_score} =  Find Score  Primary score:
-      ${secondary_score} =  Find Score  Secondary score:
-      ${value} =  Check Initial Scores  ${primary_score}  ${secondary_score}
+      ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
+      ${primary_score} =  Find Score  Primary score:  ${contents}
+      ${secondary_score} =  Find Score  Secondary score:  ${contents}
+      ${value} =  Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  30  15
       Should Be Equal As Integers  ${value}  1
 
+      Mark Sophos Threat Detector Log
       ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengLowScore.exe
 
       Log To Console  return code is ${rc}
@@ -147,8 +150,9 @@ CLS Can Scan MlExecutable File
       Should Be Equal As Integers  ${rc}  0
       Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengLowScore.exe"
 
-      ${primary_score} =  Find Score  Primary score:
-      ${value} =  Check Second Score  ${primary_score}
+      ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
+      ${primary_score} =  Find Score  Primary score:  ${contents}
+      ${value} =  Check Ml Primary Score Is Below Threshold  ${primary_score}  30
       Should Be Equal As Integers  ${value}  1
 
 CLS Can Scan Archive File

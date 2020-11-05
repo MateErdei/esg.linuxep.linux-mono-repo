@@ -122,12 +122,11 @@ def count_eicars_in_directory(d):
     return count
 
 
-def find_score(word):
-
-    with open("/opt/sophos-spl/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log", "r") as fr:
-        for line in fr:
-            if word in line:
-                score = line.split(" ")
+def find_score(word, file_contents):
+    score = []
+    for line in file_contents:
+        if word in line:
+            score = line.split(" ")
 
     if len(score) == 0:
         return 0
@@ -135,14 +134,10 @@ def find_score(word):
     return score[len(score) - 1]
 
 
-def check_initial_scores(primary, secondary):
+def check_ml_scores_are_above_threshold(actual_primary, actual_secondary, threshold_primary, threshold_secondary):
     # change 15 to 20 when scores are corrected
-    if int(primary) > 30 and int(secondary) > 15:
-        return 1
-    return 0
+    return int(actual_primary) > int(threshold_primary) and int(actual_secondary) > int(threshold_secondary)
 
 
-def check_second_score(primary):
-    if int(primary) < 30:
-        return 1
-    return 0
+def check_ml_primary_score_is_below_threshold(actual_primary, threshold_primary):
+    return int(actual_primary) < int(threshold_primary)

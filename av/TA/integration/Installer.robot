@@ -40,6 +40,7 @@ IDE update doesnt restart av plugin
     Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test
 
     # Check we can detect PEEND following update
+    # This test also proves that SUSI is configured to scan executables
     Copy File   ${RESOURCES_PATH}/file_samples/peend.exe  ${SCAN_DIRECTORY}
     ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/peend.exe
     Log To Console  ${output}
@@ -55,18 +56,6 @@ IDE can be removed
     Remove IDE from install set
     Run installer from install set
     Check IDE absent from installation
-
-CLS Can Scan Executable File
-    Add IDE to Install Set
-    Run Installer From Install Set
-    Check IDE Present In Installation
-
-    # Check we can detect PEEND
-    Copy File   ${RESOURCES_PATH}/file_samples/peend.exe  ${SCAN_DIRECTORY}
-    ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/peend.exe
-    Log To Console  ${output}
-    Should Be Equal As Integers  ${rc}  69
-    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/peend.exe" is infected with PE/ENDTEST
 
 *** Variables ***
 ${IDE_NAME}         peend.ide

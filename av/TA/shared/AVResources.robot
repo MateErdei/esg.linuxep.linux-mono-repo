@@ -72,12 +72,16 @@ Mark Sophos Threat Detector Log
     Set Test Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
 
-File Log Contains With Offset
-    [Arguments]  ${path}  ${input}  ${offset}=0
+Get File Contents From Offset
+    [Arguments]  ${path}  ${offset}=0
     ${content} =  Get File   ${path}  encoding_errors=replace
     Log   "Skipping ${offset} lines"
     @{lines} =  Split To Lines   ${content}  ${offset}
-    ${content} =  Catenate  SEPARATOR=\n  @{lines}
+    [Return]  Catenate  SEPARATOR=\n  @{lines}
+
+File Log Contains With Offset
+    [Arguments]  ${path}  ${input}  ${offset}=0
+    ${content} =  Get File Contents From Offset  ${path}  ${offset}
     Should Contain  ${content}  ${input}
 
 File Log Should Not Contain
