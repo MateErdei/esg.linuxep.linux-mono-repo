@@ -117,7 +117,8 @@ static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chr
         sourceFile /= file;
 
         fs::path targetFile = chrootPath;
-        targetFile /= sourceFile;
+        LOGINFO("targetFile init: " << targetFile);
+        targetFile += sophosInstall;
 
         LOGINFO("Copying " << sourceFile << " to: " << targetFile);
 
