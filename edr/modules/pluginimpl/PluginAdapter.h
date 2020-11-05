@@ -109,8 +109,7 @@ namespace Plugin
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
         // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
         void setUpOsqueryMonitor();
-        void registerAndStartLoggerPlugin();
-        void registerAndStartSophosExtension();
+        void registerAndStartExtensionsPlugin();
         void stopOsquery();
         void cleanUpOldOsqueryFiles();
         void databasePurge();
