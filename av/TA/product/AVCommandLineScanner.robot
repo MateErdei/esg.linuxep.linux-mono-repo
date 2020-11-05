@@ -624,7 +624,7 @@ CLS Reports Error Once When Using Custom Log File
     ${lines} =  Get Lines Containing String     ${content}  file/folder does not exist
 
     ${count} =  Get Line Count   ${lines}
-    Should Be Equal As Integers  ${1}  ${count}
+    Should Be Equal As Integers  ${2}  ${count}
 
 
 CLS Scans root with non-canonical path
