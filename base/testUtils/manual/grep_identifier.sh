@@ -8,4 +8,4 @@ cd ..
 
 I2=$(echo "$1" | sed -e's/[ _]/[ _]/g')
 # echo "$I2"
-exec grep -riI "$I2" testUtils/
+exec grep -riI "$I2" --include='*.py' --include='*.robot'  testUtils/
