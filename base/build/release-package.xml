@@ -5,7 +5,7 @@
     </versioning>
 
     <inputs>
-        <workingdir>sspl-base-build</workingdir>
+        <workingdir>.</workingdir>
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>
@@ -16,14 +16,13 @@
                  version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
-        <package name="versig"
-                 version="2-0-0-72/219560/output" dest="input">
+        <package name="versig" version="2-0-0-80/221233/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
         <package name="curllinux11" version="7-71-1-2/220751/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-59/220764/output" dest="input">
+        <package name="sullinux11" version="1-0-0-63/221291/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
         <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
@@ -65,12 +64,6 @@
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
-        <package name="sspl-telemetry-config-dev" version="master/%LASTGOODCOMPONENTBUILD%/sspl-telemetry-config-dev/1.0.0/output" dest="input/telemetry" buildtype="dev">
-            <include src="telemetry-config.json" dest="." />
-        </package>
-        <package buildtype="prod" name="sspl-telemetry-config" version="1.0/EES-9377" dest="input/telemetry">
-            <include src="telemetry-config.json" dest="." />
-        </package>
         <package name="python-certifi" version="2020-4-5-2-1/220359/certifi" dest="input">
             <include src="python-certifi.tar" dest="."/>
         </package>
@@ -97,22 +90,22 @@
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command  buildtype="prod"> -->
-        <command mode="release">
+        <command mode="release,oldci">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --no-unittest</args>
-            <workingdir>sspl-base-build</workingdir>
+            <args>./build.sh --clean </args>
+            <workingdir>.</workingdir>
         </command>
 
         <command mode="coverage">
             <program>/bin/bash</program>
             <args>./build.sh --clean --bullseye</args>
-            <workingdir>sspl-base-build</workingdir>
+            <workingdir>.</workingdir>
         </command>
 
         <command mode="analysis">
             <program>/bin/bash</program>
             <args>./build.sh --no-build --analysis</args>
-            <workingdir>sspl-base-build</workingdir>
+            <workingdir>.</workingdir>
         </command>
 
         <!--<command buildtype="dev">
@@ -122,13 +115,39 @@
         </command> -->
     </buildcommands>
     <publish>
-        <workingdir>sspl-base-build</workingdir>
+        <workingdir>.</workingdir>
+        <!-- Release -->
+        <release-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
+
+        <build-asset artifact-path="sspl-base/openssl" source-dir="redist/openssl" mode="coverage,release"/>
+        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="coverage,release">
+            <include glob="pluginapi.tar.gz"/>
+        </build-asset>
+        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="coverage"/>
+
+        <!-- coverage(bullseye) -->
+        <build-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
+
+
+        <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="coverage,release">
+            <include glob="SystemProductTestOutput.tar.gz"/>
+            <include glob="./*.cov"/>
+            <include glob="symbols"/>
+        </build-asset>
+
+        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="analysis, coverage,release"/>
+
+        <!-- Analysis -->
+        <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>
+
+        <!-- Legacy -->
+        <workingdir>.</workingdir>
         <destdir>sspl-base</destdir>
         <buildoutputs>
             <!-- Release -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="release"></output>
-            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl" mode="release"></output>
-            <output name="build_log" srcfolder="log" mode="release"></output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="release,oldci"/>
+            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl" mode="release,oldci"/>
+            <output name="build_log" srcfolder="log" mode="release,oldci"/>
 
             <!-- coverage(bullseye) -->
             <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"></output>

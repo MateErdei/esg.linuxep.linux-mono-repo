@@ -328,9 +328,9 @@ function build()
         fi
 
         mkdir -p ${REDIST}/telemetry
-        if [[ -f ${INPUT}/telemetry/telemetry-config.json ]]
+        if [[ $SOURCE_CODE_BRANCH  == "release/"* ]]
         then
-            cp "${INPUT}/telemetry/telemetry-config.json" "${REDIST}/telemetry/"
+            cp "$BASE/build/prod-telemetry-config.json" "${REDIST}/telemetry/telemetry-config.json"
         else
             cp "$BASE/build/dev-telemetry-config.json" "${REDIST}/telemetry/telemetry-config.json"
         fi
