@@ -12,7 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace Common::UtilityImpl
 {
-    std::string FileUtils::extractValueFromFile(const std::string& filePath, const std::string& key)
+    std::pair<std::string,std::string> FileUtils::extractValueFromFile(const std::string& filePath, const std::string& key)
     {
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(filePath))
@@ -21,13 +21,13 @@ namespace Common::UtilityImpl
             {
                 boost::property_tree::ptree ptree;
                 boost::property_tree::read_ini(filePath, ptree);
-                return ptree.get<std::string>(key);
+                return {ptree.get<std::string>(key),""};
             }
             catch (boost::property_tree::ptree_error& ex)
             {
-                return "";
+                return {"", ex.what()};
             }
         }
-        return "";
+        return {"","File: " + filePath + " does not exist"};
     }
 }

@@ -14,7 +14,7 @@ namespace Common
         class FileUtils
         {
         public:
-            static std::string extractValueFromFile(const std::string& filePath, const std::string& key);
+            static std::pair<std::string,std::string> extractValueFromFile(const std::string& filePath, const std::string& key);
 
         };
     }

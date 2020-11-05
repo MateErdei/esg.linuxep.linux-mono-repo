@@ -89,13 +89,13 @@ namespace Telemetry
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(filePath))
         {
-            std::string value = Common::UtilityImpl::FileUtils::extractValueFromFile(filePath,key);
-            if (value.empty())
+            std::pair<std::string,std::string> value = Common::UtilityImpl::FileUtils::extractValueFromFile(filePath,key);
+            if (value.first.empty() && !value.second.empty())
             {
-                LOGWARN("Failed to find key: " << key << " in file: " << filePath);
+                LOGWARN("Failed to find key: " << key << " in file: " << filePath << " due to error: "<< value.second);
                 return std::nullopt;
             }
-            return value;
+            return value.first;
         }
 
         LOGWARN("Could not find file to extract data from, file path: " << filePath);

@@ -197,6 +197,9 @@ EDR Telemetry Test Teardown With Cloud
     Remove Directory   ${COMPONENT_TEMP_DIR}  recursive=true
     Remove File  ${EXE_CONFIG_FILE}
     Uninstall EDR Plugin
+    Stop Local Cloud Server
+    Unset CA Environment Variable
+    Cleanup Certificates
 
 Trigger EDR Osquery Database Purge
     Should Exist  /opt/sophos-spl/plugins/edr/var/osquery.db
