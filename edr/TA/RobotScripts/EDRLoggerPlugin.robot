@@ -41,7 +41,6 @@ EDR Plugin Detects Data Limit From Policy
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_250000000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Expect New Datalimit  250000000
 
-
 *** Keywords ***
 Move File Atomically
     [Arguments]  ${source}  ${destination}

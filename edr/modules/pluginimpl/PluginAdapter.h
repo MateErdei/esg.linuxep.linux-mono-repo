@@ -82,7 +82,6 @@ namespace Plugin
          * But, on arrival of policies, (firstTime=false) it may also push to the queue a RestartRequired.
          */
         void processALCPolicy(const std::string&, bool firstTime);
-
         void ensureMCSCanReadOldResponses();
         OsqueryConfigurator& osqueryConfigurator();
 
