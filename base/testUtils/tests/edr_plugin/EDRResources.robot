@@ -206,3 +206,7 @@ Wait Until EDR Uninstalled
     ...  60
     ...  1
     ...  Check EDR Plugin Uninstalled
+
+Get Edr OsQuery PID
+    ${edr_osquery_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
+    [return]  ${edr_osquery_pid.stdout}

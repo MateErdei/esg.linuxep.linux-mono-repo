@@ -26,6 +26,7 @@ Resource    ../installer/InstallerResources.robot
 Resource    ../thin_installer/ThinInstallerResources.robot
 Resource    ../example_plugin/ExamplePluginResources.robot
 Resource    ../mdr_plugin/MDRResources.robot
+Resource    ../edr_plugin/EDRResources.robot
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    UpgradeResources.robot
@@ -229,6 +230,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     #the query pack should have been installed with EDR VUT
     Should Exist  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_before_query_pack_removed} =  Get Edr OsQuery PID
+
 
     # Changing the policy here will result in an automatic update
     # Note when downgrading from a release with live response to a release without live response
@@ -285,6 +288,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     #the query pack should have been removed with a down grade to a version that does not have it as a supplement
     Should Not Exist  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
+    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
 
     # Upgrade back to master to check we can upgrade from a downgraded product
     # Then check the number of update successes to prove everything is OK.
@@ -298,6 +303,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     #the query pack should have been re-installed
     Should Exist  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_after_query_pack_restored} =  Get Edr OsQuery PID
+    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
 
 We Can Upgrade From A Release With EDR To Master With Live Response
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA

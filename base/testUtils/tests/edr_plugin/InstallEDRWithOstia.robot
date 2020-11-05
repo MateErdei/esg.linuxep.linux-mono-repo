@@ -361,6 +361,7 @@ Install master of base and edr and mtr and upgrade to edr 999
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
     ${query_pack_vut} =  Get File  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_before_query_pack_reload} =  Get Edr OsQuery PID
 
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
     Trigger Update Now
@@ -393,7 +394,10 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...  wdctl <> start edr
 
     ${query_pack_99} =  Get File  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_after_query_pack_reload} =  Get Edr OsQuery PID
+
     Should Not Be Equal As Strings  ${query_pack_99}  ${query_pack_vut}
+    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_reload}  ${osquery_pid_before_query_pack_reload}
 
 
 Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
