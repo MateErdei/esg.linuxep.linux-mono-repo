@@ -123,10 +123,8 @@ CLS Does not request TFTClassification from SUSI
       File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naugthy_eicar
       Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  TFTClassifications
 
-CLS Can Scan MlExecutable File
+CLS Can Evaluate High Ml Score As A Threat
       Copy File  ${RESOURCES_PATH}/file_samples/MLengHighScore.exe  ${NORMAL_DIRECTORY}
-      Copy File  ${RESOURCES_PATH}/file_samples/MLengLowScore.exe  ${NORMAL_DIRECTORY}
-
       Mark Sophos Threat Detector Log
       ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
@@ -138,9 +136,11 @@ CLS Can Scan MlExecutable File
       ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
       ${primary_score} =  Find Score  Primary score:  ${contents}
       ${secondary_score} =  Find Score  Secondary score:  ${contents}
-      ${value} =  Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  30  15
-      Should Be Equal As Integers  ${value}  1
+      ${value} =  Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${15}
+      Should Be Equal As Integers  ${value}  ${1}
 
+CLS Can Evaluate Low Ml Score As A Clean File
+      Copy File  ${RESOURCES_PATH}/file_samples/MLengLowScore.exe  ${NORMAL_DIRECTORY}
       Mark Sophos Threat Detector Log
       ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengLowScore.exe
 
@@ -151,8 +151,8 @@ CLS Can Scan MlExecutable File
 
       ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
       ${primary_score} =  Find Score  Primary score:  ${contents}
-      ${value} =  Check Ml Primary Score Is Below Threshold  ${primary_score}  30
-      Should Be Equal As Integers  ${value}  1
+      ${value} =  Check Ml Primary Score Is Below Threshold  ${primary_score}  ${30}
+      Should Be Equal As Integers  ${value}  ${1}
 
 CLS Can Scan Archive File
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir

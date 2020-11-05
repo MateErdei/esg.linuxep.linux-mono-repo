@@ -136,8 +136,8 @@ def find_score(word, file_contents):
 
 def check_ml_scores_are_above_threshold(actual_primary, actual_secondary, threshold_primary, threshold_secondary):
     # change 15 to 20 when scores are corrected
-    return int(actual_primary) > int(threshold_primary) and int(actual_secondary) > int(threshold_secondary)
+    return int(actual_primary) > threshold_primary and int(actual_secondary) > threshold_secondary
 
 
 def check_ml_primary_score_is_below_threshold(actual_primary, threshold_primary):
-    return int(actual_primary) < int(threshold_primary)
+    return int(actual_primary) < threshold_primary
