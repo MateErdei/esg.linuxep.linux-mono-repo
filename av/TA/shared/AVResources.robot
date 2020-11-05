@@ -123,6 +123,9 @@ Threat Detector Does Not Log Contain
     File Log Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  ${input}
 
 Check Threat Detector Copied Files To Chroot
+    ${file} =  Get File    ${THREAT_DETECTOR_LOG_PATH}
+    Log to Console  ${file}
+
     Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/logger.conf" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf"
     Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/machine_id.txt" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/machine_id.txt"
     Threat Detector Log Contains  Copying "/opt/sophos-spl/base/update/var/update_config.json" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/update/var/update_config.json"
