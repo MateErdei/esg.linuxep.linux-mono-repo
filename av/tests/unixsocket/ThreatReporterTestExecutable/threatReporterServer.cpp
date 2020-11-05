@@ -30,29 +30,10 @@ namespace
     public:
         void processMessage(const std::string&) override
         {
-//            PRINT(message);
+            // noop
         }
     };
 }
-
-static inline bool fd_isset(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static inline void internal_fd_set(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static int addFD(fd_set* fds, int fd, int currentMax)
-{
-    internal_fd_set(fd, fds);
-    return std::max(fd, currentMax);
-}
-
 
 static void initializeLogging()
 {
@@ -80,38 +61,6 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 
     // send our request
     ::send(clientFd.get(), Data, Size, 0);
-
-    // send a file descriptor
-    datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
-    unixsocket::send_fd(clientFd.get(), devNull.get()); // send our test fd
-
-    // check for a pending response
-    fd_set readFDs;
-    FD_ZERO(&readFDs);
-    int max = -1;
-    max = addFD(&readFDs, clientFd, max);
-    fd_set tempRead = readFDs;
-    const struct timespec timeout = { .tv_sec = 0, .tv_nsec = 10'000'000 }; // 0.010s
-    int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
-
-    if (activity < 0)
-    {
-        // perror("pselect failed");
-
-    }
-    else if(activity != 0)
-    {
-        if (fd_isset(clientFd, &tempRead))
-        {
-            // receive the response
-            int length = unixsocket::readLength(clientFd);
-            if (length > 0)
-            {
-                std::vector<char> buffer(length);
-                ::recv(clientFd.get(), buffer.data(), length, 0);
-            }
-        }
-    }
 
     ::close(clientFd);
 
