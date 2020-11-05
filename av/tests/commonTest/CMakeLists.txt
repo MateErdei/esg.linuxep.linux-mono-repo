@@ -8,9 +8,11 @@ SET (BOOST_ROOT ${BOOSTPATH}/boost)
 find_package( Boost REQUIRED COMPONENTS system locale)
 
 SophosAddTest(TestCommon
+        ../common/LogInitializedTests.cpp
         TestStringUtils.cpp
         PROJECTS common
         INC_DIRS
+        ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/modules
         LIBS ${Boost_LIBRARIES}
         )

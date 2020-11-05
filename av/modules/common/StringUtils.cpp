@@ -25,12 +25,6 @@ namespace common
         for(size_t pos = 0; pos != text.size(); ++pos) {
             switch(text[pos]) {
                 // control characters
-                case '\1': buffer.append("\\1");           break;
-                case '\2': buffer.append("\\2");           break;
-                case '\3': buffer.append("\\3");           break;
-                case '\4': buffer.append("\\4");           break;
-                case '\5': buffer.append("\\5");           break;
-                case '\6': buffer.append("\\6");           break;
                 case '\a': buffer.append("\\a");           break;
                 case '\b': buffer.append("\\b");           break;
                 case '\t': buffer.append("\\t");           break;
@@ -76,7 +70,7 @@ namespace common
                     }
                     [[fallthrough]];
                 default:
-                    auto character = static_cast<unsigned>(text[pos]);
+                    unsigned int character = static_cast<unsigned char>(text[pos]);
                     if (character <= 31 || character == 127)
                     {
                         std::ostringstream escaped;
