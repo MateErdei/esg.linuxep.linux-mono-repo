@@ -2,7 +2,7 @@
 library "standardPipeline"
 
 project = 'sspl-plugin-anti-virus'
-version_key = '11.0.0'
+version_key = '1.0.0'
 project_gitrepo = 'ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-modular-anti-virus.git'
 project_builddir = project
 project_release_xml = 'build-files/release-package.xml'
