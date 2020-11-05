@@ -278,7 +278,7 @@ namespace Plugin
     {
         auto fs = Common::FileSystem::fileSystem();
         std::string disabledPath = queryPackFilePath + ".DISABLED";
-        if (fs->isFile(disabledPath))
+        if (fs->exists(disabledPath))
         {
             try
             {
@@ -295,7 +295,7 @@ namespace Plugin
     void OsqueryConfigurator::disableQueryPack(const std::string& queryPackFilePath)
     {
         auto fs = Common::FileSystem::fileSystem();
-        if (fs->isFile(queryPackFilePath))
+        if (fs->exists(queryPackFilePath))
         {
             try
             {
