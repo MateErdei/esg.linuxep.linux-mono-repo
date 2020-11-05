@@ -336,7 +336,7 @@ TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
     std::ofstream testfileStream(testfile.string());
     testfileStream << "this file will be included, then excluded by stem";
 
-    std::string stemExclusion = m_testDir.parent_path() / "/";
+    std::string stemExclusion = m_testDir.parent_path().string() + "/";
 
     ::capnp::MallocMessageBuilder message;
     m_expectedScanName = "TestExcludeByStemScan1";

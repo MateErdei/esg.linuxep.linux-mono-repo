@@ -279,8 +279,6 @@ TEST_F(TestScanningServerConnectionThread, send_fd) //NOLINT
     auto expected_response = scan_messages::ScanResponse();
     expected_response.addDetection("/tmp/eicar.com", "THREAT");
 
-    testing::Mock::AllowLeak(scanner.get());
-
     EXPECT_CALL(*scanner, scan(_, "/file/to/scan", _, _)).WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
 

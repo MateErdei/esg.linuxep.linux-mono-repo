@@ -86,14 +86,8 @@ namespace
 
         [[maybe_unused]] void dumpLog() const;
 
-        typedef std::chrono::steady_clock clock;
-
-        bool waitForLog(const std::string& expected, clock::duration wait_time = 100ms) const; // NOLINT(modernize-use-nodiscard)
-
-        [[maybe_unused]] bool waitForLog(const std::string& expected, int wait_time_micro_seconds) const // NOLINT(modernize-use-nodiscard)
-        {
-            return waitForLog(expected, std::chrono::microseconds(wait_time_micro_seconds));
-        }
+        using clock = std::chrono::steady_clock;
+        [[maybe_unused]] bool waitForLog(const std::string& expected, clock::duration wait_time = 100ms) const; // NOLINT(modernize-use-nodiscard)
     };
 
     MemoryAppenderUsingTests::MemoryAppenderUsingTests(std::string loggerInstanceName)
@@ -154,7 +148,7 @@ namespace
             {
                 return true;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(10ms);
         } while (clock::now() < deadline);
         return false;
     }

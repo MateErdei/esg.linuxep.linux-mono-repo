@@ -3,6 +3,9 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
+#pragma once
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <log4cplus/logger.h>
