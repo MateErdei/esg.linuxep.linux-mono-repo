@@ -25,7 +25,8 @@ Default Tags  UPDATE_SCHEDULER
 
 *** Variables ***
 ${TELEMETRY_SUCCESS}    0
-${TELEMETRY_JSON_FILE}     ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
+${TELEMETRY_JSON_FILE}              ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
+${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 *** Test Cases ***
 UpdateScheduler SulDownloader Report Sync With Warehouse Success
@@ -261,7 +262,7 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     # There are three types of updates scheduled:
     # 1. Immediately after getting the first ALC policy - to install plugins
     # 2. 5-10 minutes after starting up - to ensure machines that have been switched off for a period get updated quickly
-    # 3. Updates based off the update period (5 minutes for this policy)
+    # 3. Updates based off the update period (7 minutes for this policy)
     ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
     ${Date} =  Get Current Date
     ${ScheduledDate} =  Add Time To Date  ${Date}  11 minutes
@@ -269,7 +270,7 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     ${ScheduledTime} =  Convert Date  ${ScheduledDate}  result_format=%H:%M:00
     ${NewPolicyXml} =  Replace String  ${BasicPolicyXml}  REPLACE_DAY  ${ScheduledDay}
     ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  REPLACE_TIME  ${ScheduledTime}
-    ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  Frequency="40"  Frequency="5"
+    ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  Frequency="40"  Frequency="7"
     Create File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml  ${NewPolicyXml}
     Log File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
     Send Policy To UpdateScheduler  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
@@ -280,23 +281,25 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     ${reportPath} =  Get latest report path
     Log File   ${reportPath}
     Check report was a product update  ${reportPath}
-    Remove File  ${reportPath}
+    Convert report to success  ${reportPath}
+    Log File  ${SULDOWNLOADER_LOG_PATH}
+    Remove File  ${SULDOWNLOADER_LOG_PATH}
 
     #Update after 5-10 minutes (boot storm avoiding update)
     ${eventPath} =  Check Event File Generated  wait_time_seconds=600
     Remove File  ${eventPath}
     ${reportPath} =  Get latest report path
-    Check report was a product update  ${reportPath}
     Remove File  ${reportPath}
+    Check Sul Downloader log contains  Doing supplement-only update
 
-    #Scheduled update - 5 minutes after the previous update
-    ${eventPath} =  Check Event File Generated  wait_time_seconds=360
+    #Scheduled update - 7 minutes after the previous update
+    ${eventPath} =  Check Event File Generated  wait_time_seconds=480
     ${reportPath} =  Get latest report path
     Check report was a product update  ${reportPath}
 
     ${ActualUpdateDate} =  Get Current Date
     ${TimeDiff} =  Subtract Date From Date  ${ActualUpdateDate}  ${ScheduledDate}
-    Run Keyword Unless  -60 < ${TimeDiff} < 360  Fail
+    Run Keyword Unless  -60 < ${TimeDiff} < 480  Fail
 
 
 UpdateScheduler Performs Update After Receiving Policy With Different Features
@@ -468,6 +471,18 @@ Check report was supplement-only update
     [Arguments]  ${reportPath}
     ${contents} =    Get File  ${reportPath}
     Should Contain  ${contents}  "supplementOnlyUpdate": true
+
+Check Sul Downloader log contains
+    [Arguments]  ${contents}
+    Check Log Contains   ${contents}    ${SULDOWNLOADER_LOG_PATH}   ${SULDOWNLOADER_LOG_PATH}
+
+Convert report to success
+    [Arguments]  ${reportPath}
+    ${contents} =    Get File  ${reportPath}
+    ${contents} =  Replace String  ${contents}  "status": "CONNECTIONERROR",  "status": "SUCCESS",
+    ${contents} =  Replace String  ${contents}  "errorDescription": "Failed to connect to warehouse",  "errorDescription": "",
+    Create File   ${reportPath}  ${contents}
+
 
 Teardown For Test
     Log SystemCtl Update Status
