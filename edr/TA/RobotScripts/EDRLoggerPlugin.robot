@@ -46,4 +46,4 @@ Is XDR Enabled in Plugin Conf
 
 Add Process Query to Scheduled Queries
     Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"options": {"schedule_splay_percent": 10},"schedule": {"process_events": {"query": "select count(*) as process_events_count from process_events;","interval": 5}}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"options": "schedule": {"process_events": {"query": "select * from uptime;","interval": 1}}}
