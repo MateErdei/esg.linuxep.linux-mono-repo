@@ -40,10 +40,11 @@ namespace OsquerySDK
 
         if (fileSystem->isFile(mcsConfigPath))
         {
-            r["endpoint_id"] = Common::UtilityImpl::FileUtils::extractValueFromFile(mcsConfigPath,"MCSID");
-            if (r["endpoint_id"].empty())
+            std::pair<std::string,std::string> value = Common::UtilityImpl::FileUtils::extractValueFromFile(mcsConfigPath,"MCSID");
+            r["endpoint_id"] = value.first;
+            if (value.first.empty() && !value.second.empty())
             {
-                LOGWARN("Failed to read MCSID configuration from config file: " << mcsConfigPath << " with error: file doesn't contain key MCSID");
+                LOGWARN("Failed to read MCSID configuration from config file: " << mcsConfigPath << " with error: " << value.second);
             }
         }
         else
@@ -53,10 +54,11 @@ namespace OsquerySDK
 
         if (fileSystem->isFile(mcsPolicyConfigPath))
         {
-            r["customer_id"] = Common::UtilityImpl::FileUtils::extractValueFromFile(mcsPolicyConfigPath,"customerId");
-            if (r["customer_id"].empty())
+            std::pair<std::string,std::string> value = Common::UtilityImpl::FileUtils::extractValueFromFile(mcsPolicyConfigPath,"customerId");
+            r["customer_id"] = value.first;
+            if (value.first.empty() && !value.second.empty())
             {
-                LOGWARN("Failed to read customerID configuration from config file: " << mcsPolicyConfigPath << " with error: file doesn't contain key customerId");
+                LOGWARN("Failed to read customerID configuration from config file: " << mcsPolicyConfigPath << " with error: " << value.second);
             }
         }
         else

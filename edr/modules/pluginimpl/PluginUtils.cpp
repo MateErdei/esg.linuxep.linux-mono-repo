@@ -49,14 +49,14 @@ namespace Plugin
 
         if (fileSystem->isFile(configPath))
         {
-            std::string value = Common::UtilityImpl::FileUtils::extractValueFromFile(configPath, flag);
-            if (value.empty())
+            std::pair<std::string,std::string> value = Common::UtilityImpl::FileUtils::extractValueFromFile(configPath, flag);
+            if (value.first.empty() && !value.second.empty())
             {
-                LOGWARN("Failed to read " << flag << " configuration from config file");
+                LOGWARN("Failed to read " << flag << " configuration from config file due to error: " << value.second);
                 throw std::runtime_error(flag + " not set in plugin setting file");
             }
-            bool isFlag = (value == "0");
-            return isFlag;
+
+            return (value.first == "0");;
         }
         else
         {

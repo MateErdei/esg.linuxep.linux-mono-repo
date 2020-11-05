@@ -175,14 +175,14 @@ namespace Plugin
         std::string configpath = Plugin::edrConfigFilePath();
         if (fileSystem->isFile(configpath))
         {
-            std::string value = Common::UtilityImpl::FileUtils::extractValueFromFile(configpath, "disable_auditd");
-            if (value.empty())
+            std::pair<std::string,std::string> value = Common::UtilityImpl::FileUtils::extractValueFromFile(configpath, "disable_auditd");
+            if (value.first.empty() && !value.second.empty())
             {
-                LOGWARN("Failed to read disable_auditd configuration from config file using default value");
+                LOGWARN("Failed to read disable_auditd configuration from config file using default value due to error " + value.second);
             }
             else
             {
-                disableAuditD = (value == "1");
+                disableAuditD = (value.first == "1");
             }
         }
         else
