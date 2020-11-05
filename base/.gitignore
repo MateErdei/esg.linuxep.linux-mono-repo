@@ -43,3 +43,11 @@ testUtils/SupportFiles/warehouseGeneration/Authentication/
 testUtils/log.html
 testUtils/output.xml
 testUtils/report.html
+testUtils/SystemProductTestOutput/
+testUtils/robot
+testUtils/tests/temp/
+testUtils/SupportFiles/CloudAutomation/localhost.cert.pem
+testUtils/SupportFiles/CloudAutomation/root-ca.crt.*
+testUtils/SupportFiles/CloudAutomation/server-*.pem
+testUtils/SupportFiles/CloudAutomation/utm.cert.pem
+testUtils/*-VBoxSVC-*.log
