@@ -59,10 +59,9 @@ namespace Plugin
          * The method has been made static public to simplify tests.
          * */
 
-        static std::string waitForTheFirstALCPolicy(
-            QueueTask& queueTask,
-            std::chrono::seconds timeoutInS,
-            int maxTasksThreshold);
+        static std::string
+        waitForTheFirstPolicy(QueueTask &queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
+                              const std::string &policyAppId);
 
         PluginAdapter(
             std::shared_ptr<QueueTask> queueTask,
@@ -81,6 +80,7 @@ namespace Plugin
          * But, on arrival of policies, (firstTime=false) it may also push to the queue a RestartRequired.
          */
         void processALCPolicy(const std::string&, bool firstTime);
+        unsigned int getDataLimit(const std::string &liveQueryPolicy);
         void ensureMCSCanReadOldResponses();
         OsqueryConfigurator& osqueryConfigurator();
 

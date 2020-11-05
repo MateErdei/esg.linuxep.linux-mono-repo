@@ -22,6 +22,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <cmath>
 #include <unistd.h>
 #include <fstream>
+#include <Common/XmlUtilities/AttributesMap.h>
 
 // helper class that allow to schedule a task.
 // but it also has some capability of interrupting the scheduler at any point
@@ -123,14 +124,15 @@ namespace Plugin
         LOGINFO("Entering the main loop");
         m_callback->initialiseTelemetry();
         ensureMCSCanReadOldResponses();
-        std::string alcPolicy = waitForTheFirstALCPolicy(*m_queueTask, std::chrono::seconds(5), 5);
+        std::string alcPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "ALC");
+        std::string liveQueryPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "LiveQuery");
         // TODO LINUXDAR-2358
         //   Wait for XDR policy, if we get one then:
         //   m_loggerExtension.setDataLimit(<VALUE FROM POLICY>)
 
-        LOGSUPPORT("Processing ALC Policy");
         processALCPolicy(alcPolicy, true);
-        LOGSUPPORT("Cleanup Old Osquery Files");
+        unsigned int dataLimit = getDataLimit(liveQueryPolicy);
+        m_loggerExtension.setDataLimit(dataLimit);
         cleanUpOldOsqueryFiles();
         loadXdrFlags();
         LOGSUPPORT("Start Osquery");
@@ -259,6 +261,7 @@ namespace Plugin
 
     void PluginAdapter::cleanUpOldOsqueryFiles()
     {
+        LOGSUPPORT("Cleanup Old Osquery Files");
         databasePurge();
         m_DataManager.cleanUpOsqueryLogs();
     }
@@ -416,6 +419,7 @@ namespace Plugin
 
     void PluginAdapter::processALCPolicy(const std::string& policy, bool firstTime)
     {
+        LOGSUPPORT("Processing ALC Policy");
         m_osqueryConfigurator.loadALCPolicy(policy);
         bool current_enabled = m_osqueryConfigurator.enableAuditDataCollection();
         if (firstTime)
@@ -437,6 +441,26 @@ namespace Plugin
         {
             LOGDEBUG("Option to enable audit collection remains "<< option);
         }
+    }
+
+    unsigned int PluginAdapter::getDataLimit(const std::string &liveQueryPolicy)
+    {
+        if(!liveQueryPolicy.empty())
+        {
+            Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
+            const std::string dataLimitPath{"policy/configuration/scheduled"};
+            Common::XmlUtilities::Attributes attributes = attributesMap.lookup(dataLimitPath);
+//            return !attributes.empty();
+            std::string value = attributes.value("dailyDataLimit", "");
+            if (value.empty())
+            {
+                LOGDEBUG("Could not find dailyDataLimit, using default: " << DEFAULT_XDR_DATA_LIMIT_BYTES);
+                return DEFAULT_XDR_DATA_LIMIT_BYTES;
+            }
+            LOGDEBUG("Using dailyDataLimit: " << value);
+        }
+        LOGDEBUG("Using default dailyDataLimit: " << DEFAULT_XDR_DATA_LIMIT_BYTES);
+        return DEFAULT_XDR_DATA_LIMIT_BYTES;
     }
 
     void PluginAdapter::processFlags(const std::string& flagsContent)
@@ -496,10 +520,9 @@ namespace Plugin
         }
     }
 
-    std::string PluginAdapter::waitForTheFirstALCPolicy(
-        QueueTask& queueTask,
-        std::chrono::seconds timeoutInS,
-        int maxTasksThreshold)
+    std::string PluginAdapter::waitForTheFirstPolicy(QueueTask &queueTask, std::chrono::seconds timeoutInS,
+                                                     int maxTasksThreshold,
+                                                     const std::string &policyAppId)
     {
         std::vector<Plugin::Task> nonPolicyTasks;
         std::string policyContent;
@@ -508,13 +531,13 @@ namespace Plugin
             Plugin::Task task;
             if (!queueTask.pop(task, timeoutInS.count()))
             {
-                LOGINFO("Policy has not been sent to the plugin");
+                LOGINFO(policyAppId << " policy has not been sent to the plugin");
                 break;
             }
-            if (task.m_taskType == Plugin::Task::TaskType::Policy && task.m_appId == "ALC")
+            if (task.m_taskType == Plugin::Task::TaskType::Policy && task.m_appId == policyAppId)
             {
                 policyContent = task.m_content;
-                LOGINFO("First ALC Policy received.");
+                LOGINFO("First " << policyAppId << " policy received.");
                 break;
             }
             LOGSUPPORT("Keep task: " << static_cast<int>(task.m_taskType));
@@ -525,7 +548,7 @@ namespace Plugin
                 throw DetectRequestToStop("");
             }
         }
-        LOGDEBUG("Return from WaitForTheFirstALCPolicy ");
+        LOGDEBUG("Return from waitForTheFirstPolicy ");
         for (auto task : nonPolicyTasks)
         {
             queueTask.push(task);

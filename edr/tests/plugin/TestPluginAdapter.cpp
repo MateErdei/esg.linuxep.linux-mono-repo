@@ -122,7 +122,8 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyReturnTheFirstPol
     Plugin::QueueTask queueTask;
     std::string policyContent { "test" };
     queueTask.pushPolicy("ALC", policyContent);
-    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstALCPolicy(queueTask, OneSecond, 10);
+    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstPolicy(queueTask, OneSecond, 10,
+                                                                           "ALC");
     EXPECT_EQ(policyValue, policyContent);
 }
 TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyReturnTheFirstPolicyContentAndKeepNonPolicyEntriesInTheQueue)
@@ -135,7 +136,8 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyReturnTheFirstPol
     queueTask.push(query);
     queueTask.push(query2);
     queueTask.pushPolicy("ALC", policyContent);
-    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstALCPolicy(queueTask, OneSecond, 10);
+    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstPolicy(queueTask, OneSecond, 10,
+                                                                           "ALC");
     EXPECT_EQ(policyValue, policyContent);
     Plugin::Task extractTask;
     queueTask.pop(extractTask, 1000);
@@ -159,7 +161,8 @@ TEST_F(
     queueTask.push(query2);
     queueTask.pushPolicy("ALC", policyContent);
     queueTask.push(afterPolicyTask);
-    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstALCPolicy(queueTask, OneSecond, 10);
+    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstPolicy(queueTask, OneSecond, 10,
+                                                                           "ALC");
     EXPECT_EQ(policyValue, policyContent);
     Plugin::Task extractTask;
     queueTask.pop(extractTask, 1000);
@@ -180,7 +183,8 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyWillTimeoutIfNoAL
     query2.m_content = "b";
     queueTask.push(query);
     queueTask.push(query2);
-    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstALCPolicy(queueTask, OneSecond, 10);
+    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstPolicy(queueTask, OneSecond, 10,
+                                                                           "ALC");
     // no policy received will be returned as empty string
     EXPECT_EQ(policyValue, "");
     // the queue still has all the entries
@@ -205,7 +209,8 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyWillDetectPolicyP
         queueTask.pushPolicy("ALC", "policyIntroducedAfterSomeTime");
     });
 
-    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstALCPolicy(queueTask, OneSecond, 10);
+    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstPolicy(queueTask, OneSecond, 10,
+                                                                           "ALC");
 
     // the policy is received and the value is the expected one.
     EXPECT_EQ(policyValue, "policyIntroducedAfterSomeTime");
@@ -234,7 +239,8 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyWillGiveUpWaiting
         }
     });
 
-    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstALCPolicy(queueTask, OneSecond, 10);
+    std::string policyValue = Plugin::PluginAdapter::waitForTheFirstPolicy(queueTask, OneSecond, 10,
+                                                                           "ALC");
     keepRunning = false;
     // not policy was given, no policy should be available
     EXPECT_EQ(policyValue, "");
