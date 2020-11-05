@@ -20,10 +20,8 @@ ResultsSender::ResultsSender(
     const std::string& osqueryXDRConfigFilePath,
     const std::string& pluginVarDir,
     unsigned int dataLimit,
-    unsigned int periodInSeconds
-    ,std::function<void(void)> dataExceededCallback
-    )
-    :
+    unsigned int periodInSeconds,
+    std::function<void(void)> dataExceededCallback) :
     m_intermediaryPath(intermediaryPath),
     m_datafeedPath(datafeedPath),
     m_osqueryXDRConfigFilePath(osqueryXDRConfigFilePath),
@@ -271,7 +269,8 @@ void ResultsSender::setDataPeriod(unsigned int periodSeconds)
 
 bool ResultsSender::checkDataPeriodElapsed()
 {
-    unsigned int now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    unsigned int now =
+        std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     if (now - m_periodStartTimestamp.getValue() > m_periodInSeconds)
     {
         m_currentDataUsage.setValue(0);

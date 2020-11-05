@@ -5,10 +5,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "LoggerExtension.h"
+
 #include "Logger.h"
-#include <SophosLoggerPlugin.h>
 
 #include <functional>
+
+#include <SophosLoggerPlugin.h>
 
 LoggerExtension::LoggerExtension(
     const std::string& intermediaryPath,
@@ -17,9 +19,15 @@ LoggerExtension::LoggerExtension(
     const std::string& pluginVarDir,
     unsigned int dataLimit,
     unsigned int periodInSeconds,
-    std::function<void(void)> dataExceededCallback)
-    :
-    m_resultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath, pluginVarDir, dataLimit, periodInSeconds, dataExceededCallback)
+    std::function<void(void)> dataExceededCallback) :
+    m_resultsSender(
+        intermediaryPath,
+        datafeedPath,
+        osqueryXDRConfigFilePath,
+        pluginVarDir,
+        dataLimit,
+        periodInSeconds,
+        dataExceededCallback)
 {
     m_flags.interval = 3;
     m_flags.timeout = 3;
