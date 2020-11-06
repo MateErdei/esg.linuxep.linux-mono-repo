@@ -124,6 +124,7 @@ def count_eicars_in_directory(d):
     return count
 
 def create_tar(path, file, tar_name):
+    #not moving the cwd was archiving the full folder tree to the file we wanted to archive
     starting_wd = os.getcwd()
     os.chdir(path)
     with tarfile.open(tar_name, "w") as tar_archive:
@@ -131,6 +132,7 @@ def create_tar(path, file, tar_name):
     os.chdir(starting_wd)
 
 def create_zip(path, file, zip_name):
+    #not moving the cwd was archiving the full folder tree to the file we wanted to archive
     starting_wd = os.getcwd()
     os.chdir(path)
     with zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED) as zip_archive:
