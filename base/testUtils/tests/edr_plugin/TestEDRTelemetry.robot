@@ -43,11 +43,35 @@ EDR Plugin Produces Telemetry When XDR is enabled
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   5 secs
-    ...   Check Log Contains In Order
-            ...  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-            ...  Flags have changed so restarting osquery
+    ...   Check EDR Log Contains  Flags have changed so restarting osquery
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  0  0  True  ignore_xdr=False
+
+EDR Plugin Produces Telemetry For failed scheduled queries
+    [Tags]  MCSROUTER  FAKE_CLOUD  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
+    [Setup]  EDR Telemetry Test Setup With Cloud
+    [Teardown]  EDR Telemetry Test Teardown With Cloud
+    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/sophos-scheduled-query-pack.conf
+    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Should Be Equal As Strings  0  ${result.rc}
+    Register With Fake Cloud
+
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   5 secs
+    ...   Check EDR Log Contains  Flags have changed so restarting osquery
+
+    Wait Until OSQuery Running  20
+    Wait Until Osquery Socket Exists
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   5 secs
+    ...   Check EDR Log Contains  Scheduled query may have failed:
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
