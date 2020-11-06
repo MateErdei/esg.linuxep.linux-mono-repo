@@ -710,3 +710,15 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
    ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
    Wait For Process   handle=${HANDLE}
+
+CLS Can Zip File As Web Archive
+    Create File  ${NORMAL_DIRECTORY}/1_eicar    ${EICAR_STRING}
+
+    Run Process     zip  ${NORMAL_DIRECTORY}/test.zip  ${NORMAL_DIRECTORY}/1_eicar
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.zip
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${69}
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.zip${NORMAL_DIRECTORY}/1_eicar" is infected with EICAR-AV-Test
