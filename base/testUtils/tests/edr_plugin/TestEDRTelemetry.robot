@@ -154,6 +154,23 @@ EDR Plugin Counts Osquery Database Purges
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  1  0  0  ignore_cpu_restarts=True  ignore_memory_restarts=True
 
+EDR Plugin Produces Telemetry With OSQuery Max Events Override Value
+    Prepare To Run Telemetry Executable
+
+    Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf  events_max=345678
+
+    Restart EDR Plugin
+    Wait Until OSQuery Running  20
+    Wait Until Osquery Socket Exists
+
+    ${LogContents} =  Get File  ${EDR_DIR}/etc/osquery.flags
+    Should Contain  ${LogContents}  --events_max=345678
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  events_max=345678
+
 *** Keywords ***
 EDR Telemetry Suite Setup
     Require Fresh Install
