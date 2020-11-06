@@ -264,7 +264,7 @@ namespace Common::Telemetry
         }
         double statStdDeviationSquared = sumation / m_statsCollection[statsKey].size();
 
-        return sqrt(statStdDeviationSquared);  // maybe use another method  instead of sqrt?
+        return sqrt(statStdDeviationSquared);
     }
 
     void TelemetryHelper::updateTelemetryWithStats()
