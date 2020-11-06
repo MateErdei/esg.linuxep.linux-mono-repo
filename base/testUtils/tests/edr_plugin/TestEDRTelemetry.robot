@@ -44,6 +44,10 @@ EDR Plugin Produces Telemetry When XDR is enabled
     ...   20 secs
     ...   5 secs
     ...   Check EDR Log Contains  Flags have changed so restarting osquery
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   5 secs
+    ...   Check EDR Log Contains  Process task OSQUERYPROCESSFINISHED
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
     Prepare To Run Telemetry Executable
