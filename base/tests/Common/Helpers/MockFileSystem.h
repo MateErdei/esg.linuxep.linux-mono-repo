@@ -46,6 +46,7 @@ public:
     MOCK_CONST_METHOD2(listFilesAndDirectories, std::vector<Path>(const Path& directoryPath, bool includeSymlinks));
     MOCK_CONST_METHOD1(listDirectories, std::vector<Path>(const Path& directoryPath));
     MOCK_CONST_METHOD2(removeFile, void(const Path& path, bool));
+    MOCK_CONST_METHOD1(removeFile, void(const Path& path));
     MOCK_CONST_METHOD1(removeFileOrDirectory, void(const Path& path));
     MOCK_CONST_METHOD2(copyFile, void(const Path& src, const Path& dest));
     MOCK_CONST_METHOD5(copyFileAndSetPermissions, void(const Path& src,const Path& dest, const mode_t mode, const std::string& ownerName, const std::string& groupName));

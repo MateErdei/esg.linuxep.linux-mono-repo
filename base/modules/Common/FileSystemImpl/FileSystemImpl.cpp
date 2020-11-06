@@ -571,6 +571,11 @@ namespace Common
             }
         }
 
+        void FileSystemImpl::removeFile(const Path& path) const
+        {
+            removeFile(path, false);
+        }
+
         void FileSystemImpl::removeFileOrDirectory(const Path& dir) const
         {
             if (isDirectory(dir))

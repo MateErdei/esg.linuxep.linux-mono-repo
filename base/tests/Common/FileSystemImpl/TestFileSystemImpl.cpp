@@ -584,7 +584,7 @@ namespace
         EXPECT_CALL(*mockFileSystem, exists(dest)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, fileSize(src)).WillOnce(Return(1));
         EXPECT_CALL(*mockFileSystem, fileSize(dest)).WillOnce(Return(0));
-        EXPECT_CALL(*mockFileSystem, removeFile(dest, _)).WillOnce(Return());
+        EXPECT_CALL(*mockFileSystem, removeFile(dest)).WillOnce(Return());
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
         Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
         copyFileAndExpectThrow(
