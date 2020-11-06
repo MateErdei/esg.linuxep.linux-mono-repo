@@ -544,6 +544,14 @@ namespace Plugin
         {
             LOGINFO("Flags have changed so restarting osquery");
             m_isXDR = isXDR;
+            if (m_isXDR)
+            {
+                LOGINFO("Flags running mode is XDR");
+            }
+            else
+            {
+                LOGINFO("Flags running mode is EDR");
+            }
             stopOsquery();
             m_restartNoDelay = true;
         }
