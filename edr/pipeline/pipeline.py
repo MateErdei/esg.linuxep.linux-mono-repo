@@ -119,6 +119,13 @@ def pytest_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
 
+def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
+    """Return an input artifact from an unified pipeline build"""
+    artifact = context.artifact.from_component(component, branch, org='', storage='esg-build-tested')
+    # Using the truediv operator to set the sub directory forgets the storage option
+    artifact.sub_directory = sub_directory
+    return artifact
+
 
 def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
     test_inputs = None
@@ -127,7 +134,8 @@ def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
             test_scripts=context.artifact.from_folder('./TA'),
             edr_sdds=edr_build / 'edr/SDDS-COMPONENT',
             base_sdds=edr_build / 'base/base-sdds',
-            componenttests=edr_build / 'componenttests'
+            componenttests=edr_build / 'componenttests',
+            qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds')
         )
     if mode == 'coverage':
         test_inputs = dict(
