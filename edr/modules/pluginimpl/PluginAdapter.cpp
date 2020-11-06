@@ -472,7 +472,7 @@ namespace Plugin
         }
         catch (std::exception& error)
         {
-            LOGWARN("Failed to get dailyDataLimit from LiveQueyr Policy, reason: " << error.what());
+            LOGWARN("Failed to get dailyDataLimit from LiveQuery Policy, reason: " << error.what());
         }
         LOGDEBUG("Using default dailyDataLimit: " << DEFAULT_XDR_DATA_LIMIT_BYTES);
         return DEFAULT_XDR_DATA_LIMIT_BYTES;

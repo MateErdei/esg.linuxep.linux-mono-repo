@@ -117,7 +117,7 @@ Plugin::Task defaultQueryTask()
 }
 const std::chrono::seconds OneSecond { 1 };
 
-TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyReturnTheFirstPolicyContent)
+TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyReturnTheFirstPolicyContent)
 { // NOLINT
     Plugin::QueueTask queueTask;
     std::string policyContent { "test" };
@@ -126,7 +126,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyReturnTheFirstPol
                                                                            "ALC");
     EXPECT_EQ(policyValue, policyContent);
 }
-TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyReturnTheFirstPolicyContentAndKeepNonPolicyEntriesInTheQueue)
+TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyReturnTheFirstPolicyContentAndKeepNonPolicyEntriesInTheQueue)
 { // NOLINT
     Plugin::QueueTask queueTask;
     std::string policyContent { "test" };
@@ -148,7 +148,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyReturnTheFirstPol
 
 TEST_F(
     TestPluginAdapterWithoutLogger,
-    waitForTheFirstALCPolicyReturnTheFirstPolicyContentAndKeepNonPolicyEntriesInTheQueueButMayChangeOrderOfTasksAfter)
+    waitForTheFirstPolicyReturnTheFirstPolicyContentAndKeepNonPolicyEntriesInTheQueueButMayChangeOrderOfTasksAfter)
 { // NOLINT
     Plugin::QueueTask queueTask;
     std::string policyContent { "test" };
@@ -175,7 +175,7 @@ TEST_F(
     EXPECT_EQ(extractTask.m_content, query2.m_content);
 }
 
-TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyWillTimeoutIfNoALCPolicyIsGivenButKeepQueueEntries)
+TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyWillTimeoutIfNoALCPolicyIsGivenButKeepQueueEntries)
 { // NOLINT
     Plugin::QueueTask queueTask;
     Plugin::Task query = defaultQueryTask();
@@ -195,7 +195,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyWillTimeoutIfNoAL
     EXPECT_EQ(extractTask.m_content, query2.m_content);
 }
 
-TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyWillDetectPolicyProvidedAfterTheCallToWait)
+TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyWillDetectPolicyProvidedAfterTheCallToWait)
 { // NOLINT
     Plugin::QueueTask queueTask;
     Plugin::Task query = defaultQueryTask();
@@ -222,7 +222,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyWillDetectPolicyP
     EXPECT_EQ(extractTask.m_content, query2.m_content);
 }
 
-TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstALCPolicyWillGiveUpWaitingAfterReceivingMoreThanMaxThresholdTasks)
+TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyWillGiveUpWaitingAfterReceivingMoreThanMaxThresholdTasks)
 { // NOLINT
     Plugin::QueueTask queueTask;
     std::atomic<bool> keepRunning { true };
