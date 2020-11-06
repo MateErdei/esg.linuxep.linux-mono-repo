@@ -117,6 +117,11 @@ static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chr
         sourceFile /= file;
 
         fs::path targetFile = chrootPath;
+        /*
+         * sourceFile is an absolute path (/opt/sophos-spl/base/etc/logger.conf), so when /= is used the left value is replaced.
+         * chrootPath is "/opt/sophos-spl/plugins/av/chroot"
+         * so targetFile += sourceFile -> /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf
+         */
         targetFile += sourceFile;
 
         LOGINFO("Copying " << sourceFile << " to: " << targetFile);
