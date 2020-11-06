@@ -561,7 +561,7 @@ TEST(TestTelemetryHelper, telemtryStatStdDeviationSerialisedCorrectly) // NOLINT
     helper.appendStat("statName", 10);
     helper.updateTelemetryWithAllStdDeviationStats();
 
-    ASSERT_EQ(R"({"statName-std-deviation":3.6817870057290873})", helper.serialise());
+    EXPECT_THAT(helper.serialise(),::testing::HasSubstr("\"statName-std-deviation\":3.68178"));
 }
 
 TEST(TestTelemetryHelper, TelemetryAndStatsAreSavedCorrectly) // NOLINT
