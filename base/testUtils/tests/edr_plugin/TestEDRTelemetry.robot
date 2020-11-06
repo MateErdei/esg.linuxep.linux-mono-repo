@@ -81,9 +81,8 @@ EDR Plugin Produces Telemetry For XDR scheduled queries
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
 
-    # ignoring duration as it will vary too much to reliably test - it's covered in unit tests.
-    ${query1}=  Set Variable  {"name":'bad-query' ,'query-error-count': 1}}
-    ${query2}=  Set Variable  {"name":'endpoint_id' ,"record-size-avg": 608.0,"record-size-max":608.0,"record-size-min":608.0,"record-size-std-deviation":0.0,"records-count":1}
+    ${query1}=  Set Variable  {"name":"bad-query" ,"query-error-count": 1}
+    ${query2}=  Set Variable  {"name":"endpoint_id" ,"record-size-std-deviation":0.0,"records-count":1}
     @{queries}=  create list   ${query1}  ${query2}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  0  0  True  ignore_xdr=False  scheduled_queries=@{queries}
 

@@ -144,11 +144,11 @@ class TelemetryUtils:
                 queryName = query["name"]
                 telemetry["scheduled-queries"][queryName] = {}
                 if "records-count" in query:
-                    telemetry["scheduled-queries"][query["name"]]["rowcount-avg"] = query["rowcount-avg"]
-                    telemetry["scheduled-queries"][query["name"]]["rowcount-min"] = query["rowcount-min"]
-                    telemetry["scheduled-queries"][query["name"]]["rowcount-max"] = query["rowcount-max"]
-                    telemetry["scheduled-queries"][query["name"]]["rowcount-std-deviation"] = query["rowcount-std-deviation"]
+                    telemetry["scheduled-queries"][query["name"]]["rowcount-std-deviation"] = query["record-size-std-deviation"]
                     telemetry["scheduled-queries"][query["name"]]["records-count"] = query["records-count"]
+                if "query-error-count" in query:
+                    telemetry["scheduled-queries"][query["name"]]["query-error-count"] = query["query-error-count"]
+
         if queries:
             telemetry["live-query"] = {}
             for query in queries:
@@ -411,6 +411,13 @@ class TelemetryUtils:
                     queryData.pop("duration-avg")
                     queryData.pop("duration-min")
                     queryData.pop("duration-max")
+        if "scheduled-queries" in actual_edr_telemetry_dict:
+            # pop all durations from actual query because these values will change, so they need to be removed for tests.
+            for (queryName, queryData) in actual_edr_telemetry_dict["scheduled-queries"].items():
+                if "record-size-avg" in queryData:
+                    queryData.pop("record-size-avg")
+                    queryData.pop("record-size-min")
+                    queryData.pop("record-size-max")
 
         if ignore_xdr:
             xdr_key = "xdr-is-enabled"
