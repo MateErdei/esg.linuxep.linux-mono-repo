@@ -119,10 +119,7 @@ void ResultsSender::Add(const std::string& result)
     }
 
     std::stringstream key;
-
-    Json::StreamWriterBuilder builder;
-    std::string name = Json::writeString(builder, logLine["name"]);
-    key << plugin::telemetryScheduledQueries << "." << Common::UtilityImpl::StringUtils::replaceAll(name,"\"","");
+    key << plugin::telemetryScheduledQueries << "." << queryName;
     std::string scheduledQueryKey = key.str();
 
     telemetryHelper.appendStat(scheduledQueryKey + "." + plugin::telemetryRecordSize, result.length());
