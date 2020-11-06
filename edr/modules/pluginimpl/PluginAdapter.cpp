@@ -23,6 +23,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <unistd.h>
 #include <fstream>
 #include <Common/XmlUtilities/AttributesMap.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 
 // helper class that allow to schedule a task.
 // but it also has some capability of interrupting the scheduler at any point
@@ -139,7 +140,7 @@ namespace Plugin
         std::string liveQueryPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(1), 5, "LiveQuery");
 
         processALCPolicy(alcPolicy, true);
-        m_loggerExtension.setDataLimit(getDataLimit(liveQueryPolicy));
+        processLiveQueryPolicy(liveQueryPolicy);
         cleanUpOldOsqueryFiles();
         loadXdrFlags();
         LOGSUPPORT("Start Osquery");
@@ -154,6 +155,7 @@ namespace Plugin
             if (m_isXDR && m_loggerExtension.checkDataPeriodHasElapsed())
             {
                 m_osqueryConfigurator.enableQueryPack(Plugin::osqueryXDRConfigFilePath());
+                sendLiveQueryStatus();
             }
 
             Task task;
@@ -208,7 +210,7 @@ namespace Plugin
                         }
                         else if (task.m_appId == "LiveQuery")
                         {
-                            m_loggerExtension.setDataLimit(getDataLimit(task.m_content));
+                            processLiveQueryPolicy(task.m_content);
                         }
                         else{
                             LOGWARN("Received " << task.m_appId << " policy unexpectedly");
@@ -468,26 +470,28 @@ namespace Plugin
 
     unsigned int PluginAdapter::getDataLimit(const std::string &liveQueryPolicy)
     {
-        try
-        {
-            if(!liveQueryPolicy.empty())
-            {
-                Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
-                const std::string dataLimitPath{"policy/configuration/scheduled/dailyDataLimit"};
-                Common::XmlUtilities::Attributes attributes = attributesMap.lookup(dataLimitPath);
+        Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
+        const std::string dataLimitPath{"policy/configuration/scheduled/dailyDataLimit"};
+        Common::XmlUtilities::Attributes attributes = attributesMap.lookup(dataLimitPath);
 
-                std::string policyDataLimitAsString = attributes.contents();
-                int policyDataLimitAsInt = std::stoi(policyDataLimitAsString);
-                LOGDEBUG("Using dailyDataLimit from LiveQuery Policy: " << policyDataLimitAsInt);
-                return  policyDataLimitAsInt;
-            }
+        std::string policyDataLimitAsString = attributes.contents();
+        int policyDataLimitAsInt = std::stoi(policyDataLimitAsString);
+        LOGDEBUG("Using dailyDataLimit from LiveQuery Policy: " << policyDataLimitAsInt);
+        return  policyDataLimitAsInt;
+    }
+
+    std::string PluginAdapter::getRevId(const std::string& liveQueryPolicy) {
+        Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
+        const std::string dataLimitPath{"policy"};
+        Common::XmlUtilities::Attributes attributes = attributesMap.lookup(dataLimitPath);
+
+        std::string revId = attributes.value("RevID", "");
+        if (revId != "") {
+            LOGDEBUG("Got RevID: " << revId << " from LiveQuery Policy");
+        } else {
+            throw FailedToParseLiveQueryPolicy("Didn't find RevID");
         }
-        catch (std::exception& error)
-        {
-            LOGWARN("Failed to get dailyDataLimit from LiveQuery Policy, reason: " << error.what());
-        }
-        LOGDEBUG("Using default dailyDataLimit: " << DEFAULT_XDR_DATA_LIMIT_BYTES);
-        return DEFAULT_XDR_DATA_LIMIT_BYTES;
+        return revId;
     }
 
     void PluginAdapter::processFlags(const std::string& flagsContent)
@@ -642,12 +646,83 @@ namespace Plugin
     {
         LOGWARN("Datafeed limit has been hit. Disabling scheduled queries");
 
-        //TODO LINUXDAR-2357, send status
-//        m_baseService->sendStatus()
-
+        sendLiveQueryStatus();
         stopOsquery();
         m_osqueryConfigurator.disableQueryPack(Plugin::osqueryXDRConfigFilePath());
         // osquery will automatically be restarted but set this to make sure there is no delay.
         m_restartNoDelay = true;
     }
+
+    std::string PluginAdapter::serializeLiveQueryStatus(bool dailyDataLimitExceeded)
+    {
+
+//  EXAMPLE STATUS
+//<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+//<status type='LiveQuery'>
+//    <CompRes policyType='56' Res='NoRef' RevID='{{revId}}'/>
+//    <scheduled>
+//        <dailyDataLimitExceeded>{{true|false}}</dailyDataLimitExceeded>
+//    </scheduled>
+//</status>
+
+        std::stringstream status;
+        status << R"sophos(<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<status type='LiveQuery'>
+    <CompRes policyType='56' Res=')sophos";
+        status << m_liveQueryStatus;
+        status << R"sophos(' RevID=')sophos";
+        status << m_liveQueryRevId;
+        status << R"sophos('/>
+    <scheduled>
+        <dailyDataLimitExceeded>)sophos";
+        if (dailyDataLimitExceeded)
+        {
+            status << "true";
+        }
+        else
+        {
+            status << "false";
+        }
+        status << R"sophos(</dailyDataLimitExceeded>
+    </scheduled>
+</status>)sophos";
+
+        return status.str();
+    }
+
+    void PluginAdapter::processLiveQueryPolicy(const std::string& liveQueryPolicy)
+    {
+        if (!liveQueryPolicy.empty())
+        {
+            try
+            {
+                m_dataLimit = getDataLimit(liveQueryPolicy);
+                m_loggerExtension.setDataLimit(m_dataLimit);
+                m_liveQueryRevId = getRevId(liveQueryPolicy);
+                m_liveQueryStatus = "Same";
+                return;
+            }
+            catch (std::exception& e)
+            {
+                LOGERROR("Failed to read LiveQuery Policy: " << e.what());
+                m_liveQueryStatus = "Failure";
+            }
+        }
+        else
+        {
+            m_liveQueryStatus = "NoRef";
+        }
+        m_liveQueryRevId = "";
+    }
+
+    // update status
+
+    void PluginAdapter::sendLiveQueryStatus()
+    {
+        bool dailyDataLimitExceeded = m_loggerExtension.getDataLimitReached();
+        std::string statusXml = serializeLiveQueryStatus(dailyDataLimitExceeded);
+        m_baseService->sendStatus("LiveQuery", statusXml, statusXml);
+    }
+
+
 } // namespace Plugin

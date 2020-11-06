@@ -15,7 +15,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/Process/IProcess.h>
 #include <modules/osqueryextensions/LoggerExtension.h>
-#include <modules/osqueryextensions/SophosExtension.h>
 #include <queryrunner/IQueryRunner.h>
 #include <queryrunner/ParallelQueryProcessor.h>
 
@@ -24,6 +23,11 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 namespace Plugin
 {
     class DetectRequestToStop : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
+    class FailedToParseLiveQueryPolicy : public std::runtime_error
     {
     public:
         using std::runtime_error::runtime_error;
@@ -64,6 +68,8 @@ namespace Plugin
         waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
                               const std::string& policyAppId);
 
+        std::string serializeLiveQueryStatus(bool dailyDataLimitExceeded);
+
         PluginAdapter(
             std::shared_ptr<QueueTask> queueTask,
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
@@ -72,7 +78,8 @@ namespace Plugin
         void mainLoop();
         ~PluginAdapter();
 
-        static unsigned int getDataLimit(const std::string &liveQueryPolicy);
+        unsigned int getDataLimit(const std::string &liveQueryPolicy);
+        std::string getRevId(const std::string &liveQueryPolicy);
 
     protected:
         /*
@@ -83,17 +90,22 @@ namespace Plugin
          * But, on arrival of policies, (firstTime=false) it may also push to the queue a RestartRequired.
          */
         void processALCPolicy(const std::string&, bool firstTime);
+        void processLiveQueryPolicy(const std::string&);
         void ensureMCSCanReadOldResponses();
         OsqueryConfigurator& osqueryConfigurator();
 
+        std::string m_liveQueryRevId = "";
+        unsigned int m_dataLimit = DEFAULT_XDR_DATA_LIMIT_BYTES;
+        std::string m_liveQueryStatus = "NoRef";
+
+        LoggerExtension m_loggerExtension;
     private:
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 600;
         bool m_isXDR = false;
-        LoggerExtension m_loggerExtension;
-        SophosExtension m_sophosExtension;
+        void sendLiveQueryStatus();
 
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
@@ -109,7 +121,7 @@ namespace Plugin
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
         // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
         void setUpOsqueryMonitor();
-        void registerAndStartExtensionsPlugin();
+        void registerAndStartLoggerPlugin();
         void stopOsquery();
         void cleanUpOldOsqueryFiles();
         void databasePurge();

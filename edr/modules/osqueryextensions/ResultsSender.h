@@ -35,6 +35,7 @@ public:
     void Send() override;
     void Reset() override;
     void setDataLimit(unsigned int limitBytes);
+    bool getDataLimitReached();
     void setDataPeriod(unsigned int periodSeconds);
 
     // This needs to be called periodically so that the result sender re-enables itself once the period has elapsed.

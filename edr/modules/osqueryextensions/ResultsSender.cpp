@@ -8,14 +8,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include <modules/pluginimpl/ApplicationPaths.h>
-#include <modules/pluginimpl/TelemetryConsts.h>
-
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-
 #include <json/json.h>
+#include <modules/pluginimpl/ApplicationPaths.h>
+
 #include <iostream>
 
 ResultsSender::ResultsSender(
@@ -74,8 +70,6 @@ ResultsSender::~ResultsSender()
 void ResultsSender::Add(const std::string& result)
 {
     LOGDEBUG("Adding XDR results to intermediary file: " << result);
-    auto& telemetryHelper = Common::Telemetry::TelemetryHelper::getInstance();
-
 
     // Check if it has been longer than the data limit period, if it has then reset the data counter.
     checkDataPeriodElapsed();
@@ -117,13 +111,6 @@ void ResultsSender::Add(const std::string& result)
             logLine["tag"] = correctQueryNameAndTag.second;
         }
     }
-
-    std::stringstream key;
-    key << plugin::telemetryScheduledQueries << "." << queryName;
-    std::string scheduledQueryKey = key.str();
-
-    telemetryHelper.appendStat(scheduledQueryKey + "." + plugin::telemetryRecordSize, result.length());
-    telemetryHelper.increment(scheduledQueryKey + "." + plugin::telemetryRecordsCount, 1L);
 
     std::stringstream ss;
     Json::StreamWriterBuilder writerBuilder;
@@ -240,7 +227,7 @@ void ResultsSender::loadScheduledQueryTags()
     {
         auto query = *scheduledItr;
         scheduledQueries.push_back(
-                ScheduledQuery { scheduledItr.key().asString(), scheduledItr.key().asString(), query["tag"].asString() });
+            ScheduledQuery { scheduledItr.key().asString(), scheduledItr.key().asString(), query["tag"].asString() });
     }
     auto otherQueryPacks = confJsonRoot["packs"];
     for (Json::Value::const_iterator packItr = otherQueryPacks.begin(); packItr != otherQueryPacks.end(); packItr++)
@@ -254,7 +241,7 @@ void ResultsSender::loadScheduledQueryTags()
             auto query = *packQueriesItr;
             std::string packAppendedName = "pack_" + packName + "_" + packQueriesItr.key().asString();
             scheduledQueries.push_back(
-                    ScheduledQuery { packAppendedName, packQueriesItr.key().asString(), query["tag"].asString() });
+                ScheduledQuery { packAppendedName, packQueriesItr.key().asString(), query["tag"].asString() });
         }
     }
 
@@ -283,7 +270,7 @@ void ResultsSender::setDataPeriod(unsigned int periodSeconds)
 bool ResultsSender::checkDataPeriodElapsed()
 {
     unsigned int now =
-            std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     if (now - m_periodStartTimestamp.getValue() > m_periodInSeconds)
     {
         m_currentDataUsage.setValue(0);
@@ -292,4 +279,9 @@ bool ResultsSender::checkDataPeriodElapsed()
         return true;
     }
     return false;
+}
+
+bool ResultsSender::getDataLimitReached()
+{
+    return m_hitLimitThisPeriod.getValue();
 }

@@ -27,6 +27,7 @@ public:
     void setDataLimit(unsigned int limitBytes);
     void setDataPeriod(unsigned int periodSeconds);
     bool checkDataPeriodHasElapsed();
+    bool getDataLimitReached();
 
 private:
     void Run();

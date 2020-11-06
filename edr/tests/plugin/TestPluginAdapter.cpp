@@ -16,6 +16,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 #include <gtest/gtest.h>
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/XmlUtilities/AttributesMap.h>
 
 class DummyServiceApli : public Common::PluginApi::IBaseServiceApi
 {
@@ -51,6 +53,32 @@ public:
     void ensureMCSCanReadOldResponses()
     {
         Plugin::PluginAdapter::ensureMCSCanReadOldResponses();
+    }
+
+    void setLiveQueryRevID(std::string revId)
+    {
+        m_liveQueryRevId = revId;
+    }
+    void setLiveQueryStatus(std::string status)
+    {
+        m_liveQueryStatus = status;
+    }
+    std::string getLiveQueryStatus()
+    {
+        return m_liveQueryStatus;
+    }
+    std::string getLiveQueryRevID()
+    {
+        return m_liveQueryRevId;
+    }
+    unsigned int getLiveQueryDataLimit()
+    {
+        return m_dataLimit;
+    }
+
+    void processLiveQueryPolicy(const std::string& policy)
+    {
+        Plugin::PluginAdapter::processLiveQueryPolicy(policy);
     }
 };
 class TestPluginAdapterWithLogger : public LogInitializedTests{};
@@ -352,8 +380,11 @@ TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNothingI
     pluginAdapter.ensureMCSCanReadOldResponses();
 }
 
-TEST_F(TestPluginAdapterWithoutLogger, testGetDataLimit)
+TEST_F(PluginAdapterWithMockFileSystem, testGetDataLimit)
 { // NOLINT
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
     std::string liveQueryPolicy100000 = "<?xml version=\"1.0\"?>\n"
                                         "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
                                         "    <configuration>\n"
@@ -365,7 +396,7 @@ TEST_F(TestPluginAdapterWithoutLogger, testGetDataLimit)
                                         "        </scheduled>\n"
                                         "    </configuration>\n"
                                         "</policy>";
-    EXPECT_EQ(Plugin::PluginAdapter::getDataLimit(liveQueryPolicy100000), 100000);
+    EXPECT_EQ(pluginAdapter.getDataLimit(liveQueryPolicy100000), 100000);
 
     std::string liveQueryPolicy234567 = "<?xml version=\"1.0\"?>\n"
                                         "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
@@ -378,34 +409,180 @@ TEST_F(TestPluginAdapterWithoutLogger, testGetDataLimit)
                                         "        </scheduled>\n"
                                         "    </configuration>\n"
                                         "</policy>";
-    EXPECT_EQ(Plugin::PluginAdapter::getDataLimit(liveQueryPolicy234567), 234567);
+    EXPECT_EQ(pluginAdapter.getDataLimit(liveQueryPolicy234567), 234567);
 
     std::string nonsense = "asdfbhasdlfhasdflasdhfasd";
-    EXPECT_EQ(Plugin::PluginAdapter::getDataLimit(nonsense), 250000000);
+    EXPECT_THROW(pluginAdapter.getDataLimit(nonsense), std::exception);
 
-    std::string validXmlWithMissingField = liveQueryPolicy234567 = "<?xml version=\"1.0\"?>\n"
-                                                                   "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
-                                                                   "    <configuration>\n"
-                                                                   "        <scheduled>\n"
-                                                                   "            <notDailyDataLimit>234567</notDailyDataLimit>\n"
-                                                                   "            <queryPacks>\n"
-                                                                   "                <queryPack id=\"queryPackId\" />\n"
-                                                                   "            </queryPacks>\n"
-                                                                   "        </scheduled>\n"
-                                                                   "    </configuration>\n"
-                                                                   "</policy>";
-    EXPECT_EQ(Plugin::PluginAdapter::getDataLimit(validXmlWithMissingField), 250000000);
+    std::string validXmlWithMissingField = "<?xml version=\"1.0\"?>\n"
+                                           "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                           "    <configuration>\n"
+                                           "        <scheduled>\n"
+                                           "            <notDailyDataLimit>234567</notDailyDataLimit>\n"
+                                           "            <queryPacks>\n"
+                                           "                <queryPack id=\"queryPackId\" />\n"
+                                           "            </queryPacks>\n"
+                                           "        </scheduled>\n"
+                                           "    </configuration>\n"
+                                           "</policy>";
+    EXPECT_THROW(pluginAdapter.getDataLimit(validXmlWithMissingField), std::exception);
 
-    std::string validXmlWithInvalidFieldData = liveQueryPolicy234567 = "<?xml version=\"1.0\"?>\n"
-                                                                       "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
-                                                                       "    <configuration>\n"
-                                                                       "        <scheduled>\n"
-                                                                       "            <notDailyDataLimit>notAnInteger</notDailyDataLimit>\n"
-                                                                       "            <queryPacks>\n"
-                                                                       "                <queryPack id=\"queryPackId\" />\n"
-                                                                       "            </queryPacks>\n"
-                                                                       "        </scheduled>\n"
-                                                                       "    </configuration>\n"
-                                                                       "</policy>";
-    EXPECT_EQ(Plugin::PluginAdapter::getDataLimit(validXmlWithInvalidFieldData), 250000000);
+    std::string validXmlWithInvalidFieldData = "<?xml version=\"1.0\"?>\n"
+                                               "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                               "    <configuration>\n"
+                                               "        <scheduled>\n"
+                                               "            <notDailyDataLimit>notAnInteger</notDailyDataLimit>\n"
+                                               "            <queryPacks>\n"
+                                               "                <queryPack id=\"queryPackId\" />\n"
+                                               "            </queryPacks>\n"
+                                               "        </scheduled>\n"
+                                               "    </configuration>\n"
+                                               "</policy>";
+    EXPECT_THROW(pluginAdapter.getDataLimit(validXmlWithInvalidFieldData), std::exception);
 }
+
+TEST_F(PluginAdapterWithMockFileSystem, testGetRevID)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string liveQueryPolicy100 = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    EXPECT_EQ(pluginAdapter.getRevId(liveQueryPolicy100), "100");
+
+    std::string liveQueryPolicy999999999 = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"999999999\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    EXPECT_EQ(pluginAdapter.getRevId(liveQueryPolicy999999999), "999999999");
+
+    std::string noRevIdPolicy = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" NotRevID=\"999999999\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    EXPECT_THROW(pluginAdapter.getRevId(noRevIdPolicy), std::exception);
+
+    std::string garbage = "garbage";
+
+    EXPECT_THROW(pluginAdapter.getRevId(garbage), std::exception);
+}
+
+
+TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesValidStatusWithNoPolicy)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    static const std::string expectedStatus { R"sophos(<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<status type='LiveQuery'>
+    <CompRes policyType='56' Res='NoRef' RevID=''/>
+    <scheduled>
+        <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
+    </scheduled>
+</status>)sophos" };
+
+    std::string actualStatus = pluginAdapter.serializeLiveQueryStatus(false);
+    EXPECT_EQ(expectedStatus, actualStatus);
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesValidStatusWithPolicy)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    pluginAdapter.setLiveQueryRevID("testID");
+    pluginAdapter.setLiveQueryStatus("Same");
+
+    static const std::string expectedStatus { R"sophos(<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<status type='LiveQuery'>
+    <CompRes policyType='56' Res='Same' RevID='testID'/>
+    <scheduled>
+        <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
+    </scheduled>
+</status>)sophos" };
+
+    std::string actualStatus = pluginAdapter.serializeLiveQueryStatus(false);
+    EXPECT_EQ(expectedStatus, actualStatus);
+}
+
+
+TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesValidStatusWhenDataLimitHit)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    pluginAdapter.setLiveQueryRevID("testID");
+    pluginAdapter.setLiveQueryStatus("Same");
+
+    static const std::string expectedStatus { R"sophos(<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<status type='LiveQuery'>
+    <CompRes policyType='56' Res='Same' RevID='testID'/>
+    <scheduled>
+        <dailyDataLimitExceeded>true</dailyDataLimitExceeded>
+    </scheduled>
+</status>)sophos" };
+
+    std::string actualStatus = pluginAdapter.serializeLiveQueryStatus(true);
+    EXPECT_EQ(expectedStatus, actualStatus);
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithValidPolicy)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"987654321\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>123456</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
+    EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Same");
+    EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "987654321");
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 123456);
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithInvalidPolicy)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string garbage = "garbage";
+
+    pluginAdapter.processLiveQueryPolicy(garbage);
+    EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Failure");
+    EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "");
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 250000000);
+}
+
