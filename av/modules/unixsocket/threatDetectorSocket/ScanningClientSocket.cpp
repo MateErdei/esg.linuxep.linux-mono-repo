@@ -86,6 +86,7 @@ int unixsocket::ScanningClientSocket::attemptConnect()
 scan_messages::ScanResponse
 unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request)
 {
+    bool retryErrorLogged = false;
     for (int attempt=0; attempt < MAX_SCAN_RETRIES; attempt++)
     {
         if (m_reconnectAttempts >= TOTAL_MAX_RECONNECTS)
@@ -98,19 +99,26 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
             scan_messages::ScanResponse response = attemptScan(fd, request);
             if (m_reconnectAttempts > 0)
             {
+                LOGINFO("Reconnected to Sophos Threat Detector after " << m_reconnectAttempts << " attempts");
                 m_reconnectAttempts = 0;
-                LOGINFO("Reconnected to Sophos Threat Detector");
             }
             return response;
         }
         catch (const ReconnectScannerException& e)
         {
-            LOGERROR(e.what() << " - retrying after sleep");
+            if (!retryErrorLogged)
+            {
+                LOGERROR(e.what() << " - retrying after sleep");
+            }
             nanosleep(&m_sleepTime, nullptr);
             if (!attemptConnect())
             {
-                LOGWARN("Failed to reconnect to Sophos Threat Detector - retrying...");
+                if (!retryErrorLogged)
+                {
+                    LOGWARN("Failed to reconnect to Sophos Threat Detector - retrying...");
+                }
             }
+            retryErrorLogged = true;
             m_reconnectAttempts++;
         }
     }
