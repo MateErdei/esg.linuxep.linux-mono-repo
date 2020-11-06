@@ -20,3 +20,7 @@ In order to run them in vagrant box:
     sudo -H python3 -m pip install pyzmq protobuf pytest-html robotframework
     cd /vagrant/sspl-plugin-edr-component/TA
     sudo python3 -m robot RobotScripts/
+
+
+
+
