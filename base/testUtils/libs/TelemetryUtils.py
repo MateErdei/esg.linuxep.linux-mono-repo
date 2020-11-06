@@ -138,17 +138,17 @@ class TelemetryUtils:
 
         if scheduled_queries:
             telemetry["scheduled-queries"] = {}
-            for query in queries:
+            for query in scheduled_queries:
                 # because robot can't seem to pass dictionaries in parse string to dict here.
                 query = json.loads(query)
                 queryName = query["name"]
                 telemetry["scheduled-queries"][queryName] = {}
                 if "records-count" in query:
-                    telemetry["live-query"][query["name"]]["rowcount-avg"] = query["rowcount-avg"]
-                    telemetry["live-query"][query["name"]]["rowcount-min"] = query["rowcount-min"]
-                    telemetry["live-query"][query["name"]]["rowcount-max"] = query["rowcount-max"]
-                    telemetry["live-query"][query["name"]]["rowcount-std-deviation"] = query["rowcount-std-deviation"]
-                    telemetry["live-query"][query["name"]]["records-count"] = query["records-count"]
+                    telemetry["scheduled-queries"][query["name"]]["rowcount-avg"] = query["rowcount-avg"]
+                    telemetry["scheduled-queries"][query["name"]]["rowcount-min"] = query["rowcount-min"]
+                    telemetry["scheduled-queries"][query["name"]]["rowcount-max"] = query["rowcount-max"]
+                    telemetry["scheduled-queries"][query["name"]]["rowcount-std-deviation"] = query["rowcount-std-deviation"]
+                    telemetry["scheduled-queries"][query["name"]]["records-count"] = query["records-count"]
         if queries:
             telemetry["live-query"] = {}
             for query in queries:
