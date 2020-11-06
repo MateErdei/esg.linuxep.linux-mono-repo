@@ -720,5 +720,5 @@ CLS Can Zip File As Web Archive
 
     Log  return code is ${rc}
     Log  output is ${output}
-    Should Be Equal As Integers  ${rc}  ${69}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.zip${NORMAL_DIRECTORY}/1_eicar" is infected with EICAR-AV-Test
