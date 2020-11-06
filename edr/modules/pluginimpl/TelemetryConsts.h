@@ -18,4 +18,8 @@ namespace plugin
     const char* const telemetryFailedQueriesOsqueryDied = "failed-osquery-died-count";
     const char* const telemetryFailedQueriesUnexpected = "failed-unexpected-error-count";
     const char* const telemetryIsXdrEnabled = "xdr-is-enabled";
+    const char* const telemetryScheduledQueries = "scheduled-queries";
+    const char* const telemetryQueryErrorCount = "query-error-count";
+    const char* const telemetryRecordSize = "record-size";
+    const char* const telemetryRecordsCount = "records-count";
 }
