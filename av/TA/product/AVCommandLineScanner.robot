@@ -116,20 +116,22 @@ CLS Can Scan Infected File
 
 
 CLS Can Scan Shallow Archive But not Deep Archive
-    Create File     ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
-    create archive test files  ${NORMAL_DIRECTORY}
+    Create File     ${NORMAL_DIRECTORY}/archives/eicar    ${EICAR_STRING}
+    create archive test files  ${NORMAL_DIRECTORY}/archives
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar5.zip -s
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar5.zip -s
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar6.zip -s
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar6.zip -s
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar15.tar -s
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar15.tar -s
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar16.tar -s
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar16.tar -s
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    Remove Directory  ${NORMAL_DIRECTORY}/archives  recursive=True
 
 CLS Summary is Correct
    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
