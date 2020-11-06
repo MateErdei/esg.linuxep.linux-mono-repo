@@ -5,3 +5,4 @@ syslog_pipe
 persist-xdrDataUsage
 persist-xdrLimitHit
 persist-xdrPeriodTimestamp
+xdr_intermediary
