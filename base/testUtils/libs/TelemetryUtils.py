@@ -378,6 +378,7 @@ class TelemetryUtils:
                                             xdr_is_enabled=False,
                                             ignore_cpu_restarts=False,
                                             ignore_memory_restarts=False,
+                                            ignore_scheduled_queries=True,
                                             queries=None,
                                             scheduled_queries=None,
                                             ignore_xdr=True):
@@ -399,6 +400,10 @@ class TelemetryUtils:
             expected_edr_telemetry_dict.pop(mem_restarts_key, None)
             actual_edr_telemetry_dict.pop(mem_restarts_key, None)
 
+        if ignore_scheduled_queries:
+            scheduled-queries_key = "scheduled-queries"
+            expected_edr_telemetry_dict.pop(scheduled-queries_key, None)
+            actual_edr_telemetry_dict.pop(scheduled-queries_key, None)
         osquery_db_size_key = "osquery-database-size"
         if actual_edr_telemetry_dict[osquery_db_size_key] < 1:
             raise AssertionError("EDR telemetry doesn't contain a valid osquery database size field")
