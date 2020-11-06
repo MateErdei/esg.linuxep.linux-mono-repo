@@ -151,7 +151,7 @@ EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
 
     # ignoring duration as it will vary too much to reliably test - it's covered in unit tests.
-    ${query1}=  Set Variable  {"name":"simple", "rowcount-avg":2.5, "rowcount-min":1, "rowcount-max":4, "successful-count":2}
+    ${query1}=  Set Variable  {"name":"simple", "rowcount-std-deviation":1.5,"rowcount-avg":2.5, "rowcount-min":1, "rowcount-max":4, "successful-count":2}
     @{queries}=  create list   ${query1}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  queries=@{queries}
 

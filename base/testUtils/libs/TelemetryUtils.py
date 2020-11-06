@@ -158,8 +158,9 @@ class TelemetryUtils:
                 telemetry["live-query"][queryName] = {}
                 if "successful-count" in query:
                     telemetry["live-query"][query["name"]]["rowcount-avg"] = query["rowcount-avg"]
-                    telemetry["live-query"][query["name"]]["rowcount-min"] = query["rowcount-min"]
+                    telemetry["live-query"][query["name"]]["rowcount-std-deviation"] = query["rowcount-std-deviation"]
                     telemetry["live-query"][query["name"]]["rowcount-max"] = query["rowcount-max"]
+                    telemetry["live-query"][query["name"]]["rowcount-min"] = query["rowcount-min"]
                     telemetry["live-query"][query["name"]]["successful-count"] = query["successful-count"]
 
                 if "failed-exceed-limit-count" in query:
@@ -411,6 +412,7 @@ class TelemetryUtils:
                     queryData.pop("duration-avg")
                     queryData.pop("duration-min")
                     queryData.pop("duration-max")
+                    queryData.pop("duration-std-deviation")
         if "scheduled-queries" in actual_edr_telemetry_dict:
             # pop all durations from actual query because these values will change, so they need to be removed for tests.
             for (queryName, queryData) in actual_edr_telemetry_dict["scheduled-queries"].items():
