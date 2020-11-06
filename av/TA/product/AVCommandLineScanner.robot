@@ -716,7 +716,7 @@ CLS Can Zip File As Web Archive
 
     Run Process     zip  ${NORMAL_DIRECTORY}/test.zip  ${NORMAL_DIRECTORY}/1_eicar
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.zip
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.zip --scan-archives
 
     Log  return code is ${rc}
     Log  output is ${output}
