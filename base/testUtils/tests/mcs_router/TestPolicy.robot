@@ -220,7 +220,6 @@ MCS Resets Token If Empty Token Is Sent In MCS Policy And Remains Empty On Resta
     Check MCS Policy Config Does Not Contain  PolicyRegToken
 
 Test MCS Receives LiveQuery Policy
-        [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  REGISTRATION
         Register With Local Cloud Server
         Check Correct MCS Password And ID For Local Cloud Saved
         Create File  ${SOPHOS_INSTALL}/base/pluginRegistry/LiveQueryPlugin.json  {"policyAppIds": ["LiveQuery"]}

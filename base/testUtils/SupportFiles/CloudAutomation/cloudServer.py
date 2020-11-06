@@ -1676,7 +1676,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             GL_ENDPOINTS.updatePolicy("SAV",self.getBody())
         elif self.path.lower() == "/controller/alc/policy":
             GL_ENDPOINTS.updatePolicy("ALC",self.getBody())
-        elif self.path.lower() == "/controller/alc/policy":
+        elif self.path.lower() == "/controller/livequery/policy":
             GL_ENDPOINTS.updatePolicy("LiveQuery",self.getBody())
         elif self.path.lower() == "/controller/livequery/command":
             command_id = self.headers.get("Command-ID")
