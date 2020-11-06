@@ -8,9 +8,12 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include "ApplicationPaths.h"
 #include "Logger.h"
 #include "PluginUtils.h"
+#include "TelemetryConsts.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/FileUtils.h>
 
 #include <thread>
@@ -100,8 +103,29 @@ namespace Plugin
                                          "--events_expiry=604800",
                                          "--force=true",
                                          "--disable_enrollment=true",
-                                         "--enable_killswitch=false",
-                                         "--events_max=50000" };
+                                         "--enable_killswitch=false"};
+
+        std::string eventsMaxValue = "50000";
+        std::pair<std::string,std::string> eventsMax = Common::UtilityImpl::FileUtils::extractValueFromFile(Plugin::edrConfigFilePath(), "events_max");
+        if (!eventsMax.first.empty())
+        {
+            LOGINFO("Setting events_max to " << eventsMax.first << " as per value in " << Plugin::edrConfigFilePath());
+            eventsMaxValue = eventsMax.first;
+        }
+        else
+        {
+            if (Common::UtilityImpl::StringUtils::startswith(eventsMax.second, "No such node"))
+            {
+                LOGDEBUG("No events_max value specified in " << Plugin::edrConfigFilePath() << " so using default of 50000");
+            }
+            else
+            {
+                LOGWARN("Failed to retrieve events_max value from " << Plugin::edrConfigFilePath() << " with error: " << eventsMax.second);
+            }
+        }
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        telemetry.set(plugin::telemetryEventsMax, eventsMaxValue);
+        flags.push_back("--events_max=" + eventsMaxValue);
 
         if (xdrEnabled)
         {

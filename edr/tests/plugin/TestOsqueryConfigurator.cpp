@@ -35,27 +35,6 @@ public:
         return OsqueryConfigurator::disableSystemAuditDAndTakeOwnershipOfNetlink();
     }
 
-    std::string regenerateOSQueryFlagsFile(bool enableAuditEventCollection)
-    {
-        const std::string filepath = "anyfile";
-        std::string fileContent;
-        auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
-        EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(true));
-        EXPECT_CALL(*mockFileSystem, isFile(filepath)).WillOnce(Return(false));
-        EXPECT_CALL(*mockFileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
-        EXPECT_CALL(*mockFileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(true));
-        EXPECT_CALL(*mockFileSystem, writeFile(filepath,
-                HasSubstr("--tls_server_certs=/etc/pki/tls/certs/ca-bundle.crt"))).WillOnce(
-                Invoke([&fileContent](const std::string&, const std::string& content) { fileContent = content; }));
-
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-
-        OsqueryConfigurator::regenerateOSQueryFlagsFile(filepath, enableAuditEventCollection);
-
-        Tests::restoreFileSystem();
-        return fileContent;
-    }
-
 private:
     bool retrieveDisableAuditFlagFromSettingsFile() const override
     {
@@ -165,21 +144,17 @@ TEST_F(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConf
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
 }
 
-TEST_F(TestOsqueryConfigurator, AuditCollectionIsDisabledForNotEnabledAuditDataCollection) // NOLINT
+TEST_F(TestOsqueryConfigurator, enableAnddisableQueryPackRenamesQueryPack) // NOLINT
 {
-    Tests::TempDir tempDir("/tmp");
+    std::string queryPackPath = "querypackpath";
+    std::string queryPackPathDisabled = "querypackpath.DISABLED";
 
-    tempDir.createFile("plugins/edr/etc/plugin.conf", "network_tables=1\n");
-    Common::ApplicationConfiguration::applicationConfiguration().setData(
-        Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
-    TestableOsqueryConfigurator enabledOption(true);
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(_)).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPathDisabled,queryPackPath));
+    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPath,queryPackPathDisabled));
+    TestableOsqueryConfigurator::enableQueryPack(queryPackPath);
+    TestableOsqueryConfigurator::disableQueryPack(queryPackPath);
 
-    std::string osqueryFlags = enabledOption.regenerateOSQueryFlagsFile(true);
-
-    EXPECT_THAT(osqueryFlags, ::testing::HasSubstr("--disable_audit=false"));
-
-    TestableOsqueryConfigurator disabledOption(false);
-    osqueryFlags = disabledOption.regenerateOSQueryFlagsFile(false);
-
-    EXPECT_THAT(osqueryFlags, ::testing::HasSubstr("--disable_audit=true"));
 }
