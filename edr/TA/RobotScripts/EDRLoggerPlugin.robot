@@ -45,7 +45,7 @@ EDR Plugin Runs All Scheduled Queries
     ...  10 secs
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
-EDR Plugin Detects Data Limit From Policy
+EDR Plugin Detects Data Limit From Policy And That A Status Is Sent On Start
     [Setup]  No Operation
     Install Base For Component Tests
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
@@ -60,6 +60,30 @@ EDR Plugin Detects Data Limit From Policy
 
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_250000000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Expect New Datalimit  250000000
+    Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
+
+EDR Plugin Send LiveQuery Status On Period Rollover
+    [Setup]  No Operation
+    Install Base For Component Tests
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Install EDR Directly from SDDS
+    Enable XDR
+
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrPeriodTimestamp  10
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
+    Remove File  ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
+    Remove File  ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop managementagent   OnError=failed to stop managementagent
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start managementagent   OnError=failed to start managementagent
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  XDR period has rolled over
+    Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
 
 EDR Plugin Respects Data Limit
     [Setup]  No Operation
@@ -86,8 +110,22 @@ EDR Plugin Respects Data Limit
     ...  10 secs
     ...  EDR Plugin Log Contains   XDR data limit for this period exceeded
 
+    Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>true</dailyDataLimitExceeded>
+
 
 *** Keywords ***
+LiveQuery Status Should Contain
+    [Arguments]  ${StringToContain}
+    ${status} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
+    Should Contain  ${status}  ${StringToContain}
+
+Wait For LiveQuery Status To Contain
+    [Arguments]  ${StringToContain}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  LiveQuery Status Should Contain  ${StringToContain}
+
 Move File Atomically
     [Arguments]  ${source}  ${destination}
     Copy File  ${source}  /opt/NotARealFile

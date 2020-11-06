@@ -15,6 +15,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/Process/IProcess.h>
 #include <modules/osqueryextensions/LoggerExtension.h>
+#include <modules/osqueryextensions/SophosExtension.h>
 #include <queryrunner/IQueryRunner.h>
 #include <queryrunner/ParallelQueryProcessor.h>
 
@@ -106,6 +107,7 @@ namespace Plugin
         int QUEUE_TIMEOUT = 600;
         bool m_isXDR = false;
         void sendLiveQueryStatus();
+        SophosExtension m_sophosExtension;
 
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
@@ -121,7 +123,7 @@ namespace Plugin
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
         // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
         void setUpOsqueryMonitor();
-        void registerAndStartLoggerPlugin();
+        void registerAndStartExtensionsPlugin();
         void stopOsquery();
         void cleanUpOldOsqueryFiles();
         void databasePurge();

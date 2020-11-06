@@ -59,7 +59,7 @@ private:
     Common::PersistentValue<unsigned int> m_currentDataUsage;
     Common::PersistentValue<unsigned int> m_periodStartTimestamp;
     unsigned int m_dataLimit;
-    unsigned int m_periodInSeconds;
+    Common::PersistentValue<unsigned int> m_periodInSeconds;
     std::function<void(void)> m_dataExceededCallback;
 
     // This is set to true once we have hit the limit during the period.

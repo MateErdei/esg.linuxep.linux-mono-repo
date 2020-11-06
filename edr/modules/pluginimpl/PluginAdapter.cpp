@@ -141,6 +141,8 @@ namespace Plugin
 
         processALCPolicy(alcPolicy, true);
         processLiveQueryPolicy(liveQueryPolicy);
+//      Send Status On Startup
+        sendLiveQueryStatus();
         cleanUpOldOsqueryFiles();
         loadXdrFlags();
         LOGSUPPORT("Start Osquery");
@@ -721,6 +723,7 @@ namespace Plugin
     {
         bool dailyDataLimitExceeded = m_loggerExtension.getDataLimitReached();
         std::string statusXml = serializeLiveQueryStatus(dailyDataLimitExceeded);
+        LOGINFO("Sending LiveQuery Status");
         m_baseService->sendStatus("LiveQuery", statusXml, statusXml);
     }
 

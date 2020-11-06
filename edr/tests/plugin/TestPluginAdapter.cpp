@@ -90,9 +90,9 @@ TEST_F(TestPluginAdapterWithLogger, processALCPolicyShouldInstructRestartOnChang
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(_)).Times(7);
+    EXPECT_CALL(*mockFileSystem, exists(_)).Times(8);
     EXPECT_CALL(*mockFileSystem, isFile(_)).Times(8);
-    EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(3);
+    EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(4);
 
     Tests::TempDir tempDir("/tmp");
     // set the config file to enable audit by default. Hence, the rest is configured by policy.

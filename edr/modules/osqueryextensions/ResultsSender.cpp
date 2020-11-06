@@ -31,7 +31,7 @@ ResultsSender::ResultsSender(
         "xdrPeriodTimestamp",
         std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
     m_dataLimit(dataLimit),
-    m_periodInSeconds(periodInSeconds),
+    m_periodInSeconds(pluginVarDir, "xdrPeriodInSeconds", periodInSeconds),
     m_dataExceededCallback(dataExceededCallback),
     m_hitLimitThisPeriod(pluginVarDir, "xdrLimitHit", false)
 {
@@ -81,8 +81,8 @@ void ResultsSender::Add(const std::string& result)
     if (incrementedDataUsage > m_dataLimit)
     {
         LOGWARN("XDR data limit for this period exceeded");
-        m_dataExceededCallback();
         m_hitLimitThisPeriod.setValue(true);
+        m_dataExceededCallback();
     }
 
     Json::Value logLine;
@@ -264,18 +264,19 @@ void ResultsSender::setDataLimit(unsigned int limitbytes)
 
 void ResultsSender::setDataPeriod(unsigned int periodSeconds)
 {
-    m_periodInSeconds = periodSeconds;
+    m_periodInSeconds.setValue(periodSeconds);
 }
 
 bool ResultsSender::checkDataPeriodElapsed()
 {
     unsigned int now =
         std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    if (now - m_periodStartTimestamp.getValue() > m_periodInSeconds)
+    if (now - m_periodStartTimestamp.getValue() > m_periodInSeconds.getValue())
     {
         m_currentDataUsage.setValue(0);
         m_periodStartTimestamp.setValue(now);
         m_hitLimitThisPeriod.setValue(false);
+        LOGDEBUG("XDR period has rolled over");
         return true;
     }
     return false;
