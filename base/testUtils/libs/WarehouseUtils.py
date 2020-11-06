@@ -3,6 +3,8 @@
 # Copyright (C) 2019 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import datetime
+import time
 import os
 import shutil
 import hashlib
@@ -149,6 +151,12 @@ def calculate_hashed_creds(username, password):
     return hash.hexdigest()
 
 
+def getYesterday():
+    now = datetime.date.today()
+    yesterday = now - datetime.timedelta(days=1)
+    return yesterday.strftime("%A")  # Returns day as week day name
+
+
 class TemplateConfig:
 
     use_local_warehouses = os.path.isdir(LOCAL_WAREHOUSES)
@@ -159,6 +167,7 @@ class TemplateConfig:
         :param username: username for the warehouse this policy is made for
         :param build_type: build type (prod or dev) of the products in the warehouse (needed for cert disambiguation)
         """
+        self.yesterday = getYesterday()
         self.local_connection_address = None
         self.env_key = env_key
         environment_config = os.environ.get(env_key, None)
@@ -270,14 +279,16 @@ class TemplateConfig:
         password_marker = "@PASSWORD@"
         username_marker = "@USERNAME@"
         connection_address_marker = "@CONNECTIONADDRESS@"
-        algorithm_marker="@ALGORITHM@"
+        algorithm_marker = "@ALGORITHM@"
+        yesterday_marker = "@YESTERDAY@"
 
         with open(template_policy) as template_file:
             template_string = template_file.read()
             template_string_with_replaced_values = template_string.replace(password_marker, self.password) \
                 .replace(username_marker, self.username) \
                 .replace(connection_address_marker, self.get_connection_address()) \
-                .replace(algorithm_marker, self.algorithm)
+                .replace(algorithm_marker, self.algorithm) \
+                .replace(yesterday_marker, self.yesterday)
             with open(output_policy, "w+") as output_file:  # replaces existing file if exists
                 output_file.write(template_string_with_replaced_values)
                 logger.info(
@@ -300,6 +311,8 @@ class TemplateConfig:
         if self.remote_connection_address in OSTIA_ADDRESSES:
             self.install_sophos_alias_file()
 
+    def get_basename_from_url(self):
+        return self.remote_connection_address.rsplit("/", 1)[-1]
 
 class WarehouseUtils(object):
     """
@@ -322,6 +335,7 @@ class WarehouseUtils(object):
         "base_edr_and_mtr.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_0_6_0.xml": TemplateConfig("BASE_ONLY_0_6_0", "base_user_0_6_0", PROD_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
         "base_only_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_only_weeklyScheduleVUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_VUT-1.xml": TemplateConfig("BASE_ONLY_VUT_PREV", "base_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_VUT_and_fake_plugins.xml": TemplateConfig("BALLISTA_VUT", "fake_plugin_user", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_paused_update_VUT-1.xml": TemplateConfig("BASE_PAUSED_VUT_PREV", "base_user_paused", PROD_BUILD_CERTS, OSTIA_PAUSED_ADDRESS),
@@ -363,7 +377,6 @@ class WarehouseUtils(object):
         Entry function used to generate the set of ALC policy files used for end-to-end testing with
         Real production or Ostia warehouses.
         """
-
         for file_name, template_config in list(self.template_configuration_values.items()):
             template_config.generate_warehouse_policy_from_template(file_name)
 
@@ -496,6 +509,47 @@ class WarehouseUtils(object):
         ballista_config.generate_warehouse_policy_from_template(template_policy_name, proposed_output_path=generated_ballista_policy_path)
         self.template_configuration_values["template_policy_name"] = ballista_config
         return generated_ballista_policy_path
+
+
+    def __get_localwarehouse_path_for_branch(self, branch):
+        return os.path.join("/tmp/system-product-test-inputs/local_warehouses/dev/sspl-warehouse",
+                            branch,
+                            "warehouse/warehouse/catalogue")
+
+
+    def Disable_Product_Warehouse_to_ensure_we_only_perform_a_supplement_update(self, branch="develop"):
+        # /tmp/system-product-test-inputs/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/catalogue
+        # LOCAL_WAREHOUSES=/tmp/system-product-test-inputs/local_warehouses/dev/sspl-warehouse
+        # templateConfig = self._get_template_config_from_dictionary_using_path(template_path)
+        # base = templateConfig.get_basename_from_url()
+        logger.info("Disable_Product_Warehouse_to_ensure_we_only_perform_a_supplement_update for {}".format(branch))
+        path = self.__get_localwarehouse_path_for_branch(branch)
+
+        PROTECTED_SUPPLEMENT_WAREHOUSES = [
+            'sdds.ssplflags-wh.xml'
+        ]
+
+        for x in os.listdir(path):
+            if x in PROTECTED_SUPPLEMENT_WAREHOUSES:
+                logger.debug("Not renaming supplement warehouse: {}".format(x))
+                continue
+            src = os.path.join(path, x)
+            bak = src + ".bak"
+            if not os.path.isfile(bak):
+                logger.debug("Renaming {} to {}".format(src, bak))
+                os.rename(src, bak)
+
+    def Restore_Product_Warehouse(self, branch="develop"):
+        logger.info("Restore_Product_Warehouse - after breaking for supplement-only update - for {}".format(branch))
+        path = self.__get_localwarehouse_path_for_branch(branch)
+
+        for x in os.listdir(path):
+            if x.endswith(".bak"):
+                src = os.path.join(path, x)
+                target = src[:-4]
+                logger.debug("Renaming {} to {}".format(src, target))
+                os.rename(os.path.join(path, x), target)
+
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":

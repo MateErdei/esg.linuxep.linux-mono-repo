@@ -40,6 +40,7 @@ ${BaseAndMtrAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_e
 ${BaseAndMtrWithFakeLibs}                   ${GeneratedWarehousePolicies}/base_and_mtr_0_6_0.xml
 ${BaseAndEdrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 ${BaseOnlyVUTPolicy}                        ${GeneratedWarehousePolicies}/base_only_VUT.xml
+${BaseOnlyVUT_weekly_schedule_Policy}       ${GeneratedWarehousePolicies}/base_only_weeklyScheduleVUT.xml
 ${BaseOnlyVUT_Without_SDU_Policy}           ${GeneratedWarehousePolicies}/base_only_VUT_without_SDU_Feature.xml
 
 ${LocalWarehouseDir}                        ./local_warehouses
@@ -619,7 +620,51 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
 
+Ensure Supplement Updates Only Perform A Supplement Update
+    ## This can't run against real (remote) warehouses, since it modifies the warehouses to prevent product updates from working
+    [Tags]  MANUAL
+    [TearDown]  Cleanup Warehouse And Test Teardown
+    [Timeout]    20 minutes
+
+    ## This policy has a weekly schedule for 3am yesterday
+    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUT_weekly_schedule_Policy}
+
+    Log File  /etc/hosts
+    Log File  ${BaseOnlyVUT_weekly_schedule_Policy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUT_weekly_schedule_Policy}
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    ## Running on a vagrant box - force local build in
+#    Run Process  bash  +x  /vagrant/everest-base/output/SDDS-COMPONENT/install.sh
+#    Run Process   rm  -rf  /opt/sophos-spl/base/VERSION*
+#    Copy File  /opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/VERSION.ini  /opt/sophos-spl/base/VERSION.ini
+
+    Disable Product Warehouse to ensure we only perform a supplement update  develop
+
+    ## First update happens between 5-10 minutes after starting UpdateScheduler
+    Sleep  5 minutes
+    Wait Until Keyword Succeeds
+    ...  5 minutes
+    ...  30 secs
+    ...  Check Log Contains In Order  ${SULDownloaderLog}
+         ...  Doing supplement-only update
+         ...  Update success
+
+
+    Check Log Does Not Contain  Doing product and supplement update   ${SULDownloaderLog}  SulDownloaderLog
+    Check Log Does Not Contain  Forcing product update due previous update failure or change in configuration   ${SULDownloaderLog}  SulDownloaderLog
+
+
+
 *** Keywords ***
+
+Cleanup Warehouse And Test Teardown
+    Restore Product Warehouse  develop
+    Test Teardown
 
 Simulate Previous Scheduled Update Success
     # Trigger updating via Central Update Scheduler which will create the previous_update_config.json file only when
