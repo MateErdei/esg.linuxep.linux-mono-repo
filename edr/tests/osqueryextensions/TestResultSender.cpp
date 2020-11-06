@@ -692,3 +692,42 @@ TEST_F(TestResultSender, dataLimitHitGraduallyInvokesCallback)  // NOLINT
 
     ASSERT_EQ(callbackCount, 1);
 }
+
+TEST_F(TestResultSender, dataLimitResetOnPeriodElapsing)  // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+
+    std::string testResult = R"({"name":"","test":"value"})";
+    int callbackCount = 0;
+    int timesToAddResult = 5;
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "{\"name\":\"\",\"test\":\"value\"}")).Times(1);
+    // -1 here because of the first result without a "," being added above
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, ",{\"name\":\"\",\"test\":\"value\"}")).Times(timesToAddResult-1);
+
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        (timesToAddResult * testResult.length()) - 1,
+        2,
+        [&callbackCount]()mutable{++callbackCount;});
+
+    while (timesToAddResult>0)
+    {
+        resultsSender.Add(testResult);
+        timesToAddResult--;
+    }
+
+    ASSERT_EQ(callbackCount, 1);
+}
