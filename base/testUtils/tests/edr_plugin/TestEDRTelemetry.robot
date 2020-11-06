@@ -84,7 +84,7 @@ EDR Plugin Produces Telemetry For XDR scheduled queries
     ${query1}=  Set Variable  {"name":"bad-query" ,"query-error-count": 1}
     ${query2}=  Set Variable  {"name":"endpoint_id" ,"record-size-std-deviation":0.0,"records-count":1}
     @{queries}=  create list   ${query1}  ${query2}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  0  0  True  ignore_xdr=False  ignore_scheduled_queries=False scheduled_queries=@{queries}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  0  0  True  ignore_xdr=False  ignore_scheduled_queries=False  scheduled_queries=@{queries}
 
 EDR Plugin Produces Telemetry With OSQueryD Output Log File Not Containing Restarts
     Prepare To Run Telemetry Executable
