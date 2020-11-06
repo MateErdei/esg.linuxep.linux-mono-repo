@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/pluginimpl/TelemetryConsts.h>
 
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 #include <json/json.h>
@@ -121,10 +122,10 @@ void ResultsSender::Add(const std::string& result)
 
     Json::StreamWriterBuilder builder;
     std::string name = Json::writeString(builder, logLine["name"]);
-    key << plugin::telemetryScheduledQueries << "." << name;
+    key << plugin::telemetryScheduledQueries << "." << Common::UtilityImpl::StringUtils::replaceAll(name,"\"","");
     std::string scheduledQueryKey = key.str();
-    // we want the record size to be in kB
-    telemetryHelper.appendStat(scheduledQueryKey + "." + plugin::telemetryRecordSize, result.length()/1024);
+
+    telemetryHelper.appendStat(scheduledQueryKey + "." + plugin::telemetryRecordSize, result.length());
     telemetryHelper.increment(scheduledQueryKey + "." + plugin::telemetryRecordsCount, 1L);
 
     std::stringstream ss;
