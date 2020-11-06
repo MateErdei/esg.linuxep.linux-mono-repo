@@ -144,7 +144,7 @@ class TelemetryUtils:
                 queryName = query["name"]
                 telemetry["scheduled-queries"][queryName] = {}
                 if "records-count" in query:
-                    telemetry["scheduled-queries"][query["name"]]["rowcount-std-deviation"] = query["record-size-std-deviation"]
+                    telemetry["scheduled-queries"][query["name"]]["record-size-std-deviation"] = query["record-size-std-deviation"]
                     telemetry["scheduled-queries"][query["name"]]["records-count"] = query["records-count"]
                 if "query-error-count" in query:
                     telemetry["scheduled-queries"][query["name"]]["query-error-count"] = query["query-error-count"]
