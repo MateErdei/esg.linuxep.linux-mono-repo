@@ -4,18 +4,18 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Logger.h"
 #include "TelemetryHelper.h"
 
+#include "Logger.h"
 #include "TelemetrySerialiser.h"
 
-#include <Common/UtilityImpl/StringUtils.h>
-
-#include <functional>
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <sys/stat.h>
+#include <cmath>
+#include <functional>
 
 namespace Common::Telemetry
 {
@@ -252,6 +252,20 @@ namespace Common::Telemetry
     {
         return *std::max_element(m_statsCollection[statsKey].begin(), m_statsCollection[statsKey].end());
     }
+    double TelemetryHelper::getStatStdDeviation(const std::string& statsKey)
+    {
+        double statMean = TelemetryHelper::getStatAverage(statsKey);
+        double sumation = 0;
+        for (auto& stat : m_statsCollection[statsKey])
+        {
+            double  term = stat - statMean;
+            term = term * term;
+            sumation += term;
+        }
+        double statStdDeviationSquared = sumation / m_statsCollection[statsKey].size();
+
+        return sqrt(statStdDeviationSquared);  // maybe use another method  instead of sqrt?
+    }
 
     void TelemetryHelper::updateTelemetryWithStats()
     {
@@ -284,6 +298,15 @@ namespace Common::Telemetry
         for (const auto& keyValuePair : m_statsCollection)
         {
             set(keyValuePair.first + "-max",getStatMax(keyValuePair.first));
+        }
+    }
+
+    void TelemetryHelper::updateTelemetryWithAllStdDeviationStats()
+    {
+        std::map<std::string, double> maxValues;
+        for (const auto& keyValuePair : m_statsCollection)
+        {
+            set(keyValuePair.first + "-std-deviation",getStatStdDeviation(keyValuePair.first));
         }
     }
 

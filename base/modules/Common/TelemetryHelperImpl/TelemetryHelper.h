@@ -65,9 +65,11 @@ namespace Common::Telemetry
         double getStatAverage(const std::string& statsKey);
         double getStatMin(const std::string& statsKey);
         double getStatMax(const std::string& statsKey);
+        double getStatStdDeviation(const std::string& statsKey);
         void updateTelemetryWithAllAverageStats();
         void updateTelemetryWithAllMinStats();
         void updateTelemetryWithAllMaxStats();
+        void updateTelemetryWithAllStdDeviationStats();
 
         void mergeJsonIn(const std::string& key, const std::string& json);
         void registerResetCallback(std::string cookie, std::function<void(TelemetryHelper&)> function);
