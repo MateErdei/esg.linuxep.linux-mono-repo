@@ -643,6 +643,10 @@ Ensure Supplement Updates Only Perform A Supplement Update
 #    Run Process   rm  -rf  /opt/sophos-spl/base/VERSION*
 #    Copy File  /opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/VERSION.ini  /opt/sophos-spl/base/VERSION.ini
 
+    ## Need to remove the log so that we can see if the later update is definitely supplement only in the logs
+    Log File  ${SULDownloaderLog}
+    Remove File  ${SULDownloaderLog}
+
     Disable Product Warehouse to ensure we only perform a supplement update  develop
 
     ## First update happens between 5-10 minutes after starting UpdateScheduler
