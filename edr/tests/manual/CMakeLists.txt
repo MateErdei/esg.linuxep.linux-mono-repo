@@ -1,4 +1,5 @@
 add_subdirectory(BinaryData)
 add_subdirectory(LiveQueryReport)
 add_subdirectory(DelayControlled)
+add_subdirectory(TestLoggerExtention)
 
