@@ -549,6 +549,31 @@ class MDREndpointManager(object):
     def getPolicy(self):
         return self.__m_policy
 
+# LiveQuery POLICY
+class LiveQueryEndpointManager(object):
+    def __init__(self):
+        self.__m_policyID = "INITIAL_LIVEQUERY_POLICY_ID"
+        self.__m_policy = INITIAL_LIVEQUERY_POLICY
+        GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
+
+    def policyPending(self):
+        return self.__m_policyID is not None
+
+    def policyID(self):
+        return self.__m_policyID
+
+    def commandDeleted(self):
+        self.__m_policyID = None
+
+    def updatePolicy(self, body):
+        self.__m_policyID = "LiveQuery%f"%(time.time())
+        self.__m_policy = body
+        logger.info("Updating LiveQuery policy: %s",self.__m_policyID)
+        GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
+
+    def getPolicy(self):
+        return self.__m_policy
+
 class Endpoint(object):
     def __init__(self, status):
         global ID
@@ -561,6 +586,7 @@ class Endpoint(object):
         self.__mcs = MCSEndpointManager()
         self.__alc = ALCEndpointManager()
         self.__mdr = MDREndpointManager()
+        self.__livequery = LiveQueryEndpointManager()
         self.__m_doc = None
         self.__m_health = 0
         self.__m_updatesource = None
@@ -820,6 +846,8 @@ class Endpoint(object):
             commands.append(self.updateNowCommand())
         if "MDR" in apps and self.__mdr.policyPending():
             commands.append(self.policyCommand("MDR", self.__mdr.policyID()))
+        if "LiveQuery" in apps and self.__livequery.policyPending():
+            commands.append(self.policyCommand("LiveQuery", self.__livequery.policyID()))
         if 'LiveTerminal' in apps and self.__liveTerminal.LiveTerminalPending():
             commands.append(self.liveTerminalCommand())
 
@@ -846,6 +874,8 @@ class Endpoint(object):
                 self.__alc.commandDeleted()
             elif c == "MDR":
                 self.__mdr.commandDeleted()
+            elif c == "LiveQuery":
+                self.__livequery.commandDeleted()
             else:
                 logger.error("Attempting to delete unknown command: %s", c)
 
@@ -857,6 +887,9 @@ class Endpoint(object):
 
     def updateMdrPolicy(self, body):
         self.__mdr.updatePolicy(body)
+
+    def updateLiveQueryPolicy(self, body):
+        self.__livequery.updatePolicy(body)
 
     def updateSavPolicy(self, body):
         self.__sav.updatePolicy(body)
@@ -870,6 +903,8 @@ class Endpoint(object):
             self.__alc.updatePolicy(body)
         elif adapter == "MDR":
             self.__mdr.updatePolicy(body)
+        elif adapter == "LiveQuery":
+            self.__livequery.updatePolicy(body)
             
     def updateNow(self):
         self.__alc.updateNow()
@@ -1641,6 +1676,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             GL_ENDPOINTS.updatePolicy("SAV",self.getBody())
         elif self.path.lower() == "/controller/alc/policy":
             GL_ENDPOINTS.updatePolicy("ALC",self.getBody())
+        elif self.path.lower() == "/controller/alc/policy":
+            GL_ENDPOINTS.updatePolicy("LiveQuery",self.getBody())
         elif self.path.lower() == "/controller/livequery/command":
             command_id = self.headers.get("Command-ID")
             GL_ENDPOINTS.setQuery("LiveQuery", self.getBody(), command_id)
@@ -1809,6 +1846,7 @@ def setDefaultPolicies(options):
     global INITIAL_MCS_POLICY
     global INITIAL_SAV_POLICY
     global INITIAL_MDR_POLICY
+    global INITIAL_LIVEQUERY_POLICY
 
     with open(options.INITIAL_ALC_POLICY) as alc_file:
         INITIAL_ALC_POLICY = alc_file.read()
@@ -1821,6 +1859,9 @@ def setDefaultPolicies(options):
 
     with open(options.INITIAL_MDR_POLICY) as mdr_file:
         INITIAL_MDR_POLICY = mdr_file.read()
+
+    with open(options.INITIAL_LIVEQUERY_POLICY) as livequery_file:
+        INITIAL_LIVEQUERY_POLICY = livequery_file.read()
 
 def main(argv):
     try:

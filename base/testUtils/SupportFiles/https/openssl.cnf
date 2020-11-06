@@ -355,3 +355,4 @@ subjectAltName = @alt_names
 [ alt_names ]
 DNS.1  = ostia.eng.sophos
 DNS.2  = localhost
+DNS.3  = ostiant.eng.sophos
