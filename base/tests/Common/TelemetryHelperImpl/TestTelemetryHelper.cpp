@@ -552,6 +552,18 @@ TEST(TestTelemetryHelper, telemtryStatSerialisedCorrectly) // NOLINT
     ASSERT_EQ(R"({"statName-avg":5.666666666666667,"statName-max":10.0,"statName-min":1.0})", helper.serialise());
 }
 
+TEST(TestTelemetryHelper, telemtryStatStdDeviationSerialisedCorrectly) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.appendStat("statName", 1);
+    helper.appendStat("statName", 6);
+    helper.appendStat("statName", 10);
+    helper.updateTelemetryWithAllStdDeviationStats();
+
+    ASSERT_EQ(R"({"statName-std-deviation":3.6817870057290873})", helper.serialise());
+}
+
 TEST(TestTelemetryHelper, TelemetryAndStatsAreSavedCorrectly) // NOLINT
 {
     MockFileSystem* mockFileSystemPtr  = new StrictMock<MockFileSystem>;

@@ -123,12 +123,11 @@ class TelemetryUtils:
         return telemetry
 
     def generate_edr_telemetry_dict(self, num_osquery_restarts, num_database_purges, num_osquery_restarts_cpu,
-                                    num_osquery_restarts_memory, xdr_is_enabled, events_max, queries):
+                                    num_osquery_restarts_memory, xdr_is_enabled, queries, scheduled_queries):
         version = get_plugin_version("edr")
         telemetry = {
             "osquery-restarts": int(num_osquery_restarts),
             "version": version,
-            "events-max": events_max,
             "osquery-database-purges": int(num_database_purges),
             "xdr-is-enabled": xdr_is_enabled
         }
@@ -137,6 +136,19 @@ class TelemetryUtils:
         if int(num_osquery_restarts_memory) > -1:
             telemetry["osquery-restarts-memory"] = int(num_osquery_restarts_memory)
 
+        if scheduled_queries:
+            telemetry["scheduled-queries"] = {}
+            for query in queries:
+                # because robot can't seem to pass dictionaries in parse string to dict here.
+                query = json.loads(query)
+                queryName = query["name"]
+                telemetry["scheduled-queries"][queryName] = {}
+                if "records-count" in query:
+                    telemetry["live-query"][query["name"]]["rowcount-avg"] = query["rowcount-avg"]
+                    telemetry["live-query"][query["name"]]["rowcount-min"] = query["rowcount-min"]
+                    telemetry["live-query"][query["name"]]["rowcount-max"] = query["rowcount-max"]
+                    telemetry["live-query"][query["name"]]["rowcount-std-deviation"] = query["rowcount-std-deviation"]
+                    telemetry["live-query"][query["name"]]["records-count"] = query["records-count"]
         if queries:
             telemetry["live-query"] = {}
             for query in queries:
@@ -363,18 +375,17 @@ class TelemetryUtils:
                                             num_osquery_restarts_cpu=0,
                                             num_osquery_restarts_memory=0,
                                             xdr_is_enabled=False,
-                                            events_max='50000',
                                             ignore_cpu_restarts=False,
                                             ignore_memory_restarts=False,
                                             queries=None,
+                                            scheduled_queries=None,
                                             ignore_xdr=True):
         expected_edr_telemetry_dict = self.generate_edr_telemetry_dict(num_osquery_restarts,
                                                                        num_database_purges,
                                                                        num_osquery_restarts_cpu,
                                                                        num_osquery_restarts_memory,
                                                                        xdr_is_enabled,
-                                                                       events_max,
-                                                                       queries)
+                                                                       queries,scheduled_queries)
         actual_edr_telemetry_dict = json.loads(json_string)["edr"]
 
         if ignore_cpu_restarts:

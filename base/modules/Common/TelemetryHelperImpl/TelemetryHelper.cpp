@@ -252,6 +252,7 @@ namespace Common::Telemetry
     {
         return *std::max_element(m_statsCollection[statsKey].begin(), m_statsCollection[statsKey].end());
     }
+
     double TelemetryHelper::getStatStdDeviation(const std::string& statsKey)
     {
         double statMean = TelemetryHelper::getStatAverage(statsKey);

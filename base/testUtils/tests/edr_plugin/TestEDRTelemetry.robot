@@ -55,7 +55,7 @@ EDR Plugin Produces Telemetry For failed scheduled queries
     [Tags]  MCSROUTER  FAKE_CLOUD  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
     [Setup]  EDR Telemetry Test Setup With Cloud
     [Teardown]  EDR Telemetry Test Teardown With Cloud
-    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/sophos-scheduled-query-pack.conf
+    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Should Be Equal As Strings  0  ${result.rc}
@@ -71,11 +71,22 @@ EDR Plugin Produces Telemetry For failed scheduled queries
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   5 secs
-    ...   Check EDR Log Contains  Scheduled query may have failed:
+    ...   Check EDR Log Contains  Error executing scheduled query bad-query:
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   5 secs
+    ...   Check EDR Log Contains  threat_promisc_interfaces_linux
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  0  0  True  ignore_xdr=False
+    'scheduled-queries': {'bad-query': {'query-error-count': 1}}
+    {"name":"simple", "rowcount-avg":2.5, "rowcount-min":1, "rowcount-max":4, "successful-count":2}
+    # ignoring duration as it will vary too much to reliably test - it's covered in unit tests.
+    ${query1}=  Set Variable  {"name":'bad-query' ,'query-error-count': 1}}
+    ${query2}=  Set Variable  { "name" : 'threat_promisc_interfaces_linux', 'query-error-count': 1}}
+    @{queries}=  create list   ${query1}  ${query2}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  0  0  True  ignore_xdr=False  scheduled_queries=@{queries}
 
 EDR Plugin Produces Telemetry With OSQueryD Output Log File Not Containing Restarts
     Prepare To Run Telemetry Executable
