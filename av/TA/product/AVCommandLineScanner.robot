@@ -96,7 +96,6 @@ CLS Can Scan Clean File
 
 
 CLS Does Not Ordinarily Output To Stderr
-
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file 1>/dev/null
 
@@ -115,6 +114,34 @@ CLS Can Scan Infected File
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naugthy_eicar
 
+
+CLS Can Scan Shallow Archive But not Deep Archive
+    Create File     ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
+    create archive test files  ${NORMAL_DIRECTORY}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar5.zip -s
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar6.zip -s
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar15.tar -s
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar16.tar -s
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+CLS Summary is Correct
+   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+   Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar ${NORMAL_DIRECTORY}/clean_file
+
+   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+   Should Contain   ${output}  2 files scanned in
+   Should Contain   ${output}  1 file out of 2 was infected.
+   Should Contain   ${output}  1 EICAR-AV-Test infection discovered.
+
+
 CLS Does not request TFTClassification from SUSI
       Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
       ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
@@ -122,37 +149,6 @@ CLS Does not request TFTClassification from SUSI
       Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
       File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naugthy_eicar
       Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  TFTClassifications
-
-CLS Can Evaluate High Ml Score As A Threat
-      Copy File  ${RESOURCES_PATH}/file_samples/MLengHighScore.exe  ${NORMAL_DIRECTORY}
-      Mark Sophos Threat Detector Log
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
-
-      Log To Console  return code is ${rc}
-      Log To Console  output is ${output}
-      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with Generic ML PUA
-
-      ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
-      ${primary_score} =  Find Score  Primary score:  ${contents}
-      ${secondary_score} =  Find Score  Secondary score:  ${contents}
-      ${value} =  Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${15}
-      Should Be Equal As Integers  ${value}  ${1}
-
-CLS Can Evaluate Low Ml Score As A Clean File
-      Copy File  ${RESOURCES_PATH}/file_samples/MLengLowScore.exe  ${NORMAL_DIRECTORY}
-      Mark Sophos Threat Detector Log
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengLowScore.exe
-
-      Log To Console  return code is ${rc}
-      Log To Console  output is ${output}
-      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-      Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengLowScore.exe"
-
-      ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
-      ${primary_score} =  Find Score  Primary score:  ${contents}
-      ${value} =  Check Ml Primary Score Is Below Threshold  ${primary_score}  ${30}
-      Should Be Equal As Integers  ${value}  ${1}
 
 CLS Can Scan Archive File
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir

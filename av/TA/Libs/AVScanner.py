@@ -6,6 +6,8 @@
 import sys
 import os
 import logging
+import tarfile
+import zipfile
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +35,7 @@ def create_long_path(dirname, depth, root='/', file="file", file_contents=""):
 
 
 def get_exclusion_list_for_everything_else(inclusion):
+
     inclusion = inclusion.rstrip('/')
     exclusions = []
     for dir_path, dirs, files in os.walk('/'):
@@ -70,10 +73,9 @@ def get_exclusion_list_for_everything_else(inclusion):
     exclusions.sort()
     return exclusions
 
-
 def exclusions_for_everything_else(inclusion):
     exclusions = get_exclusion_list_for_everything_else(inclusion)
-    exclusions = ['<filePath>{}</filePath>'.format(f) for f in exclusions]
+    exclusions = [ '<filePath>{}</filePath>'.format(f) for f in exclusions ]
     return ''.join(exclusions)
 
 
@@ -87,7 +89,7 @@ def increase_threat_detector_log_to_max_size_by_path(log_path):
     :param log_path:
     :return:
     """
-    max_size = 10 * 1024 * 1024 - 1
+    max_size = 10*1024*1024 - 1
     statbuf = os.stat(log_path)
     current_size = statbuf.st_size
     additional_required = max_size - current_size
@@ -121,23 +123,31 @@ def count_eicars_in_directory(d):
         count += len(files)
     return count
 
+def create_tar(path, file, tar_name):
+    starting_wd = os.getcwd()
+    os.chdir(path)
+    with tarfile.open(tar_name, "w") as tar_archive:
+        tar_archive.add(file)
+    os.chdir(starting_wd)
 
-def find_score(word, file_contents):
-    score = []
-    for line in file_contents:
-        if word in line:
-            score = line.split(" ")
+def create_zip(path, file, zip_name):
+    starting_wd = os.getcwd()
+    os.chdir(path)
+    with zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED) as zip_archive:
+        zip_archive.write(file)
+    os.chdir(starting_wd)
 
-    if len(score) == 0:
-        return 0
+def create_archive_test_files(path):
+    create_tar(path, "eicar", "eicar1.tar")
+    for x in range(2,17):
+        file_to_tar = "eicar" + str(x - 1) + ".tar"
+        tar_name = "eicar" + str(x) + ".tar"
 
-    return score[len(score) - 1]
+        create_tar(path, file_to_tar, tar_name)
 
+    create_zip(path, "eicar", "eicar1.zip")
+    for x in range(2,7):
+        file_to_tar = "eicar" + str(x - 1) + ".zip"
+        tar_name = "eicar" + str(x) + ".zip"
 
-def check_ml_scores_are_above_threshold(actual_primary, actual_secondary, threshold_primary, threshold_secondary):
-    # change 15 to 20 when scores are corrected
-    return int(actual_primary) > threshold_primary and int(actual_secondary) > threshold_secondary
-
-
-def check_ml_primary_score_is_below_threshold(actual_primary, threshold_primary):
-    return int(actual_primary) < threshold_primary
+        create_zip(path, file_to_tar, tar_name)
