@@ -146,7 +146,7 @@ CLS Can Evaluate Low Ml Score As A Clean File
 
       Log To Console  return code is ${rc}
       Log To Console  output is ${output}
-      Should Be Equal As Integers  ${rc}  ${0}
+      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
       Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengLowScore.exe"
 
       ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
