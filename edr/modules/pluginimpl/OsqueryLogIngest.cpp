@@ -50,11 +50,12 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
     }
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Error executing scheduled query "))
     {
-        //Error executing scheduled query bad_query_malformed: near "selectts": syntax error
-        std::vector<std::string> data= Common::UtilityImpl::StringUtils::splitString(logLine,"Error executing scheduled query");
-        std::vector<std::string> data2= Common::UtilityImpl::StringUtils::splitString(data[1],":");
-        std::string queryname = data2[0];
-        queryname = Common::UtilityImpl::StringUtils::replaceAll(queryname," ","");
+        //example error log: Error executing scheduled query bad_query_malformed: near "selectts": syntax error
+
+        std::vector<std::string> sections = Common::UtilityImpl::StringUtils::splitString(logLine,"Error executing scheduled query");
+        std::vector<std::string> unstrippedQueryName = Common::UtilityImpl::StringUtils::splitString(sections[1],":");
+        std::string queryname = Common::UtilityImpl::StringUtils::replaceAll(unstrippedQueryName[0]," ","");
+
         std::stringstream key;
         key << plugin::telemetryScheduledQueries << "." << queryname << "." << plugin::telemetryQueryErrorCount;
         std::string telemetryKey = key.str();
