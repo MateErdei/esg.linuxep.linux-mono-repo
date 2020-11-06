@@ -2,3 +2,6 @@ osquery.db
 edr.lock
 osqueryd.results.log
 syslog_pipe
+persist-xdrDataUsage
+persist-xdrLimitHit
+persist-xdrPeriodTimestamp
