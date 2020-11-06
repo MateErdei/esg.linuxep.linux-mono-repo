@@ -54,26 +54,14 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
         std::vector<std::string> data= Common::UtilityImpl::StringUtils::splitString(logLine,"Error executing scheduled query");
         std::vector<std::string> data2= Common::UtilityImpl::StringUtils::splitString(data[1],":");
         std::string queryname = data2[0];
-        Common::UtilityImpl::StringUtils::replaceAll(queryname," ","");
+        queryname = Common::UtilityImpl::StringUtils::replaceAll(queryname," ","");
         std::stringstream key;
         key << plugin::telemetryScheduledQueries << "." << queryname << "." << plugin::telemetryQueryErrorCount;
         std::string telemetryKey = key.str();
         LOGDEBUG_OSQUERY("Increment telemetry: " << telemetryKey);
         telemetry.increment(telemetryKey, 1L);
     }
-    else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Scheduled query may have failed:"))
-    {
-        // Scheduled query may have failed: bad_query_exception
 
-        std::vector<std::string> data= Common::UtilityImpl::StringUtils::splitString(logLine,"Scheduled query may have failed:");
-        std::string queryname = data[data.size()-1];
-        Common::UtilityImpl::StringUtils::replaceAll(queryname," ","");
-        std::stringstream key;
-        key << plugin::telemetryScheduledQueries << "." << queryname << "." << plugin::telemetryQueryErrorCount;
-        std::string telemetryKey = key.str();
-        LOGDEBUG_OSQUERY("Increment telemetry: " + telemetryKey);
-        telemetry.increment(telemetryKey, 1L);
-    }
 }
 void OsqueryLogIngest::operator()(std::string output)
 {

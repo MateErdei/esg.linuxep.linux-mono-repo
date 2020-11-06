@@ -118,7 +118,10 @@ void ResultsSender::Add(const std::string& result)
     }
 
     std::stringstream key;
-    key << plugin::telemetryScheduledQueries << "." << logLine["name"];
+
+    Json::StreamWriterBuilder builder;
+    std::string name = Json::writeString(builder, logLine["name"]);
+    key << plugin::telemetryScheduledQueries << "." << name;
     std::string scheduledQueryKey = key.str();
     // we want the record size to be in kB
     telemetryHelper.appendStat(scheduledQueryKey + "." + plugin::telemetryRecordSize, result.length()/1024);

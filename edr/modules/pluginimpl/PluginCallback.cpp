@@ -97,6 +97,7 @@ namespace Plugin
         }
 
         telemetry.updateTelemetryWithStats();
+        telemetry.getStatStdDeviation(plugin::telemetryRecordSize);
 
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
