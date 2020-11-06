@@ -176,3 +176,11 @@ Check EDR Executable Not Running
     ${result} =    Run Process  pgrep  -a  edr
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+Restart EDR
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr

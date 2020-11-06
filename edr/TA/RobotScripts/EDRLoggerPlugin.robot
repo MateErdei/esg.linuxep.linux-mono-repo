@@ -38,12 +38,7 @@ EDR Plugin Runs All Scheduled Queries
     Enable XDR
 
     #restart edr so that the altered queries are read in and debug mode applied
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains      edr <> Plugin Finished
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Restart EDR
 
     Wait Until Keyword Succeeds
     ...  200 secs
@@ -84,12 +79,7 @@ EDR Plugin Respects Data Limit
     Enable XDR
 
     # Restart edr so that the altered queries are read in and debug mode applied
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains      edr <> Plugin Finished
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Restart EDR
 
     Wait Until Keyword Succeeds
     ...  20 secs
