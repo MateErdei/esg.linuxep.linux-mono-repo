@@ -5,9 +5,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "FileWalker.h"
+
 #include "Logger.h"
 
+#include <cstring>
 #include <set>
+
 #include <sys/stat.h>
 
 namespace fs = sophos_filesystem;
@@ -25,7 +28,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     }
 
     bool fileExists;
-
     try
     {
         fileExists = fs::exists(starting_point);
@@ -72,6 +74,25 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         options |= fs::directory_options::follow_directory_symlink;
     }
 
+    struct stat statbuf{};
+    int ret;
+    dev_t starting_dev = 0;
+
+    if (m_stay_on_device)
+    {
+        ret = ::stat(starting_point.c_str(), &statbuf);
+        if (ret != 0)
+        {
+            int error_number = errno;
+            std::ostringstream oss;
+            oss << "Failed to stat " << starting_point << ": " << std::strerror(error_number);
+            LOGERROR(oss.str());
+            std::error_code ec(error_number, std::system_category());
+            throw fs::filesystem_error(oss.str(), ec);
+        }
+        starting_dev = statbuf.st_dev;
+    }
+
     for(
         auto iterator = fs::recursive_directory_iterator(starting_point, options);
         iterator != fs::recursive_directory_iterator();
@@ -98,8 +119,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         else if (fs::is_symlink(p.symlink_status()))
         {
             // Directory symlink
-            struct stat statbuf{};
-            int ret = ::lstat(p.path().c_str(), &statbuf);
+            ret = ::lstat(p.path().c_str(), &statbuf);
             if (ret == 0)
             {
                 if (seen_symlinks.find(statbuf.st_ino) != seen_symlinks.end())
@@ -125,8 +145,22 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         {
             if (!m_callback.includeDirectory(p))
             {
+                LOGDEBUG("Not recursing into " << p.path() << " as it is excluded");
                 iterator.disable_recursion_pending();
             }
+            else if (m_stay_on_device)
+            {
+                ret = ::stat(p.path().c_str(), &statbuf);
+                if (ret == 0)
+                {
+                    if (statbuf.st_dev != starting_dev)
+                    {
+                        LOGDEBUG("Not recursing into " << p.path() << " as it is on a different mount");
+                        iterator.disable_recursion_pending();
+                    }
+                }
+            }
+
         }
         else
         {

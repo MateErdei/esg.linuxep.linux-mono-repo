@@ -186,6 +186,43 @@ AV Plugin Will Fail Scan Now If No Policy
     ${result} =   Terminate Process  ${handle}
 
 
+AV Plugin Scans local secondary mount only once
+    ${source} =       Set Variable  /tmp/ext2.fs
+    ${destination} =  Set Variable  /mnt/ext2mnt
+    Create Directory  ${destination}
+    Create ext2 mount   ${source}   ${destination}
+    Register Cleanup  Remove ext2 mount   ${source}   ${destination}
+    Create File       ${destination}/eicar.com    ${EICAR_STRING}
+
+    ${scanName} =   Set Variable  testScan
+    ${scanName_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${scanName}.log
+
+    ${allButTmp} =  Configure Scan Exclusions Everything Else  /mnt/
+    ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
+
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
+
+    ${currentTime} =  Get Current Date
+    ${scanTime} =  Add Time To Date  ${currentTime}  65 seconds  result_format=%H:%M:%S
+    ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
+    ${scanObjectSet} =  Policy Fragment FS Types  hardDrives=true
+    ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${scanName}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until AV Plugin Log Contains  Scheduled Scan: ${scanName}   timeout=30
+    Wait Until AV Plugin Log Contains  Starting scan ${scanName}     timeout=90
+    Wait Until AV Plugin Log Contains  Completed scan ${scanName}    timeout=60
+    File Should Exist  ${scanName_log}
+    File Log Contains  ${scanName_log}  "${destination}/eicar.com" is infected with EICAR
+
+    ${content} =  Get File   ${scanName_log}  encoding_errors=replace
+    ${lines} =  Get Lines Containing String     ${content}  "${destination}/eicar.com" is infected with EICAR
+    ${count} =  Get Line Count   ${lines}
+    Should Be Equal As Integers  ${count}  ${1}
+
+    ${result} =   Terminate Process  ${handle}
+
 AV Plugin Can Disable Scanning Of Mounted NFS Shares
     [Tags]  NFS
     ${source} =       Set Variable  /tmp/nfsshare

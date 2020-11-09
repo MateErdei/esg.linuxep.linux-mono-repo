@@ -297,6 +297,17 @@ Configure Scan Exclusions Everything Else
     Log  "Excluding the following directories: ${exclusions}"
     [return]  ${exclusions}
 
+Create ext2 mount
+    [Arguments]  ${source}  ${destination}
+    Run Shell Process   dd if=/dev/zero of=${source} bs=1024 count=102400   OnError=Failed to create image file
+    Run Shell Process   mkfs -t ext2 ${source}                              OnError=Failed to create ext2 fs
+    Run Shell Process   mount -o loop ${source} ${destination}              OnError=Failed to mount ext2 fs
+
+Remove ext2 mount
+    [Arguments]  ${source}  ${destination}
+    Run Shell Process   umount ${destination}   OnError=Failed to unmount ext2 fs
+    Remove file   ${source}
+
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
     Copy File  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp

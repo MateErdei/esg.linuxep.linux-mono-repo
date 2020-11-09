@@ -80,7 +80,7 @@ namespace
 }
 
 avscanner::mountinfo::IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(
-    const avscanner::mountinfo::IMountPointSharedVector& allMountpoints)
+    const avscanner::mountinfo::IMountPointSharedVector& allMountpoints) const
 {
     avscanner::mountinfo::IMountPointSharedVector includedMountpoints;
     for (const auto& mp : allMountpoints)
@@ -128,6 +128,9 @@ int NamedScanRunner::run()
     ScanClient scanner(*getSocket(), scanCallbacks, m_config.m_scanArchives, E_SCAN_TYPE_SCHEDULED);
     CallbackImpl callbacks(std::move(scanner), excludedMountPoints, m_config, allMountpoints);
 
+    filewalker::FileWalker walker(callbacks);
+    walker.stayOnDevice();
+
     std::set<std::string> mountsScanned;
 
     scanCallbacks->scanStarted();
@@ -147,7 +150,7 @@ int NamedScanRunner::run()
         try
         {
             mountsScanned.insert(mountpointToScan);
-            filewalker::walk(mountpointToScan, callbacks);
+            walker.walk(mountpointToScan);
         }
         catch (sophos_filesystem::filesystem_error& e)
         {

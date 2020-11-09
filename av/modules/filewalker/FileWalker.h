@@ -19,7 +19,7 @@ namespace filewalker
          * @param callbacks BORROWED reference to callbacks
          */
         explicit FileWalker(IFileWalkCallbacks& callbacks)
-                : m_callback(callbacks), m_follow_symlinks(false)
+                : m_callback(callbacks)
         {}
 
         /**
@@ -35,9 +35,19 @@ namespace filewalker
         {
             m_follow_symlinks = follow;
         }
+
+        /**
+         * Set option to stay on device - defaults to false
+         */
+        void stayOnDevice(bool stay_on_device=true)
+        {
+            m_stay_on_device = stay_on_device;
+        }
     private:
         IFileWalkCallbacks& m_callback;
-        bool m_follow_symlinks;
+        bool m_follow_symlinks = false;
+        bool m_stay_on_device = false;
     };
+
     void walk(const sophos_filesystem::path& starting_point, IFileWalkCallbacks& callbacks);
 }
