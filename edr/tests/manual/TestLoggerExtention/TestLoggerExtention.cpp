@@ -6,8 +6,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystemException.h>
 
 #include <modules/osqueryextensions/LoggerExtension.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
@@ -39,13 +37,4 @@ namespace {
 }
 int main()
 {
-    LoggerExtension loggerExtension(Plugin::osqueryXDRResultSenderIntermediaryFilePath(),
-                      Plugin::osqueryXDROutputDatafeedFilePath(),
-                      Plugin::osqueryXDRConfigFilePath());
-
-//    loggerExtension.Start(Plugin::osquerySocket(),
-//                            false,
-//                            DEFAULT_MAX_BATCH_SIZE_BYTES,
-//                            DEFAULT_MAX_BATCH_TIME_SECONDS);
-    registerAndStartLoggerPlugin(loggerExtension);
 }
