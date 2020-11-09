@@ -855,6 +855,7 @@ TEST_F( // NOLINT
     DownloadedProductVector emptyProducts;
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, hasImmediateFailError()).WillRepeatedly(Return(true));
     EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(false)); // failed tryConnect call
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
@@ -896,6 +897,7 @@ TEST_F( // NOLINT
     DownloadedProductVector emptyProducts;
 
     EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, hasImmediateFailError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
     EXPECT_CALL(mock, tryConnect(_, true, _)).WillOnce(Return(false)); // failed tryConnect call
     EXPECT_CALL(mock, tryConnect(_, false, _)).WillOnce(Return(false)); // failed tryConnect call
@@ -940,6 +942,7 @@ TEST_F( // NOLINT
         .WillOnce(Return(false)) // connection
         .WillOnce(Return(true))  // synchronization
         .WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, hasImmediateFailError()).WillOnce(Return(true)); // PACKAGESOURCEMISSING
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
@@ -994,6 +997,7 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
         .WillOnce(Return(false)) // synchronization
         .WillOnce(Return(true))  // distribute
         .WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, hasImmediateFailError()).WillOnce(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());

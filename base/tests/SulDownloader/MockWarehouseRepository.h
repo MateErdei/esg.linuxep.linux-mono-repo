@@ -21,6 +21,7 @@ class MockWarehouseRepository : public suldownloaderdata::IWarehouseRepository
 {
 public:
     MOCK_CONST_METHOD0(hasError, bool(void));
+    MOCK_CONST_METHOD0(hasImmediateFailError, bool(void));
     MOCK_CONST_METHOD0(getError, suldownloaderdata::WarehouseError(void));
     MOCK_METHOD1(synchronize, void(suldownloaderdata::ProductSelection&));
     MOCK_METHOD0(distribute, void(void));

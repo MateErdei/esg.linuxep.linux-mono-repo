@@ -46,7 +46,22 @@ namespace SulDownloader
 
             virtual ~IWarehouseRepository() = default;
 
+            /**
+             * Used to check if the WarehouseRepository reported an error
+             * @return true, if WarehouseRepository has error, false otherwise
+             */
             [[nodiscard]] virtual bool hasError() const = 0;
+
+            /**
+             * Do we have an error that means we should abort the update immediately?
+             *
+             * Currently: PACKAGESOURCEMISSING
+             *
+             * Subset of hasError()
+             *
+             * @return true if we should abort the update
+             */
+            [[nodiscard]] virtual bool hasImmediateFailError() const = 0;
 
             [[nodiscard]] virtual WarehouseError getError() const = 0;
 

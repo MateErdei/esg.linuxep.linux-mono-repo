@@ -255,6 +255,16 @@ namespace SulDownloader
 
     bool WarehouseRepository::hasError() const { return !m_error.Description.empty() || ::hasError(m_products); }
 
+
+    bool WarehouseRepository::hasImmediateFailError() const
+    {
+        if (!hasError())
+        {
+            return false;
+        }
+        return m_error.status == PACKAGESOURCEMISSING;
+    }
+
     WarehouseError WarehouseRepository::getError() const { return m_error; }
 
     void WarehouseRepository::synchronize(ProductSelection& selection)

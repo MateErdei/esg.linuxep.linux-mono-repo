@@ -87,6 +87,9 @@ namespace SulDownloader
          */
         bool hasError() const override;
 
+
+        [[nodiscard]] virtual bool hasImmediateFailError() const override;
+
         /**
          * Gets the WarehouseRepository error information.
          *

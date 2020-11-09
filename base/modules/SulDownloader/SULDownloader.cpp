@@ -134,6 +134,11 @@ namespace SulDownloader
 
     }
 
+    static bool isImmediateFailure(const IWarehouseRepositoryPtr& warehouseRepository)
+    {
+        return warehouseRepository->hasImmediateFailError();
+    }
+
     DownloadReport runSULDownloader(
         const ConfigurationData& configurationData,
         const ConfigurationData& previousConfigurationData,
@@ -181,11 +186,21 @@ namespace SulDownloader
                 LOGDEBUG("Successfully ran SUL Downloader");
                 break;
             }
+            else if (isImmediateFailure(warehouseRepository))
+            {
+                // Immediate failures: currently UPDATESOURCEMISSING
+                // Currently no immediate failures are possible for supplement-only updating - but need to abort if supplementOnly=False
+                assert(!supplementOnly); // currently never-supplement only - change message if this changes
+                LOGERROR("Immediate failure of updating");
+                break; // will still try updating products
+            }
         }
         if (supplementOnly && !success)
         {
             LOGINFO("Retry with product update, in case the supplement config has changed");
             // retry with product update, in case the supplement config has changed
+            // also if we get an immediate failure from the supplement-only update, we retry product-update
+            // (This can't happen currently, since the only immediate failure can't happen with local meta-data)
             supplementOnly = false;
             for (const auto& connectionSetup : candidates)
             {
@@ -193,6 +208,12 @@ namespace SulDownloader
                 if (success)
                 {
                     LOGDEBUG("Successfully ran SUL Downloader");
+                    break;
+                }
+                else if (isImmediateFailure(warehouseRepository))
+                {
+                    // Immediate failures: currently UPDATESOURCEMISSING
+                    LOGERROR("Immediate failure of updating");
                     break;
                 }
             }

@@ -6,16 +6,20 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include "MockWarehouseRepository.h"
 
+#include <SulDownloader/ProductUninstaller.h>
+
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/ProcessImpl/ProcessImpl.h>
-#include <SulDownloader/ProductUninstaller.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 using namespace SulDownloader;
 
@@ -24,8 +28,13 @@ class ProductUninstallerTest : public LogInitializedTests
     void SetUp() override
     {
         m_fileSystemMock = new StrictMock<MockFileSystem>();
-        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_fileSystemMock));        
-        m_defaultDistributionPath = "/opt/sophos-spl/base/update/cache/primary/product";
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_fileSystemMock));
+
+        // If SOPHOS_INSTALL isn't /opt/sophos-spl this path needs to match:
+        m_defaultDistributionPath = Common::FileSystem::join(
+            Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository(),
+            "product"
+        ); // "/opt/sophos-spl/base/update/cache/primary/product" by default
     }
 
     void TearDown() override
@@ -143,7 +152,7 @@ TEST_F( // NOLINT
     ProductUninstaller uninstallManager;
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&fileList]() {
-        auto mockProcess = new StrictMock<MockProcess>();
+        auto* mockProcess = new StrictMock<MockProcess>();
         EXPECT_CALL(*mockProcess, exec(fileList[2], _, _)).Times(1);
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return("uninstalling product"));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -151,8 +160,9 @@ TEST_F( // NOLINT
     });
     EXPECT_CALL(m_mockWarehouseRepository, getProductDistributionPath(_)).WillOnce(Return(m_defaultDistributionPath));
     std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
-    EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(
-                        productList, m_mockWarehouseRepository);); // NOLINT
+    EXPECT_NO_THROW(  // NOLINT
+        actualProductList = uninstallManager.removeProductsNotDownloaded(
+                        productList, m_mockWarehouseRepository););
     ASSERT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
 
