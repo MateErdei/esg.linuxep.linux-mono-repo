@@ -4,6 +4,7 @@ In order to run these tests in tap do from local machine or CI portal:
  2) tap run edr_plugin --debug-loop                         #run the pytests and robot tests
  3) tap run edr_plugin.test.component --debug-loop              #runs the pytests only
  4) tap run edr_plugin.test.integration --debug-loop             #runs the robot tests only
+
   #runs both pytests and robot for bullseye coverage, the branch must have a coverage build.
   #     develop or branches end with 'coverage'
 
