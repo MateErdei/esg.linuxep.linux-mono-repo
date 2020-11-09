@@ -35,7 +35,6 @@ def create_long_path(dirname, depth, root='/', file="file", file_contents=""):
 
 
 def get_exclusion_list_for_everything_else(inclusion):
-
     inclusion = inclusion.rstrip('/')
     exclusions = []
     for dir_path, dirs, files in os.walk('/'):
@@ -75,7 +74,7 @@ def get_exclusion_list_for_everything_else(inclusion):
 
 def exclusions_for_everything_else(inclusion):
     exclusions = get_exclusion_list_for_everything_else(inclusion)
-    exclusions = [ '<filePath>{}</filePath>'.format(f) for f in exclusions ]
+    exclusions = ['<filePath>{}</filePath>'.format(f) for f in exclusions]
     return ''.join(exclusions)
 
 
@@ -123,6 +122,29 @@ def count_eicars_in_directory(d):
         count += len(files)
     return count
 
+
+def find_score(word, file_contents):
+    score = []
+    split_file = file_contents.split('\n')
+    for line in split_file:
+        if word in line:
+            score = line.split(" ")
+
+    if len(score) == 0:
+        return 0
+
+    return score[len(score) - 1]
+
+
+def check_ml_scores_are_above_threshold(actual_primary, actual_secondary, threshold_primary, threshold_secondary):
+    # change 15 to 20 when scores are corrected
+    return int(actual_primary) > threshold_primary and int(actual_secondary) > threshold_secondary
+
+
+def check_ml_primary_score_is_below_threshold(actual_primary, threshold_primary):
+    return int(actual_primary) < threshold_primary
+
+
 def create_tar(path, file, tar_name):
     #not moving the cwd was archiving the full folder tree to the file we wanted to archive
     starting_wd = os.getcwd()
@@ -131,6 +153,7 @@ def create_tar(path, file, tar_name):
         tar_archive.add(file)
     os.chdir(starting_wd)
 
+
 def create_zip(path, file, zip_name):
     #not moving the cwd was archiving the full folder tree to the file we wanted to archive
     starting_wd = os.getcwd()
@@ -138,6 +161,7 @@ def create_zip(path, file, zip_name):
     with zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED) as zip_archive:
         zip_archive.write(file)
     os.chdir(starting_wd)
+
 
 def create_archive_test_files(path):
     create_tar(path, "eicar", "eicar1.tar")

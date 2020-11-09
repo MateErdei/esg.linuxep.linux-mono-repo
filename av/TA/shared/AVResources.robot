@@ -77,7 +77,8 @@ Get File Contents From Offset
     ${content} =  Get File   ${path}  encoding_errors=replace
     Log   "Skipping ${offset} lines"
     @{lines} =  Split To Lines   ${content}  ${offset}
-    [Return]  Catenate  SEPARATOR=\n  @{lines}
+    ${collectedLines} =  Catenate  SEPARATOR=\n  @{lines}
+    [Return]  ${collectedLines}
 
 File Log Contains With Offset
     [Arguments]  ${path}  ${input}  ${offset}=0
