@@ -356,7 +356,7 @@ namespace Plugin
         });
         // block here till osquery new instance is started.
         m_loggerExtension.Stop();
-        m_sophosExtension.Stop();
+        //m_sophosExtension.Stop();
         osqueryStarted.wait_started();
 
         if (m_isXDR)
@@ -388,7 +388,7 @@ namespace Plugin
         }
         try
         {
-            m_sophosExtension.Start(Plugin::osquerySocket(),false);
+            //m_sophosExtension.Start(Plugin::osquerySocket(),false);
         }
         catch (const std::exception& ex)
         {
@@ -401,8 +401,9 @@ namespace Plugin
         try
         {
             // Call stop on logger extension, this is ok to call whether running or not.
+            LOGINFO("Calling Stop in Adapter.");
             m_loggerExtension.Stop();
-            m_sophosExtension.Stop();
+            //m_sophosExtension.Stop();
 
             while (m_osqueryProcess && m_monitor.valid())
             {

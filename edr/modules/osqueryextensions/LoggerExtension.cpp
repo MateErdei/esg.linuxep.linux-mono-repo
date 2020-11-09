@@ -44,7 +44,7 @@ void LoggerExtension::Start(
     uintmax_t maxBatchBytes,
     unsigned int maxBatchSeconds)
 {
-    LOGINFO("LoggerExtension::Start");
+    LOGINFO("Starting LoggerExtension");
 
     // store these locally in case the run thread crashes and we want to call this start again from within Run.
     m_maxBatchBytes = maxBatchBytes;
@@ -61,20 +61,23 @@ void LoggerExtension::Start(
         m_extension->Start();
         m_stopped = false;
         m_runnerThread = std::make_unique<std::thread>(std::thread([this] { Run(); }));
-        LOGDEBUG("Run Logger Plugin thread");
+        LOGDEBUG("Logger Plugin running in thread");
     }
 }
 
 void LoggerExtension::Stop()
 {
+    LOGINFO("Stopping LoggerExtension");
     if (!m_stopped)
     {
-        LOGDEBUG("LoggerExtension::Stopping");
         m_stopped = true;
         m_extension->Stop();
-        if (m_runnerThread)
+        LOGINFO("LoggerExtension ExtensionInterface Stop Called");
+        if (m_runnerThread && m_runnerThread->joinable())
         {
+            LOGINFO("Joining LoggerExtension RunnerThread");
             m_runnerThread->join();
+            LOGINFO("LoggerExtension Joined RunnerThread");
             m_runnerThread.reset();
         }
         LOGINFO("LoggerExtension::Stopped");
@@ -83,7 +86,7 @@ void LoggerExtension::Stop()
 
 void LoggerExtension::Run()
 {
-    LOGINFO("LoggerExtension::Run");
+    LOGDEBUG("LoggerExtension running");
     m_extension->Wait();
     if (!m_stopped)
     {
@@ -93,8 +96,7 @@ void LoggerExtension::Run()
             LOGWARN(healthCheckMessage);
         }
 
-        LOGWARN(L"Service extension stopped unexpectedly. Calling reset.");
-        Stop();
+        LOGWARN("Service extension stopped unexpectedly. Calling reset.");
     }
 }
 

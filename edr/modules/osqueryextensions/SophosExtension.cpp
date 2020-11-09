@@ -44,7 +44,7 @@ void SophosExtension::Stop()
         LOGINFO("Stopping SophosExtension");
         m_stopped = true;
         m_extension->Stop();
-        if (m_runnerThread)
+        if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->join();
             m_runnerThread.reset();
@@ -64,7 +64,7 @@ void SophosExtension::Run()
             LOGWARN(healthCheckMessage);
         }
 
-        LOGWARN(L"Service extension stopped unexpectedly. Calling reset.");
+        LOGWARN("Service extension stopped unexpectedly. Calling reset.");
         Stop();
         Start(m_flags.socket, m_flags.verbose);
     }
