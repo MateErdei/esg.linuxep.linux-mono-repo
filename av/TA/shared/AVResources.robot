@@ -340,10 +340,11 @@ Create Local SMB Share
 Remove Local SMB Share
     [Arguments]  ${source}  ${destination}
     Run Shell Process   umount ${destination}   OnError=Failed to unmount local SMB server
+    Remove Directory    ${destination}
     Move File  ${SAMBA_CONFIG}_bkp  ${SAMBA_CONFIG}
     Restart Samba
     Remove Directory    ${source}  recursive=True
-    
+
 Check Scan Now Configuration File is Correct
     ${configFilename} =  Set Variable  /tmp/config-files-test/Scan_Now.config
     Wait Until Keyword Succeeds
@@ -387,7 +388,7 @@ Check Scheduled Scan Configuration File is Correct
         ...     scan_removable_drives=False
 
 Policy Fragment FS Types
-    [Arguments]  ${CDDVDDrives}=false  ${hardDrives}=false  ${networkDrives}=false  ${removableDrives}=false
+    [Arguments]  ${CDDVDDrives}=false  ${hardDrives}=true  ${networkDrives}=false  ${removableDrives}=false
     [return]    <scanObjectSet><CDDVDDrives>${CDDVDDrives}</CDDVDDrives><hardDrives>${hardDrives}</hardDrives><networkDrives>${networkDrives}</networkDrives><removableDrives>${removableDrives}</removableDrives></scanObjectSet>
 
 Create EICAR files
