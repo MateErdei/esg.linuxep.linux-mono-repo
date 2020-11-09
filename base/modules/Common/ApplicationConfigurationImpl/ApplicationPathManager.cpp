@@ -189,7 +189,7 @@ namespace Common
 
         std::string ApplicationPathManager::getSulDownloaderLatestProductUpdateMarkerPath() const
         {
-            return Common::FileSystem::join(sophosInstall(), "var/suldownloader_last_product_update.marker");
+            return Common::FileSystem::join(getSulDownloaderReportPath(), "last_product_update.marker");
         }
 
         std::string ApplicationPathManager::getSavedEnvironmentProxyFilePath() const
