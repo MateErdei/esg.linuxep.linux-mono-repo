@@ -342,18 +342,6 @@ We Can Upgrade From A Release With EDR To Master With Live Response
     ${ma_before_pid}=  Get Pid Of Process   sophos_managementagent
     ${wd_before_pid}=  Get Pid Of Process   sophos_watchdog
     ${lr_before_pid}=  Get Pid Of Process   liveresponse
-    Wait Until Keyword Succeeds
-    ...   20 secs
-    ...   5 secs
-    ...   Check EDR Log Contains   Flags have changed so restarting EDR
-    Wait Until Keyword Succeeds
-    ...   5 secs
-    ...   1 secs
-    ...   Check EDR Log Contains   edr <> Plugin Finished.
-    Wait Until Keyword Succeeds
-    ...   20 secs
-    ...   5 secs
-    ...   Get Pid Of Process  edr
     ${edr_before_pid}=  Get Pid Of Process  edr
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}

@@ -161,9 +161,14 @@ EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by EDR Plugin
     Wait Until OSQuery Running  20
+    # osquery will take longer to restart if it is killed before the socket is created
+    Wait Until Osquery Socket Exists
     Kill OSQuery
+
     Wait Until OSQuery Running  20
+    Wait Until Osquery Socket Exists
     Kill OSQuery
+
     Wait Until OSQuery Running  20
 
     Run Live Query  ${CRASH_QUERY}  Crash
