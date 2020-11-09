@@ -300,7 +300,7 @@ Configure Scan Exclusions Everything Else
 Create ext2 mount
     [Arguments]  ${source}  ${destination}
     Run Shell Process   dd if=/dev/zero of=${source} bs=1024 count=102400   OnError=Failed to create image file
-    Run Shell Process   mkfs -t ext2 ${source}                              OnError=Failed to create ext2 fs
+    Run Shell Process   mkfs -t ext2 -F ${source}                           OnError=Failed to create ext2 fs
     Run Shell Process   mount -o loop ${source} ${destination}              OnError=Failed to mount ext2 fs
 
 Remove ext2 mount
