@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     datatypes::AutoFd file_fd(open(filename.c_str(), static_cast<int>(oflags)));
     assert(file_fd >= 0);
 
-    const std::string path = "/opt/sophos-spl/plugins/av/chroot/scanning_socket";
+    const std::string path = "/opt/sophos-spl/plugins/av/chroot/var/scanning_socket";
     unixsocket::ScanningClientSocket socket(path);
     auto response = scan(socket, file_fd, filename);
     file_fd.close();

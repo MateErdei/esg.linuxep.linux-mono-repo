@@ -28,7 +28,7 @@ namespace
 
     fs::path threat_reporter_socket()
     {
-        return pluginInstall() / "chroot/threat_report_socket";
+        return pluginInstall() / "chroot/var/threat_report_socket";
     }
 
     fs::path sophos_threat_detector_launcher()

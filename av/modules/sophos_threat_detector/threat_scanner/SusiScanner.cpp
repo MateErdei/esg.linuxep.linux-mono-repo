@@ -26,7 +26,7 @@ namespace fs = sophos_filesystem;
 
 static fs::path threat_reporter_socket()
 {
-    return pluginInstall() / "chroot/threat_report_socket";
+    return pluginInstall() / "chroot/var/threat_report_socket";
 }
 
 static std::string create_scanner_config(const std::string& scannerInfo)

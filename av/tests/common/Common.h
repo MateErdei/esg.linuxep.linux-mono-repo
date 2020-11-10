@@ -27,7 +27,7 @@ void setupFakeSophosThreatDetectorConfig()
     fs::path base = tmpdir();
     appConfig.setData("PLUGIN_INSTALL", base);
     fs::path f = base;
-    fs::create_directories(f / "chroot");
+    fs::create_directories(f / "chroot/var");
     f /= "sbin";
     fs::create_directories(f);
     f /= "sophos_threat_detector_launcher";

@@ -220,7 +220,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     EXPECT_CALL(*mock_callback, processMessage(_)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
 
-    fs::path socket_path = pluginInstall() / "chroot/threat_report_socket";
+    fs::path socket_path = pluginInstall() / "chroot/var/threat_report_socket";
     unixsocket::ThreatReporterServerSocket threatReporterServer(
         socket_path, 0600, mock_callback
     );

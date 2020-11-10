@@ -223,9 +223,9 @@ static int inner_main()
         exit(EXIT_FAILURE);
     }
 
-    fs::path scanningSocketPath = "/scanning_socket";
+    fs::path scanningSocketPath = "/var/scanning_socket";
 #else
-    fs::path scanningSocketPath = chrootPath / "scanning_socket";
+    fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
 #endif
 
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory

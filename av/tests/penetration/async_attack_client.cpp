@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    const char* socketPath = "/opt/sophos-spl/plugins/av/chroot/scanning_socket";
+    const char* socketPath = "/opt/sophos-spl/plugins/av/chroot/var/scanning_socket";
 
     datatypes::AutoFd socket_fd(socket(AF_UNIX, SOCK_STREAM, 0));
     assert(socket_fd >= 0);

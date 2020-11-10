@@ -98,7 +98,8 @@ function generate_susi_package_manifest()
     echo $manifest_hash > $package_manifest
     cat $temp_manifest >> $package_manifest
 
-    chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
+    chmod -R g+rX "${SUSI_UPDATE_SRC}"
+    chown -R root:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
 }
 
 function bootstrap_susi_from_update_source()
@@ -126,7 +127,8 @@ function bootstrap_susi_from_update_source()
 
     cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${SUSI_V1DIR}
 
-    chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_DIST_VERS}"
+    chmod -R g+rX "${SUSI_DIST_VERS}"
+    chown -R root:${GROUP_NAME} "${SUSI_DIST_VERS}"
 }
 
 function install_product()
@@ -149,16 +151,16 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
     ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
-    chmod 0711 "${PLUGIN_INSTALL}"
-    chmod 0711 "${PLUGIN_INSTALL}/lib64"
+    chmod 0751 "${PLUGIN_INSTALL}"
+    chmod 0644 "${PLUGIN_INSTALL}/VERSION.ini"*
+    chmod 0751 "${PLUGIN_INSTALL}/lib64"
     chmod 0755 "${PLUGIN_INSTALL}/lib64"/*
     # Lock down libraries which are not needed by avscanner
-    chmod 0700 "${PLUGIN_INSTALL}/lib64/libpluginimpl.so"*
-    chmod 0700 "${PLUGIN_INSTALL}/lib64/libscanscheduler.so"*
-    chmod 0700 "${PLUGIN_INSTALL}/lib64/libsophosthreatdetectorimpl.so"*
-    chmod 0700 "${PLUGIN_INSTALL}/lib64/libthreat_scanner.so"*
-    chmod 0711 "${PLUGIN_INSTALL}/bin"
-    chmod 0755 "${PLUGIN_INSTALL}/bin/avscanner"
+    chmod 0750 "${PLUGIN_INSTALL}/lib64/libpluginimpl.so"*
+    chmod 0750 "${PLUGIN_INSTALL}/lib64/libscanscheduler.so"*
+    chmod 0750 "${PLUGIN_INSTALL}/lib64/libsophosthreatdetectorimpl.so"*
+    chmod 0750 "${PLUGIN_INSTALL}/lib64/libthreat_scanner.so"*
+    chmod -R 0711 "${PLUGIN_INSTALL}/bin"
     chmod -R 0710 "${PLUGIN_INSTALL}/sbin"
 
     mkdir -p "$VAR"
@@ -168,20 +170,30 @@ function install_product()
     mkdir -p ${CHROOT_LINK_DIR}
     ln -snf / ${CHROOT_LINK_DIR}/chroot
     mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
-    mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/mcs/policy/
+    mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
+    chmod -R 0710 ${CHROOT}/${SOPHOS_INSTALL%%/*}
+    chmod 0770 ${CHROOT_LINK_DIR}
+    chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
+    chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
+    mkdir -p ${CHROOT}/etc
+    chmod 0770 ${CHROOT}/etc
     mkdir -p ${CHROOT}/tmp
-    chmod 0711 "$CHROOT"
+    chmod 0770 ${CHROOT}/tmp
+    mkdir -p ${CHROOT}/var
+    chmod 0771 ${CHROOT}/var
+    chmod 0711 ${CHROOT}
+
+    chmod -R g+rX "${CHROOT}/susi"
+    chmod 0770 "${CHROOT}/susi/version_manifest.txt"
 
     ## Create log directory symlinks for sophos_threat_detector
     mkdir -p "$CHROOT/log" "${PLUGIN_INSTALL}/log" "${CHROOT_LINK_DIR}/log"
+    chmod 0770 "$CHROOT/log" "${PLUGIN_INSTALL}/log"
     ln -snf "$CHROOT/log" "${PLUGIN_INSTALL}/log/sophos_threat_detector"
     ln -snf "/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector"
     ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
 
-    # Enable DNS resolve on Ubuntu
-    mkdir -p ${CHROOT}/etc
-
-    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}"
+    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}"
 
     pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
     THREAT_DETECTOR="sophos_threat_detector_launcher"

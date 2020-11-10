@@ -40,7 +40,7 @@ std::shared_ptr<unixsocket::IScanningClientSocket> BaseRunner::getSocket()
 {
     if (!m_socket)
     {
-        const std::string unix_socket_path = pluginInstall() / "chroot/scanning_socket";
+        const std::string unix_socket_path = pluginInstall() / "chroot/var/scanning_socket";
         m_socket = std::make_shared<unixsocket::ScanningClientSocket>(unix_socket_path);
     }
     return m_socket;
