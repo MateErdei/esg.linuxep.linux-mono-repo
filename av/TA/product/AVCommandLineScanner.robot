@@ -172,15 +172,18 @@ CLS Can Scan Archive File
       Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
 CLS Doesnt Detect eicar in zip without archive option
-      Create File  ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
-      Create Zip   ${NORMAL_DIRECTORY}   eicar   eicar.zip
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar.zip
+      ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+      Create Directory  ${ARCHIVE_DIR}
+      Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
+
+      Run Process     zip  ${NORMAL_DIRECTORY}/test.zip  ${ARCHIVE_DIR}
+      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.zip
 
       Log  return code is ${rc}
       Log  output is ${output}
-      Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
+      Should Be Equal As Integers  ${rc}  ${0}
+      Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.zip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
       Should Not Contain  ${output}  is infected with EICAR-AV-Test
-      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Can Scan Multiple Archive Files
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
@@ -227,7 +230,6 @@ CLS Abort Scanning of Zip Bomb
       Should Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/zipbomb.zip was aborted
 
 AV Log Contains No Errors When Scanning File
-    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
     Log To Console  return code is ${rc}
@@ -657,7 +659,7 @@ CLS Scans file on NFS
     Create File       ${source}/eicar.com    ${EICAR_STRING}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup    Remove Local NFS Share   ${source}   ${destination}
+    register cleanup    Remove Local NFS Share   ${source}   ${destination}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${destination}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
@@ -693,9 +695,9 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
    # Rename the sophos threat detector launcher so that it cannot be restarted
    Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
-   Register Cleanup  Run Keywords  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
-   ...               AND           Stop AV
-   ...               AND           Start AV
+   register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
+   register cleanup  Stop AV
+   register cleanup  Start AV
 
    Wait Until Keyword Succeeds
    ...  60 secs
