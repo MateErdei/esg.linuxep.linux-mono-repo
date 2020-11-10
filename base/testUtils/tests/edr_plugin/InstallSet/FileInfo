@@ -253,7 +253,6 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/xymon_alerting.aug.
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/xymon.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/yaml.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/yum.aug.0
-o600, root, root, /opt/sophos-spl/plugins/edr/var/xdr_intermediary
 o600, root, root, /opt/sophos-spl/plugins/edr/VERSION.ini.0
 o644, root, root, /opt/sophos-spl/plugins/edr/var/osquery.pid
 o750, root, root, /opt/sophos-spl/plugins/edr/bin/edr.0
