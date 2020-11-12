@@ -8,6 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IFileWalkCallbacks.h"
 
+#include <unordered_set>
+
 namespace filewalker
 {
     class FileWalker
@@ -19,7 +21,7 @@ namespace filewalker
          * @param callbacks BORROWED reference to callbacks
          */
         explicit FileWalker(IFileWalkCallbacks& callbacks)
-                : m_callback(callbacks)
+            : m_callback(callbacks)
         {}
 
         /**
@@ -44,10 +46,16 @@ namespace filewalker
             m_stay_on_device = stay_on_device;
         }
     private:
+        void scanDirectory(const sophos_filesystem::path& starting_point);
+
         IFileWalkCallbacks& m_callback;
         bool m_follow_symlinks = false;
         bool m_stay_on_device = false;
-    };
 
+        std::unordered_set<ino_t> m_seen_symlinks;
+        sophos_filesystem::directory_options m_options;
+        bool m_startIsSymlink;
+        dev_t m_starting_dev = 0;
+    };
     void walk(const sophos_filesystem::path& starting_point, IFileWalkCallbacks& callbacks);
 }

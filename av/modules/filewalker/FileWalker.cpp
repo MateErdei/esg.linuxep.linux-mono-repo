@@ -9,7 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <cstring>
-#include <set>
 
 #include <sys/stat.h>
 
@@ -19,6 +18,9 @@ using namespace filewalker;
 
 void FileWalker::walk(const sophos_filesystem::path& starting_point)
 {
+    m_seen_symlinks.clear();
+    m_starting_dev = 0;
+
     if(starting_point.string().size() > 4096)
     {
         std::string errorMsg = "Failed to start scan: Starting Path too long";
@@ -49,13 +51,13 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         throw fs::filesystem_error(oss.str(), ec);
     }
 
-    bool startIsSymlink = fs::is_symlink(starting_point);
+    m_startIsSymlink = fs::is_symlink(starting_point);
 
     // if starting point is a file either skip or scan it
     // else starting point is a directory either skip or continue to traversal
     if (fs::is_regular_file(starting_point))
     {
-        m_callback.processFile(starting_point, startIsSymlink);
+        m_callback.processFile(starting_point, m_startIsSymlink);
         return;
     }
     else if (fs::is_directory(starting_point))
@@ -66,21 +68,17 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
     }
 
-    std::set<ino_t> seen_symlinks;
-    fs::directory_options options = fs::directory_options::skip_permission_denied;
+    m_options = fs::directory_options::skip_permission_denied;
 
     if (m_follow_symlinks)
     {
-        options |= fs::directory_options::follow_directory_symlink;
+        m_options |= fs::directory_options::follow_directory_symlink;
     }
-
-    struct stat statbuf{};
-    int ret;
-    dev_t starting_dev = 0;
 
     if (m_stay_on_device)
     {
-        ret = ::stat(starting_point.c_str(), &statbuf);
+        struct stat statbuf{};
+        int ret = ::stat(starting_point.c_str(), &statbuf);
         if (ret != 0)
         {
             int error_number = errno;
@@ -90,49 +88,69 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
             std::error_code ec(error_number, std::system_category());
             throw fs::filesystem_error(oss.str(), ec);
         }
-        starting_dev = statbuf.st_dev;
+        m_starting_dev = statbuf.st_dev;
+    }
+
+    scanDirectory(starting_point);
+}
+
+void FileWalker::scanDirectory(const fs::path& starting_point)
+{
+    std::error_code ec{};
+    auto iterator = fs::directory_iterator(starting_point, m_options, ec);
+    if (ec)
+    {
+        LOGERROR("Failed to iterate: " << starting_point << ": " << ec.message());
+        return;
     }
 
     for(
-        auto iterator = fs::recursive_directory_iterator(starting_point, options);
-        iterator != fs::recursive_directory_iterator();
+        ;
+        iterator != fs::directory_iterator();
         ++iterator )
     {
         const auto& p = *iterator;
         bool isRegularFile;
         try
         {
-           isRegularFile = fs::is_regular_file(p.status());
+            isRegularFile = fs::is_regular_file(p.status());
         }
         catch(fs::filesystem_error& e)
         {
             LOGERROR("Failed to access " << p << ": " << e.code().message());
-            iterator.disable_recursion_pending();
             continue;
         }
 
         if (isRegularFile)
         {
             // Regular file
-            m_callback.processFile(p, startIsSymlink || fs::is_symlink(p.symlink_status()));
+            try
+            {
+                m_callback.processFile(p.path(), m_startIsSymlink || fs::is_symlink(p.symlink_status()));
+            }
+            catch (const std::runtime_error& ex)
+            {
+                LOGERROR("Failed to process: " << p.path().string());
+                continue;
+            }
         }
         else if (fs::is_symlink(p.symlink_status()))
         {
             // Directory symlink
-            ret = ::lstat(p.path().c_str(), &statbuf);
+            struct stat statbuf{};
+            int ret = ::lstat(p.path().c_str(), &statbuf);
             if (ret == 0)
             {
-                if (seen_symlinks.find(statbuf.st_ino) != seen_symlinks.end())
+                if (m_seen_symlinks.find(statbuf.st_ino) != m_seen_symlinks.end())
                 {
-                    LOGDEBUG("Disable recursion " << p << " " << statbuf.st_ino);
-                    iterator.disable_recursion_pending();
+                    LOGDEBUG("Symlink target already scanned: " << p << " " << statbuf.st_ino);
                 }
                 else
                 {
-                    seen_symlinks.insert(statbuf.st_ino);
-                    if (!m_callback.includeDirectory(p))
+                    m_seen_symlinks.insert(statbuf.st_ino);
+                    if (m_callback.includeDirectory(p.path()))
                     {
-                        iterator.disable_recursion_pending();
+                        scanDirectory(p);
                     }
                 }
             }
@@ -143,24 +161,27 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         else if (fs::is_directory(p.status()))
         {
-            if (!m_callback.includeDirectory(p))
+            if (m_callback.includeDirectory(p.path()))
             {
-                LOGDEBUG("Not recursing into " << p.path() << " as it is excluded");
-                iterator.disable_recursion_pending();
-            }
-            else if (m_stay_on_device)
-            {
-                ret = ::stat(p.path().c_str(), &statbuf);
-                if (ret == 0)
+                if (m_stay_on_device)
                 {
-                    if (statbuf.st_dev != starting_dev)
+                    struct stat statbuf{};
+                    int ret = ::stat(p.path().c_str(), &statbuf);
+                    if (ret == 0)
                     {
-                        LOGDEBUG("Not recursing into " << p.path() << " as it is on a different mount");
-                        iterator.disable_recursion_pending();
+                        if (statbuf.st_dev != m_starting_dev)
+                        {
+                            LOGDEBUG("Not recursing into " << p.path() << " as it is on a different mount");
+                            continue;
+                        }
                     }
                 }
+                scanDirectory(p);
             }
-
+            else
+            {
+                LOGDEBUG("Not recursing into " << p.path() << " as it is excluded");
+            }
         }
         else
         {

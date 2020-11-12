@@ -4,6 +4,8 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "FileWalkerMemoryAppenderUsingTests.h"
+
 #include <filewalker/FileWalker.h>
 #include <gtest/gtest.h>
 #include <tests/common/LogInitializedTests.h>
@@ -49,7 +51,7 @@ namespace
         MOCK_METHOD1(userDefinedExclusionCheck, bool(const fs::path& filepath));
     };
 
-    class TestFileWalker : public LogInitializedTests
+    class TestFileWalker : public FileWalkerMemoryAppenderUsingTests
     {
     protected:
         void SetUp() override
@@ -187,7 +189,7 @@ TEST_F(TestFileWalker, currentDirIsDeleted) // NOLINT
     filewalker::walk(startingPoint, *callbacks);
 }
 
-TEST_F(TestFileWalker, DISABLED_treeChangesWhileWalking) // NOLINT
+TEST_F(TestFileWalker, treeChangesWhileWalking) // NOLINT
 {
     std::vector<fs::path> files = {
         "sandbox/a/a/file1.txt", "sandbox/a/b/file2.txt", "sandbox/b/a/file3.txt", "sandbox/b/b/file4.txt"
@@ -209,9 +211,41 @@ TEST_F(TestFileWalker, DISABLED_treeChangesWhileWalking) // NOLINT
     auto deleteGrandparent = [](const fs::path& filepath, bool /*symlinkTarget*/) {
         fs::remove_all(filepath.parent_path().parent_path());
     };
-    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(deleteGrandparent);
+    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(deleteGrandparent).RetiresOnSaturation();
 
     EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+}
+
+TEST_F(TestFileWalker, filewalkerHandlesExceptionFromProcessFile) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::vector<fs::path> files = {
+        "sandbox/file1.txt", "sandbox/file2.txt", "sandbox/file3.txt", "sandbox/file4.txt"
+    };
+
+    for (auto& p : files)
+    {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p).close();
+    }
+
+    fs::path startingPoint = fs::absolute("sandbox");
+    std::string expected = "Failed to process: " + startingPoint.string();
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(_, _)).Times(AtLeast(1));
+
+    std::error_code ec (ENOENT, std::system_category());
+
+    fs::filesystem_error fileDoesNotExist("File does not exist", ec);
+    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Throw(fileDoesNotExist)).RetiresOnSaturation();
+
+    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+
+    EXPECT_TRUE(appenderContains(expected));
 }
 
 TEST_F(TestFileWalker, excludeDirectory) // NOLINT
@@ -452,6 +486,8 @@ TEST_F(TestFileWalker, startWithBrokenSymlinkPath) // NOLINT
 
 TEST_F(TestFileWalker, symlinksInWalk) // NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
 
@@ -470,9 +506,12 @@ TEST_F(TestFileWalker, symlinksInWalk) // NOLINT
     EXPECT_CALL(*callbacks, includeDirectory(fs::path("sandbox/other_dir"))).WillOnce(Return(true));
     EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/a/b/file1.txt"), false)).WillOnce(Return());
     EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/file2.txt"), true)).WillOnce(Return());
-    EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/other_dir/file2.txt"), _)).Times(0);
+    EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/other_dir/file2.txt"), _)).Times(1);
+    EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/broken_symlink"), _)).Times(0);
 
     filewalker::walk(startingPoint, *callbacks);
+
+    EXPECT_TRUE(appenderContains("Failed to iterate: \"sandbox/broken_symlink\": No such file or directory"));
 }
 
 TEST_F(TestFileWalker, followSymlinks) // NOLINT
