@@ -182,7 +182,8 @@ namespace Plugin
                     sendLiveQueryStatus();
                 }
 
-                //Check extensions are still running and restart any that has stopped
+                //Check extensions are still running and call Stop on any that have stopped unexpectdly
+                //Extensions will be restarted when osquery is restarted
                 for(auto runningStatus : m_extensionAndStateList)
                 {
                     if(runningStatus.second->load())
@@ -196,6 +197,7 @@ namespace Plugin
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
+                //only attempt cleanup after the 10 minute period has elapsed
                 auto timeNow = std::chrono::steady_clock::now();
                 if(timeNow > (lastCleanUpTime + cleanupPeriod))
                 {
