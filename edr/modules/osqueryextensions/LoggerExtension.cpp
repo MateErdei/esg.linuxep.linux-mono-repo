@@ -70,12 +70,9 @@ void LoggerExtension::Stop()
     {
         m_stopped = true;
         m_extension->Stop();
-        LOGINFO("LoggerExtension ExtensionInterface Stop Called");
         if (m_runnerThread && m_runnerThread->joinable())
         {
-            LOGINFO("Joining LoggerExtension RunnerThread");
             m_runnerThread->join();
-            LOGINFO("LoggerExtension Joined RunnerThread");
             m_runnerThread.reset();
         }
         LOGINFO("LoggerExtension::Stopped");

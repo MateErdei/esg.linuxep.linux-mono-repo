@@ -200,7 +200,7 @@ namespace Plugin
                 if(timeNow > (lastCleanUpTime + cleanupPeriod))
                 {
                     lastCleanUpTime = timeNow;
-                    LOGDEBUG("Cleanup time elapsed and Checking files");
+                    LOGDEBUG("Cleanup time elapsed , checking files");
                     cleanUpOldOsqueryFiles();
                     if (pluginMemoryAboveThreshold())
                     {
@@ -437,11 +437,10 @@ namespace Plugin
     {
         try
         {
-            // Call stop on logger extension, this is ok to call whether running or not.
-            LOGINFO("Calling Stop in Adapter.");
-            for(auto extension : m_osqueryExtensions)
+            // Call stop on all extensions, this is ok to call whether running or not.
+            for(auto extension : m_extensionAndStateList)
             {
-                extension->Stop();
+                extension.first->Stop();
             }
             while (m_osqueryProcess && m_monitor.valid())
             {

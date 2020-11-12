@@ -133,7 +133,6 @@ namespace Plugin
         OsqueryConfigurator m_osqueryConfigurator;
         bool m_collectAuditEnabled = false;
         bool m_restartNoDelay = false;
-        std::vector<std::shared_ptr<IServiceExtension>> m_osqueryExtensions;
         std::list<std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>> m_extensionAndStateList;
     };
 } // namespace Plugin
