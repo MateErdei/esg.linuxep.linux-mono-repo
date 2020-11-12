@@ -280,7 +280,8 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                 }
             }
 
-            auto result = scanner->scan(file_fd, requestReader.pathname, requestReader.scanType, requestReader.userID);
+            // The User ID could be spoofed by an untrusted client. Until this is made secure, hardcode it to "n/a"
+            auto result = scanner->scan(file_fd, requestReader.pathname, requestReader.scanType, "n/a");
             file_fd.reset();
 
             std::string serialised_result = result.serialise();
