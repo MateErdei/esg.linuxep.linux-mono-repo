@@ -15,7 +15,7 @@ SophosExtension::~SophosExtension()
     Stop();
 }
 
-void SophosExtension::Start(const std::string& socket, bool verbose)
+void SophosExtension::Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished)
 {
     LOGINFO("Starting SophosExtension");
 
@@ -32,7 +32,7 @@ void SophosExtension::Start(const std::string& socket, bool verbose)
         LOGDEBUG("Extension Added");
         m_extension->Start();
         m_stopped = false;
-        m_runnerThread = std::make_unique<std::thread>(std::thread([this] { Run(); }));
+        m_runnerThread = std::make_unique<std::thread>(std::thread([this, extensionFinished] { Run(extensionFinished); }));
         LOGDEBUG("Sophos Extension running in thread");
     }
 }
@@ -52,7 +52,7 @@ void SophosExtension::Stop()
     }
 }
 
-void SophosExtension::Run()
+void SophosExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
 {
     LOGDEBUG("SophosExtension running");
     m_extension->Wait();
@@ -65,7 +65,6 @@ void SophosExtension::Run()
         }
 
         LOGWARN("Service extension stopped unexpectedly. Calling reset.");
-        Stop();
-        Start(m_flags.socket, m_flags.verbose);
+        extensionFinished->store(true);
     }
 }

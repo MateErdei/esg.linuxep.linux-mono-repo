@@ -14,15 +14,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 class LoggerExtension : public IServiceExtension
 {
 public:
-    LoggerExtension( const std::string& intermediaryPath,
-                     const std::string& datafeedPath,
-                     const std::string& osqueryXDRConfigFilePath,
-                     const std::string& pluginVarDir,
-                     unsigned int dataLimit,
-                     unsigned int periodInSeconds,
-                     std::function<void(void)> dataExceededCallback);
+    LoggerExtension(
+            const std::string& intermediaryPath,
+            const std::string& datafeedPath,
+            const std::string& osqueryXDRConfigFilePath,
+            const std::string& pluginVarDir,
+            unsigned int dataLimit,
+            unsigned int periodInSeconds,
+            std::function<void(void)> dataExceededCallback,
+            unsigned int maxBatchSeconds,
+            uintmax_t maxBatchBytes);
     ~LoggerExtension();
-    void Start(const std::string& socket, bool verbose, uintmax_t maxBatchBytes, unsigned int maxBatchSeconds) override;
+    void Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished) override;
     void Stop() override;
     void setDataLimit(unsigned int limitBytes);
     void setDataPeriod(unsigned int periodSeconds);
@@ -30,7 +33,7 @@ public:
     bool getDataLimitReached();
 
 private:
-    void Run();
+    void Run(std::shared_ptr<std::atomic_bool> extensionFinished);
     ResultsSender m_resultsSender;
     bool m_stopped = { true };
     std::unique_ptr<std::thread> m_runnerThread;

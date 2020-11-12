@@ -5,19 +5,20 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
+#include "IServiceExtension.h"
 
 #include <OsquerySDK/OsquerySDK.h>
 #include <thread>
 
-class SophosExtension
+class SophosExtension   :   public IServiceExtension
 {
 public:
     ~SophosExtension();
-    void Start(const std::string& socket, bool verbose);
-    void Stop();
+    void Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished) override;
+    void Stop() override;
 
 private:
-    void Run();
+    void Run(std::shared_ptr<std::atomic_bool> extensionFinished);
 
     bool m_stopped = { true };
     std::unique_ptr<std::thread> m_runnerThread;

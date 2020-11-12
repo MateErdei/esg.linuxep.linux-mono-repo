@@ -13,13 +13,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <SophosLoggerPlugin.h>
 
 LoggerExtension::LoggerExtension(
-    const std::string& intermediaryPath,
-    const std::string& datafeedPath,
-    const std::string& osqueryXDRConfigFilePath,
-    const std::string& pluginVarDir,
-    unsigned int dataLimit,
-    unsigned int periodInSeconds,
-    std::function<void(void)> dataExceededCallback) :
+        const std::string& intermediaryPath,
+        const std::string& datafeedPath,
+        const std::string& osqueryXDRConfigFilePath,
+        const std::string& pluginVarDir,
+        unsigned int dataLimit,
+        unsigned int periodInSeconds,
+        std::function<void(void)> dataExceededCallback,
+        unsigned int maxBatchSeconds,
+        uintmax_t maxBatchBytes) :
     m_resultsSender(
         intermediaryPath,
         datafeedPath,
@@ -27,7 +29,9 @@ LoggerExtension::LoggerExtension(
         pluginVarDir,
         dataLimit,
         periodInSeconds,
-        dataExceededCallback)
+        dataExceededCallback),
+    m_maxBatchBytes(maxBatchBytes),
+    m_maxBatchSeconds(maxBatchSeconds)
 {
     m_flags.interval = 3;
     m_flags.timeout = 3;
@@ -41,15 +45,9 @@ LoggerExtension::~LoggerExtension()
 void LoggerExtension::Start(
     const std::string& socket,
     bool verbose,
-    uintmax_t maxBatchBytes,
-    unsigned int maxBatchSeconds)
+    std::shared_ptr<std::atomic_bool> extensionFinished)
 {
     LOGINFO("Starting LoggerExtension");
-
-    // store these locally in case the run thread crashes and we want to call this start again from within Run.
-    m_maxBatchBytes = maxBatchBytes;
-    m_maxBatchSeconds = maxBatchSeconds;
-
     if (m_stopped)
     {
         m_flags.socket = socket;
@@ -60,7 +58,7 @@ void LoggerExtension::Start(
         LOGDEBUG("Logger Plugin Added");
         m_extension->Start();
         m_stopped = false;
-        m_runnerThread = std::make_unique<std::thread>(std::thread([this] { Run(); }));
+        m_runnerThread = std::make_unique<std::thread>(std::thread([this, extensionFinished] { Run(extensionFinished); }));
         LOGDEBUG("Logger Plugin running in thread");
     }
 }
@@ -84,7 +82,7 @@ void LoggerExtension::Stop()
     }
 }
 
-void LoggerExtension::Run()
+void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
 {
     LOGDEBUG("LoggerExtension running");
     m_extension->Wait();
@@ -97,6 +95,7 @@ void LoggerExtension::Run()
         }
 
         LOGWARN("Service extension stopped unexpectedly. Calling reset.");
+        extensionFinished->store(true);
     }
 }
 
