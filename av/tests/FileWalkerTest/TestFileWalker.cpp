@@ -189,7 +189,7 @@ TEST_F(TestFileWalker, currentDirIsDeleted) // NOLINT
     filewalker::walk(startingPoint, *callbacks);
 }
 
-TEST_F(TestFileWalker, treeChangesWhileWalking) // NOLINT
+TEST_F(TestFileWalker, deleteParentDirWhileWalking) // NOLINT
 {
     std::vector<fs::path> files = {
         "sandbox/a/a/file1.txt", "sandbox/a/b/file2.txt", "sandbox/b/a/file3.txt", "sandbox/b/b/file4.txt"
@@ -212,6 +212,230 @@ TEST_F(TestFileWalker, treeChangesWhileWalking) // NOLINT
         fs::remove_all(filepath.parent_path().parent_path());
     };
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(deleteGrandparent).RetiresOnSaturation();
+
+    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+}
+
+TEST_F(TestFileWalker, deleteCurrentDirWhileWalking) // NOLINT
+{
+    std::vector<fs::path> files = {
+        "sandbox/a/file1.txt", "sandbox/a/file2.txt", "sandbox/b/file3.txt", "sandbox/b/file4.txt"
+    };
+
+    for (auto& p : files)
+    {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p).close();
+    }
+
+    fs::path startingPoint = fs::path("sandbox");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(_, _)).Times(AtLeast(1));
+
+    auto deleteParent = [](const fs::path& filepath, bool /*symlinkTarget*/) {
+      fs::remove_all(filepath.parent_path());
+    };
+    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(deleteParent).RetiresOnSaturation();
+
+    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+}
+
+TEST_F(TestFileWalker, moveCurrentDirWhileWalking) // NOLINT
+{
+    std::vector<fs::path> files = {
+        "sandbox/a/file1.txt", "sandbox/a/file2.txt", "sandbox/b/file3.txt", "sandbox/b/file4.txt"
+    };
+
+    for (auto& p : files)
+    {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p).close();
+    }
+
+    fs::path startingPoint = fs::path("sandbox");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(_, _)).Times(2);
+
+    auto moveParent = [](const fs::path& filepath, bool /*symlinkTarget*/) {
+      fs::rename(filepath.parent_path(), "sandbox/c");
+      PRINT("Moved: " << filepath.parent_path() << " to: sandbox/c");
+    };
+    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(moveParent).RetiresOnSaturation();
+
+    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+}
+
+class ScanRecorder
+{
+public:
+    ScanRecorder(std::vector<fs::path> files)
+        : m_allFiles(files)
+    {}
+
+    void recordScannedFiles(const sophos_filesystem::path& currentFilepath, bool /*symlinkTarget*/)
+    {
+        m_scannedFiles.push_back(currentFilepath);
+    }
+
+    void deleteScannedFiles(const sophos_filesystem::path& /*currentFilepath*/, bool /*symlinkTarget*/)
+    {
+        for (const auto& filepath : m_scannedFiles)
+        {
+            fs::remove(filepath);
+        }
+    }
+
+    void deleteScannedDirs(const sophos_filesystem::path& /*currentFilepath*/, bool /*symlinkTarget*/)
+    {
+        for (const auto& filepath : m_scannedFiles)
+        {
+            fs::remove_all(filepath.parent_path());
+        }
+    }
+
+    void deleteOneNotYetScannedFile(const sophos_filesystem::path& currentFilepath, bool /*symlinkTarget*/)
+    {
+        for (const auto& filepath : m_allFiles)
+        {
+            if (filepath != currentFilepath)
+            {
+                fs::remove(filepath);
+                PRINT("Removed " << filepath);
+                return;
+            }
+        }
+    }
+
+    void deleteOneNotYetScannedDir(const sophos_filesystem::path& currentFilepath, bool /*symlinkTarget*/)
+    {
+        for (const auto& filepath : m_allFiles)
+        {
+            if (filepath.parent_path() != currentFilepath.parent_path())
+            {
+                fs::remove_all(filepath.parent_path());
+                PRINT("Removed " << filepath.parent_path());
+                return;
+            }
+        }
+    }
+
+private:
+    std::vector<sophos_filesystem::path> m_scannedFiles;
+    std::vector<sophos_filesystem::path> m_allFiles;
+};
+
+TEST_F(TestFileWalker, deleteFilesAlreadyScannedWhileWalking) // NOLINT
+{
+    std::vector<fs::path> files = {
+        "sandbox/file1.txt", "sandbox/file2.txt", "sandbox/file3.txt", "sandbox/file4.txt"
+    };
+
+    ScanRecorder scanRecorder(files);
+
+    for (auto& p : files)
+    {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p).close();
+    }
+
+    fs::path startingPoint = fs::path("sandbox");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    {
+        InSequence seq;
+        EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Invoke(&scanRecorder, &ScanRecorder::recordScannedFiles));
+        EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Invoke(&scanRecorder, &ScanRecorder::recordScannedFiles));
+        EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Invoke(&scanRecorder, &ScanRecorder::deleteScannedFiles));
+        EXPECT_CALL(*callbacks, processFile(_, _));
+    }
+
+    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+}
+
+TEST_F(TestFileWalker, deleteDirsAlreadyScannedWhileWalking) // NOLINT
+{
+    std::vector<fs::path> files = {
+        "sandbox/a/file1.txt", "sandbox/b/file2.txt", "sandbox/c/file3.txt", "sandbox/d/file4.txt"
+    };
+
+    ScanRecorder scanRecorder(files);
+
+    for (auto& p : files)
+    {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p).close();
+    }
+
+    fs::path startingPoint = fs::path("sandbox");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    {
+        InSequence seq;
+        EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Invoke(&scanRecorder, &ScanRecorder::recordScannedFiles));
+        EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Invoke(&scanRecorder, &ScanRecorder::recordScannedFiles));
+        EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Invoke(&scanRecorder, &ScanRecorder::deleteScannedDirs));
+        EXPECT_CALL(*callbacks, processFile(_, _));
+    }
+
+    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+}
+
+TEST_F(TestFileWalker, deleteFileNotYetScannedWhileWalking) // NOLINT
+{
+    std::vector<fs::path> files = {
+        "sandbox/file1.txt", "sandbox/file2.txt", "sandbox/file3.txt", "sandbox/file4.txt"
+    };
+
+    ScanRecorder scanRecorder(files);
+
+    for (auto& p : files)
+    {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p).close();
+    }
+
+    fs::path startingPoint = fs::path("sandbox");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(_, _)).Times(2);
+    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Invoke(&scanRecorder, &ScanRecorder::deleteOneNotYetScannedFile)).RetiresOnSaturation();
+
+    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+}
+
+TEST_F(TestFileWalker, deleteDirNotYetScannedWhileWalking) // NOLINT
+{
+    std::vector<fs::path> files = {
+        "sandbox/a/file1.txt", "sandbox/b/file2.txt", "sandbox/c/file3.txt", "sandbox/d/file4.txt"
+    };
+
+    ScanRecorder scanRecorder(files);
+
+    for (auto& p : files)
+    {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p).close();
+    }
+
+    fs::path startingPoint = fs::path("sandbox");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(_, _)).Times(2);
+    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Invoke(&scanRecorder, &ScanRecorder::deleteOneNotYetScannedDir)).RetiresOnSaturation();
 
     EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
 }
