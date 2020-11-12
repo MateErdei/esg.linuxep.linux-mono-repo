@@ -153,6 +153,7 @@ def install_component(sophos_install):
     os.makedirs(os.path.join(plugin_dir_path, 'log'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'etc'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'chroot'), exist_ok=True)
+    os.makedirs(os.path.join(plugin_dir_path, 'chroot', 'var'), exist_ok=True)
 
     sbin = os.path.join(plugin_dir_path, 'sbin')
     for x in os.listdir(sbin):
