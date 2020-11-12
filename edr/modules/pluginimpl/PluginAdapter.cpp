@@ -97,7 +97,14 @@ namespace Plugin
             m_timesOsqueryProcessFailedToStart(0),
             m_osqueryConfigurator()
     {
-        m_osqueryExtensions = { m_loggerExtensionPtr, std::make_shared<SophosExtension>()};
+        std::vector<std::shared_ptr<IServiceExtension>> osqueryExtensions = { m_loggerExtensionPtr, std::make_shared<SophosExtension>()};
+        for(const auto& extension : osqueryExtensions)
+        {
+            auto extensionRunningStatus = std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>
+                    (extension, std::make_shared<std::atomic_bool>(false));
+            m_extensionAndStateList.push_back(extensionRunningStatus);
+        }
+
     }
 
     void PluginAdapter::mainLoop()
@@ -160,6 +167,8 @@ namespace Plugin
         setUpOsqueryMonitor();
 
         std::unique_ptr<WaitUpTo> m_delayedRestart;
+        auto lastCleanUpTime = std::chrono::steady_clock::now();
+        auto cleanupPeriod = std::chrono::minutes(10);
         while (true)
         {
             // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
@@ -172,14 +181,14 @@ namespace Plugin
                     m_osqueryConfigurator.enableQueryPack(Plugin::osqueryXDRConfigFilePath());
                     sendLiveQueryStatus();
                 }
-                for(auto flag : m_extensionStatusFlags)
+
+                //Check extensions are still running and restart any that has stopped
+                for(auto runningStatus : m_extensionAndStateList)
                 {
-                    LOGINFO("Checking extension finished");
-                    if(flag.second->load())
+                    if(runningStatus.second->load())
                     {
-                        LOGINFO("Detected extension finished ADAPTER calling stop");
-                        flag.first->Stop();
-                        //consider restarting the whole process gere not the thread.
+                        LOGINFO("Stopping extension after unexpected exit");
+                        runningStatus.first->Stop();
                     }
                 }
             }
@@ -187,13 +196,18 @@ namespace Plugin
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
-                LOGDEBUG("No activity for " << QUEUE_TIMEOUT << " seconds. Checking files");
-                cleanUpOldOsqueryFiles();
-                if (pluginMemoryAboveThreshold())
+                auto timeNow = std::chrono::steady_clock::now();
+                if(timeNow > (lastCleanUpTime + cleanupPeriod))
                 {
-                    LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
-                    stopOsquery();
-                    return;
+                    lastCleanUpTime = timeNow;
+                    LOGDEBUG("Cleanup time elapsed and Checking files");
+                    cleanUpOldOsqueryFiles();
+                    if (pluginMemoryAboveThreshold())
+                    {
+                        LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
+                        stopOsquery();
+                        return;
+                    }
                 }
             }
             else
@@ -379,9 +393,9 @@ namespace Plugin
             queue->pushOsqueryProcessFinished();
         });
         // block here till osquery new instance is started.
-        for(auto extension : m_osqueryExtensions)
+        for(auto extensionAndState : m_extensionAndStateList)
         {
-            extension->Stop();
+            extensionAndState.first->Stop();
         }
         osqueryStarted.wait_started();
 
@@ -402,15 +416,15 @@ namespace Plugin
             return;
         }
 
-        for(auto extension  :   m_osqueryExtensions)
+        for( auto extensionAndRunningStatus :   m_extensionAndStateList)
         {
+            auto extension = extensionAndRunningStatus.first;
+            extensionAndRunningStatus.second->store(false);
             try
             {
-                auto extensionRunningStatusFlag = std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(extension, std::make_shared<std::atomic_bool>(false));
-                m_extensionStatusFlags.push_back(extensionRunningStatusFlag);
                 extension->Start(Plugin::osquerySocket(),
                                         false,
-                                        extensionRunningStatusFlag.second);
+                                        extensionAndRunningStatus.second);
             }
             catch (const std::exception& ex)
             {

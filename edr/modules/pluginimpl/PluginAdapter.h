@@ -105,7 +105,7 @@ namespace Plugin
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
-        int QUEUE_TIMEOUT = 600;
+        int QUEUE_TIMEOUT = 5;
         bool m_isXDR = false;
         void sendLiveQueryStatus();
 
@@ -134,6 +134,6 @@ namespace Plugin
         bool m_collectAuditEnabled = false;
         bool m_restartNoDelay = false;
         std::vector<std::shared_ptr<IServiceExtension>> m_osqueryExtensions;
-        std::list<std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>> m_extensionStatusFlags;
+        std::list<std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>> m_extensionAndStateList;
     };
 } // namespace Plugin
