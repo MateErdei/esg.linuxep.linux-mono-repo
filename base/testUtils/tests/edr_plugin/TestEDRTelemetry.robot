@@ -98,24 +98,41 @@ EDR Plugin Produces Telemetry With OSQueryD Output Log File Not Containing Resta
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0
 
-EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
-    Wait Until OSQuery Running  20
+EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In Telemetry
+    [Tags]  MCSROUTER  FAKE_CLOUD  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
+    [Setup]  EDR Telemetry Test Setup With Cloud
 
+    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Should Be Equal As Strings  0  ${result.rc}
+    Register With Fake Cloud
+
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   5 secs
+    ...   Check Log Contains In Order
+            ...  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+            ...  Flags have changed so restarting osquery
+    Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
+
     Kill OSQuery
     Wait Until OSQuery Running  20
-
-    Restart EDR Plugin              #Check telemetry persists after restart
-    Wait Until OSQuery Running  20
-
     Wait Until Osquery Socket Exists
+    Restart EDR Plugin              #Check telemetry persists after restart
+
+    Wait Until OSQuery Running  20
+    Wait Until Osquery Socket Exists
+
     Kill OSQuery
     Wait Until OSQuery Running  20
 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  3  0  0  0
+
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     Run Live Query  ${CRASH_QUERY}  Crash
