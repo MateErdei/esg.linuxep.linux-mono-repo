@@ -61,7 +61,7 @@ class LogUtils(object):
         self.marked_mcsrouter_logs = 0
         self.marked_mcs_envelope_logs = 0
         self.marked_watchdog_logs = 0
-        self.marked_managementagent_log = 0
+        self.marked_managementagent_logs = 0
 
     def log_contains_in_order(self, log_location, log_name, args, log_finds=True):
         return _log_contains_in_order(log_location, log_name, args, log_finds)
@@ -123,7 +123,7 @@ File Log Contains
             time.sleep(1)
         logger.info("{} Log at \"{}\" does not contain: {}".format(log_name, pathToLog, unexpected))
 
-    def check_log_and_return_nth_occurence_between_strings(self, string_to_contain_start, string_to_contain_end, pathToLog,
+    def check_log_and_return_nth_occurrence_between_strings(self, string_to_contain_start, string_to_contain_end, pathToLog,
                                                            occurs=1):
         if not (os.path.isfile(pathToLog)):
             raise AssertionError("Log file {} does not exist".format(pathToLog))
@@ -162,7 +162,7 @@ File Log Contains
         statuses = []
         for status_number in status_numbers:
             try:
-                statuses.append(self.check_log_and_return_nth_occurence_between_strings("<status><appId>ALC</appId>", "</status>", "{}/logs/base/sophosspl/mcs_envelope.log".format(self.install_path),  int(status_number)))
+                statuses.append(self.check_log_and_return_nth_occurrence_between_strings("<status><appId>ALC</appId>", "</status>", "{}/logs/base/sophosspl/mcs_envelope.log".format(self.install_path),  int(status_number)))
             except AssertionError:
                 logger.info("Failed to get string for status {}".format(status_number))
 
@@ -261,13 +261,13 @@ File Log Contains
     def check_all_product_logs_do_not_contain_string(self, string_to_find):
         search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*"]
         glob_search_pattern = [os.path.join(self.install_path, search_entry) for search_entry in search_list]
-        combinedfiles = [glob.glob(search_pattern) for search_pattern in glob_search_pattern]
-        flat_files = [item for sublist in combinedfiles for item in sublist]
+        combined_files = [glob.glob(search_pattern) for search_pattern in glob_search_pattern]
+        flat_files = [item for sublist in combined_files for item in sublist]
         list_of_logs_containing_string = []
         for filepath in flat_files:
-            num_occurence = self.get_number_of_occurences_of_substring_in_log(filepath, string_to_find)
-            if num_occurence > 0:
-                list_of_logs_containing_string.append("{} - {} times".format(filepath, num_occurence))
+            num_occurrence = self.get_number_of_occurrences_of_substring_in_log(filepath, string_to_find)
+            if num_occurrence > 0:
+                list_of_logs_containing_string.append("{} - {} times".format(filepath, num_occurrence))
         if list_of_logs_containing_string:
             raise AssertionError("These program logs contain {}:\n {}".format(string_to_find, list_of_logs_containing_string))
 
@@ -277,13 +277,13 @@ File Log Contains
     def check_all_product_logs_do_not_contain_critical(self):
         self.check_all_product_logs_do_not_contain_string("CRITICAL")
 
-    def get_number_of_occurences_of_substring_in_log(self, log_location, substring):
+    def get_number_of_occurrences_of_substring_in_log(self, log_location, substring):
         contents = _get_log_contents(log_location)
-        return self.get_number_of_occurences_of_substring_in_string(contents, substring)
+        return self.get_number_of_occurrences_of_substring_in_string(contents, substring)
 
-    def get_number_of_occurences_of_substring_in_string(self, string, substring, use_regex=False):
+    def get_number_of_occurrences_of_substring_in_string(self, string, substring, use_regex=False):
         if use_regex:
-            return self.get_number_of_occurences_of_regex_in_string(string, substring)
+            return self.get_number_of_occurrences_of_regex_in_string(string, substring)
         count = 0
         index = 0
         while True:
@@ -295,7 +295,7 @@ File Log Contains
         return count
 
     #require that special characters are escaped with '\' [ /, +, *, ., (, ) etc ]
-    def get_number_of_occurences_of_regex_in_string(self, string, reg_expresion_str):
+    def get_number_of_occurrences_of_regex_in_string(self, string, reg_expresion_str):
         import re
         reg_expression = re.compile(reg_expresion_str)
         log_occurrences = reg_expression.findall(string)
@@ -304,7 +304,7 @@ File Log Contains
     def check_string_matching_regex_in_file(self, file_path, reg_expression_str):
         if not os.path.exists(file_path):
             raise AssertionError("File not found '{}'".format(file_path))
-        if self.get_number_of_occurences_of_regex_in_string(_get_log_contents(file_path), reg_expression_str) < 1:
+        if self.get_number_of_occurrences_of_regex_in_string(_get_log_contents(file_path), reg_expression_str) < 1:
             self.dump_log(file_path)
             raise AssertionError(
                 "The file: '{}', did not have any lines match the regex: '{}'".format(file_path, reg_expression_str))
@@ -500,41 +500,52 @@ File Log Contains
             self.dump_managementagent_log()
             raise AssertionError("Marked managementagent log did not contain: " + string_to_contain)
 
-    def check_marked_mcsrouter_log_contains_string_n_times(self, string_to_contain, expected_occurence):
+    def check_marked_managementagent_log_contains_regex(self, string_to_contain):
+        managementagent_log = self.managementagent_log()
+        contents = _get_log_contents(managementagent_log)
+
+        contents = contents[self.marked_managementagent_logs:]
+
+        import re
+        if not re.search(string_to_contain, contents):
+            self.dump_managementagent_log()
+            raise AssertionError("Marked managementagent log did not contain: " + string_to_contain)
+
+    def check_marked_mcsrouter_log_contains_string_n_times(self, string_to_contain, expected_occurrence):
         mcsrouter_log = os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
         contents = _get_log_contents(mcsrouter_log)
 
         contents = contents[self.marked_mcsrouter_logs:]
 
-        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain)
-        if num_occurences != int(expected_occurence):
+        num_occurrences = self.get_number_of_occurrences_of_substring_in_string(contents, string_to_contain)
+        if num_occurrences != int(expected_occurrence):
             raise AssertionError(
                 "McsRouter Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain,
-                                                                                              num_occurences,
-                                                                                              expected_occurence))
+                                                                                              num_occurrences,
+                                                                                              expected_occurrence))
 
-    def check_log_contains_string_n_times(self, log_path, log_name, string_to_contain, expected_occurence):
+    def check_log_contains_string_n_times(self, log_path, log_name, string_to_contain, expected_occurrence):
         contents = _get_log_contents(log_path)
 
-        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain)
-        if num_occurences != int(expected_occurence):
+        num_occurrences = self.get_number_of_occurrences_of_substring_in_string(contents, string_to_contain)
+        if num_occurrences != int(expected_occurrence):
             raise AssertionError(
                 "{} Contains: \"{}\" - {} times not the requested {} times".format(log_name,
                                                                                    string_to_contain,
-                                                                                   num_occurences,
-                                                                                   expected_occurence))
+                                                                                   num_occurrences,
+                                                                                   expected_occurrence))
 
 
-    def check_mcs_envelope_log_contains_regex_string_n_times(self, string_to_contain, expected_occurence):
-        self.check_mcs_envelope_log_contains_string_n_times(string_to_contain, expected_occurence, True)
+    def check_mcs_envelope_log_contains_regex_string_n_times(self, string_to_contain, expected_occurrence):
+        self.check_mcs_envelope_log_contains_string_n_times(string_to_contain, expected_occurrence, True)
 
-    def check_mcs_envelope_log_contains_string_n_times(self, string_to_contain, expected_occurence, use_regex=False):
+    def check_mcs_envelope_log_contains_string_n_times(self, string_to_contain, expected_occurrence, use_regex=False):
         mcs_envelope_log = os.path.join(self.base_logs_dir, "sophosspl", "mcs_envelope.log")
         contents = _get_log_contents(mcs_envelope_log)
 
-        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain, use_regex)
-        if num_occurences != int(expected_occurence):
-            raise AssertionError("mcs_envelope Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain, num_occurences, expected_occurence))
+        num_occurrences = self.get_number_of_occurrences_of_substring_in_string(contents, string_to_contain, use_regex)
+        if num_occurrences != int(expected_occurrence):
+            raise AssertionError("mcs_envelope Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain, num_occurrences, expected_occurrence))
 
     def check_updatescheduler_log_contains(self, string_to_contain):
         updatescheduler_log = self.update_scheduler_log

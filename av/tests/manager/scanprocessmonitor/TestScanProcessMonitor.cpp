@@ -34,7 +34,7 @@ TEST_F(TestScanProcessMonitor, constructWithNonExistentFile) // NOLINT
 {
     try
     {
-        auto m = std::make_unique<ScanProcessMonitor>("this config does not exists");
+        auto m = std::make_unique<ScanProcessMonitor>("this config does not exist");
         FAIL() << "Did not throw exception as expected";
     }
     catch (std::runtime_error& e)

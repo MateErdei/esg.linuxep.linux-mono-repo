@@ -27,7 +27,7 @@ Ostia Cleanup
     Run Keyword If Test Failed  dump_suldownloader_log
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}
     Run Keyword And Ignore Error  Remove File    ${AV_LOG_PATH}
-    Uninstall All
+    Run Keyword And Ignore Error  Uninstall All
 
 Install Local SSL Server Cert To System
     ${LOCAL_HTTPS_CERT_PATH} =  PathManager.get_local_https_cert_path
@@ -42,6 +42,7 @@ Setup Ostia Warehouse Environment
 
 
 Install Just Base
+    Run Keyword And Ignore Error  Uninstall All
     Remove Directory   ${SOPHOS_INSTALL}   recursive=True
     Directory Should Not Exist  ${SOPHOS_INSTALL}
     Install Base For Component Tests
@@ -113,8 +114,8 @@ Wait For Management Agent To Stop
 
 Restart Management Agent
     Stop Management Agent
-    mark managementagent log
     Wait For Management Agent To Stop
+    mark managementagent log
     Start Management Agent
 
 *** Test Cases ***
@@ -144,14 +145,14 @@ Update from Ostia
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  2 secs
-    ...  check_marked_managementagent_log_contains  Policy ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml applied to 1 plugins
+    ...  check_marked_managementagent_log_contains_regex  Policy .*ALC-1_policy\.xml applied to 1 plugins
 
     Trigger Update
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  3 secs
-    ...  check_marked_managementagent_log_contains  Action ${SOPHOS_INSTALL}/base/mcs/action/
+    ...  check_marked_managementagent_log_contains_regex  Action .*ALC_action.*\.xml sent to 1 plugins
 
     Wait Until Keyword Succeeds
     ...   60 secs

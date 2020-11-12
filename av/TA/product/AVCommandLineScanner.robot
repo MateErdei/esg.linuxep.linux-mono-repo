@@ -172,18 +172,15 @@ CLS Can Scan Archive File
       Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
 CLS Doesnt Detect eicar in zip without archive option
-      ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
-      Create Directory  ${ARCHIVE_DIR}
-      Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
-
-      Run Process     zip  ${NORMAL_DIRECTORY}/test.zip  ${ARCHIVE_DIR}
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.zip
+      Create File  ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
+      Create Zip   ${NORMAL_DIRECTORY}   eicar   eicar.zip
+      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar.zip
 
       Log  return code is ${rc}
       Log  output is ${output}
-      Should Be Equal As Integers  ${rc}  ${0}
-      Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.zip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+      Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
       Should Not Contain  ${output}  is infected with EICAR-AV-Test
+      Should Be Equal As Integers  ${rc}  ${0}
 
 CLS Can Scan Multiple Archive Files
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
@@ -230,6 +227,7 @@ CLS Abort Scanning of Zip Bomb
       Should Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/zipbomb.zip was aborted
 
 AV Log Contains No Errors When Scanning File
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
     Log To Console  return code is ${rc}

@@ -22,10 +22,12 @@ Test Teardown   AV And Base Teardown
 *** Test Cases ***
 
 Diagnose collects the correct files
+    [Teardown]   Run Keywords   Remove Directory  /tmp/TestOutputDirectory  recursive=True
+    ...          AND            Remove Directory  /tmp/DiagnoseOutput  recursive=True
+    ...          AND            AV And Base Teardown
     Check AV Plugin Installed With Base
     Configure and check scan now
     Run Diagnose
     Check Diagnose Tar Created
     Check Diagnose Collects Correct AV Files
     Check Diagnose Logs
-    Remove Directory  /tmp/DiagnoseOutput  true

@@ -381,8 +381,9 @@ Policy Fragment FS Types
 
 Create EICAR files
     [Arguments]  ${eicar_files_to_create}  ${dir_name}
-     : FOR    ${INDEX}    IN RANGE    1    ${eicar_files_to_create}
-        \    ${eicar_file}=    create file  ${dir_name}/eicar-${INDEX}  ${EICAR_STRING}
+     FOR    ${INDEX}    IN RANGE    1    ${eicar_files_to_create}
+         ${eicar_file}=    create file  ${dir_name}/eicar-${INDEX}  ${EICAR_STRING}
+     END
 
 Restart Samba
     ${result} =  Run Process  which  yum

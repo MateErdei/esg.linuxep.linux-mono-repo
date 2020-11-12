@@ -53,13 +53,21 @@ void ScanRunner::run()
 {
     announceThreadStarted();
 
-    LOGINFO("Starting scan " << m_name);
-
     fs::path config_dir = m_pluginInstall / "var";
     fs::path config_file = config_dir / m_configFilename;
     std::ofstream configWriter(config_file);
     configWriter << m_scan;
     configWriter.close();
+    if (configWriter.fail())
+    {
+        LOGERROR("Failed to create "<< config_file);
+
+        m_scanCompleted = true;
+        LOGDEBUG("Exiting scan thread");
+        return;
+    }
+
+    LOGINFO("Starting scan " << m_name);
 
     // Start file walker process
     Common::Process::IProcessPtr process(Common::Process::createProcess());
@@ -71,7 +79,13 @@ void ScanRunner::run()
 
     LOGINFO("Completed scan " << m_name << " with exit code: " << exitCode);
     process.reset();
-    fs::remove(config_file);
+
+    std::error_code ec;
+    fs::remove(config_file, ec);
+    if (ec)
+    {
+        LOGERROR("Failed to remove "<< config_file << ": " << ec.message());
+    }
 
     LOGINFO("Sending scan complete event to Central");
     std::string scanCompletedXml = generateScanCompleteXml(m_name);

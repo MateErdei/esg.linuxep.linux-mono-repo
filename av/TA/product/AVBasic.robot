@@ -15,6 +15,7 @@ Resource    ../shared/AVResources.robot
 Resource    ../shared/BaseResources.robot
 Resource    ../shared/FakeManagementResources.robot
 
+Test Setup     Product Test Setup
 Test Teardown  Product Test Teardown
 
 *** Variables ***
@@ -69,7 +70,7 @@ AV Plugin Can Process Scan Now
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Policy  av  sav  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180  interval=5
     AV Plugin Log Contains  Received new Action
     AV Plugin Log Contains  Evaluating Scan Now
     AV Plugin Log Contains  Starting scan Scan Now
@@ -86,7 +87,7 @@ AV Plugin Scan Now Updates Telemetry Count
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Policy  av  sav  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180  interval=5
     AV Plugin Log Contains  Received new Action
     AV Plugin Log Contains  Evaluating Scan Now
     AV Plugin Log Contains  Starting scan Scan Now
@@ -159,7 +160,7 @@ Scan Now Logs Should Be As Expected
 
     AV Plugin Log Contains  Received new Action
     AV Plugin Log Contains  Evaluating Scan Now
-    AV Plugin Log Contains  Starting scan Scan Now
+    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=10
 
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
 
@@ -172,8 +173,7 @@ Scan Now Logs Should Be As Expected
 
 
 AV Plugin Will Fail Scan Now If No Policy
-    [Teardown]  Run Keywords    Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
-    ...         AND             Product Test Teardown
+    Register Cleanup  Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
@@ -213,9 +213,6 @@ AV Plugin Can Disable Scanning Of Mounted SMB Shares
 
 
 AV Plugin Can Exclude Filepaths From Scheduled Scans
-    [Teardown]  Run Keywords    Delete Eicars From Tmp
-    ...                         Product Test Teardown
-
     ${eicar_path1} =  Set Variable  /tmp/eicar.com
     ${eicar_path2} =  Set Variable  /tmp/eicar.1
     ${eicar_path3} =  Set Variable  /tmp/eicar.txt
@@ -254,9 +251,6 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 
 
 AV Plugin Scan of Infected File Increases Threat Eicar Count
-    [Teardown]  Run Keywords    Delete Eicars From Tmp
-    ...                         Product Test Teardown
-
     Create File      /tmp/eicar.com    ${EICAR_STRING}
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
@@ -281,9 +275,6 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
 
 
 AV Plugin Scan Now Does Not Detect PUA
-    [Teardown]  Run Keywords    Delete Eicars From Tmp
-    ...                         Product Test Teardown
-
     Create File      /tmp/eicar_pua.com    ${EICAR_PUA_STRING}
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
@@ -302,14 +293,19 @@ AV Plugin Scan Now Does Not Detect PUA
 
 *** Keywords ***
 
+Product Test Setup
+    Component Test Setup
+    Delete Eicars From Tmp
+
 Product Test Teardown
     ${usingFakeAVScanner} =  Get Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log  encoding_errors=replace
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
     Run Keyword If  '${usingFakeAVScanner}'=='true'  Undo Use Fake AVScanner
+    Delete Eicars From Tmp
     run teardown functions
-
+    Component Test TearDown
 
 Test Remote Share
     [Arguments]  ${destination}
@@ -331,7 +327,7 @@ Test Remote Share
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until AV Plugin Log Contains  Completed scan ${remoteFSscanningDisabled}  timeout=120
+    Wait Until AV Plugin Log Contains  Completed scan ${remoteFSscanningDisabled}  timeout=240  interval=5
     AV Plugin Log Contains  Starting scan ${remoteFSscanningDisabled}
     File Should Exist  ${remoteFSscanningDisabled_log}
     File Log Should Not Contain  ${remoteFSscanningDisabled_log}  "${destination}/eicar.com" is infected with EICAR
@@ -343,7 +339,7 @@ Test Remote Share
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningEnabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until AV Plugin Log Contains  Completed scan ${remoteFSscanningEnabled}  timeout=120
+    Wait Until AV Plugin Log Contains  Completed scan ${remoteFSscanningEnabled}  timeout=240  interval=5
     AV Plugin Log Contains  Starting scan ${remoteFSscanningEnabled}
     File Should Exist  ${remoteFSscanningEnabled_log}
     File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR

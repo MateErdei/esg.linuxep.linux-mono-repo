@@ -89,7 +89,7 @@ function generate_susi_package_manifest()
     echo "vdl ${vdl_hash}" >> ${temp_manifest}
 
     model_hash=$(sha256sum ${SUSI_UPDATE_SRC}/model/model.dat | awk '{print $1}')
-    echo "model ${vdl_hash}" >> ${temp_manifest}
+    echo "model ${model_hash}" >> ${temp_manifest}
 
     lrdata_hash=$(cat ${SUSI_UPDATE_SRC}/reputation/filerep.dat ${SUSI_UPDATE_SRC}/reputation/signerrep.dat | sha256sum | awk '{print $1}')
     echo "reputation ${lrdata_hash}" >> ${temp_manifest}
@@ -98,8 +98,9 @@ function generate_susi_package_manifest()
     echo $manifest_hash > $package_manifest
     cat $temp_manifest >> $package_manifest
 
-    chmod -R g+rX "${SUSI_UPDATE_SRC}"
-    chown -R root:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
+    #chmod -R g+rX "${SUSI_UPDATE_SRC}"
+    #chown -R root:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
+    chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
 }
 
 function bootstrap_susi_from_update_source()
@@ -127,8 +128,9 @@ function bootstrap_susi_from_update_source()
 
     cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${SUSI_V1DIR}
 
-    chmod -R g+rX "${SUSI_DIST_VERS}"
-    chown -R root:${GROUP_NAME} "${SUSI_DIST_VERS}"
+    #chmod -R g+rX "${SUSI_DIST_VERS}"
+    #chown -R root:${GROUP_NAME} "${SUSI_DIST_VERS}"
+    chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_DIST_VERS}"
 }
 
 function install_product()
@@ -164,6 +166,7 @@ function install_product()
     chmod -R 0710 "${PLUGIN_INSTALL}/sbin"
 
     mkdir -p "$VAR"
+    chmod 0770 "$VAR"
 
     CHROOT="${PLUGIN_INSTALL}/chroot"
     CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL}"
@@ -184,7 +187,6 @@ function install_product()
     chmod 0711 ${CHROOT}
 
     chmod -R g+rX "${CHROOT}/susi"
-    chmod 0770 "${CHROOT}/susi/version_manifest.txt"
 
     ## Create log directory symlinks for sophos_threat_detector
     mkdir -p "$CHROOT/log" "${PLUGIN_INSTALL}/log" "${CHROOT_LINK_DIR}/log"
@@ -194,6 +196,9 @@ function install_product()
     ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
 
     chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}"
+
+    #chmod -R g+rwX "${CHROOT}/susi/distribution_version/"
+    #chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/susi/distribution_version/"
 
     pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
     THREAT_DETECTOR="sophos_threat_detector_launcher"

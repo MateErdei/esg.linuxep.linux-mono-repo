@@ -81,6 +81,7 @@ namespace
             m_basePath /= test_info->name();
             fs::remove_all(m_basePath);
             fs::create_directories(m_basePath);
+            fs::create_directory(m_basePath / "var");
 
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData("PLUGIN_INSTALL", m_basePath);

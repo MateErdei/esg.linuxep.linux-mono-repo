@@ -9,7 +9,7 @@ Library         String
 Resource        ../shared/AVResources.robot
 
 Suite Setup     No Operation
-Suite Teardown  No Operation
+Suite Teardown  Global Teardown Tasks
 
 Test Setup      No Operation
 Test Teardown   No Operation
@@ -76,6 +76,7 @@ Test Time sources
 Scan now from Central and Verify Scan Completed and Eicar Detected
     [Tags]  SYSTEM  CENTRAL
     [Documentation]  Test that we can perform a scan now from Central (Dev/QA regions)
+    [Teardown]  Remove Directory  /tmp/testeicar   recursive=True
     Select Central Region
     log central events
     clear alerts in central
@@ -101,6 +102,7 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
 Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
     [Tags]  SYSTEM  CENTRAL  MANUAL
     [Timeout]    40min
+    [Teardown]  Remove Directory  /tmp/testeicar   recursive=True
     Select Central Region
     log central events
     clear alerts in central

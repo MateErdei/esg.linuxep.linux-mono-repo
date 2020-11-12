@@ -88,6 +88,7 @@ Setup Component For Testing
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/base/etc
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/tmp
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/log
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/var
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}
     Create Directory  ${COMPONENT_ROOT_PATH}/var
     Create Directory  ${COMPONENT_ROOT_PATH}/log

@@ -38,7 +38,7 @@ static void attempt_dns_query()
     struct addrinfo hints{};
     hints.ai_family = PF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags |= AI_CANONNAME;
+    hints.ai_flags |= AI_CANONNAME; // NOLINT(hicpp-signed-bitwise)
 
     /* resolve the domain name into a list of addresses */
     int error = getaddrinfo("4.sophosxl.net", nullptr, &hints, &result);
@@ -77,39 +77,33 @@ static void copy_etc_file_if_present(const fs::path& etcDest, const fs::path& et
 
 static void copy_etc_files_for_dns(const fs::path& chrootPath)
 {
-    /*
-     *
-function copy_etc()
-{
-    local F="$1"
-    [[ -f "$F" ]] || return
-    cp "$F" ${CHROOT}/etc/
-}
-
-copy_etc /etc/nsswitch.conf
-copy_etc /etc/resolv.conf
-copy_etc /etc/ld.so.cache
-copy_etc /etc/host.conf
-copy_etc /etc/hosts
-
-     */
     fs::path etcDest = chrootPath;
     etcDest /= "etc";
 
-    copy_etc_file_if_present(etcDest, "/etc/nsswitch.conf");
-    copy_etc_file_if_present(etcDest, "/etc/resolv.conf");
-    copy_etc_file_if_present(etcDest, "/etc/ld.so.cache");
-    copy_etc_file_if_present(etcDest, "/etc/host.conf");
-    copy_etc_file_if_present(etcDest, "/etc/hosts");
+    const std::vector<fs::path> fileVector
+    {
+        "/etc/nsswitch.conf",
+        "/etc/resolv.conf",
+        "/etc/ld.so.cache",
+        "/etc/host.conf",
+        "/etc/hosts",
+    };
+
+    for (const fs::path& file : fileVector)
+    {
+        copy_etc_file_if_present(etcDest, file);
+    }
 }
 
 static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chrootPath)
 {
-    std::vector<fs::path> fileVector;
-    fileVector.emplace_back("base/etc/logger.conf");
-    fileVector.emplace_back("base/etc/machine_id.txt");
-    fileVector.emplace_back("base/update/var/update_config.json");
-    fileVector.emplace_back("plugins/av/VERSION.ini");
+    const std::vector<fs::path> fileVector
+    {
+        "base/etc/logger.conf",
+        "base/etc/machine_id.txt",
+        "base/update/var/update_config.json",
+        "plugins/av/VERSION.ini"
+    };
 
     for (const fs::path& file : fileVector)
     {

@@ -7,7 +7,7 @@
                 <filePath>/bin/</filePath>
                 <filePath>/boot/</filePath>
                 <filePath>/dev/</filePath>
-                <filePath>/etc</filePath>
+                <filePath>/etc/</filePath>
                 <filePath>/home/</filePath>
                 <filePath>/lib32/</filePath>
                 <filePath>/lib64/</filePath>
