@@ -1093,7 +1093,7 @@ class MCSConnection:
                     self.send_datafeed_result_v2(datafeed_result)
                 else:
                     self.send_datafeed_result_v1(datafeed_result)
-                LOGGER.info(f"Sent result, datafeed ID: {datafeeds.get_feed_id()}, file: {datafeed_result.m_file_path}")
+                LOGGER.debug(f"Sent result, datafeed ID: {datafeeds.get_feed_id()}, file: {datafeed_result.m_file_path}")
                 LOGGER.debug(
                     f"Result content for datafeed ID: {datafeeds.get_feed_id()}, content: {datafeed_result.m_json_body}")
                 sent_so_far += datafeed_result.m_json_body_size
