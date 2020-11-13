@@ -75,10 +75,12 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         m_options |= fs::directory_options::follow_directory_symlink;
     }
 
+    struct stat statbuf{};
+    int ret;
+
     if (m_stay_on_device)
     {
-        struct stat statbuf{};
-        int ret = ::stat(starting_point.c_str(), &statbuf);
+        ret = ::stat(starting_point.c_str(), &statbuf);
         if (ret != 0)
         {
             int error_number = errno;
@@ -124,6 +126,7 @@ void FileWalker::scanDirectory(const fs::path& starting_point)
         if (isRegularFile)
         {
             // Regular file
+            // TODO - this logic only identifies *some* paths containing symlinks.
             try
             {
                 m_callback.processFile(p.path(), m_startIsSymlink || fs::is_symlink(p.symlink_status()));
@@ -134,21 +137,24 @@ void FileWalker::scanDirectory(const fs::path& starting_point)
                 continue;
             }
         }
+        // TODO - p.symlink_status() can throw
         else if (fs::is_symlink(p.symlink_status()))
         {
+            // TODO - actually any non-regular-file symlink - test with symlink to special/other
             // Directory symlink
-            struct stat statbuf{};
-            int ret = ::lstat(p.path().c_str(), &statbuf);
+            struct stat statBuf{};
+            int ret = ::stat(p.path().c_str(), &statBuf);
             if (ret == 0)
             {
-                if (m_seen_symlinks.find(statbuf.st_ino) != m_seen_symlinks.end())
+                file_id id = std::make_tuple(statBuf.st_dev, statBuf.st_ino);
+                if (m_seen_symlinks.find(id) != m_seen_symlinks.end())
                 {
-                    LOGDEBUG("Symlink target already scanned: " << p << " " << statbuf.st_ino);
+                    LOGDEBUG("Symlink target already scanned: " << p << " [" << statBuf.st_ino << "]");
                 }
                 else
                 {
-                    m_seen_symlinks.insert(statbuf.st_ino);
-                    if (m_callback.includeDirectory(p.path()))
+                    m_seen_symlinks.insert(id);
+                    if (m_callback.includeDirectory(p))
                     {
                         scanDirectory(p);
                     }
@@ -156,7 +162,7 @@ void FileWalker::scanDirectory(const fs::path& starting_point)
             }
             else
             {
-                LOGERROR("Failed to lstat "<< p << "("<<errno<<")");
+                LOGERROR("Failed to stat "<< p << "(" << errno << ")");
             }
         }
         else if (fs::is_directory(p.status()))

@@ -84,7 +84,7 @@ namespace
 *       Once from: /tmp/TestFileWalkerBackTrackProtection/a/d/e/c
 *       Once from: /tmp/TestFileWalkerBackTrackProtection/a/b/c
 */
-TEST_F(TestFileWalkerBackTrackProtection, backtrackProtection)
+TEST_F(TestFileWalkerBackTrackProtection, DISABLED_backtrackProtection)
 {
     // Create test tree
     fs::create_directories(m_basePath / "a/b");
@@ -99,7 +99,7 @@ TEST_F(TestFileWalkerBackTrackProtection, backtrackProtection)
     walker.followSymlinks();
     ASSERT_NO_THROW(walker.walk(m_basePath));
 
-    ASSERT_EQ(callbacks.m_paths.size(), 3);
+    EXPECT_THAT(callbacks.m_paths, SizeIs(3));
     EXPECT_THAT(callbacks.m_paths, Contains(m_basePath / "a/d/c"));
     EXPECT_THAT(callbacks.m_paths, Contains(m_basePath / "a/b/c"));
     EXPECT_THAT(callbacks.m_paths, AnyOf(Contains(m_basePath / "a/d/e/c")

@@ -10,6 +10,22 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <unordered_set>
 
+using file_id = std::tuple<dev_t, ino_t>;
+
+/*
+ * We need our own hashing function to use an unordered_set.
+ * The hash combining step is not ideal, but sufficient for our purposes.
+ */
+struct file_id_hash
+{
+    std::size_t operator()(file_id const& fileId) const noexcept
+    {
+        std::size_t h1 = std::hash<dev_t>{}(std::get<0>(fileId));
+        std::size_t h2 = std::hash<ino_t>{}(std::get<1>(fileId));
+        return h1 ^ ( h2 << 1u );
+    }
+};
+
 namespace filewalker
 {
     class FileWalker
@@ -52,7 +68,7 @@ namespace filewalker
         bool m_follow_symlinks = false;
         bool m_stay_on_device = false;
 
-        std::unordered_set<ino_t> m_seen_symlinks;
+        std::unordered_set<file_id, file_id_hash> m_seen_symlinks;
         sophos_filesystem::directory_options m_options;
         bool m_startIsSymlink;
         dev_t m_starting_dev = 0;
