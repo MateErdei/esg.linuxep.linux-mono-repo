@@ -2,6 +2,7 @@
 cmake-build-clang-fuzzer/
 cmake-build-debug/
 cmake-build-gcc8/
+cmake-build-gcc10/
 *.pyc
 input/
 output/
