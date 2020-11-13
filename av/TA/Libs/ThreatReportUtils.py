@@ -16,7 +16,7 @@ GL_EXPECTED_CONTENTS = {
     "naugthyEicarThreatReport": [
         '''description="Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar''',
         '''type="sophos.mgt.msg.event.threat"''',
-        '''userId="root"''',
+        '''userId="n/a"''',
         '''domain="local"''',
         '''name="EICAR-AV-Test"''',
         '''scanType="203"''',
@@ -31,7 +31,7 @@ GL_EXPECTED_CONTENTS = {
     "naugthyEicarThreatReportAsNobody": [
         '''description="Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naugthy_eicar''',
         '''type="sophos.mgt.msg.event.threat"''',
-        '''userId="nobody"''',
+        '''userId="n/a"''',
         '''domain="local"''',
         '''name="EICAR-AV-Test"''',
         '''scanType="203"''',
