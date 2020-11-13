@@ -61,6 +61,25 @@ IDE can be removed
     Run installer from install set
     Check IDE absent from installation
 
+CLS Can Scan Internet File
+     Set Global Variable  ${IDE_NAME}  ${EMPTY}
+
+     register on fail  Debug install set
+     register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
+     register cleanup  dump log  ${AV_LOG_PATH}
+
+     Set Global Variable  ${IDE_NAME}  brokeneic.ide
+     Add IDE to install set
+     Run installer from install set
+     Check IDE present in installation
+
+     # Check we can detect PEEND following update
+     Copy File   ${RESOURCES_PATH}/file_samples/inceicar.b64  ${SCAN_DIRECTORY}
+     ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/inceicar.b64
+     Log To Console  ${output}
+     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+     Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/inceicar.b64" is infected with Test/IncEicar
+
 *** Variables ***
 ${IDE_NAME}
 ${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl
