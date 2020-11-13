@@ -7,6 +7,7 @@ Library         String
 Library         XML
 Library         ../Libs/fixtures/AVPlugin.py
 Library         ../Libs/LogUtils.py
+Library         ../Libs/OnFail.py
 Library         ../Libs/ThreatReportUtils.py
 
 Resource        ../shared/AVResources.robot
@@ -16,15 +17,21 @@ Resource        ../shared/DiagnoseResources.robot
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall And Revert Setup
 
-Test Setup      AV And Base Setup
-Test Teardown   AV And Base Teardown
+Test Setup      Diagnose Test Setup
+Test Teardown   Diagnose Test TearDown
+
+*** Keywords ***
+
+Diagnose Test Setup
+    AV And Base Setup
+
+Diagnose Test TearDown
+    Run Teardown Functions
+    AV And Base Teardown
 
 *** Test Cases ***
 
 Diagnose collects the correct files
-    [Teardown]   Run Keywords   Remove Directory  /tmp/TestOutputDirectory  recursive=True
-    ...          AND            Remove Directory  /tmp/DiagnoseOutput  recursive=True
-    ...          AND            AV And Base Teardown
     Check AV Plugin Installed With Base
     Configure and check scan now
     Run Diagnose

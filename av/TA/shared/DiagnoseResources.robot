@@ -2,6 +2,7 @@
 
 Library         ../Libs/BaseInteractionTools/DiagnoseUtils.py
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
+Library         ../Libs/OnFail.py
 Library         String
 Library         DateTime
 
@@ -14,6 +15,7 @@ ${UNPACKED_DIAGNOSE_PLUGIN_FILES} =  ${UNPACK_DIRECTORY}/PluginFiles
 *** Keywords ***
 
 Run Diagnose
+    Register Cleanup   Remove Directory  ${TAR_FILE_DIRECTORY}  recursive=True
     Create Directory  ${TAR_FILE_DIRECTORY}
     Empty Directory  ${TAR_FILE_DIRECTORY}
     Directory Should Be Empty  ${TAR_FILE_DIRECTORY}
@@ -31,7 +33,9 @@ Check Diagnose Tar Created
 
 Check Diagnose Collects Correct AV Files
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
+    Register Cleanup   Remove Directory  ${UNPACK_DIRECTORY}  recursive=True
     Create Directory  ${UNPACK_DIRECTORY}
+    Empty Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   tar    xvzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
     Should Be Equal As Integers  ${result.rc}  0
     Log  ${result.stdout}

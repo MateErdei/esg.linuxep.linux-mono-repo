@@ -2,6 +2,7 @@
 Documentation    Prove end-to-end management from Central
 
 Library         ../Libs/CloudClient/CloudClient.py
+Library         ../Libs/OnFail.py
 Library         DateTime
 Library         OperatingSystem
 Library         String
@@ -11,10 +12,16 @@ Resource        ../shared/AVResources.robot
 Suite Setup     No Operation
 Suite Teardown  Global Teardown Tasks
 
-Test Setup      No Operation
-Test Teardown   No Operation
+Test Setup      DevCentral Test Setup
+Test Teardown   DevCentral Test TearDown
 
 *** Keywords ***
+
+DevCentral Test Setup
+    No Operation
+
+DevCentral Test TearDown
+    Run Teardown Functions
 
 Install Base And Plugin Without Register
     Install With Base SDDS
@@ -76,7 +83,6 @@ Test Time sources
 Scan now from Central and Verify Scan Completed and Eicar Detected
     [Tags]  SYSTEM  CENTRAL
     [Documentation]  Test that we can perform a scan now from Central (Dev/QA regions)
-    [Teardown]  Remove Directory  /tmp/testeicar   recursive=True
     Select Central Region
     log central events
     clear alerts in central
@@ -89,6 +95,7 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
     Wait for computer to appear in Central
     Assign AntiVirus Product to Endpoint in Central
     Configure Exclude everything else in Central  /tmp/testeicar/
+    Register Cleanup  Remove Directory  /tmp/testeicar   recursive=True
     Create Eicar  /tmp/testeicar/eicar.com
     Wait For exclusion configuration on endpoint
     # See https://github.com/robotframework/robotframework/issues/3306
@@ -102,7 +109,6 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
 Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
     [Tags]  SYSTEM  CENTRAL  MANUAL
     [Timeout]    40min
-    [Teardown]  Remove Directory  /tmp/testeicar   recursive=True
     Select Central Region
     log central events
     clear alerts in central
@@ -113,6 +119,7 @@ Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
     Register In Central
     Wait for computer to appear in Central
     Assign AntiVirus Product to Endpoint in Central
+    Register Cleanup  Remove Directory  /tmp/testeicar   recursive=True
     Create Eicar  /tmp/testeicar/eicar.com
 
     # Includes Configure Exclude everything else in Central  /tmp/testeicar/

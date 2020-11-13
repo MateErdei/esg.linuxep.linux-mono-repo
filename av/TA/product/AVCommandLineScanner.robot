@@ -180,7 +180,7 @@ CLS Doesnt Detect eicar in zip without archive option
       Log  output is ${output}
       Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
       Should Not Contain  ${output}  is infected with EICAR-AV-Test
-      Should Be Equal As Integers  ${rc}  ${0}
+      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Can Scan Multiple Archive Files
       ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
@@ -657,7 +657,7 @@ CLS Scans file on NFS
     Create File       ${source}/eicar.com    ${EICAR_STRING}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
-    register cleanup    Remove Local NFS Share   ${source}   ${destination}
+    Register Cleanup    Remove Local NFS Share   ${source}   ${destination}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${destination}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
@@ -693,7 +693,9 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
    # Rename the sophos threat detector launcher so that it cannot be restarted
    Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
-   register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
+   Register Cleanup  Run Keywords  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
+   ...               AND           Stop AV
+   ...               AND           Start AV
 
    Wait Until Keyword Succeeds
    ...  60 secs
