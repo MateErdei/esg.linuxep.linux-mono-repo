@@ -7,6 +7,7 @@ base/etc/sophosspl/mcs_policy.config
 base/pluginRegistry
 base/telemetery
 base/VERSION.ini*
+base/etc/sophosspl/current_proxy
 bin/
 tmp/
 var/
