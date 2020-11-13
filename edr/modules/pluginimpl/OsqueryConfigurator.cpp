@@ -64,10 +64,9 @@ namespace Plugin
         fileSystem->writeFile(osqueryConfigFilePath, osqueryConfiguration.str());
     }
 
-    void OsqueryConfigurator::regenerateOSQueryFlagsFile(
-        const std::string& osqueryFlagsFilePath,
-        bool enableAuditEventCollection,
-        bool xdrEnabled)
+    void OsqueryConfigurator::regenerateOSQueryFlagsFile(const std::string &osqueryFlagsFilePath,
+                                                         bool enableAuditEventCollection, bool xdrEnabled,
+                                                         time_t scheduleEpoch)
     {
         LOGINFO("Creating osquery flags file");
         auto fileSystem = Common::FileSystem::fileSystem();
@@ -105,7 +104,12 @@ namespace Plugin
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false"};
 
-        std::string eventsMaxValue = "100000";
+        std::stringstream scheduleEpochSS;
+        scheduleEpochSS << "--schedule_epoch=" << scheduleEpoch;
+        LOGDEBUG("Using osquery schedule_epoch flag as: " << scheduleEpochSS.str());
+        flags.push_back(scheduleEpochSS.str());
+
+        std::string eventsMaxValue = "50000";
         std::pair<std::string,std::string> eventsMax = Common::UtilityImpl::FileUtils::extractValueFromFile(Plugin::edrConfigFilePath(), "events_max");
         if (!eventsMax.first.empty())
         {
@@ -116,7 +120,7 @@ namespace Plugin
         {
             if (Common::UtilityImpl::StringUtils::startswith(eventsMax.second, "No such node"))
             {
-                LOGDEBUG("No events_max value specified in " << Plugin::edrConfigFilePath() << " so using default of 100000");
+                LOGDEBUG("No events_max value specified in " << Plugin::edrConfigFilePath() << " so using default of 50000");
             }
             else
             {
@@ -172,14 +176,14 @@ namespace Plugin
         fileSystem->writeFile(osqueryFlagsFilePath, flagsAsString.str());
     }
 
-    void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled)
+    void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch)
     {
         bool disableAuditD = disableSystemAuditDAndTakeOwnershipOfNetlink();
         bool disableAuditDataGathering = enableAuditDataCollection();
 
         SystemConfigurator::setupOSForAudit(disableAuditD);
 
-        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditDataGathering, xdrEnabled);
+        regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditDataGathering, xdrEnabled, scheduleEpoch);
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
 
         if (xdrEnabled)

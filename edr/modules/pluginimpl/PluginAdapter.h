@@ -20,7 +20,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <queryrunner/ParallelQueryProcessor.h>
 
 #include <future>
-#include <list>
 
 namespace Plugin
 {
@@ -97,22 +96,27 @@ namespace Plugin
         OsqueryConfigurator& osqueryConfigurator();
 
         std::string m_liveQueryRevId = "";
-        unsigned int m_dataLimit;
+        unsigned int m_dataLimit = DEFAULT_XDR_DATA_LIMIT_BYTES;
         std::string m_liveQueryStatus = "NoRef";
 
-        std::shared_ptr<LoggerExtension> m_loggerExtensionPtr;
+        LoggerExtension m_loggerExtension;
     private:
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
-        int QUEUE_TIMEOUT = 5;
+        int QUEUE_TIMEOUT = 600;
         bool m_isXDR = false;
         void sendLiveQueryStatus();
+        SophosExtension m_sophosExtension;
 
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
 
-
+        // XDR consts
+        static const int DEFAULT_MAX_BATCH_SIZE_BYTES = 2000000; // 2MB
+        static const int DEFAULT_MAX_BATCH_TIME_SECONDS = 15;
+        static const int DEFAULT_XDR_DATA_LIMIT_BYTES = 250000000; // 250MB
+        static const int DEFAULT_XDR_PERIOD_SECONDS = 86400; // 1 day
 
         void processQuery(const std::string& query, const std::string& correlationId);
         void processFlags(const std::string& flagsContent);
@@ -133,6 +137,8 @@ namespace Plugin
         OsqueryConfigurator m_osqueryConfigurator;
         bool m_collectAuditEnabled = false;
         bool m_restartNoDelay = false;
-        std::list<std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>> m_extensionAndStateList;
+
+        const time_t SCHEDULE_EPOCH_DURATION = 604800;
+        Common::PersistentValue<time_t> m_scheduleEpoch;
     };
 } // namespace Plugin

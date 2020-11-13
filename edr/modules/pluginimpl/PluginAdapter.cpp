@@ -67,44 +67,29 @@ public:
 
 namespace Plugin
 {
-    // XDR consts
-    static const int DEFAULT_MAX_BATCH_SIZE_BYTES = 2000000; // 2MB
-    static const int DEFAULT_MAX_BATCH_TIME_SECONDS = 15;
-    static const int DEFAULT_XDR_DATA_LIMIT_BYTES = 250000000; // 250MB
-    static const int DEFAULT_XDR_PERIOD_SECONDS = 86400; // 1 day
-
     PluginAdapter::PluginAdapter(
         std::shared_ptr<QueueTask> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback) :
-            m_queueTask(std::move(queueTask)),
-            m_baseService(std::move(baseService)),
-            m_callback(std::move(callback)),
-            m_parallelQueryProcessor{queryrunner::createQueryRunner(Plugin::osquerySocket(), Plugin::livequeryExecutable())},
-            m_dataLimit(DEFAULT_XDR_DATA_LIMIT_BYTES),
-            m_loggerExtensionPtr(
-                    std::make_shared<LoggerExtension>(
-                            Plugin::osqueryXDRResultSenderIntermediaryFilePath(),
-                            Plugin::osqueryXDROutputDatafeedFilePath(),
-                            Plugin::osqueryXDRConfigFilePath(),
-                            Plugin::varDir(),
-                            DEFAULT_XDR_DATA_LIMIT_BYTES,
-                            DEFAULT_XDR_PERIOD_SECONDS,
-                            [this] { dataFeedExceededCallback(); },
-                            DEFAULT_MAX_BATCH_TIME_SECONDS,
-                            DEFAULT_MAX_BATCH_SIZE_BYTES)
+        m_queueTask(std::move(queueTask)),
+        m_baseService(std::move(baseService)),
+        m_callback(std::move(callback)),
+        m_parallelQueryProcessor{queryrunner::createQueryRunner(Plugin::osquerySocket(), Plugin::livequeryExecutable())},
+        m_loggerExtension(
+            Plugin::osqueryXDRResultSenderIntermediaryFilePath(),
+            Plugin::osqueryXDROutputDatafeedFilePath(),
+            Plugin::osqueryXDRConfigFilePath(),
+            Plugin::varDir(),
+            DEFAULT_XDR_DATA_LIMIT_BYTES,
+            DEFAULT_XDR_PERIOD_SECONDS,
+            [this] { dataFeedExceededCallback(); }
             ),
-            m_timesOsqueryProcessFailedToStart(0),
-            m_osqueryConfigurator()
+        m_timesOsqueryProcessFailedToStart(0),
+        m_osqueryConfigurator(),
+        m_scheduleEpoch(Plugin::varDir(),
+                        "xdrScheduleEpoch",
+                        std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
     {
-        std::vector<std::shared_ptr<IServiceExtension>> osqueryExtensions = { m_loggerExtensionPtr, std::make_shared<SophosExtension>()};
-        for(const auto& extension : osqueryExtensions)
-        {
-            auto extensionRunningStatus = std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>
-                    (extension, std::make_shared<std::atomic_bool>(false));
-            m_extensionAndStateList.push_back(extensionRunningStatus);
-        }
-
     }
 
     void PluginAdapter::mainLoop()
@@ -167,56 +152,38 @@ namespace Plugin
         setUpOsqueryMonitor();
 
         std::unique_ptr<WaitUpTo> m_delayedRestart;
-        auto lastCleanUpTime = std::chrono::steady_clock::now();
-        auto cleanupPeriod = std::chrono::minutes(10);
         while (true)
         {
             // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
             // make sure that the query pack is either still enabled or becomes enabled.
             // enableQueryPack is safe to call even when the query pack is already enabled.
-            if (m_isXDR )
+            if (m_isXDR && m_loggerExtension.checkDataPeriodHasElapsed())
             {
-                if ( m_loggerExtensionPtr->checkDataPeriodHasElapsed())
-                {
-                    m_osqueryConfigurator.enableQueryPack(Plugin::osqueryXDRConfigFilePath());
-                    sendLiveQueryStatus();
-                }
+                m_osqueryConfigurator.enableQueryPack(Plugin::osqueryXDRConfigFilePath());
+                sendLiveQueryStatus();
+            }
 
-                //Check extensions are still running and restart osquery if any have stopped unexpectedly
-                bool anyStoppedExtensions = false;
-                for (auto runningStatus : m_extensionAndStateList)
-                {
-                    if(runningStatus.second->load())
-                    {
-                        anyStoppedExtensions = true;
-                        break;
-                    }
-                }
-
-                if (anyStoppedExtensions)
-                {
-                    LOGINFO("Restarting OSQuery after unexpected extension exit");
-                    stopOsquery();
-                    m_restartNoDelay = true;
-                }
+            time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
+            if ((now - SCHEDULE_EPOCH_DURATION) > m_scheduleEpoch.getValue())
+            {
+                LOGINFO("Previous schedule_epoch: " << m_scheduleEpoch.getValue() << ", has ended. Starting new schedule_epoch: " << now);
+                // restart osquery
+                m_scheduleEpoch.setValue(now);
+                // osquery will automatically be restarted but set this to make sure there is no delay.
+                m_restartNoDelay = true;
+                stopOsquery();
             }
 
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
-                //only attempt cleanup after the 10 minute period has elapsed
-                auto timeNow = std::chrono::steady_clock::now();
-                if(timeNow > (lastCleanUpTime + cleanupPeriod))
+                LOGDEBUG("No activity for " << QUEUE_TIMEOUT << " seconds. Checking files");
+                cleanUpOldOsqueryFiles();
+                if (pluginMemoryAboveThreshold())
                 {
-                    lastCleanUpTime = timeNow;
-                    LOGDEBUG("Cleanup time elapsed , checking files");
-                    cleanUpOldOsqueryFiles();
-                    if (pluginMemoryAboveThreshold())
-                    {
-                        LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
-                        stopOsquery();
-                        return;
-                    }
+                    LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
+                    stopOsquery();
+                    return;
                 }
             }
             else
@@ -303,7 +270,7 @@ namespace Plugin
             {
                 std::vector<std::string> paths = ifileSystem->listFiles(responsePath);
 
-                if (!paths.empty())
+                if (paths.size() > 0)
                 {
                     LOGINFO("Response files exist that pre-date this instance of EDR. Ensuring MCS has ownership");
 
@@ -372,7 +339,7 @@ namespace Plugin
     void PluginAdapter::setUpOsqueryMonitor()
     {
         LOGINFO("Prepare system for running osquery");
-        m_osqueryConfigurator.prepareSystemForPlugin(m_isXDR);
+        m_osqueryConfigurator.prepareSystemForPlugin(m_isXDR, m_scheduleEpoch.getValue());
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;
@@ -402,10 +369,8 @@ namespace Plugin
             queue->pushOsqueryProcessFinished();
         });
         // block here till osquery new instance is started.
-        for(auto extensionAndState : m_extensionAndStateList)
-        {
-            extensionAndState.first->Stop();
-        }
+        m_loggerExtension.Stop();
+        m_sophosExtension.Stop();
         osqueryStarted.wait_started();
 
         if (m_isXDR)
@@ -424,21 +389,24 @@ namespace Plugin
             m_restartNoDelay = true;
             return;
         }
-
-        for( auto extensionAndRunningStatus :   m_extensionAndStateList)
+        try
         {
-            auto extension = extensionAndRunningStatus.first;
-            extensionAndRunningStatus.second->store(false);
-            try
-            {
-                extension->Start(Plugin::osquerySocket(),
-                                        false,
-                                        extensionAndRunningStatus.second);
-            }
-            catch (const std::exception& ex)
-            {
-                LOGERROR("Failed to start extension, extension.Start threw: " << ex.what());
-            }
+            m_loggerExtension.Start(Plugin::osquerySocket(),
+                                    false,
+                                    DEFAULT_MAX_BATCH_SIZE_BYTES,
+                                    DEFAULT_MAX_BATCH_TIME_SECONDS);
+        }
+        catch (const std::exception& ex)
+        {
+            LOGERROR("Failed to start logger extension, loggerExtension.Start threw: " << ex.what());
+        }
+        try
+        {
+            m_sophosExtension.Start(Plugin::osquerySocket(),false);
+        }
+        catch (const std::exception& ex)
+        {
+            LOGERROR("Failed to start sophos extension, sophosExtension.Start threw: " << ex.what());
         }
     }
 
@@ -446,11 +414,10 @@ namespace Plugin
     {
         try
         {
-            // Call stop on all extensions, this is ok to call whether running or not.
-            for(auto extension : m_extensionAndStateList)
-            {
-                extension.first->Stop();
-            }
+            // Call stop on logger extension, this is ok to call whether running or not.
+            m_loggerExtension.Stop();
+            m_sophosExtension.Stop();
+
             while (m_osqueryProcess && m_monitor.valid())
             {
                 LOGINFO("Issue request to stop to osquery.");
@@ -508,8 +475,8 @@ namespace Plugin
             m_collectAuditEnabled = current_enabled;
             LOGINFO(
                 "Option to enable audit collection changed to " << option << ". Scheduling osquery STOP");
-            stopOsquery();
             m_restartNoDelay = true;
+            stopOsquery();
         }
         else
         {
@@ -697,9 +664,9 @@ namespace Plugin
 
         sendLiveQueryStatus();
         stopOsquery();
-        m_osqueryConfigurator.disableQueryPack(Plugin::osqueryXDRConfigFilePath());
         // osquery will automatically be restarted but set this to make sure there is no delay.
         m_restartNoDelay = true;
+        m_osqueryConfigurator.disableQueryPack(Plugin::osqueryXDRConfigFilePath());
     }
 
     std::string PluginAdapter::serializeLiveQueryStatus(bool dailyDataLimitExceeded)
@@ -746,7 +713,7 @@ namespace Plugin
             try
             {
                 m_dataLimit = getDataLimit(liveQueryPolicy);
-                m_loggerExtensionPtr->setDataLimit(m_dataLimit);
+                m_loggerExtension.setDataLimit(m_dataLimit);
                 m_liveQueryRevId = getRevId(liveQueryPolicy);
                 m_liveQueryStatus = "Same";
                 return;
@@ -768,7 +735,7 @@ namespace Plugin
 
     void PluginAdapter::sendLiveQueryStatus()
     {
-        bool dailyDataLimitExceeded = m_loggerExtensionPtr->getDataLimitReached();
+        bool dailyDataLimitExceeded = m_loggerExtension.getDataLimitReached();
         std::string statusXml = serializeLiveQueryStatus(dailyDataLimitExceeded);
         LOGINFO("Sending LiveQuery Status");
         m_baseService->sendStatus("LiveQuery", statusXml, statusXml);
