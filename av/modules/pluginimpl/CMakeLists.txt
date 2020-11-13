@@ -10,12 +10,8 @@ sophos_add_library(pluginimpl SHARED
         StringReplace.cpp
         StringReplace.h
         ../common/config.h
-        ../manager/scanprocessmonitor/ScanProcessMonitor.cpp
-        ../manager/scanprocessmonitor/ScanProcessMonitor.h
-        ../manager/scanprocessmonitor/Logger.cpp
-        ../manager/scanprocessmonitor/Logger.h
         EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules
-        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} scanscheduler unixsocket
+        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} scanscheduler unixsocket scanprocessmonitor
 )
 
 target_include_directories(pluginimpl PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
