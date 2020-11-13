@@ -1,4 +1,4 @@
-pyzmq=19.0.1
+pyzmq==19.0.1
 protobuf
 pytest-html
 psutil
