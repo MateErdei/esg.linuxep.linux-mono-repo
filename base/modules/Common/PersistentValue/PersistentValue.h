@@ -71,6 +71,12 @@ namespace Common
                 return m_value;
             }
 
+            void setValueAndForceStore(const T value)
+            {
+                setValue(value);
+                storeValue();
+            }
+
         private:
             T m_value;
             T m_defaultValue;
