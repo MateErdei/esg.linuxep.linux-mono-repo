@@ -176,21 +176,27 @@ namespace Plugin
             // enableQueryPack is safe to call even when the query pack is already enabled.
             if (m_isXDR )
             {
-                if( m_loggerExtensionPtr->checkDataPeriodHasElapsed())
+                if ( m_loggerExtensionPtr->checkDataPeriodHasElapsed())
                 {
                     m_osqueryConfigurator.enableQueryPack(Plugin::osqueryXDRConfigFilePath());
                     sendLiveQueryStatus();
                 }
 
-                //Check extensions are still running and call Stop on any that have stopped unexpectdly
-                //Extensions will be restarted when osquery is restarted
-                for(auto runningStatus : m_extensionAndStateList)
+                //Check extensions are still running and restart osquery if any have stopped unexpectedly
+                bool anyStoppedExtensions = false;
+                for (auto runningStatus : m_extensionAndStateList)
                 {
                     if(runningStatus.second->load())
                     {
-                        LOGINFO("Stopping extension after unexpected exit");
-                        runningStatus.first->Stop();
+                        anyStoppedExtensions = true;
                     }
+                }
+
+                if (anyStoppedExtensions)
+                {
+                    LOGINFO("Restarting OSQuery after unexpected extension exit");
+                    stopOsquery();
+                    m_restartNoDelay = true;
                 }
             }
 
@@ -501,8 +507,8 @@ namespace Plugin
             m_collectAuditEnabled = current_enabled;
             LOGINFO(
                 "Option to enable audit collection changed to " << option << ". Scheduling osquery STOP");
-            m_restartNoDelay = true;
             stopOsquery();
+            m_restartNoDelay = true;
         }
         else
         {
