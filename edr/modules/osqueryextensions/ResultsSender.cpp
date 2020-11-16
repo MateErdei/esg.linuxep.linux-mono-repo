@@ -86,30 +86,30 @@ void ResultsSender::Add(const std::string& result)
     }
 
     Json::Value logLine;
+    std::string queryName;
     try
     {
         std::stringstream logLineStream(result);
         logLineStream >> logLine;
+        std::map<std::string, std::pair<std::string, std::string>> queryTagMap = getQueryTagMap();
+        queryName = logLine["name"].asString();
+        if (!queryName.empty())
+        {
+            auto correctQueryNameAndTag = queryTagMap[queryName];
+            if (logLine["name"] != correctQueryNameAndTag.first && !correctQueryNameAndTag.first.empty())
+            {
+                logLine["name"] = correctQueryNameAndTag.first;
+            }
+            if (!correctQueryNameAndTag.second.empty())
+            {
+                logLine["tag"] = correctQueryNameAndTag.second;
+            }
+        }
     }
     catch (const std::exception& e)
     {
         LOGERROR("Invalid JSON log message. " << e.what());
-        throw;
-    }
-
-    std::map<std::string, std::pair<std::string, std::string>> queryTagMap = getQueryTagMap();
-    auto queryName = logLine["name"].asString();
-    if (!queryName.empty())
-    {
-        auto correctQueryNameAndTag = queryTagMap[queryName];
-        if (logLine["name"] != correctQueryNameAndTag.first && !correctQueryNameAndTag.first.empty())
-        {
-            logLine["name"] = correctQueryNameAndTag.first;
-        }
-        if (!correctQueryNameAndTag.second.empty())
-        {
-            logLine["tag"] = correctQueryNameAndTag.second;
-        }
+        return;
     }
 
     std::stringstream ss;
