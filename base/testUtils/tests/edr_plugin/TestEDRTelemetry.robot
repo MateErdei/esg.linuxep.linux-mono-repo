@@ -98,6 +98,26 @@ EDR Plugin Produces Telemetry With OSQueryD Output Log File Not Containing Resta
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0
 
+EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
+    Wait Until OSQuery Running  20
+    Wait Until Osquery Socket Exists
+
+    Kill OSQuery
+    Wait Until OSQuery Running  20
+    Wait Until Osquery Socket Exists
+    Restart EDR Plugin              #Check telemetry persists after restart
+
+    Wait Until OSQuery Running  20
+    Wait Until Osquery Socket Exists
+
+    Kill OSQuery
+    Wait Until OSQuery Running  20
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0
+
 EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In Telemetry
     [Tags]  MCSROUTER  FAKE_CLOUD  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
     [Setup]  EDR Telemetry Test Setup With Cloud
