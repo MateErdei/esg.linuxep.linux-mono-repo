@@ -20,14 +20,6 @@ def change_all_scheduled_queries_interval(config_path, interval):
                 print("No interval for: " + query_name)
                 pass
 
-        for mtr_query_name in config["packs"]["mtr"]["queries"]:
-            try:
-                config["packs"]["mtr"]["queries"][mtr_query_name]["interval"] = interval
-                config["packs"]["mtr"]["queries"][mtr_query_name]["blacklist"] = False
-            except Exception as e:
-                print("No interval for: " + mtr_query_name)
-                pass
-
         new_config_json_string = json.dumps(config, indent=4)
         with open(config_path, 'w') as f:
             f.write(new_config_json_string)
