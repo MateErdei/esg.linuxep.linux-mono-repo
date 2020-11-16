@@ -118,7 +118,7 @@ class EDRPlugin:
 
     def wait_for_osquery_to_run(self):
         times_run = 0
-        while times_run < 60:
+        while times_run < 120:
             times_run += 1
             for p in self.process_iter():
                 if p.name() == "osqueryd":

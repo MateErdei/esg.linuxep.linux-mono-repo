@@ -189,6 +189,7 @@ namespace Plugin
                     if(runningStatus.second->load())
                     {
                         anyStoppedExtensions = true;
+                        break;
                     }
                 }
 
