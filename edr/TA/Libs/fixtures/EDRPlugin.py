@@ -116,6 +116,23 @@ class EDRPlugin:
             if '0' <= pid[0] <= '9':
                 yield ProcEntry(pid)
 
+    def wait_for_osquery_to_be_up_and_stable(self):
+        times_run = 0
+        seconds_pid_is_stable = 0
+        osquery_pid = self.wait_for_osquery_to_run()
+        while times_run < 20 and seconds_pid_is_stable < 10:
+            times_run += 1
+            osquery_pid_new = self.wait_for_osquery_to_run()
+            if osquery_pid == osquery_pid_new:
+                seconds_pid_is_stable += 1
+            else:
+                seconds_pid_is_stable = 0
+                osquery_pid = osquery_pid_new
+            time.sleep(1)
+
+        if seconds_pid_is_stable < 10:
+            raise AssertionError("osqueryd not found in process list: {}".format([p for p in process_iter()]))
+
     def wait_for_osquery_to_run(self):
         times_run = 0
         while times_run < 120:
