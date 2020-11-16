@@ -5,6 +5,7 @@
 
 import os
 import json
+import time
 
 
 def change_all_scheduled_queries_interval(config_path, interval):
@@ -43,3 +44,21 @@ def check_for_query_in_log(log_path, query_name: str):
     log_content_stripped = log_content.replace("\n", "")
     if query_name not in log_content_stripped:
         raise AssertionError("could not find query in log: " + query_name)
+
+def integer_is_within_range(integer, lower, upper):
+    assert int(lower) <= int(integer) <= int(upper), f"expected {lower} <= {integer} <= {upper}"
+
+def get_current_epoch_time():
+    return int(time.time())
+
+def wait_for_scheduled_query_file_and_return_filename():
+    n = 0
+    while n < 30:
+        files = os.listdir("/opt/sophos-spl/base/mcs/datafeed")
+        if len(files) == 0:
+            time.sleep(1)
+            n += 1
+            next
+        else:
+            return files[0]
+    raise AssertionError("Did not find scheduled query datafeed file")

@@ -82,6 +82,8 @@ namespace Plugin
         unsigned int getDataLimit(const std::string &liveQueryPolicy);
         std::string getRevId(const std::string &liveQueryPolicy);
 
+        bool hasScheduleEpochEnded(time_t now);
+
     protected:
         /*
          * Process ALC policies received given that the plugin subscribes to ALC policy.
@@ -100,6 +102,10 @@ namespace Plugin
         std::string m_liveQueryStatus = "NoRef";
 
         LoggerExtension m_loggerExtension;
+
+        Common::PersistentValue<time_t> m_scheduleEpoch;
+        // 6 Days in seconds
+        const time_t SCHEDULE_EPOCH_DURATION = 518400;
     private:
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
@@ -137,8 +143,5 @@ namespace Plugin
         OsqueryConfigurator m_osqueryConfigurator;
         bool m_collectAuditEnabled = false;
         bool m_restartNoDelay = false;
-
-        const time_t SCHEDULE_EPOCH_DURATION = 604800;
-        Common::PersistentValue<time_t> m_scheduleEpoch;
     };
 } // namespace Plugin

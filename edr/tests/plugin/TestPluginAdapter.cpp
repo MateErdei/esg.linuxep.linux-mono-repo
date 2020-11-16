@@ -80,6 +80,15 @@ public:
     {
         Plugin::PluginAdapter::processLiveQueryPolicy(policy);
     }
+
+    void setScheduleEpoch(time_t scheduleEpoch)
+    {
+        m_scheduleEpoch.setValue(scheduleEpoch);
+    }
+    time_t getScheduleEpochDuration()
+    {
+        return SCHEDULE_EPOCH_DURATION;
+    }
 };
 class TestPluginAdapterWithLogger : public LogInitializedTests{};
 class TestPluginAdapterWithoutLogger : public LogOffInitializedTests{};
@@ -586,3 +595,17 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithInvalidPol
     EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 250000000);
 }
 
+TEST_F(PluginAdapterWithMockFileSystem, testHasScheduleEpochEnded)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    time_t scheduleEpochTimestamp = 1500000000;
+    pluginAdapter.setScheduleEpoch(scheduleEpochTimestamp);
+    time_t scheduleEpochDuration = pluginAdapter.getScheduleEpochDuration();
+
+    EXPECT_TRUE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+500000000));
+    EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp-500000000));
+    EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+scheduleEpochDuration));
+    EXPECT_TRUE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+scheduleEpochDuration+1));
+    EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+scheduleEpochDuration-1));
+}

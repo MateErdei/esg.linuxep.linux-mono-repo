@@ -112,8 +112,94 @@ EDR Plugin Respects Data Limit
 
     Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>true</dailyDataLimitExceeded>
 
+EDR Plugin Rolls ScheduleEpoch Over When The Previous One Has Elapsed
+    [Setup]  No Operation
+    Install Base For Component Tests
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Install EDR Directly from SDDS
+    Enable XDR
+    ${oldScheduleEpochTimestamp} =  Set Variable  1600000000
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${oldScheduleEpochTimestamp}
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${oldScheduleEpochTimestamp}
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Previous schedule_epoch: ${oldScheduleEpochTimestamp}, has ended.
+    ${scheduleEpoch} =  ScheduleEpoch Should Be Recent
+    Should Not Be Equal As Strings  ${scheduleEpoch}  ${oldScheduleEpochTimestamp}
+    EDR Plugin Log Contains   Starting new schedule_epoch: ${scheduleEpoch}
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${scheduleEpoch}
+    Osquery Flag File Should Contain  --schedule_epoch=${scheduleEpoch}
+
+EDR Plugin Does Not Roll ScheduleEpoch Over When The Previous One Has Not Elapsed
+    [Setup]  No Operation
+    Install Base For Component Tests
+    ${currentEpochTime} =  get_current_epoch_time
+    ${currentEpochTimeMinus3Days} =  Evaluate  ${currentEpochTime} - (60*60*24*3)
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Install EDR Directly from SDDS
+    Enable XDR
+
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${currentEpochTimeMinus3Days.__str__()}
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${currentEpochTimeMinus3Days}
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Does Not Contain   Starting new schedule_epoch
+    Osquery Flag File Should Contain  --schedule_epoch=${currentEpochTimeMinus3Days}
+
+Check XDR Results Contain Correct ScheduleEpoch Timestamp
+    [Setup]  No Operation
+    Install Base For Component Tests
+    ${currentEpochTime} =  get_current_epoch_time
+    ${currentEpochTimeMinus3Days} =  Evaluate  ${currentEpochTime} - (60*60*24*3)
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Install EDR Directly from SDDS
+
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
+    change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  10
+    change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  10
+    Enable XDR
+
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${currentEpochTimeMinus3Days.__str__()}
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Osquery Flag File Should Contain  --schedule_epoch=${currentEpochTimeMinus3Days}
+
+    ${scheduledQueryFilename} =  wait_for_scheduled_query_file_and_return_filename
+    ${scheduledQueryContents} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${scheduledQueryFilename}
+    Should Contain  ${scheduledQueryContents}  "epoch":${currentEpochTimeMinus3Days}
+
+
 
 *** Keywords ***
+ScheduleEpoch Should Be Recent
+    ${scheduleEpoch} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch
+    ${currentEpochTime} =  get_current_epoch_time
+    integer_is_within_range  ${scheduleEpoch}    ${currentEpochTime-60}  ${currentEpochTime}
+    [Return]  ${scheduleEpoch}
+
 LiveQuery Status Should Contain
     [Arguments]  ${StringToContain}
     ${status} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
@@ -172,3 +258,8 @@ Add Uptime Query to Scheduled Queries
 Test Teardown
     EDR And Base Teardown
     Uninstall And Revert Setup
+
+Osquery Flag File Should Contain
+    [Arguments]  ${stringToContain}
+    ${flags} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
+    Should Contain  ${flags}   ${stringToContain}

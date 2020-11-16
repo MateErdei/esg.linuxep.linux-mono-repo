@@ -30,9 +30,18 @@ File Log Contains
     ${content} =  Get File   ${path}
     Should Contain  ${content}  ${input}
 
+File Log Does Not Contain
+    [Arguments]  ${path}  ${input}
+    ${content} =  Get File   ${path}
+    Should Not Contain  ${content}  ${input}
+
 EDR Plugin Log Contains
     [Arguments]  ${input}
     File Log Contains  ${EDR_LOG_PATH}   ${input}
+
+EDR Plugin Log Does Not Contain
+    [Arguments]  ${input}
+    File Log Does Not Contain  ${EDR_LOG_PATH}   ${input}
 
 LiveQuery Log Contains
     [Arguments]  ${input}

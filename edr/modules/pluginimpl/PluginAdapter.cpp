@@ -84,11 +84,11 @@ namespace Plugin
             DEFAULT_XDR_PERIOD_SECONDS,
             [this] { dataFeedExceededCallback(); }
             ),
-        m_timesOsqueryProcessFailedToStart(0),
-        m_osqueryConfigurator(),
         m_scheduleEpoch(Plugin::varDir(),
                         "xdrScheduleEpoch",
-                        std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+                        std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
+        m_timesOsqueryProcessFailedToStart(0),
+        m_osqueryConfigurator()
     {
     }
 
@@ -164,11 +164,10 @@ namespace Plugin
             }
 
             time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
-            if ((now - SCHEDULE_EPOCH_DURATION) > m_scheduleEpoch.getValue())
+            if (hasScheduleEpochEnded(now))
             {
                 LOGINFO("Previous schedule_epoch: " << m_scheduleEpoch.getValue() << ", has ended. Starting new schedule_epoch: " << now);
-                // restart osquery
-                m_scheduleEpoch.setValue(now);
+                m_scheduleEpoch.setValueAndForceStore(now);
                 // osquery will automatically be restarted but set this to make sure there is no delay.
                 m_restartNoDelay = true;
                 stopOsquery();
@@ -739,6 +738,11 @@ namespace Plugin
         std::string statusXml = serializeLiveQueryStatus(dailyDataLimitExceeded);
         LOGINFO("Sending LiveQuery Status");
         m_baseService->sendStatus("LiveQuery", statusXml, statusXml);
+    }
+
+    bool PluginAdapter::hasScheduleEpochEnded(time_t now)
+    {
+        return (now - SCHEDULE_EPOCH_DURATION) > m_scheduleEpoch.getValue();
     }
 
 

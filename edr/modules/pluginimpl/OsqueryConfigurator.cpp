@@ -104,11 +104,6 @@ namespace Plugin
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false"};
 
-        std::stringstream scheduleEpochSS;
-        scheduleEpochSS << "--schedule_epoch=" << scheduleEpoch;
-        LOGDEBUG("Using osquery schedule_epoch flag as: " << scheduleEpochSS.str());
-        flags.push_back(scheduleEpochSS.str());
-
         std::string eventsMaxValue = "50000";
         std::pair<std::string,std::string> eventsMax = Common::UtilityImpl::FileUtils::extractValueFromFile(Plugin::edrConfigFilePath(), "events_max");
         if (!eventsMax.first.empty())
@@ -137,6 +132,11 @@ namespace Plugin
             flags.emplace_back("--extensions_timeout=10");
             flags.emplace_back("--extensions_require=SophosLoggerPlugin");
             flags.emplace_back("--logger_plugin=SophosLoggerPlugin");
+
+            std::stringstream scheduleEpochSS;
+            scheduleEpochSS << "--schedule_epoch=" << scheduleEpoch;
+            LOGDEBUG("Using osquery schedule_epoch flag as: " << scheduleEpochSS.str());
+            flags.push_back(scheduleEpochSS.str());
         }
 
         bool networkTables;
