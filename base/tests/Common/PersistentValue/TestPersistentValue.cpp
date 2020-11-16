@@ -121,3 +121,24 @@ TEST_F(TestPersistentValue, filesystemExceptionsSafelyIgnored) // NOLINT
     Common::PersistentValue<std::string> value(pathToVarDir,valueName, defaultValue);
     ASSERT_EQ(value.getValue(), defaultValue);
 }
+
+TEST_F(TestPersistentValue, testSetValueAndForceStoreWritesOnSetAndDestruction) // NOLINT
+{
+    std::string pathToVarDir = "var";
+    std::string valueName = "aPersistedValue";
+    std::string path = Common::FileSystem::join(pathToVarDir, "persist-" + valueName);
+    int defaultValue = 10;
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(path)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(path)).WillOnce(Return("123"));
+    // expect write 1 from the setValueAndForceStore(1) call
+    EXPECT_CALL(*mockFileSystem, writeFile(path, "1")).Times(1);
+    // expect write 2 from destruction after calling setValue(2)
+    EXPECT_CALL(*mockFileSystem, writeFile(path, "2")).Times(1);
+    Common::PersistentValue<int> value(pathToVarDir,valueName, defaultValue);
+    value.setValueAndForceStore(1);
+    ASSERT_EQ(value.getValue(), 1);
+    value.setValue(2);
+    ASSERT_EQ(value.getValue(), 2);
+}
