@@ -143,7 +143,10 @@ class Datafeeds(object):
         return self.__m_max_send_freq
 
     def _datafeed_result_is_alive(self, datafeed_result: Datafeed):
-        creation_time = float(datafeed_result.m_creation_time)
+        try:
+            creation_time = float(datafeed_result.m_creation_time)
+        except ValueError:
+            return False
         time_to_live_seconds_ago = time.time() - self.__m_time_to_live
         return creation_time > time_to_live_seconds_ago
 

@@ -110,11 +110,13 @@ class TestDatafeeds(unittest.TestCase):
         datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1501033200", content)
         # This timestamp (2601033300) is far in the future (2052) so will be not too old.
         datafeeds.add_datafeed_result("/tmp/filepath3", feed_id, "2601033300", content)
+        datafeeds.add_datafeed_result("/tmp/filepath4", feed_id, "invalid", content)
         datafeed_results = datafeeds.get_datafeeds()
-        self.assertEqual(len(datafeed_results), 3)
+        self.assertEqual(len(datafeed_results), 4)
         self.assertFalse(datafeeds._datafeed_result_is_alive(datafeed_results[0]))
         self.assertFalse(datafeeds._datafeed_result_is_alive(datafeed_results[1]))
         self.assertTrue(datafeeds._datafeed_result_is_alive(datafeed_results[2]))
+        self.assertFalse(datafeeds._datafeed_result_is_alive(datafeed_results[3]))
 
 
     def test_datafeed_load_config(self):

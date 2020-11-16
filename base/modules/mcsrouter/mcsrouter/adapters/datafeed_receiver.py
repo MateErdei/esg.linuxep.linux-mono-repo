@@ -45,7 +45,7 @@ def receive():
     for datafeed_file in os.listdir(datafeed_dir):
         # <datafeedid>-<timestamp>, e.g. scheduled_query-1234567
         # Unfortunately it looks like there are underscores in the datafeed IDs so we can't use our normal x_y syntax
-        match_object = re.match(r"^([^-]*)-([^-]*)\.json$", datafeed_file)
+        match_object = re.match(r"^([^-]*)-([^-][0-9]*)\.json$", datafeed_file)
         file_path = os.path.join(datafeed_dir, datafeed_file)
         if match_object:
             datafeed_id = match_object.group(1)

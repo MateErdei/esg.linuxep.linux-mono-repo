@@ -29,6 +29,25 @@ Basic XDR Datafeed Sent
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send}
     Cloud Server Log Should Not Contain  Failed to decompress response body content
 
+Invalid Datafeed Filename Not Sent But Does not Block Other Datafeed Files
+    [Documentation]  Written to test the eact scenario set out in LINUXDAR-2463
+    Override LogConf File as Global Level  DEBUG
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter
+    ${json_to_send1} =   Set Variable  {"abc":"def456"}
+    ${json_to_send2} =   Set Variable  {"abc":"def789"}
+    send_xdr_datafeed_result  scheduled_query  invalid  ${json_to_send1}
+    send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send2}
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...  Check MCS Router Log Contains   Malformed datafeed file: scheduled_query-invalid.json
+    Check Cloud Server Log For Scheduled Query   scheduled_query
+    Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send2}
+    Cloud Server Log Should Not Contain  ${json_to_send1}
+    Directory Should Be Empty  ${MCS_DIR}/datafeed
+
 Retrieve JWT Tokens from Central
     Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true"}
     Override LogConf File as Global Level  DEBUG
