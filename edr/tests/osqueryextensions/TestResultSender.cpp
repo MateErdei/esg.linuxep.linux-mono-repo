@@ -264,7 +264,7 @@ TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
 }
 
-TEST_F(TestResultSender, addThrowsInvalidJsonLog) // NOLINT
+TEST_F(TestResultSender, addingInvalidJsonLogsErrorButNoExceptionThrown) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -289,7 +289,7 @@ TEST_F(TestResultSender, addThrowsInvalidJsonLog) // NOLINT
         PERIOD_IN_SECONDS,
         [&callbackCalled]()mutable{callbackCalled = true;});
     EXPECT_CALL(*mockFileSystem, appendFile(_, _)).Times(0);
-    EXPECT_THROW(resultsSender.Add(R"(not json)"), std::exception);
+//    EXPECT_THROW(resultsSender.Add(R"(not json)"), std::exception);
 }
 
 TEST_F(TestResultSender, addThrowsWhenAppendThrows) // NOLINT
@@ -731,4 +731,53 @@ TEST_F(TestResultSender, dataLimitHitGraduallyInvokesCallback)  // NOLINT
     }
 
     ASSERT_EQ(callbackCount, 1);
+}
+
+TEST_F(TestResultSender, fuzzSamples) // NOLINT
+{
+    std::vector<std::string> samples;
+    auto fs =  Common::FileSystem::fileSystem();
+    std::string location = fs->readlink("/proc/self/exe");
+    std::string dir = Common::FileSystem::dirName(location);
+
+    for (const std::string& testCrashSample : fs->listFiles(Common::FileSystem::join(dir, "../../", "samples/crashes/")))
+    {
+        samples.push_back( fs->readFile(testCrashSample));
+    }
+
+    for (const std::string& testHangSample : fs->listFiles(Common::FileSystem::join(dir, "../../", "samples/hangs/")))
+    {
+        samples.push_back( fs->readFile(testHangSample));
+    }
+    ASSERT_GE(samples.size(), 8);
+
+    auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    for (auto& sample : samples)
+    {
+        EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
+        EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
+        EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+        EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
+        EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
+        EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
+        EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds")).WillOnce(Return(false));
+        EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+        EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+        EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+        EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+        bool callbackCalled = false;
+        ResultsSender resultsSender(
+            INTERMEDIARY_PATH,
+            DATAFEED_PATH,
+            QUERY_PACK_PATH,
+            PLUGIN_VAR_DIR,
+            DATA_LIMIT,
+            PERIOD_IN_SECONDS,
+            [&callbackCalled]()mutable{callbackCalled = true;});
+
+        EXPECT_NO_THROW(resultsSender.Add(sample));
+        EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
+    }
 }

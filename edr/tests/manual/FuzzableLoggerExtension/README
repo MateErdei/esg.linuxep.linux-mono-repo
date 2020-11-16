@@ -1,0 +1,26 @@
+--Please ensure these dirs exist before running this, they are not done here to speed up init time for fuzzing.
+/tmp/fuzz-result-sender
+/tmp/fuzz-result-sender/datafeed
+/tmp/fuzz-result-sender/var
+/tmp/afl/input
+/tmp/afl/output
+Commands:
+mkdir -p /tmp/fuzz-result-sender/datafeed
+mkdir -p /tmp/fuzz-result-sender/var
+mkdir -p /tmp/afl/input
+mkdir -p /tmp/afl/output
+
+--Please ensure the osquery query pack file exist in this location:
+/tmp/fuzz-result-sender/querypack.conf
+Commands:
+Example, use latest query pack. cp /mnt/filer6/linux/SSPL/users/Alex/sophos-scheduled-query-pack.conf /tmp/fuzz-result-sender/querypack.conf
+
+--Compile Product with AFL compiler to instrument our code:
+apt-get install afl
+build.sh --afl
+
+-- Run fuzzer:
+Add simple JSON test case for AFL to mutate:
+echo '{"a":"b"}' > /tmp/afl/input/simplejson
+On first run it will comp[lain about a few things which need to be set on your machine, follow the prompted instructions.
+sudo LD_LIBRARY_PATH=/home/pair/gitrepos/sspl-tools/sspl-plugin-edr-component/build64/libs/ afl-fuzz -m 1000 -i /tmp/afl/input -o /tmp/afl/output ./output/componenttests/FuzzableResultSender

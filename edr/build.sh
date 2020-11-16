@@ -46,6 +46,7 @@ COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
 COV_HTML_BASE=sspl-plugin-edr-unittest
 VALGRIND=0
 GOOGLETESTTAR=googletest-release-1.8.1
+AFL=0
 
 while [[ $# -ge 1 ]]
 do
@@ -139,6 +140,9 @@ do
             ;;
         --valgrind)
             VALGRIND=1
+            ;;
+        --afl)
+            AFL=1
             ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
@@ -303,6 +307,12 @@ function build()
         export CC=$BULLSEYE_DIR/bin/gcc
         export CXX=$BULLSEYE_DIR/bin/g++
         covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
+    elif  [[ ${AFL} == 1 ]]
+    then
+        echo "Setting CC and CXX to AFL compiler"
+        export CXX=/usr/bin/afl-g++
+        export CC=/usr/bin/afl-gcc
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/build/input/gcc/lib64/
     else
         export CC=/build/input/gcc/bin/gcc
         export CXX=/build/input/gcc/bin/g++
