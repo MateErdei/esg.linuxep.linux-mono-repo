@@ -12,6 +12,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
+#include <thirdparty/nlohmann-json/json.hpp>
 void OsqueryLogIngest::ingestOutput(const std::string& output)
 {
     // splitString always returns an empty string if the last char is the deliminator, i.e. a new line in this case.
@@ -29,7 +30,12 @@ void OsqueryLogIngest::ingestOutput(const std::string& output)
 
     for (auto& line : logLines)
     {
-        LOGINFO_OSQUERY(line);
+        bool shouldNotLog = processOsqueryLogLineForEventsMaxTelemetry(line);
+        if (shouldNotLog)
+        {
+            LOGINFO_OSQUERY(line);
+        }
+
         processOsqueryLogLineForTelemetry(line);
     }
 }
@@ -64,6 +70,64 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
     }
 
 }
+
+bool OsqueryLogIngest::processOsqueryLogLineForEventsMaxTelemetry(std::string& logLine)
+{
+
+    bool alreadySet = false;
+    if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Expiring events for subscriber: "))
+    {
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        std::string contents = telemetry.serialise();
+        nlohmann::json array = nlohmann::json::parse(contents);
+        std::string key;
+        //example error log: Expiring events for subscriber: syslog_events (overflowed limit 100000)
+
+        std::vector<std::string> sections = Common::UtilityImpl::StringUtils::splitString(logLine,"Expiring events for subscriber:");
+        std::vector<std::string> unstrippedQueryName = Common::UtilityImpl::StringUtils::splitString(sections[1],"(");
+        std::string tableName = Common::UtilityImpl::StringUtils::replaceAll(unstrippedQueryName[0], " ", "");
+
+        if (tableName == "process_events")
+        {
+            key = plugin::telemetryProcessEventsMaxHit;
+        }
+        if (tableName == "selinux_events")
+        {
+            key = plugin::telemetrySelinuxEventsMaxHit;
+        }
+        if (tableName == "syslog_events")
+        {
+            key = plugin::telemetrySyslogEventsMaxHit;
+        }
+        if (tableName == "user_events")
+        {
+            key = plugin::telemetryUserEventsMaxHit;
+        }
+        if (tableName == "socket_events")
+        {
+            key = plugin::telemetrySocketEventsMaxHit;
+        }
+        else
+        {
+            LOGERROR_OSQUERY("table name not recognised, cannot set event max telmetry");
+            return alreadySet;
+        }
+
+        if (array.find(key) != array.end())
+        {
+            if (array[key] == true)
+            {
+                alreadySet = true;
+            }
+        }
+        telemetry.set(key, true);
+
+        LOGDEBUG_OSQUERY("Incremented telemetry: " << tableName);
+
+    }
+    return alreadySet;
+}
+
 void OsqueryLogIngest::operator()(std::string output)
 {
     ingestOutput(output);

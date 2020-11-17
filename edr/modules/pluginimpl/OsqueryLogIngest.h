@@ -21,6 +21,7 @@ private:
     /// \param output OUTPUT_BUFFER_LIMIT_BYTES number of bytes from osquery output.
     void ingestOutput(const std::string& output);
     void processOsqueryLogLineForTelemetry(std::string& logLine);
+    bool processOsqueryLogLineForEventsMaxTelemetry(std::string& logLine);
     std::string m_previousSection;
 };
 
