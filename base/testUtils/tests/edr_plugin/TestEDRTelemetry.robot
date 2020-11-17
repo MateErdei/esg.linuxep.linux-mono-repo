@@ -196,6 +196,26 @@ EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
     @{queries}=  create list   ${query1}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  queries=@{queries}
 
+EDR Reports Telemetry Correctly When events max limit is hit for a table
+
+    ${script} =     Catenate    SEPARATOR=\n
+    ...    \Expiring events for subscriber: user_events (overflowed limit 100000)
+    ...   Expiring events for subscriber: socket_events (overflowed limit 100000)
+    ...   Expiring events for subscriber: selinux_events (overflowed limit 100000)
+    ...   Expiring events for subscriber: process_events (overflowed limit 100000)
+    ...   Expiring events for subscriber: process_events (overflowed limit 100000)
+    ...    \
+    Create File    ${SOPHOS_INSTALL}/plugins/edr/log/osqueryd.INFO.20201117-051713.1056   content=${script}
+
+
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  ignore_process_events=False  ignore_selinux_events=False  ignore_socket_events=False  ignore_user_events=False
+
+
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by EDR Plugin
     Wait Until OSQuery Running  20
     # osquery will take longer to restart if it is killed before the socket is created

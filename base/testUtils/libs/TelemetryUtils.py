@@ -123,13 +123,18 @@ class TelemetryUtils:
         return telemetry
 
     def generate_edr_telemetry_dict(self, num_osquery_restarts, num_database_purges, num_osquery_restarts_cpu,
-                                    num_osquery_restarts_memory, xdr_is_enabled, queries, scheduled_queries):
+                                    num_osquery_restarts_memory, xdr_is_enabled, events_max, queries , scheduled_queries):
         version = get_plugin_version("edr")
         telemetry = {
             "osquery-restarts": int(num_osquery_restarts),
             "version": version,
+            "events-max": events_max,
             "osquery-database-purges": int(num_database_purges),
-            "xdr-is-enabled": xdr_is_enabled
+            "xdr-is-enabled": xdr_is_enabled,
+            "reached-max-process-events" : True,
+            "reached-max-selinux-events" : True,
+            "reached-max-socket-events" : True,
+            "reached-max-user-events" : True
         }
         if int(num_osquery_restarts_cpu) > -1:
             telemetry["osquery-restarts-cpu"] = int(num_osquery_restarts_cpu)
@@ -376,18 +381,25 @@ class TelemetryUtils:
                                             num_osquery_restarts_cpu=0,
                                             num_osquery_restarts_memory=0,
                                             xdr_is_enabled=False,
+                                            events_max='100000',
                                             ignore_cpu_restarts=False,
                                             ignore_memory_restarts=False,
                                             ignore_scheduled_queries=True,
                                             queries=None,
                                             scheduled_queries=None,
-                                            ignore_xdr=True):
+                                            ignore_xdr=True,
+                                            ignore_process_events=True,
+                                            ignore_selinux_events=True,
+                                            ignore_socket_events=True,
+                                            ignore_user_events=True):
         expected_edr_telemetry_dict = self.generate_edr_telemetry_dict(num_osquery_restarts,
                                                                        num_database_purges,
                                                                        num_osquery_restarts_cpu,
                                                                        num_osquery_restarts_memory,
                                                                        xdr_is_enabled,
-                                                                       queries,scheduled_queries)
+                                                                       events_max,
+                                                                       queries,
+                                                                       scheduled_queries)
         actual_edr_telemetry_dict = json.loads(json_string)["edr"]
 
         if ignore_cpu_restarts:
@@ -430,6 +442,26 @@ class TelemetryUtils:
             xdr_key = "xdr-is-enabled"
             expected_edr_telemetry_dict.pop(xdr_key, None)
             actual_edr_telemetry_dict.pop(xdr_key, None)
+
+        if ignore_process_events:
+            process_events_key = "reached-max-process-events"
+            expected_edr_telemetry_dict.pop(process_events_key, None)
+            actual_edr_telemetry_dict.pop(process_events_key, None)
+
+        if ignore_selinux_events:
+            selinux_events_key = "reached-max-selinux-events"
+            expected_edr_telemetry_dict.pop(selinux_events_key, None)
+            actual_edr_telemetry_dict.pop(selinux_events_key, None)
+
+        if ignore_socket_events:
+            socket_events_key = "reached-max-socket-events"
+            expected_edr_telemetry_dict.pop(socket_events_key, None)
+            actual_edr_telemetry_dict.pop(socket_events_key, None)
+
+        if ignore_user_events:
+            user_events_key = "reached-max-user-events"
+            expected_edr_telemetry_dict.pop(user_events_key, None)
+            actual_edr_telemetry_dict.pop(user_events_key, None)
 
         if actual_edr_telemetry_dict != expected_edr_telemetry_dict:
             raise AssertionError(
