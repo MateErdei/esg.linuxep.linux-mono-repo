@@ -11,6 +11,7 @@ except ImportError:
 RESOURCES_DIR = "/opt/test/inputs/test_scripts/resources"
 SAV_POLICY_FILENAME = "SAV_Policy.xml"
 SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
+FIXED_SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, "sav_policy", "SAV_Policy_Fixed_Exclusions.xml")
 
 def create_sav_policy_with_scheduled_scan(filename, timestamp):
     parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
@@ -50,6 +51,16 @@ def create_badly_configured_sav_policy_day(filename):
 
 def create_complete_sav_policy(filename):
     sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
+    sav_policy_builder.set_scheduled_scan_day("monday")
+    sav_policy_builder.set_scheduled_scan_time("11:00:00")
+    sav_policy_builder.set_posix_exclusions(["*.glob", "globExample?.txt", "/stemexample/*"])
+    sav_policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
+    sav_policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
+    sav_policy_builder.send_sav_policy()
+
+
+def create_fixed_sav_policy(filename):
+    sav_policy_builder = _SavPolicyBuilder(FIXED_SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day("monday")
     sav_policy_builder.set_scheduled_scan_time("11:00:00")
     sav_policy_builder.set_posix_exclusions(["*.glob", "globExample?.txt", "/stemexample/*"])

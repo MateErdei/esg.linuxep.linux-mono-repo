@@ -8,7 +8,8 @@ def __generate_root_exclusions():
     for t in os.listdir("/"):
         if os.path.isdir("/"+t):
             yield "/%s/" % t
-        yield "/%s" % t
+        else:
+            yield "/%s" % t
 
 
 def __generate_exclusions_to_scan_tmp():

@@ -50,6 +50,10 @@ Send Complete Sav Policy
     Create Complete Sav Policy  ${TEMP_SAV_POLICY_FILENAME}
     Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
 
+Send Fixed Sav Policy
+    Create Fixed Sav Policy  ${TEMP_SAV_POLICY_FILENAME}
+    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
+
 Send Sav Policy To Base
     [Arguments]  ${policyFile}
     Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/SAV-2_policy.xml

@@ -198,7 +198,7 @@ AV plugin runs CLS while scheduled scan is running
 
 AV Configures Single Scheduled Scan Correctly
     Check AV Plugin Installed With Base
-    Send Complete Sav Policy
+    Send Fixed Sav Policy
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans: 1
