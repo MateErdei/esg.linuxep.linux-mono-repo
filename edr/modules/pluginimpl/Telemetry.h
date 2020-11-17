@@ -15,6 +15,7 @@ namespace plugin
 {
     std::optional<std::string> getVersion();
     std::optional<unsigned long> getOsqueryDatabaseSize();
+    //TODO LINUXDAR-2484 remove these two functions
     void processOsqueryLogLineForEventsMaxTelemetry(std::string& line);
     void readOsqueryInfoFiles();
 } // namespace Plugin

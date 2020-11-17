@@ -95,6 +95,7 @@ namespace Plugin
         {
             telemetry.set(plugin::telemetryOSQueryDatabaseSize, osqueryDatabaseSize.value());
         }
+        //TODO LINUXDAR-2484 remove this function call
         plugin::readOsqueryInfoFiles();
         telemetry.updateTelemetryWithStats();
         telemetry.updateTelemetryWithAllStdDeviationStats();
