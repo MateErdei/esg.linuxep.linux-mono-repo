@@ -104,3 +104,20 @@ TEST_F(OsqueryTelemetryTests, telemetryCountersHandlesAQueryhasSucessCasesAndFai
             "{\"scheduled-queries\":{\"example-query\":{\"query-error-count\":1,\"record-size-avg\":300.0,"
             "\"record-size-max\":300.0,\"record-size-min\":300.0,\"record-size-std-deviation\":0.0,\"records-count\":1}}}");
 }
+
+TEST_F(OsqueryTelemetryTests, telemetryCountersHandlesEventMax) // NOLINT
+{
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+    std::string line1 = "Expiring events for subscriber: syslog_events (overflowed limit 100000)\n";
+    std::string line2 = "Expiring events for subscriber: user_events (overflowed limit 100000)\n";
+    std::string line3 = "Expiring events for subscriber: socket_events (overflowed limit 100000)\n";
+    std::string line4 = "Expiring events for subscriber: process_events (overflowed limit 100000)\n";
+    std::string line5 = "Expiring events for subscriber: selinux_events (overflowed limit 100000)\n";
+    OsqueryLogIngest ingester;
+    ingester(line1);
+    ingester(line2);
+    ingester(line3);
+    ingester(line4);
+    ingester(line5);
+    EXPECT_EQ(telemetry.serialiseAndReset(), "{\"reached-max-process-events\":true,\"reached-max-selinux-events\":true,\"reached-max-socket-events\":true,\"reached-max-syslog-events\":true,\"reached-max-user-events\":true}");
+}

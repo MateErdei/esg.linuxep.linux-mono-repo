@@ -75,7 +75,7 @@ bool OsqueryLogIngest::processOsqueryLogLineForEventsMaxTelemetry(std::string& l
 {
 
     bool alreadySet = false;
-    if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Expiring events for subscriber: "))
+    if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Expiring events for subscriber:"))
     {
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
         std::string contents = telemetry.serialise();
@@ -91,19 +91,19 @@ bool OsqueryLogIngest::processOsqueryLogLineForEventsMaxTelemetry(std::string& l
         {
             key = plugin::telemetryProcessEventsMaxHit;
         }
-        if (tableName == "selinux_events")
+        else if (tableName == "selinux_events")
         {
             key = plugin::telemetrySelinuxEventsMaxHit;
         }
-        if (tableName == "syslog_events")
+        else if (tableName == "syslog_events")
         {
             key = plugin::telemetrySyslogEventsMaxHit;
         }
-        if (tableName == "user_events")
+        else if (tableName == "user_events")
         {
             key = plugin::telemetryUserEventsMaxHit;
         }
-        if (tableName == "socket_events")
+        else if (tableName == "socket_events")
         {
             key = plugin::telemetrySocketEventsMaxHit;
         }
