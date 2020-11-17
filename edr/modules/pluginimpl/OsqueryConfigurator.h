@@ -21,7 +21,7 @@ namespace Plugin
 
         void loadALCPolicy(const std::string& alcPolicy);
         void prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch);
-        static void regenerateOSQueryFlagsFile(const std::string &osqueryFlagsFilePath, bool enableAuditEventCollection,
+        static void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection,
                                                bool xdrEnabled,
                                                time_t scheduleEpoch);
         static void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);

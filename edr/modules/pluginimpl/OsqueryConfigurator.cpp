@@ -64,7 +64,7 @@ namespace Plugin
         fileSystem->writeFile(osqueryConfigFilePath, osqueryConfiguration.str());
     }
 
-    void OsqueryConfigurator::regenerateOSQueryFlagsFile(const std::string &osqueryFlagsFilePath,
+    void OsqueryConfigurator::regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath,
                                                          bool enableAuditEventCollection, bool xdrEnabled,
                                                          time_t scheduleEpoch)
     {

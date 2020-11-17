@@ -87,8 +87,8 @@ namespace Plugin
         m_scheduleEpoch(Plugin::varDir(),
                         "xdrScheduleEpoch",
                         std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()),
-        m_timesOsqueryProcessFailedToStart(0),
-        m_osqueryConfigurator()
+            m_timesOsqueryProcessFailedToStart(0),
+            m_osqueryConfigurator()
     {
     }
 
@@ -663,9 +663,9 @@ namespace Plugin
 
         sendLiveQueryStatus();
         stopOsquery();
+        m_osqueryConfigurator.disableQueryPack(Plugin::osqueryXDRConfigFilePath());
         // osquery will automatically be restarted but set this to make sure there is no delay.
         m_restartNoDelay = true;
-        m_osqueryConfigurator.disableQueryPack(Plugin::osqueryXDRConfigFilePath());
     }
 
     std::string PluginAdapter::serializeLiveQueryStatus(bool dailyDataLimitExceeded)
