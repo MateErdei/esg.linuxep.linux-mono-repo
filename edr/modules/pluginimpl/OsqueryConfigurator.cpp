@@ -105,7 +105,7 @@ namespace Plugin
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false"};
 
-        std::string eventsMaxValue = "50000";
+        std::string eventsMaxValue = "100000";
         std::pair<std::string,std::string> eventsMax = Common::UtilityImpl::FileUtils::extractValueFromFile(Plugin::edrConfigFilePath(), "events_max");
         if (!eventsMax.first.empty())
         {

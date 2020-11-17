@@ -50,7 +50,7 @@ TEST_F(OsqueryTelemetryTests, telemetryCountersNotIncrementedOnUnrecognisedLogLi
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     std::string line = "this is not recognised\n";
     OsqueryLogIngest ingester;
-    ingester(line);
+    EXPECT_NO_THROW(ingester(line));
     EXPECT_EQ(telemetry.serialiseAndReset(), "{}");
 }
 
@@ -110,7 +110,7 @@ TEST_F(OsqueryTelemetryTests, telemetryCountersHandlesEventMax) // NOLINT
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     std::string line1 = "Expiring events for subscriber: syslog_events (overflowed limit 100000)\n";
     std::string line2 = "Expiring events for subscriber: user_events (overflowed limit 100000)\n";
-    std::string line3 = "Expiring events for subscriber: socket_events (overflowed limit 100000)\n";
+    std::string line3 = "Expiring events for subscriber: socket_events \n";
     std::string line4 = "Expiring events for subscriber: process_events (overflowed limit 100000)\n";
     std::string line5 = "Expiring events for subscriber: selinux_events (overflowed limit 100000)\n";
     OsqueryLogIngest ingester;
@@ -120,4 +120,17 @@ TEST_F(OsqueryTelemetryTests, telemetryCountersHandlesEventMax) // NOLINT
     ingester(line4);
     ingester(line5);
     EXPECT_EQ(telemetry.serialiseAndReset(), "{\"reached-max-process-events\":true,\"reached-max-selinux-events\":true,\"reached-max-socket-events\":true,\"reached-max-syslog-events\":true,\"reached-max-user-events\":true}");
+}
+
+TEST_F(OsqueryTelemetryTests, telemetryEventMaxProcessorDoesNotthrow) // NOLINT
+{
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+    std::string line1 = "Expiring events for subscriber: syslog_ (overflowed limit 100000)\n";
+    std::string line2 = "Expiring events for subscriber:  (overflowed limit 100000)\n";
+    std::string line3 = "Expiring events for subscriber:\n";
+    OsqueryLogIngest ingester;
+    ingester(line1);
+    ingester(line2);
+    ingester(line3);
+    EXPECT_EQ(telemetry.serialiseAndReset(), "{}");
 }

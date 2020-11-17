@@ -109,7 +109,7 @@ bool OsqueryLogIngest::processOsqueryLogLineForEventsMaxTelemetry(std::string& l
         }
         else
         {
-            LOGERROR_OSQUERY("table name not recognised, cannot set event max telmetry");
+            LOGERROR_OSQUERY("Table name " << tableName << " not recognised, cannot set event_max telemetry for it");
             return alreadySet;
         }
 
