@@ -340,11 +340,11 @@ chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl"
 makedir 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
 chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
-makedir 770 "${SOPHOS_INSTALL}/base/update"
+makedir 750 "${SOPHOS_INSTALL}/base/update"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
-makedir 770 "${SOPHOS_INSTALL}/base/update/certs"
-makedir 770 "${SOPHOS_INSTALL}/base/update/var"
+makedir 750 "${SOPHOS_INSTALL}/base/update/certs"
+makedir 750 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproductversions"
 makedir 770 "${SOPHOS_INSTALL}/base/update/var/processedReports"
@@ -354,7 +354,6 @@ chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/var/proces
 chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/certs"
 chown -R "root:root"  "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 chown -R "root:root"  "${SOPHOS_INSTALL}/base/update/var/installedproductversions"
-
 
 makedir 711 "${SOPHOS_INSTALL}/base/bin"
 makedir 711 "${SOPHOS_INSTALL}/base/lib64"
