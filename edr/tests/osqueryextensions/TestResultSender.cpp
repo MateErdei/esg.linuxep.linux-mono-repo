@@ -289,7 +289,7 @@ TEST_F(TestResultSender, addingInvalidJsonLogsErrorButNoExceptionThrown) // NOLI
         PERIOD_IN_SECONDS,
         [&callbackCalled]()mutable{callbackCalled = true;});
     EXPECT_CALL(*mockFileSystem, appendFile(_, _)).Times(0);
-//    EXPECT_THROW(resultsSender.Add(R"(not json)"), std::exception);
+    EXPECT_NO_THROW(resultsSender.Add(R"(not json)"));
 }
 
 TEST_F(TestResultSender, addThrowsWhenAppendThrows) // NOLINT
@@ -736,20 +736,11 @@ TEST_F(TestResultSender, dataLimitHitGraduallyInvokesCallback)  // NOLINT
 TEST_F(TestResultSender, fuzzSamples) // NOLINT
 {
     std::vector<std::string> samples;
-    auto fs =  Common::FileSystem::fileSystem();
-    std::string location = fs->readlink("/proc/self/exe");
-    std::string dir = Common::FileSystem::dirName(location);
-
-    for (const std::string& testCrashSample : fs->listFiles(Common::FileSystem::join(dir, "../../", "samples/crashes/")))
-    {
-        samples.push_back( fs->readFile(testCrashSample));
-    }
-
-    for (const std::string& testHangSample : fs->listFiles(Common::FileSystem::join(dir, "../../", "samples/hangs/")))
-    {
-        samples.push_back( fs->readFile(testHangSample));
-    }
-    ASSERT_GE(samples.size(), 8);
+    samples.emplace_back(R"({ a":"b"})");
+    samples.emplace_back(R"( "a":"b"})");
+    samples.emplace_back(R"(55":"55":"5555555@"5)");
+    samples.emplace_back("");
+    samples.emplace_back("-E");
 
     auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -767,6 +758,7 @@ TEST_F(TestResultSender, fuzzSamples) // NOLINT
         EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
         EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
         EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+
         bool callbackCalled = false;
         ResultsSender resultsSender(
             INTERMEDIARY_PATH,
