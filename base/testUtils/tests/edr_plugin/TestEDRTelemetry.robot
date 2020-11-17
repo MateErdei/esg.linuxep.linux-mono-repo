@@ -196,7 +196,7 @@ EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
     @{queries}=  create list   ${query1}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  queries=@{queries}
 
-EDR Reports Telemetry Correctly When events max limit is hit for a table
+EDR Reports Telemetry Correctly When Events Max Limit Is Hit For A Table
 
     ${script} =     Catenate    SEPARATOR=\n
     ...    \Expiring events for subscriber: user_events (overflowed limit 100000)
