@@ -121,7 +121,7 @@ EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
 EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In Telemetry
     [Tags]  MCSROUTER  FAKE_CLOUD  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
     [Setup]  EDR Telemetry Test Setup With Cloud
-
+    [Teardown]  EDR Telemetry Test Teardown With Cloud
     Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
