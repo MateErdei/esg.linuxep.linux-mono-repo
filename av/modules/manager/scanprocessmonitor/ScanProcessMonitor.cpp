@@ -10,6 +10,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Process/IProcess.h"
 
+#include <cstring>
+
+#include <sys/select.h>
+
 namespace fs = sophos_filesystem;
 
 plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(sophos_filesystem::path scanner_path)
@@ -35,6 +39,24 @@ plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(soph
     }
 }
 
+static inline bool fd_isset(int fd, fd_set* fds)
+{
+    assert(fd >= 0);
+    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
+}
+
+static inline void internal_fd_set(int fd, fd_set* fds)
+{
+    assert(fd >= 0);
+    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
+}
+
+static int addFD(fd_set* fds, int fd, int currentMax)
+{
+    internal_fd_set(fd, fds);
+    return std::max(fd, currentMax);
+}
+
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 {
     announceThreadStarted();
@@ -54,13 +76,16 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     restartBackoff.tv_sec = 0;
     restartBackoff.tv_nsec = 100*1000*1000;
 
+    fd_set readfds;
+    int max_fd = -1;
+    max_fd = addFD(&readfds, m_notifyPipe.readFd(), max_fd);
+    max_fd = addFD(&readfds, m_subprocess_terminated.readFd(), max_fd);
+    max_fd = addFD(&readfds, m_config_changed.readFd(), max_fd);
 
     while (true)
     {
-        bool terminate;
-
         // Check if we should terminate before doing anything else
-        terminate = stopRequested();
+        bool terminate = stopRequested();
         if (terminate)
         {
             break;
@@ -72,12 +97,38 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
             process->exec(m_scanner_path, {});
         }
 
-        process->wait(Common::Process::milli(100), 1);
+        // TODO: Replace with a select loop:
+        fd_set tempReadfds = readfds;
+        int active = ::pselect(max_fd+1, &tempReadfds, nullptr, nullptr, &restartBackoff, nullptr);
+
+        if (active < 0 and errno != EINTR)
+        {
+            LOGERROR("failure in ScanProcessMonitor: pselect failed: " << strerror(errno));
+            break;
+        }
 
         terminate = stopRequested();
         if (terminate)
         {
             break;
+        }
+
+        if (fd_isset(m_subprocess_terminated.readFd(), &tempReadfds))
+        {
+            while (m_subprocess_terminated.notified())
+            {
+                // do nothing - check is done later
+            }
+        }
+
+        if (fd_isset(m_config_changed.readFd(), &tempReadfds))
+        {
+            while (m_config_changed.notified())
+            {
+                // do nothing - check is done later
+            }
+            process->kill();
+            process->waitUntilProcessEnds();
         }
 
         if (process->getStatus() == Common::Process::ProcessStatus::RUNNING)

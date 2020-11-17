@@ -21,6 +21,7 @@ namespace plugin::manager::scanprocessmonitor
     private:
         sophos_filesystem::path m_scanner_path;
         Common::Threads::NotifyPipe m_subprocess_terminated;
+        Common::Threads::NotifyPipe m_config_changed;
     };
 }
 
