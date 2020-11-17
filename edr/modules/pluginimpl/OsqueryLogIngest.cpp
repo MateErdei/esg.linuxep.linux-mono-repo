@@ -30,8 +30,8 @@ void OsqueryLogIngest::ingestOutput(const std::string& output)
 
     for (auto& line : logLines)
     {
-        bool shouldNotLog = processOsqueryLogLineForEventsMaxTelemetry(line);
-        if (shouldNotLog)
+        bool alreadyLogged = processOsqueryLogLineForEventsMaxTelemetry(line);
+        if (!alreadyLogged)
         {
             LOGINFO_OSQUERY(line);
         }
@@ -74,7 +74,7 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
 bool OsqueryLogIngest::processOsqueryLogLineForEventsMaxTelemetry(std::string& logLine)
 {
 
-    bool alreadySet = false;
+    bool alreadyLogged = false;
     if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Expiring events for subscriber:"))
     {
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
@@ -110,22 +110,22 @@ bool OsqueryLogIngest::processOsqueryLogLineForEventsMaxTelemetry(std::string& l
         else
         {
             LOGERROR_OSQUERY("Table name " << tableName << " not recognised, cannot set event_max telemetry for it");
-            return alreadySet;
+            return alreadyLogged;
         }
 
         if (array.find(key) != array.end())
         {
             if (array[key] == true)
             {
-                alreadySet = true;
+                alreadyLogged = true;
             }
         }
         telemetry.set(key, true);
 
-        LOGDEBUG_OSQUERY("Incremented telemetry: " << tableName);
+        LOGDEBUG_OSQUERY("Setting true for telemetry key: " << key);
 
     }
-    return alreadySet;
+    return alreadyLogged;
 }
 
 void OsqueryLogIngest::operator()(std::string output)

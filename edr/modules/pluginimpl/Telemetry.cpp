@@ -68,13 +68,14 @@ namespace plugin
         std::vector<std::string> files = fs->listFiles(Plugin::osQueryLogDirectoryPath());
         for (auto file: files)
         {
-            if (Common::UtilityImpl::StringUtils::startswith(file,"osquery.INFO"))
+            if (Common::UtilityImpl::StringUtils::isSubstring(file,"osqueryd.INFO"))
             {
                 std::time_t created = fs->lastModifiedTime(file);
                 std::time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
                 double difference = difftime(created,now);
                 if (difference < 86400)
                 {
+                    LOGDEBUG("Reading contents of " << file << "for overflow indicators");
                     std::vector<std::string> lines = fs->readLines(file);
                     for (auto& line:lines)
                     {
@@ -86,6 +87,7 @@ namespace plugin
             }
         }
     }
+
     void processOsqueryLogLineForEventsMaxTelemetry(std::string& logLine)
     {
 
@@ -129,7 +131,7 @@ namespace plugin
 
             telemetry.set(key, true);
 
-            LOGDEBUG("Incremented telemetry: " << tableName);
+            LOGDEBUG("Setting true for telemetry key: " << key);
 
         }
 
