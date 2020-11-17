@@ -3,6 +3,11 @@ from datetime import timedelta
 import calendar
 import os
 
+try:
+    from .. import ExclusionHelper
+except ImportError:
+    import ExclusionHelper
+
 RESOURCES_DIR = "/opt/test/inputs/test_scripts/resources"
 SAV_POLICY_FILENAME = "SAV_Policy.xml"
 SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
@@ -61,7 +66,10 @@ class _SavPolicyBuilder:
         self.replacement_map = {"{{allFiles}}": "false",
                                 "{{excludeSophosDefined}}": "",
                                 "{{excludeUserDefined}}": "",
-                                "{{noExtensions}}": "true"}
+                                "{{noExtensions}}": "true",
+                                "{{IncludeOnlyTmpExclusions}}":
+                                    self._create_tagged_lines(ExclusionHelper.get_exclusions_to_scan_tmp(), "filePath")
+                                }
 
     def send_sav_policy(self):
         content = self.get_sav_policy()

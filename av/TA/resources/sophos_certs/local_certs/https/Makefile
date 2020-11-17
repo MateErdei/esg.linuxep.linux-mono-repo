@@ -146,3 +146,48 @@ clean :
 
 .SECONDARY :
 
+
+
+#################
+## replacement for d2.sophosupd.com
+
+
+d2.privkey.pem :
+	openssl genrsa \
+	  -out "$@" \
+	  4096
+	[ -s $@ ]
+
+d2.csr.pem : d2.privkey.pem
+	openssl req -new \
+	  -config ./openssl.cnf \
+	  -key "$<" \
+	  -out "$@" \
+	  -subj "/C=UK/ST=Oxford/L=Abingdon/O=SAVLinuxCloudAutomation/CN=d2.sophosupd.com"
+	[ -s $@ ]
+
+d2.cert.pem : d2.csr.pem root-ca.crt.pem private/cakey.pem
+	openssl x509 \
+	  -req -in d2.csr.pem \
+	  -CA root-ca.crt.pem \
+	  -CAkey private/cakey.pem \
+	  -CAcreateserial \
+	  -out "$@" \
+	  -days 3
+	[ -s $@ ]
+
+d2-server-private.pem : d2.privkey.pem d2.cert.pem
+	cat $^ >$@
+
+d2-server-chain.pem : root-ca.crt.pem
+	cat $^ >$@
+
+d2-server-private-chain.pem : d2.privkey.pem d2.cert.pem root-ca.crt.pem
+	cat $^ >$@
+
+d2-server-fullchain.pem : d2.cert.pem root-ca.crt.pem
+	cat $^ >$@
+
+d2 : d2-server-fullchain.pem d2-server-private-chain.pem d2-server-chain.pem d2-server-private.pem
+
+.PHONY : d2

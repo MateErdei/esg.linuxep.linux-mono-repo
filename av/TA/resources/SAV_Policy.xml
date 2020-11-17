@@ -68,31 +68,7 @@
         </exclusions>
         <posixExclusions>
             <filePathSet>
-                <filePath>/bin/</filePath>
-                <filePath>/boot/</filePath>
-                <filePath>/dev/</filePath>
-                <filePath>/etc/</filePath>
-                <filePath>/home/</filePath>
-                <filePath>/lib32/</filePath>
-                <filePath>/lib64/</filePath>
-                <filePath>/lib/</filePath>
-                <filePath>/lost+found/</filePath>
-                <filePath>/media/</filePath>
-                <filePath>/mnt/</filePath>
-                <filePath>/oldTarFiles/</filePath>
-                <filePath>/opt/</filePath>
-                <filePath>/proc/</filePath>
-                <filePath>/redist/</filePath>
-                <filePath>/root/</filePath>
-                <filePath>/run/</filePath>
-                <filePath>/sbin/</filePath>
-                <filePath>/snap/</filePath>
-                <filePath>/srv/</filePath>
-                <filePath>/sys/</filePath>
-                <filePath>/usr/</filePath>
-                <filePath>/vagrant/</filePath>
-                <filePath>/var/</filePath>
-                <filePath>/SophosPackages/</filePath>
+                {{IncludeOnlyTmpExclusions}}
                 {{posixExclusions}}
             </filePathSet>
             <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
