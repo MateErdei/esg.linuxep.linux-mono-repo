@@ -3,7 +3,7 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="develop"/>
+            <development-version branch="bugfix/LINUXDAR-2470-privilege-escalation-vulnerability-from-sophos-spl-user-to-root"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
         </build-asset>
