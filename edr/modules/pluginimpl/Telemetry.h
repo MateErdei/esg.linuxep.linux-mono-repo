@@ -1,15 +1,20 @@
 /******************************************************************************************************
 
-Copyright 2018-2020 Sophos Limited.  All rights reserved.
+Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #pragma once
 
-#include <string>
-#include <optional>
+#include <Common/FileSystem/IFileSystem.h>
 
-namespace Plugin
+#include <optional>
+#include <string>
+
+namespace plugin
 {
     std::optional<std::string> getVersion();
+    std::optional<unsigned long> getOsqueryDatabaseSize();
+    void processOsqueryLogLineForEventsMaxTelemetry(std::string& line);
+    void readOsqueryInfoFiles();
 } // namespace Plugin

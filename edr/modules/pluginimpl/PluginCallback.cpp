@@ -95,7 +95,7 @@ namespace Plugin
         {
             telemetry.set(plugin::telemetryOSQueryDatabaseSize, osqueryDatabaseSize.value());
         }
-
+        plugin::readOsqueryInfoFiles();
         telemetry.updateTelemetryWithStats();
         telemetry.updateTelemetryWithAllStdDeviationStats();
 

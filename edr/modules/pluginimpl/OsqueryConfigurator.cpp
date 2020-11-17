@@ -116,7 +116,7 @@ namespace Plugin
         {
             if (Common::UtilityImpl::StringUtils::startswith(eventsMax.second, "No such node"))
             {
-                LOGDEBUG("No events_max value specified in " << Plugin::edrConfigFilePath() << " so using default of 50000");
+                LOGDEBUG("No events_max value specified in " << Plugin::edrConfigFilePath() << " so using default of 100000");
             }
             else
             {
