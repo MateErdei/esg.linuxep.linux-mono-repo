@@ -59,6 +59,16 @@ def create_complete_sav_policy(filename):
     sav_policy_builder.send_sav_policy()
 
 
+def get_complete_sav_policy():
+    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, None)
+    sav_policy_builder.set_scheduled_scan_day("monday")
+    sav_policy_builder.set_scheduled_scan_time("11:00:00")
+    sav_policy_builder.set_posix_exclusions(["*.glob", "globExample?.txt", "/stemexample/*"])
+    sav_policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
+    sav_policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
+    return sav_policy_builder.get_sav_policy()
+
+
 def create_fixed_sav_policy(filename):
     sav_policy_builder = _SavPolicyBuilder(FIXED_SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day("monday")
@@ -72,7 +82,10 @@ def create_fixed_sav_policy(filename):
 class _SavPolicyBuilder:
     def __init__(self, input_path, output_name):
         self.path = input_path
-        self.output_path = "/opt/test/inputs/test_scripts/resources/" + output_name
+        if output_name is None:
+            self.output_path = None
+        else:
+            self.output_path = "/opt/test/inputs/test_scripts/resources/" + output_name
         # Defaults
         self.replacement_map = {"{{allFiles}}": "false",
                                 "{{excludeSophosDefined}}": "",

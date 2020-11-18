@@ -23,8 +23,7 @@ Run Scheduled Scan
     Wait until scheduled scan updated
 
 Run Scan Now Scan
-    Create Complete Sav Policy  ${TEMP_SAV_POLICY_FILENAME}
-    ${policy_contents} =  Get File  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
+    ${policy_contents} =  Get Complete Sav Policy
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
