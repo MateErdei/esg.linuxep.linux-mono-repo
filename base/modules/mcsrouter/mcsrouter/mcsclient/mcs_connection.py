@@ -10,6 +10,7 @@ import datetime
 import http.client
 import logging
 import os
+import time
 # urllib.parse in python 3
 import urllib.parse
 import xml.dom.minidom
@@ -226,6 +227,7 @@ class MCSConnection:
         self.m_jwt_token = None
         self.m_device_id = None
         self.m_tenant_id = None
+        self.m_jwt_expiration_timestamp = time.time()
 
     def ca_cert(self):
         return self.__m_ca_file
@@ -1288,3 +1290,10 @@ class MCSConnection:
         if "tenant_id" in token_dict:
             LOGGER.debug(f"""Setting Tenant ID: {token_dict["tenant_id"]}""")
             self.m_tenant_id = token_dict["tenant_id"]
+
+        try:
+            self.m_jwt_expiration_timestamp = time.time() + token_dict["expires_in"]
+        except (TypeError, KeyError) as error:
+            LOGGER.warning(f"Failed to set expiration time of JWT token due to error: {error}. Using default of 1 day")
+            self.m_jwt_expiration_timestamp = time.time() + 86400
+        LOGGER.debug(f"""JWT Token will expire at: {self.m_jwt_expiration_timestamp}""")

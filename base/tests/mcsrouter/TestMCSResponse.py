@@ -63,6 +63,7 @@ class dummyMCSConnection(mcsrouter.mcsclient.mcs_connection.MCSConnection):
         self.m_jwt_token = None
         self.m_device_id = None
         self.m_tenant_id = None
+        self.m_jwt_expiration_timestamp = 1585708424.2720187
 
     def _MCSConnection__create_connection_and_get_response(self, requestData):
         print "in good one"

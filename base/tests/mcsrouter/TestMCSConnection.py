@@ -460,34 +460,42 @@ class TestMCSConnection(unittest.TestCase):
             assert_message_in_logs("No Endpoint ID so cannot retrieve JWT tokens", logs.output, log_level="WARNING")
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id"}')
+    @mock.patch("time.time", return_value=1605708424.2720187)
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id","expires_in":84600}')
     def test_set_jwt_token_settings_returns_values_when_valid(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
         self.assertEqual(mcs_connection.m_jwt_token, "jwt-token")
         self.assertEqual(mcs_connection.m_device_id, "device-id")
         self.assertEqual(mcs_connection.m_tenant_id, "tenant-id")
+        self.assertEqual(mcs_connection.m_jwt_expiration_timestamp, 1605793024.2720187)
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","tenant_id":"tenant-id"}')
+    @mock.patch("time.time", return_value=1605708424.2720187)
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","tenant_id":"tenant-id","expires_in":84600}')
     def test_set_jwt_token_settings_returns_values_when_valid_but_one_missing(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
         self.assertEqual(mcs_connection.m_jwt_token, "jwt-token")
         self.assertEqual(mcs_connection.m_device_id, None)
         self.assertEqual(mcs_connection.m_tenant_id, "tenant-id")
+        self.assertEqual(mcs_connection.m_jwt_expiration_timestamp, 1605793024.2720187)
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
+    @mock.patch("time.time", return_value=1605708424.2720187)
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"not-relevant":"jwt-token","example-field":"tenant-id"}')
     def test_set_jwt_token_settings_returns_none_when_valid_json_but_fields_missing(self, *mockargs):
-        mcs_connection = TestMCSResponse.dummyMCSConnection()
-        mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
-        self.assertEqual(mcs_connection.m_jwt_token, None)
-        self.assertEqual(mcs_connection.m_device_id, None)
-        self.assertEqual(mcs_connection.m_tenant_id, None)
-        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
+        with self.assertLogs(level="WARNING") as logs:
+            mcs_connection = TestMCSResponse.dummyMCSConnection()
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
+            self.assertEqual(mcs_connection.m_jwt_token, None)
+            self.assertEqual(mcs_connection.m_device_id, None)
+            self.assertEqual(mcs_connection.m_tenant_id, None)
+            self.assertEqual(mcs_connection.m_jwt_expiration_timestamp, 1605708424.2720187 + 86400)  # Default value
+            self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
+            assert_message_in_logs("Failed to set expiration time of JWT token due to error", logs.output, log_level="WARNING")
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id"')
@@ -500,6 +508,20 @@ class TestMCSConnection(unittest.TestCase):
             self.assertEqual(mcs_connection.m_tenant_id, None)
             self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
             assert_message_in_logs("Invalid JWT Token received", logs.output, log_level="ERROR")
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
+    @mock.patch("time.time", return_value=1605708424.2720187)
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id","expires_in":"invalid"}')
+    def test_set_jwt_token_settings_returns_values_when_expiration_value_is_invalid(self, *mockargs):
+        with self.assertLogs(level="WARNING") as logs:
+            mcs_connection = TestMCSResponse.dummyMCSConnection()
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
+            self.assertEqual(mcs_connection.m_jwt_token, "jwt-token")
+            self.assertEqual(mcs_connection.m_device_id, "device-id")
+            self.assertEqual(mcs_connection.m_tenant_id, "tenant-id")
+            self.assertEqual(mcs_connection.m_jwt_expiration_timestamp, 1605708424.2720187 + 86400)  # Default value
+            self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
+            assert_message_in_logs("Failed to set expiration time of JWT token due to error", logs.output, log_level="WARNING")
 
 if __name__ == '__main__':
     unittest.main()

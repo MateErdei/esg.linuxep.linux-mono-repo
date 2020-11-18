@@ -428,6 +428,16 @@ class MCS:
             last_time_checked = time.time()
         return last_time_checked
 
+    def should_generate_new_jwt_token(self, jwt_tokens_available):
+        # If the flag is set
+        if self.__m_comms and jwt_tokens_available:
+            # If we already have a JWT token
+            if self.__m_comms.m_jwt_token and self.__m_comms.m_device_id and self.__m_comms.m_tenant_id:
+                # The current JWT token has not expired
+                if time.time() < self.__m_comms.m_jwt_expiration_timestamp:
+                    return False
+        return True
+
     def run(self):
         """
         run
@@ -653,11 +663,8 @@ class MCS:
 
                     jwt_tokens_available, v2_datafeed_available = flags.get_mcs_relevant_flags()
 
-                    if self.__m_comms and jwt_tokens_available:
-                        if not self.__m_comms.m_jwt_token \
-                                or not self.__m_comms.m_device_id \
-                                or not self.__m_comms.m_tenant_id:
-                            self.__m_comms.set_jwt_token_settings()
+                    if self.should_generate_new_jwt_token(jwt_tokens_available):
+                        self.__m_comms.set_jwt_token_settings()
 
                     # get all pending datafeeds
                     gather_datafeed_files()
