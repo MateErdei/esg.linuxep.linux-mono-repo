@@ -346,6 +346,7 @@ Product Test Teardown
 
 Test Remote Share
     [Arguments]  ${destination}
+    Should exist  ${destination}/eicar.com
     ${remoteFSscanningDisabled} =   Set Variable  remoteFSscanningDisabled
     ${remoteFSscanningEnabled} =    Set Variable  remoteFSscanningEnabled
     ${remoteFSscanningDisabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningDisabled}.log
