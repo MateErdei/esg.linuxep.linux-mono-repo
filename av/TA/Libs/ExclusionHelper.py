@@ -40,7 +40,8 @@ def __remove_blanks(node):
         elif x.nodeType == xml.dom.Node.ELEMENT_NODE:
             __remove_blanks(x)
 
-def Fill_In_On_Demand_Posix_Exclusions(source, destination):
+
+def replace_exclusions_in_policy_return_string(source, exclusions):
     dom = xml.dom.minidom.parse(source)
     __remove_blanks(dom)
 
@@ -56,7 +57,35 @@ def Fill_In_On_Demand_Posix_Exclusions(source, destination):
     # remove children
     while fileset_element.hasChildNodes():
         fileset_element.removeChild(fileset_element.lastChild)
-    for e in __generate_exclusions_to_scan_tmp():
+    for e in exclusions:
         fileset_element.appendChild(_filepath_node(e))
 
-    open(destination, "w").write(dom.toprettyxml())
+    out = dom.toprettyxml()
+    dom.unlink()
+    return out
+
+
+def replace_exclusions_in_policy(source, destination, exclusions):
+    open(destination, "w").write(replace_exclusions_in_policy_return_string(source, exclusions))
+
+
+def Fill_In_On_Demand_Posix_Exclusions(source, destination):
+    return replace_exclusions_in_policy(source, destination, __generate_exclusions_to_scan_tmp())
+
+
+def Replace_Exclusions_For_Exclusion_Test(sourceFile):
+    exclusions = []
+    for excl in __generate_root_exclusions():
+        if excl not in (
+                "/directory_excluded/",
+                "/file_excluded",
+                "/file_excluded/",
+                "/eicar.com"
+        ):
+            exclusions.append(excl)
+    exclusions += [
+                    "/directory_excluded/",
+                    "/file_excluded",
+                    "/eicar.com"
+    ]
+    return replace_exclusions_in_policy_return_string(sourceFile, exclusions)
