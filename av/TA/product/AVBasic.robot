@@ -133,6 +133,8 @@ Scan Now Excludes Files And Directories As Expected
     Create File  /directory_excluded/eicar.com  ${EICAR_STRING}
     Create File  /file_excluded/eicar.com       ${EICAR_STRING}
     Register Cleanup  Remove Files  /eicar.com  /directory_excluded/eicar.com  /file_excluded/eicar.com
+    Register Cleanup  Remove Directory  /file_excluded  recursive=True
+    Register Cleanup  Remove Directory  /directory_excluded  recursive=True
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
@@ -153,6 +155,7 @@ Scan Now Logs Should Be As Expected
 
     Create File  /file_excluded/eicar.com       ${EICAR_STRING}
     Register Cleanup  Remove Files  /file_excluded/eicar.com
+    Register Cleanup  Remove Directory  /file_excluded  recursive=True
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
@@ -289,6 +292,8 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 
 AV Plugin Scan of Infected File Increases Threat Eicar Count
     Create File      /tmp/eicar.com    ${EICAR_STRING}
+    Register Cleanup  Remove File  /tmp/eicar.com
+    Remove File      /file_excluded/eicar.com
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
