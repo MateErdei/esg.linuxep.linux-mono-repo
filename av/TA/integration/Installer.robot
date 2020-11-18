@@ -17,7 +17,7 @@ Test Teardown   Installer Test TearDown
 
 *** Test Cases ***
 
-IDE update doesnt restart av plugin
+IDE update doesnt restart av processes
     register on fail  Debug install set
     register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
     register cleanup  dump log  ${AV_LOG_PATH}
@@ -35,16 +35,16 @@ IDE update doesnt restart av plugin
 
     # Check we can detect EICAR following update
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/eicar.com
-    Should Be Equal As Integers  ${rc}  69
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.com
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test
 
     # Check we can detect PEEND following update
     # This test also proves that SUSI is configured to scan executables
     Copy File   ${RESOURCES_PATH}/file_samples/peend.exe  ${SCAN_DIRECTORY}
-    ${rc}   ${output} =    Run And Return Rc And Output   avscanner ${SCAN_DIRECTORY}/peend.exe
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/peend.exe
     Log To Console  ${output}
-    Should Be Equal As Integers  ${rc}  69
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/peend.exe" is infected with PE/ENDTEST
 
 
@@ -62,6 +62,7 @@ ${IDE_NAME}         peend.ide
 ${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl
 ${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
 ${SCAN_DIRECTORY}   /home/vagrant/this/is/a/directory/for/scanning
+${AVSCANNER}        /usr/local/bin/avscanner
 
 *** Keywords ***
 Installer Suite Setup
