@@ -12,6 +12,7 @@ Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    GlobalSetup.robot
 Resource    ComponentSetup.robot
+Resource    RunShellProcess.robot
 
 *** Variables ***
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
@@ -26,7 +27,6 @@ ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
 ${SOPHOS_THREAT_DETECTOR_BINARY}  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector
 ${EXPORT_FILE}     /etc/exports
-${SAMBA_CONFIG}    /etc/samba/smb.conf
 ${EICAR_STRING}  X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 ${EICAR_PUA_STRING}  X5]+)D:)D<5N*PZ5[/EICAR-POTENTIALLY-UNWANTED-OBJECT-TEST!$*M*L
 
@@ -34,11 +34,6 @@ ${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</d
 ${STATUS_XML}       ${MCS_PATH}/status/SAV_status.xml
 
 *** Keywords ***
-Run Shell Process
-    [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
-    ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
-    Should Be Equal As Integers  ${result.rc}  ${0}   "${OnError}.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
-
 Check Plugin Running
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
 
@@ -322,29 +317,6 @@ Remove Local NFS Share
     Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server
     Remove Directory    ${source}  recursive=True
 
-Create Local SMB Share
-    [Arguments]  ${source}  ${destination}
-    Copy File  ${SAMBA_CONFIG}  ${SAMBA_CONFIG}_bkp
-    ${share_config}=  catenate   SEPARATOR=
-    ...   [testSamba]\n
-    ...   comment = SMB Share\n
-    ...   path = ${source}\n
-    ...   browseable = yes\n
-    ...   read only = yes\n
-    ...   guest ok = yes\n
-    Append To File  ${SAMBA_CONFIG}   ${share_config}
-
-    Restart Samba
-    Run Shell Process   mount -t cifs \\\\\\\\localhost\\\\testSamba ${destination} -o guest   OnError=Failed to mount local SMB share
-
-Remove Local SMB Share
-    [Arguments]  ${source}  ${destination}
-    Run Shell Process   umount ${destination}   OnError=Failed to unmount local SMB server
-    Remove Directory    ${destination}
-    Move File  ${SAMBA_CONFIG}_bkp  ${SAMBA_CONFIG}
-    Restart Samba
-    Remove Directory    ${source}  recursive=True
-
 Check Scan Now Configuration File is Correct
     ${configFilename} =  Set Variable  /tmp/config-files-test/Scan_Now.config
     Wait Until Keyword Succeeds
@@ -396,10 +368,3 @@ Create EICAR files
      FOR    ${INDEX}    IN RANGE    1    ${eicar_files_to_create}
          ${eicar_file}=    create file  ${dir_name}/eicar-${INDEX}  ${EICAR_STRING}
      END
-
-Restart Samba
-    ${result} =  Run Process  which  yum
-    Run Keyword If  "${result.rc}" == "0"
-        ...   Run Shell Process   systemctl restart smb  OnError=Failed to restart SMB server
-        ...   ELSE
-        ...   Run Shell Process   systemctl restart smbd   OnError=Failed to restart SMB server

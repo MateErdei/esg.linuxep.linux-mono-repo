@@ -14,6 +14,7 @@ Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/BaseResources.robot
 Resource    ../shared/FakeManagementResources.robot
+Resource    ../shared/SambaResources.robot
 
 Test Setup     Product Test Setup
 Test Teardown  Product Test Teardown
