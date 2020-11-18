@@ -246,6 +246,7 @@ AV Plugin Can Disable Scanning Of Mounted SMB Shares
     ${destination} =  Set Variable  /mnt/smbshare
     Create Directory  ${source}
     Create File       ${source}/eicar.com    ${EICAR_STRING}
+    Register Cleanup  Remove File      ${source}/eicar.com
     Create Directory  ${destination}
     Create Local SMB Share   ${source}   ${destination}
     Register Cleanup  Remove Local SMB Share   ${source}   ${destination}
@@ -294,7 +295,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 AV Plugin Scan of Infected File Increases Threat Eicar Count
     Create File      /tmp/eicar.com    ${EICAR_STRING}
     Register Cleanup  Remove File  /tmp/eicar.com
-    Remove File      /file_excluded/eicar.com
+    Remove Files      /file_excluded/eicar.com  /tmp/smbshare/eicar.com
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed

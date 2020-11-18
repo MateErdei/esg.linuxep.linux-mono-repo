@@ -1,6 +1,7 @@
 *** Settings ***
 Library         Process
 Library         OperatingSystem
+Library         ../Libs/SambaUtils.py
 
 Resource    RunShellProcess.robot
 
@@ -8,14 +9,6 @@ Resource    RunShellProcess.robot
 ${SAMBA_CONFIG}    /etc/samba/smb.conf
 
 *** Keywords ***
-Allow Samba To Access Share
-    [Arguments]  ${source}
-    ${result} =   Run Process  semanage  fcontext  -a  -t  samba_share_t  ${source}(/.*)?
-    Log  "semanage:${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
-    ${result} =   Run Process  restorecon  -Rv  ${source}
-    Log  "restorecon:${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
-    ${result} =   Run Process  sestatus
-    Log  "sestatus:${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
 
 Create Local SMB Share
     [Arguments]  ${source}  ${destination}
