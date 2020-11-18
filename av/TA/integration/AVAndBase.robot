@@ -246,7 +246,7 @@ AV Handles Scheduled Scan With Badly Configured Time
 
 AV Reconfigures Scans Correctly
     Check AV Plugin Installed With Base
-    Send Complete Sav Policy
+    Send Fixed Sav Policy
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     AV Plugin Log Contains  Configured number of Scheduled Scans: 1
