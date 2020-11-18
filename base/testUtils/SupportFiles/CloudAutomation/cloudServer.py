@@ -1238,7 +1238,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         JWT = r"""{
     "access_token":"PLACEHOLDER",
     "token_type":"Bearer",
-    "expires_in":84600,
+    "expires_in":30,
     "role":"endpoint",
     "device_id":"example-device-id",
     "tenant_id":"example-tenant-id"
