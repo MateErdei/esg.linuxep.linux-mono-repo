@@ -429,8 +429,10 @@ class MCS:
         return last_time_checked
 
     def should_generate_new_jwt_token(self, jwt_tokens_available):
-        # If the flag is set
-        if self.__m_comms and jwt_tokens_available:
+        # If the flag is not set
+        if not jwt_tokens_available:
+            return False
+        if self.__m_comms:
             # If we already have a JWT token
             if self.__m_comms.m_jwt_token and self.__m_comms.m_device_id and self.__m_comms.m_tenant_id:
                 # The current JWT token has not expired

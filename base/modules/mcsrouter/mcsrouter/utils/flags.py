@@ -142,9 +142,7 @@ def get_mcs_relevant_flags():
     jwt_tokens_available = False
     v2_datafeed_available = False
     if "jwt-token.available" in flags_content:
-        LOGGER.debug("JWT Tokens are available")
         jwt_tokens_available = flags_content["jwt-token.available"]
     if "mcs.v2.data_feed.available" in flags_content:
-        LOGGER.debug("V2 Datafeed is available")
         v2_datafeed_available = flags_content["mcs.v2.data_feed.available"]
     return jwt_tokens_available, v2_datafeed_available

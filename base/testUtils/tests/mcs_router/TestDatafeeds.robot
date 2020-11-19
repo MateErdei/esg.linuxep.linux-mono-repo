@@ -268,8 +268,8 @@ MCS Reads Flags Policy And Has Correct
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  Check MCS Router Log Contains  V2 Datafeed is available
-    Check MCS Router Log Contains  JWT Tokens are available
+    ...  Check MCS Router Log Contains  'mcs.v2.data_feed.available': True
+    Check MCS Router Log Contains  'jwt-token.available': True
 
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
