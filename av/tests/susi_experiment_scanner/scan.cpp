@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+// NOLINTNEXTLINE
 #define P(_X) std::cerr << _X << '\n';
 
 static bool isWhitelistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
@@ -46,7 +47,7 @@ static bool isWhitelistedCert(void *token, const char *fileTopLevelCert, size_t 
 
 static SusiCallbackTable my_susi_callbacks{
         .version = CALLBACK_TABLE_VERSION,
-        .token = nullptr,
+        .token = nullptr, //NOLINT
         .IsWhitelistedFile = isWhitelistedFile,
         .IsTrustedCert = isTrustedCert,
         .IsWhitelistedCert = isWhitelistedCert
