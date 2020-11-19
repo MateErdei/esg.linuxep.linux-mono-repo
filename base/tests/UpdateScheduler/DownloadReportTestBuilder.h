@@ -208,11 +208,13 @@ namespace SulDownloader
 
             static SulDownloader::suldownloaderdata::DownloadReport downloadFailedError()
             {
-                auto report = badReport(UseTime::Later, WarehouseStatus::DOWNLOADFAILED, "Error associated to install");
-                report.m_productReport[0].productStatus = suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
-                report.m_productReport[1].productStatus = suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
-                report.m_productReport[0].errorDescription = "Base failed to download";
-                report.m_productReport[1].errorDescription = "Plugin failed to download";
+                auto report = badReport(UseTime::Later, WarehouseStatus::DOWNLOADFAILED, "https://my.update.site/");
+                // When we get a download failure, we can't tell which product had the failure.
+                // To match this the unit test also doesn't put errorDescription in the product reports.
+                report.m_productReport[0].productStatus = suldownloaderdata::ProductReport::ProductStatus::UpToDate;
+                report.m_productReport[1].productStatus = suldownloaderdata::ProductReport::ProductStatus::UpToDate;
+                report.m_productReport[0].errorDescription = "";
+                report.m_productReport[1].errorDescription = "";
 
                 return report;
             }

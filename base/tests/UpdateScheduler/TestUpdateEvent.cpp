@@ -178,8 +178,8 @@ TEST_F(TestSerializeEvent, downloadFailedEvent) // NOLINT
     <number>107</number>
     <message>
       <message_inserts>
-        <insert>BaseName</insert>
-        <insert>Base failed to download</insert>
+        <insert>SSPL</insert>
+        <insert>https://my.update.site/</insert>
       </message_inserts>
     </message>
   <updateSource>Sophos</updateSource>
