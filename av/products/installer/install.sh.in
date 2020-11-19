@@ -109,7 +109,6 @@ function bootstrap_susi_from_update_source()
     local dest_dir=${SUSI_V1DIR}
     mkdir -p ${SUSI_V1DIR}
 
-    cp -d ${SUSI_UPDATE_SRC}/libsusi.so* ${SUSI_V1DIR}
     cp -d ${SUSI_UPDATE_SRC}/package_manifest.txt* ${SUSI_V1DIR}
     cp -d ${SUSI_UPDATE_SRC}/version_manifest.txt* ${SUSI_DIST_VERS}
 
