@@ -8,7 +8,7 @@ target_include_directories(sophos_threat_detector PUBLIC ${CMAKE_SOURCE_DIR}/mod
 SET_TARGET_PROPERTIES( sophos_threat_detector
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64:$ORIGIN"
+        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
 
 add_executable(sophos_threat_detector_launcher

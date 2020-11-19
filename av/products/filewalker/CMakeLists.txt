@@ -15,7 +15,7 @@ target_link_libraries(avscanner PRIVATE
 SET_TARGET_PROPERTIES( avscanner
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
 
 install(TARGETS avscanner
