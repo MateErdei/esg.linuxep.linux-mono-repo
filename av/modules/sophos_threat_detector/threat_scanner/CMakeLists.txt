@@ -25,6 +25,8 @@ add_library(threat_scanner SHARED
 
 find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
 
+get_filename_component(ABS_SUSI_LIB ${SUSI_LIB} REALPATH)
+
 target_link_libraries(threat_scanner PUBLIC
         datatypes
         scanmessages
@@ -42,5 +44,12 @@ install(TARGETS threat_scanner
 SET_TARGET_PROPERTIES(threat_scanner
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64:$ORIGIN/../chroot/susi/distribution_version"
+        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"
         )
+
+install(FILES ${ABS_SUSI_LIB}
+        DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
+
+set(SUSI_INSTALL_DIR files/plugins/${PLUGIN_NAME}/chroot/susi)
+install(DIRECTORY ${SUSI_SDDS_PATH}/ DESTINATION ${SUSI_INSTALL_DIR})
+

@@ -145,7 +145,7 @@ def copy_from_input(relative_glob, dest):
 
     res = None
     for s in sources:
-        print("Copy from %s to %s"%(s, dest))
+        print("Copy from %s to %s" % (s, dest))
         copy_from(s, dest)
         res = s
 
@@ -284,7 +284,6 @@ def main(argv):
     UPDATER_DIR = os.path.join(UPDATE_CACHE_DIR, "libupdater")
 
     copy_from_input("susi/lib/libsusicore.so*", SUSICORE_DIR)
-    copy_from_input("susi/lib/libsusi.so*", UPDATE_CACHE_DIR)
 
     ## libupdater
     copy_from_input("susi/lib/libupdater.so*", UPDATER_DIR)
