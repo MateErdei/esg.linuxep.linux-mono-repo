@@ -26,6 +26,9 @@ def Allow_Samba_To_Access_Share(directory):
         p = subprocess.run(["semanage", "fcontext", "-at", "samba_share_t", directory+"(/.*)?"],
                            stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT)
+    except FileNotFoundError as ex:
+        logger.debug("semanage not found: Probably not SELinux on system: %s" % str(ex))
+        return
     except Exception as ex:
         logger.error("Failed to run semanage: %s" % str(ex))
         return
