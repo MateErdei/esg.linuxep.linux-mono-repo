@@ -15,11 +15,14 @@ Test Teardown  Threat Detector Test Teardown
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
+${TESTTMP}  /tmp/SSPLAVTests
 
 *** Keywords ***
 Threat Detector Test Teardown
-    ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}
-    Log Many  stdout: ${result.stdout}  stderr: ${result.stderr}
+    Create Directory  ${TESTTMP}
+    ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
+    Log  ls -lR: ${result.stdout}
+    Remove File  ${TESTTMP}/lsstdout
     Component Test TearDown
 
 Start AV
