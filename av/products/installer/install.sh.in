@@ -190,6 +190,7 @@ function install_product()
     ## Create log directory symlinks for sophos_threat_detector
     mkdir -p "$CHROOT/log" "${PLUGIN_INSTALL}/log" "${CHROOT_LINK_DIR}/log"
     chmod 0770 "$CHROOT/log" "${PLUGIN_INSTALL}/log"
+    chmod 0710 "${CHROOT_LINK_DIR}/log"
     ln -snf "$CHROOT/log" "${PLUGIN_INSTALL}/log/sophos_threat_detector"
     ln -snf "/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector"
     ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
