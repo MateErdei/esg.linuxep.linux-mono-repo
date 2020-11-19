@@ -15,7 +15,7 @@ static int pass_on_chroot_capability()
     return pass_on_capability(CAP_SYS_CHROOT);
 }
 
-int main(int argc, char* argv[])
+int main(int, char* argv[])
 {
     int ret = pass_on_chroot_capability();
     if (ret != 0)
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 
     char *envp[] =
             {
-                    "LD_LIBRARY_PATH=/opt/sophos-spl/plugins/av/chroot/susi/distribution_version/:/opt/sophos-spl/plugins/av/chroot/susi/distribution_version/version1/",
+                    "LD_LIBRARY_PATH=/opt/sophos-spl/plugins/av/chroot/susi/distribution_version",
                     0
             };
 
