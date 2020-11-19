@@ -44,18 +44,23 @@ namespace
             return;
         }
 
-        auto sendName = [&](auto e, auto messageInsertsNode) {
-            if (!e.PackageName.empty())
-            {
-                messageInsertsNode->add("insert", e.PackageName);
-            }
+        auto addMessageInsert = [&](auto messageInsertsNode, auto value, auto defaultValue) {
+          if (value.empty())
+          {
+              messageInsertsNode->add("insert", defaultValue);
+          }
+          else
+          {
+              messageInsertsNode->add("insert", value);
+          }
         };
 
-        auto sendDetails = [&](auto e, auto messageInsertsNode) {
-            if (!e.ErrorDetails.empty())
-            {
-                messageInsertsNode->add("insert", e.ErrorDetails);
-            }
+        auto sendName = [&](auto e, auto messageInsertsNode, auto defaultValue) {
+            addMessageInsert(messageInsertsNode, e.PackageName, defaultValue);
+        };
+
+        auto sendDetails = [&](auto e, auto messageInsertsNode, auto defaultValue) {
+            addMessageInsert(messageInsertsNode, e.ErrorDetails, defaultValue);
         };
 
         std::set<int> errorCodes = { EventMessageNumber::INSTALLFAILED,
@@ -75,27 +80,26 @@ namespace
             switch (event.MessageNumber)
             {
                 case (EventMessageNumber::INSTALLFAILED):
-                    sendName(e, &messageInsertsNode);
-                    if (!e.PackageName.empty()) // Only send error details if package name is sent first
-                    {
-                        sendDetails(e, &messageInsertsNode);
-                    }
+                    // "Failed to install %1: %2"
+                    sendName(e, &messageInsertsNode, "SSPL");
+                    sendDetails(e, &messageInsertsNode, "ERROR");
                     break;
                 case (EventMessageNumber::INSTALLCAUGHTERROR):
-                    sendDetails(e, &messageInsertsNode);
+                    // "Installation caught error %1"
+                    sendDetails(e, &messageInsertsNode, "Installation failed");
                     break;
                 case (EventMessageNumber::DOWNLOADFAILED):
-                    sendName(e, &messageInsertsNode);
-                    if (!e.PackageName.empty()) // Only send error details if package name is sent first
-                    {
-                        sendDetails(e, &messageInsertsNode);
-                    }
+                    //  "Download of %1 failed from server %2"
+                    sendName(e, &messageInsertsNode, "SSPL");
+                    sendDetails(e, &messageInsertsNode, "Sophos");
                     break;
                 case (EventMessageNumber::SINGLEPACKAGEMISSING):
-                    sendName(e, &messageInsertsNode);
+                    // "ERROR: Could not find a source for updated package %1"
+                    sendName(e, &messageInsertsNode, "SSPL");
                     break;
                 case (EventMessageNumber::CONNECTIONERROR):
-                    sendDetails(e, &messageInsertsNode);
+                    // "There was a problem while establishing a connection to the server. Details: %1"
+                    sendDetails(e, &messageInsertsNode, "Connection failure");
                     break;
                 default:
                     break;

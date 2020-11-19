@@ -59,7 +59,7 @@ public:
         return mockFormattedTime;
     }
 
-    void runTest(const UpdateEvent& event, const std::string& expectedXML);
+    void runTest(const UpdateEvent& event, const std::string& expectedXML) const;
 
     std::unique_ptr<MockMapHostCacheId> m_hostCacheId;
     std::unique_ptr<MockFormattedTime> m_formattedTime;
@@ -74,7 +74,7 @@ static boost::property_tree::ptree parseString(const std::string& input)
     return tree;
 }
 
-void TestSerializeEvent::runTest(const UpdateEvent& event, const std::string& expectedXML)
+void TestSerializeEvent::runTest(const UpdateEvent& event, const std::string& expectedXML) const
 {
     auto expectedTree = parseString(expectedXML);
     auto actualXml = serializeUpdateEvent(event, *m_hostCacheId, *m_formattedTime);
