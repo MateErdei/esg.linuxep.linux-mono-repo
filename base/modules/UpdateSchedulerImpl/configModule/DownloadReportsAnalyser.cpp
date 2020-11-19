@@ -46,6 +46,11 @@ namespace
                 messages->emplace_back(product.name, product.errorDescription);
             }
         }
+        // If we haven't found any product errors, then try the report level error instead
+        if (messages->empty() && !report.getDescription().empty())
+        {
+            messages->emplace_back("SSPL", report.getDescription());
+        }
     }
 
     void buildMessagesFromReport(
