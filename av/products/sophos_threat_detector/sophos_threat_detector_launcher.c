@@ -15,8 +15,9 @@ static int pass_on_chroot_capability()
     return pass_on_capability(CAP_SYS_CHROOT);
 }
 
-int main(int, char* argv[])
+int main(int argc, char* argv[])
 {
+    (void)argc;
     int ret = pass_on_chroot_capability();
     if (ret != 0)
     {
