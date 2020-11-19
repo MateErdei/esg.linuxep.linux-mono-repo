@@ -157,3 +157,8 @@ void unixsocket::BaseServerSocket::run()
     m_socket_fd.reset();
     killThreads();
 }
+
+void unixsocket::BaseServerSocket::logError(const std::string& msg)
+{
+    LOGERROR(msg);
+}
