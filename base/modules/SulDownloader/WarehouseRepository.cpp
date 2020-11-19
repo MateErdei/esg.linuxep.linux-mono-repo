@@ -357,8 +357,23 @@ namespace SulDownloader
         {
             LOGERROR("Failed to synchronise warehouse: "<<ret);
             SULUtils::displayLogs(session(), m_sulLogs);
-            setError("Failed to Sync warehouse");
-            m_error.status = WarehouseStatus::DOWNLOADFAILED;
+
+            std::string error = m_connectionSetup->getUpdateLocationURL(); // error contains the URL that failed
+            // Go through logs looking for failed URL
+            for(const auto& sulLog : m_sulLogs)
+            {
+                // Sample message: [E59264] Cannot locate server for https://d2.sophosupd.com/update/catalogue/sdds.VDB_supp.xml
+                /* DOWNLOADFAILED -> IDS_AUERROR_DOWNLOAD "Download of %1 failed from server %2" */
+                // error is used as %2, so we want the URL.
+                std::string prefix = "[E59264] Cannot locate server for ";
+                if (sulLog.find(prefix) == 0)
+                {
+                    error = sulLog.substr(prefix.size());
+                }
+            }
+
+            setError(error);
+            m_error.status = WarehouseStatus::DOWNLOADFAILED; //
             return;
         }
 

@@ -181,7 +181,7 @@ namespace SulDownloader
                 // supplementOnly=False
                 assert(!supplementOnly); // currently never-supplement only - change message if this changes
                 LOGERROR("Immediate failure of updating");
-                break; // will still try updating products
+                break; // would still try updating products, if it were supplementOnly
             }
         }
         if (supplementOnly && !success)

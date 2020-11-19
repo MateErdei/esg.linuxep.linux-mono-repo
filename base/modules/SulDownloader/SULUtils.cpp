@@ -115,10 +115,8 @@ namespace SulDownloader
             LOGERROR("Error: " << SulGetErrorDetails(ses));
         }
 
-        for (auto& log : SulLogs(ses))
-        {
-            sulLogs.push_back(log);
-        }
+        auto newLogs = SulLogs(ses);
+        sulLogs.insert(sulLogs.end(), newLogs.begin(), newLogs.end());
     }
 
     SULUtils::SulLogsVector SULUtils::SulLogs(SU_Handle ses)

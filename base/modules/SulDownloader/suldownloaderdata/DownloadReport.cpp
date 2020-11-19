@@ -102,6 +102,8 @@ namespace SulDownloader
             report.m_status = WarehouseStatus::SUCCESS;
             report.m_description = "";
         }
+
+
         report.m_urlSource = warehouse.getSourceURL();
         report.m_productReport = combineProductsAndSubscriptions(
             warehouse.getProducts(), warehouse.listInstalledSubscriptions(), report.m_status);
@@ -228,10 +230,10 @@ namespace SulDownloader
     {
         std::unordered_map<std::string, ProductReport> productReport;
         std::vector<ProductReport> productsRep;
-        for (auto& product : products)
+        for (const auto& product : products)
         {
             ProductReport productReportEntry;
-            auto& info = product.getProductMetadata();
+            const auto& info = product.getProductMetadata();
             productReportEntry.rigidName = info.getLine();
             productReportEntry.name = info.getName();
             productReportEntry.downloadedVersion = info.getVersion();
@@ -281,7 +283,7 @@ namespace SulDownloader
         }
         LOGDEBUG("Combine the products to merge into the subscriptions"); 
         
-        for (auto& subscriptionInfo : subscriptionsInfo)
+        for (const auto& subscriptionInfo : subscriptionsInfo)
         {
             auto found = productReport.find(subscriptionInfo.rigidName);
             if (found != productReport.end())
