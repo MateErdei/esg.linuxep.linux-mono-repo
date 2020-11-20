@@ -81,9 +81,9 @@ namespace Plugin
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path filerep(appConfig.getData("PLUGIN_INSTALL"));
-        filerep /= "chroot/susi/distribution_version/version1/lrdata/filerep.dat";
+        filerep /= "chroot/susi/update_source/reputation/filerep.dat";
         fs::path signerrep(appConfig.getData("PLUGIN_INSTALL"));
-        signerrep /= "chroot/susi/distribution_version/version1/lrdata/signerrep.dat";
+        signerrep /= "chroot/susi/update_source/reputation/signerrep.dat";
 
         std::ifstream filerepFs(filerep, std::ifstream::in);
         std::ifstream signerrepFs(signerrep, std::ifstream::in);
@@ -101,8 +101,8 @@ namespace Plugin
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path mlLib(appConfig.getData("PLUGIN_INSTALL"));
-        mlLib /= "chroot/susi/distribution_version/version1/libmodel.so";
-
+        mlLib /= "chroot/susi/update_source/mllib/libmodel.so";
+        LOGINFO("mlLIib location: " << mlLib);
         std::ifstream mlLibFs (mlLib, std::ifstream::in);
 
         if(mlLibFs.good())
@@ -118,7 +118,7 @@ namespace Plugin
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path vdbDir(appConfig.getData("PLUGIN_INSTALL"));
-        vdbDir /= "chroot/susi/distribution_version/version1/vdb";
+        vdbDir /= "chroot/susi/update_source/vdl";
 
         unsigned long ideCount = 0;
         if (fs::is_directory(vdbDir))
@@ -138,7 +138,7 @@ namespace Plugin
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path vvfFile(appConfig.getData("PLUGIN_INSTALL"));
-        vvfFile /= "chroot/susi/distribution_version/version1/vdb/vvf.xml";
+        vvfFile /= "chroot/susi/update_source/vdl/vvf.xml";
 
         std::ifstream vvfFileFs (vvfFile, std::ifstream::in);
         std::string virusDataVersion = "unknown";
@@ -157,7 +157,7 @@ namespace Plugin
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path mlModel(appConfig.getData("PLUGIN_INSTALL"));
-        mlModel /= "chroot/susi/distribution_version/version1/mlmodel/model.dat";
+        mlModel /= "chroot/susi/update_source/model/model.dat";
 
         std::ifstream in( mlModel, std::ios::binary );
         std::string versionStr = "unknown";

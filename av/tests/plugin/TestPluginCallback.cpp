@@ -51,7 +51,7 @@ namespace
 
             //creating initial ml library file
             fs::path libDirPath (m_basePath);
-            libDirPath /= "chroot/susi/distribution_version/version1";
+            libDirPath /= "chroot/susi/update_source/mllib";
             fs::create_directories(libDirPath);
             m_mlLibPath = libDirPath;
             m_mlLibPath /= "libmodel.so";
@@ -63,7 +63,7 @@ namespace
 
             //creating initial lr data files
             fs::path lrDirPath (m_basePath);
-            lrDirPath /= "chroot/susi/distribution_version/version1/lrdata";
+            lrDirPath /= "chroot/susi/update_source/reputation";
             fs::create_directories(lrDirPath);
             m_lrFilerepPath = lrDirPath;
             m_lrFilerepPath /= "filerep.dat";
@@ -83,14 +83,14 @@ namespace
             //creating initial ml model file
             std::string initialHexString = "7374617469635f5f5f5f646574656374696f6e00ed03000004000000723b3401ec25b100010000000000000000001000";
             fs::path mlModelDirPath = m_basePath;
-            mlModelDirPath /= "chroot/susi/distribution_version/version1/mlmodel";
+            mlModelDirPath /= "chroot/susi/update_source/model";
             fs::create_directories(mlModelDirPath);
             m_mlModelPath = mlModelDirPath / "model.dat";
             writeHexStringToFile(initialHexString, m_mlModelPath);
 
             //creating file for vdl version
             m_vdlDirPath = m_basePath;
-            m_vdlDirPath /= "chroot/susi/distribution_version/version1/vdb";
+            m_vdlDirPath /= "chroot/susi/update_source/vdl";
             fs::create_directories(m_vdlDirPath);
             m_vdlVersionFilePath = m_vdlDirPath;
             m_vdlVersionFilePath /= "vvf.xml";
