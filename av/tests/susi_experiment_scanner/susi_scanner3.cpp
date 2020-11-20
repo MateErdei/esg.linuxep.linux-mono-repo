@@ -321,11 +321,20 @@ int main(int argc, char* argv[])
     );
     static const std::string scannerConfig = create_scanner_config(scannerInfo);
 
-    SusiResult ret = SUSI_SetLogCallback(&GL_log_callback);
-    throwIfNotOk(ret, "Failed to set log callback");
+    SusiResult susi_ret = SUSI_SetLogCallback(&GL_log_callback);
+    throwIfNotOk(susi_ret, "Failed to set log callback");
 
     // Get and set file descriptor limit
-
+    struct rlimit rlimitBuf{};
+    int ret = getrlimit(RLIMIT_NOFILE, &rlimitBuf);
+    assert(ret == 0);
+    P("FD softlimit: "<< rlimitBuf.rlim_cur);
+    P("FD hardlimit: "<< rlimitBuf.rlim_max);
+    static const int MAX_FD = 100;
+    assert(rlimitBuf.rlim_max >= MAX_FD);
+    rlimitBuf.rlim_cur = MAX_FD;
+    ret = setrlimit(RLIMIT_NOFILE, &rlimitBuf);
+    assert(ret == 0);
 
     SusiGlobalHandler global_susi(runtimeConfig);
 
