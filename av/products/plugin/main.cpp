@@ -13,6 +13,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/ErrorCodes.h>
+#include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 
 #include <pluginimpl/Logger.h>
 #include <pluginimpl/PluginAdapter.h>
@@ -20,7 +21,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
-const char* PluginName = PLUGIN_NAME;
+static const char* PluginName = PLUGIN_NAME; // NOLINT
 
 namespace fs = sophos_filesystem;
 
@@ -53,6 +54,26 @@ int main()
         LOGERROR("Failed to instantiate Plugin Api: " << apiException.what());
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
+    catch (const Common::ZeroMQWrapper::IIPCTimeoutException& ex)
+    {
+        LOGERROR("Failed to instantiate Plugin Api (IIPCTimeoutException): " << ex.what());
+        return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
+    }
+    catch (const Common::ZeroMQWrapper::IIPCException& ex)
+    {
+        LOGERROR("Failed to instantiate Plugin Api (IIPCException): " << ex.what());
+        return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
+    }
+    catch (const Common::Exceptions::IException& ex)
+    {
+        LOGERROR("Failed to instantiate Plugin Api (IException): " << ex.what());
+        return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
+    }
+    catch (const std::exception& ex)
+    {
+        LOGERROR("Failed to instantiate Plugin Api (std::exception): " << ex.what());
+        return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
+    }
 
     PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
 
@@ -63,9 +84,34 @@ int main()
     {
         pluginAdapter.mainLoop();
     }
+    catch (const Common::PluginApi::ApiException & apiException)
+    {
+        LOGERROR("Exception caught from plugin at top level (ApiException): " << apiException.what());
+        ret = 45;
+    }
+    catch (const Common::ZeroMQWrapper::IIPCTimeoutException& ex)
+    {
+        LOGERROR("Exception caught from plugin at top level (IIPCTimeoutException): " << ex.what());
+        ret = 44;
+    }
+    catch (const Common::ZeroMQWrapper::IIPCException& ex)
+    {
+        LOGERROR("Exception caught from plugin at top level (IIPCException): " << ex.what());
+        ret = 43;
+    }
+    catch (const Common::Exceptions::IException& ex)
+    {
+        LOGERROR("Exception caught from plugin at top level (IException): " << ex.what());
+        ret = 42;
+    }
+    catch (const std::runtime_error& ex)
+    {
+        LOGERROR("Exception caught from plugin at top level (std::runtime_error): " << ex.what());
+        ret = 41;
+    }
     catch (const std::exception& ex)
     {
-        LOGERROR("Exception caught from plugin at top level: " << ex.what());
+        LOGERROR("Exception caught from plugin at top level (std::exception): " << ex.what());
         ret = 40;
     }
 
