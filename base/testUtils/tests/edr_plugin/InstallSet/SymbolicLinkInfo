@@ -1,5 +1,4 @@
 o777, root, root, /opt/sophos-spl/plugins/edr/bin/edr
-o777, root, root, /opt/sophos-spl/plugins/edr/bin/FuzzableResultSender
 o777, root, root, /opt/sophos-spl/plugins/edr/bin/osqueryd
 o777, root, root, /opt/sophos-spl/plugins/edr/bin/sophos_livequery
 o777, root, root, /opt/sophos-spl/plugins/edr/bin/uninstall.sh
