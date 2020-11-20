@@ -34,4 +34,10 @@ namespace sophos
      * Comms component local group
      */
     std::string localGroup();
+
+    /*
+     * Update Scheduler user to run the Update Scheduler component as low privilege
+     */
+    std::string updateSchedulerUser();
+
 } // namespace Common

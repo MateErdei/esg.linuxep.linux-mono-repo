@@ -6,22 +6,25 @@ option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
 option(PythonCoverage "Turn of the instrumentation for producing python coverage results" OFF)
 option(STRACE_SUPPORT "Prevent sanitize options that break strace" OFF)
 set(CMAKE_CXX_STANDARD 17)
-set (SOPHOS_SPL_USER "sophos-spl-user")
-set (SOPHOS_SPL_LOCAL "sophos-spl-local")
-set (SOPHOS_SPL_GROUP "sophos-spl-group")
+set(SOPHOS_SPL_USER "sophos-spl-user")
+set(SOPHOS_SPL_GROUP "sophos-spl-group")
+set(SOPHOS_SPL_IPC_GROUP "sophos-spl-ipc")
+set(SOPHOS_SPL_NETWORK "sophos-spl-network")   #comms network facing user
+set(SOPHOS_SPL_LOCAL "sophos-spl-local")       #comms product facing user
+set(SOPHOS_SPL_UPDATESCHEDULER "sophos-spl-updatescheduler")  #user which updatescheduler runs as
 
-if (BUILD_FUZZ_TESTS )
-    set(SANITISE_FLAGS   "")
+if (BUILD_FUZZ_TESTS)
+    set(SANITISE_FLAGS "")
     set(SANITIZE_EXE_FLAGS "")
-    set(FUZZER_COMPILER_FLAGS "-fsanitize=address,fuzzer-no-link" )
-    set(FUZZER_LINKER_FLAGS "-fsanitize=address,fuzzer" )
+    set(FUZZER_COMPILER_FLAGS "-fsanitize=address,fuzzer-no-link")
+    set(FUZZER_LINKER_FLAGS "-fsanitize=address,fuzzer")
     set(NO_FUZZING_FLAGS "-fno-sanitize=fuzzer")
     set(WARNING_FLAGS "")
 elseif (STRACE_SUPPORT)
-    set(SANITISE_FLAGS   "-fsanitize=address -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
+    set(SANITISE_FLAGS "-fsanitize=address -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
     set(NO_FUZZING_FLAGS "")
-    set(FUZZER_COMPILER_FLAGS "" )
-    set(FUZZER_LINKER_FLAGS "" )
+    set(FUZZER_COMPILER_FLAGS "")
+    set(FUZZER_LINKER_FLAGS "")
     set(WARNING_FLAGS "-Wall -Wextra -Werror -fstack-protector-all")
 else()
     set(SANITISE_FLAGS   "-fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
@@ -185,6 +188,22 @@ find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus
         PATHS ${LOG4CPLUS_INPUT}/lib
         )
+
+# ensure valid log4cplus to work with fork
+file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)
+string(FIND "${log4cplusStrings}" "implicit initialization is turned off" DisabledImplicitInitialization)
+if(${DisabledImplicitInitialization} EQUAL -1)
+    string( APPEND ERRORMESSAGE
+    "Log4cplus needs to be built with --disable-implicit-initialization to work in the presence of fork. \n"
+    "Make sure you have fetched the inputs and build with build.sh at least once\n"
+    "1. Fetch inputs in source folder by running:\n"
+    "    python3 -m build_scripts.artisan_fetch build/release-package.xml\n"
+    "2. Run the full build script with no build flag:\n"
+    "    ./build.sh --no-build\n")
+    message( FATAL_ERROR ${ERRORMESSAGE})
+endif()
+
+
 set( OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
 find_library(OPENSSL_LIBRARY
         NAMES ssl

@@ -199,3 +199,4 @@ Verify Sophos Users And Sophos Groups Are Created
     Verify Group Created  sophos-spl-group
     Verify User Created   sophos-spl-network
     Verify User Created   sophos-spl-local
+    Verify User Created   sophos-spl-updatescheduler

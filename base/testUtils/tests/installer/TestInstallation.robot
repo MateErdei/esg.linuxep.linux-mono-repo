@@ -94,7 +94,7 @@ Verify Base Processes Have Correct Permissions
     Require Fresh Install
     Check Expected Base Processes Are Running
     Check owner of process   sophos_managementagent   sophos-spl-user    sophos-spl-group
-    Check owner of process   UpdateScheduler   sophos-spl-user    sophos-spl-group
+    Check owner of process   UpdateScheduler   sophos-spl-updatescheduler   sophos-spl-group
     Check owner of process   tscheduler   sophos-spl-user    sophos-spl-group
     Check owner of process   sophos_watchdog   root  root
     ${watchdog_pid}=     Run Process    pgrep    -f  sophos_watchdog

@@ -50,12 +50,13 @@ namespace
         return false;
     }
 
-    void WriteAtomicFileWithReadAndWriteToGroup(
+    void writeFileForUpdateScheduler(
         const std::string& outputFilePath,
         const std::string& content,
         const std::string& tempDir)
     {
-        Common::FileSystem::createAtomicFileToSophosUser(content, outputFilePath, tempDir);
+        mode_t ownerReadWrite = S_IRUSR | S_IWUSR;
+        Common::FileSystem::createAtomicFileWithPermissions(content, outputFilePath, tempDir, sophos::updateSchedulerUser(), "root", ownerReadWrite);
     }
 
 } // namespace
@@ -560,7 +561,7 @@ namespace SulDownloader
         std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         LOGINFO("Generating the report file in: " << outputParentPath);
 
-        WriteAtomicFileWithReadAndWriteToGroup(outputFilePath, jsonReport, tempDir);
+        writeFileForUpdateScheduler(outputFilePath, jsonReport, tempDir);
 
         return exitCode;
     }

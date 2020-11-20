@@ -30,3 +30,8 @@ std::string sophos::localGroup()
 {
     return sophos::group();
 }
+
+std::string sophos::updateSchedulerUser()
+{
+    return "sophos-spl-updatescheduler";
+}

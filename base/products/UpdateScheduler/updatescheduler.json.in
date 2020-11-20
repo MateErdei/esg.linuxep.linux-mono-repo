@@ -10,5 +10,5 @@
   ],
   "pluginName": "updatescheduler",
   "executableFullPath": "base/bin/UpdateScheduler",
-  "executableUserAndGroup": "@SOPHOS_SPL_USER@:@SOPHOS_SPL_GROUP@"
+  "executableUserAndGroup": "@SOPHOS_SPL_UPDATESCHEDULER@:@SOPHOS_SPL_GROUP@"
 }

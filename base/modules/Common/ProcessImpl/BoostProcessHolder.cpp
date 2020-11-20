@@ -20,6 +20,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <boost/process/pipe.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/process/exe.hpp>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+
 #pragma GCC diagnostic pop
 
 namespace {
@@ -80,10 +82,11 @@ namespace Common
             template<typename Sequence>
             void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
             {
-                // Must set group first whilst still root
-                if ( ::setgid(m_gid) != 0)
+                // Must set groups first whilst still root
+                std::string userName = Common::FileSystem::FilePermissionsImpl().getUserName(m_uid);
+                if ( ::initgroups(userName.c_str(), m_gid) != 0)
                 {
-                    exec.set_error(boost::process::detail::get_last_error(), "Failed to set group id");
+                    exec.set_error(boost::process::detail::get_last_error(), "Failed to set group ids");
                     return;
                 }
                 if (::setuid(m_uid) != 0)

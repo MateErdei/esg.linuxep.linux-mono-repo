@@ -250,8 +250,9 @@ Common::FileSystem::IFilePermissions* Common::FileSystem::filePermissions()
     return Common::FileSystem::filePermissionsStaticPointer().get();
 }
 
-void Common::FileSystem::createAtomicFileToSophosUser(const std::string & content, const std::string& finalPath,
-        const std::string& tempDir)
+void Common::FileSystem::createAtomicFileWithPermissions(const std::string &content, const std::string &finalPath,
+                                                         const std::string &tempDir,
+                                                         const std::string &user, const std::string &group, mode_t mode)
 {
 
     Common::UtilityImpl::UniformIntDistribution uniformIntDistribution(1000, 9999);
@@ -261,8 +262,8 @@ void Common::FileSystem::createAtomicFileToSophosUser(const std::string & conten
     try
     {
         fileSystem->writeFile(tempFilePath, content);
-        Common::FileSystem::filePermissions()->chown(tempFilePath, sophos::user(), sophos::group());
-        Common::FileSystem::filePermissions()->chmod(tempFilePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        Common::FileSystem::filePermissions()->chown(tempFilePath, user, group);
+        Common::FileSystem::filePermissions()->chmod(tempFilePath, mode);
         fileSystem->moveFile(tempFilePath, finalPath);
     }
     catch (Common::FileSystem::IFileSystemException& ex)
