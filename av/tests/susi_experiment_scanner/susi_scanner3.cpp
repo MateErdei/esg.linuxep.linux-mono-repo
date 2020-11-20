@@ -1,7 +1,6 @@
 
 #include <Susi.h>
 
-#include <cassert>
 //#include <condition_variable>
 #include <iostream>
 #include <string>
@@ -17,7 +16,9 @@ static const int NUMBER_OF_SCANS_PER_THREAD = 10; // 500;
 static const int THREAD_COUNT = 100;
 
 // NOLINTNEXTLINE
-#define P(_X) std::cerr << _X << '\n';
+#define P(_X) std::cerr << _X << '\n'
+
+#define ASSERT(_X) do { if (!(_X)) { P("!" #_X); abort(); } } while(false)
 
 static bool isWhitelistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
 {
@@ -73,14 +74,14 @@ SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
 
     SusiResult res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
     P("Global Susi constructed res=" << std::hex << res << std::dec);
-    assert(res == SUSI_S_OK);
+    ASSERT(res == SUSI_S_OK);
 }
 
 SusiGlobalHandler::~SusiGlobalHandler() noexcept
 {
     SusiResult res = SUSI_Terminate();
     P("Global Susi destroyed res=" << std::hex << res << std::dec);
-    assert(res == SUSI_S_OK);
+    ASSERT(res == SUSI_S_OK);
 }
 
 class SusiHolder
@@ -294,7 +295,7 @@ static void scan(int thread, const std::string& scannerConfig, const char* filen
 {
     GL_THREAD_ID = thread;
     AutoFd fd(::open(filename, O_RDONLY));
-    assert(fd.fd() >= 0);
+    ASSERT(fd.fd() >= 0);
 
     SusiHolder susi(scannerConfig);
     static const std::string metaDataJson = R"({
@@ -309,8 +310,8 @@ static void scan(int thread, const std::string& scannerConfig, const char* filen
     for (int i=0; i<NUMBER_OF_SCANS_PER_THREAD; i++)
     {
         P("THREAD:" << thread <<  ":" << i << ": Start scan");
-        assert(result.m_result == nullptr);
-        assert(!result);
+        ASSERT(result.m_result == nullptr);
+        ASSERT(!result);
         SusiResult res = SUSI_ScanHandle(susi.m_handle, metaDataJson.c_str(), filename, fd.fd(), &result.m_result);
 
         if (result)
@@ -320,7 +321,7 @@ static void scan(int thread, const std::string& scannerConfig, const char* filen
         if (res == SUSI_E_INVALIDARG)
         {
             P("THREAD:" << thread << ":" << i << ": Scan result: SUSI_E_INVALIDARG: " << std::hex << res << std::dec);
-            assert(!"SUSI_E_INVALIDARG");
+            ASSERT(!"SUSI_E_INVALIDARG");
         }
         else if (res == SUSI_S_OK)
         {
@@ -333,7 +334,7 @@ static void scan(int thread, const std::string& scannerConfig, const char* filen
         else
         {
             P("THREAD:" << thread << ":" << i << ": Scan result " << std::hex << res << std::dec);
-            assert(!"Unknown scan result");
+            ASSERT(!"Unknown scan result");
         }
 
         result.reset();
@@ -372,13 +373,13 @@ int main(int argc, char* argv[])
     // Get and set file descriptor limit
     struct rlimit rlimitBuf{};
     int ret = getrlimit(RLIMIT_NOFILE, &rlimitBuf);
-    assert(ret == 0);
+    ASSERT(ret == 0);
     P("FD softlimit: "<< rlimitBuf.rlim_cur);
     P("FD hardlimit: "<< rlimitBuf.rlim_max);
-    assert(rlimitBuf.rlim_max >= FILE_DESCRIPTOR_LIMIT);
+    ASSERT(rlimitBuf.rlim_max >= FILE_DESCRIPTOR_LIMIT);
     rlimitBuf.rlim_cur = FILE_DESCRIPTOR_LIMIT;
     ret = setrlimit(RLIMIT_NOFILE, &rlimitBuf);
-    assert(ret == 0);
+    ASSERT(ret == 0);
 
     SusiGlobalHandler global_susi(runtimeConfig);
 
