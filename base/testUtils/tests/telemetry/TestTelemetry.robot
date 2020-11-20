@@ -374,7 +374,7 @@ Telemetry Causing Comms To Hang Does Not Stop Comms Restarting
     Should Be Equal As Strings  ${r.rc}  0
 
     Wait Until Keyword Succeeds
-    ...  40s
+    ...  30s
     ...  3s
     ...  Check Comms Component Is Running
 
