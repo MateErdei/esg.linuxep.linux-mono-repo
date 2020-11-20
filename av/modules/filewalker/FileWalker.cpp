@@ -112,37 +112,31 @@ void FileWalker::scanDirectory(const fs::path& starting_point)
         ++iterator )
     {
         const auto& p = *iterator;
-        bool isRegularFile;
+        fs::file_status itemStatus;
+        fs::file_status symlinkStatus;
         try
         {
-            isRegularFile = fs::is_regular_file(p.status());
+            itemStatus = p.status();
+            symlinkStatus = p.symlink_status();
         }
-        catch(fs::filesystem_error& e)
+        catch (const fs::filesystem_error& e)
         {
-            LOGERROR("Failed to access " << p << ": " << e.code().message());
-            continue;
+            LOGERROR("Failed to get the status of: " << p << " [" << e.code().message() << "]");
         }
 
-        if (isRegularFile)
+        // Backtrack protection for symlinks
+        if (fs::is_symlink(symlinkStatus))
         {
-            // Regular file
-            // TODO - this logic only identifies *some* paths containing symlinks.
-            try
+            // Non-regular-file symlink
+            if (!m_follow_symlinks)
             {
-                m_callback.processFile(p.path(), m_startIsSymlink || fs::is_symlink(p.symlink_status()));
-            }
-            catch (const std::runtime_error& ex)
-            {
-                LOGERROR("Failed to process: " << p.path().string());
+                LOGDEBUG("Not following symlink: " << p);
                 continue;
             }
-        }
-        // TODO - p.symlink_status() can throw
-        else if (fs::is_symlink(p.symlink_status()))
-        {
-            // TODO - actually any non-regular-file symlink - test with symlink to special/other
-            // Directory symlink
-            struct stat statBuf{};
+
+            struct stat statBuf
+            {
+            };
             int ret = ::stat(p.path().c_str(), &statBuf);
             if (ret == 0)
             {
@@ -150,22 +144,33 @@ void FileWalker::scanDirectory(const fs::path& starting_point)
                 if (m_seen_symlinks.find(id) != m_seen_symlinks.end())
                 {
                     LOGDEBUG("Symlink target already scanned: " << p << " [" << statBuf.st_ino << "]");
+                    continue;
                 }
                 else
                 {
                     m_seen_symlinks.insert(id);
-                    if (m_callback.includeDirectory(p))
-                    {
-                        scanDirectory(p);
-                    }
                 }
             }
             else
             {
-                LOGERROR("Failed to stat "<< p << "(" << errno << ")");
+                LOGERROR("Failed to stat " << p << "(" << errno << ")");
+                continue;
             }
         }
-        else if (fs::is_directory(p.status()))
+
+        if (fs::is_regular_file(itemStatus))
+        {
+            try
+            {
+                m_callback.processFile(p.path(), m_startIsSymlink || fs::is_symlink(symlinkStatus));
+            }
+            catch (const std::runtime_error& ex)
+            {
+                LOGERROR("Failed to process: " << p.path().string());
+                continue;
+            }
+        }
+        else if (fs::is_directory(itemStatus))
         {
             if (m_callback.includeDirectory(p.path()))
             {

@@ -597,7 +597,7 @@ TEST_F(TestFileWalker, scanWalksSpecial) // NOLINT
     filewalker::walk(startingPoint, *callbacks);
 }
 
-TEST_F(TestFileWalker, DISABLED_scanWalksSymlinkToSpecial) // NOLINT
+TEST_F(TestFileWalker, scanWalksSymlinkToSpecial) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
@@ -615,7 +615,9 @@ TEST_F(TestFileWalker, DISABLED_scanWalksSymlinkToSpecial) // NOLINT
     EXPECT_CALL(*callbacks, includeDirectory(fs::path("fifo"))).Times(0);
     EXPECT_CALL(*callbacks, includeDirectory(fs::path("sandbox/fifo"))).Times(0);
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker walker(*callbacks);
+    walker.followSymlinks();
+    walker.walk(startingPoint);
 }
 
 TEST_F(TestFileWalker, startWithSymlinkToDirectory) // NOLINT
@@ -729,7 +731,7 @@ TEST_F(TestFileWalker, startWithBrokenSymlinkPath) // NOLINT
     }
 }
 
-TEST_F(TestFileWalker, DISABLED_symlinksInWalk) // NOLINT
+TEST_F(TestFileWalker, symlinksInWalk) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -754,9 +756,11 @@ TEST_F(TestFileWalker, DISABLED_symlinksInWalk) // NOLINT
     EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/other_dir/file2.txt"), _)).Times(1);
     EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/broken_symlink"), _)).Times(0);
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker walker(*callbacks);
+    walker.followSymlinks();
+    walker.walk(startingPoint);
 
-    EXPECT_TRUE(appenderContains("Failed to iterate: \"sandbox/broken_symlink\": No such file or directory"));
+    EXPECT_TRUE(appenderContains("Failed to stat \"sandbox/broken_symlink\""));
 }
 
 TEST_F(TestFileWalker, followSymlinks) // NOLINT
@@ -786,7 +790,7 @@ TEST_F(TestFileWalker, followSymlinks) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, DISABLED_duplicateSymlinksInWalkNoFollow) // NOLINT
+TEST_F(TestFileWalker, duplicateSymlinksInWalkNoFollow) // NOLINT
 {
     fs::create_directories("sandbox");
     fs::path startingPoint = fs::path("sandbox");
@@ -798,29 +802,50 @@ TEST_F(TestFileWalker, DISABLED_duplicateSymlinksInWalkNoFollow) // NOLINT
 
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
-    EXPECT_CALL(*callbacks, includeDirectory(_)).WillOnce(Return(true));
+    EXPECT_CALL(*callbacks, includeDirectory(_)).Times(0);
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
     filewalker::walk(startingPoint, *callbacks);
 }
 
-TEST_F(TestFileWalker, duplicateSymlinksInWalk) // NOLINT
+TEST_F(TestFileWalker, duplicateDirSymlinksInWalk) // NOLINT
 {
     fs::create_directories("sandbox");
     fs::path startingPoint = fs::path("sandbox");
 
     fs::create_directories("other_dir");
     std::ofstream("other_dir/file2.txt");
-    fs::create_symlink("../other_dir", "sandbox/link1");
-    fs::create_symlink("../other_dir", "sandbox/link2");
+    fs::create_symlink("../other_dir", "sandbox/dirlink1");
+    fs::create_symlink("../other_dir", "sandbox/dirlink2");
 
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
     EXPECT_CALL(*callbacks, includeDirectory(_)).WillOnce(Return(true));
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
-    auto expected = AnyOf(fs::path("sandbox/link1/file2.txt"), fs::path("sandbox/link2/file2.txt"));
+    auto expected = AnyOf(fs::path("sandbox/dirlink1/file2.txt"), fs::path("sandbox/dirlink2/file2.txt"));
     EXPECT_CALL(*callbacks, processFile(expected, false)).Times(1);
+
+    filewalker::FileWalker fw(*callbacks);
+    fw.followSymlinks();
+    fw.walk(startingPoint);
+}
+
+TEST_F(TestFileWalker, duplicateFileSymlinksInWalk) // NOLINT
+{
+    fs::create_directories("sandbox");
+    fs::path startingPoint = fs::path("sandbox");
+
+    fs::create_directories("other_dir");
+    std::ofstream("other_dir/file1.txt");
+    fs::create_symlink("../other_dir/file1.txt", "sandbox/filelink1");
+    fs::create_symlink("../other_dir/file1.txt", "sandbox/filelink2");
+
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    auto expected = AnyOf(fs::path("sandbox/filelink1"), fs::path("sandbox/filelink2"));
+    EXPECT_CALL(*callbacks, processFile(expected, true)).Times(1);
 
     filewalker::FileWalker fw(*callbacks);
     fw.followSymlinks();
