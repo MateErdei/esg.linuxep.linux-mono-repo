@@ -83,6 +83,11 @@ AV Plugin Can Process Scan Now
 AV Plugin Scan Now Updates Telemetry Count
     ${HANDLE} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
+
+    # reset telemetry count
+    ${telemetryString}=  Get Plugin Telemetry  av
+    Log   ${telemetryString}
+
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>

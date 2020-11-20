@@ -53,7 +53,7 @@ Clear logs
 
 Start AV
     Clear logs
-    ## Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
@@ -63,6 +63,7 @@ Stop AV
      ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
      Log  ${result.stderr}
      Log  ${result.stdout}
+     Remove Files   /tmp/av.stdout  /tmp/av.stderr
 
 *** Variables ***
 ${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
