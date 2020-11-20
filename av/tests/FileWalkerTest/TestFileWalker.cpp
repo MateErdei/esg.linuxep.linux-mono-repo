@@ -852,6 +852,28 @@ TEST_F(TestFileWalker, duplicateFileSymlinksInWalk) // NOLINT
     fw.walk(startingPoint);
 }
 
+TEST_F(TestFileWalker, backtrackProtectionAppliesAcrossMultipleWalks) // NOLINT
+{
+    fs::create_directories("sandbox/dir1");
+    fs::create_directories("sandbox/dir2");
+
+    fs::create_directories("other_dir");
+    std::ofstream("other_dir/file.txt");
+    fs::create_symlink("../../other_dir", "sandbox/dir1/dirlink1");
+    fs::create_symlink("../../other_dir", "sandbox/dir2/dirlink2");
+
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/dir1/dirlink1/file.txt"), false)).Times(1);
+
+    filewalker::FileWalker fw(*callbacks);
+    fw.followSymlinks();
+    fw.walk("sandbox/dir1");
+    fw.walk("sandbox/dir2");
+}
+
 TEST_F(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
 {
     const fs::path& startingPath = fs::current_path();

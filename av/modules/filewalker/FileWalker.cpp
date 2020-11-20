@@ -18,9 +18,6 @@ using namespace filewalker;
 
 void FileWalker::walk(const sophos_filesystem::path& starting_point)
 {
-    m_seen_symlinks.clear();
-    m_starting_dev = 0;
-
     if(starting_point.string().size() > 4096)
     {
         std::string errorMsg = "Failed to start scan: Starting Path too long";
