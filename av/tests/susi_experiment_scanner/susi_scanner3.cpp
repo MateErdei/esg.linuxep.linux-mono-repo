@@ -219,6 +219,83 @@ static std::string create_scanner_config(const std::string& scannerInfo)
     return "{"+scannerInfo+"}";
 }
 
+class AutoFd
+{
+    int m_fd;
+public:
+    explicit AutoFd()
+        : m_fd(-1)
+    {}
+    explicit AutoFd(int fd)
+        : m_fd(fd)
+    {}
+
+    ~AutoFd()
+    {
+        close();
+    }
+
+    [[nodiscard]] int fd() const
+    {
+        return m_fd;
+    }
+
+    void close()
+    {
+        if (m_fd >= 0)
+        {
+            ::close(m_fd);
+        }
+        m_fd = -1;
+    }
+};
+
+class AutoScanResult
+{
+public:
+    SusiScanResult* m_result = nullptr;
+    ~AutoScanResult()
+    {
+        if (m_result != nullptr)
+        {
+            SUSI_FreeScanResult(m_result);
+        }
+    }
+    SusiScanResult* operator->() const
+    {
+        return m_result;
+    }
+    explicit operator bool() const
+    {
+        return m_result != nullptr;
+    }
+};
+
+static void scan(const std::string& scannerConfig, const char* filename)
+{
+    AutoFd fd(::open(filename, O_RDONLY));
+    assert(fd.fd() >= 0);
+
+    SusiHolder susi(scannerConfig);
+
+
+    static const std::string metaDataJson = R"({
+    "properties": {
+        "url": "www.example.com"
+    }
+    })";
+
+    AutoScanResult result;
+    SusiResult res = SUSI_ScanHandle(susi.m_handle, metaDataJson.c_str(), filename, fd.fd(), &result.m_result);
+    fd.close();
+
+    std::cerr << "Scan result " << std::hex << res << std::dec << std::endl;
+    if (result)
+    {
+        std::cerr << "Details: "<< result->version << result->scanResultJson << std::endl;
+    }
+}
+
 int main(int argc, char* argv[])
 {
     // std::cout << "SUSI_E_INITIALISING=0x" << std::hex << SUSI_E_INITIALISING << std::dec << std::endl;
@@ -235,41 +312,19 @@ int main(int argc, char* argv[])
         filename = argv[2];
     }
 
-    int fd = ::open(filename, O_RDONLY);
-    assert(fd >= 0);
-
     static const std::string scannerInfo = create_scanner_info(true);
     static const std::string runtimeConfig = create_runtime_config(
         libraryPath,
         scannerInfo
     );
+    static const std::string scannerConfig = create_scanner_config(scannerInfo);
 
     SusiResult ret = SUSI_SetLogCallback(&GL_log_callback);
     throwIfNotOk(ret, "Failed to set log callback");
 
     SusiGlobalHandler global_susi(runtimeConfig);
 
-    static const std::string scannerConfig = create_scanner_config(scannerInfo);
-    SusiHolder susi(scannerConfig);
-
-    static const std::string metaDataJson = R"({
-    "properties": {
-        "url": "www.example.com"
-    }
-    })";
-
-    SusiScanResult* result = nullptr;
-    SusiResult res = SUSI_ScanHandle(susi.m_handle, metaDataJson.c_str(), filename, fd, &result);
-
-    ::close(fd);
-
-    std::cerr << "Scan result " << std::hex << res << std::dec << std::endl;
-    if (result != nullptr)
-    {
-        std::cerr << "Details: "<< result->version << result->scanResultJson << std::endl;
-    }
-
-    SUSI_FreeScanResult(result);
+    scan(scannerConfig, filename);
 
     return 0;
 }
