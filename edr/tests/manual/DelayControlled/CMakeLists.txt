@@ -8,7 +8,6 @@ add_executable(DelayControlledTable
 
 target_link_libraries(DelayControlledTable PUBLIC
         ${GLOG_LIBRARY}
-        ${GFLAG_LIBRARY}
         ${OSQUERYSDK_LIBRARY}
         ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}
@@ -22,6 +21,7 @@ target_link_libraries(DelayControlledTable PUBLIC
         ${JSONCPP_LIBRARY}
         pthread
         ${CMAKE_DL_LIBS}
+        ${GFLAG_LIBRARY}
         )
 
 target_include_directories(DelayControlledTable PUBLIC

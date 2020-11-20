@@ -8,7 +8,6 @@ add_executable(BinaryDataTable
 
 target_link_libraries(BinaryDataTable PUBLIC
         ${GLOG_LIBRARY}
-        ${GFLAG_LIBRARY}
         ${OSQUERYSDK_LIBRARY}
         ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}
@@ -22,6 +21,7 @@ target_link_libraries(BinaryDataTable PUBLIC
         ${JSONCPP_LIBRARY}
         pthread
         ${CMAKE_DL_LIBS}
+        ${GFLAG_LIBRARY}
         )
 
 target_include_directories(BinaryDataTable PUBLIC

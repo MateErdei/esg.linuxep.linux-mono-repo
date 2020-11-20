@@ -26,7 +26,6 @@ set(third_party_libs
         ${JSON_CPP_LIBRARY}
         ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}
-        ${GFLAG_LIBRARY}
         )
 
 INCLUDE(FindLibraryFullPath)

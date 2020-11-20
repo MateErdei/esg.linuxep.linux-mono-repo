@@ -42,7 +42,6 @@ target_include_directories(FuzzableResultSender PUBLIC
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
         ${SQLITE_INCLUDE_DIR}
-        ${CMAKE_BINARY_DIR}
         ${INPUT}/jsoncpp/include
         ${pluginapiinclude}
         ${CMAKE_SOURCE_DIR}
@@ -53,8 +52,6 @@ SET_TARGET_PROPERTIES(FuzzableResultSender
         BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
-
-add_dependencies(FuzzableResultSender copy_libs)
 
 install(TARGETS FuzzableResultSender
         DESTINATION ../componenttests)

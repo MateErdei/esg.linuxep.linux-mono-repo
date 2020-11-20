@@ -156,7 +156,7 @@ file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so.*)
 file(GLOB zlib ${PLUGINAPIPATH}/lib64/libz.so.*)
-file(GLOB gflags ${INPUT}/gflags/install64/lib/libgflags.so.*)
+#file(GLOB GFLAG_LIBRARY ${INPUT}/gflags/install64/lib/libgflags.so.*)
 
 find_library(LOGGER_PLUGIN_LIBRARY
         NAMES LoggerPlugin
@@ -189,6 +189,12 @@ find_library(GLOG_LIBRARY
 find_library(THRIFT_LIBRARY
         NAMES thrift
         PATHS ${THRIFT_INPUT}/install64/lib
+        NO_DEFAULT_PATH
+        )
+
+find_library(GFLAG_LIBRARY
+        NAMES gflags
+        PATHS ${INPUT}/gflags/install64/lib
         NO_DEFAULT_PATH
         )
 
