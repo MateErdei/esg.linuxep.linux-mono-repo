@@ -15,7 +15,7 @@ Resource        ../shared/BaseResources.robot
 Resource        ../shared/AVAndBaseResources.robot
 
 Suite Setup     Install With Base SDDS
-Suite Teardown  Uninstall And Revert Setup
+Suite Teardown  Uninstall All
 
 Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown
@@ -292,7 +292,7 @@ AV Plugin Reports Threat XML To Base
    Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
    ${rc}   ${output} =    Run And Return Rc And Output   /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naugthy_eicar
 
-   Log To Console  ${output}
+   Log   ${output}
 
    Should Be Equal As Integers  ${rc}  69
 
@@ -311,7 +311,7 @@ Avscanner runs as non-root
    ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
    ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
 
-   Log To Console  ${output}
+   Log   ${output}
 
    Should Be Equal As Integers  ${rc}  69
    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/naugthy_eicar" is infected with EICAR-AV-Test
@@ -378,27 +378,16 @@ AV Plugin Can Send Telemetry
 AV plugin Saves and Restores Scan Now Counter
     Check AV Plugin Installed With Base
 
-    Configure and check scan now
-
-    Stop AV Plugin
-    Start AV Plugin
-
+    # Run telemetry to reset counters to 0
     Prepare To Run Telemetry Executable
-
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
                  ...  10 secs
                  ...  1 secs
                  ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Remove File   ${TELEMETRY_OUTPUT_JSON}
 
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log To Console  ${telemetryFileContents}
-
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-
-    Dictionary Should Contain Item   ${avDict}   scan-now-count   1
-
+    # run a scan, count should increase to 1
     Configure and check scan now
 
     Stop AV Plugin
@@ -408,10 +397,73 @@ AV plugin Saves and Restores Scan Now Counter
                  ...  1 secs
                  ...  File Should Exist  ${TELEMETRY_BACKUP_JSON}
 
-    Log To Console  telemetry backup:
     ${backupfileContents} =  Get File    ${TELEMETRY_BACKUP_JSON}
-    Log To Console  ${backupfileContents}
-    Should Contain  ${backupfileContents}    "scan-now-count":1
+    Log   ${backupfileContents}
+    ${backupJson}=    Evaluate     json.loads("""${backupfileContents}""")    json
+    ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
+    Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   1
+
+    Start AV Plugin
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   1
 
 
+AV plugin increments Scan Now Counter after Save and Restore
+    Check AV Plugin Installed With Base
 
+    # Run telemetry to reset counters to 0
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Remove File   ${TELEMETRY_OUTPUT_JSON}
+
+    # run a scan, count should increase to 1
+    Configure and check scan now
+
+    Stop AV Plugin
+
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_BACKUP_JSON}
+
+    ${backupfileContents} =  Get File    ${TELEMETRY_BACKUP_JSON}
+    Log   ${backupfileContents}
+    ${backupJson}=    Evaluate     json.loads("""${backupfileContents}""")    json
+    ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
+    Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   1
+
+    Start AV Plugin
+
+    # run a scan, count should increase to 1
+    Configure and check scan now
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   2

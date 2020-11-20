@@ -32,6 +32,7 @@ Mock Base Installation
     Create Directory   ${SOPHOS_INSTALL}/base/lib64
     Create Directory   ${SOPHOS_INSTALL}/base/mcs/action
     Create Directory   ${SOPHOS_INSTALL}/base/mcs/policy
+    Create Directory   ${SOPHOS_INSTALL}/base/telemetry/cache
     Copy File  ${BASE_SDDS}/files/base/lib64/libcrypto.so.1.1  ${SOPHOS_INSTALL}/base/lib64/
     Create Directory   ${SOPHOS_INSTALL}/tmp
     Create Directory   ${SOPHOS_INSTALL}/var/ipc
@@ -86,10 +87,12 @@ Setup Component For Testing
     Run Process  chmod  -R  +x  ${COMPONENT_ROOT_PATH}/sbin  ${COMPONENT_ROOT_PATH}/bin  ${BASH_SCRIPTS_PATH}  shell=True
     Run Process  chmod  +x  ${COMPONENT_ROOT_PATH}/sophos_certs/InstallCertificateToSystem.sh
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/base/etc
-    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/tmp
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/base/update/var
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/etc
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/log
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/tmp
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/var
-    Create Directory  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}
     Create Directory  ${COMPONENT_ROOT_PATH}/var
     Create Directory  ${COMPONENT_ROOT_PATH}/log
     Run Process   ln  -s  /  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}/chroot

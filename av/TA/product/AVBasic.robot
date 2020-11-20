@@ -95,9 +95,7 @@ AV Plugin Scan Now Updates Telemetry Count
     Check ScanNow Log Exists
 
     ${telemetryString}=  Get Plugin Telemetry  av
-
-    Log To Console      ${telemetryString}
-
+    Log   ${telemetryString}
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
 
     Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   1
@@ -163,7 +161,7 @@ Scan Now Logs Should Be As Expected
     Run Scan Now Scan For Excluded Files Test
 
     AV Plugin Log Contains  Received new Action
-    AV Plugin Log Contains  Evaluating Scan Now
+    Wait Until AV Plugin Log Contains  Evaluating Scan Now
     Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=10
 
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
@@ -233,6 +231,7 @@ AV Plugin Can Disable Scanning Of Mounted NFS Shares
     ${destination} =  Set Variable  /mnt/nfsshare
     Create Directory  ${source}
     Create File       ${source}/eicar.com    ${EICAR_STRING}
+    Register Cleanup  Remove File      ${source}/eicar.com
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
     Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
@@ -310,9 +309,7 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
 
     ${telemetryString}=  Get Plugin Telemetry  av
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
-
-    Log To Console  ${telemetryJson}
-
+    Log   ${telemetryJson}
     Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   1
 
     ${result} =   Terminate Process  ${handle}

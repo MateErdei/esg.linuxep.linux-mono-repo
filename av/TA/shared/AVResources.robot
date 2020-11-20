@@ -85,6 +85,11 @@ File Log Should Not Contain
     ${content} =  Get File   ${path}  encoding_errors=replace
     Should Not Contain  ${content}  ${input}
 
+File Log Should Not Contain With Offset
+    [Arguments]  ${path}  ${input}  ${offset}=0
+    ${content} =  Get File Contents From Offset  ${path}  ${offset}
+    Should Not Contain  ${content}  ${input}
+
 Wait Until File Log Contains
     [Arguments]  ${logCheck}  ${input}  ${timeout}=15  ${interval}=1
     Wait Until Keyword Succeeds
@@ -105,6 +110,11 @@ AV Plugin Log Contains With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
     File Log Contains With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
+
+AV Plugin Log Should Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
+    File Log Should Not Contain With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
 
 AV Plugin Log Contains
     [Arguments]  ${input}
