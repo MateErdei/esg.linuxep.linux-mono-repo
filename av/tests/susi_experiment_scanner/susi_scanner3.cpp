@@ -8,6 +8,8 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 // NOLINTNEXTLINE
 #define P(_X) std::cerr << _X << '\n';
@@ -65,14 +67,14 @@ SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
     my_susi_callbacks.token = this;
 
     SusiResult res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
-    std::cerr << "Global Susi constructed res=" << std::hex << res << std::dec << std::endl;
+    P("Global Susi constructed res=" << std::hex << res << std::dec);
     assert(res == SUSI_S_OK);
 }
 
 SusiGlobalHandler::~SusiGlobalHandler() noexcept
 {
     SusiResult res = SUSI_Terminate();
-    std::cerr << "Global Susi destroyed res=" << std::hex << res << std::dec << std::endl;
+    P("Global Susi destroyed res=" << std::hex << res << std::dec);
     assert(res == SUSI_S_OK);
 }
 
@@ -97,7 +99,7 @@ SusiHolder::SusiHolder(const std::string& scannerConfig)
 {
     SusiResult res = SUSI_CreateScanner(scannerConfig.c_str(), &m_handle);
     throwIfNotOk(res, "Failed to create SUSI Scanner");
-    std::cerr << "Susi scanner constructed" << std::endl;
+    P("Susi scanner constructed");
 }
 
 SusiHolder::~SusiHolder()
@@ -106,7 +108,7 @@ SusiHolder::~SusiHolder()
     {
         SusiResult res = SUSI_DestroyScanner(m_handle);
         throwIfNotOk(res, "Failed to destroy SUSI Scanner");
-        std::cerr << "Susi scanner destroyed" << std::endl;
+        P("Susi scanner destroyed");
     }
 }
 
@@ -116,7 +118,7 @@ void mysusi_log_callback(void* token, SusiLogLevel level, const char* message)
     std::string m(message);
     if (!m.empty())
     {
-        std::cerr << level << ": " << m << std::endl;
+        P(level << ": " << m);
     }
 }
 
@@ -169,7 +171,7 @@ static std::string create_scanner_info(bool scanArchives)
                 "macintosh": true
             },
             "scanControl": {
-                "trueFileTypeDetection": true,
+                "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true
@@ -321,6 +323,9 @@ int main(int argc, char* argv[])
 
     SusiResult ret = SUSI_SetLogCallback(&GL_log_callback);
     throwIfNotOk(ret, "Failed to set log callback");
+
+    // Get and set file descriptor limit
+
 
     SusiGlobalHandler global_susi(runtimeConfig);
 
