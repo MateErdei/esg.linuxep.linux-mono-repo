@@ -18,9 +18,9 @@ Test Teardown   Installer Test TearDown
 
 *** Test Cases ***
 SUSI Config Can Scan Android File
-     register on fail  Debug install set
-     register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
-     register cleanup  dump log  ${AV_LOG_PATH}
+     Register on fail  Debug install set
+     Register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
+     Register cleanup  dump log  ${AV_LOG_PATH}
 
      Add IDE to install set  ${IDE_ANDROID_NAME}
      Run installer from install set
