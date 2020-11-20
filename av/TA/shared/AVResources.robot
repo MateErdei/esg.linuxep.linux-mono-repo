@@ -33,6 +33,11 @@ ${EICAR_PUA_STRING}  X5]+)D:)D<5N*PZ5[/EICAR-POTENTIALLY-UNWANTED-OBJECT-TEST!$*
 ${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
 ${STATUS_XML}       ${MCS_PATH}/status/SAV_status.xml
 
+${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl
+${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
+${SCAN_DIRECTORY}   /home/vagrant/this/is/a/directory/for/scanning
+${AVSCANNER}        /usr/local/bin/avscanner
+
 *** Keywords ***
 Check Plugin Running
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
@@ -384,3 +389,43 @@ Create EICAR files
      FOR    ${INDEX}    IN RANGE    1    ${eicar_files_to_create}
          ${eicar_file}=    create file  ${dir_name}/eicar-${INDEX}  ${EICAR_STRING}
      END
+
+Installer Suite Setup
+    Install With Base SDDS
+
+Installer Suite TearDown
+    Log  Installer Suite TearDown
+
+Installer Test Setup
+    Check AV Plugin Installed With Base
+    Mark AV Log
+
+Installer Test TearDown
+    run teardown functions
+
+Add IDE to install set
+    [Arguments]  ${IDE_NAME}
+    # COMPONENT_INSTALL_SET
+    # TODO: LINUXDAR-2365 fix for hot-updating
+    ${IDE} =  Set Variable  ${RESOURCES_PATH}/ides/${IDE_NAME}
+    Copy file  ${IDE}  ${IDE_DIR}/${IDE_NAME}
+    register cleanup  Remove IDE from install set  ${IDE_NAME}
+
+Debug install set
+    ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
+    Log  INSTALL_SET= ${result.stdout}
+    ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/distribution_version   stdout=/tmp/proc.out    stderr=STDOUT
+    Log  INSTALLATION= ${result.stdout}
+
+Remove IDE from install set
+    [Arguments]  ${IDE_NAME}
+    Remove File  ${IDE_DIR}/${IDE_NAME}
+
+Run installer from install set
+    ${result} =  run process    bash  -x  ${COMPONENT_INSTALL_SET}/install.sh  stdout=/tmp/proc.out  stderr=STDOUT
+    Log  ${result.stdout}
+    Should Be Equal As Integers  ${result.rc}  ${0}
+
+Check IDE present in installation
+    [Arguments]  ${IDE_NAME}
+    File should exist  ${INSTALL_IDE_DIR}/${IDE_NAME}
