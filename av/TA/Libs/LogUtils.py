@@ -80,6 +80,9 @@ class LogUtils(object):
         else:
             logger.info("File does not exist")
 
+    def dump_log_on_failure(self, filename):
+        robot.libraries.BuiltIn.BuiltIn().run_keyword_if_test_failed("LogUtils.Dump Log", filename)
+
     def dump_cloud_server_log(self):
         server_log = self.cloud_server_log
         self.dump_log(server_log)
