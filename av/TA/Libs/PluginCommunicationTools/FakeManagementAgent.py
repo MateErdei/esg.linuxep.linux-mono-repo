@@ -7,6 +7,7 @@
 
 from threading import Thread
 import sys
+import traceback
 import zmq
 
 from .common.socket_utils import try_get_socket, ZMQ_CONTEXT
@@ -25,11 +26,13 @@ class Agent(object):
         self.logger = logger
 
     def start(self):
+        self.logger.info("Starting FakeManagementAgent")
         self.__m_running = True
         self.run_thread = Thread(target=self.run)
         self.run_thread.start()
 
     def stop(self):
+        self.logger.info("Stopping FakeManagementAgent")
         self.__m_running = False
         if self.run_thread is not None:
             self.run_thread.join()
@@ -39,14 +42,23 @@ class Agent(object):
         poller = zmq.Poller()
         poller.register(self.management_agent_socket, zmq.POLLIN)
 
-        while self.__m_running:
-            try:
-                sockets = dict(poller.poll(500))
-            except KeyboardInterrupt:
-                break
+        try:
+            while self.__m_running:
+                try:
+                    sockets = dict(poller.poll(500))
+                except KeyboardInterrupt:
+                    self.logger.debug("Keyboard Interrupt")
+                    break
 
-            if self.management_agent_socket in sockets:
-                self.handle_plugin_requests()
+                if self.management_agent_socket in sockets:
+                    self.handle_plugin_requests()
+
+            self.logger.info("Clean exit from FakeManagementAgent")
+        except Exception:
+            trace = traceback.format_exc()
+            self.logger.error("FakeManagementAgent failed with: " + trace)
+        finally:
+            self.logger.info("Finishing FakeManagementAgent")
 
     def handle_plugin_requests(self):
         request_data = self.management_agent_socket.recv()
