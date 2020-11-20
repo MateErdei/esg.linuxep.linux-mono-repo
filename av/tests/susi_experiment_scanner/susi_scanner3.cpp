@@ -2,14 +2,19 @@
 #include <Susi.h>
 
 #include <cassert>
+//#include <condition_variable>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <fcntl.h>
 #include <unistd.h>
-#include <sys/time.h>
 #include <sys/resource.h>
+
+static const int FILE_DESCRIPTOR_LIMIT = 150;
+static const int NUMBER_OF_SCANS_PER_THREAD = 10; // 500;
+static const int THREAD_COUNT = 100;
 
 // NOLINTNEXTLINE
 #define P(_X) std::cerr << _X << '\n';
@@ -112,13 +117,20 @@ SusiHolder::~SusiHolder()
     }
 }
 
+static thread_local int GL_THREAD_ID=0; //NOLINT
+
 void mysusi_log_callback(void* token, SusiLogLevel level, const char* message)
 {
     static_cast<void>(token);
+    if (level == SUSI_LOG_LEVEL_DETAIL)
+    {
+        return;
+    }
     std::string m(message);
     if (!m.empty())
     {
-        P(level << ": " << m);
+        // m already has new line
+        std::cerr << GL_THREAD_ID << ": " << m;
     }
 }
 
@@ -258,10 +270,7 @@ public:
     SusiScanResult* m_result = nullptr;
     ~AutoScanResult()
     {
-        if (m_result != nullptr)
-        {
-            SUSI_FreeScanResult(m_result);
-        }
+        reset();
     }
     SusiScanResult* operator->() const
     {
@@ -271,16 +280,23 @@ public:
     {
         return m_result != nullptr;
     }
+    void reset()
+    {
+        if (m_result != nullptr)
+        {
+            SUSI_FreeScanResult(m_result);
+        }
+        m_result = nullptr;
+    }
 };
 
-static void scan(const std::string& scannerConfig, const char* filename)
+static void scan(int thread, const std::string& scannerConfig, const char* filename)
 {
+    GL_THREAD_ID = thread;
     AutoFd fd(::open(filename, O_RDONLY));
     assert(fd.fd() >= 0);
 
     SusiHolder susi(scannerConfig);
-
-
     static const std::string metaDataJson = R"({
     "properties": {
         "url": "www.example.com"
@@ -288,30 +304,59 @@ static void scan(const std::string& scannerConfig, const char* filename)
     })";
 
     AutoScanResult result;
-    SusiResult res = SUSI_ScanHandle(susi.m_handle, metaDataJson.c_str(), filename, fd.fd(), &result.m_result);
-    fd.close();
 
-    std::cerr << "Scan result " << std::hex << res << std::dec << std::endl;
-    if (result)
+
+    for (int i=0; i<NUMBER_OF_SCANS_PER_THREAD; i++)
     {
-        std::cerr << "Details: "<< result->version << result->scanResultJson << std::endl;
+        P("THREAD:" << thread <<  ":" << i << ": Start scan");
+        assert(result.m_result == nullptr);
+        assert(!result);
+        SusiResult res = SUSI_ScanHandle(susi.m_handle, metaDataJson.c_str(), filename, fd.fd(), &result.m_result);
+
+        if (result)
+        {
+            P("THREAD:" << thread << ": Details: " << result->version << result->scanResultJson);
+        }
+        if (res == SUSI_E_INVALIDARG)
+        {
+            P("THREAD:" << thread << ":" << i << ": Scan result: SUSI_E_INVALIDARG: " << std::hex << res << std::dec);
+            assert(!"SUSI_E_INVALIDARG");
+        }
+        else if (res == SUSI_S_OK)
+        {
+            P("THREAD:" << thread << ":" << i << ":Clean");
+        }
+        else if (res == SUSI_I_THREATPRESENT)
+        {
+            P("THREAD:" << thread << ":" << i << ":ThreatFound");
+        }
+        else
+        {
+            P("THREAD:" << thread << ":" << i << ": Scan result " << std::hex << res << std::dec);
+            assert(!"Unknown scan result");
+        }
+
+        result.reset();
+        ::lseek(fd.fd(), 0, SEEK_SET);
+        std::this_thread::yield();
     }
+    fd.close();
 }
 
 int main(int argc, char* argv[])
 {
     // std::cout << "SUSI_E_INITIALISING=0x" << std::hex << SUSI_E_INITIALISING << std::dec << std::endl;
 
-    std::string libraryPath = "/opt/sophos-spl/plugins/av/chroot/susi/distribution_version";
+    const char* filename = "/etc/fstab";
     if (argc > 1)
     {
-        libraryPath = argv[1];
+        filename = argv[1];
     }
 
-    const char* filename = "/etc/fstab";
+    std::string libraryPath = "/opt/sophos-spl/plugins/av/chroot/susi/distribution_version";
     if (argc > 2)
     {
-        filename = argv[2];
+        libraryPath = argv[2];
     }
 
     static const std::string scannerInfo = create_scanner_info(true);
@@ -330,15 +375,25 @@ int main(int argc, char* argv[])
     assert(ret == 0);
     P("FD softlimit: "<< rlimitBuf.rlim_cur);
     P("FD hardlimit: "<< rlimitBuf.rlim_max);
-    static const int MAX_FD = 100;
-    assert(rlimitBuf.rlim_max >= MAX_FD);
-    rlimitBuf.rlim_cur = MAX_FD;
+    assert(rlimitBuf.rlim_max >= FILE_DESCRIPTOR_LIMIT);
+    rlimitBuf.rlim_cur = FILE_DESCRIPTOR_LIMIT;
     ret = setrlimit(RLIMIT_NOFILE, &rlimitBuf);
     assert(ret == 0);
 
     SusiGlobalHandler global_susi(runtimeConfig);
 
-    scan(scannerConfig, filename);
+    std::vector<std::thread> threads;
+
+    for (int i=1; i<=THREAD_COUNT; ++i) // Thread 0 is main...
+    {
+        threads.emplace_back(scan, i, scannerConfig, filename);
+    }
+    std::this_thread::yield();
+
+    for (auto& th : threads)
+    {
+        th.join();
+    }
 
     return 0;
 }

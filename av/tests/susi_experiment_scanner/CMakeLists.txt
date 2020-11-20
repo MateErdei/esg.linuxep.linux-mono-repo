@@ -22,7 +22,7 @@ SET_TARGET_PROPERTIES( susi_scanner2
 add_executable(susi_experiment_scanner3
         susi_scanner3.cpp)
 target_include_directories(susi_experiment_scanner3 PRIVATE ${susi_include})
-target_link_libraries(susi_experiment_scanner3 PRIVATE ${SUSI_LIB})
+target_link_libraries(susi_experiment_scanner3 PRIVATE ${SUSI_LIB} pthread)
 SET_TARGET_PROPERTIES(susi_experiment_scanner3
         PROPERTIES
         BUILD_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64"
