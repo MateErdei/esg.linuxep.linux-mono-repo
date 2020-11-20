@@ -5,7 +5,7 @@ SophosAddTest(TestOsqueryProcessor
         OsqueryProcessorTestsWithMock.cpp        
         MockOsqueryClient.h
         PROJECTS osqueryclient
-        LIBS ${pluginapilib} ${log4cpluslib} ${testhelperslib} gmock gtest ${GFLAG_LIBRARY}
+        LIBS ${pluginapilib} ${log4cpluslib} ${testhelperslib} gmock gtest ${gflags}
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
         )
 message("show ${log4cpluslib}")

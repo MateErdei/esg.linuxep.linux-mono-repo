@@ -8,7 +8,7 @@ add_executable(BinaryDataTable
 
 target_link_libraries(BinaryDataTable PUBLIC
         ${GLOG_LIBRARY}
-        ${GFLAG_LIBRARY}
+        ${gflags}
         ${OSQUERYSDK_LIBRARY}
         ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}

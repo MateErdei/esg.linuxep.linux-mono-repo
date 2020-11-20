@@ -1,4 +1,4 @@
-sophos_add_exe(FuzzableResultSender
+add_executable(FuzzableResultSender
         FuzzableResultSender.cpp
         ../../../modules/osqueryextensions/IServiceExtension.h
         ../../../modules/osqueryextensions/Logger.h
@@ -10,24 +10,15 @@ sophos_add_exe(FuzzableResultSender
         ../../../modules/osqueryextensions/SophosExtension.h
         ../../../modules/osqueryextensions/SophosExtension.cpp
         ${SQLITE_INCLUDE_DIR}/sqlite3.c
-        EXTRA_LIBS
-        ${log4cpluslib}
-        ${protobuflib}
-        ${OSQUERYSDK_LIBRARY}
-        ${OSQUERY_GEN_LIBRARY}
-        ${LOGGER_PLUGIN_LIBRARY}
-        ${THRIFT_LIBRARY}
-        ${JSON_CPP_LIBRARY}
-        ${GFLAG_LIBRARY}
-        ${GLOG_LIBRARY}
-        ${THRIFT_GEN_LIBRARY}
-        pthread
-        EXTRA_INCLUDES ${OSQUERYSDK}/include ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include ${BOOST_INCLUDE_DIR}
         )
 
 target_link_libraries(FuzzableResultSender PUBLIC
+        ${pluginapilib}
+        ${THRIFT_GEN_LIBRARY}
+        ${LOGGER_PLUGIN_LIBRARY}
+        ${protobuflib}
+        ${log4cpluslib}
         ${GLOG_LIBRARY}
-        ${GFLAG_LIBRARY}
         ${OSQUERYSDK_LIBRARY}
         ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}
@@ -42,6 +33,7 @@ target_link_libraries(FuzzableResultSender PUBLIC
         pthread
         ${CMAKE_DL_LIBS}
         dl
+        ${gflags}
         )
 
 target_include_directories(FuzzableResultSender PUBLIC
@@ -50,6 +42,10 @@ target_include_directories(FuzzableResultSender PUBLIC
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
         ${SQLITE_INCLUDE_DIR}
+        ${CMAKE_BINARY_DIR}
+        ${INPUT}/jsoncpp/include
+        ${pluginapiinclude}
+        ${CMAKE_SOURCE_DIR}
         )
 
 SET_TARGET_PROPERTIES(FuzzableResultSender
@@ -57,6 +53,8 @@ SET_TARGET_PROPERTIES(FuzzableResultSender
         BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
+
+add_dependencies(FuzzableResultSender copy_libs)
 
 install(TARGETS FuzzableResultSender
         DESTINATION ../componenttests)

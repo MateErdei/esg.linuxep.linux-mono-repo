@@ -19,7 +19,7 @@ sophos_add_library(OsqueryExtensions SHARED
             ${LOGGER_PLUGIN_LIBRARY}
             ${THRIFT_LIBRARY}
             ${JSON_CPP_LIBRARY}
-            ${GFLAG_LIBRARY}
+            ${gflags}
             ${GLOG_LIBRARY}
             ${THRIFT_GEN_LIBRARY}
             pthread
