@@ -74,21 +74,17 @@ Telemetry Test Teardown
     Remove Environment Variable  BREAK_PUT_REQUEST
 
 Test Teardown With Telemetry Kill
-    Reset MachineID Permissions
-    General Test Teardown
-    Remove file  ${TELEMETRY_OUTPUT_JSON}
-    Restore System Commands
-    Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
-    Cleanup Telemetry Server
-    Reset MachineID Permissions
-    Remove File   ${SOPHOS_INSTALL}/base/update/var/update_config.json
-    Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-    Remove Environment Variable  BREAK_PUT_REQUEST
+    Telemetry Test Teardown
 
     ${r1} =  Run Process  pgrep  -f  /opt/sophos-spl/base/bin/telemetry
     Should be equal as strings  ${r1.rc}  0
     ${r2} =  Run Process  kill -9 ${r1.stdout.replace("\n", " ")}  shell=True
     Should be equal as strings  ${r2.rc}  0
+    # reset telemetry as it interfers with subsequent tests
+    ${r3} =  Run Process  systemctl  restart  sophos-spl
+    Should be equal as strings  ${r3.rc}  0
+
+
 
 Teardown With Proxy Clear
     Remove File   /opt/sophos-spl/base/etc/sophosspl/current_proxy
@@ -110,34 +106,6 @@ Telemetry Executable Generates System Telemetry
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     log  ${telemetryFileContents}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}
-
-Telemetry Causing Comms To Hang Does Not Stop Comms Restarting
-    [Tags]   TELEMETRY   COMMS
-    [Documentation]    Telemetry Executable Generates System Telemetry
-    [Setup]  Telemetry Test Setup With Broken Put Requests
-    [Teardown]  Test Teardown With Telemetry Kill
-
-    Run Telemetry Executable That Hangs     ${EXE_CONFIG_FILE}
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  1s
-    ...  check log contains  Sleeping  /tmp/https_server.log   https server log
-    ${local_pid} =  get_pid_of_comms  local
-    ${network_pid} =  get_pid_of_comms  network
-    ${r} =  Run Process  kill  -9  ${local_pid}
-    Should Be Equal As Strings  ${r.rc}  0
-
-    Wait Until Keyword Succeeds
-    ...  30s
-    ...  3s
-    ...  Check Comms Component Is Running
-
-    Check Comms Component Startup Log Contains  Stopping process (CommsComponent) pid: ${network_pid}
-
-    ${local_pid2} =  get_pid_of_comms  local
-    Should Not Be Equal As Strings  ${local_pid}  ${local_pid2}
-    ${network_pid2} =  get_pid_of_comms  network
-    Should Not Be Equal As Strings  ${network_pid}  ${network_pid2}
 
 Telemetry Executable Generates Watchdog Telemetry
     [Tags]  SMOKE  TAP_TESTS   TELEMETRY   WATCHDOG
@@ -306,14 +274,14 @@ Telemetry Executable Handles Errors When Reading Missing MCS Config For Endpoint
 
 Telemetry Executable Handles Errors When Reading MCS Config With Missing Key For Endpoint ID
     Drop ALC Policy Into Place
-    Drop sophos-spl-user File Into Place  ${SUPPORT_FILES}/base_data/mcs.config-missing-mcs-id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Drop sophos-spl-local File Into Place  ${SUPPORT_FILES}/base_data/mcs.config-missing-mcs-id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
     Check Base Telemetry Json Is Correct  ${telemetryFileContents}  endpointId
 
 Telemetry Executable Handles Errors When Reading Corrupt MCS Config For Endpoint ID
     Drop ALC Policy Into Place
-    Drop sophos-spl-user File Into Place  ${SUPPORT_FILES}/base_data/garbage-text  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Drop sophos-spl-local File Into Place  ${SUPPORT_FILES}/base_data/garbage-text  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
     Check Base Telemetry Json Is Correct  ${telemetryFileContents}  endpointId
@@ -388,3 +356,34 @@ Test With Proxy
     Check System Telemetry Json Is Correct  ${telemetryFileContents}
 
     Check Log Contains   Setup proxy for the connection    ${SOPHOS_INSTALL}/var/sophos-spl-comms/logs/comms_network.log    comms network
+
+Telemetry Causing Comms To Hang Does Not Stop Comms Restarting
+    [Tags]   TELEMETRY   COMMS
+    [Documentation]    Telemetry Executable Generates System Telemetry
+    [Setup]  Telemetry Test Setup With Broken Put Requests
+    [Teardown]  Test Teardown With Telemetry Kill
+
+    Run Telemetry Executable That Hangs     ${EXE_CONFIG_FILE}
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...  check log contains  Sleeping  /tmp/https_server.log   https server log
+    ${local_pid} =  get_pid_of_comms  local
+    ${network_pid} =  get_pid_of_comms  network
+    ${r} =  Run Process  kill  -9  ${local_pid}
+    Should Be Equal As Strings  ${r.rc}  0
+
+    Wait Until Keyword Succeeds
+    ...  40s
+    ...  3s
+    ...  Check Comms Component Is Running
+
+    Wait Until Keyword Succeeds
+    ...  40s
+    ...  3s
+    ...  get_pid_of_comms  local
+
+    ${local_pid2} =  get_pid_of_comms  local
+    Should Not Be Equal As Strings  ${local_pid}  ${local_pid2}
+    ${network_pid2} =  get_pid_of_comms  network
+    Should Not Be Equal As Strings  ${network_pid}  ${network_pid2}
