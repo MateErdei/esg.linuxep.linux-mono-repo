@@ -8,7 +8,7 @@ add_executable(DelayControlledTable
 
 target_link_libraries(DelayControlledTable PUBLIC
         ${GLOG_LIBRARY}
-        ${gflags}
+        ${GFLAG_LIBRARY}
         ${OSQUERYSDK_LIBRARY}
         ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}

@@ -15,6 +15,6 @@ sophos_add_library(livequeryimpl SHARED
         Logger.cpp
         ${SQLITE_INCLUDE_DIR}/sqlite3.c
         EXTRA_PROJECTS queryrunnerimpl
-        EXTRA_LIBS ${log4cpluslib} ${protobuflib} ${JSONCPP_LIBRARY} ${gflags} ${OPENSSL_LIBRARY} ${THRIFT_LIBRARY}
+        EXTRA_LIBS ${log4cpluslib} ${protobuflib} ${JSONCPP_LIBRARY} ${GFLAG_LIBRARY} ${OPENSSL_LIBRARY} ${THRIFT_LIBRARY}
         EXTRA_INCLUDES ${OSQUERYSDK}/include
         )

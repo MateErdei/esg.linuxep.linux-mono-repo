@@ -19,7 +19,7 @@ sophos_add_library(osqueryclient SHARED
                 ${JSONCPP_INPUT}/include
         EXTRA_LIBS
             ${GLOG_LIBRARY}
-            ${gflags}
+            ${GFLAG_LIBRARY}
             ${OSQUERYSDK_LIBRARY}
             ${OSQUERY_GEN_LIBRARY}
             ${THRIFT_LIBRARY}

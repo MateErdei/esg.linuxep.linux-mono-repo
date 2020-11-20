@@ -6,7 +6,7 @@ add_executable(LiveQueryReport
 
 target_link_libraries(LiveQueryReport PUBLIC osqueryclient
         ${GLOG_LIBRARY}
-        ${gflags}
+        ${GFLAG_LIBRARY}
         ${OSQUERYSDK_LIBRARY}
         ${OSQUERY_GEN_LIBRARY}
         ${THRIFT_LIBRARY}

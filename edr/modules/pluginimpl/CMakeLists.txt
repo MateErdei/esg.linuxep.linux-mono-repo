@@ -39,7 +39,7 @@ sophos_add_library(pluginimpl SHARED
             ${expatlib}
             ${zlib}
             ${JSONCPP_LIBRARY}
-            ${gflags}
+            ${GFLAG_LIBRARY}
             ${GLOG_LIBRARY}
             dl
             ${OPENSSL_LIBRARY}

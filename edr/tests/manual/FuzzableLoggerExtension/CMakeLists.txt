@@ -33,7 +33,7 @@ target_link_libraries(FuzzableResultSender PUBLIC
         pthread
         ${CMAKE_DL_LIBS}
         dl
-        ${gflags}
+        ${GFLAG_LIBRARY}
         )
 
 target_include_directories(FuzzableResultSender PUBLIC
