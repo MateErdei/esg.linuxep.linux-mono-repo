@@ -161,7 +161,13 @@ Wait Until AV Plugin Log Contains With Offset
     Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}
 
 Wait Until AV Plugin Log Contains
-    [Arguments]  ${input}  ${timeout}=15  ${interval}=1
+    [Arguments]  ${input}  ${timeout}=15  ${interval}=0
+    ${interval} =   Set Variable If
+    ...   ${interval} > 0   ${interval}
+    ...   ${timeout} >= 120   10
+    ...   ${timeout} >= 60   5
+    ...   ${timeout} >= 15   3
+    ...   1
     Wait Until File Log Contains  AV Plugin Log Contains   ${input}   timeout=${timeout}  interval=${interval}
 
 AV Plugin Log Does Not Contain

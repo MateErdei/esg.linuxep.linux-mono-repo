@@ -38,6 +38,7 @@ AV plugin runs scan now
 
 AV plugin runs scan now while CLS is running
     Check AV Plugin Installed With Base
+    Configure scan now
 
     #Scan something that should take a long time to scan
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /
@@ -54,6 +55,7 @@ AV plugin runs CLS while scan now is running
     ...         AND             Remove Directory    /tmp/three_hundred_eicars/  recursive=True
 
     Check AV Plugin Installed With Base
+    Configure scan now
 
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
 
@@ -140,7 +142,7 @@ AV plugin SAV Status contains revision ID of policy
 AV plugin sends Scan Complete event and (fake) Report To Central
     Check AV Plugin Installed With Base
     ${now} =  Get Current Date  result_format=epoch
-    Send Sav Policy To Base With Exclusions Filled In  SAV_Policy.xml
+    Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_No_Scans.xml
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until Management Log Contains  Action SAV_action
     Wait Until AV Plugin Log Contains  Starting scan
@@ -294,7 +296,7 @@ AV Plugin Reports Threat XML To Base
 
    Log   ${output}
 
-   Should Be Equal As Integers  ${rc}  69
+   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
    Wait Until Keyword Succeeds
          ...  60 secs
@@ -313,7 +315,7 @@ Avscanner runs as non-root
 
    Log   ${output}
 
-   Should Be Equal As Integers  ${rc}  69
+   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/naugthy_eicar" is infected with EICAR-AV-Test
 
    Should Not Contain    ${output}    Failed to read the config file
@@ -337,7 +339,7 @@ AV Plugin Reports encoded eicars To Base
    Should Be True  ${expected_count} > 0
 
    ${result} =  Run Process  /usr/local/bin/avscanner  /tmp/encoded_eicars/  timeout=120s  stderr=STDOUT
-   Should Be Equal As Integers  ${result.rc}  69
+   Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
    Log  ${result.stdout}
 
    #make sure base has generated all events before checking
