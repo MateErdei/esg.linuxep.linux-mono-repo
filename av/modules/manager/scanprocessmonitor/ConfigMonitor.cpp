@@ -49,8 +49,16 @@ static int addFD(fd_set* fds, int fd, int currentMax)
 
 static inline bool isInteresting(const std::string& basename)
 {
-    static_cast<void>(basename);
-    return false;
+    static const std::vector<std::string> INTERESTING_FILES
+        {
+            "/etc/nsswitch.conf",
+            "/etc/resolv.conf",
+            "/etc/ld.so.cache",
+            "/etc/host.conf",
+            "/etc/hosts",
+        };
+
+    return (std::find(INTERESTING_FILES.begin(), INTERESTING_FILES.end(), basename) != INTERESTING_FILES.end());
 }
 
 void ConfigMonitor::run()
