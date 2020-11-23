@@ -376,28 +376,6 @@ AV Plugin Can Send Telemetry
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
-AV Plugin Can Gather SUSI Telemetry
-    Check AV Plugin Installed With Base
-
-    Prepare To Run Telemetry Executable
-
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
-    Wait Until Keyword Succeeds
-                     ...  10 secs
-                     ...  1 secs
-                     ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
-
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-
-    Dictionary Should Not Contain Value  ${avDict}  unknown
-    Dictionary Should Contain Key  ${avDict}  lr-data-hash
-    Dictionary Should Contain Key  ${avDict}  ml-lib-hash
-    Dictionary Should Contain Key  ${avDict}  ml-pe-model-version
-    Dictionary Should Contain Key  ${avDict}  vdl-ide-count
-    Dictionary Should Contain Key  ${avDict}  vdl-version
-
 AV plugin Saves and Restores Scan Now Counter
     Check AV Plugin Installed With Base
 
