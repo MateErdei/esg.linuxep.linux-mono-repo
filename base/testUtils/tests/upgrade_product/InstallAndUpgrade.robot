@@ -265,7 +265,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
     Trigger Update Now
 
     Wait Until Keyword Succeeds
