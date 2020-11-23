@@ -9,6 +9,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 #include <unixsocket/SocketUtils.h>
+
+
+#include "common/AbortScanException.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include "tests/common/TestFile.h"
@@ -16,6 +19,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+#include <list>
 
 #include <fcntl.h>
 #include <memory>
@@ -227,5 +232,59 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws) // NOLINT
 }
 
 
+
+TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    static const std::string THREAT_PATH = "/dev/null";
+    std::string socketPath = "scanning_socket";
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    EXPECT_CALL(*scannerFactory, createScanner(false))
+        .WillRepeatedly([](bool)->threat_scanner::IThreatScannerPtr { return std::make_unique<StrictMock<MockScanner>>(); } );
+
+    unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory);
+    server.start();
+
+    struct timespec clientSleepTime={0, 10'000};
+
+    // Use a std::list since we can't copy/move ScanningClientSocket
+    std::list<unixsocket::ScanningClientSocket> client_sockets;
+    // Create client connections - more than the max
+    for (int i=0; i<200; i++)
+    {
+        client_sockets.emplace_back(socketPath,clientSleepTime);
+    }
+
+    // Can't continue test if we don't have refused connections
+    ASSERT_TRUE(appenderContains("Refusing connection: Maximum number of scanner reached"));
+
+    // Try a scan with the last connection
+    {
+        unixsocket::ScanningClientSocket& client_socket(client_sockets.back());
+        TestFile testFile("testfile");
+        datatypes::AutoFd fd(testFile.open());
+        for (int i=0;i<10;++i)
+        {
+            auto response = scan(client_socket, fd, THREAT_PATH);
+            EXPECT_NE(response.getErrorMsg(), ""); // We should have an error message
+        }
+
+        // Second time should throw exception
+        try
+        {
+            auto response = scan(client_socket, fd, THREAT_PATH);
+            FAIL() << "Managed to scan ten times with no connection";
+        }
+        catch (const AbortScanException&)
+        {
+            // expected exception
+        }
+    }
+
+    server.requestStop();
+    client_sockets.clear();
+    server.join();
+}
 
 

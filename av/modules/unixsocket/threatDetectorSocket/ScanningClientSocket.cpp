@@ -106,14 +106,14 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
         }
         catch (const ReconnectScannerException& e)
         {
-            if (!retryErrorLogged)
+            if (!retryErrorLogged) // NOLINT
             {
                 LOGERROR(e.what() << " - retrying after sleep");
             }
             nanosleep(&m_sleepTime, nullptr);
             if (!attemptConnect())
             {
-                if (!retryErrorLogged)
+                if (!retryErrorLogged) // NOLINT
                 {
                     LOGWARN("Failed to reconnect to Sophos Threat Detector - retrying...");
                 }
@@ -143,11 +143,13 @@ unixsocket::ScanningClientSocket::attemptScan(datatypes::AutoFd& fd, const scan_
     {
         if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
+            // Failed to write the buffer - failing to write length throws exception that is caught below
             throw ReconnectScannerException("Failed to send scan request to Sophos Threat Detector");
         }
     }
     catch (unixsocket::environmentInterruption& e)
     {
+        // Failed to write the length
         std::stringstream errorMsg;
         errorMsg << "Failed to send scan request to Sophos Threat Detector (" << e.what() << ")";
         throw ReconnectScannerException(errorMsg.str());
@@ -157,8 +159,9 @@ unixsocket::ScanningClientSocket::attemptScan(datatypes::AutoFd& fd, const scan_
     if (ret < 0)
     {
         std::stringstream errorMsg;
-        errorMsg << "Failed to send message: " << std::strerror(errno);
-        throw AbortScanException(errorMsg.str());
+        errorMsg << "Failed to send file descriptor message: " << std::strerror(errno);
+        // Sometimes we get this far before the socket gives an error, so try and reconnect from here.
+        throw ReconnectScannerException(errorMsg.str());
     }
 
     int32_t length = unixsocket::readLength(m_socket_fd);

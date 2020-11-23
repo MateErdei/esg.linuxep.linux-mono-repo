@@ -162,3 +162,8 @@ void unixsocket::BaseServerSocket::logError(const std::string& msg)
 {
     LOGERROR(msg);
 }
+
+void unixsocket::BaseServerSocket::logDebug(const std::string& msg)
+{
+    LOGDEBUG(msg);
+}

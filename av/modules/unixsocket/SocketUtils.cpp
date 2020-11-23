@@ -27,8 +27,8 @@ void unixsocket::writeLength(int socket_fd, unsigned length)
 
     auto bytes = splitInto7Bits(length);
     auto buffer = addTopBitAndPutInBuffer(bytes);
-    ssize_t bytes_written;
-    bytes_written = ::send(socket_fd, buffer.get(), bytes.size(), MSG_NOSIGNAL);
+    ssize_t bytes_written
+        = ::send(socket_fd, buffer.get(), bytes.size(), MSG_NOSIGNAL);
     if (bytes_written != static_cast<ssize_t>(bytes.size()))
     {
         throw environmentInterruption();
@@ -51,7 +51,7 @@ bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
 int unixsocket::readLength(int socket_fd)
 {
     int32_t total = 0;
-    uint8_t byte; // For some reason clang-tidy thinks this is signed
+    uint8_t byte = 0; // For some reason clang-tidy thinks this is signed
     const uint8_t TOP_BIT = 0x80;
     while (true)
     {
@@ -110,12 +110,12 @@ int unixsocket::recv_fd(int socket)
         return -1;
     }
 
-    if (msg.msg_flags & MSG_TRUNC)
+    if (msg.msg_flags & MSG_TRUNC) // NOLINT
     {
         LOGERROR("Message was truncated when receiving fd");
     }
 
-    if (msg.msg_flags & MSG_CTRUNC)
+    if (msg.msg_flags & MSG_CTRUNC) // NOLINT
     {
         LOGERROR("Control data was truncated when receiving fd");
     }

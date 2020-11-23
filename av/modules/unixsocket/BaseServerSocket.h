@@ -55,6 +55,7 @@ namespace unixsocket
         virtual bool handleConnection(datatypes::AutoFd& fd) = 0;
         virtual void killThreads() = 0;
         void logError(const std::string&);
+        void logDebug(const std::string&);
 
         datatypes::AutoFd m_socket_fd;
         static const int m_max_threads = 128;
@@ -95,6 +96,15 @@ namespace unixsocket
                 fd.close();
                 logError("Refusing connection: Maximum number of scanner reached");
                 return false;
+            }
+            else
+            {
+                std::ostringstream ost;
+                ost << "Accepting connection: fd = "
+                    << fd.get()
+                    << " "
+                    << m_threadVector.size() << " / " << m_max_threads;
+                logDebug(ost.str());
             }
 
             auto thread = makeThread(fd);
