@@ -106,3 +106,19 @@ TEST_F(TestScanProcessMonitor, testRunnerCallTerminateImmediately) // NOLINT
     }
 }
 
+TEST_F(TestScanProcessMonitor, createConfigMonitor) // NOLINT
+{
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe);
+}
+
+TEST_F(TestScanProcessMonitor, runConfigMonitor) // NOLINT
+{
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe);
+    a.start();
+    a.requestStop();
+    a.join();
+}
+
+
