@@ -34,6 +34,22 @@ SUSI config can scan android file
      Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/AndroidManifest.xml" is infected with Test/Axml
 
 
+SUSI config can scan adobe file
+     Register on fail  Debug install set
+     Register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
+     Register cleanup  dump log  ${AV_LOG_PATH}
+
+     Add IDE to install set  ${IDE_ADOBE_NAME}
+     Run installer from install set
+     Check IDE present in installation  ${IDE_ADOBE_NAME}
+
+     Copy File   ${RESOURCES_PATH}/file_samples/test.pdf  ${SCAN_DIRECTORY}
+     ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/test.pdf
+     Log To Console  ${output}
+     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+     Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/test.pdf" is infected with Pass/URI
+
+
 SUSI config can scan zip file as web archive
     Create File  ${SCAN_DIRECTORY}/eicar    ${EICAR_STRING}
     Create Zip   ${SCAN_DIRECTORY}   eicar   eicar.zip
@@ -48,6 +64,7 @@ SUSI config can scan zip file as web archive
 
 *** Variables ***
 ${IDE_ANDROID_NAME}  axml.ide
+${IDE_ADOBE_NAME}    pdf.ide
 
 *** Keywords ***
 VQA Suite Setup
