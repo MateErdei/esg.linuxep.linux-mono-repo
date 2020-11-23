@@ -49,13 +49,14 @@ static int addFD(fd_set* fds, int fd, int currentMax)
 
 static inline bool isInteresting(const std::string& basename)
 {
+//    LOGDEBUG("isInteresting:"<<basename);
     static const std::vector<std::string> INTERESTING_FILES
         {
-            "/etc/nsswitch.conf",
-            "/etc/resolv.conf",
-            "/etc/ld.so.cache",
-            "/etc/host.conf",
-            "/etc/hosts",
+            "nsswitch.conf",
+            "resolv.conf",
+            "ld.so.cache",
+            "host.conf",
+            "hosts",
         };
 
     return (std::find(INTERESTING_FILES.begin(), INTERESTING_FILES.end(), basename) != INTERESTING_FILES.end());
@@ -63,8 +64,6 @@ static inline bool isInteresting(const std::string& basename)
 
 void ConfigMonitor::run()
 {
-    announceThreadStarted();
-
     datatypes::AutoFd inotifyFD(
         inotify_init()
     );
@@ -81,6 +80,9 @@ void ConfigMonitor::run()
         LOGERROR("Failed to watch directory: Unable to monitor DNS config files" << strerror(errno));
         return; // inotifyFD automatically closed
     }
+
+    // Only announce we've started once the watch is setup.
+    announceThreadStarted();
 
     fd_set readfds;
     int max_fd = -1;
@@ -105,6 +107,7 @@ void ConfigMonitor::run()
 
         if (fd_isset(inotifyFD.fd(), &temp_readfds))
         {
+//            LOGDEBUG("inotified");
             // Something changed under m_base (/etc)
             char buffer[EVENT_BUF_LEN];
             ssize_t length = ::read( inotifyFD.fd(), buffer, EVENT_BUF_LEN );
