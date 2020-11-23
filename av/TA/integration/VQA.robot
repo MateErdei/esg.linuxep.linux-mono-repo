@@ -38,8 +38,6 @@ SUSI config can scan zip file as web archive
     Create File  ${SCAN_DIRECTORY}/eicar    ${EICAR_STRING}
     Create Zip   ${SCAN_DIRECTORY}   eicar   eicar.zip
 
-    Run Process     zip  ${SCAN_DIRECTORY}/test.zip  ${SCAN_DIRECTORY}/eicar
-
     ${rc}   ${output} =    Run And Return Rc And Output    ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.zip --scan-archives
 
     Log  return code is ${rc}
