@@ -59,6 +59,8 @@ IDE can be removed
     Check IDE absent from installation
 
 sophos_threat_detector can start after multiple IDE updates
+    [Tags]  MANUAL
+    # TODO - remove MANUAL keyword once LINUXDAR-2478 is fixed.
     register on fail  Debug install set
     register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
     register cleanup  dump log  ${AV_LOG_PATH}
