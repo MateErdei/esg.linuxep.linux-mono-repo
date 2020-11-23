@@ -19,9 +19,9 @@ Test Teardown   Installer Test TearDown
 *** Test Cases ***
 
 IDE update doesnt restart av processes
-    register on fail  Debug install set
-    register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
-    register cleanup  dump log  ${AV_LOG_PATH}
+    Register on fail  Debug install set
+    Register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
+    Register cleanup  dump log  ${AV_LOG_PATH}
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Add IDE to install set  ${IDE_NAME}
@@ -91,6 +91,19 @@ ${IDE_NAME}         peend.ide
 ...     var
 
 *** Keywords ***
+Installer Suite Setup
+    Install With Base SDDS
+
+Installer Suite TearDown
+    Log  Installer Suite TearDown
+
+Installer Test Setup
+    Check AV Plugin Installed With Base
+    Mark AV Log
+
+Installer Test TearDown
+    Run Teardown Functions
+
 Sophos Threat Detector Log Contains With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0

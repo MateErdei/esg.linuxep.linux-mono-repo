@@ -90,11 +90,6 @@ File Log Should Not Contain
     ${content} =  Get File   ${path}  encoding_errors=replace
     Should Not Contain  ${content}  ${input}
 
-File Log Should Not Contain With Offset
-    [Arguments]  ${path}  ${input}  ${offset}=0
-    ${content} =  Get File Contents From Offset  ${path}  ${offset}
-    Should Not Contain  ${content}  ${input}
-
 Wait Until File Log Contains
     [Arguments]  ${logCheck}  ${input}  ${timeout}=15  ${interval}=1
     Wait Until Keyword Succeeds
@@ -115,11 +110,6 @@ AV Plugin Log Contains With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
     File Log Contains With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
-
-AV Plugin Log Should Not Contain With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    File Log Should Not Contain With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
 
 AV Plugin Log Contains
     [Arguments]  ${input}
@@ -166,13 +156,7 @@ Wait Until AV Plugin Log Contains With Offset
     Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}
 
 Wait Until AV Plugin Log Contains
-    [Arguments]  ${input}  ${timeout}=15  ${interval}=0
-    ${interval} =   Set Variable If
-    ...   ${interval} > 0   ${interval}
-    ...   ${timeout} >= 120   10
-    ...   ${timeout} >= 60   5
-    ...   ${timeout} >= 15   3
-    ...   1
+    [Arguments]  ${input}  ${timeout}=15  ${interval}=1
     Wait Until File Log Contains  AV Plugin Log Contains   ${input}   timeout=${timeout}  interval=${interval}
 
 AV Plugin Log Does Not Contain
@@ -390,26 +374,12 @@ Create EICAR files
          ${eicar_file}=    create file  ${dir_name}/eicar-${INDEX}  ${EICAR_STRING}
      END
 
-Installer Suite Setup
-    Install With Base SDDS
-
-Installer Suite TearDown
-    Log  Installer Suite TearDown
-
-Installer Test Setup
-    Check AV Plugin Installed With Base
-    Mark AV Log
-
-Installer Test TearDown
-    run teardown functions
-
 Add IDE to install set
-    [Arguments]  ${IDE_NAME}
+    [Arguments]  ${ide_name}
     # COMPONENT_INSTALL_SET
-    # TODO: LINUXDAR-2365 fix for hot-updating
-    ${IDE} =  Set Variable  ${RESOURCES_PATH}/ides/${IDE_NAME}
-    Copy file  ${IDE}  ${IDE_DIR}/${IDE_NAME}
-    register cleanup  Remove IDE from install set  ${IDE_NAME}
+    ${IDE} =  Set Variable  ${RESOURCES_PATH}/ides/${ide_name}
+    Copy file  ${IDE}  ${IDE_DIR}/${ide_name}
+    Register cleanup  Remove IDE from install set  ${ide_name}
 
 Debug install set
     ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
@@ -418,8 +388,8 @@ Debug install set
     Log  INSTALLATION= ${result.stdout}
 
 Remove IDE from install set
-    [Arguments]  ${IDE_NAME}
-    Remove File  ${IDE_DIR}/${IDE_NAME}
+    [Arguments]  ${ide_name}
+    Remove File  ${IDE_DIR}/${ide_name}
 
 Run installer from install set
     ${result} =  run process    bash  -x  ${COMPONENT_INSTALL_SET}/install.sh  stdout=/tmp/proc.out  stderr=STDOUT
@@ -427,5 +397,5 @@ Run installer from install set
     Should Be Equal As Integers  ${result.rc}  ${0}
 
 Check IDE present in installation
-    [Arguments]  ${IDE_NAME}
-    File should exist  ${INSTALL_IDE_DIR}/${IDE_NAME}
+    [Arguments]  ${ide_name}
+    File should exist  ${INSTALL_IDE_DIR}/${ide_name}

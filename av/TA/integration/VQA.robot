@@ -1,6 +1,6 @@
 *** Settings ***
-Documentation    Integration tests of Installer
-Force Tags       INTEGRATION  INSTALLER
+Documentation    Integration tests of VQA
+Force Tags       INTEGRATION  VQA
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
@@ -10,14 +10,15 @@ Library         Process
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 
-Suite Setup     Installer Suite Setup
-Suite Teardown  Installer Suite TearDown
+Suite Setup     VQA Suite Setup
+Suite Teardown  VQA Suite TearDown
 
-Test Setup      Installer Test Setup
-Test Teardown   Installer Test TearDown
+Test Setup      VQA Test Setup
+Test Teardown   VQA Test TearDown
 
 *** Test Cases ***
-SUSI Config Can Scan Android File
+
+SUSI config can scan android file
      Register on fail  Debug install set
      Register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
      Register cleanup  dump log  ${AV_LOG_PATH}
@@ -32,5 +33,32 @@ SUSI Config Can Scan Android File
      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
      Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/AndroidManifest.xml" is infected with Test/Axml
 
+
+SUSI config can scan zip file as web archive
+    Create File  ${SCAN_DIRECTORY}/1_eicar    ${EICAR_STRING}
+
+    Run Process     zip  ${SCAN_DIRECTORY}/test.zip  ${SCAN_DIRECTORY}/1_eicar
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${AVSCANNER} ${SCAN_DIRECTORY}/test.zip --scan-archives
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain  ${output}  Detected "${SCAN_DIRECTORY}/test.zip${SCAN_DIRECTORY}/1_eicar" is infected with EICAR-AV-Test
+
 *** Variables ***
 ${IDE_ANDROID_NAME}  axml.ide
+
+*** Keywords ***
+VQA Suite Setup
+    Install With Base SDDS
+
+VQA Suite TearDown
+    Log  VQA Suite TearDown
+
+VQA Test Setup
+    Check AV Plugin Installed With Base
+    Mark AV Log
+
+VQA Test TearDown
+    Run Teardown Functions
