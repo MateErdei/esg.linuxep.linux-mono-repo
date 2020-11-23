@@ -527,9 +527,9 @@ namespace UpdateSchedulerImpl
 
     void UpdateSchedulerProcessor::saveUpdateCacheCertificate(const std::string& cacheCertificateContent)
     {
-        std::string configFilePath =
+        std::string updatecacheCertPath =
             Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
-        Common::FileSystem::fileSystem()->writeFile(configFilePath, cacheCertificateContent);
+        Common::FileSystem::fileSystem()->writeFile(updatecacheCertPath, cacheCertificateContent);
     }
 
     void UpdateSchedulerProcessor::writeConfigurationData(
