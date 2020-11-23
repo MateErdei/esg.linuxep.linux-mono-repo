@@ -46,8 +46,8 @@ EDR Disables Auditd After Install With Auditd Running Default Behaviour
     ...   Check EDR Osquery Executable Running
 
     ${edr_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
-    ${result} =  Run Process   auditctl -s   shell=True
-    Should contain  ${result.stdout}  ${edr_pid.stdout}
+    ${result} =  Run Process   auditctl -s | grep pid | awk '{print $2}'  shell=True
+    Should be equal as strings  ${result.stdout}  ${edr_pid.stdout}
 
     ${contents}=  Get File  ${EDR_DIR}/etc/osquery.flags
     Should contain  ${contents}  --disable_audit=false
