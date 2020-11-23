@@ -19,13 +19,13 @@ Test Teardown   VQA Test TearDown
 *** Test Cases ***
 
 SUSI config can scan android file
-     Register On Fail  Debug install set
-     Register Cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
-     Register Cleanup  dump log  ${AV_LOG_PATH}
+     Register on fail  Debug install set
+     Register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
+     Register cleanup  dump log  ${AV_LOG_PATH}
 
-     Add IDE To Install Set  ${IDE_ANDROID_NAME}
-     Run Installer From Install Set
-     Check IDE Present In Installation  ${IDE_ANDROID_NAME}
+     Add IDE to install set  ${IDE_ANDROID_NAME}
+     Run installer from install set
+     Check IDE present in installation  ${IDE_ANDROID_NAME}
 
      Copy File   ${RESOURCES_PATH}/file_samples/AndroidManifest.xml  ${SCAN_DIRECTORY}
      ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/AndroidManifest.xml
@@ -33,50 +33,38 @@ SUSI config can scan android file
      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
      Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/AndroidManifest.xml" is infected with Test/Axml
 
-     #TODO: Remove this line once CORE-2095 is fixed
-     #Currently loading more than 1 IDE in test, stops SUSI
-     Uninstall All
 
+SUSI config can scan msoffice file
+     Register on fail  Debug install set
+     Register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
+     Register cleanup  dump log  ${AV_LOG_PATH}
 
-SUSI config can scan adobe file
-     Register On Fail  Debug install set
-     Register Cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
-     Register Cleanup  dump log  ${AV_LOG_PATH}
+     Add IDE to install set  ${IDE_OFFICE_NAME}
+     Run installer from install set
+     Check IDE present in installation  ${IDE_OFFICE_NAME}
 
-     Add IDE To Install Set  ${IDE_ADOBE_NAME}
-     Run Installer From Install Set
-     Check IDE Present In Installation  ${IDE_ADOBE_NAME}
-
-     Copy File   ${RESOURCES_PATH}/file_samples/test.pdf  ${SCAN_DIRECTORY}
-     ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/test.pdf
+     Copy File   ${RESOURCES_PATH}/file_samples/cleanmacro.xlsm  ${SCAN_DIRECTORY}
+     ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/cleanmacro.xlsm
      Log To Console  ${output}
      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-     Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/test.pdf" is infected with Pass/URI
-
-     #TODO: Remove this line once CORE-2095 is fixed
-     #Currently loading more than 1 IDE in test, stops SUSI
-     Uninstall All
+     Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/cleanmacro.xlsm" is infected with Test/Office
 
 
 SUSI config can scan zip file as web archive
-    Create File  ${SCAN_DIRECTORY}/eicar    ${EICAR_STRING}
-    Create Zip   ${SCAN_DIRECTORY}   eicar   eicar.zip
+    Create File  ${SCAN_DIRECTORY}/1_eicar    ${EICAR_STRING}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.zip --scan-archives
+    Run Process     zip  ${SCAN_DIRECTORY}/test.zip  ${SCAN_DIRECTORY}/1_eicar
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${AVSCANNER} ${SCAN_DIRECTORY}/test.zip --scan-archives
 
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain  ${output}  Detected "${SCAN_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
-
-    #TODO: Remove this line once CORE-2095 is fixed
-    #Currently loading more than 1 IDE in test, stops SUSI
-    Uninstall All
-
+    Should Contain  ${output}  Detected "${SCAN_DIRECTORY}/test.zip${SCAN_DIRECTORY}/1_eicar" is infected with EICAR-AV-Test
 
 *** Variables ***
 ${IDE_ANDROID_NAME}  axml.ide
-${IDE_ADOBE_NAME}    pdf.ide
+${IDE_OFFICE_NAME}   office.ide
 
 *** Keywords ***
 VQA Suite Setup
