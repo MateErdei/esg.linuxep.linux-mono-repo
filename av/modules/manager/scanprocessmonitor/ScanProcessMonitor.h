@@ -6,9 +6,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "datatypes/sophos_filesystem.h"
+#include "ConfigMonitor.h"
 
-#include "Common/Threads/AbstractThread.h"
+#include "datatypes/sophos_filesystem.h"
 
 namespace plugin::manager::scanprocessmonitor
 {
@@ -22,6 +22,7 @@ namespace plugin::manager::scanprocessmonitor
         sophos_filesystem::path m_scanner_path;
         Common::Threads::NotifyPipe m_subprocess_terminated;
         Common::Threads::NotifyPipe m_config_changed;
+        ConfigMonitor m_config_monitor;
     };
 }
 

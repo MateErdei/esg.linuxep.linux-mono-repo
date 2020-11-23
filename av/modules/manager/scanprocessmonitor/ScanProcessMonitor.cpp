@@ -17,7 +17,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 namespace fs = sophos_filesystem;
 
 plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(sophos_filesystem::path scanner_path)
-    : m_scanner_path(std::move(scanner_path))
+    : m_scanner_path(std::move(scanner_path)),m_config_monitor(m_config_changed)
 {
     if (m_scanner_path.empty())
     {
@@ -82,6 +82,8 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     max_fd = addFD(&readfds, m_subprocess_terminated.readFd(), max_fd);
     max_fd = addFD(&readfds, m_config_changed.readFd(), max_fd);
 
+    m_config_monitor.start();
+
     while (true)
     {
         // Check if we should terminate before doing anything else
@@ -97,7 +99,6 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
             process->exec(m_scanner_path, {});
         }
 
-        // TODO: Replace with a select loop:
         fd_set tempReadfds = readfds;
         int active = ::pselect(max_fd+1, &tempReadfds, nullptr, nullptr, &restartBackoff, nullptr);
 
@@ -152,6 +153,8 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     process->kill();
     process->waitUntilProcessEnds();
     process.reset();
+
+    m_config_monitor.requestStop();
 
     LOGSUPPORT("Exiting sophos_threat_detector monitor");
 }
