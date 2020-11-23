@@ -2,5 +2,6 @@ pyzmq
 protobuf
 pytest-html
 Cython
+pkgconfig
 pycapnp
 robotframework>=3.1
