@@ -81,8 +81,6 @@ int unixsocket::ScanningClientSocket::attemptConnect()
     return ::connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
 }
 
-
-
 scan_messages::ScanResponse
 unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request)
 {

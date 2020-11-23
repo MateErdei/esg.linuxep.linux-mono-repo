@@ -19,6 +19,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
+static const int MAX_CLIENT_CONNECTIONS = 128;
+
 namespace unixsocket
 {
     class BaseServerSocket  : public Common::Threads::AbstractThread
@@ -40,6 +42,10 @@ namespace unixsocket
 
     public:
         void run() override;
+        [[nodiscard]] int maxClientConnections() const
+        {
+            return m_max_threads;
+        }
 
     private:
         std::string m_socketPath;
@@ -58,7 +64,7 @@ namespace unixsocket
         void logDebug(const std::string&);
 
         datatypes::AutoFd m_socket_fd;
-        static const int m_max_threads = 128;
+        static const int m_max_threads = MAX_CLIENT_CONNECTIONS;
     };
 
 

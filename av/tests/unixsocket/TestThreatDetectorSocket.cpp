@@ -251,7 +251,8 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLIN
     // Use a std::list since we can't copy/move ScanningClientSocket
     std::list<unixsocket::ScanningClientSocket> client_sockets;
     // Create client connections - more than the max
-    for (int i=0; i<200; i++)
+    int clientConnectionCount = server.maxClientConnections() * 2;
+    for (int i=0; i < clientConnectionCount; ++i)
     {
         client_sockets.emplace_back(socketPath,clientSleepTime);
     }
