@@ -35,16 +35,18 @@ SUSI config can scan android file
 
 
 SUSI config can scan zip file as web archive
-    Create File  ${SCAN_DIRECTORY}/1_eicar    ${EICAR_STRING}
+    Create File  ${SCAN_DIRECTORY}/eicar    ${EICAR_STRING}
+    Create Zip   ${SCAN_DIRECTORY}   eicar   eicar.zip
 
-    Run Process     zip  ${SCAN_DIRECTORY}/test.zip  ${SCAN_DIRECTORY}/1_eicar
+    Run Process     zip  ${SCAN_DIRECTORY}/test.zip  ${SCAN_DIRECTORY}/eicar
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${AVSCANNER} ${SCAN_DIRECTORY}/test.zip --scan-archives
+    ${rc}   ${output} =    Run And Return Rc And Output    ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.zip --scan-archives
 
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain  ${output}  Detected "${SCAN_DIRECTORY}/test.zip${SCAN_DIRECTORY}/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
+
 
 *** Variables ***
 ${IDE_ANDROID_NAME}  axml.ide
