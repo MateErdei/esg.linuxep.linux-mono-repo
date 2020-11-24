@@ -19,18 +19,15 @@ Test Teardown   Installer Test TearDown
 *** Test Cases ***
 
 IDE update doesnt restart av processes
-    Register on fail  Debug install set
-    Register cleanup  dump log  ${THREAT_DETECTOR_LOG_PATH}
-    Register cleanup  dump log  ${AV_LOG_PATH}
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Add IDE to install set  ${IDE_NAME}
+    Add IDE to Install Set  ${IDE_NAME}
     Mark AV Log
     Mark Sophos Threat Detector Log
-    Run installer from install set
-    Check IDE present in installation  ${IDE_NAME}
-    Check AV Plugin has same PID  ${AVPLUGIN_PID}
-    Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    Run installer From Install Set
+    Check IDE Present In Installation  ${IDE_NAME}
+    Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1
     Wait Until Sophos Threat Detector Log Contains With Offset  SUSI update finished successfully  timeout=120
 
@@ -42,26 +39,34 @@ IDE update doesnt restart av processes
 
     # Check we can detect PEEND following update
     # This test also proves that SUSI is configured to scan executables
-    Copy File   ${RESOURCES_PATH}/file_samples/peend.exe  ${SCAN_DIRECTORY}
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/peend.exe
-    Log To Console  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/peend.exe" is infected with PE/ENDTEST
+    Check Threat Detected  peend.exe  PE/ENDTEST
 
 
 IDE can be removed
-    Register on fail  Debug install set
-    Add IDE to install set  ${IDE_NAME}
-    Run installer from install set
-    Check IDE present in installation  ${IDE_NAME}
-    Remove IDE from install set  ${IDE_NAME}
-    Run installer from install set
-    Check IDE absent from installation  ${IDE_NAME}
+    Add IDE To Install Set  ${IDE_NAME}
+    Run Installer From Install Set
+    Check IDE Present In Installation  ${IDE_NAME}
+    Remove IDE From Install Set  ${IDE_NAME}
+    Run Installer From Install Set
+    Check IDE Absent From Installation  ${IDE_NAME}
+
+
+sophos_threat_detector can start after multiple IDE updates
+    [Tags]  MANUAL
+    # TODO - remove MANUAL keyword once LINUXDAR-2478 is fixed.
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Install IDE  ${IDE_NAME}
+    Install IDE  ${IDE2_NAME}
+    Install IDE  ${IDE3_NAME}
+    File Should Not Exist   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/libsusi.so
+    Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    Force Sophos Threat Detector to restart
+
 
 Check install permissions
     [Documentation]   Find files or directories owned by sophos-spl-user or writable by sophos-spl-group.
     ...               Check results against an allowed list.
-    Run installer from install set
+    Run Installer From Install Set
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     find ${COMPONENT_ROOT_PATH} -! -type l -\\( -user sophos-spl-user -o -group sophos-spl-group -perm -0020 -\\) -prune
     Should Be Equal As Integers  ${rc}  0
@@ -77,6 +82,8 @@ Check install permissions
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
+${IDE2_NAME}        pemid.ide
+${IDE3_NAME}        Sus2Exp.ide
 @{ALLOWED_TO_WRITE}
 ...     chroot/etc
 ...     chroot/log
@@ -92,6 +99,9 @@ ${IDE_NAME}         peend.ide
 
 *** Keywords ***
 Installer Suite Setup
+    Register On Fail  Debug install set
+    Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
+    Register On Fail  dump log  ${AV_LOG_PATH}
     Install With Base SDDS
 
 Installer Suite TearDown
@@ -103,6 +113,9 @@ Installer Test Setup
 
 Installer Test TearDown
     Run Teardown Functions
+    #TODO: Remove this line once CORE-2095 is fixed
+    #Currently loading more than 1 IDE in test, stops SUSI
+    Uninstall All
 
 Sophos Threat Detector Log Contains With Offset
     [Arguments]  ${input}
@@ -128,9 +141,15 @@ Record Sophos Threat Detector PID
     ${PID} =  Get Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     [Return]   ${PID}
 
+Install IDE
+    [Arguments]  ${ide_name}
+    Add IDE to install set  ${ide_name}
+    Run installer from install set
+    Check IDE present in installation  ${ide_name}
+
 Check IDE absent from installation
-    [Arguments]  ${IDE_NAME}
-    file should not exist  ${INSTALL_IDE_DIR}/${IDE_NAME}
+    [Arguments]  ${ide_name}
+    file should not exist  ${INSTALL_IDE_DIR}/${ide_name}
 
 Check AV Plugin has same PID
     [Arguments]  ${PID}
@@ -147,3 +166,14 @@ Check Sophos Threat Detector has different PID
     ${currentPID} =  Record Sophos Threat Detector PID
     Should Not Be Equal As Integers  ${PID}  ${currentPID}
 
+Force Sophos Threat Detector to restart
+    Restart sophos_threat_detector
+
+Kill sophos_threat_detector
+   ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+   Run Process   /bin/kill   -9   ${output}
+
+Restart sophos_threat_detector
+    Kill sophos_threat_detector
+    Mark AV Log
+    Wait until threat detector running

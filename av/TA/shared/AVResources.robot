@@ -399,3 +399,16 @@ Run installer from install set
 Check IDE present in installation
     [Arguments]  ${ide_name}
     File should exist  ${INSTALL_IDE_DIR}/${ide_name}
+
+Add IDE to installation
+     [Arguments]  ${ide_name}
+     Add IDE To Install Set  ${ide_name}
+     Run Installer From Install Set
+     Check IDE Present In Installation  ${ide_name}
+
+Check threat detected
+     [Arguments]  ${THREAT_FILE}  ${THREAT_NAME}
+     ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${RESOURCES_PATH}/file_samples/${THREAT_FILE}
+     Log To Console  ${output}
+     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+     Should Contain   ${output}    Detected "${RESOURCES_PATH}/file_samples/${THREAT_FILE}" is infected with ${THREAT_NAME}
