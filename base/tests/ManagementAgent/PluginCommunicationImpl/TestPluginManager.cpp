@@ -90,6 +90,8 @@ public:
 
         EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
         EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
+        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+
         /*EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock,
         isDirectory("/installroot/base/update/cache/primarywarehouse")).WillOnce(Return(true));

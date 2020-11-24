@@ -5,19 +5,18 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #ifndef ARTISANBUILD
 #include "gtest/gtest.h"
-
-#include <tests/Common/Helpers/TempDir.h>
-#include <watchdog/watchdogimpl/Watchdog.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <gmock/gmock.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <modules/Common/UtilityImpl/StringUtils.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <modules/wdctl/wdctlimpl/wdctl_bootstrap.h>
+#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
-#include <gmock/gmock.h>
-#include <thread>
+#include <tests/Common/Helpers/MockFilePermissions.h>
+#include <tests/Common/Helpers/TempDir.h>
+#include <watchdog/watchdogimpl/Watchdog.h>
 #include <mutex>
-
+#include <thread>
 
 namespace
 {
@@ -205,6 +204,14 @@ void TestWatchdogAndWdctl::TearDownTestCase()
 TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
 {
     {
+        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
+        EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
+
         std::unique_lock<std::mutex> lock{ensureNotInParallel};
         testing::internal::CaptureStderr();
         WatchdogRunner watchdogRunner;
@@ -231,6 +238,14 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
 TEST_F(TestWatchdogAndWdctl, WdctlIsRunningDetectCanDetectStatusOfPlugins) // NOLINT
 {
     {
+        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
+        EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
+
         std::unique_lock<std::mutex> lock{ensureNotInParallel};
         WatchdogRunner watchdogRunner;
         watchdogRunner.start();

@@ -18,6 +18,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
@@ -254,6 +255,14 @@ namespace
         ManagementAgentIntegrationTests,
         ifNoPolicyIsAvailableToAPluginManagementAgentShouldNotSendAnyPolicy)
     {
+
+        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
+
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
 
         TestManagementAgent agent;
@@ -271,6 +280,13 @@ namespace
         ManagementAgentIntegrationTests,
         ifALCPolicyOrActionIsDroppedByMCSRouterManagementAgentShouldSendThemToUpdateScheduler)
     {
+        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
+
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
         TestManagementAgent agent;
         Tests::TestExecutionSynchronizer synchronizer;
@@ -302,6 +318,13 @@ namespace
         ManagementAgentIntegrationTests,
         onStartupManagementAgentShouldScanForPolicyOrActionsAndSendThemToPlugins)
     {
+        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
+
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
         m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", updatePolicyWithProxy);
         m_tempDir.createFileAtomically("base/mcs/action/ALC_action_1.xml", updateAction);
@@ -333,6 +356,13 @@ namespace
         ManagementAgentIntegrationTests,
         afterCrashManagementAgentShouldSendPendingPoliciesAndActionsToPlugins)
     {
+        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
+
         std::string newPolicy = Common::UtilityImpl::StringUtils::replaceAll(
             updatePolicyWithProxy, "f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6", "newRevId");
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
@@ -411,6 +441,13 @@ namespace
 
     TEST_F(ManagementAgentIntegrationTests, onlyPolicyALCShouldBeDeliveredToUpdateScheduler) // NOLINT
     {
+        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
+
         m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
         std::string notWantedPolicy = "notWantedPolicy";
 

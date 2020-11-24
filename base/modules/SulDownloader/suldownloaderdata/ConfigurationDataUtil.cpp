@@ -57,7 +57,7 @@ namespace SulDownloader
                                                                          bool onlyCompareSubscriptionsAndFeatures)
         {
             /*
-             * This function will be called from UpdateScheduler and SulDownloadeder.
+             * This function will be called from UpdateScheduler and SulDownloader.
              * When called from UpdateScheduler the Subscriptions and Features will be compared.
              * The UpdateScheduler cannot invoke the ConfigurationData verify process due to permissions,
              * therefore this check is also skipped.
