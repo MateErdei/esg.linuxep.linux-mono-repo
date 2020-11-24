@@ -771,7 +771,7 @@ CLS scan with Bind Mount
 
     Should Exist      ${destination}/eicar.com
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp
     Log  return code is ${rc}
     Log  output is ${output}
 
