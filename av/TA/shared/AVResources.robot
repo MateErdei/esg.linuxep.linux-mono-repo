@@ -90,6 +90,11 @@ File Log Should Not Contain
     ${content} =  Get File   ${path}  encoding_errors=replace
     Should Not Contain  ${content}  ${input}
 
+File Log Should Not Contain With Offset
+    [Arguments]  ${path}  ${input}  ${offset}=0
+    ${content} =  Get File Contents From Offset  ${path}  ${offset}
+    Should Not Contain  ${content}  ${input}
+
 Wait Until File Log Contains
     [Arguments]  ${logCheck}  ${input}  ${timeout}=15  ${interval}=1
     Wait Until Keyword Succeeds
@@ -110,6 +115,11 @@ AV Plugin Log Contains With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
     File Log Contains With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
+
+AV Plugin Log Should Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
+    File Log Should Not Contain With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
 
 AV Plugin Log Contains
     [Arguments]  ${input}
@@ -156,7 +166,13 @@ Wait Until AV Plugin Log Contains With Offset
     Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}
 
 Wait Until AV Plugin Log Contains
-    [Arguments]  ${input}  ${timeout}=15  ${interval}=1
+    [Arguments]  ${input}  ${timeout}=15  ${interval}=0
+    ${interval} =   Set Variable If
+    ...   ${interval} > 0   ${interval}
+    ...   ${timeout} >= 120   10
+    ...   ${timeout} >= 60   5
+    ...   ${timeout} >= 15   3
+    ...   1
     Wait Until File Log Contains  AV Plugin Log Contains   ${input}   timeout=${timeout}  interval=${interval}
 
 AV Plugin Log Does Not Contain
@@ -400,15 +416,33 @@ Check IDE present in installation
     [Arguments]  ${ide_name}
     File should exist  ${INSTALL_IDE_DIR}/${ide_name}
 
-Add IDE to installation
-     [Arguments]  ${ide_name}
-     Add IDE To Install Set  ${ide_name}
-     Run Installer From Install Set
-     Check IDE Present In Installation  ${ide_name}
+Get Pid
+    [Arguments]  ${EXEC}
+    ${result} =  run process  pidof  ${EXEC}  stderr=STDOUT
+    Should Be Equal As Integers  ${result.rc}  ${0}
+    Log  pid == ${result.stdout}
+    [Return]   ${result.stdout}
 
-Check threat detected
-     [Arguments]  ${THREAT_FILE}  ${THREAT_NAME}
-     ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${RESOURCES_PATH}/file_samples/${THREAT_FILE}
-     Log To Console  ${output}
-     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-     Should Contain   ${output}    Detected "${RESOURCES_PATH}/file_samples/${THREAT_FILE}" is infected with ${THREAT_NAME}
+Record AV Plugin PID
+    ${PID} =  Get Pid  ${PLUGIN_BINARY}
+    [Return]   ${PID}
+
+Record Sophos Threat Detector PID
+    ${PID} =  Get Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    [Return]   ${PID}
+
+Check AV Plugin has same PID
+    [Arguments]  ${PID}
+    ${currentPID} =  Record AV Plugin PID
+    Should Be Equal As Integers  ${PID}  ${currentPID}
+
+Check Sophos Threat Detector has same PID
+    [Arguments]  ${PID}
+    ${currentPID} =  Record Sophos Threat Detector PID
+    Should Be Equal As Integers  ${PID}  ${currentPID}
+
+Check Sophos Threat Detector has different PID
+    [Arguments]  ${PID}
+    ${currentPID} =  Record Sophos Threat Detector PID
+    Should Not Be Equal As Integers  ${PID}  ${currentPID}
+

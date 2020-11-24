@@ -114,6 +114,8 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
             break;
         }
 
+        bool expectingProcessExit = false;
+
         if (fd_isset(m_subprocess_terminated.readFd(), &tempReadfds))
         {
             while (m_subprocess_terminated.notified())
@@ -128,8 +130,11 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
             {
                 // clear pipe
             }
+            LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");
             process->kill();
             process->waitUntilProcessEnds();
+            expectingProcessExit = true;
+            assert(process->getStatus() == Common::Process::ProcessStatus::FINISHED);
         }
 
         if (process->getStatus() == Common::Process::ProcessStatus::RUNNING)
@@ -139,14 +144,23 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         else
         {
             std::string output = process->output();
-            process->waitUntilProcessEnds();
-            LOGERROR("Exiting sophos_threat_detector with code: "<< process->exitCode());
-            if (!output.empty())
+            if (expectingProcessExit)
             {
-                LOGERROR("Exiting sophos_threat_detector output: " << output);
+                // Not an error:
+                LOGDEBUG("sophos_threat_detector has exited");
+                LOGINFO("sophos_threat_detector output: " << output);
             }
-            nanosleep(&restartBackoff, nullptr);
-            restartBackoff.tv_sec += 1;
+            else
+            {
+                process->waitUntilProcessEnds();
+                LOGERROR("Exiting sophos_threat_detector with code: " << process->exitCode());
+                if (!output.empty())
+                {
+                    LOGERROR("Exiting sophos_threat_detector output: " << output);
+                }
+                nanosleep(&restartBackoff, nullptr);
+                restartBackoff.tv_sec += 1;
+            }
         }
     }
 

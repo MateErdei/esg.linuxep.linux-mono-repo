@@ -127,6 +127,7 @@ void ConfigMonitor::run()
                     // Don't care if it's close-after-write or rename/move
                     if (isInteresting(event->name))
                     {
+                        LOGINFO("System configuration updated");
                         m_configChangedPipe.notify();
                     }
                 }

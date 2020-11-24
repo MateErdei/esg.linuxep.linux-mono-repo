@@ -177,3 +177,21 @@ def create_archive_test_files(path):
         tar_name = "eicar" + str(x) + ".zip"
 
         create_zip(path, file_to_tar, tar_name)
+
+
+def restore_etc_hosts(path="/etc/hosts"):
+    backup = path+"_avscanner_backup"
+    if os.path.isfile(backup):
+        os.unlink(path)
+        os.rename(backup, path)
+
+
+def alter_etc_hosts(path="/etc/hosts"):
+    backup = path+"_avscanner_backup"
+    if os.path.isfile(backup):
+        restore_etc_hosts()
+
+    contents = open(path).read()
+    open(backup, "w").write(contents)
+    contents += "\n127.0.0.1 really_fake_server\n"
+    open(path, "w").write(contents)

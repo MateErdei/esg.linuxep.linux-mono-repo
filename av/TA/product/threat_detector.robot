@@ -6,6 +6,9 @@ Library         Process
 Library         OperatingSystem
 Library         String
 
+Library         ../Libs/AVScanner.py
+Library         ../Libs/OnFail.py
+
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 
@@ -16,13 +19,19 @@ ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 ${TESTTMP}  /tmp/SSPLAVTests
+${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
 
 *** Keywords ***
-Threat Detector Test Teardown
+
+List AV Plugin Path
     Create Directory  ${TESTTMP}
     ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
     Log  ls -lR: ${result.stdout}
     Remove File  ${TESTTMP}/lsstdout
+
+Threat Detector Test Teardown
+    List AV Plugin Path
+    run teardown functions
     Component Test TearDown
 
 Start AV
@@ -38,6 +47,16 @@ Verify threat detector log rotated
     List Directory  ${AV_PLUGIN_PATH}/log/sophos_threat_detector
     Should Exist  ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1
 
+Restore hosts
+    restore etc hosts
+
+Alter Hosts
+    ## Back up /etc/hosts
+    ## Register cleanup function
+    alter etc hosts
+    register cleanup  Restore hosts
+
+
 *** Test Cases ***
 
 Threat Detector Log Rotates
@@ -48,3 +67,18 @@ Threat Detector Log Rotates
     Start AV
     Stop AV
     Verify threat detector log rotated
+
+Threat Detector Restarts When /etc/hosts changed
+    Register On Fail  dump log  ${AV_LOG_PATH}
+    Start AV
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+
+    Mark AV Log
+    alter hosts
+
+    # wait for AV log
+    Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system configuration has changed
+    Wait Until AV Plugin Log Contains With Offset  Starting "${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}"
+
+    Wait until threat detector running
+    Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}

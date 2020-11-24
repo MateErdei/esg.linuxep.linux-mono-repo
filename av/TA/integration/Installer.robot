@@ -126,21 +126,6 @@ Wait Until Sophos Threat Detector Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  Sophos Threat Detector Log Contains With Offset  ${input}   timeout=${timeout}
 
-Get Pid
-    [Arguments]  ${EXEC}
-    ${result} =  run process  pidof  ${EXEC}  stderr=STDOUT
-    Should Be Equal As Integers  ${result.rc}  ${0}
-    Log  pid == ${result.stdout}
-    [Return]   ${result.stdout}
-
-Record AV Plugin PID
-    ${PID} =  Get Pid  ${PLUGIN_BINARY}
-    [Return]   ${PID}
-
-Record Sophos Threat Detector PID
-    ${PID} =  Get Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
-    [Return]   ${PID}
-
 Install IDE
     [Arguments]  ${ide_name}
     Add IDE to install set  ${ide_name}
@@ -165,6 +150,12 @@ Check Sophos Threat Detector has different PID
     [Arguments]  ${PID}
     ${currentPID} =  Record Sophos Threat Detector PID
     Should Not Be Equal As Integers  ${PID}  ${currentPID}
+
+Debug install set
+    ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
+    Log  INSTALL_SET= ${result.stdout}
+    ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/distribution_version   stdout=/tmp/proc.out    stderr=STDOUT
+    Log  INSTALLATION= ${result.stdout}
 
 Force Sophos Threat Detector to restart
     Restart sophos_threat_detector
