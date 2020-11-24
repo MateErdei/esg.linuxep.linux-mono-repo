@@ -724,7 +724,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
-    Register On Fail  dump log  ${LOG_FILE}
+    Register cleanup  dump log  ${LOG_FILE}
     Register On Fail  Terminate Process  handle=${HANDLE}  kill=True
     # Rename the sophos threat detector launcher so that it cannot be restarted
     Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
