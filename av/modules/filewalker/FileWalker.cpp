@@ -70,7 +70,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     else if (fs::is_directory(itemStatus))
     {
         // TODO - superfluous - but need to update all test expectations first?
-        if (m_callback.userDefinedExclusionCheck(starting_point))
+        if (m_callback.userDefinedExclusionCheck(starting_point, false))
         {
             return;
         }

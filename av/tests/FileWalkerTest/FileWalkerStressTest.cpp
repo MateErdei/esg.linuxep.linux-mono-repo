@@ -38,7 +38,7 @@ namespace
             std::cout << "DIR:" << p << '\n';
             return true;
         }
-        bool userDefinedExclusionCheck(const fs::path& p) override
+        bool userDefinedExclusionCheck(const fs::path& p, bool /*isSymlink*/) override
         {
             std::cout << "DIR:" << p << '\n';
             return false;

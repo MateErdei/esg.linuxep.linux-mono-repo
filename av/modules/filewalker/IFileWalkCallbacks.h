@@ -52,7 +52,7 @@ namespace filewalker
          * @param filepath
          * @return True if we shouldn't recurse into this directory
          */
-        virtual bool userDefinedExclusionCheck(const sophos_filesystem::path& filepath) = 0;
+        virtual bool userDefinedExclusionCheck(const sophos_filesystem::path& filepath, bool isSymlink) = 0;
 
     protected:
         IFileWalkCallbacks() = default;

@@ -22,7 +22,7 @@ public:
         std::cout << "DIR:" << p << '\n';
         return true;
     }
-    bool userDefinedExclusionCheck(const sophos_filesystem::path& p) override
+    bool userDefinedExclusionCheck(const sophos_filesystem::path& p, bool /*isSymlink*/) override
     {
         std::cout << "DIR:" << p << '\n';
         return false;

@@ -39,7 +39,7 @@ namespace avscanner::avscannerimpl
 
         void processFile(const fs::path& path, bool symlinkTarget) override;
         bool includeDirectory(const sophos_filesystem::path& path) override;
-        bool userDefinedExclusionCheck(const sophos_filesystem::path& path) override;
+        bool userDefinedExclusionCheck(const sophos_filesystem::path& path, bool isSymlink) override;
 
         [[nodiscard]] int returnCode() const
         {

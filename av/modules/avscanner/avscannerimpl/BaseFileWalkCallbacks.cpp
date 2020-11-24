@@ -81,7 +81,6 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
 
 bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path)
 {
-    LOGINFO("Directory  to check against: " << path);
     for (const auto& exclusion: m_currentExclusions)
     {
         if (PathUtils::startswith(path, exclusion.path()))
@@ -102,13 +101,14 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path
             }
         }
 
-        return !userDefinedExclusionCheck(symlinkTargetPath);
+        LOGINFO("Checking exclusions against symlink directory: " << path);
+        return !userDefinedExclusionCheck(symlinkTargetPath, true);
     }
 
-    return !userDefinedExclusionCheck(path);
+    return !userDefinedExclusionCheck(path, false);
 }
 
-bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::path& path)
+bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::path& path, bool isSymlink)
 {
     const std::string pathWithSlash = PathUtils::appendForwardSlashToPath(path);
 
@@ -116,7 +116,14 @@ bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::p
     {
         if (exclusion.appliesToPath(pathWithSlash, true))
         {
-            LOGINFO("Excluding directory: " << pathWithSlash);
+            if(isSymlink)
+            {
+                LOGINFO("Skipping the scanning of symlink target (" << path << ") which is excluded by user defined exclusion: " << exclusion.path());
+            }
+            else
+            {
+                LOGINFO("Excluding directory: " << pathWithSlash);
+            }
             return true;
         }
     }
