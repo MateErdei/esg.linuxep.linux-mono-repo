@@ -4,6 +4,7 @@ Force Tags      PRODUCT  AVSCANNER
 Library         Process
 Library         Collections
 Library         OperatingSystem
+Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/AVScanner.py
 Library         ../Libs/OnFail.py
@@ -23,12 +24,12 @@ Test Teardown   AVCommandLineScanner Test TearDown
 AVCommandLineScanner Suite Setup
     Run Keyword And Ignore Error   Empty Directory   ${COMPONENT_ROOT_PATH}/log
     Run Keyword And Ignore Error   Empty Directory   ${SOPHOS_INSTALL}/tmp
-    Start Fake Management
+    Start Fake Management If required
     Start AV
 
 AVCommandLineScanner Suite TearDown
     Stop AV
-    Stop Fake Management
+    Stop Fake Management If Running
     Terminate All Processes  kill=True
 
 Reset AVCommandLineScanner Suite
@@ -719,26 +720,33 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
    Terminate Process   handle=${HANDLE}
 
 CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
-   ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
-   ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
+    ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
+    ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 
-   ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
-   # Rename the sophos threat detector launcher so that it cannot be restarted
-   Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
-   register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
-   register cleanup  Stop AV
-   register cleanup  Start AV
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
+    Register On Fail  dump log  ${LOG_FILE}
+    Register On Fail  Terminate Process  handle=${HANDLE}  kill=True
+    # Rename the sophos threat detector launcher so that it cannot be restarted
+    Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
+    register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
+    register cleanup  Stop AV
+    register cleanup  Start AV
 
-   Wait Until Keyword Succeeds
-   ...  60 secs
-   ...  5 secs
-   ...  File Log Contains  ${LOG_FILE}  Scanning
-   ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
-   Run Process   /bin/kill   -SIGSEGV   ${output}
-   sleep  60  Waiting for the socket to timeout
-   Wait Until Keyword Succeeds
-   ...  240 secs
-   ...  10 secs
-   ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  File Log Contains  ${LOG_FILE}  Scanning
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+    Run Process   /bin/kill   -SIGSEGV   ${output}
+    sleep  60  Waiting for the socket to timeout
+    Wait Until Keyword Succeeds
+    ...  240 secs
+    ...  10 secs
+    ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
-   Wait For Process   handle=${HANDLE}
+    # After the log message, only wait ten seconds for avscanner to exit
+    ${result} =  Wait For Process  handle=${HANDLE}  timeout=10s  on_timeout=kill
+
+    # Should have an error output, not 0 or a signal
+    Should Be True  ${result.rc} > 0
+

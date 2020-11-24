@@ -78,7 +78,7 @@ class LogUtils(object):
             except Exception as e:
                 logger.info("Failed to read file: {}".format(e))
         else:
-            logger.info("File does not exist")
+            logger.info("File %s does not exist" % str(filename))
 
     def dump_log_on_failure(self, filename):
         robot.libraries.BuiltIn.BuiltIn().run_keyword_if_test_failed("LogUtils.Dump Log", filename)

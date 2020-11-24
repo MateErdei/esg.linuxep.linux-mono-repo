@@ -4,6 +4,7 @@ Library         OperatingSystem
 Library         ../Libs/InstallSet.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/BaseUtils.py
+Library         ../Libs/FakeManagement.py
 
 *** Variables ***
 ${COMPONENT}        av
@@ -46,6 +47,8 @@ Global Setup Tasks
 
 Global Teardown Tasks
     Run Keyword And Ignore Error  Uninstall All
+    stop fake management if running
+
 
 Uninstall All
     Run Keyword And Ignore Error  Log File    /tmp/installer.log

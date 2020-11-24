@@ -140,6 +140,8 @@ class ManagementAgentPluginRequester(object):
         return f"{creation_time}_{ttl}"
 
 class FakeManagement(object):
+    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+
     def __init__(self):
         self.logger = None
         self.agent = None
@@ -147,12 +149,22 @@ class FakeManagement(object):
     def get_fakemanagement_agent_log_path(self):
         return FakeManagementLog.get_fake_management_log_path()
 
+    def __setup_logger_if_required(self):
+        if self.logger is None:
+            self.logger = FakeManagementAgent.setup_logging(FakeManagementLog.get_fake_management_log_filename(), "Fake Management Agent")
+
     def start_fake_management(self):
         if self.agent:
             raise AssertionError("Agent already initialized")
-        self.logger = FakeManagementAgent.setup_logging(FakeManagementLog.get_fake_management_log_filename(), "Fake Management Agent")
+        self.__setup_logger_if_required()
         self.agent = FakeManagementAgent.Agent(self.logger)
         self.agent.start()
+
+    def start_fake_management_if_required(self):
+        self.__setup_logger_if_required()
+        if self.agent is None:
+            self.agent = FakeManagementAgent.Agent(self.logger)
+            self.agent.start()
 
     def stop_fake_management(self):
         if not self.agent:
@@ -164,6 +176,18 @@ class FakeManagement(object):
         self.agent.stop()
         self.agent = None
         self.logger = None
+
+    def stop_fake_management_if_running(self):
+        if self.agent:
+            self.agent.stop()
+            self.agent = None
+
+    def restart_fake_management(self):
+        self.__setup_logger_if_required()
+        if self.agent:
+            self.agent.stop()
+        self.agent = FakeManagementAgent.Agent(self.logger)
+        self.agent.start()
 
     def send_plugin_policy(self, plugin_name, appid, content):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
@@ -205,7 +229,3 @@ class FakeManagement(object):
     def get_plugin_telemetry(self, plugin_name):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
         return plugin.get_telemetry()
-
-    def __del__(self):
-        if self.agent:
-            self.stop_fake_management()

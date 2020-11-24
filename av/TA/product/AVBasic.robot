@@ -16,6 +16,8 @@ Resource    ../shared/BaseResources.robot
 Resource    ../shared/FakeManagementResources.robot
 Resource    ../shared/SambaResources.robot
 
+Suite Setup    AVBasic Suite Setup
+
 Test Setup     Product Test Setup
 Test Teardown  Product Test Teardown
 
@@ -233,7 +235,7 @@ AV Plugin Scans local secondary mount only once
 AV Plugin Can Disable Scanning Of Mounted NFS Shares
     [Tags]  NFS
     ${source} =       Set Variable  /tmp/nfsshare
-    ${destination} =  Set Variable  /mnt/nfsshare
+    ${destination} =  Set Variable  /testmnt/nfsshare
     Create Directory  ${source}
     Create File       ${source}/eicar.com    ${EICAR_STRING}
     Register Cleanup  Remove File      ${source}/eicar.com
@@ -339,6 +341,9 @@ AV Plugin Scan Now Does Not Detect PUA
 
 *** Keywords ***
 
+AVBasic Suite Setup
+    Start Fake Management If Required
+
 Product Test Setup
     Component Test Setup
     Delete Eicars From Tmp
@@ -361,7 +366,7 @@ Test Remote Share
     ${remoteFSscanningDisabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningDisabled}.log
     ${remoteFSscanningEnabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningEnabled}.log
 
-    ${allButTmp} =  Configure Scan Exclusions Everything Else  /mnt/
+    ${allButTmp} =  Configure Scan Exclusions Everything Else  /testmnt/
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
