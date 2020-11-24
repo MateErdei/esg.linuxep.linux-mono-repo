@@ -55,7 +55,7 @@ namespace Common
                 // plugin_address starts with ipc:// Remove it.
                 Common::FileSystem::filePermissions()->chown(pluginAddressFile, "root", sophos::group());
             }
-            if (::getuid() != Common::FileSystem::FilePermissionsImpl().getUserId(sophos::user()))
+            if (::getuid() != Common::FileSystem::filePermissions()->getUserId(sophos::user()))
             {
                 Common::FileSystem::filePermissions()->chmod(
                         pluginAddressFile, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
