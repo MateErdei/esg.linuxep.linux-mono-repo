@@ -60,4 +60,4 @@ VQA Test TearDown
     Run Teardown Functions
     #TODO: Remove this line once CORE-2095 is fixed
     #Currently loading more than 1 IDE in test, stops SUSI
-    Uninstall All
+    Install With Base SDDS
