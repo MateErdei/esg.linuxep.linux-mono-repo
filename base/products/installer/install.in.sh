@@ -346,6 +346,11 @@ then
     chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy"
 fi
 
+if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log" ]]
+then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log"
+fi
+
 makedir 711 "${SOPHOS_INSTALL}/base"
 
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
