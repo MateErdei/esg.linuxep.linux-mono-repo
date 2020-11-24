@@ -18,8 +18,8 @@ import PathManager
 MCS_PATH = "base/mcs"
 MCS_STATUS_PATH = os.path.join(MCS_PATH, 'status')
 EVENTSPATH = os.path.join(MCS_PATH, 'event')
-REPORTSPATH = 'base/update/var'
-CONFIGPATH = 'base/update/var/update_config.json'
+REPORTSPATH = 'base/update/var/updatescheduler'
+CONFIGPATH = 'base/update/var/updatescheduler/update_config.json'
 WDCTL = 'bin/wdctl'
 BASE_BIN_PATH = 'base/bin'
 
@@ -216,7 +216,7 @@ class UpdateSchedulerHelper(object):
         config_path = os.path.join(self.get_install(), CONFIGPATH)
         with open(config_path, 'w') as configfile:
             configfile.write('Junk')
-        uid = pwd.getpwnam("sophos-spl-user").pw_uid
+        uid = pwd.getpwnam("sophos-spl-updatescheduler").pw_uid
         gid = grp.getgrnam("sophos-spl-group").gr_gid
         os.chown(config_path, uid, gid)
 
@@ -252,7 +252,7 @@ class UpdateSchedulerHelper(object):
             self.suldownloader_config_time = None
             pass
 
-    def wait_for_new_sul_downloader_config_file_created(self, timeout = 30):
+    def wait_for_new_sul_downloader_config_file_created(self, timeout=30):
         future_time = time.time() + timeout
         config_path = os.path.join(self.get_install(), CONFIGPATH)
         while future_time > time.time():

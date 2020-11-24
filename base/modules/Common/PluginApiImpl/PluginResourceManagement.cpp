@@ -51,10 +51,11 @@ namespace Common
             std::string pluginAddressFile = pluginAddress.substr(6);
             if (::getuid() == 0)
             {
-                LOGSUPPORT("Setup ipc replier permissions");
+                LOGSUPPORT("Setup ipc replier permissions: " << pluginAddressFile);
                 // plugin_address starts with ipc:// Remove it.
                 Common::FileSystem::filePermissions()->chown(pluginAddressFile, "root", sophos::group());
             }
+
             if (::getuid() != Common::FileSystem::filePermissions()->getUserId(sophos::user()))
             {
                 Common::FileSystem::filePermissions()->chmod(

@@ -9,13 +9,16 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "PluginServerCallback.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
 #include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/PluginCommunicationImpl/PluginProxy.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
+#include <sys/stat.h>
 
 #include <thread>
 
@@ -38,6 +41,22 @@ namespace ManagementAgent
             std::string managementSocketAdd =
                 Common::ApplicationConfiguration::applicationPathManager().getManagementAgentSocketAddress();
             replier->listen(managementSocketAdd);
+
+            try
+            {
+                // Strip off "ipc://" to get actual file path from IPC path.
+                std::string managementSocketAddFilePath = managementSocketAdd.substr(6);
+                Common::FileSystem::filePermissions()->chmod(
+                    managementSocketAddFilePath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
+            }
+            catch (std::exception& exception)
+            {
+                LOGERROR(
+                    "Failed to chmod Management Agent IPC to 660, processes no running as sophos-spl-user will not be "
+                    "able to communicate with Management Agent, error:"
+                    << exception.what());
+            }
+
             std::shared_ptr<PluginServerCallback> serverCallback = std::make_shared<PluginServerCallback>(*this);
             m_serverCallbackHandler.reset(new PluginServerCallbackHandler(std::move(replier), serverCallback));
             m_serverCallbackHandler->start();
@@ -102,7 +121,10 @@ namespace ManagementAgent
             return pluginsNotified;
         }
 
-        int PluginManager::queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId)
+        int PluginManager::queueAction(
+            const std::string& appId,
+            const std::string& actionXml,
+            const std::string& correlationId)
         {
             LOGSUPPORT("PluginManager: Queue action " << appId);
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);

@@ -49,6 +49,8 @@ Global Setup Tasks
     Set Global Variable  ${MTR_DIR}                     ${SOPHOS_INSTALL}/plugins/mtr
     Set Global Variable  ${EDR_DIR}                     ${SOPHOS_INSTALL}/plugins/edr
     Set Global Variable  ${LIVERESPONSE_DIR}            ${SOPHOS_INSTALL}/plugins/liveresponse
+    Set Global Variable  ${UPDATE_CONFIG}               ${UPDATE_DIR}/var/updatescheduler/update_config.json
+    Set Global Variable  ${UPDATECACHE_CERT_PATH}       ${UPDATE_DIR}/updatecachecerts/cache_certificates.crt
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update

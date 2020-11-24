@@ -84,11 +84,21 @@ namespace Common
             {
                 // Must set groups first whilst still root
                 std::string userName = Common::FileSystem::FilePermissionsImpl().getUserName(m_uid);
-                if (::initgroups(userName.c_str(), m_gid) != 0 && ::setgid(m_gid) != 0)
+
+                if (::getuid() == 0) // if running as root.
+                {
+                    if (::initgroups(userName.c_str(), m_gid) != 0)
+                    {
+                        LOGWARN("initgroups failed for: " << userName << " with errno " << errno);
+                    }
+                }
+
+                if (::setgid(m_gid) != 0)
                 {
                     exec.set_error(boost::process::detail::get_last_error(), "Failed to set group ids");
                     return;
                 }
+
                 if (::setuid(m_uid) != 0)
                 {
                     exec.set_error(boost::process::detail::get_last_error(), "Failed to set user id");
