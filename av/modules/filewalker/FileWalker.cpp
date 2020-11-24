@@ -8,9 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include <common/PathUtils.h>
-#include <common/AbortScanException.h>
-
 #include <cstring>
 
 #include <sys/stat.h>
@@ -34,7 +31,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     try
     {
         itemStatus = fs::status(starting_point);
-        symlinkStatus = fs::symlink_status(common::PathUtils::removeForwardSlashFromPath(starting_point));
+        symlinkStatus = fs::symlink_status(starting_point);
     }
     catch (const fs::filesystem_error& e)
     {
@@ -73,7 +70,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     else if (fs::is_directory(itemStatus))
     {
         // TODO - superfluous - but need to update all test expectations first?
-        if (m_callback.userDefinedExclusionCheck(starting_point, false))
+        if (m_callback.userDefinedExclusionCheck(starting_point))
         {
             return;
         }
@@ -189,10 +186,6 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
             try
             {
                 m_callback.processFile(p.path(), m_startIsSymlink || fs::is_symlink(symlinkStatus));
-            }
-            catch (const AbortScanException&)
-            {
-                throw;
             }
             catch (const std::runtime_error& ex)
             {
