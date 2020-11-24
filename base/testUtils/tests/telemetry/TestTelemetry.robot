@@ -365,7 +365,7 @@ Telemetry Causing Comms To Hang Does Not Stop Comms Restarting
 
     Run Telemetry Executable That Hangs     ${EXE_CONFIG_FILE}
     Wait Until Keyword Succeeds
-    ...  10s
+    ...  20s
     ...  1s
     ...  check log contains  Sleeping  /tmp/https_server.log   https server log
     ${local_pid} =  get_pid_of_comms  local
