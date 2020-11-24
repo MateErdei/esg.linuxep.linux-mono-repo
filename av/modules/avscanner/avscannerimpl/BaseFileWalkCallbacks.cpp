@@ -23,13 +23,33 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
         fs::path symlinkTargetPath = path;
         if (fs::is_symlink(fs::symlink_status(path)))
         {
-            symlinkTargetPath = fs::read_symlink(path);
+            symlinkTargetPath = fs::canonical(fs::read_symlink(path));
         }
         for (const auto& e : m_mountExclusions)
         {
             if (PathUtils::startswith(symlinkTargetPath, e))
             {
                 LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is on excluded mount point: " << e);
+                return;
+            }
+        }
+
+
+        for (const auto& exclusion: m_userDefinedExclusions)
+        {
+            if (exclusion.appliesToPath(path))
+            {
+                LOGINFO("Excluding symlinked file: " << path);
+                return;
+            }
+
+//            LOGINFO("Path: " << path);
+//            LOGINFO("symlinkTargetPath: " << symlinkTargetPath);
+//            LOGINFO("exclusion: " << exclusion.path());
+
+            if (exclusion.appliesToPath(symlinkTargetPath))
+            {
+                LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is excluded by user defined exclusion: " << exclusion.path());
                 return;
             }
         }
@@ -61,6 +81,7 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
 
 bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path)
 {
+    LOGINFO("Directory  to check against: " << path);
     for (const auto& exclusion: m_currentExclusions)
     {
         if (PathUtils::startswith(path, exclusion.path()))
@@ -68,6 +89,22 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path
             return false;
         }
     }
+
+    if (fs::is_symlink(fs::symlink_status(path)))
+    {
+        fs::path symlinkTargetPath = fs::canonical(fs::read_symlink(path));
+
+        for (const auto& exclusion: m_currentExclusions)
+        {
+            if (PathUtils::startswith(symlinkTargetPath, exclusion.path()))
+            {
+                return false;
+            }
+        }
+
+        return !userDefinedExclusionCheck(symlinkTargetPath);
+    }
+
     return !userDefinedExclusionCheck(path);
 }
 
