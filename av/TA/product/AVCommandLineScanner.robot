@@ -756,16 +756,6 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
    Wait For Process   handle=${HANDLE}
 
-CLS Can Zip File As Web Archive
-    Create File  ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
-    Create Zip   ${NORMAL_DIRECTORY}   eicar   eicar.zip
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar.zip --scan-archives
-    Log  return code is ${rc}
-    Log  output is ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
-
 
 CLS scan with Bind Mount
     ${source} =       Set Variable  /tmp/directory
