@@ -744,8 +744,12 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ...  10 secs
     ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
+    File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+
     # After the log message, only wait ten seconds for avscanner to exit
     ${result} =  Wait For Process  handle=${HANDLE}  timeout=10s  on_timeout=kill
+
+    File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
     # Should have an error output, not 0 or a signal
     Should Be True  ${result.rc} > 0

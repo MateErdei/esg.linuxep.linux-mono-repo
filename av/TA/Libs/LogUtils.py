@@ -99,6 +99,28 @@ class LogUtils(object):
             self.dump_log(pathToLog)
             raise AssertionError("{} Log at \"{}\" does not contain: {}".format(log_name, pathToLog, string_to_contain))
 
+    def file_log_contains_once(self, path, expected):
+        """
+        Check a log contains a string precisely once
+        :param path:
+        :param expected:
+        :return:
+        """
+        log_name = os.path.basename(path)
+
+        if not (os.path.isfile(path)):
+            raise AssertionError("Log file {} at location {} does not exist ".format(log_name, path))
+
+        contents = _get_log_contents(path)
+        count = contents.count(expected)
+        if count == 0:
+            self.dump_log(path)
+            raise AssertionError("{} Log at \"{}\" does not contain: {}".format(log_name, path, expected))
+
+        if count > 1:
+            self.dump_log(path)
+            raise AssertionError("{} Log at \"{}\" contains {} repetitions: {}".format(log_name, path, count, expected))
+
     def file_log_contains(self, path, expected):
         """
         Reimplement:
