@@ -28,6 +28,11 @@ SUSI config can scan msoffice file
     Check Threat Detected  cleanmacro.xlsm  Test/Office
 
 
+SUSI config can scan adobe file
+    Add IDE To Installation  pdf.ide
+    Check Threat Detected  test.pdf  Pass/URI
+
+
 SUSI config can scan zip file as web archive
     Create File  ${SCAN_DIRECTORY}/eicar    ${EICAR_STRING}
     Create Zip   ${SCAN_DIRECTORY}   eicar   eicar.zip
