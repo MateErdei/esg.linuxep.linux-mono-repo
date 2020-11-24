@@ -21,6 +21,7 @@ namespace filewalker
          * The problem with specifying a default argument for symlinkTarget in the C++ is that
          * any variable pointing to a concrete sub-class wouldn't have it, or could have a different value.
          * @param filepath
+         * @throws std::runtime_error& ex
          */
         void processFile(const sophos_filesystem::path& filepath)
         {
@@ -31,6 +32,7 @@ namespace filewalker
          * Callback for regular files.
          *
          * @param filepath
+         * @throws std::runtime_error& ex
          */
         virtual void processFile(const sophos_filesystem::path& filepath, bool symlinkTarget) = 0;
 

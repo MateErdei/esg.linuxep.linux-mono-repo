@@ -62,15 +62,15 @@ namespace filewalker
             m_stay_on_device = stay_on_device;
         }
     private:
-        void scanDirectory(const sophos_filesystem::path& starting_point);
+        void scanDirectory(const sophos_filesystem::path& current_dir);
 
         IFileWalkCallbacks& m_callback;
         bool m_follow_symlinks = false;
         bool m_stay_on_device = false;
 
         std::unordered_set<file_id, file_id_hash> m_seen_symlinks;
-        sophos_filesystem::directory_options m_options;
-        bool m_startIsSymlink;
+        sophos_filesystem::directory_options m_options = sophos_filesystem::directory_options::none;
+        bool m_startIsSymlink = false;
         dev_t m_starting_dev = 0;
     };
     void walk(const sophos_filesystem::path& starting_point, IFileWalkCallbacks& callbacks);

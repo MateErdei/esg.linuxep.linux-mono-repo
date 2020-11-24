@@ -26,20 +26,23 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         throw fs::filesystem_error(errorMsg, ec);
     }
 
-    bool fileExists;
+    fs::file_status itemStatus;
+    fs::file_status symlinkStatus;
     try
     {
-        fileExists = fs::exists(starting_point);
+        itemStatus = fs::status(starting_point);
+        symlinkStatus = fs::symlink_status(starting_point);
     }
-    catch(fs::filesystem_error& e)
+    catch (const fs::filesystem_error& e)
     {
         std::ostringstream oss;
         oss << "Failed to scan " << starting_point << ": " << e.code().message();
         LOGERROR(oss.str());
-        throw fs::filesystem_error(oss.str(), e.code());
+        throw fs::filesystem_error(oss.str(), e.code());        // Backtrack protection for symlinks
+
     }
 
-    if (!fileExists)
+    if (!fs::exists(itemStatus))
     {
         std::ostringstream oss;
         oss << "Failed to scan " << starting_point << ": file/folder does not exist";
@@ -48,21 +51,34 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         throw fs::filesystem_error(oss.str(), ec);
     }
 
-    m_startIsSymlink = fs::is_symlink(starting_point);
+    m_startIsSymlink = fs::is_symlink(symlinkStatus);
 
     // if starting point is a file either skip or scan it
     // else starting point is a directory either skip or continue to traversal
-    if (fs::is_regular_file(starting_point))
+    if (fs::is_regular_file(itemStatus))
     {
-        m_callback.processFile(starting_point, m_startIsSymlink);
+        try
+        {
+            m_callback.processFile(starting_point, m_startIsSymlink);
+        }
+        catch (const std::runtime_error& ex)
+        {
+            LOGERROR("Failed to process: " << starting_point.string());
+        }
         return;
     }
-    else if (fs::is_directory(starting_point))
+    else if (fs::is_directory(itemStatus))
     {
+        // TODO - superfluous - but need to update all test expectations first?
         if (m_callback.userDefinedExclusionCheck(starting_point))
         {
             return;
         }
+    }
+    else
+    {
+        LOGINFO("Not scanning special file/device: " << starting_point);
+        return;
     }
 
     m_options = fs::directory_options::skip_permission_denied;
@@ -72,12 +88,10 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         m_options |= fs::directory_options::follow_directory_symlink;
     }
 
-    struct stat statbuf{};
-    int ret;
-
     if (m_stay_on_device)
     {
-        ret = ::stat(starting_point.c_str(), &statbuf);
+        struct stat statBuf {};
+        int ret = ::stat(starting_point.c_str(), &statBuf);
         if (ret != 0)
         {
             int error_number = errno;
@@ -87,27 +101,60 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
             std::error_code ec(error_number, std::system_category());
             throw fs::filesystem_error(oss.str(), ec);
         }
-        m_starting_dev = statbuf.st_dev;
+        m_starting_dev = statBuf.st_dev;
     }
 
     scanDirectory(starting_point);
 }
 
-void FileWalker::scanDirectory(const fs::path& starting_point)
+void FileWalker::scanDirectory(const fs::path& current_dir)
 {
-    std::error_code ec{};
-    auto iterator = fs::directory_iterator(starting_point, m_options, ec);
-    if (ec)
+    if (!m_callback.includeDirectory(current_dir))
     {
-        LOGERROR("Failed to iterate: " << starting_point << ": " << ec.message());
+        LOGDEBUG("Not recursing into " << current_dir << " as it is excluded");
         return;
     }
 
-    for(
-        ;
-        iterator != fs::directory_iterator();
-        ++iterator )
+    struct stat statBuf {};
+    int ret = ::stat(current_dir.c_str(), &statBuf);
+    if (ret != 0)
     {
+        LOGERROR("Failed to stat " << current_dir << "(" << errno << ")");
+        return;
+    }
+
+    if (m_stay_on_device)
+    {
+        if (statBuf.st_dev != m_starting_dev)
+        {
+            LOGDEBUG("Not recursing into " << current_dir << " as it is on a different mount");
+            return;
+        }
+    }
+
+    // do backtrack protection last, to avoid marking an excluded/skipped directory as visited
+    file_id id = std::make_tuple(statBuf.st_dev, statBuf.st_ino);
+    if (m_seen_symlinks.find(id) != m_seen_symlinks.end())
+    {
+        LOGDEBUG("Directory already scanned: " << current_dir << " [" << statBuf.st_dev << ", " << statBuf.st_ino << "]");
+        return;
+    }
+    else
+    {
+        m_seen_symlinks.insert(id);
+    }
+
+    std::error_code ec{};
+    for( auto iterator = fs::directory_iterator(current_dir, m_options, ec);
+         iterator != fs::directory_iterator();
+         iterator.increment(ec))
+    {
+        if (ec)
+        {
+            LOGERROR("Failed to iterate: " << current_dir << ": " << ec.message());
+            return;
+        }
+
         const auto& p = *iterator;
         fs::file_status itemStatus;
         fs::file_status symlinkStatus;
@@ -119,40 +166,19 @@ void FileWalker::scanDirectory(const fs::path& starting_point)
         catch (const fs::filesystem_error& e)
         {
             LOGERROR("Failed to get the status of: " << p << " [" << e.code().message() << "]");
+            continue;
         }
 
-        // Backtrack protection for symlinks
+        // TODO - consider putting this under if (fs::is_directory(...))
         if (fs::is_symlink(symlinkStatus))
         {
-            // Non-regular-file symlink
             if (!m_follow_symlinks)
             {
                 LOGDEBUG("Not following symlink: " << p);
                 continue;
             }
 
-            struct stat statBuf
-            {
-            };
-            int ret = ::stat(p.path().c_str(), &statBuf);
-            if (ret == 0)
-            {
-                file_id id = std::make_tuple(statBuf.st_dev, statBuf.st_ino);
-                if (m_seen_symlinks.find(id) != m_seen_symlinks.end())
-                {
-                    LOGDEBUG("Symlink target already scanned: " << p << " [" << statBuf.st_ino << "]");
-                    continue;
-                }
-                else
-                {
-                    m_seen_symlinks.insert(id);
-                }
-            }
-            else
-            {
-                LOGERROR("Failed to stat " << p << "(" << errno << ")");
-                continue;
-            }
+            // TODO - fs::read_symlink and exclusion check here?
         }
 
         if (fs::is_regular_file(itemStatus))
@@ -169,27 +195,7 @@ void FileWalker::scanDirectory(const fs::path& starting_point)
         }
         else if (fs::is_directory(itemStatus))
         {
-            if (m_callback.includeDirectory(p.path()))
-            {
-                if (m_stay_on_device)
-                {
-                    struct stat statbuf{};
-                    int ret = ::stat(p.path().c_str(), &statbuf);
-                    if (ret == 0)
-                    {
-                        if (statbuf.st_dev != m_starting_dev)
-                        {
-                            LOGDEBUG("Not recursing into " << p.path() << " as it is on a different mount");
-                            continue;
-                        }
-                    }
-                }
-                scanDirectory(p);
-            }
-            else
-            {
-                LOGDEBUG("Not recursing into " << p.path() << " as it is excluded");
-            }
+            scanDirectory(p);
         }
         else
         {
