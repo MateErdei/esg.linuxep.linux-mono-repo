@@ -126,7 +126,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         {
             while (m_config_changed.notified())
             {
-                // do nothing - check is done later
+                // clear pipe
             }
             process->kill();
             process->waitUntilProcessEnds();
