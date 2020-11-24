@@ -113,8 +113,6 @@ Run Telemetry Executable That Hangs
     Remove File  ${TELEMETRY_EXECUTABLE_LOG}
 
     ${result} =  Start Process  sudo  -u  ${USERNAME}  ${SOPHOS_INSTALL}/base/bin/telemetry  ${telemetryConfigFilePath}
-    log  ${result.stdout}
-    log  ${result.stderr}
 
 
 Wait For Telemetry Executable To Have Run
