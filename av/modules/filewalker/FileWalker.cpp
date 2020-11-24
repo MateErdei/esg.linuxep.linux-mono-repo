@@ -69,7 +69,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     }
     else if (fs::is_directory(itemStatus))
     {
-        // TODO - superfluous - but need to update all test expectations first?
+        // TODO - unnecessary, but unit tests currently expect it
         if (m_callback.userDefinedExclusionCheck(starting_point))
         {
             return;
@@ -169,7 +169,6 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
             continue;
         }
 
-        // TODO - consider putting this under if (fs::is_directory(...))
         if (fs::is_symlink(symlinkStatus))
         {
             if (!m_follow_symlinks)
@@ -177,8 +176,6 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
                 LOGDEBUG("Not following symlink: " << p);
                 continue;
             }
-
-            // TODO - fs::read_symlink and exclusion check here?
         }
 
         if (fs::is_regular_file(itemStatus))

@@ -17,7 +17,7 @@ class OnFail(object):
         self.__m_cleanup_actions.append((keyword, args))
 
     def __run_actions(self, builtin, actions, if_failed=True):
-        for (keyword, args) in actions:
+        for (keyword, args) in reversed(actions):
             logger.info("Running %s" % keyword)
             args = args or []
             if if_failed:

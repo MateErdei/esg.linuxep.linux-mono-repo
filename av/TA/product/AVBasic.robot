@@ -138,9 +138,9 @@ Scan Now Excludes Files And Directories As Expected
     Create File  /eicar.com                     ${EICAR_STRING}
     Create File  /directory_excluded/eicar.com  ${EICAR_STRING}
     Create File  /file_excluded/eicar.com       ${EICAR_STRING}
-    Register Cleanup  Remove Files  /eicar.com  /directory_excluded/eicar.com  /file_excluded/eicar.com
     Register Cleanup  Remove Directory  /file_excluded  recursive=True
     Register Cleanup  Remove Directory  /directory_excluded  recursive=True
+    Register Cleanup  Remove Files  /eicar.com  /directory_excluded/eicar.com  /file_excluded/eicar.com
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
@@ -337,6 +337,33 @@ AV Plugin Scan Now Does Not Detect PUA
     File Log Should Not Contain  ${AV_PLUGIN_PATH}/log/Scan Now.log  "/tmp/eicar_pua.com" is infected
 
     ${result} =   Terminate Process  ${handle}
+
+
+AV Plugin Scan Now with Bind Mount
+    ${source} =       Set Variable  /tmp/directory
+    ${destination} =  Set Variable  /tmp/bind_mount
+    Register Cleanup  Remove Directory   ${destination}
+    Register Cleanup  Remove Directory   ${source}   recursive=true
+    Create Directory  ${source}
+    Create Directory  ${destination}
+    Create File       ${source}/eicar.com    ${EICAR_STRING}
+
+    Run Shell Process   mount --bind ${source} ${destination}     OnError=Failed to create bind mount
+    Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release bind mount
+
+    Should Exist      ${destination}/eicar.com
+
+    ${handle} =       Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
+    Run Scan Now Scan
+    Wait Until AV Plugin Log Contains   Completed scan Scan Now   timeout=240   interval=5
+
+    ${content} =      Get File   ${AV_LOG_PATH}   encoding_errors=replace
+    ${lines} =        Get Lines Containing String    ${content}   Found 'EICAR-AV-Test'
+    ${count} =        Get Line Count   ${lines}
+    Should Be Equal As Integers  ${1}  ${count}
+
+    ${result} =       Terminate Process  ${handle}
 
 
 *** Keywords ***
