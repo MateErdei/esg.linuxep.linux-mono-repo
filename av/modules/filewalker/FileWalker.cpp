@@ -8,6 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
+#include <common/AbortScanException.h>
+
 #include <cstring>
 
 #include <sys/stat.h>
@@ -186,6 +188,10 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
             try
             {
                 m_callback.processFile(p.path(), m_startIsSymlink || fs::is_symlink(symlinkStatus));
+            }
+            catch (const AbortScanException&)
+            {
+                throw;
             }
             catch (const std::runtime_error& ex)
             {

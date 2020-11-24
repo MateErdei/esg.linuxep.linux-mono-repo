@@ -50,7 +50,7 @@ namespace
         void genericFailure(const std::exception& e, std::string escapedPath) override
         {
             std::ostringstream errorString;
-            errorString << "Failed to scan" << escapedPath << " [" << e.what() << "]";
+            errorString << "Failed to scan file: " << escapedPath << " [" << e.what() << "]";
 
             m_scanner.scanError(errorString);
             m_returnCode = E_GENERIC_FAILURE;
@@ -178,7 +178,9 @@ int CommandLineScanRunner::run()
         }
         catch (const AbortScanException& e)
         {
-            LOGERROR(e.what());
+            // Abort scan has already been logged in the genericFailure method
+            // genericFailure -> ScanCallbackImpl::scanError(const std::string& errorMsg)
+            break;
         }
     }
 
