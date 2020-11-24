@@ -204,7 +204,10 @@ sleep 10000
         auto fut = std::async(std::launch::async, [&pid, &testExecutionSynchronizer]() {
             testExecutionSynchronizer.waitfor(500);
             std::cout << "send sigterm " << std::endl;
-            ::kill(pid, SIGTERM);
+            if (pid != -1)
+            {
+                ::kill(pid, SIGTERM);
+            }
         });
         std::cout << "wait untill process ends " << std::endl;
         process->waitUntilProcessEnds();

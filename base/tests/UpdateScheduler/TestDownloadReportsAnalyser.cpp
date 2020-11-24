@@ -431,11 +431,11 @@ TEST_F(TestDownloadReportAnalyser, SuccessFollowedBy2FailuresUsingFiles) // NOLI
     EXPECT_CALL(*mockFileSystem, readFile("update_report_2.json")).WillOnce(Return(file2));
     EXPECT_CALL(*mockFileSystem, readFile("update_report_3.json")).WillOnce(Return(file3));
 
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processedReports/update_report_1.json"))
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/updatescheduler/processedReports/update_report_1.json"))
         .WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processedReports/update_report_2.json"))
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/updatescheduler/processedReports/update_report_2.json"))
         .WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processedReports/update_report_3.json"))
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/updatescheduler/processedReports/update_report_3.json"))
         .WillOnce(Return(false));
 
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -485,7 +485,7 @@ TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilte
 
     //EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processedReports/update_report_1.json"))
     //    .WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processedReports/update_report_2.json"))
+    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/updatescheduler/processedReports/update_report_2.json"))
         .WillOnce(Return(false));
 
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);

@@ -48,14 +48,17 @@ namespace Common
 
             // If root owned, we need to ensure the group of the ipc socket is sophos-spl-group
             // so that Management Agent can communicate with the plugin.
+            std::string pluginAddressFile = pluginAddress.substr(6);
             if (::getuid() == 0)
             {
                 LOGSUPPORT("Setup ipc replier permissions");
                 // plugin_address starts with ipc:// Remove it.
-                std::string pluginAddressFile = pluginAddress.substr(6);
+                Common::FileSystem::filePermissions()->chown(pluginAddressFile, "root", sophos::group());
+            }
+            if (::getuid() != Common::FileSystem::FilePermissionsImpl().getUserId(sophos::user()))
+            {
                 Common::FileSystem::filePermissions()->chmod(
                         pluginAddressFile, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
-                Common::FileSystem::filePermissions()->chown(pluginAddressFile, "root", sophos::group());
             }
         }
         void PluginResourceManagement::setupRequester(

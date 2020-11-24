@@ -39,10 +39,6 @@ echo '
    "password": ""
   }
  },
- "certificatePath": "/tmp/sophos-root/etc/certificates",
- "installationRootPath": "/tmp/sophos-root/install",
- "systemSslPath": "/tmp/sophos-root/etc/certificates/root-ca.crt",
- "cacheUpdateSslPath": "/tmp/sophos-root/etc/certificates",
  "releaseTag": "RECOMMENDED",
  "baseVersion": "0",
  "primary": "ServerProtectionLinux-Base",

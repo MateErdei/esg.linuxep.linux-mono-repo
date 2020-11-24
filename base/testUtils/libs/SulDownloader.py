@@ -4,7 +4,7 @@ import PathManager
 
 # Note that the default values set here are also reproduced in the Perform Install keyword in TestSulDownloader
 
-def create_config(install_path=None, rigidname="ServerProtectionLinux-Base",
+def create_config(rigidname="ServerProtectionLinux-Base",
                   certificatePath=os.path.join(PathManager.get_support_file_path(), "sophos_certs/"), include_plugins=None, remove_entries=[],
                   **kwargs):
     """
@@ -33,9 +33,6 @@ def create_config(install_path=None, rigidname="ServerProtectionLinux-Base",
                 "proxyType": ""
             }
         },
-        "certificatePath": certificatePath,
-        "installationRootPath": install_path,
-        "systemSslPath": os.path.join(PathManager.get_support_file_path(), "https/ca"),
         "primarySubscription": {
             "rigidName": "%s" %rigidname,
             "tag": "RECOMMENDED"
@@ -46,9 +43,6 @@ def create_config(install_path=None, rigidname="ServerProtectionLinux-Base",
         "features": ["CORE", "SENSORS"],
         "logLevel": "VERBOSE"
     }
-
-    if install_path is None:
-        del config['installationRootPath']
 
     if include_plugins is None:
         del config['products']

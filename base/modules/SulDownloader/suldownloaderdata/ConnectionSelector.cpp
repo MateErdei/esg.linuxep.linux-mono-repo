@@ -20,14 +20,14 @@ std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const C
     // settings. If no credentials are required for proxy then empty strings are passed  - this is ok.
     Proxy proxyForUpdateCache("noproxy:", proxies[0].getCredentials());
 
-    for (auto url : configurationData.getLocalUpdateCacheUrls())
+    for (const auto& url : configurationData.getLocalUpdateCacheUrls())
     {
         candidates.emplace_back(url, configurationData.getCredentials(), true, proxyForUpdateCache);
     }
 
     for (auto& proxy : proxies)
     {
-        for (auto url : configurationData.getSophosUpdateUrls())
+        for (const auto& url : configurationData.getSophosUpdateUrls())
         {
             candidates.emplace_back(url, configurationData.getCredentials(), false, proxy);
         }

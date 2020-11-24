@@ -51,10 +51,6 @@ public:
                                },
                                "manifestNames" : ["manifest.dat"],
                                "optionalManifestNames" : ["flags_manifest.dat"],
-                               "installationRootPath": "absInstallationPath",
-                               "certificatePath": "absCertificatePath",
-                               "systemSslPath": "absSystemSslPath",
-                               "cacheUpdateSslPath": "absCacheUpdatePath",
                                "primarySubscription": {
                                 "rigidName" : "BaseProduct-RigidName",
                                 "baseVersion" : "9",
@@ -76,14 +72,14 @@ public:
                                ]
                                })";
 
-        jsonString.replace(
-            jsonString.find("absInstallationPath"), std::string("absInstallationPath").size(), m_absInstallationPath);
-        jsonString.replace(
-            jsonString.find("absCertificatePath"), std::string("absCertificatePath").size(), m_absCertificatePath);
-        jsonString.replace(
-            jsonString.find("absSystemSslPath"), std::string("absSystemSslPath").size(), m_absSystemSslPath);
-        jsonString.replace(
-            jsonString.find("absCacheUpdatePath"), std::string("absCacheUpdatePath").size(), m_absCacheUpdatePath);
+//        jsonString.replace(
+//            jsonString.find("absInstallationPath"), std::string("absInstallationPath").size(), m_absInstallationPath);
+//        jsonString.replace(
+//            jsonString.find("absCertificatePath"), std::string("absCertificatePath").size(), m_absCertificatePath);
+//        jsonString.replace(
+//            jsonString.find("absSystemSslPath"), std::string("absSystemSslPath").size(), m_absSystemSslPath);
+//        jsonString.replace(
+//            jsonString.find("absCacheUpdatePath"), std::string("absCacheUpdatePath").size(), m_absCacheUpdatePath);
 
         if (!oldPartString.empty())
         {

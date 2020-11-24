@@ -68,7 +68,9 @@ IVersig::VerifySignature VersigImpl::verify(
     const ConfigurationData& configurationData,
     const std::string& productDirectoryPath) const
 {
-    std::string certificate_path = Common::FileSystem::join(configurationData.getCertificatePath(), "rootca.crt");
+
+    std::string certificate_path = Common::FileSystem::join(
+            Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath(), "rootca.crt");
     auto fileSystem = Common::FileSystem::fileSystem();
 
     if (!fileSystem->isFile(certificate_path))

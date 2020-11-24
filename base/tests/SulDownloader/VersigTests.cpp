@@ -21,14 +21,14 @@ class VersigTests : public ::testing::Test
 public:
     VersigTests() : m_configurationData(SulDownloader::suldownloaderdata::ConfigurationData::DefaultSophosLocationsURL)
     {
-        m_configurationData.setCertificatePath("/installroot/cert");
+//        m_configurationData.setCertificatePath("/opt/sophos-spl/cert");
         m_configurationData.setManifestNames({ "manifest.dat" });
         m_configurationData.setOptionalManifestNames({ "flags_manifest.dat" });
-        rootca = Common::FileSystem::join(m_configurationData.getCertificatePath(), "rootca.crt");
-        productDir = "/installroot/cache/update/Primary/product";
-        m_supplementDir = "/installroot/cache/update/Primary/product/supplement";
-        manifestdat = "/installroot/cache/update/Primary/product/manifest.dat";
-        m_flagsManifest = "/installroot/cache/update/Primary/product/flags_manifest.dat";
+        rootca = "/opt/sophos-spl/base/update/rootcerts/rootca.crt";
+        productDir = "/opt/sophos-spl/cache/update/Primary/product";
+        m_supplementDir = "/opt/sophos-spl/cache/update/Primary/product/supplement";
+        manifestdat = "/opt/sophos-spl/cache/update/Primary/product/manifest.dat";
+        m_flagsManifest = "/opt/sophos-spl/cache/update/Primary/product/flags_manifest.dat";
         versigExec = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
         fileSystemMock = new MockFileSystem();
         m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));        
@@ -109,9 +109,9 @@ TEST_F(VersigTests, passTheCorrectParametersToProcess) // NOLINT
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([versigExecPath]() {
         std::vector<std::string> args;
-        args.emplace_back("-c/installroot/cert/rootca.crt");
-        args.emplace_back("-f/installroot/cache/update/Primary/product/manifest.dat");
-        args.emplace_back("-d/installroot/cache/update/Primary/product");
+        args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+        args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/manifest.dat");
+        args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product");
         args.emplace_back("--silent-off");
 
         auto mockProcess = new MockProcess();
@@ -144,9 +144,9 @@ TEST_F(VersigTests, passTheCorrectParametersToProcessWithMultipleManifestFiles) 
         if (counter++ == 0)
         {
             std::vector<std::string> args;
-            args.emplace_back("-c/installroot/cert/rootca.crt");
-            args.emplace_back("-f/installroot/cache/update/Primary/product/manifest.dat");
-            args.emplace_back("-d/installroot/cache/update/Primary/product");
+            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+            args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/manifest.dat");
+            args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product");
             args.emplace_back("--silent-off");
 
             auto mockProcess = new StrictMock<MockProcess>();
@@ -158,9 +158,9 @@ TEST_F(VersigTests, passTheCorrectParametersToProcessWithMultipleManifestFiles) 
         else
         {
             std::vector<std::string> args;
-            args.emplace_back("-c/installroot/cert/rootca.crt");
-            args.emplace_back("-f/installroot/cache/update/Primary/product/supplement/flags_manifest.dat");
-            args.emplace_back("-d/installroot/cache/update/Primary/product/supplement");
+            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+            args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/supplement/flags_manifest.dat");
+            args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product/supplement");
             args.emplace_back("--silent-off");
 
             auto mockProcess = new StrictMock<MockProcess>();
@@ -190,9 +190,9 @@ TEST_F(VersigTests, signatureFailureIsReportedAsFailure) // NOLINT
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([versigExecPath]() {
         std::vector<std::string> args;
-        args.emplace_back("-c/installroot/cert/rootca.crt");
-        args.emplace_back("-f/installroot/cache/update/Primary/product/manifest.dat");
-        args.emplace_back("-d/installroot/cache/update/Primary/product");
+        args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+        args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/manifest.dat");
+        args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product");
         args.emplace_back("--silent-off");
 
         auto mockProcess = new MockProcess();
@@ -224,9 +224,9 @@ TEST_F(VersigTests, willFailOnSingleSignatureFailureWhenProcessingMultipleManife
         if (counter++ == 0)
         {
             std::vector<std::string> args;
-            args.emplace_back("-c/installroot/cert/rootca.crt");
-            args.emplace_back("-f/installroot/cache/update/Primary/product/manifest.dat");
-            args.emplace_back("-d/installroot/cache/update/Primary/product");
+            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+            args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/manifest.dat");
+            args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product");
             args.emplace_back("--silent-off");
 
             auto mockProcess = new StrictMock<MockProcess>();
@@ -238,9 +238,9 @@ TEST_F(VersigTests, willFailOnSingleSignatureFailureWhenProcessingMultipleManife
         else
         {
             std::vector<std::string> args;
-            args.emplace_back("-c/installroot/cert/rootca.crt");
-            args.emplace_back("-f/installroot/cache/update/Primary/product/supplement/flags_manifest.dat");
-            args.emplace_back("-d/installroot/cache/update/Primary/product/supplement");
+            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+            args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/supplement/flags_manifest.dat");
+            args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product/supplement");
             args.emplace_back("--silent-off");
 
             auto mockProcess = new StrictMock<MockProcess>();

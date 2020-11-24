@@ -139,63 +139,63 @@ void ConfigurationData::setPolicyProxy(const Proxy& proxy)
     m_policyProxy = proxy;
 }
 
-std::string ConfigurationData::getCertificatePath() const
-{
-    if (m_certificatePath.empty())
-    {
-        return Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath();
-    }
+//std::string ConfigurationData::getCertificatePath() const
+//{
+//    if (m_certificatePath.empty())
+//    {
+//        return Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath();
+//    }
+//
+//    return m_certificatePath;
+//}
+//
+//const std::string& ConfigurationData::getUpdateCacheSslCertificatePath() const
+//{
+//    return m_updateCacheSslCertificatePath;
+//}
+//
+//const std::string& ConfigurationData::getSystemSslCertificatePath() const
+//{
+//    return m_systemSslCertificatePath;
+//}
 
-    return m_certificatePath;
-}
+//void ConfigurationData::setCertificatePath(const std::string& certificatePath)
+//{
+//    m_certificatePath = certificatePath;
+//}
 
-const std::string& ConfigurationData::getUpdateCacheSslCertificatePath() const
-{
-    return m_updateCacheSslCertificatePath;
-}
+//void ConfigurationData::setUpdateCacheSslCertificatePath(const std::string& certificatePath)
+//{
+//    m_updateCacheSslCertificatePath = certificatePath;
+//}
 
-const std::string& ConfigurationData::getSystemSslCertificatePath() const
-{
-    return m_systemSslCertificatePath;
-}
+//void ConfigurationData::setSystemSslCertificatePath(const std::string& certificatePath)
+//{
+//    if (certificatePath == "")
+//    {
+//        m_systemSslCertificatePath = DoNotSetSslSystemPath;
+//    }
+//    else
+//    {
+//        m_systemSslCertificatePath = certificatePath;
+//    }
+//}
 
-void ConfigurationData::setCertificatePath(const std::string& certificatePath)
-{
-    m_certificatePath = certificatePath;
-}
+//void ConfigurationData::setInstallationRootPath(const std::string& installationRootPath)
+//{
+//    if (installationRootPath.empty())
+//    {
+//        return;
+//    }
+//    Common::ApplicationConfiguration::applicationConfiguration().setData(
+//        Common::ApplicationConfiguration::SOPHOS_INSTALL, installationRootPath);
+//}
 
-void ConfigurationData::setUpdateCacheSslCertificatePath(const std::string& certificatePath)
-{
-    m_updateCacheSslCertificatePath = certificatePath;
-}
-
-void ConfigurationData::setSystemSslCertificatePath(const std::string& certificatePath)
-{
-    if (certificatePath == "")
-    {
-        m_systemSslCertificatePath = DoNotSetSslSystemPath;
-    }
-    else
-    {
-        m_systemSslCertificatePath = certificatePath;
-    }
-}
-
-void ConfigurationData::setInstallationRootPath(const std::string& installationRootPath)
-{
-    if (installationRootPath.empty())
-    {
-        return;
-    }
-    Common::ApplicationConfiguration::applicationConfiguration().setData(
-        Common::ApplicationConfiguration::SOPHOS_INSTALL, installationRootPath);
-}
-
-std::string ConfigurationData::getInstallationRootPath() const
-{
-    return Common::ApplicationConfiguration::applicationConfiguration().getData(
-        Common::ApplicationConfiguration::SOPHOS_INSTALL);
-}
+//std::string ConfigurationData::getInstallationRootPath() const
+//{
+//    return Common::ApplicationConfiguration::applicationConfiguration().getData(
+//        Common::ApplicationConfiguration::SOPHOS_INSTALL);
+//}
 
 std::string ConfigurationData::getLocalWarehouseRepository() const
 {
@@ -299,41 +299,41 @@ bool ConfigurationData::verifySettingsAreValid()
         return false;
     }
 
-    // certificate path should exist and contain the root.crt and ps_rootca.crt
-    std::string certificatePath = getCertificatePath();
-    if (!fileSystem->exists(certificatePath) ||
-        !fileSystem->exists(Common::FileSystem::join(certificatePath, "rootca.crt")) ||
-        !fileSystem->exists(Common::FileSystem::join(certificatePath, "ps_rootca.crt")))
-    {
-        LOGSUPPORT("Certificate Path: " << certificatePath);
-        LOGERROR("Invalid Settings: Certificate path does not contain required files.");
-        return false;
-    }
+//    // certificate path should exist and contain the root.crt and ps_rootca.crt
+//    std::string certificatePath = getCertificatePath();
+//    if (!fileSystem->exists(certificatePath) ||
+//        !fileSystem->exists(Common::FileSystem::join(certificatePath, "rootca.crt")) ||
+//        !fileSystem->exists(Common::FileSystem::join(certificatePath, "ps_rootca.crt")))
+//    {
+//        LOGSUPPORT("Certificate Path: " << certificatePath);
+//        LOGERROR("Invalid Settings: Certificate path does not contain required files.");
+//        return false;
+//    }
 
-    std::string systemSslCertificatePath = getSystemSslCertificatePath();
+//    std::string systemSslCertificatePath = getSystemSslCertificatePath();
 
-    if (systemSslCertificatePath != DoNotSetSslSystemPath && (!fileSystem->exists(systemSslCertificatePath)))
-    {
-        LOGERROR("Invalid Settings: system ssl certificate path does not exist: " << systemSslCertificatePath);
-        return false;
-    }
+//    if (systemSslCertificatePath != DoNotSetSslSystemPath && (!fileSystem->exists(systemSslCertificatePath)))
+//    {
+//        LOGERROR("Invalid Settings: system ssl certificate path does not exist: " << systemSslCertificatePath);
+//        return false;
+//    }
 
-    std::string updateCacheSslCertificatePath = getUpdateCacheSslCertificatePath();
+//    std::string updateCacheSslCertificatePath = getUpdateCacheSslCertificatePath();
 
-    if (updateCacheSslCertificatePath.empty() && !getLocalUpdateCacheUrls().empty())
-    {
-        LOGERROR("Invalid Settings: Update cache ssl certificate path cannot be empty when using update caches.");
-        return false;
-    }
-    else if (!updateCacheSslCertificatePath.empty() && !getLocalUpdateCacheUrls().empty())
-    {
-        if (!fileSystem->exists(updateCacheSslCertificatePath))
-        {
-            LOGERROR(
-                "Invalid Settings: Local distribution repository does not exist : " << updateCacheSslCertificatePath);
-            return false;
-        }
-    }
+//    if (updateCacheSslCertificatePath.empty() && !getLocalUpdateCacheUrls().empty())
+//    {
+//        LOGERROR("Invalid Settings: Update cache ssl certificate path cannot be empty when using update caches.");
+//        return false;
+//    }
+//    else if (!updateCacheSslCertificatePath.empty() && !getLocalUpdateCacheUrls().empty())
+//    {
+//        if (!fileSystem->exists(updateCacheSslCertificatePath))
+//        {
+//            LOGERROR(
+//                "Invalid Settings: Local distribution repository does not exist : " << updateCacheSslCertificatePath);
+//            return false;
+//        }
+//    }
 
     if (!m_localUpdateCacheUrls.empty())
     {
@@ -424,8 +424,8 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     ConfigurationData configurationData(sophosURLs, credential, updateCaches, proxy);
 
-    configurationData.setCertificatePath(settings.certificatepath());
-    configurationData.setInstallationRootPath(settings.installationrootpath());
+//    configurationData.setCertificatePath(settings.certificatepath());
+//    configurationData.setInstallationRootPath(settings.installationrootpath());
 
     ProductSubscription primary = getSubscription(settings.primarysubscription());
     std::vector<ProductSubscription> products;
@@ -447,9 +447,9 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     configurationData.setInstallArguments(installArgs);
 
-    configurationData.setCertificatePath(settings.certificatepath());
-    configurationData.setSystemSslCertificatePath(settings.systemsslpath());
-    configurationData.setUpdateCacheSslCertificatePath(settings.cacheupdatesslpath());
+//    configurationData.setCertificatePath(settings.certificatepath());
+//    configurationData.setSystemSslCertificatePath(settings.systemsslpath());
+//    configurationData.setUpdateCacheSslCertificatePath(settings.cacheupdatesslpath());
     LogLevel level = (settings.loglevel() == ::SulDownloaderProto::ConfigurationSettings_LogLevelOption_NORMAL)
                          ? LogLevel::NORMAL
                          : LogLevel::VERBOSE;
@@ -561,8 +561,8 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
         configurationData.getPolicyProxy().getCredentials().getProxyType());
     settings.mutable_proxy()->mutable_url()->assign(configurationData.getPolicyProxy().getUrl());
 
-    settings.set_certificatepath(configurationData.getCertificatePath());
-    settings.set_installationrootpath(configurationData.getInstallationRootPath());
+//    settings.set_certificatepath(configurationData.getCertificatePath());
+//    settings.set_installationrootpath(configurationData.getInstallationRootPath());
 
     const auto& primarySubscription = configurationData.getPrimarySubscription();
     setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
@@ -580,10 +580,10 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
         settings.add_installarguments()->assign(installarg);
     }
 
-    settings.set_certificatepath(configurationData.getCertificatePath());
+//    settings.set_certificatepath(configurationData.getCertificatePath());
 
-    settings.set_systemsslpath(configurationData.getSystemSslCertificatePath());
-    settings.set_cacheupdatesslpath(configurationData.getUpdateCacheSslCertificatePath());
+//    settings.set_systemsslpath(configurationData.getSystemSslCertificatePath());
+//    settings.set_cacheupdatesslpath(configurationData.getUpdateCacheSslCertificatePath());
 
     if (configurationData.getLogLevel() == LogLevel::NORMAL)
     {

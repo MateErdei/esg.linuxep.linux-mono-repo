@@ -84,7 +84,7 @@ namespace Common
             {
                 // Must set groups first whilst still root
                 std::string userName = Common::FileSystem::FilePermissionsImpl().getUserName(m_uid);
-                if ( ::initgroups(userName.c_str(), m_gid) != 0)
+                if (::initgroups(userName.c_str(), m_gid) != 0 && ::setgid(m_gid) != 0)
                 {
                     exec.set_error(boost::process::detail::get_last_error(), "Failed to set group ids");
                     return;
@@ -424,6 +424,13 @@ namespace Common
                 return;
             }
             LOGSUPPORT("Terminating process " << m_pid);
+//            ::kill(m_pid, SIGTERM);
+//            Proc::killProcess(int pid)
+            if (m_pid == -1 || m_pid == 1)
+            {
+                LOGERROR("");
+                return;
+            }
             ::kill(m_pid, SIGTERM);
         }
 

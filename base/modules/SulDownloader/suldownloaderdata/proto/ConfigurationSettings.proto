@@ -28,10 +28,10 @@ message ConfigurationSettings
 
     optional CredentialT credential = 3;
     optional ProxyT proxy = 4;
-    optional string certificatePath = 5;
-    optional string installationRootPath = 6;
-    optional string systemSslPath = 7;
-    optional string cacheUpdateSslPath = 8;
+//    optional string certificatePath = 5;
+//    optional string installationRootPath = 6;
+//    optional string systemSslPath = 7;
+//    optional string cacheUpdateSslPath = 8;
     repeated string installArguments = 9;
 
     enum LogLevelOption

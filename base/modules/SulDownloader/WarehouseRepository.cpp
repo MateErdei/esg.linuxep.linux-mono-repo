@@ -19,6 +19,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include <cassert>
 #include <sstream>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -522,7 +523,7 @@ namespace SulDownloader
         m_connectionSetup = std::unique_ptr<ConnectionSetup>(new ConnectionSetup(connectionSetup));
 
         // general settings
-        std::string certificatePath = configurationData.getCertificatePath();
+        std::string certificatePath = Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath();
         std::string localWarehouseRepository = configurationData.getLocalWarehouseRepository();
         bool useSlowSupplements = configurationData.getUseSlowSupplements();
 
@@ -556,12 +557,15 @@ namespace SulDownloader
 
         if (connectionSetup.isCacheUpdate())
         {
-            ssl_cert_path = configurationData.getUpdateCacheSslCertificatePath();
+//            ssl_cert_path = configurationData.getUpdateCacheSslCertificatePath();
+            ssl_cert_path = Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
         }
         else
         {
-            ssl_cert_path = configurationData.getSystemSslCertificatePath();
+//            ssl_cert_path = configurationData.getSystemSslCertificatePath();
+            ssl_cert_path = ":system:";
         }
+
         if (ssl_cert_path != ConfigurationData::DoNotSetSslSystemPath &&
             !SULUtils::isSuccess(SU_setSslCertificatePath(session(), ssl_cert_path.c_str())))
         {

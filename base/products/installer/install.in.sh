@@ -144,7 +144,7 @@ function createUpdaterSystemdService()
         cat > ${STARTUP_DIR}/${service_name} << EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
-ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/update_config.json ${SOPHOS_INSTALL}/base/update/var/update_report.json
+ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json
 Restart=no
 
 [Unit]

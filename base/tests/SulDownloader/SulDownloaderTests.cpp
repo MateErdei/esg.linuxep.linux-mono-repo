@@ -112,10 +112,10 @@ public:
         proto_subscription->set_tag("RECOMMMENDED");
         proto_subscription->set_fixedversion("");
         settings.add_features("CORE");
-        settings.set_certificatepath("/installroot/base/update/certificates");
-        settings.set_installationrootpath("/installroot");
-        settings.set_systemsslpath("/installroot/etc/ssl");
-        settings.set_cacheupdatesslpath("/installroot/etc/cache/ssl");
+//        settings.set_certificatepath("/opt/sophos-spl/base/update/certificates");
+//        settings.set_installationrootpath("/opt/sophos-spl");
+//        settings.set_systemsslpath("/opt/sophos-spl/etc/ssl");
+//        settings.set_cacheupdatesslpath("/opt/sophos-spl/etc/cache/ssl");
 
         return settings;
     }
@@ -187,7 +187,7 @@ public:
         for (auto& metadata : defaultMetadata())
         {
             SulDownloader::suldownloaderdata::DownloadedProduct product(metadata);
-            product.setDistributePath("/installroot/base/update/cache/primary");
+            product.setDistributePath("/opt/sophos-spl/base/update/cache/primary");
             products.push_back(product);
         }
         return products;
@@ -272,15 +272,16 @@ public:
     MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1)
     {
         auto* filesystemMock = new StrictMock<MockFileSystem>();
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).Times(expectCallCount).WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primarywarehouse"))
+        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
+//        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
+        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse"))
             .Times(expectCallCount)
             .WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary"))
+        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary"))
             .Times(expectCallCount)
             .WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, isFile("/installroot/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
+        EXPECT_CALL(*filesystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
 
         setupExpectanceWriteProductUpdate(*filesystemMock);
 
@@ -300,13 +301,13 @@ public:
         std::vector<std::string> currentVersionContents{{ currentVersion }} ;
         std::vector<std::string> newVersionContents{{newVersion}} ;
 
-        EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/VERSION.ini"))
+        EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/VERSION.ini"))
             .WillOnce(Return(true));
-        EXPECT_CALL(fileSystemMock, readLines("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/VERSION.ini"))
+        EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/VERSION.ini"))
             .WillOnce(Return(newVersionContents));
-        EXPECT_CALL(fileSystemMock, isFile("/installroot/base/VERSION.ini"))
+        EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/VERSION.ini"))
                 .WillRepeatedly(Return(true));
-        EXPECT_CALL(fileSystemMock, readLines("/installroot/base/VERSION.ini"))
+        EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/VERSION.ini"))
             .WillOnce(Return(currentVersionContents));
 
     }
@@ -316,27 +317,27 @@ public:
         std::vector<std::string> currentVersionContents{{ currentVersion }} ;
         std::vector<std::string> newVersionContents{{newVersion}} ;
 
-        EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/VERSION.ini"))
+        EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/VERSION.ini"))
             .WillOnce(Return(true));
-        EXPECT_CALL(fileSystemMock, readLines("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/VERSION.ini"))
+        EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/VERSION.ini"))
             .WillOnce(Return(newVersionContents));
-        EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
+        EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
                 .WillRepeatedly(Return(true));
-        EXPECT_CALL(fileSystemMock, readLines("/installroot/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
+        EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
             .WillOnce(Return(currentVersionContents));
     }
 
     void setupExpectanceWriteProductUpdate(MockFileSystem& mockFileSystem)
     {
         EXPECT_CALL(
-            mockFileSystem, writeFile("/installroot/var/suldownloader_last_product_update.marker", "")
+            mockFileSystem, writeFile("/opt/sophos-spl/var/suldownloader_last_product_update.marker", "")
         ).Times(::testing::AtMost(1));
     }
 
     void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains)
     {
         EXPECT_CALL(
-            mockFileSystem, writeFile(::testing::HasSubstr("/installroot/tmp"), ::testing::HasSubstr(contains)));
+            mockFileSystem, writeFile(::testing::HasSubstr("/opt/sophos-spl/tmp"), ::testing::HasSubstr(contains)));
         EXPECT_CALL(mockFileSystem, moveFile(_, "/dir/output.json"));
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
         EXPECT_CALL(*mockFilePermissions, chown(_, sophos::updateSchedulerUser(), "root"));
@@ -450,9 +451,9 @@ TEST_F(SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode)
 
     EXPECT_CALL(*filesystemMock, readFile("input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
 
-    EXPECT_CALL(*filesystemMock, isDirectory("/installroot/directorypath")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/directorypath")).WillOnce(Return(true));
     // directory can not be replaced by file
-    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "input.json", "/installroot/directorypath" }, {});
+    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "input.json", "/opt/sophos-spl/directorypath" }, {});
 
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), expectedErrorCode);
 }
@@ -473,8 +474,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -486,7 +487,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/etc/savedproxy.config")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(emptyFileList));
@@ -496,15 +497,15 @@ TEST_F( // NOLINT
     setupExpectanceWriteAtomically(
         fileSystemMock,
         SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
-    std::string baseInstallPath = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string baseInstallPath = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     EXPECT_CALL(fileSystemMock, isDirectory(baseInstallPath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(baseInstallPath));
 
-    std::string pluginInstallPath = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string pluginInstallPath = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, isDirectory(pluginInstallPath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(pluginInstallPath));
 
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -549,8 +550,8 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -582,7 +583,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
         fileSystemMock,
         SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
 
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -607,8 +608,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -642,7 +643,7 @@ TEST_F( // NOLINT
         fileSystemMock,
         SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
 
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -672,12 +673,12 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1")))
-        .WillOnce(Return("/installroot/base/update/cache/primary/productRemove1"));
+        .WillOnce(Return("/opt/sophos-spl/base/update/cache/primary/productRemove1"));
 
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
@@ -711,7 +712,7 @@ TEST_F( // NOLINT
         SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
 
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(fileListOfProductsToRemove));
 
@@ -743,8 +744,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -779,7 +780,7 @@ TEST_F( // NOLINT
         SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::UNINSTALLFAILED));
 
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(fileListOfProductsToRemove));
 
@@ -1040,15 +1041,15 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -1096,8 +1097,8 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(true);
     }
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     int counter = 0;
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
@@ -1106,12 +1107,12 @@ TEST_F( // NOLINT
         auto versig = new StrictMock<MockVersig>();
         if (counter++ == 0)
         {
-            EXPECT_CALL(*versig, verify(_, "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component"))
+            EXPECT_CALL(*versig, verify(_, "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component"))
                 .WillOnce(Return(SulDownloader::suldownloaderdata::IVersig::VerifySignature::SIGNATURE_VERIFIED));
         }
         else
         {
-            EXPECT_CALL(*versig, verify(_, "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR"))
+            EXPECT_CALL(*versig, verify(_, "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR"))
                 .WillOnce(Return(SulDownloader::suldownloaderdata::IVersig::VerifySignature::SIGNATURE_FAILED));
         }
 
@@ -1128,8 +1129,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
 
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
@@ -1163,11 +1164,11 @@ TEST_F( // NOLINT
         product.setProductHasChanged(true);
     }
 
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -1175,7 +1176,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -1217,8 +1218,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -1259,11 +1260,11 @@ TEST_F( // NOLINT
         product.setProductHasChanged(true);
     }
 
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -1271,7 +1272,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -1310,8 +1311,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -1350,8 +1351,8 @@ TEST_F( // NOLINT
         product.setProductHasChanged(true);
     }
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -1359,7 +1360,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -1401,8 +1402,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -1443,8 +1444,8 @@ TEST_F( // NOLINT
         product.setProductHasChanged(true);
     }
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -1452,10 +1453,10 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/bin/uninstall.sh")).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, isExecutable("/installroot/bin/uninstall.sh")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/bin/uninstall.sh")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isExecutable("/opt/sophos-spl/bin/uninstall.sh")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.0");
@@ -1513,8 +1514,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -1553,8 +1554,8 @@ TEST_F( // NOLINT
         product.setProductHasChanged(true);
     }
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -1562,10 +1563,10 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, isFile("/installroot/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh")).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, isExecutable("/installroot/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isExecutable("/opt/sophos-spl/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
     setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.7", "PRODUCT_VERSION = 1.1.3.7");
@@ -1624,8 +1625,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -1664,11 +1665,11 @@ TEST_F( // NOLINT
         product.setProductHasChanged(true);
     }
 
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -1676,7 +1677,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -1715,8 +1716,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -1761,11 +1762,11 @@ TEST_F( // NOLINT
     }
 
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -1773,7 +1774,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -1812,8 +1813,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -1858,11 +1859,11 @@ TEST_F( // NOLINT
     }
 
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -1870,7 +1871,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -1909,8 +1910,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -1954,8 +1955,8 @@ TEST_F( // NOLINT
         product.setProductHasChanged(false);
     }
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -1963,7 +1964,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -2002,8 +2003,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -2051,11 +2052,11 @@ TEST_F( // NOLINT
     }
 
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -2063,7 +2064,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -2102,8 +2103,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -2147,8 +2148,8 @@ TEST_F( // NOLINT
         product.setProductHasChanged(false);
     }
 
-    std::string everest_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
-    std::string plugin_installer = "/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
+    std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
+    std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory(everest_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(everest_installer)).Times(1);
@@ -2156,7 +2157,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(plugin_installer)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(plugin_installer)).Times(1);
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -2195,8 +2196,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
@@ -2239,15 +2240,15 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -2295,15 +2296,15 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
-    products[0].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/installroot/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     std::vector<std::string> emptyFileList;
-    std::string uninstallPath = "/installroot/base/update/var/installedproducts";
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
 
@@ -2344,7 +2345,7 @@ TEST_F( // NOLINT
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
     settings.clear_sophosurls();
-    settings.clear_cacheupdatesslpath();
+//    settings.clear_cacheupdatesslpath();
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::VERBOSE);
     suldownloaderdata::ConfigurationData configurationData = configData(settings);
@@ -2369,7 +2370,7 @@ TEST_F( // NOLINT
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
     settings.clear_sophosurls();
-    settings.clear_cacheupdatesslpath();
+//    settings.clear_cacheupdatesslpath();
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::NORMAL);
     ConfigurationData configurationData = configData(settings);

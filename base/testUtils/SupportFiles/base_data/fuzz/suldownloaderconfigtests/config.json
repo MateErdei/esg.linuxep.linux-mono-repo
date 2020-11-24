@@ -15,9 +15,6 @@
    "proxyType": ""
   }
  },
- "certificatePath": "/opt/sophos-spl/base/update/certs",
- "installationRootPath": "/opt/sophos-spl",
- "systemSslPath": ":system:",
  "cacheUpdateSslPath": "",
  "releaseTag": "RECOMMENDED",
  "baseVersion": "0",

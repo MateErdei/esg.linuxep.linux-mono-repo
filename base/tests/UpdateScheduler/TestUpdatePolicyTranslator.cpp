@@ -436,11 +436,11 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
 
     EXPECT_EQ(config.getCredentials().getUsername(), "c2d584eb505b6a35fbf2dd9740551fe9");
     EXPECT_EQ(config.getCredentials().getPassword(), "c2d584eb505b6a35fbf2dd9740551fe9");
-    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+//    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "/opt/sophos-spl/base/update/certs/cache_certificates.crt");
+//    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+//    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "/opt/sophos-spl/base/update/updatecachecerts/cache_certificates.crt");
 
     auto urls = config.getSophosUpdateUrls();
     ASSERT_EQ(urls.size(), 3);
@@ -533,11 +533,11 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
 
     EXPECT_EQ(config.getCredentials().getUsername(), "678ca7535f2722d2e633834fde894e40");
     EXPECT_EQ(config.getCredentials().getPassword(), "678ca7535f2722d2e633834fde894e40");
-    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+//    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
+//    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+//    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
     auto urls = config.getSophosUpdateUrls();
     ASSERT_EQ(urls.size(), 2);
@@ -799,11 +799,11 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
 
     EXPECT_EQ(config.getCredentials().getUsername(), "ff705287d6b62738f8e672865cff1b05");
     EXPECT_EQ(config.getCredentials().getPassword(), "ff705287d6b62738f8e672865cff1b05");
-    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+//    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
+//    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+//    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
     auto urls = config.getSophosUpdateUrls();
     ASSERT_EQ(urls.size(), 2);
@@ -857,11 +857,11 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // 
 
     EXPECT_EQ(config.getCredentials().getUsername(), "ff705287d6b62738f8e672865cff1b05");
     EXPECT_EQ(config.getCredentials().getPassword(), "ff705287d6b62738f8e672865cff1b05");
-    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/certs");
+//    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
+//    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
+//    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
     auto urls = config.getSophosUpdateUrls();
     ASSERT_EQ(urls.size(), 3);

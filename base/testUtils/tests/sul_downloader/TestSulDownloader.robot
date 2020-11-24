@@ -28,16 +28,24 @@ Default Tags  SULDOWNLOADER
 Recreate Installation In Temp Dir
     Remove Directory    ${tmpdir}/sspl    recursive=True
     Create Directory    ${tmpdir}/sspl/tmp
+    Create Directory    ${tmpdir}/var/lock
+    Create Directory    ${tmpdir}/tmp
     Create Directory    ${tmpdir}/sspl/base/update
     Should Exist        ${SOPHOS_INSTALL}
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.0   [suldownloader]\nVERBOSITY=DEBUG\n
     Run Process         ln  -snf  ${VERSIGPATH}   ${tmpdir}/sspl/base/update/versig
     Create Directory    ${tmpdir}/sspl/base/update/cache/primarywarehouse
     Create Directory    ${tmpdir}/sspl/base/update/cache/primary
+    Create Directory    ${tmpdir}/sspl/base/update/cache/primary
     Create Directory    ${InstallProductsDir}
 
 Setup For Test
     Recreate Installation In Temp Dir
+    Copy file  ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt   ${SOPHOS_INSTALL}/base/update/rootcerts/
+    Copy file  ${SUPPORT_FILES}/sophos_certs/rootca.crt   ${SOPHOS_INSTALL}/base/update/rootcerts/
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
+
     Set Environment Variable  CORRUPTINSTALL  no
 
 Teardown for Test
@@ -218,7 +226,7 @@ Installer fails
 Invalid creds
     Require Warehouse With Fake Single Installer Product
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     Set to Dictionary    ${config["credential"]}    username=invalid
     ${config_json} =    Data to JSON    ${config}
     Create File    ${tmpdir}/update_config.json    content=${config_json}
@@ -238,7 +246,8 @@ Simple proxy
 
     Start Simple Proxy Server    1235
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+#    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url}
     Log  ${Config}
@@ -247,7 +256,8 @@ Simple proxy
     Log    "config_json = ${config_json}"
     Create File    ${tmpdir}/update_config.json    content=${config_json}
 
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    log  ${tmpdir}
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${SOPHOS_INSTALL}
 
     Check SulDownloader Result   ${result}   ${SUCCESS}
 
@@ -262,7 +272,7 @@ Simple proxy Accepts User Not setting http prefix
 
     Start Simple Proxy Server    1235
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     ${proxy_url_set_by_user} =    Set Variable    localhost:1235
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url_set_by_user}
@@ -289,7 +299,7 @@ SulDownloader Should not claim proxy connection when sul will not apply it
 
     Start Simple Proxy Server    1235
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     Log Dictionary    ${config}
     ${config_json} =    Data to JSON    ${config}
     Log    "config_json = ${config_json}"
@@ -316,7 +326,7 @@ Simple environment proxy
 
     Start Simple Proxy Server    1235
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     Log Dictionary    ${config}
     ${config_json} =    Data to JSON    ${config}
     Log    "config_json = ${config_json}"
@@ -342,7 +352,7 @@ Wrong environment proxy
 
     Start Simple Proxy Server    1235
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     Log Dictionary    ${config}
     ${config_json} =    Data to JSON    ${config}
     Log    "config_json = ${config_json}"
@@ -368,7 +378,7 @@ Update through basic auth proxy unobfuscated creds
     ${password} =  Set Variable  password
     Start Proxy Server With Basic Auth    1235  ${username}  ${password}
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url}
     Set to Dictionary    ${config["proxy"]["credential"]}  username=${username}  password=${password}  proxyType=1
@@ -396,7 +406,7 @@ Update through basic auth proxy unobfuscated creds with obfuscated password
     ${obfuscated} =  Set Variable  CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=
     Start Proxy Server With Basic Auth    1235  ${username}  ${password}
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url}
     Set to Dictionary    ${config["proxy"]["credential"]}  username=${username}  password=${obfuscated}  proxyType=2
@@ -426,7 +436,7 @@ When Update through auth proxy fails it does not log plain password
     ${obfuscated} =  Set Variable  CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=
     Start Proxy Server With Basic Auth    1235  ${username}  ${password}
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url}
     Set to Dictionary    ${config["proxy"]["credential"]}  username=${username}  password=${obfuscated}  proxyType=2
@@ -454,7 +464,7 @@ Simple proxy with obfuscated password as Sent By Central
     ${obfuscated} =  Set Variable  CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM=
     Start Simple Proxy Server    1235
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url}
     Set to Dictionary    ${config["proxy"]["credential"]}  password=${obfuscated}  proxyType=2
@@ -480,7 +490,7 @@ Update through digest auth proxy unobfuscated creds
     ${password} =  Set Variable  password
     Start Proxy Server With Digest Auth    1235  ${username}  ${password}
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url}
     Set to Dictionary    ${config["proxy"]["credential"]}  username=${username}  password=${password}  proxyType=1
@@ -507,7 +517,7 @@ Update through basic auth proxy obfuscated creds
     ${password} =  Set Variable  password
     Start Proxy Server With Basic Auth    1235  ${username}  ${password}
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     ${obfuscatedpassword} =    Set Variable    CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url}
@@ -534,7 +544,7 @@ Update through digest auth proxy obfuscated creds
     ${password} =  Set Variable  password
     Start Proxy Server With Digest Auth    1235  ${username}  ${password}
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     ${obfuscatedpassword} =    Set Variable    CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url}
@@ -558,7 +568,7 @@ Update through digest auth proxy obfuscated creds
 Unreachable proxy
     Require Warehouse With Fake Single Installer Product
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url}
     Log Dictionary    ${config}
@@ -593,7 +603,7 @@ Can Use Authenticated Proxy Saved In Savedproxy Config
     ${password} =  Set Variable  password
     Start Proxy Server With Basic Auth    1235  ${username}  ${password}
 
-    ${config} =    Create Config    install_path=${tmpdir}/sspl
+    ${config} =    Create Config
     ${proxy_domain_and_port} =  Set Variable   localhost:1235
     ${username_password} =      Set Variable   ${username}:${password}
     ${proxy_url} =              Set Variable   http://${username_password}@${proxy_domain_and_port}
@@ -1490,7 +1500,7 @@ Test Suldownloader Can Install From Warehouse Without Base Version
     Require Update Server
 
     #Base version is not set on config by default
-    Setup SulDownloader Config File    install_path=${tmpdir}/sspl
+    Setup SulDownloader Config File
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
 
@@ -1507,7 +1517,7 @@ Test Suldownloader Can Install From Warehouse With Base Version 1 And Config Set
 
     &{List} =  Create Dictionary   rigidName=${BASE_RIGID_NAME}  tag=RECOMMENDED  baseVersion=1
 
-    Setup SulDownloader Config File    install_path=${tmpdir}/sspl    primarySubscription=&{List}
+    Setup SulDownloader Config File    primarySubscription=&{List}
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
 
@@ -1523,7 +1533,7 @@ Test Suldownloader Can Install From Warehouse With Base Version 1 And Config Wit
     Require Update Server
 
     #Base version is not set on config by default
-    Setup SulDownloader Config File    install_path=${tmpdir}/sspl
+    Setup SulDownloader Config File
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
 
@@ -1538,7 +1548,7 @@ Test Suldownloader Can Upgrade From Major Versions Using Warehouses
 	Generate Warehouse      DIST_MAJOR=1
     Require Update Server
 
-    Setup SulDownloader Config File    install_path=${tmpdir}/sspl    remove_entries=baseVersion
+    Setup SulDownloader Config File    remove_entries=baseVersion
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
 
@@ -1587,7 +1597,7 @@ Test Suldownloader Can Download A Component Suite And Component From A Single Wa
 
     Require Update Server
 
-    Setup SulDownloader Config File    install_path=${tmpdir}/sspl    remove_entries=baseVersion   include_plugins=${True}
+    Setup SulDownloader Config File    remove_entries=baseVersion   include_plugins=${True}
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
 
@@ -1623,7 +1633,7 @@ Test Suldownloader Can Download A Component Suite And Component From A Multiple 
 
     Require Update Server
 
-    Setup SulDownloader Config File    install_path=${tmpdir}/sspl    remove_entries=baseVersion   include_plugins=${True}
+    Setup SulDownloader Config File   remove_entries=baseVersion   include_plugins=${True}
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
 
@@ -1649,7 +1659,7 @@ Suldownloader Should Keep Reporting Failure While Verification Fails
 
     Require Update Server
 
-    Setup SulDownloader Config File    install_path=${tmpdir}/sspl
+    Setup SulDownloader Config File
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
 

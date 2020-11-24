@@ -58,10 +58,10 @@ Tests::ScopedReplaceFileSystem m_replacer;
             return ::testing::AssertionFailure() << s.str() << "log level differs";
         }
 
-        if (expected.getUpdateCacheSslCertificatePath() != resulted.getUpdateCacheSslCertificatePath())
-        {
-            return ::testing::AssertionFailure() << s.str() << "update cache certificate path differs";
-        }
+//        if (expected.getUpdateCacheSslCertificatePath() != resulted.getUpdateCacheSslCertificatePath())
+//        {
+//            return ::testing::AssertionFailure() << s.str() << "update cache certificate path differs";
+//        }
 
         if (expected.getCredentials() != resulted.getCredentials())
         {
@@ -95,10 +95,10 @@ Tests::ScopedReplaceFileSystem m_replacer;
             return ::testing::AssertionFailure() << s.str() << "proxy list differs";
         }
 
-        if (expected.getInstallationRootPath() != resulted.getInstallationRootPath())
-        {
-            return ::testing::AssertionFailure() << s.str() << "installation root path differs";
-        }
+//        if (expected.getInstallationRootPath() != resulted.getInstallationRootPath())
+//        {
+//            return ::testing::AssertionFailure() << s.str() << "installation root path differs";
+//        }
 
         if (expected.getLocalWarehouseRepository() != resulted.getLocalWarehouseRepository())
         {
@@ -110,15 +110,15 @@ Tests::ScopedReplaceFileSystem m_replacer;
             return ::testing::AssertionFailure() << s.str() << "local distribution repository differs";
         }
 
-        if (expected.getCertificatePath() != resulted.getCertificatePath())
-        {
-            return ::testing::AssertionFailure() << s.str() << "certificate path differs";
-        }
-
-        if (expected.getSystemSslCertificatePath() != resulted.getSystemSslCertificatePath())
-        {
-            return ::testing::AssertionFailure() << s.str() << "system ssl certificate path differs";
-        }
+//        if (expected.getCertificatePath() != resulted.getCertificatePath())
+//        {
+//            return ::testing::AssertionFailure() << s.str() << "certificate path differs";
+//        }
+//
+//        if (expected.getSystemSslCertificatePath() != resulted.getSystemSslCertificatePath())
+//        {
+//            return ::testing::AssertionFailure() << s.str() << "system ssl certificate path differs";
+//        }
 
         if (expected.getInstallArguments() != resulted.getInstallArguments())
         {
@@ -193,9 +193,9 @@ TEST_F( // NOLINT
     expectedConfiguration.setProductsSubscription(
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "" } });
     expectedConfiguration.setFeatures({ "CORE", "MDR" });
-    expectedConfiguration.setSystemSslCertificatePath(m_absSystemSslPath);
-    expectedConfiguration.setUpdateCacheSslCertificatePath(m_absCacheUpdatePath);
-    expectedConfiguration.setCertificatePath(m_absCertificatePath);
+//    expectedConfiguration.setSystemSslCertificatePath(m_absSystemSslPath);
+//    expectedConfiguration.setUpdateCacheSslCertificatePath(m_absCacheUpdatePath);
+//    expectedConfiguration.setCertificatePath(m_absCertificatePath);
     expectedConfiguration.setInstallArguments({ "--install-dir", "/opt/sophos-av" });
     expectedConfiguration.setLogLevel(ConfigurationData::LogLevel::NORMAL);
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, expectedConfiguration);
@@ -515,132 +515,87 @@ TEST_F(ConfigurationDataTest, proxyFromSavedProxyUrlShouldBeLoggedAndReturnNullO
     EXPECT_EQ(actualProxy, expectedProxy);
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyCertificatePathWillUseDefaultOne) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = m_absCertificatePath;
+//TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingCertificatePathWillUseDefaultOne) // NOLINT
+//{
+//    setupFileSystemAndGetMock();
+//
+////    std::string oldString = R"("certificatePath": ")" + m_absCertificatePath + R"(",)";
+//
+//    std::string newString; // = "";
+//
+//    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+//
+//    configurationData.verifySettingsAreValid();
+//
+//    EXPECT_TRUE(configurationData.isVerified());
+////    EXPECT_EQ(
+////        configurationData.getCertificatePath(),
+////        Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
+//}
 
-    std::string newString; // = "";
+//TEST_F( // NOLINT
+//    ConfigurationDataTest,
+//    fromJsonSettingsValidJsonStringWithEmptyUpdateCacheSslCertPathShouldFailValidationWhenUsingUpdateCaches)
+//{
+//    setupFileSystemAndGetMock();
+//    std::string oldString = m_absCacheUpdatePath;
+//
+//    std::string newString; // = "";
+//
+//    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+//
+//    configurationData.verifySettingsAreValid();
+//
+//    EXPECT_FALSE(configurationData.isVerified());
+//}
+//
+//TEST_F( // NOLINT
+//    ConfigurationDataTest,
+//    fromJsonSettingsValidJsonStringWithMissingUpdateCacheSslCertPathShouldFailValidationWhenUsingUpdateCaches)
+//{
+//    setupFileSystemAndGetMock();
+//    std::string oldString = R"("cacheUpdateSslPath": ")" + m_absCacheUpdatePath + R"(",)";
+//
+//    std::string newString; // = "";
+//
+//    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+//
+//    configurationData.verifySettingsAreValid();
+//
+//    EXPECT_FALSE(configurationData.isVerified());
+//}
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-    EXPECT_EQ(
-        configurationData.getCertificatePath(),
-        Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingCertificatePathWillUseDefaultOne) // NOLINT
-{
-    setupFileSystemAndGetMock();
-
-    std::string oldString = R"("certificatePath": ")" + m_absCertificatePath + R"(",)";
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-    EXPECT_EQ(
-        configurationData.getCertificatePath(),
-        Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySystemSslCertPathShouldFailValidation) // NOLINT
-{
-    std::string oldString = m_absSystemSslPath;
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingSystemSslCertPathShouldPassValidation) // NOLINT
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("systemSslPath": ")" + m_absSystemSslPath + R"(",)";
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-    EXPECT_EQ(configurationData.getSystemSslCertificatePath(), ConfigurationData::DoNotSetSslSystemPath);
-}
-
-TEST_F( // NOLINT
-    ConfigurationDataTest,
-    fromJsonSettingsValidJsonStringWithEmptyUpdateCacheSslCertPathShouldFailValidationWhenUsingUpdateCaches)
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = m_absCacheUpdatePath;
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F( // NOLINT
-    ConfigurationDataTest,
-    fromJsonSettingsValidJsonStringWithMissingUpdateCacheSslCertPathShouldFailValidationWhenUsingUpdateCaches)
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("cacheUpdateSslPath": ")" + m_absCacheUpdatePath + R"(",)";
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F( // NOLINT
-    ConfigurationDataTest,
-    fromJsonSettingsValidJsonStringWithEmptyUpdateCacheSslCertPathShouldNotFailValidationWhenNotUsingUpdateCaches)
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = m_absCacheUpdatePath;
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F( // NOLINT
-    ConfigurationDataTest,
-    fromJsonSettingsValidJsonStringWithMissingUpdateCacheSslCertPathShouldNotFailValidationWhenNotUsingUpdateCaches)
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("cacheUpdateSslPath": ")" + m_absCacheUpdatePath + R"(",)";
-
-    std::string newString; // = "";
-
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
+//TEST_F( // NOLINT
+//    ConfigurationDataTest,
+//    fromJsonSettingsValidJsonStringWithEmptyUpdateCacheSslCertPathShouldNotFailValidationWhenNotUsingUpdateCaches)
+//{
+//    setupFileSystemAndGetMock();
+//    std::string oldString = m_absCacheUpdatePath;
+//
+//    std::string newString; // = "";
+//
+//    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+//
+//    configurationData.verifySettingsAreValid();
+//
+//    EXPECT_FALSE(configurationData.isVerified());
+//}
+//
+//TEST_F( // NOLINT
+//    ConfigurationDataTest,
+//    fromJsonSettingsValidJsonStringWithMissingUpdateCacheSslCertPathShouldNotFailValidationWhenNotUsingUpdateCaches)
+//{
+//    setupFileSystemAndGetMock();
+//    std::string oldString = R"("cacheUpdateSslPath": ")" + m_absCacheUpdatePath + R"(",)";
+//
+//    std::string newString; // = "";
+//
+//    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+//
+//    configurationData.verifySettingsAreValid();
+//
+//    EXPECT_FALSE(configurationData.isVerified());
+//}
 
 TEST_F(
     ConfigurationDataTest,
@@ -865,10 +820,6 @@ createJsonString("", "");
                                },
                                "manifestNames" : ["manifest.dat"],
                                "optionalManifestNames" : ["telem-manifest.dat"],
-                               "installationRootPath": "absInstallationPath",
-                               "certificatePath": "absCertificatePath",
-                               "systemSslPath": "absSystemSslPath",
-                               "cacheUpdateSslPath": "absCacheUpdatePath",
                                "primarySubscription": {
                                 "rigidName" : "BaseProduct-RigidName",
                                 "baseVersion" : "9",
