@@ -68,7 +68,7 @@ namespace filewalker
         bool m_follow_symlinks = false;
         bool m_stay_on_device = false;
 
-        std::unordered_set<file_id, file_id_hash> m_seen_symlinks;
+        std::unordered_set<file_id, file_id_hash> m_seen_directories;
         sophos_filesystem::directory_options m_options = sophos_filesystem::directory_options::none;
         bool m_startIsSymlink = false;
         dev_t m_starting_dev = 0;

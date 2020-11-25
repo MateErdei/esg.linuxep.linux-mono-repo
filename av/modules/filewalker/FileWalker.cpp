@@ -149,27 +149,21 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
 
     // do backtrack protection last, to avoid marking an excluded/skipped directory as visited
     file_id id = std::make_tuple(statBuf.st_dev, statBuf.st_ino);
-    if (m_seen_symlinks.find(id) != m_seen_symlinks.end())
+    if (m_seen_directories.find(id) != m_seen_directories.end())
     {
         LOGDEBUG("Directory already scanned: " << current_dir << " [" << statBuf.st_dev << ", " << statBuf.st_ino << "]");
         return;
     }
     else
     {
-        m_seen_symlinks.insert(id);
+        m_seen_directories.insert(id);
     }
 
-    std::error_code ec{};
+    std::error_code ec {};
     for( auto iterator = fs::directory_iterator(current_dir, m_options, ec);
          iterator != fs::directory_iterator();
          iterator.increment(ec))
     {
-        if (ec)
-        {
-            LOGERROR("Failed to iterate: " << current_dir << ": " << ec.message());
-            return;
-        }
-
         const auto& p = *iterator;
         fs::file_status itemStatus;
         fs::file_status symlinkStatus;
@@ -241,6 +235,11 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
         {
             // ignoring p
         }
+    }
+    if (ec)
+    {
+        LOGERROR("Failed to iterate: " << current_dir << ": " << ec.message());
+        return;
     }
 }
 

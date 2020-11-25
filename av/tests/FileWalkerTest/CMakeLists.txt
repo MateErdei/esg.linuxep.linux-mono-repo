@@ -29,6 +29,7 @@ SET_TARGET_PROPERTIES(file_walker_stress_test
 SophosAddTest(TestFileWalker
         ../common/LogInitializedTests.cpp
         TestFileWalker.cpp
+        TestFileWalkerRecursion.cpp
         PROJECTS filewalker
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules

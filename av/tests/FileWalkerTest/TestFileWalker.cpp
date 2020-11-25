@@ -4,11 +4,13 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "FileWalkerMemoryAppenderUsingTests.h"
+#include "TestFileWalker.h"
+#include "MockCallbacks.h"
 
 #include <filewalker/FileWalker.h>
+#include "common/AbortScanException.h"
+
 #include <gtest/gtest.h>
-#include <tests/common/LogInitializedTests.h>
 
 #include <cerrno>
 #include <fstream>
@@ -16,64 +18,10 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 
 #include <unistd.h>
 
-/*
- * hack to allow gtest/gmock to interact with mock methods passing fs::path parameters
- *
- * See: https://github.com/google/googletest/issues/521
- *      https://github.com/google/googletest/issues/1614
- *      https://github.com/google/googletest/pull/1186
- *
- * hopefully fixed in googletest v1.10.0
- */
-#if __cplusplus >= 201703L && __has_include(<filesystem>)
-namespace std::filesystem // NOLINT
-#else
-namespace std::experimental::filesystem // NOLINT
-#endif
-{
-    void PrintTo(const path& p, std::ostream* os)
-    {
-        *os << p;
-    }
-}
-
 namespace fs = sophos_filesystem;
 
 using namespace ::testing;
 
-namespace
-{
-    class MockCallbacks : public filewalker::IFileWalkCallbacks
-    {
-    public:
-        MOCK_METHOD2(processFile, void(const fs::path& filepath, bool symlinkTarget));
-        MOCK_METHOD1(includeDirectory, bool(const fs::path& filepath));
-        MOCK_METHOD1(userDefinedExclusionCheck, bool(const fs::path& filepath));
-    };
-
-    class TestFileWalker : public FileWalkerMemoryAppenderUsingTests
-    {
-    protected:
-        void SetUp() override
-        {
-            const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
-            m_testDir = fs::temp_directory_path();
-            m_testDir /= test_info->test_case_name();
-            m_testDir /= test_info->name();
-            fs::remove_all(m_testDir);
-            fs::create_directories(m_testDir);
-            fs::current_path(m_testDir);
-        }
-
-        void TearDown() override
-        {
-            fs::current_path(fs::temp_directory_path());
-            fs::remove_all(m_testDir);
-        }
-
-        fs::path m_testDir;
-    };
-} // namespace
 
 TEST_F(TestFileWalker, includeDirectory) // NOLINT
 {
@@ -472,7 +420,28 @@ TEST_F(TestFileWalker, deleteDirNotYetScannedWhileWalking) // NOLINT
     EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
 }
 
-TEST_F(TestFileWalker, filewalkerHandlesExceptionFromProcessFile) // NOLINT
+
+TEST_F(TestFileWalker, handlesExceptionFromProcessFile) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("sandbox");
+    std::ofstream("sandbox/file1.txt").close();
+
+    fs::path startingPoint = fs::absolute("sandbox/file1.txt");
+    std::string expected = "Failed to process: " + startingPoint.string();
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    std::error_code ec (ENOENT, std::system_category());
+    fs::filesystem_error fileDoesNotExist("File does not exist", ec);
+    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Throw(fileDoesNotExist));
+
+    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+
+    EXPECT_TRUE(appenderContains(expected));
+}
+
+TEST_F(TestFileWalker, handlesExceptionFromProcessFileInWalk) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -502,6 +471,62 @@ TEST_F(TestFileWalker, filewalkerHandlesExceptionFromProcessFile) // NOLINT
     EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
 
     EXPECT_TRUE(appenderContains(expected));
+}
+
+
+TEST_F(TestFileWalker, abortScanExceptionFromProcessFile) // NOLINT
+{
+    fs::create_directories("sandbox");
+    std::ofstream("sandbox/file1.txt").close();
+
+    fs::path startingPoint = fs::absolute("sandbox/file1.txt");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    AbortScanException abortScan("Cannot connect to scanning service");
+    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Throw(abortScan));
+
+    try
+    {
+        filewalker::walk(startingPoint, *callbacks);
+        FAIL() << "walk() did not throw";
+    }
+    catch (AbortScanException& ex)
+    {
+        ASSERT_STREQ(ex.what(), abortScan.what());
+    }
+}
+
+TEST_F(TestFileWalker, abortScanExceptionFromProcessFileInWalk) // NOLINT
+{
+    std::vector<fs::path> files = {
+        "sandbox/file1.txt", "sandbox/file2.txt", "sandbox/file3.txt", "sandbox/file4.txt"
+    };
+
+    for (auto& p : files)
+    {
+        fs::create_directories(p.parent_path());
+        std::ofstream(p).close();
+    }
+
+    fs::path startingPoint = fs::absolute("sandbox");
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
+
+    AbortScanException abortScan("Cannot connect to scanning service");
+    EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Throw(abortScan)).RetiresOnSaturation();
+
+    try
+    {
+        filewalker::walk(startingPoint, *callbacks);
+        FAIL() << "walk() did not throw";
+    }
+    catch (AbortScanException& ex)
+    {
+        ASSERT_STREQ(ex.what(), abortScan.what());
+    }
 }
 
 TEST_F(TestFileWalker, excludeDirectory) // NOLINT
@@ -1003,110 +1028,6 @@ TEST_F(TestFileWalker, backtrackProtectionAppliesAcrossMultipleWalks) // NOLINT
     fw.walk("sandbox/dir2");
 }
 
-TEST_F(TestFileWalker, hugeFilePathStartFromPathRoot) // NOLINT
-{
-    const fs::path& startingPath = fs::current_path();
-    fs::create_directories("TestHugePathFileWalker");
-    fs::current_path("TestHugePathFileWalker");
-
-    int depth;
-    try
-    {
-        for (depth = 0; depth < 100; ++depth)
-        {
-            fs::create_directories("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
-            fs::current_path("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
-        }
-    }
-    catch (fs::filesystem_error& e)
-    {
-        // depending on starting path, we may not be able to create 100 subdirs
-        ASSERT_GT(depth, 90);
-    }
-
-    fs::current_path(startingPath);
-
-    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
-
-    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
-    EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
-
-    EXPECT_NO_THROW(filewalker::walk("TestHugePathFileWalker", *callbacks));
-
-    auto traverse_and_delete_huge_directory = [](const sophos_filesystem::path& startingPath, int targetDirectory) {
-        fs::current_path("TestHugePathFileWalker");
-        for (int depth = 0; depth < targetDirectory; ++depth)
-        {
-            fs::current_path("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
-        }
-        fs::remove_all("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
-        fs::current_path(startingPath);
-    };
-
-    traverse_and_delete_huge_directory(startingPath, 70);
-    traverse_and_delete_huge_directory(startingPath, 35);
-    fs::remove_all("TestHugePathFileWalker");
-}
-
-TEST_F(TestFileWalker, hugeStartingFilePath) // NOLINT
-{
-    const fs::path& startingPath = fs::current_path();
-    fs::create_directories("TestHugePathFileWalker");
-    fs::current_path("TestHugePathFileWalker");
-
-    int depth;
-    try
-    {
-        for (depth = 0; depth < 100; ++depth)
-        {
-            fs::create_directories("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
-            fs::current_path("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
-        }
-    }
-    catch (fs::filesystem_error& e)
-    {
-        // depending on starting path, we may not be able to create 100 subdirs
-        ASSERT_GT(depth, 90);
-    }
-
-    const fs::path& pathToScan = fs::current_path();
-    fs::current_path(startingPath);
-
-    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
-
-    EXPECT_CALL(*callbacks, includeDirectory(_)).Times(0);
-    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).Times(0);
-    EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
-
-    try
-    {
-        filewalker::walk(pathToScan, *callbacks);
-        FAIL() << "walk() didn't throw";
-    }
-    catch (fs::filesystem_error& e)
-    {
-        EXPECT_EQ(
-            e.what(),
-            std::string("filesystem error: Failed to start scan: Starting Path too long: File name too long"));
-        EXPECT_EQ(e.code().value(), ENAMETOOLONG);
-    }
-
-    auto traverse_and_delete_huge_directory = [](const sophos_filesystem::path& startingPath, int targetDirectory)
-    {
-        fs::current_path("TestHugePathFileWalker");
-        for (int depth = 0; depth < targetDirectory; ++depth)
-        {
-            fs::current_path("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
-        }
-        fs::remove_all("TestYuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuugePathFileWalker");
-        fs::current_path(startingPath);
-    };
-
-    traverse_and_delete_huge_directory(startingPath, 70);
-    traverse_and_delete_huge_directory(startingPath, 35);
-    fs::remove_all("TestHugePathFileWalker");
-}
 
 TEST_F(TestFileWalker, withStayOnDevice) // NOLINT
 {
