@@ -482,9 +482,6 @@ TEST_F(TestDownloadReportAnalyser, ReportFileWithUnReadableDataLogsErrorAndFilte
     EXPECT_CALL(*mockFileSystem, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*mockFileSystem, readFile("update_report_1.json")).WillOnce(Return(badFile));
     EXPECT_CALL(*mockFileSystem, readFile("update_report_2.json")).WillOnce(Return(goodFile));
-
-    //EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/processedReports/update_report_1.json"))
-    //    .WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/update/var/updatescheduler/processedReports/update_report_2.json"))
         .WillOnce(Return(false));
 

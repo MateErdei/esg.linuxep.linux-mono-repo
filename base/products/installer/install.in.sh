@@ -387,6 +387,13 @@ makedir 700 "${SOPHOS_INSTALL}/base/update/updatecachecerts"
 chown -R "${UPDATESCHEDULER_USER_NAME}:root" "${SOPHOS_INSTALL}/base/update/updatecachecerts"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/updatescheduler"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports"
+# Move old update reports into new location for upgrades coming from pre-xdr
+if [[ -d "${SOPHOS_INSTALL}/base/update/var/processedReports" ]]
+then
+  # todo redirect to dev null
+  mv "${SOPHOS_INSTALL}/base/update/var/processedReports/update_report*.json" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports/"
+  mv "${SOPHOS_INSTALL}/base/update/var/update_report*.json" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/"
+fi
 chown -R "${UPDATESCHEDULER_USER_NAME}:root" "${SOPHOS_INSTALL}/base/update/var/updatescheduler"
 
 
