@@ -20,22 +20,27 @@ Test Teardown   VQA Test TearDown
 
 SUSI config can scan android file
     Add IDE To Installation  axml.ide
-    Check Threat Detected  AndroidManifest.xml  Test/Axml
+    Check Threat Detected  AndroidManifest.xml  ${EMPTY}  Test/Axml
 
 
 SUSI config can scan msoffice file
     Add IDE To Installation  office.ide
-    Check Threat Detected  cleanmacro.xlsm  Test/Office
+    Check Threat Detected  cleanmacro.xlsm  ${EMPTY}  Test/Office
 
 
 SUSI config can scan adobe file
     Add IDE To Installation  pdf.ide
-    Check Threat Detected  test.pdf  Pass/URI
+    Check Threat Detected  test.pdf  ${EMPTY}  Pass/URI
 
 
 SUSI config can scan internet file
     Add IDE To Installation  internet.ide
-    Check Threat Detected  test.html  Test/Html
+    Check Threat Detected  test.html  ${EMPTY}  Test/Html
+
+
+SUSI config can scan macintosh file
+    Add IDE To Installation  hfs.ide
+    Check Threat Detected  testfile.hfs  /:Disk Image:.journal  Test/Hfs
 
 
 SUSI config can scan zip file as web archive
