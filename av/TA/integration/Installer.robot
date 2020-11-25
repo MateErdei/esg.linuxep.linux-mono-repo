@@ -61,6 +61,7 @@ IDE can be removed
     Run installer from install set
     Check IDE absent from installation
 
+
 *** Variables ***
 ${IDE_NAME}
 ${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl
