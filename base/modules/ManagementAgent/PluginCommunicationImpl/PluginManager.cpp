@@ -52,7 +52,7 @@ namespace ManagementAgent
             catch (std::exception& exception)
             {
                 LOGERROR(
-                    "Failed to chmod Management Agent IPC to 660, processes no running as sophos-spl-user will not be "
+                    "Failed to chmod Management Agent IPC to 660, processes not running as sophos-spl-user will not be "
                     "able to communicate with Management Agent, error:"
                     << exception.what());
             }

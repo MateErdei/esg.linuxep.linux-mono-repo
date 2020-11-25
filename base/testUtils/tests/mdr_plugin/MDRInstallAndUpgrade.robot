@@ -199,7 +199,7 @@ Test Teardown MDR Install And Upgrade
     Run Keyword If Test Failed    Log File   ${PreviousALC}
     Run Keyword If Test Failed    Log File   ${NextALC}
     Run Keyword if Test Failed    Log File  ${ALC_POLICY_PATH}
-    Run Keyword if Test Failed    Log File  ${SOPHOS_INSTALL}/base/update/var/update_config.json
+    Run Keyword if Test Failed    Log File  ${UPDATE_CONFIG}
     Run Keyword if Test Failed    Log File  ${SOPHOS_INSTALL}/base/VERSION.ini
     Run Keyword if Test Failed    Log File  ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
     Stop Local Cloud Server

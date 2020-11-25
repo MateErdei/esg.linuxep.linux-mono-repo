@@ -31,7 +31,6 @@ Default Tags  MCS  FAKE_CLOUD  UPDATE_SCHEDULER  MCS_ROUTER  OSTIA
 ${tmpdir}                       ${SOPHOS_INSTALL}/tmp/SDT
 ${BASE_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_only_VUT.xml
 ${BASE_AND_MDR_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_and_mtr_VUT.xml
-${sulConfigPath}  ${SOPHOS_INSTALL}/base/update/var/update_config.json
 ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 
@@ -58,10 +57,10 @@ Verify Status Message Sent When Registering With Central
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  File Should Exist  ${sulConfigPath}
+    ...  File Should Exist  ${UPDATE_CONFIG}
 
     @{policyValues} =  Get Alc Policy File Info  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-    @{configValues} =  Get Sul Config File Info  ${sulConfigPath}
+    @{configValues} =  Get Sul Config File Info  ${UPDATE_CONFIG}
     Lists Should Be Equal  ${policyValues}  ${configValues}
 
     Log File  ${MCS_DIR}/status/ALC_status.xml
@@ -122,9 +121,9 @@ Verify Status Message Sent When Registering With Central And Event And Status Se
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  File Should Exist  ${sulConfigPath}
+    ...  File Should Exist  ${UPDATE_CONFIG}
 
-    Log File  ${sulConfigPath}
+    Log File  ${UPDATE_CONFIG}
 
     #First ALC policy will trigger update
     Wait Until Keyword Succeeds
@@ -294,7 +293,7 @@ Verify Status Message Is Sent When New Policy Received Even If Product Update Is
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  File Should Exist  ${sulConfigPath}
+    ...  File Should Exist  ${UPDATE_CONFIG}
 
     #Status is based upon the products on the system and as such only changes with policy
 

@@ -663,7 +663,7 @@ Simulate Previous Scheduled Update Success
     # Trigger updating via Central Update Scheduler which will create the previous_update_config.json file only when
     # update scheduler process expected current reports rather than unprocessed old reports
     Run Process   cp  ${SOPHOS_INSTALL}/base/update/var/update_config.json  ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
-    Run Process   chown  sophos-spl-user:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+    Run Process   chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
 
 Check for Management Agent Failing To Send Message To MTR And Check Recovery
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data

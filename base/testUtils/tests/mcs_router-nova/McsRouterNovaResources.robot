@@ -18,7 +18,6 @@ Library     ${LIBS_DIRECTORY}/SystemInfo.py
 
 *** Variables ***
 ${tmpdir}               ${SOPHOS_INSTALL}/tmp/SDT
-${sulConfigPath}        ${SOPHOS_INSTALL}/base/update/var/update_config.json
 ${statusPath}           ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 *** Keywords ***
@@ -146,12 +145,12 @@ Require SDDS urls redirected to Localhost
     Run Keyword If   ${checkAlcPolicy}==${True}
     ...   Check ALC Policy Exists
 
-    Wait For Config File   ServerProtectionLinux-Base   ${sulConfigPath}
-    Log File  ${sulConfigPath}
-    Copy File  ${sulConfigPath}  /tmp/update_config.json.bak
+    Wait For Config File   ServerProtectionLinux-Base   ${UPDATE_CONFIG}
+    Log File  ${UPDATE_CONFIG}
+    Copy File  ${UPDATE_CONFIG}  /tmp/update_config.json.bak
     Replace Sophos URLS to Localhost  ${usingUpdateCache}
 
-    Log File  ${sulConfigPath}
+    Log File  ${UPDATE_CONFIG}
 
 Wait for connection to update cache
     Require SDDS Urls Redirected To Localhost  usingUpdateCache=${True}
@@ -229,9 +228,9 @@ Wait For Sul Config File To Be Updated From Policy
     ...  1
     ...  File Should Exist   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
-    Wait For Config File   ServerProtectionLinux-Base   ${sulConfigPath}
+    Wait For Config File   ServerProtectionLinux-Base   ${UPDATE_CONFIG}
 
-    Log File   ${sulConfigPath}
+    Log File   ${UPDATE_CONFIG}
     Log File   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
 

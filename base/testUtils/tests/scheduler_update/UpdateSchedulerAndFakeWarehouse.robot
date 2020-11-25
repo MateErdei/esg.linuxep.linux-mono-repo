@@ -36,7 +36,7 @@ UpdateScheduler Update Against Ostia
     Log File  /opt/sophos-spl/logs/base/suldownloader.log
     Check Event Report Success  ${eventPath}
 
-    File Should Exist    ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     Wait Until Keyword Succeeds
     ...  60 secs
@@ -74,7 +74,7 @@ UpdateScheduler Status No Longer Contains Deprecated Fields
 
     Check Event Report Success  ${eventPath}
 
-    File Should Exist    ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+    File Should Exist    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
 
 UpdateScheduler Report Failure On Versig Error

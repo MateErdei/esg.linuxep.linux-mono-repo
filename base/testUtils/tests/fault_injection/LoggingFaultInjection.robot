@@ -16,7 +16,6 @@ Default Tags   FAULTINJECTION
 
 *** Variables ***
 ${MDR_PLUGIN_PATH}              ${SOPHOS_INSTALL}/plugins/mtr/
-${sulConfigPath}                ${SOPHOS_INSTALL}/base/update/var/update_config.json
 ${MDR_VUT_POLICY}               ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_and_mtr_VUT.xml
 ${FakeLogger}                   SystemProductTestOutput/FaultInjectionLogger
 ${FakeLogger}                   SystemProductTestOutput/FaultInjectionLogger

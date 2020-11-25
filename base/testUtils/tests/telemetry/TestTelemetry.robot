@@ -45,7 +45,7 @@ Cleanup Telemetry Tests
 ### Test setup
 
 Create Empty SulDownloader Config
-    Create File    ${SOPHOS_INSTALL}/base/update/var/update_config.json
+    Create File    ${UPDATE_CONFIG}
 
 Telemetry Test Setup
     Prepare To Run Telemetry Executable
@@ -69,7 +69,7 @@ Telemetry Test Teardown
     Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
     Cleanup Telemetry Server
     Reset MachineID Permissions
-    Remove File   ${SOPHOS_INSTALL}/base/update/var/update_config.json
+    Remove File   ${UPDATE_CONFIG}
     Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
     Remove Environment Variable  BREAK_PUT_REQUEST
 

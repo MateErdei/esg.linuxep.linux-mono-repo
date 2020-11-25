@@ -30,11 +30,11 @@ Send Policy To UpdateScheduler
     Register Current Sul Downloader Config Time
     Simulate Send Policy   ${originalPolicyName}  &{kwargs}
     Wait For New Sul Downloader Config File Created
-    Log File   ${sulConfigPath}
+    Log File   ${UPDATE_CONFIG}
 
 Send Policy With Cache
     [Arguments]    &{kwargs}
-    Remove File  ${cacheCertificatePath}
+    Remove File  ${UPDATECACHE_CERT_PATH}
     Send Policy To UpdateScheduler  ALC_policy_with_cache.xml  &{kwargs}
     Check CacheCertificates Is Created Correctly
 
@@ -78,8 +78,6 @@ Restart Update Scheduler
 Setup Update Scheduler Environment
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Set Test Variable  ${cacheCertificatePath}  ${SOPHOS_INSTALL}/base/update/certs/cache_certificates.crt
-    Set Test Variable  ${sulConfigPath}  ${SOPHOS_INSTALL}/base/update/var/update_config.json
     Disable mcsrouter
 
 
@@ -92,8 +90,6 @@ Setup Update Scheduler Environment and Stop All Services
 Setup Current Update Scheduler Environment
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Set Test Variable  ${cacheCertificatePath}  ${SOPHOS_INSTALL}/base/update/certs/cache_certificates.crt
-    Set Test Variable  ${sulConfigPath}  ${SOPHOS_INSTALL}/base/update/var/update_config.json
     Disable mcsrouter
     Create Empty Config File To Stop First Update On First Policy Received
     Set Log Level For Component And Reset and Return Previous Log  sophos_managementagent   DEBUG
@@ -103,8 +99,6 @@ Setup Current Update Scheduler Environment
 Setup Current Update Scheduler Environment Without Policy
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Set Test Variable  ${cacheCertificatePath}  ${SOPHOS_INSTALL}/base/update/certs/cache_certificates.crt
-    Set Test Variable  ${sulConfigPath}  ${SOPHOS_INSTALL}/base/update/var/update_config.json
     Disable mcsrouter
 
 
@@ -145,12 +139,11 @@ Check Status Report Contain
     Should Contain  ${fileContent}  ${expectedContent}  msg="${ErrorMessage}. Looked for: {${expectedContent}} inside Status xml."
 
 Check CacheCertificates Is Created Correctly
-   ${cacheCertificatePath} =   Set Variable  ${SOPHOS_INSTALL}/base/update/certs/cache_certificates.crt
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  File Should Exist  ${cacheCertificatePath}
-    ${fileContent}  Get File  ${cacheCertificatePath}
+    ...  File Should Exist  ${UPDATECACHE_CERT_PATH}
+    ${fileContent}  Get File  ${UPDATECACHE_CERT_PATH}
     Should Contain  ${fileContent}  MIIDxDCCAqygAwIBAgIQE  msg="Certificate content differs from expected"
 
 
@@ -159,6 +152,11 @@ Setup Warehouse For Base
     ${dist} =  Get Folder With Installer
 
     Copy Directory  ${dist}  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base
+    Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = Sophos Server Protection Linux - Base Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
+    log file  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini
+#    log to console  now
+#    log to console  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base
+#    sleep  400
 
     Add Component Warehouse Config   ServerProtectionLinux-Base   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ServerProtectionLinux-Base
     Generate Warehouse
@@ -259,12 +257,18 @@ Setup Warehouse For MDR
 
 Setup Environment Before Warehouse Generation
     Setup Update Scheduler Environment
-     Create Directory    ${tmpdir}
+    Create Directory    ${tmpdir}
 
 Setup Environment After Warehouse Generation
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log  updatescheduler   DEBUG    suldownloader=DEBUG
     Create Empty Config File To Stop First Update On First Policy Received
     Stop Update Scheduler
+
+    Copy file  ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt   ${SOPHOS_INSTALL}/base/update/rootcerts/
+    Copy file  ${SUPPORT_FILES}/sophos_certs/rootca.crt   ${SOPHOS_INSTALL}/base/update/rootcerts/
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
+
     Start Update Scheduler
 
 Setup For Test With Warehouse Containing Base and Sensors
@@ -408,7 +412,7 @@ Teardown Servers For Update Scheduler
     Run Keyword If Test Failed    Log File  /etc/hosts
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
     Run Keyword If Test Failed    Log Settings Files
-    Run Keyword If Test Failed    Run Keyword and Ignore Error  Log File    ${SOPHOS_INSTALL}/base/update/var/update_config.json
+    Run Keyword If Test Failed    Run Keyword and Ignore Error  Log File  ${UPDATE_CONFIG}
     Run Keyword If Test Failed    Log Report Files
     Run Keyword If Test Failed    Run Keyword and Ignore Error  Log File  ${SOPHOS_INSTALL}/tmp/fakesul.log
     Remove Directory   ${tmpdir}  recursive=True

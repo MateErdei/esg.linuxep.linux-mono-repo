@@ -16,13 +16,10 @@ Test Teardown  Test Teardown
 Suite Setup   Setup Ostia Warehouse Environment
 Suite Teardown   Teardown Ostia Warehouse Environment
 
-
-
 Default Tags   MDR_PLUGIN   MANAGEMENT_AGENT  OSTIA
 
 *** Variables ***
-${MDR_PLUGIN_PATH}              ${SOPHOS_INSTALL}/plugins/mtr/
-${sulConfigPath}                ${SOPHOS_INSTALL}/base/update/var/update_config.json
+${MDR_PLUGIN_PATH}  ${SOPHOS_INSTALL}/plugins/mtr/
 ${MDR_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_and_mtr_VUT.xml
 
 
@@ -30,7 +27,7 @@ ${MDR_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedA
 
 Test MDR Plugin Can Be Installed Removed and ReInstalled From Central
     [Documentation]  Address bug found LINUXEP-8233
-    Create File  ${SulConfigPath}
+    Create File  ${UPDATE_CONFIG}
     Block Connection Between EndPoint And FleetManager
     Simulate Send Policy And Run Update And Check Success  ${MDR_VUT_POLICY}
     Check MDR Installed
@@ -47,7 +44,7 @@ Test MDR Plugin Can Be Installed Removed and ReInstalled From Central
 
 
 Test MDR Plugin When Installed Emit Status With The Components Of The Warehouse Installed
-    Create File  ${SulConfigPath}
+    Create File  ${UPDATE_CONFIG}
     Block Connection Between EndPoint And FleetManager
     Simulate Send Policy And Run Update And Check Success  ${MDR_VUT_POLICY}
     Check MDR Installed

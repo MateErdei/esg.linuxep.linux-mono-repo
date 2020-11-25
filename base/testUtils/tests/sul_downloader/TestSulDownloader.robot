@@ -43,9 +43,7 @@ Setup For Test
     Recreate Installation In Temp Dir
     Copy file  ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt   ${SOPHOS_INSTALL}/base/update/rootcerts/
     Copy file  ${SUPPORT_FILES}/sophos_certs/rootca.crt   ${SOPHOS_INSTALL}/base/update/rootcerts/
-    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
-
+    Install Local SSL Server Cert To System
     Set Environment Variable  CORRUPTINSTALL  no
 
 Teardown for Test
@@ -57,7 +55,7 @@ Teardown for Test
 
     Stop Update Server
     Stop Proxy Servers
-
+    Revert System CA Certs
     Variable Should Exist    ${tmpdir}
     Remove Directory   ${tmpdir}    recursive=True
     Set Environment Variable  CORRUPTINSTALL  no
@@ -246,7 +244,6 @@ Simple proxy
 
     Start Simple Proxy Server    1235
 
-#    ${config} =    Create Config    install_path=${tmpdir}/sspl
     ${config} =    Create Config
     ${proxy_url} =    Set Variable    http://localhost:1235/
     Set to Dictionary    ${config["proxy"]}    url=${proxy_url}
@@ -257,6 +254,10 @@ Simple proxy
     Create File    ${tmpdir}/update_config.json    content=${config_json}
 
     log  ${tmpdir}
+    should exist  /opt/sophos-spl/tmp
+    should exist  /opt/sophos-spl/tmp/SDT
+#    log to console   sleeping before sul runs
+#    sleep  300
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${SOPHOS_INSTALL}
 
     Check SulDownloader Result   ${result}   ${SUCCESS}
@@ -1912,6 +1913,7 @@ Require Update Server
 Require Warehouse With Fake Single Installer Product
     #generate install file in directory    ${tmpdir}/TestInstallFiles/
     Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
+    Create File   ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/VERSION.ini   PRODUCT_NAME = Sophos Server Protection Linux - Base Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
 
     Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}
 
