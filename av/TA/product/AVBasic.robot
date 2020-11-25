@@ -249,7 +249,7 @@ AV Plugin Can Disable Scanning Of Mounted NFS Shares
 AV Plugin Can Disable Scanning Of Mounted SMB Shares
     [Tags]  SMB
     ${source} =       Set Variable  /tmp/smbshare
-    ${destination} =  Set Variable  /mnt/smbshare
+    ${destination} =  Set Variable  /testmnt/smbshare
     Create Directory  ${source}
     Create File       ${source}/eicar.com    ${EICAR_STRING}
     Register Cleanup  Remove File      ${source}/eicar.com
