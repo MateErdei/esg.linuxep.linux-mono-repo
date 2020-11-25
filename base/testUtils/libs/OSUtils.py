@@ -357,7 +357,7 @@ def get_dictionary_of_expected_base_logs_and_permissions():
         "/opt/sophos-spl/logs/base/sophosspl/mcs_envelope.log":           ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/mcsrouter.log":              ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log": ["sophos-spl-user", "sophos-spl-group", "-rw-------"],
-        "/opt/sophos-spl/logs/base/sophosspl/updatescheduler.log":        ["sophos-spl-user", "sophos-spl-group", "-rw-------"],
+        "/opt/sophos-spl/logs/base/sophosspl/updatescheduler.log":        ["sophos-spl-updatescheduler", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/tscheduler.log":             ["sophos-spl-user", "sophos-spl-group", "-rw-------"]
     }
 
