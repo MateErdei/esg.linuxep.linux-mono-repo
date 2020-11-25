@@ -10,8 +10,8 @@ o777, root, root, /opt/sophos-spl/base/etc/DiagnosePaths.conf
 o777, root, root, /opt/sophos-spl/base/etc/downgradepaths.dat
 o777, root, root, /opt/sophos-spl/base/etc/licenses.txt
 o777, root, root, /opt/sophos-spl/base/etc/logger.conf
-o777, root, root, /opt/sophos-spl/base/update/certs/ps_rootca.crt
-o777, root, root, /opt/sophos-spl/base/update/certs/rootca.crt
+o777, root, root, /opt/sophos-spl/base/update/rootcerts/ps_rootca.crt
+o777, root, root, /opt/sophos-spl/base/update/rootcerts/rootca.crt
 o777, root, root, /opt/sophos-spl/base/update/versig
 o777, root, root, /opt/sophos-spl/base/VERSION.ini
 o777, root, root, /opt/sophos-spl/bin/sophos_diagnose
