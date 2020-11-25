@@ -884,19 +884,30 @@ Check Files After Upgrade
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
 
 Check Update Reports Have Been Processed
-   Directory Should Exist  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
-   ${files_in_processed_dir} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
-   Log  ${files_in_processed_dir}
+    Directory Should Exist  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
+    ${files_in_processed_old_dir} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/processedReports
+    ${files_in_processed_new_dir} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
+    Log  ${files_in_processed_old_dir}
+    Log  ${files_in_processed_new_dir}
 
-   ${filesInUpdateVar} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var
-   Log  ${filesInUpdateVar}
+    ${filesInUpdateVarOld} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var
+    ${filesInUpdateVarNew} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/updatescheduler
+    Log  ${filesInUpdateVarOld}
+    Log  ${filesInUpdateVarNew}
 
-   ${ProcessedFileCount}=  Get length   ${files_in_processed_dir}
-   Should Be Equal As Numbers  ${ProcessedFileCount}   2
-   Should Contain  ${files_in_processed_dir}[0]  update_report
-   Should Not Contain  ${files_in_processed_dir}[0]  update_report.json
+    ${ProcessedFileCountOldDir}=  Get length   ${files_in_processed_old_dir}
+    ${ProcessedFileCountNewDir}=  Get length   ${files_in_processed_new_dir}
+    Should Be Equal As Numbers  ${ProcessedFileCountOldDir}     1
+    Should Be Equal As Numbers  ${ProcessedFileCountNewDir}     1
 
-   Should Contain  ${filesInUpdateVar}   ${files_in_processed_dir}[0]
+    Should Contain  ${files_in_processed_old_dir}[0]  update_report
+    Should Not Contain  ${files_in_processed_old_dir}[0]  update_report.json
+
+    Should Contain  ${files_in_processed_new_dir}[0]  update_report
+    Should Not Contain  ${files_in_processed_new_dir}[0]  update_report.json
+
+    Should Contain  ${filesInUpdateVarOld}   ${files_in_processed_old_dir}[0]
+    Should Contain  ${filesInUpdateVarNew}   ${files_in_processed_new_dir}[0]
 
 Get Pid Of Process
     [Arguments]  ${process_name}

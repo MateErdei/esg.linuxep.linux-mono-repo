@@ -50,7 +50,7 @@ elif ( SIMULATION == "NOTHING"):
   pass
 elif ( SIMULATION == "COPYREPORT"):
   reportpath = os.path.join(CONFIGPATH, 'report.json')
-  reportdest = os.path.join(INSTALLPATH, 'base/update/var/update_report.json')
+  reportdest = os.path.join(INSTALLPATH, 'base/update/var/updatescheduler/update_report.json')
   log("Create file " + str(reportdest))
   shutil.move(reportpath, reportdest)
   log("File content: {}".format(open(reportdest, 'r').read()))
