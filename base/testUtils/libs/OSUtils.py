@@ -345,7 +345,7 @@ def get_dictionary_of_expected_sockets_and_permissions():
         "/opt/sophos-spl/var/ipc/watchdog.ipc":                 ["root",            "root",             "srw-------"],
         "/opt/sophos-spl/var/ipc/plugins/watchdogservice.ipc":  ["root", "sophos-spl-group", "srw-rw----"],
         "/opt/sophos-spl/var/ipc/plugins/tscheduler.ipc":       ["sophos-spl-user", "sophos-spl-group", "srw-------"],
-        "/opt/sophos-spl/var/ipc/plugins/updatescheduler.ipc":  ["sophos-spl-user", "sophos-spl-group", "srwx------"]
+        "/opt/sophos-spl/var/ipc/plugins/updatescheduler.ipc":  ["sophos-spl-updatescheduler", "sophos-spl-group", "srw-rw----"]
     }
 
 
