@@ -335,7 +335,10 @@ We Can Upgrade From A Release With EDR To Master With Live Response
     ...   10 secs
     ...   Should Exist   /opt/sophos-spl/plugins/liveresponse
 
-    Check Live Response Plugin Running
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   Check Live Response Plugin Running
 
     # check additional update does not restart key services
     ${us_before_pid}=  Get Pid Of Process   UpdateScheduler
