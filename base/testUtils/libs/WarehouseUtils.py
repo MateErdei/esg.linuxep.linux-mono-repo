@@ -86,8 +86,11 @@ DEV_PS_ROOT_CA = os.path.join(SUPPORT_FILE_PATH, "sophos_certs", "ps_rootca.crt"
 PROD_ROOT_CA = os.path.join(SUPPORT_FILE_PATH, "sophos_certs", "prod_certs", "rootca.crt")
 PROD_PS_ROOT_CA = os.path.join(SUPPORT_FILE_PATH, "sophos_certs", "prod_certs", "ps_rootca.crt")
 
-ROOT_CA_INSTALLATION_EXTENSION = os.path.join("base", "update", "certs", "rootca.crt")
-PS_ROOT_CA_INSTALLATION_EXTENSION = os.path.join("base", "update", "certs", "ps_rootca.crt")
+ROOT_CA_INSTALLATION_EXTENSION = os.path.join("base", "update", "rootcerts", "rootca.crt")
+PS_ROOT_CA_INSTALLATION_EXTENSION = os.path.join("base", "update", "rootcerts", "ps_rootca.crt")
+ROOT_CA_INSTALLATION_EXTENSION_OLD = os.path.join("base", "update", "certs", "rootca.crt")
+PS_ROOT_CA_INSTALLATION_EXTENSION_OLD = os.path.join("base", "update", "certs", "ps_rootca.crt")
+
 SOPHOS_ALIAS_EXTENSION = os.path.join("base", "update", "var", "sophos_alias.txt")
 
 def _make_local_copy_of_warehouse():
@@ -122,8 +125,14 @@ def _install_upgrade_certs(root_ca, ps_root_ca):
     sophos_install_path = _get_sophos_install_path()
     logger.info("root_ca:  {}".format(root_ca))
     logger.info("ps_root_ca:  {}".format(ps_root_ca))
-    shutil.copy(root_ca, os.path.join(sophos_install_path, ROOT_CA_INSTALLATION_EXTENSION))
-    shutil.copy(ps_root_ca, os.path.join(sophos_install_path, PS_ROOT_CA_INSTALLATION_EXTENSION))
+
+    # todo consider making this better
+    try:
+        shutil.copy(root_ca, os.path.join(sophos_install_path, ROOT_CA_INSTALLATION_EXTENSION))
+        shutil.copy(ps_root_ca, os.path.join(sophos_install_path, PS_ROOT_CA_INSTALLATION_EXTENSION))
+    except:
+        shutil.copy(root_ca, os.path.join(sophos_install_path, ROOT_CA_INSTALLATION_EXTENSION_OLD))
+        shutil.copy(ps_root_ca, os.path.join(sophos_install_path, PS_ROOT_CA_INSTALLATION_EXTENSION_OLD))
 
 def _install_sophos_alias_file(url):
     sophos_install_path = _get_sophos_install_path()
