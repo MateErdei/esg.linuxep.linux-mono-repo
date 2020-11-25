@@ -37,24 +37,39 @@
 
         <!-- SUSI imports -->
 
-        <package name="libsavi-packages" internal_name="savi" version="3-78-6/218487" dest="input/susi_input" >
+<!--        <package name="libsavi-packages" internal_name="savi" version="3-78-6/218487" dest="input/susi_input" >
             <include src="packages/linux.amd64.glibc.2.3-gcc4.8.1/libsavi.so.3.*" dest="libsavi" />
             <include src="packages/linux.amd64.glibc.2.3-gcc4.8.1/libssp.so.0" dest="libsavi"  />
-        </package>
+        </package> -->
+
+        <build-asset project="core" repo="engine">
+            <release-version branch="release--3.80.5" build-id="20200917132546-06a514a114bba47e82ad8ef70a3d5bd6284a49f2-5DyK5f/"/>
+            <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
+        </build-asset>
 
         <package name="model-linux-x64" version="1-3/212025" dest="input/susi_input" >
             <include src="oempackage/linux-x64-model-gcc4.8.1.tar" dest="mllib"  />
         </package>
 
-        <package name="liblocalrep-linux-x86_64" version="1-0/212029" dest="input/susi_input" >
+<!--    <package name="liblocalrep-linux-x86_64" version="1-0/212029" dest="input/susi_input" >
             <include src="release/liblocalrep.so" dest="lrlib" />
-        </package>
+        </package> -->
 
-        <package name="libsophtainer-linuxamd64-glibc2_3" internal_name="libsophtainer" version="1-0-0/218312" dest="input/susi_input" >
+        <build-asset project="ec" repo="liblocalrep">
+            <release-version branch="develop" build-id="20201119165956-167143fc9dc5447f3e6829ffb8d1471daa684349-z2pQlf"/>
+            <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
+        </build-asset>
+
+<!--    <package name="libsophtainer-linuxamd64-glibc2_3" internal_name="libsophtainer" version="1-0-0/218312" dest="input/susi_input" >
             <include src="package/libsophtainer.tar" dest="libsophtainer" />
-        </package>
+        </package> -->
 
-        <!-- See https://esg-ci.eng.sophos/docs/docs/build-package-file#inputs-from-other-unified-pipelines-21 -->
+        <build-asset project="core" repo="engine">
+            <release-version branch="release--3.80.5" build-id="20200917132546-06a514a114bba47e82ad8ef70a3d5bd6284a49f2-5DyK5f/"/>
+            <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
+        </build-asset>
+
+<!-- See https://esg-ci.eng.sophos/docs/docs/build-package-file#inputs-from-other-unified-pipelines-21 -->
 <!--        <package name="susi" version="1-0-0-4589/221205" dest="input/susi_input" >-->
 <!--            <include src="release/susi-centos7-x64-gcc810/lib" dest="susi/lib"/>-->
 <!--            <include src="release/susi-centos7-x64-gcc810/include" dest="susi/include"/>-->
@@ -63,9 +78,9 @@
 <!--            <include src="rules/rules" dest="rules" />-->
 <!--        </package>-->
         <build-asset project="ec" repo="susi">
-            <release-version branch="release/CORE-2004" build-id="20201016072052-7b14b2fa387ee25683589e34705e2bf4e30ff357-8Jkzd5/"/>
+            <release-version branch="develop" build-id="20201123122430-b63550c3b193fe7bef15c66edf6e76e2046199bb-lwuogV/"/>
             <include artifact-path="release/centos7/libsusi" dest-dir="input/susi_input/susi/lib" />
-            <include artifact-path="release/centos7/include" dest-dir="input/susi_input/susi/include" />
+            <include artifact-path="release/centos7/interface" dest-dir="input/susi_input/susi/include" />
             <include artifact-path="release/rules" dest-dir="input/susi_input/rules" />
         </build-asset>
 
@@ -74,7 +89,7 @@
 <!--        </package>-->
 
         <build-asset project="core" repo="httpsrequester">
-            <release-version branch="release/test" build-id="20200918094111-0d8d9dc53765f2049f83090bd18c1672589374c5-vwPQEK"/>
+            <release-version branch="develop" build-id="20201111064140-c1310f9122e6262e40cd146c73cf38573ae6c732-uHJn6o"/>
             <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 

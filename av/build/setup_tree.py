@@ -284,6 +284,7 @@ def main(argv):
     UPDATER_DIR = os.path.join(UPDATE_CACHE_DIR, "libupdater")
 
     copy_from_input("susi/lib/libsusicore.so*", SUSICORE_DIR)
+    copy_from_input("susi/lib/liblocalrep.so*", SUSICORE_DIR)
 
     ## libupdater
     copy_from_input("susi/lib/libupdater.so*", UPDATER_DIR)
@@ -292,7 +293,7 @@ def main(argv):
     copy_from_input("rules", RULES_DIR)
 
     ## libsavi
-    copy_from_input("libsavi/libsavi.so.3.2.*", SAVI_DIR)
+    copy_from_input("libsavi/release/libsavi.so.3.2.*", SAVI_DIR)
 
     ## libluajit
     copy_from_input("luajit/lib/libluajit*.so.2.*", SUSICORE_DIR)
@@ -315,10 +316,10 @@ def main(argv):
     copy_from_input("gr/lib/*", GRLIB_DIR)
 
     ## libsophtainer
-    unpack_tar_from(os.path.join(INPUT_DIR, "libsophtainer/libsophtainer.tar"), SOPHTAINER_DIR)
+    copy_from_input("libsophtainer/release/libsophtainer.so", SOPHTAINER_DIR)
 
     ## local-rep
-    copy_from_input("lrlib/liblocalrep.so", LRLIB_DIR)
+    copy_from_input("lrlib/liblocalreputation.so", LRLIB_DIR)
 
     ## ml-lib
     unpack_tar_from(os.path.join(INPUT_DIR, "mllib/linux-x64-model-gcc4.8.1.tar"), MLLIB_DIR)
