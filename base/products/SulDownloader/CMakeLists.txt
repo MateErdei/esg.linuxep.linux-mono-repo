@@ -23,5 +23,5 @@ set( CERTIFICATES ${INPUT}/certificates )
 install(FILES
         ${CERTIFICATES}/ps_rootca.crt
         ${CERTIFICATES}/rootca.crt
-        DESTINATION files/base/update/certs
+        DESTINATION files/base/update/rootcerts
         PERMISSIONS OWNER_READ)
