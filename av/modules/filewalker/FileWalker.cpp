@@ -61,6 +61,10 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         {
             m_callback.processFile(starting_point, m_startIsSymlink);
         }
+        catch (const AbortScanException&)
+        {
+            throw;
+        }
         catch (const std::runtime_error& ex)
         {
             LOGERROR("Failed to process: " << starting_point.string());
