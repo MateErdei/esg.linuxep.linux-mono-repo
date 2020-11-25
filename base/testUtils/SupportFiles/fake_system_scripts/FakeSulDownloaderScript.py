@@ -6,7 +6,8 @@
 import os
 import sys
 import shutil
-import time
+import grp
+from pwd import getpwnam
 
 import datetime
 INSTALLPATH = os.getenv("SOPHOS_INSTALL", "/opt/sophos-spl")
@@ -52,6 +53,10 @@ elif ( SIMULATION == "COPYREPORT"):
   reportpath = os.path.join(CONFIGPATH, 'report.json')
   reportdest = os.path.join(INSTALLPATH, 'base/update/var/updatescheduler/update_report.json')
   log("Create file " + str(reportdest))
+  uid = getpwnam('sophos-spl-updatescheduler').pw_uid
+  gid = grp.getgrnam('root')[2]
+  os.chown(reportpath, uid, gid)
+  os.chmod(reportpath, 0o600)
   shutil.move(reportpath, reportdest)
   log("File content: {}".format(open(reportdest, 'r').read()))
 else:

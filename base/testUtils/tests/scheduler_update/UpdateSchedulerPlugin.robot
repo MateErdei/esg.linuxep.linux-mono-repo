@@ -48,7 +48,7 @@ UpdateScheduler SulDownloader Report Sync With Warehouse Success
     ${telemetryFileContents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
     Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0  True  ${time}  sddsid=regruser
     Cleanup Telemetry Server
-    Check Update Sheduler Run as Sophos-spl-user
+    Check Update Scheduler Run as Sophos-spl-user
 
 
 UpdateScheduler Regenerates The Config File If It Does Not Exist
@@ -441,10 +441,10 @@ Check Event Source
     ${fileContent}  Get File  ${eventPath}
     Should Contain  ${fileContent}  ${expectedSource}  msg="Event does not report Source: ${expectedSource}"
 
-Check Update Sheduler Run as Sophos-spl-user
+Check Update Scheduler Run as Sophos-spl-user
     ${Pid} =   Run Process   pidof UpdateScheduler   shell=yes
     ${UpdateSchedulerProcess} =  Run Process   ps -o user\= -p ${Pid.stdout}    shell=yes
-    Should Contain   ${UpdateSchedulerProcess.stdout}   sophos-spl-user    msg="Failed to detect process ownership of UpdateScheduler. Expected it to run as sophos-spl-user. ${UpdateSchedulerProcess.stdout}. Err: ${UpdateSchedulerProcess.stderr}"
+    Should Contain   ${UpdateSchedulerProcess.stdout}   sophos-spl-updatescheduler   msg="Failed to detect process ownership of UpdateScheduler. Expected it to run as sophos-spl-updatescheduler. ${UpdateSchedulerProcess.stdout}. Err: ${UpdateSchedulerProcess.stderr}"
 
 
 Management Agent Contains
@@ -486,6 +486,7 @@ Convert report to success
 
 Teardown For Test
     Log SystemCtl Update Status
+    Log File  /opt/sophos-spl/tmp/fakesul.log
     Run Keyword If Test Failed  Dump Mcs Router Dir Contents
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
     General Test Teardown
