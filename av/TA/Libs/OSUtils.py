@@ -23,3 +23,7 @@ def install_system_ca_cert(certificate_path):
         logger.info("stdout: {}\nstderr: {}".format(out, err))
         raise OSError("Failed to install \"{}\" to system".format(certificate_path))
 
+def get_cwd_then_change_directory(path):
+    cwd = os.getcwd()
+    os.chdir(path)
+    return cwd
