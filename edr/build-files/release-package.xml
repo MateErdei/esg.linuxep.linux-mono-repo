@@ -97,6 +97,7 @@
         </build-asset>
 
         <build-asset artifact-path="coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
+        <build-asset artifact-path="coverage/unittest" source-dir="output/coverage/sspl-plugin-edr-unittest" mode="coverage"/>
         <build-asset artifact-path="coverage" source-dir="output/" mode="coverage">
             <include glob="./sspl-plugin-edr-unit.cov" />
             <include glob="./sspl-edr-combined.cov" />

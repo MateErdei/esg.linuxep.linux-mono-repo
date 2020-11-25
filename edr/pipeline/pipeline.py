@@ -63,28 +63,26 @@ def combined_task(machine: tap.Machine):
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
 
-        args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
+
 
         # upload unit test coverage html results to allegro
-        unitest_htmldir = os.path.join(INPUTS_DIR, 'coverage', 'sspl-plugin-edr-unittest')
+        unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-plugin-edr-unittest")
+        machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
+        machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
 
-        # only upload centos7.7 to allegro
-        upload_results = 0
-        if machine.run('which', 'yum', return_exit_code=True) == 0:
-            upload_results = 1
-            machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
 
         # publish unit test coverage file and results to artifactory results/coverage
         coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
         machine.run('rm', '-rf', coverage_results_dir)
         machine.run('mkdir', coverage_results_dir)
-        machine.run('mv', unitest_htmldir, coverage_results_dir)
+        machine.run('cp', "-r", unitest_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
         # run component pytests and integration robot tests with coverage file to get combined coverage
         machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
 
         # run component pytest
+        args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
         machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
         try:
             machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
@@ -95,7 +93,7 @@ def combined_task(machine: tap.Machine):
         # generate combined coverage html results and upload to allegro
         combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': f'{upload_results}', 'htmldir': combined_htmldir})
+                    environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': '1', 'htmldir': combined_htmldir})
 
         # publish combined html results and coverage file to artifactory
         machine.run('mv', combined_htmldir, coverage_results_dir)
@@ -139,10 +137,14 @@ def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
         )
     if mode == 'coverage':
         test_inputs = dict(
-            bullseye_files= context.artifact.from_folder('./build/bullseye'),
-            coverage= edr_build / 'coverage',
-            edr_sdds= edr_build / 'coverage/SDDS-COMPONENT',
-            componenttests=edr_build / 'componenttests'
+            test_scripts=context.artifact.from_folder('./TA'),
+            bullseye_files=context.artifact.from_folder('./build/bullseye'),
+            coverage=edr_build / 'coverage',
+            coverage_unittest=edr_build / 'coverage/unittest',
+            base_sdds=edr_build / 'base/base-sdds',
+            edr_sdds=edr_build / 'coverage/SDDS-COMPONENT',
+            componenttests=edr_build / 'componenttests',
+            qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds')
         )
 
     return test_inputs
@@ -166,10 +168,13 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
             ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
             # add other distros here
         )
+        coverage_machines = (
+            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
+        )
 
         if mode == 'coverage':
             with stage.parallel('combined'):
-                for template_name, machine in machines:
+                for template_name, machine in coverage_machines:
                     stage.task(task_name=template_name, func=combined_task, machine=machine)
         else:
             with stage.parallel('integration'):
