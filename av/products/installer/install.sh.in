@@ -94,6 +94,9 @@ function generate_susi_package_manifest()
     lrdata_hash=$(cat ${SUSI_UPDATE_SRC}/reputation/filerep.dat ${SUSI_UPDATE_SRC}/reputation/signerrep.dat | sha256sum | awk '{print $1}')
     echo "reputation ${lrdata_hash}" >> ${temp_manifest}
 
+    libupdater_hash=$(sha256sum ${SUSI_UPDATE_SRC}/libupdater/libupdater.so | awk '{print $1}')
+    echo "libupdater ${libupdater_hash}" >> ${temp_manifest}
+
     manifest_hash=$(sha256sum ${temp_manifest} | awk '{print $1}')
     echo $manifest_hash > $package_manifest
     cat $temp_manifest >> $package_manifest
