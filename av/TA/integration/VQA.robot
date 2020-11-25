@@ -32,6 +32,10 @@ SUSI config can scan adobe file
     Add IDE To Installation  pdf.ide
     Check Threat Detected  test.pdf  Pass/URI
 
+SUSI config can scan internet file
+    Add IDE To Installation  internet.ide
+    Check Threat Detected  test.html  Test/Html
+
 
 SUSI config can scan zip file as web archive
     Create File  ${SCAN_DIRECTORY}/eicar    ${EICAR_STRING}
