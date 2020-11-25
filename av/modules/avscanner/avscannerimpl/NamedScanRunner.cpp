@@ -7,11 +7,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "NamedScanRunner.h"
 
 #include "BaseFileWalkCallbacks.h"
-#include "PathUtils.h"
 #include "ScanCallbackImpl.h"
 #include "ScanClient.h"
 
 #include "avscanner/mountinfoimpl/Mounts.h"
+
+#include "common/PathUtils.h"
 
 #include <capnp/message.h>
 #include <common/StringUtils.h>

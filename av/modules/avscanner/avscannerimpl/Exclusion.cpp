@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Exclusion.h"
 
-#include "PathUtils.h"
+#include "common/PathUtils.h"
 
 #include <regex>
 
@@ -94,7 +94,7 @@ bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
     {
         case STEM:
         {
-            if (PathUtils::startswith(path, m_exclusionPath))
+            if (common::PathUtils::startswith(path, m_exclusionPath))
             {
                 return true;
             }
@@ -102,7 +102,7 @@ bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
         }
         case RELATIVE_STEM:
         {
-            if (PathUtils::contains(path, m_exclusionPath))
+            if (common::PathUtils::contains(path, m_exclusionPath))
             {
                 return true;
             }
@@ -118,7 +118,7 @@ bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
         }
         case RELATIVE_PATH:
         {
-            if (PathUtils::endswith(path, m_exclusionPath))
+            if (common::PathUtils::endswith(path, m_exclusionPath))
             {
                 return true;
             }

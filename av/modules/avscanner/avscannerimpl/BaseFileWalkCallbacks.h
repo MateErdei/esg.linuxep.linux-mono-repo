@@ -6,9 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <filewalker/IFileWalkCallbacks.h>
 #include "ScanClient.h"
-#include "PathUtils.h"
+
+#include "common/PathUtils.h"
+
+#include <filewalker/IFileWalkCallbacks.h>
 
 namespace avscanner::avscannerimpl
 {
@@ -41,6 +43,7 @@ namespace avscanner::avscannerimpl
         bool includeDirectory(const sophos_filesystem::path& path) override;
         bool userDefinedExclusionCheck(const sophos_filesystem::path& path, bool isSymlink) override;
 
+        bool processSymlinkExclusions(const fs::path& path);
         [[nodiscard]] int returnCode() const
         {
             return m_returnCode;

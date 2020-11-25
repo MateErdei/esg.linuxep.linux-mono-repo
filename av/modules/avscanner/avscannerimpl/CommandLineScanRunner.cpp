@@ -8,13 +8,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "BaseFileWalkCallbacks.h"
 #include "Options.h"
-#include "PathUtils.h"
 #include "ScanCallbackImpl.h"
 #include "ScanClient.h"
 
 #include "avscanner/mountinfoimpl/Mounts.h"
-#include "common/AbortScanException.h"
 #include "filewalker/FileWalker.h"
+
+#include "common/AbortScanException.h"
+#include "common/PathUtils.h"
 
 #include <common/StringUtils.h>
 
@@ -63,8 +64,8 @@ namespace
             m_currentExclusions.clear();
             for (const auto& e : m_mountExclusions)
             {
-                if (PathUtils::longer(e, inclusionPath) &&
-                    PathUtils::startswith(e, inclusionPath))
+                if (common::PathUtils::longer(e, inclusionPath) &&
+                    common::PathUtils::startswith(e, inclusionPath))
                 {
                     m_currentExclusions.emplace_back(e);
                 }

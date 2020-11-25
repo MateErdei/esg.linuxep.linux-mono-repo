@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace fs = sophos_filesystem;
 
-namespace avscanner::avscannerimpl
+namespace common
 {
     class PathUtils
     {
@@ -50,6 +50,15 @@ namespace avscanner::avscannerimpl
             if (p.string().back() != '/')
             {
                 return p.string() + "/";
+            }
+            return p.string();
+        }
+
+        static std::string removeForwardSlashFromPath(const sophos_filesystem::path& p)
+        {
+            if (p.string().back() == '/')
+            {
+                return p.string().substr(0, p.string().size()-1);
             }
             return p.string();
         }

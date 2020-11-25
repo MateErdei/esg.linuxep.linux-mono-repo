@@ -4,13 +4,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-#include <avscanner/avscannerimpl/PathUtils.h>
-
 #include "datatypes/sophos_filesystem.h"
 
+#include <common/PathUtils.h>
+#include <gtest/gtest.h>
+
 namespace fs = sophos_filesystem;
-using namespace avscanner::avscannerimpl;
+using namespace common;
 
 TEST(TestPathUtils, TestAppendForwardSlashToPath) // NOLINT
 {

@@ -4,6 +4,8 @@ add_library(common SHARED
         Logger.h
         StringUtils.cpp
         StringUtils.h
+        PathUtils.cpp
+        PathUtils.h
         PluginUtils.cpp
         PluginUtils.h)
 
