@@ -739,7 +739,8 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
     Register cleanup  dump log  ${LOG_FILE}
-    Register On Fail  Terminate Process  handle=${HANDLE}  kill=True    # Rename the sophos threat detector launcher so that it cannot be restarted
+    Register On Fail  Terminate Process  handle=${HANDLE}  kill=True
+    # Rename the sophos threat detector launcher so that it cannot be restarted
     Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
     register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
     register cleanup  Stop AV
@@ -757,7 +758,13 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ...  10 secs
     ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
+    # After the log message, only wait ten seconds for avscanner to exit
+    ${result} =  Wait For Process  handle=${HANDLE}  timeout=10s  on_timeout=kill
+
     ${line_count} =  Count Lines In Log  ${LOG_FILE}  Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
     Should Be Equal As Strings  ${line_count}  9
 
-    Wait For Process   handle=${HANDLE}
+    File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+
+    # Should have an error output, not 0 or a signal
+    Should Be True  ${result.rc} > 0
