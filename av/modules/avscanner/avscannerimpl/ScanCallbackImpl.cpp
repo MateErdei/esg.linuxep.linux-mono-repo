@@ -25,7 +25,7 @@ void ScanCallbackImpl::infectedFile(const path& path, const std::string& threatN
 
     if (isSymlink)
     {
-        std::string escapedTargetPath(common::toUtf8(fs::canonical(path), false, false));
+        std::string escapedTargetPath(common::toUtf8(path, false, false));
         common::escapeControlCharacters(escapedTargetPath);
         LOGWARN("Detected \"" << escapedPath << "\" (symlinked to " << escapedTargetPath << ") is infected with " << threatName);
     }
