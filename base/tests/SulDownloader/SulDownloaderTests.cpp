@@ -827,8 +827,8 @@ TEST_F( // NOLINT
     std::string settingsString = jsonSettings(settings);
     std::string previousSettingString;
     std::string previousReportData;
-
-    std::tie(exitCode, reportContent) =
+    bool baseDowngraded = false;
+    std::tie(exitCode, reportContent, baseDowngraded) =
         SulDownloader::configAndRunDownloader(settingsString, previousSettingString, previousReportData);
 
     EXPECT_NE(exitCode, 0);

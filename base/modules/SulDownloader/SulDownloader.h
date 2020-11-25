@@ -57,7 +57,7 @@ namespace SulDownloader
      * @note If either the json parser fails to de-serialize settingsString or the ConfigurationData produced does not
      * pass the ::verifySettingsAreValid it will not runSULDownloader and return the failure directly.s
      */
-    std::tuple<int, std::string> configAndRunDownloader(
+    std::tuple<int, std::string, bool> configAndRunDownloader(
         const std::string& settingsString,
         const std::string& previousSettingString,
         const std::string& previousReportData,

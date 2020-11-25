@@ -14,5 +14,5 @@ PS_ROOTCA=${SOURCE}/ps_rootca.crt
 
 OSTIA_CRT=${SOURCE}/OstiaCA.crt
 ${SOURCE}/../InstallCertificateToSystem.sh ${OSTIA_CRT} || fail  "failed to install ${OSTIA_CRT}"
-CERTS_DIR=/opt/sophos-spl/base/update/certs/
+CERTS_DIR=/opt/sophos-spl/base/update/rootcerts/
 cp -f ${ROOTCA}  ${PS_ROOTCA}  ${CERTS_DIR}  || fail "failed to replace certs in ${CERTS_DIR}"

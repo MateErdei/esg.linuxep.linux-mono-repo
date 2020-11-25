@@ -244,8 +244,8 @@ Verify Failure Event Is Sent on Update Failed
     Check Correct MCS Password And ID For Local Cloud Saved
 
     # Remove certs so that update fails
-    Remove File  ${SOPHOS_INSTALL}/base/update/certs/rootca.crt
-    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+    Remove File  ${UPDATE_ROOTCERT_DIR}/rootca.crt
+    Remove File  ${UPDATE_ROOTCERT_DIR}/ps_rootca.crt
 
     Override LogConf File as Global Level  DEBUG
     Start System Watchdog
@@ -383,8 +383,8 @@ Check MCS Envelope for Status Being Same On N Status Sent
     Should contain   ${string}   Res=&amp;quot;Same&amp;quot;
 
 Change Update Certs In Installed Base To Use Locally Generated Certs
-    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${SOPHOS_INSTALL}/base/update/certs/rootca.crt
-    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${UPDATE_ROOTCERT_DIR}/rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${UPDATE_ROOTCERT_DIR}/ps_rootca.crt
 
 Wait For Update Status File
     Wait Until Keyword Succeeds
@@ -397,8 +397,8 @@ Create Warehouse From Dist
     ${dist} =  Get Folder With Installer
     Copy Directory  ${dist}  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base
 
-    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/rootca.crt
-    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/rootcerts/rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/rootcerts/ps_rootca.crt
     Remove File  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/etc/logger.conf
     #Turn on debug logging on update
     Create File  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
@@ -418,8 +418,8 @@ Create Warehouse With Base And Example Plugin
     Remove Directory  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}  recursive=${TRUE}
     Copy Directory     ${PathToBase}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
 
-    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/rootca.crt
-    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/certs/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/rootcerts/rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/rootcerts/ps_rootca.crt
     Remove File  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/etc/logger.conf
     #Turn on debug logging on update
     Create File  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n

@@ -79,7 +79,8 @@ namespace SulDownloader
                 const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsToALCStatus,
                 TimeTracker* timeTracker,
                 VerifyState verify,
-                bool supplementOnly=false);
+                bool supplementOnly=false,
+                bool baseDowngrade=false);
 
             static DownloadReport Report(const std::string& errorDescription);
 
@@ -122,6 +123,11 @@ namespace SulDownloader
 
             [[nodiscard]] bool isSuccesfulProductUpdateCheck() const;
 
+            [[nodiscard]] bool wasBaseDowngraded() const
+            {
+                return m_baseDowngrade;
+            }
+
         private:
             WarehouseStatus m_status= WarehouseStatus::UNSPECIFIED;
             std::string m_description;
@@ -136,6 +142,7 @@ namespace SulDownloader
 
             bool m_processedReport = false;
             bool m_supplementOnly = false;
+            bool m_baseDowngrade = false;
 
             void setError(const WarehouseError& error);
 

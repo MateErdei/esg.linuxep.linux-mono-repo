@@ -50,15 +50,6 @@ namespace
         return false;
     }
 
-    void writeFileForUpdateScheduler(
-        const std::string& outputFilePath,
-        const std::string& content,
-        const std::string& tempDir)
-    {
-        mode_t ownerReadWrite = S_IRUSR | S_IWUSR;
-        Common::FileSystem::createAtomicFileWithPermissions(content, outputFilePath, tempDir, sophos::updateSchedulerUser(), "root", ownerReadWrite);
-    }
-
 } // namespace
 
 namespace SulDownloader
@@ -102,11 +93,7 @@ namespace SulDownloader
         bool supplementOnly)
     {
         warehouseRepository->reset();
-        warehouseRepository->tryConnect(
-            connectionSetup,
-            supplementOnly,
-            configurationData
-            );
+        warehouseRepository->tryConnect(connectionSetup, supplementOnly, configurationData);
 
         if (warehouseRepository->hasError())
         {
@@ -132,7 +119,6 @@ namespace SulDownloader
         }
 
         return true;
-
     }
 
     static bool isImmediateFailure(const IWarehouseRepositoryPtr& warehouseRepository)
@@ -181,7 +167,8 @@ namespace SulDownloader
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
         for (const auto& connectionSetup : candidates)
         {
-            success = internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
+            success =
+                internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
             if (success)
             {
                 LOGDEBUG("Successfully ran SUL Downloader");
@@ -190,7 +177,8 @@ namespace SulDownloader
             else if (isImmediateFailure(warehouseRepository))
             {
                 // Immediate failures: currently UPDATESOURCEMISSING
-                // Currently no immediate failures are possible for supplement-only updating - but need to abort if supplementOnly=False
+                // Currently no immediate failures are possible for supplement-only updating - but need to abort if
+                // supplementOnly=False
                 assert(!supplementOnly); // currently never-supplement only - change message if this changes
                 LOGERROR("Immediate failure of updating");
                 break; // will still try updating products
@@ -205,7 +193,8 @@ namespace SulDownloader
             supplementOnly = false;
             for (const auto& connectionSetup : candidates)
             {
-                success = internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
+                success =
+                    internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
                 if (success)
                 {
                     LOGDEBUG("Successfully ran SUL Downloader");
@@ -235,29 +224,32 @@ namespace SulDownloader
         {
             std::string rigidName = product.getProductMetadata().getLine();
             std::string warehouseVersionIni = Common::FileSystem::join(product.distributePath(), "VERSION.ini");
-            LOGDEBUG("Checking if " << rigidName << " needs to downgraded");
+            LOGDEBUG("Checking if " << rigidName << " needs to be downgraded");
 
             try
             {
-                std::string localVersionIni = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(rigidName);
+                std::string localVersionIni =
+                    Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(rigidName);
                 if (!Common::FileSystem::fileSystem()->isFile(localVersionIni))
                 {
-                    // if local version.ini doesn't exist assume plugin is an older version than XDR EAP or not installed therefore no downgrade
+                    // if local version.ini doesn't exist assume plugin is an older version than XDR EAP or not
+                    // installed therefore no downgrade
                     LOGDEBUG("Plugin " << rigidName << " in warehouse is newer than version on disk");
                 }
                 else
                 {
-                    std::string currentVersion = StringUtils::extractValueFromIniFile(localVersionIni,
-                                                                                      "PRODUCT_VERSION");
+                    std::string currentVersion =
+                        StringUtils::extractValueFromIniFile(localVersionIni, "PRODUCT_VERSION");
                     std::string newVersion("");
                     try
                     {
                         newVersion = StringUtils::extractValueFromIniFile(warehouseVersionIni, "PRODUCT_VERSION");
                     }
-                    catch (std::runtime_error &ex)
+                    catch (std::runtime_error& ex)
                     {
-                        LOGINFO("Failed to read VERSION.ini from warehouse for: '" << rigidName
-                                                                                   << "', treating as downgrade");
+                        LOGINFO(
+                            "Failed to read VERSION.ini from warehouse for: '" << rigidName
+                                                                               << "', treating as downgrade");
                         product.setProductWillBeDowngraded(true);
                     }
 
@@ -338,7 +330,7 @@ namespace SulDownloader
         // between component registration and product un-installation when upgrading Base.
         SulDownloader::ProductUninstaller uninstallManager;
         std::vector<DownloadedProduct> uninstalledProducts =
-                uninstallManager.removeProductsNotDownloaded(products, *warehouseRepository);
+            uninstallManager.removeProductsNotDownloaded(products, *warehouseRepository);
         for (auto& uninstalledProduct : uninstalledProducts)
         {
             products.push_back(uninstalledProduct);
@@ -410,10 +402,11 @@ namespace SulDownloader
             warehouseRepository->listInstalledSubscriptions(),
             &timeTracker,
             DownloadReport::VerifyState::VerifyCorrect,
-            supplementOnly);
+            supplementOnly,
+            setForceInstallForAllProducts);
     }
 
-    std::tuple<int, std::string> configAndRunDownloader(
+    std::tuple<int, std::string, bool> configAndRunDownloader(
         const std::string& settingsString,
         const std::string& previousSettingString,
         const std::string& previousReportData,
@@ -458,15 +451,19 @@ namespace SulDownloader
                 LOGSUPPORT(ex.what());
             }
 
-            auto report = runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
-
-            return DownloadReport::CodeAndSerialize(report);
+            auto report =
+                runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
+            auto reportAndExitCode = DownloadReport::CodeAndSerialize(report);
+            return std::tuple<int, std::string, bool>(
+                std::get<0>(reportAndExitCode), std::get<1>(reportAndExitCode), report.wasBaseDowngraded());
         }
         catch (std::exception& ex)
         {
             LOGERROR(ex.what());
             auto report = DownloadReport::Report("SulDownloader failed.");
-            return DownloadReport::CodeAndSerialize(report);
+            auto reportAndExitCode = DownloadReport::CodeAndSerialize(report);
+            return std::tuple<int, std::string, bool>(
+                std::get<0>(reportAndExitCode), std::get<1>(reportAndExitCode), report.wasBaseDowngraded());
         }
     }
 
@@ -546,7 +543,8 @@ namespace SulDownloader
         std::string previousReportData = getPreviousDownloadReportData(outputParentPath);
         int exitCode = -1;
         std::string jsonReport;
-        std::tie(exitCode, jsonReport) =
+        bool baseDowngraded = false;
+        std::tie(exitCode, jsonReport, baseDowngraded) =
             configAndRunDownloader(settingsString, previousSettingsString, previousReportData, supplementOnly);
 
         if (exitCode == 0)
@@ -561,7 +559,21 @@ namespace SulDownloader
         std::string tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         LOGINFO("Generating the report file in: " << outputParentPath);
 
-        writeFileForUpdateScheduler(outputFilePath, jsonReport, tempDir);
+        try
+        {
+            Common::FileSystem::createAtomicFileWithPermissions(
+                jsonReport, outputFilePath, tempDir, sophos::updateSchedulerUser(), "root", S_IRUSR | S_IWUSR);
+        }
+        catch (std::exception& exception)
+        {
+            // if failed because sophos-spl-updatescheduler doesn't exist && this is a base downgrade then write the
+            // file to the old location
+            if (baseDowngraded)
+            {
+                Common::FileSystem::createAtomicFileWithPermissions(
+                    jsonReport, outputFilePath, tempDir, sophos::user(), "root", S_IRUSR | S_IWUSR);
+            }
+        }
 
         return exitCode;
     }

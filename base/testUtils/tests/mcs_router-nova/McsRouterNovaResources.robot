@@ -105,11 +105,10 @@ Setup Fresh Install Nova
     Require Fresh Install
     Set Nova MCS CA Environment Variable
 
-    Set Test Variable    ${certPath}    ${SOPHOS_INSTALL}/base/update/certs
     Generate Update Certs
-    Remove Files  ${certPath}/ps_rootca.crt  ${certPath}/ps_rootca.crt.0  ${certPath}/rootca.crt   ${certPath}/rootca.crt.0  ${certPath}/cache_certificates.crt
-    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt    ${SOPHOS_INSTALL}/base/update/certs
-    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt    ${SOPHOS_INSTALL}/base/update/certs
+    Remove Files  ${UPDATE_ROOTCERT_DIR}/ps_rootca.crt  ${UPDATE_ROOTCERT_DIR}/ps_rootca.crt.0  ${UPDATE_ROOTCERT_DIR}/rootca.crt   ${UPDATE_ROOTCERT_DIR}/rootca.crt.0  ${UPDATE_ROOTCERT_DIR}/cache_certificates.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${UPDATE_ROOTCERT_DIR}
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${UPDATE_ROOTCERT_DIR}
     Log File   /etc/hosts
 
 

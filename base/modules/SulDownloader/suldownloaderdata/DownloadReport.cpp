@@ -115,7 +115,8 @@ namespace SulDownloader
         const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsToALCStatus,
         TimeTracker* timeTracker,
         VerifyState verifyState,
-        bool supplementOnly)
+        bool supplementOnly,
+        bool baseDowngrade)
     {
         assert(timeTracker != nullptr);
 
@@ -125,6 +126,7 @@ namespace SulDownloader
         report.m_description = "";
         report.m_urlSource = sourceURL;
         report.m_supplementOnly = supplementOnly;
+        report.m_baseDowngrade = baseDowngrade;
 
         if (products.empty())
         {
