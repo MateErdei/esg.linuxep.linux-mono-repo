@@ -8,6 +8,7 @@ import sys
 import shutil
 import grp
 from pwd import getpwnam
+import time
 
 import datetime
 INSTALLPATH = os.getenv("SOPHOS_INSTALL", "/opt/sophos-spl")

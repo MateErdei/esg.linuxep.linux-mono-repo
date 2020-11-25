@@ -14,6 +14,7 @@ Library           ${LIBS_DIRECTORY}/OSUtils.py
 Resource          SulDownloaderResources.robot
 Resource          ../installer/InstallerResources.robot
 Resource          ../GeneralTeardownResource.robot
+Resource          ../upgrade_product/UpgradeResources.robot
 
 Suite Setup       Generate Update Certs
 Suite Teardown    Terminate All Processes    kill=True
