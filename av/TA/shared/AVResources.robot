@@ -133,6 +133,13 @@ Threat Detector Does Not Log Contain
     [Arguments]  ${input}
     File Log Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  ${input}
 
+Count Lines In Log
+    [Arguments]  ${log_file}  ${line_to_count}
+    ${contents} =  Get File  ${log_file}
+    ${lines} =  Get Lines Containing String  ${contents}  ${line_to_count}
+    ${lines_count} =  Get Line Count  ${lines}
+    [Return]  ${lines_count}
+
 Check Threat Detector Copied Files To Chroot
     Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/logger.conf" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf"
     Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/machine_id.txt" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/machine_id.txt"
