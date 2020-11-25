@@ -1,4 +1,3 @@
-pdf.ide binary
+*.ide binary
 test.pdf binary
-internet.ide binary
 test.html binary
