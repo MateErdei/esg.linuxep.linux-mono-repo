@@ -49,6 +49,7 @@ SUSI config can scan zip file as web archive
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Detected "${SCAN_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
 
+
 *** Variables ***
 
 
