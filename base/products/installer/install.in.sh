@@ -351,6 +351,11 @@ then
     chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log"
 fi
 
+if [[ -f "${SOPHOS_INSTALL}/base/telemetry/cache/updatescheduler-telemetry.json" ]]
+then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/telemetry/cache/updatescheduler-telemetry.json"
+fi
+
 makedir 711 "${SOPHOS_INSTALL}/base"
 
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
