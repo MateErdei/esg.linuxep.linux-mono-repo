@@ -748,7 +748,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteDirectExclus
     runner.setSocket(socket);
     runner.run();
 
-    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute(startingPoint).string()));
+    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::canonical(startingPoint).string()));
     EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: /tmp/TestCommandLineScanRunner/scanSymlinkedDirectoryWithAbsoluteDirectExclusion/symlink_to_sandbox_directory/"));
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
@@ -778,7 +778,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeDirectExclus
     runner.run();
     fs::current_path(originalWD);
 
-    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute(startingPoint).string()));
+    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::canonical(startingPoint).string()));
     EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: /symlink_to_sandbox_directory/"));
     ASSERT_EQ(socket->m_paths.size(), 0);
 }

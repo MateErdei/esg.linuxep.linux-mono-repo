@@ -17,15 +17,7 @@ BaseFileWalkCallbacks::BaseFileWalkCallbacks(ScanClient scanner)
 
 bool BaseFileWalkCallbacks::processSymlinkExclusions(const fs::path& path)
 {
-    fs::path symlinkTargetPath = path;
-    if (fs::is_symlink(fs::symlink_status(path)))
-    {
-        // fs canonical resolves the symlink and creates the absolute path to the target
-        symlinkTargetPath = fs::canonical(path);
-
-        LOGINFO("Path: " << path);
-        LOGINFO("symlinkTargetPath: " << symlinkTargetPath);
-    }
+    fs::path symlinkTargetPath = fs::canonical(path);
 
     for (const auto& e : m_mountExclusions)
     {
@@ -129,7 +121,7 @@ bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::p
         {
             if(isSymlink)
             {
-                LOGINFO("Skipping the scanning of symlink target (" << path << ") which is excluded by user defined exclusion: " << exclusion.path());
+                LOGINFO("Skipping the scanning of symlink target (" << fs::canonical(path) << ") which is excluded by user defined exclusion: " << exclusion.path());
             }
             else
             {

@@ -77,6 +77,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     else if (fs::is_directory(itemStatus))
     {
         // TODO - unnecessary, but unit tests currently expect it
+        // TODO - This is causing weird logging when m_startIsSymlink is true
         if (m_callback.userDefinedExclusionCheck(starting_point, m_startIsSymlink))
         {
             return;
