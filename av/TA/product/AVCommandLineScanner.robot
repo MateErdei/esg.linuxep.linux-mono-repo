@@ -103,7 +103,7 @@ CLS Can Scan Clean File
 
 CLS Can Scan Relative Path
     ${cwd} =  get cwd then change directory  ${NORMAL_DIRECTORY}
-    Register On Fail  get cwd then change directory  ${cwd}
+    Register Cleanup  get cwd then change directory  ${cwd}
     Create Directory  testdir
     Create File     testdir/clean_file     ${CLEAN_STRING}
     Create File     testdir/naughty_eicar  ${EICAR_STRING}
