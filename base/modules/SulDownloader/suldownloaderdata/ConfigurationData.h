@@ -140,36 +140,6 @@ namespace SulDownloader::suldownloaderdata
          */
         std::vector<Proxy> proxiesList() const;
 
-        /**
-         * Sets the path to the certificates used to validate the warehouse repository files and distributed files.
-         * The warehouse repository files will be signed with the same sophos certificate used to sign application
-         * files.
-         * @param certificatePath, path containing the sophos certificates
-         */
-//        void setCertificatePath(const std::string& certificatePath);
-
-        /**
-         * Set the update cache ssl certificate path used to validate the local update cache https url connection.
-         * These ssl certificates will be provided via Sophos central policy, when the update cache is machine is
-         * configured.
-         * @param certificatePath, path to the local cache ssl certificates store.
-         */
-//        void setUpdateCacheSslCertificatePath(const std::string& certificatePath);
-
-        /**
-         * Set the system ssl certificate path used to validate https url connections.  The system certificate store
-         * should contain the required root certificates to validate the sophos website when connecting over https.
-         * @param certificatePath, path to the system ssl certificates store.
-         */
-//        void setSystemSslCertificatePath(const std::string& certificatePath);
-
-        /**
-         * Sets the installation root path, this path is used as the relative path of all other application paths.
-         * @param installationRootPath, location where the product is installed.
-         */
-//        void setInstallationRootPath(const std::string& installationRootPath);
-
-//        std::string getInstallationRootPath() const;
 
         /**
          * Gets the path to the local warehouse repository relative to the install root path.
@@ -182,29 +152,6 @@ namespace SulDownloader::suldownloaderdata
          * @return path to the local distribution repository.
          */
         std::string getLocalDistributionRepository() const;
-
-        /**
-         * Gets the path to the certificates used to validate the warehouse repository files and distributed files.
-         * The warehouse repository files will be signed with the same sophos certificate used to sign application
-         * files. Usually it returns: ApplicationPathManager::getUpdateCertificatesPath()
-         * @return certificatePath, path containing the sophos certificates
-         */
-//        std::string getCertificatePath() const;
-
-        /**
-         * Get the update cache ssl certificate path used to validate the local update cache https url connection.
-         * These ssl certificates will be provided via Sophos central policy, when the update cache is machine is
-         * configured.
-         * @return certificatePath, path to the local cache ssl certificates store.
-         */
-//        const std::string& getUpdateCacheSslCertificatePath() const;
-
-        /**
-         * Set the system ssl certificate path used to validate https url connections.  The system certificate store
-         * should contain the required root certificates to validate the sophos website when connecting over https.
-         * @return certificatePath, path to the system ssl certificates store.
-         */
-//        const std::string& getSystemSslCertificatePath() const;
 
         /**
          * Set the primary subscription. The primary subscription is meant to be used to enforce that it can never
@@ -381,9 +328,6 @@ namespace SulDownloader::suldownloaderdata
         std::vector<std::string> m_localUpdateCacheUrls;
         Proxy m_policyProxy;
         State m_state;
-//        std::string m_certificatePath;
-//        std::string m_systemSslCertificatePath;
-//        std::string m_updateCacheSslCertificatePath;
         std::vector<ProductSubscription> m_productsSubscription;
         ProductSubscription m_primarySubscription;
         std::vector<std::string> m_features;
