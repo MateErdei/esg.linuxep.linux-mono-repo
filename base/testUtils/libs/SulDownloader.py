@@ -5,13 +5,11 @@ import PathManager
 # Note that the default values set here are also reproduced in the Perform Install keyword in TestSulDownloader
 
 def create_config(rigidname="ServerProtectionLinux-Base",
-                  certificatePath=os.path.join(PathManager.get_support_file_path(), "sophos_certs/"), include_plugins=None, remove_entries=[],
+                  include_plugins=None, remove_entries=[],
                   **kwargs):
     """
     Create a JSON config to supply as input to SUL Downloader
-    :param install_path: the target path into which the product should be installed (optional)
     :param rigidname: the rigidname for the warehouse (optional)
-    :param certificatePath: the certificatePath for the warehouse (optional)
     :param remove_entries: list of keys that will be removed from the config file
     :param include_plugins: include the prefix Names section of the config file, default forces section to be removed (optional)
     :param kwargs any extra argument that the user wants to 'add', or 'replace' from the dictionary.
@@ -59,17 +57,14 @@ def create_config(rigidname="ServerProtectionLinux-Base",
 
 def create_update_cache_config(install_path=None, 
                                rigidname="ServerProtectionLinux-Base",
-                               certificatePath=os.path.join(PathManager.get_support_file_path(), "sophos_certs/"), 
                                include_plugins=None):
     """
     Create a JSON config to supply as input to SUL Downloader
-    :param install_path: the target path into which the product should be installed (optional)
     :param rigidname: the rigidname for the warehouse (optional)
-    :param certificatePath: the certificatePath for the warehouse (optional)
     :param include_plugins: include the prefix Names section of the config file, default forces section to be removed (optional)
     :return: the JSON config as a string
     """
-    config = create_config(install_path, rigidname, certificatePath, include_plugins)
+    config = create_config(install_path, rigidname, include_plugins)
 
     config['updateCache'] = ["localhost:1235", "localhost:1236"]
     config['cacheUpdateSslPath'] = os.path.join(PathManager.get_support_file_path(), "https/ca")

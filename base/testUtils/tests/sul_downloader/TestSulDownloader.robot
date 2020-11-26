@@ -49,7 +49,8 @@ Setup For Test
 
 Teardown for Test
     General Test Teardown
-    Run Keyword If Test Failed  Dump Log  ./tmp/proxy_server.log
+    Run Keyword If Test Failed  LogUtils.Dump Log  ./tmp/proxy_server.log
+    Run Keyword If Test Failed  LogUtils.Dump Log  ${tmpdir}/sspl/logs/base/suldownloader.log
     Remove Environment Variable  http_proxy
     Remove Environment Variable  https_proxy
     Run Keyword If Test Failed  Display All tmp Files Present
@@ -60,7 +61,6 @@ Teardown for Test
     Variable Should Exist    ${tmpdir}
     Remove Directory   ${tmpdir}    recursive=True
     Set Environment Variable  CORRUPTINSTALL  no
-    Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
@@ -639,7 +639,7 @@ Test Product Uninstalls If Not In Warehouse
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match   ${result.rc}    ${SUCCESS}
 
@@ -664,7 +664,7 @@ Test Product Fails Uninstall If Execution Fails To Run
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match   ${result.rc}    ${UNINSTALLFAILED}
 
@@ -687,7 +687,7 @@ Test Product Fails Uninstall If Execution Fails To Successfully Complete
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match   ${result.rc}    ${UNINSTALLFAILED}
 
@@ -716,7 +716,7 @@ Test Product Does Not Uninstall If Product Is Downloaded And Installed From Ware
     Should Contain    ${output}    UPGRADED
     Should Not Contain    ${output}    UNINSTALLED
 
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Should Not Contain    ${log_contents}    ${UninstallMessage}
     Should Contain    ${log_contents}   INSTALLER EXECUTED
 
@@ -733,7 +733,7 @@ Test Product Does Not Install On Second Download If Downloaded Twice And An Unin
 
     Error Codes Match    ${result.rc}    ${SUCCESS}
 
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     ${output} =    Get File    ${tmpdir}/update_report.json
     Should Contain    ${output}    SUCCESS
     Should Not Contain    ${output}    UNINSTALLED
@@ -746,14 +746,13 @@ Test Product Does Not Install On Second Download If Downloaded Twice And An Unin
     Run Process    chmod +x ${InstallProductsDir}/SSPL-RIGIDNAME-2.sh     shell=True
 
     Move File   ${tmpdir}/update_report.json   ${tmpdir}/update_report_2018_08_21_09_43_21.json
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
 
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${SOPHOS_INSTALL}/tmp/SDT/sspl
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
-    Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match    ${result.rc}    ${SUCCESS}
 
@@ -782,7 +781,7 @@ Test Product Should Force Reinstall After It Failed On The Install Even If Distr
     Create File    ${tmpdir}/update_config.json    content=${config}
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -799,7 +798,7 @@ Test Product Should Force Reinstall After It Failed On The Install Even If Distr
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -836,7 +835,7 @@ Test Product Should Force Reinstall After It Fails For Unspecified Reason
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match    ${result.rc}    ${SUCCESS}
 
@@ -853,7 +852,7 @@ Test Product Should Install After Package Source Missing Error
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match    ${result.rc}    ${PACKAGESOURCEMISSING}
 
@@ -872,7 +871,7 @@ Test Product Should Install After Package Source Missing Error
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match    ${result.rc}    ${SUCCESS}
 
@@ -896,7 +895,7 @@ Test Product Does Not Trigger A Reinstall After A Failed Uninstall
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match   ${result.rc}    ${UNINSTALLFAILED}
 
@@ -915,7 +914,7 @@ Test Product Does Not Trigger A Reinstall After A Failed Uninstall
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match   ${result.rc}    ${UNINSTALLFAILED}
 
@@ -961,7 +960,7 @@ Test Product Does Trigger A Reinstall After A Failed Install And Failed Uninstal
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match    ${result.rc}    ${INSTALLFAILED}
 
@@ -980,7 +979,7 @@ Test Product Does Trigger A Reinstall After A Failed Install And Failed Uninstal
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match    ${result.rc}    ${UNINSTALLFAILED}
 
@@ -995,7 +994,7 @@ Test Product Sul Distribution Error Will Force Reinstall On Next Update
     # Sul Distribution Error will report DownloadFailed.
 
     ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1019,7 +1018,7 @@ Test Product Sul Distribution Error Will Force Reinstall On Next Update
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1038,7 +1037,7 @@ Test Product Sul Verify Error Will Force Reinstall On Next Update
     # Sul Verified Error will report Install Failed.
 
     ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1063,7 +1062,7 @@ Test Product Sul Verify Error Will Force Reinstall On Next Update
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json   ${tmpdir}/update_report.json
 
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
@@ -1102,7 +1101,7 @@ Test Product Sul Sync Error Will Force Reinstall On Next Update
     Log File   ${reportFileName}
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json   ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1143,7 +1142,7 @@ Test Product Sul Download Reports Up To Date when Multiple Report Files Exist
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
 
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
@@ -1189,7 +1188,7 @@ Test SulDownloader Can Download Multiple Products From Multiple Warehouses
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1234,7 +1233,7 @@ Test SulDownloader Can Download Multiple Products From A Single Warehouse
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Log File  /opt/sophos-spl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
@@ -1278,7 +1277,7 @@ Test SulDownloader Can Download Products From An Update Cache
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Log File  /opt/sophos-spl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
@@ -1326,7 +1325,7 @@ Test SulDownloader Can Fail Over To Update From Sophos When Update Cache Is Offl
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
 
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
@@ -1375,7 +1374,7 @@ Test SulDownloader Fails To Download From Update Cache If Using Wrong Certificat
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
 
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
@@ -1420,7 +1419,7 @@ Test SulDownloader times out installs
 
     Start Warehouse servers  ${WarehouseRigidName}
 
-    Create SulDownloader Config  ${WarehouseRigidName}  ${ConfigFileCert}
+    Create SulDownloader Config  ${WarehouseRigidName}
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json     ${tmpdir}/update_report.json
 
@@ -1428,7 +1427,7 @@ Test SulDownloader times out installs
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
     Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match   ${result.rc}    ${INSTALLFAILED}
 
@@ -1446,7 +1445,7 @@ Test That Only One SulDownloader Can Run At One Time
     Create Install File   0   Installer Executed  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}  5
     Create Warehouse for tmp product  ${BASE_RIGID_NAME}  ${BASE_RIGID_NAME}
     Start Warehouse servers  ${BASE_RIGID_NAME}
-    Create SulDownloader Config  ${BASE_RIGID_NAME}  ${SUPPORT_FILES}/sophos_certs/
+    Create SulDownloader Config  ${BASE_RIGID_NAME}
 
     ${Sul_Handle} =  Start Process  ${SUL_DOWNLOADER}  ${tmpdir}/update_config.json  ${tmpdir}/update_report.json
     Wait Until Keyword Succeeds
@@ -1458,7 +1457,7 @@ Test That Only One SulDownloader Can Run At One Time
     Wait For Process  ${Sul_Handle}
     File Should Not Exist  ${SOPHOS_INSTALL}/var/lock/suldownloader.pid
 
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Should Contain  ${log_contents}  Installer Executed
     Should Contain  ${log_contents}  Failed to lock file
 
@@ -1725,7 +1724,7 @@ Test SulDownloader Will Obtain Dictionary Values For Product Names In Warehouse
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
-    ${log_contents} =   Dump suldownloader log
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1845,7 +1844,7 @@ Convert Error Code Into String
     Run Keyword If   ${ErrorCode}==${UNSPECIFIED}                  Return From Keyword   UNSPECIFIED
     Run Keyword If   ${ErrorCode}==${INVALIDCOMMANDLINEARGUMENTS}  Return From Keyword   INVALIDCOMMANDLINEARGUMENTS
     Run Keyword If   ${ErrorCode}==${FILEREADORWRITEERROR}         Return From Keyword   FILEREADORWRITEERROR
-    [Return] UKNOWNERRORCODE
+    Return From Keyword  UKNOWNERRORCODE
 
 Error Codes Match
     [Arguments]   ${ACTUAL}   ${EXPECTED}
@@ -1879,7 +1878,9 @@ Start Warehouse servers
 Create SulDownloader Config
     [Arguments]  ${WarehouseRigidName}=${BASE_RIGID_NAME}
     ...          ${ConfigFileCert}=${SUPPORT_FILES}/sophos_certs/
-    ${config} =    Create JSON Config    install_path=${tmpdir}/sspl   rigidname=${WarehouseRigidName}  certificatePath=${ConfigFileCert}
+    ${config} =    Create JSON Config    install_path=${tmpdir}/sspl   rigidname=${WarehouseRigidName}
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/sspl/base/update/rootcerts/
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${tmpdir}/sspl/base/update/rootcerts/
     Create File    ${tmpdir}/update_config.json    content=${config}
     Log File   ${tmpdir}/update_config.json
 
@@ -1890,7 +1891,9 @@ Perform Install
     ...          ${ConfigFileCert}=${SUPPORT_FILES}/sophos_certs/
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Create Install File   ${ExitCode}   ${Message}  ${tmpdir}/TestInstallFiles/${ConfigRigidname}
-
+    create directory   ${tmpdir}/sspl/var/
+    create directory   ${tmpdir}/sspl/var/lock/
+    create file   ${tmpdir}/sspl/base/etc/logger.conf   VERBOSITY = DEBUG
     Log  ${ConfigRigidname}
     Log  ${WarehouseRigidName}
 
@@ -1898,9 +1901,9 @@ Perform Install
 
     Start Warehouse servers  ${WarehouseRigidName}
 
-    Create SulDownloader Config  ${WarehouseRigidName}  ${ConfigFileCert}
+    Create SulDownloader Config  ${WarehouseRigidName}
 
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${OutputJsonFile}
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${OutputJsonFile}  env:SOPHOS_INSTALL=${tmpdir}/sspl
     [Return]  ${result}
 
 Require Update Server
