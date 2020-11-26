@@ -28,7 +28,7 @@ BUILD_SCRIPT_INSTALL_DIR="$(python3 -m pip show build_scripts | grep "Location" 
 
 echo "Patch before:"
 grep "mnt/filer" ${BUILD_SCRIPT_INSTALL_DIR}/build_context.py
-sed -i "s/\'\/mnt\/filer6\'/\'\/mnt\/filer6\/bfr\'/g" ${BUILD_SCRIPT_INSTALL_DIR}/build_context.py
+sed -i "s_'/mnt/filer6'_'/mnt/filer6/bfr'_g" ${BUILD_SCRIPT_INSTALL_DIR}/build_context.py
 sed -i 's/\/mnt\/filer\/bir/\/uk-filer5\/prodro\/bir/g' ${BUILD_SCRIPT_INSTALL_DIR}/build_context.py
 echo "Patch after:"
 grep "mnt/filer" ${BUILD_SCRIPT_INSTALL_DIR}/build_context.py
