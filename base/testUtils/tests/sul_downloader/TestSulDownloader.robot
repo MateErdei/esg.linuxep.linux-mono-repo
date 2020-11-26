@@ -822,22 +822,23 @@ Test Product Should Force Reinstall After It Failed On The Install Even If Distr
 
 Test Product Should Force Reinstall After It Fails For Unspecified Reason
 
-    ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json  ${BASE_RIGID_NAME}  ${BASE_RIGID_NAME}
+    ${script} =     Catenate    SEPARATOR=\n
+    ...    \{
+    ...     "startTime": "20201126 164214",
+    ...     "finishTime": "",
+    ...     "syncTime": "",
+    ...     "status": "UNSPECIFIED",
+    ...     "sulError": "",
+    ...     "errorDescription": "unspecifed",
+    ...     "urlSource": "https://localhost:1233",
+    ...     "supplementOnlyUpdate": false
+    ...   }
+    ...    \
 
-    Log    "stdout = ${result.stdout}"
-    Log    "stderr = ${result.stderr}"
-    Log File  ${tmpdir}/update_report.json
-
-    Error Codes Match    ${result.rc}    ${UNSPECIFIED}
-
-    ${output} =    Get File    ${tmpdir}/update_report.json
-    Should Contain    ${output}    UNSPECIFIED
-    #Report should not contain any products
-    Should Not Contain    ${output}    ${BASE_RIGID_NAME}
+    create File  ${tmpdir}/update_report.json  content=${script}
 
     Move File   ${tmpdir}/update_report.json   ${tmpdir}/update_report_2018_08_21_09_43_21.json
 
-    Stop Update Server
     ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json
 
     Log    "stdout = ${result.stdout}"
