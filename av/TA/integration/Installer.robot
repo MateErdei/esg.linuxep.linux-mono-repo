@@ -39,7 +39,7 @@ IDE update doesnt restart av processes
 
     # Check we can detect PEEND following update
     # This test also proves that SUSI is configured to scan executables
-    Check Threat Detected  peend.exe  ${EMPTY}  PE/ENDTEST
+    Check Threat Detected  peend.exe  PE/ENDTEST
 
 
 IDE can be removed

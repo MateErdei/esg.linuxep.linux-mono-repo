@@ -20,34 +20,34 @@ Test Teardown   VQA Test TearDown
 
 SUSI config can scan android file
     Add IDE To Installation  axml.ide
-    Check Threat Detected  AndroidManifest.xml  ${EMPTY}  Test/Axml
+    Check Threat Detected  AndroidManifest.xml  Test/Axml
 
 
 SUSI config can scan msoffice file
     Add IDE To Installation  office.ide
-    Check Threat Detected  cleanmacro.xlsm  ${EMPTY}  Test/Office
+    Check Threat Detected  cleanmacro.xlsm  Test/Office
 
 
 SUSI config can scan adobe file
     Add IDE To Installation  pdf.ide
-    Check Threat Detected  test.pdf  ${EMPTY}  Pass/URI
+    Check Threat Detected  test.pdf  Pass/URI
 
 
 SUSI config can scan internet file
     Add IDE To Installation  internet.ide
-    Check Threat Detected  test.html  ${EMPTY}  Test/Html
+    Check Threat Detected  test.html  Test/Html
 
 
 SUSI config can scan macintosh file
     Add IDE To Installation  hfs.ide
-    Check Threat Detected  testfile.hfs  /:Disk Image:.journal  Test/Hfs
+    Check Threat Detected  testfile.hfs  Test/Hfs  /:Disk Image:.journal
 
 
 SUSI config can scan zip file as web archive
     Create File  ${SCAN_DIRECTORY}/eicar    ${EICAR_STRING}
     Create Zip   ${SCAN_DIRECTORY}   eicar   eicar.zip
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.zip --scan-archives
+    ${rc}   ${output} =    Run And Return Rc And Output    ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.zip
 
     Log  return code is ${rc}
     Log  output is ${output}
