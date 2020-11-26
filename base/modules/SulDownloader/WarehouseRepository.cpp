@@ -557,12 +557,10 @@ namespace SulDownloader
 
         if (connectionSetup.isCacheUpdate())
         {
-//            ssl_cert_path = configurationData.getUpdateCacheSslCertificatePath();
             ssl_cert_path = Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
         }
         else
         {
-//            ssl_cert_path = configurationData.getSystemSslCertificatePath();
             ssl_cert_path = ":system:";
         }
 
