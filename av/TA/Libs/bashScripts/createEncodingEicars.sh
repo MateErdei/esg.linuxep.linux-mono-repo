@@ -64,12 +64,11 @@ done
 
 XXD=`which xxd 2>/dev/null`
 if [ -x "$XXD" ] ; then
-#TODO: uncomment when LINUXDAR-1721 fixed
-#    path=`echo "3f96d1385bda886d8015019d020709321013202233445566778899aabbccddeeff09e1b9a97beaf97802fffe36e81db2c6de654d23f6" | xxd -p -r -c 256`
-#    fullpath="RANDOMGARBAGE-${path}-VIRUS"
-#    echo "${fullpath}"
-#    mkdir -p `dirname "${fullpath}"`
-#    echoEicar > "${fullpath}"
+    path=`echo "3f96d1385bda886d8015019d020709321013202233445566778899aabbccddeeff09e1b9a97beaf97802fffe36e81db2c6de654d23f6" | xxd -p -r -c 256`
+    fullpath="RANDOMGARBAGE-${path}-VIRUS"
+    echo "${fullpath}"
+    mkdir -p `dirname "${fullpath}"`
+    echoEicar > "${fullpath}"
 
     ## Nasty directory
     path=`echo "2e2f2e0d2f5749455244504154482d65696361722e636f6d2d56495255530a" | xxd -r -ps`
@@ -78,29 +77,29 @@ if [ -x "$XXD" ] ; then
     echoEicar > "${path}"
 
     ## Full ASCII
-#    FULLASCII="0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e"
-#    FULLASCII="${FULLASCII}1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c"
-#    FULLASCII="${FULLASCII}3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a"
-#    FULLASCII="${FULLASCII}5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778"
-#    FULLASCII="${FULLASCII}797a7b7c7d7e7f"
-#
-#    path=`echo "$FULLASCII" | xxd -r -ps`
-#    path="FULL-ASCII-$path"
-#    echo "${path}"
-#    mkdir -p "$(dirname "${path}")"
-#    echoEicar > "${path}"
+    FULLASCII="0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e"
+    FULLASCII="${FULLASCII}1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c"
+    FULLASCII="${FULLASCII}3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a"
+    FULLASCII="${FULLASCII}5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778"
+    FULLASCII="${FULLASCII}797a7b7c7d7e7f"
+
+    path=`echo "$FULLASCII" | xxd -r -ps`
+    path="FULL-ASCII-$path"
+    echo "${path}"
+    mkdir -p "$(dirname "${path}")"
+    echoEicar > "${path}"
 
     ## ASCII without slash
-#    ASCII="0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e"
-#    ASCII="${ASCII}1f202122232425262728292a2b2c2d2e303132333435363738393a3b3c"
-#    ASCII="${ASCII}3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a"
-#    ASCII="${ASCII}5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778"
-#    ASCII="${ASCII}797a7b7c7d7e7f"
-#
-#    path=`echo "$ASCII" | xxd -r -ps`
-#    path="ASCII-$path"
-#    echo "${path}"
-#    echoEicar > "${path}"
+    ASCII="0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e"
+    ASCII="${ASCII}1f202122232425262728292a2b2c2d2e303132333435363738393a3b3c"
+    ASCII="${ASCII}3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a"
+    ASCII="${ASCII}5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778"
+    ASCII="${ASCII}797a7b7c7d7e7f"
+
+    path=`echo "$ASCII" | xxd -r -ps`
+    path="ASCII-$path"
+    echo "${path}"
+    echoEicar > "${path}"
 
     ## Español in both NFC and NFD
     ## http://www.ericsink.com/entries/quirky.html
