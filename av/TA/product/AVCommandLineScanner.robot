@@ -589,70 +589,113 @@ CLS Prints Help and Failure When Parsing Incomplete Arguments
 
 
 CLS Can Log To A File
-   ${LOG_FILE}      Set Variable   ${NORMAL_DIRECTORY}/scan.log
-   ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
+    ${LOG_FILE}      Set Variable   ${NORMAL_DIRECTORY}/scan.log
+    ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
 
-   Create File     ${THREAT_FILE}    ${EICAR_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${THREAT_FILE} --output ${LOG_FILE}
+    Create File     ${THREAT_FILE}    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${THREAT_FILE} --output ${LOG_FILE}
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-   File Log Contains    ${LOG_FILE}    "${THREAT_FILE}" is infected with EICAR-AV-Test
+    File Log Contains    ${LOG_FILE}    "${THREAT_FILE}" is infected with EICAR-AV-Test
 
 CLS Will Not Log To A Directory
-   ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
+    ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
 
-   Create File     ${THREAT_FILE}    ${EICAR_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${THREAT_FILE} --output ${NORMAL_DIRECTORY}
+    Create File     ${THREAT_FILE}    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${THREAT_FILE} --output ${NORMAL_DIRECTORY}
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
-   Should Contain    ${output}    Failed to log to ${NORMAL_DIRECTORY} as it is a directory
-   Should Contain    ${output}    Usage: avscanner PATH... [OPTION]...
-   Should Not Contain    ${output}    "${THREAT_FILE}" is infected with EICAR-AV-Test
+    Should Contain    ${output}    Failed to log to ${NORMAL_DIRECTORY} as it is a directory
+    Should Contain    ${output}    Usage: avscanner PATH... [OPTION]...
+    Should Not Contain    ${output}    "${THREAT_FILE}" is infected with EICAR-AV-Test
 
 
 CLS Can Scan Infected File Via Symlink To Directory
-   ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
-   ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
-   Create Directory   ${targetDir}
-   Create Directory   ${sourceDir}
-   Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
-   Run Process   ln  -snf  ${targetDir}  ${sourceDir}/b
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/b
+    ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
+    ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
+    Create Directory   ${targetDir}
+    Create Directory   ${sourceDir}
+    Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
+    Run Process   ln  -snf  ${targetDir}  ${sourceDir}/b
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/b
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Contain       ${output.replace("\n", " ")}  Detected "${sourceDir}/b/eicar.com" (symlinked to ${targetDir}/eicar.com) is infected with EICAR-AV-Test
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Contain       ${output.replace("\n", " ")}  Detected "${sourceDir}/b/eicar.com" (symlinked to ${targetDir}/eicar.com) is infected with EICAR-AV-Test
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
 
 
 CLS Can Scan Infected File Via Symlink To File
-   Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
-   Run Process   ln  -snf  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar
+    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Run Process   ln  -snf  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToEicar" (symlinked to ${NORMAL_DIRECTORY}/eicar.com) is infected with EICAR-AV-Test
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToEicar
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToEicar" (symlinked to ${NORMAL_DIRECTORY}/eicar.com) is infected with EICAR-AV-Test
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToEicar
 
 
 CLS Skips The Scanning Of Symlink Targets On Special Mount Points
-   Run Process   ln  -snf  /proc/uptime  ${NORMAL_DIRECTORY}/symlinkToProcUptime
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToProcUptime
+    Run Process   ln  -snf  /proc/uptime  ${NORMAL_DIRECTORY}/symlinkToProcUptime
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToProcUptime
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Contain       ${output.replace("\n", " ")}  Skipping the scanning of symlink target ("/proc/uptime") which is on excluded mount point: "/proc"
-   Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Contain       ${output.replace("\n", " ")}  Skipping the scanning of symlink target ("/proc/uptime") which is on excluded mount point: "/proc"
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+CLS Can Exclude Scanning of Symlink To File
+    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Run Process   ln  -snf  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar -x eicar.com
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${NORMAL_DIRECTORY}/eicar.com") which is excluded by user defined exclusion: /eicar.com
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar -x ${NORMAL_DIRECTORY}/eicar.com
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${NORMAL_DIRECTORY}/eicar.com") which is excluded by user defined exclusion: ${NORMAL_DIRECTORY}/eicar.com
+
+CLS Can Exclude Scanning of Symlink To Folder
+    ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
+    ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
+    Create Directory   ${targetDir}
+    Create Directory   ${sourceDir}
+    Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
+    Run Process   ln  -snf  ${targetDir}  ${sourceDir}/directory_link
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/directory_link/ -x directory_link/
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir}") which is excluded by user defined exclusion: /directory_link/
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/directory_link -x ${targetDir}/
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir}") which is excluded by user defined exclusion: ${targetDir}/
 
 
 CLS Reports Error Once When Using Custom Log File
