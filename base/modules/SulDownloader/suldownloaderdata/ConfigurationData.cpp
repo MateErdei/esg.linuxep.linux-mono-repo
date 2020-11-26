@@ -447,9 +447,6 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     configurationData.setInstallArguments(installArgs);
 
-//    configurationData.setCertificatePath(settings.certificatepath());
-//    configurationData.setSystemSslCertificatePath(settings.systemsslpath());
-//    configurationData.setUpdateCacheSslCertificatePath(settings.cacheupdatesslpath());
     LogLevel level = (settings.loglevel() == ::SulDownloaderProto::ConfigurationSettings_LogLevelOption_NORMAL)
                          ? LogLevel::NORMAL
                          : LogLevel::VERBOSE;
@@ -579,11 +576,6 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     {
         settings.add_installarguments()->assign(installarg);
     }
-
-//    settings.set_certificatepath(configurationData.getCertificatePath());
-
-//    settings.set_systemsslpath(configurationData.getSystemSslCertificatePath());
-//    settings.set_cacheupdatesslpath(configurationData.getUpdateCacheSslCertificatePath());
 
     if (configurationData.getLogLevel() == LogLevel::NORMAL)
     {

@@ -93,7 +93,6 @@ def create_json_config_for_ostia_vshield():
                 "password": ""
             }
         },
-        "systemSslPath": ":system:",
         "releaseTag": "RECOMMENDED",
         "baseVersion": "0",
         "primary": "THISPRODUCTISNOTTHERE",

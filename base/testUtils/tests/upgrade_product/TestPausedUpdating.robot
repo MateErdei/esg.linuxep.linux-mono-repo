@@ -50,8 +50,8 @@ Check Expected Version Is Installed
 
 Check Update Config Contains Expected Version Value
     [Arguments]   ${expectedVersion}
-    ${updateConfigJson} =  Get File  ${SulConfigPath}
-    Log File   ${SOPHOS_INSTALL}/base/update/var/update_config.json
+    ${updateConfigJson} =  Get File  ${UPDATE_CONFIG}
+    Log File   ${UPDATE_CONFIG}
     Should Contain  ${updateConfigJson}   fixedVersion": "${expectedVersion}
 
 Perform Update And Check Expected Version Is Installed

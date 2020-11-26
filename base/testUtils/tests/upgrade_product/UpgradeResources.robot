@@ -20,7 +20,6 @@ Resource    ../liveresponse_plugin/LiveResponseResources.robot
 
 *** Variables ***
 ${warehousedir}                             ./tmp
-${SulConfigPath}                            ${SOPHOS_INSTALL}/base/update/var/update_config.json
 ${InstalledBaseVersionFile}                 ${SOPHOS_INSTALL}/base/VERSION.ini
 ${InstalledMDRPluginVersionFile}            ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
 ${InstalledMDRSuiteVersionFile}             ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini

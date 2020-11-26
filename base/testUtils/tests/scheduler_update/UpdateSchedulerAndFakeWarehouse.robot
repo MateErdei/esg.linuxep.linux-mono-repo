@@ -52,7 +52,7 @@ UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
     ...  1 secs
     ...  Check Log Contains   Invalid policy: Username is empty    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
 
-    ${File}=  Get File   ${UPDATE_DIR}/var/update_config.json
+    ${File}=  Get File   ${UPDATE_CONFIG}
     Should not Contain   ${File}  UserPassword="NotARealPassword"
 
     Check Update Scheduler Running
@@ -87,6 +87,9 @@ UpdateScheduler Report Failure On Versig Error
 
     # Normal operation
     Send Policy With No Cache And No Proxy
+
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${UPDATE_ROOTCERT_DIR}
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${UPDATE_ROOTCERT_DIR}
 
     Replace Sophos URLS to Localhost
 

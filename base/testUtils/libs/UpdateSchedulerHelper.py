@@ -152,13 +152,9 @@ class UpdateSchedulerHelper(object):
         config = json.load(open(config_path, 'r'))
         logger.info("Original value: {}".format(config))
         config['sophosURLs'] = [url]
-        config['certificatePath'] = os.path.abspath(os.path.join(PathManager.get_support_file_path(), 'sophos_certs'))
-        config['systemSslPath'] = os.path.abspath(os.path.join(PathManager.get_support_file_path(), 'https/ca'))
         if use_update_cache:
             logger.info("using update cache")
             config['updateCache'] = ['localhost:1236']
-            cache_path = os.path.join(PathManager.get_support_file_path(), 'https/ca')
-            config['cacheUpdateSslPath'] = os.path.abspath(cache_path)
         filecontent = json.dumps(config, separators=(',', ': '), indent=4)
         logger.info("New content: {}".format(filecontent))
         open(config_path, 'w').write(filecontent)

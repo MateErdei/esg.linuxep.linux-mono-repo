@@ -193,9 +193,6 @@ TEST_F( // NOLINT
     expectedConfiguration.setProductsSubscription(
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "" } });
     expectedConfiguration.setFeatures({ "CORE", "MDR" });
-//    expectedConfiguration.setSystemSslCertificatePath(m_absSystemSslPath);
-//    expectedConfiguration.setUpdateCacheSslCertificatePath(m_absCacheUpdatePath);
-//    expectedConfiguration.setCertificatePath(m_absCertificatePath);
     expectedConfiguration.setInstallArguments({ "--install-dir", "/opt/sophos-av" });
     expectedConfiguration.setLogLevel(ConfigurationData::LogLevel::NORMAL);
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, expectedConfiguration);

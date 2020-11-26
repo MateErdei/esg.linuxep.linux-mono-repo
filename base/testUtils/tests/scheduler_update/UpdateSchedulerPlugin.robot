@@ -54,12 +54,12 @@ UpdateScheduler SulDownloader Report Sync With Warehouse Success
 UpdateScheduler Regenerates The Config File If It Does Not Exist
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
     Setup Base and Plugin Sync and UpToDate
-    Remove File  ${sulConfigPath}
+    Remove File  ${UPDATE_CONFIG}
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  2 secs
-    ...  File Should Exist  ${sulConfigPath}
+    ...  File Should Exist  ${UPDATE_CONFIG}
     ${eventPath} =  Check Status and Events Are Created
     Check Event Report Success  ${eventPath}
 
@@ -246,7 +246,7 @@ UpdateScheduler Performs Update After Receiving Policy For The First Time
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     Configure Hosts File
     Remove File  ${statusPath}
-    Remove File  ${sulConfigPath}
+    Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
     Send Policy To UpdateScheduler  ALC_policy_direct.xml
@@ -306,7 +306,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Features
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     Configure Hosts File
     Remove File  ${statusPath}
-    Remove File  ${sulConfigPath}
+    Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
@@ -328,7 +328,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Subscripti
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     Configure Hosts File
     Remove File  ${statusPath}
-    Remove File  ${sulConfigPath}
+    Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
@@ -349,7 +349,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     Configure Hosts File
     Remove File  ${statusPath}
-    Remove File  ${sulConfigPath}
+    Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
@@ -370,7 +370,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     Configure Hosts File
     Remove File  ${statusPath}
-    Remove File  ${sulConfigPath}
+    Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
@@ -393,7 +393,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     Configure Hosts File
     Remove File  ${statusPath}
-    Remove File  ${sulConfigPath}
+    Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
@@ -415,7 +415,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     Configure Hosts File
     Remove File  ${statusPath}
-    Remove File  ${sulConfigPath}
+    Remove File  ${UPDATE_CONFIG}
     Start Update Scheduler
     Start Management Agent Via WDCTL
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml

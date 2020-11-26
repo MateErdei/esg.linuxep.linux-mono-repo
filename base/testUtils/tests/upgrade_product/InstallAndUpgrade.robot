@@ -665,8 +665,8 @@ Cleanup Warehouse And Test Teardown
 Simulate Previous Scheduled Update Success
     # Trigger updating via Central Update Scheduler which will create the previous_update_config.json file only when
     # update scheduler process expected current reports rather than unprocessed old reports
-    Run Process   cp  ${SOPHOS_INSTALL}/base/update/var/update_config.json  ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
-    Run Process   chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+    Run Process   cp  ${UPDATE_CONFIG}   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
+    Run Process   chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
 Check for Management Agent Failing To Send Message To MTR And Check Recovery
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data
@@ -707,8 +707,8 @@ Check Installed Version Files Against Expected
     Should Be Equal As Strings  ${WH_MDR_SUITE}  ${INSTALLED_MDR_SUITE}
 
 Redirect Sulconfig To Use Local Warehouse
-    Replace Sophos URLS to Localhost  config_path=${SulConfigPath}
-    Replace Username And Password In Sulconfig  config_path=${SulConfigPath}
+    Replace Sophos URLS to Localhost  config_path=${UPDATE_CONFIG}
+    Replace Username And Password In Sulconfig  config_path=${UPDATE_CONFIG}
 
 Setup Warehouse For Latest Release
     Stop Update Server
@@ -883,7 +883,7 @@ Check Files After Upgrade
     File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
-    File Should Exist   ${SOPHOS_INSTALL}/base/update/var/update_config.json
+    File Should Exist   ${UPDATE_CONFIG}
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
 
 Check Update Reports Have Been Processed
