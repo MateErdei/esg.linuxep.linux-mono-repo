@@ -65,7 +65,6 @@ def create_update_cache_config(rigidname="ServerProtectionLinux-Base", include_p
     config = create_config(rigidname, include_plugins)
 
     config['updateCache'] = ["localhost:1235", "localhost:1236"]
-    config['cacheUpdateSslPath'] = os.path.join(PathManager.get_support_file_path(), "https/ca")
 
     return config
 

@@ -21,14 +21,6 @@ public:
     std::string m_systemSslRelPath;
     std::string m_cacheUpdateSslRelPath;
 
-    // come from ConfigurationDataBAse
-    // std::string m_absInstallationPath;
-    // std::string m_absCertificatePath;
-    // std::string m_absSystemSslPath;
-    // std::string m_absCacheUpdatePath;
-    // std::string m_primaryPath
-    // std::string m_distPath
-
     std::unique_ptr<Tests::TempDir> m_tempDir;
 
     void SetUp() override
