@@ -7,7 +7,6 @@ SophosAddTest(TestAVScannerImpl
         TestExclusion.cpp
         TestNamedScanRunner.cpp
         TestOptions.cpp
-        TestPathUtils.cpp
         TestScanClient.cpp
         TestLogger.cpp
         PROJECTS avscannerimpl
