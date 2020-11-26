@@ -356,11 +356,6 @@ then
     chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/telemetry/cache/updatescheduler-telemetry.json"
 fi
 
-if [[ -f "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse" ]]
-then
-    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse"
-fi
-
 if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json" ]]
 then
     chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json"
