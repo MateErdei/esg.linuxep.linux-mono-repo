@@ -35,6 +35,7 @@ Recreate Installation In Temp Dir
     Should Exist        ${SOPHOS_INSTALL}
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.0   [suldownloader]\nVERBOSITY=DEBUG\n
     Run Process         ln  -snf  ${VERSIGPATH}   ${tmpdir}/sspl/base/update/versig
+    Run Process         ln  -snf  ${SOPHOS_INSTALL}/base/update/updatecachecerts/cache_certificates.crt {tmpdir}/sspl/base/update/updatecachecerts/cache_certificates.crt
     Create Directory    ${tmpdir}/sspl/base/update/cache/primarywarehouse
     Create Directory    ${tmpdir}/sspl/base/update/cache/primary
     Create Directory    ${tmpdir}/sspl/base/update/cache/primary
@@ -157,7 +158,7 @@ Empty input file
 Unreachable warehouse server
     Create Directory    ${tmpdir}/sspl/base/update/cache/primarywarehouse
     Create Directory    ${tmpdir}/sspl/base/update/cache/primary
-    ${config} =    Create JSON Config    install_path=${tmpdir}/sspl
+    ${config} =    Create JSON Config
     Create File    ${tmpdir}/update_config.json    content=${config}
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/output
 
@@ -179,7 +180,7 @@ Empty warehouse
     Start Update Server    1233    ${tmpdir}/warehouse
     Can Curl Url    https://localhost:1233/
 
-    ${config} =    Create JSON Config    install_path=${tmpdir}/sspl
+    ${config} =    Create JSON Config
     Create File    ${tmpdir}/update_config.json    content=${config}
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
@@ -617,8 +618,8 @@ Can Use Authenticated Proxy Saved In Savedproxy Config
     Create File    ${tmpdir}/update_config.json    content=${config_json}
 
     Create File    ${tmpdir}/sspl/base/etc/savedproxy.config    content=${proxy_url}
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Check SulDownloader Result   ${result}   ${SUCCESS}
 
@@ -626,7 +627,11 @@ Can Use Authenticated Proxy Saved In Savedproxy Config
     ...     SUCCESS
     ...     UPGRADED
 
-    Verify SulDownloader Connects Via Proxy   ${proxy_domain_and_port}
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
+
+    Should Contain    ${log_contents}    Try connection: Sophos at https://localhost:1233 via proxy: ${proxy_domain_and_port}
+    Should Contain    ${log_contents}    Successfully connected to: Sophos at https://localhost:1233 via proxy: ${proxy_domain_and_port}
+    Should Not Contain    ${log_contents}    Failed to connect to Sophos at https://localhost:1233 via proxy: ${proxy_domain_and_port}
 
 
 Test Product Uninstalls If Not In Warehouse
@@ -777,10 +782,13 @@ Test Product Should Force Reinstall After It Failed On The Install Even If Distr
     Can Curl Url    https://localhost:1233
     Can Curl Url    https://localhost:1234/catalogue/sdds.${BASE_RIGID_NAME}.xml
 
-    ${config} =    Create JSON Config    install_path=${tmpdir}/sspl
+    ${config} =    Create JSON Config
     Create File    ${tmpdir}/update_config.json    content=${config}
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    create directory   ${tmpdir}/sspl/var/lock/
+    create file   ${tmpdir}/sspl/base/etc/logger.conf   VERBOSITY = DEBUG
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/sspl/base/update/rootcerts/
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${tmpdir}/sspl/base/update/rootcerts/
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
@@ -795,9 +803,9 @@ Test Product Should Force Reinstall After It Failed On The Install Even If Distr
 
     Move File   ${tmpdir}/update_report.json   ${tmpdir}/update_report_2018_08_21_09_43_21.json
     Create File   ${InstallSuccessFilePath}
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
 
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
@@ -814,7 +822,7 @@ Test Product Should Force Reinstall After It Failed On The Install Even If Distr
 
 Test Product Should Force Reinstall After It Fails For Unspecified Reason
 
-    ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json  ${BASE_RIGID_NAME}  ${BASE_RIGID_NAME}  ${tmpdir}/NotAPath
+    ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json  ${BASE_RIGID_NAME}  ${BASE_RIGID_NAME}
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -865,7 +873,7 @@ Test Product Should Install After Package Source Missing Error
     Move File   ${tmpdir}/update_report.json   ${tmpdir}/update_report_2018_08_21_09_43_21.json
 
     Stop Update Server
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
     ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json  SSPL-DIFF-RIGIDNAME  SSPL-DIFF-RIGIDNAME
 
     Log    "stdout = ${result.stdout}"
@@ -908,8 +916,8 @@ Test Product Does Not Trigger A Reinstall After A Failed Uninstall
 
     Move File   ${tmpdir}/update_report.json   ${tmpdir}/update_report_2018_08_21_09_43_21.json
 
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -949,13 +957,14 @@ Test Product Does Trigger A Reinstall After A Failed Install And Failed Uninstal
     Can Curl Url    https://localhost:1233
     Can Curl Url    https://localhost:1234/catalogue/sdds.${BASE_RIGID_NAME}.xml
 
-    ${config} =    Create JSON Config    install_path=${tmpdir}/sspl
+    ${config} =    Create JSON Config
     Create File    ${tmpdir}/update_config.json    content=${config}
 
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
-    Log File  /opt/sophos-spl/logs/base/suldownloader.log
+    Log File  ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -973,8 +982,8 @@ Test Product Does Trigger A Reinstall After A Failed Install And Failed Uninstal
     Move File   ${tmpdir}/update_report.json   ${tmpdir}/update_report_2018_08_21_09_43_21.json
     Create File   ${InstallSuccessFilePath}
 
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1015,9 +1024,9 @@ Test Product Sul Distribution Error Will Force Reinstall On Next Update
     Create File  ${reportFileName}  ${customReportData}
 
     Log File   ${reportFileName}
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
@@ -1058,9 +1067,9 @@ Test Product Sul Verify Error Will Force Reinstall On Next Update
     Create File  ${reportFileName}  ${customReportData}
 
     Log File   ${reportFileName}
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
 
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json   ${tmpdir}/update_report.json
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json   ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Log    "stdout = ${result.stdout}"
@@ -1079,7 +1088,7 @@ Test Product Sul Sync Error Will Force Reinstall On Next Update
     # Testing Sul Failing to sync Warehouse Metadata.
 
     ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json
-    ${log_contents} =  Dump suldownloader log
+    ${log_contents} =  Get File  ${tmpdir}/sspl/logs/base/suldownloader.log
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
@@ -1099,8 +1108,8 @@ Test Product Sul Sync Error Will Force Reinstall On Next Update
     Create File  ${reportFileName}  ${customReportData}
 
     Log File   ${reportFileName}
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json   ${tmpdir}/update_report.json
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json   ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
@@ -1118,7 +1127,7 @@ Test Product Sul Sync Error Will Force Reinstall On Next Update
 Test Product Sul Download Reports Up To Date when Multiple Report Files Exist
 
     ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json
-    ${log_contents} =  Dump suldownloader log
+    ${log_contents} =  Get File  ${tmpdir}/sspl/logs/base/suldownloader.log
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
@@ -1138,9 +1147,9 @@ Test Product Sul Download Reports Up To Date when Multiple Report Files Exist
     Create File  ${reportFileName}  ${customReportData}
 
     Move File   ${tmpdir}/update_report.json   ${tmpdir}/update_report_2018_08_21_09_53_21.json
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
 
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Log    "stdout = ${result.stdout}"
@@ -1177,7 +1186,7 @@ Test SulDownloader Can Download Multiple Products From Multiple Warehouses
     Can Curl Url    https://localhost:1234/catalogue/sdds.${EXAMPLE_PLUGIN_RIGID_NAME}.xml
 
     Recreate Installation In Temp Dir
-    ${config} =    Create JSON Config    install_path=${tmpdir}/sspl  include_plugins=${TRUE}
+    ${config} =    Create JSON Config    include_plugins=${TRUE}
     Create File    ${tmpdir}/update_config.json    content=${config}
 
     ${UninstallMessage} =   Set Variable   UNINSTALLER EXECUTED
@@ -1186,8 +1195,9 @@ Test SulDownloader Can Download Multiple Products From Multiple Warehouses
 
     Run Process    chmod +x ${InstallProductsDir}/BASE_RIGID_NAME.sh     shell=True
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
@@ -1222,7 +1232,7 @@ Test SulDownloader Can Download Multiple Products From A Single Warehouse
     Can Curl Url    https://localhost:1234/catalogue/sdds.${BASE_RIGID_NAME}.xml
 
     Recreate Installation In Temp Dir
-    ${config} =    Create JSON Config    install_path=${tmpdir}/sspl    include_plugins=${TRUE}
+    ${config} =    Create JSON Config    include_plugins=${TRUE}
     Create File    ${tmpdir}/update_config.json    content=${config}
 
     ${UninstallMessage} =   Set Variable   UNINSTALLER EXECUTED
@@ -1231,10 +1241,9 @@ Test SulDownloader Can Download Multiple Products From A Single Warehouse
 
     Run Process    chmod +x ${InstallProductsDir}/BASE_RIGID_NAME.sh     shell=True
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
-    Log File  /opt/sophos-spl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1265,7 +1274,7 @@ Test SulDownloader Can Download Products From An Update Cache
     Can Curl Url    https://localhost:1236/sophos/warehouse/catalogue/sdds.${BASE_RIGID_NAME}.xml
 
     Recreate Installation In Temp Dir
-    ${config} =    Create JSON Update Cache Config    install_path=${tmpdir}/sspl  include_plugins=${TRUE}
+    ${config} =    Create JSON Update Cache Config   include_plugins=${TRUE}
     Log   ${config}
     Create File    ${tmpdir}/update_config.json    content=${config}
 
@@ -1275,10 +1284,11 @@ Test SulDownloader Can Download Products From An Update Cache
 
     Run Process    chmod +x ${InstallProductsDir}/BASE_RIGID_NAME.sh     shell=True
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
+    Setup Tmpdir Install
 
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt  ${tmpdir}/sspl/base/update/updatecachecerts/cache_certificates.crt
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
-    Log File  /opt/sophos-spl/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1312,7 +1322,7 @@ Test SulDownloader Can Fail Over To Update From Sophos When Update Cache Is Offl
     Can Curl Url    https://localhost:1234/catalogue/sdds.${BASE_RIGID_NAME}.xml
 
     Recreate Installation In Temp Dir
-    ${config} =    Create JSON Update Cache Config    install_path=${tmpdir}/sspl  include_plugins=${TRUE}
+    ${config} =    Create JSON Update Cache Config    include_plugins=${TRUE}
     Log   ${config}
     Create File    ${tmpdir}/update_config.json    content=${config}
 
@@ -1322,11 +1332,11 @@ Test SulDownloader Can Fail Over To Update From Sophos When Update Cache Is Offl
 
     Run Process    chmod +x ${InstallProductsDir}/BASE_RIGID_NAME.sh     shell=True
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt  ${tmpdir}/sspl/base/update/updatecachecerts/cache_certificates.crt
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
-    Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1361,7 +1371,7 @@ Test SulDownloader Fails To Download From Update Cache If Using Wrong Certificat
     Can Curl Url    https://localhost:1236/sophos/warehouse/catalogue/sdds.${BASE_RIGID_NAME}.xml
 
     Recreate Installation In Temp Dir
-    ${config} =    Create JSON Update Cache Config    install_path=${tmpdir}/sspl
+    ${config} =    Create JSON Update Cache Config
     Log   ${config}
     Create File    ${tmpdir}/update_config.json    content=${config}
 
@@ -1371,20 +1381,19 @@ Test SulDownloader Fails To Download From Update Cache If Using Wrong Certificat
 
     Run Process    chmod +x ${InstallProductsDir}/BASE_RIGID_NAME.sh     shell=True
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
-    Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
 
-    Error Codes Match   ${result.rc}    ${INSTALLFAILED}
+    Error Codes Match   ${result.rc}    ${CONNECTIONERROR}
 
     ${output} =    Get File    ${tmpdir}/update_report.json
-    Should Contain    ${output}    INSTALLFAILED
+    Should Contain    ${output}    CONNECTIONERROR
     Should Not Contain    ${log_contents}    ${UninstallMessage}
     Should Not Contain    ${log_contents}    BASE INSTALLER EXECUTED
     Should Not Contain    ${log_contents}    PLUGIN INSTALLER EXECUTED
@@ -1393,7 +1402,7 @@ Test SulDownloader Fails To Download From Update Cache If Using Wrong Certificat
 Test SulDownloader times out installs
     [Tags]    SLOW  SULDOWNLOADER
     [Timeout]    15 minutes
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
 
     ${ExitCode} =  Set Variable   0
     ${Message} =  Set Variable   LONG DELAY
@@ -1420,8 +1429,8 @@ Test SulDownloader times out installs
     Start Warehouse servers  ${WarehouseRigidName}
 
     Create SulDownloader Config  ${WarehouseRigidName}
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json     ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json     ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1441,21 +1450,21 @@ Test SulDownloader times out installs
 
 
 Test That Only One SulDownloader Can Run At One Time
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
     Create Install File   0   Installer Executed  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}  5
     Create Warehouse for tmp product  ${BASE_RIGID_NAME}  ${BASE_RIGID_NAME}
     Start Warehouse servers  ${BASE_RIGID_NAME}
     Create SulDownloader Config  ${BASE_RIGID_NAME}
-
-    ${Sul_Handle} =  Start Process  ${SUL_DOWNLOADER}  ${tmpdir}/update_config.json  ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${Sul_Handle} =  Start Process  ${SUL_DOWNLOADER}  ${tmpdir}/update_config.json  ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  File Should Exist  ${SOPHOS_INSTALL}/var/lock/suldownloader.pid
-    ${result} =  Run Process  ${SUL_DOWNLOADER}  ${tmpdir}/update_config.json  ${tmpdir}/output2.json
+    ...  File Should Exist  ${tmpdir}/sspl/var/lock/suldownloader.pid
+    ${result} =  Run Process  ${SUL_DOWNLOADER}  ${tmpdir}/update_config.json  ${tmpdir}/output2.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
     Should Be Equal As Integers  ${result.rc}  ${SULDOWNLOADERLOCKFILEERROR}  Second Instance Of SulDownloader Didn't Fail As Expected
     Wait For Process  ${Sul_Handle}
-    File Should Not Exist  ${SOPHOS_INSTALL}/var/lock/suldownloader.pid
+    File Should Not Exist  ${tmpdir}/sspl/var/lock/suldownloader.pid
 
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Should Contain  ${log_contents}  Installer Executed
@@ -1475,7 +1484,9 @@ Test That Suldownloader Checks Update Caches and Proxies in the Correct Order
     ${saved_env_proxy} =  Set Variable  https://saved-env-proxy.com
     Create File  ${tmpdir}/sspl/base/etc/savedproxy.config  content=${saved_env_proxy}
     # Start suldownloader with an environment proxy
-    ${Sul_Handle} =  Run Process  ${SUL_DOWNLOADER}  ${tmpdir}/update_config.json  ${tmpdir}/update_report.json  env:https_proxy=10.144.1.10:8080
+    Setup Tmpdir Install
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt  ${tmpdir}/sspl/base/update/updatecachecerts/cache_certificates.crt
+    ${Sul_Handle} =  Run Process  ${SUL_DOWNLOADER}  ${tmpdir}/update_config.json  ${tmpdir}/update_report.json  env:https_proxy=10.144.1.10:8080  env:SOPHOS_INSTALL=${tmpdir}/sspl
     Log    "stdout = ${Sul_Handle.stdout}"
     Log    "stderr = ${Sul_Handle.stderr}"
     ${update_cache_message1} =  Set Variable  Update cache at localhost:1235
@@ -1484,7 +1495,8 @@ Test That Suldownloader Checks Update Caches and Proxies in the Correct Order
     ${env_proxy_message} =  Set Variable  Proxy used was: "environment:"
     ${saved_env_proxy_message} =  Set Variable  Proxy used was: "${saved_env_proxy}"
     ${no_proxy_message} =  Set Variable  Proxy used was: "noproxy:"
-    Check Suldownloader Log Contains In Order
+    Check Log Contains In Order
+    ...  ${tmpdir}/sspl/logs/base/suldownloader.log
         ...  ${update_cache_message1}
         ...  ${update_cache_message2}
         ...  ${policy_proxy_message}
@@ -1502,8 +1514,8 @@ Test Suldownloader Can Install From Warehouse Without Base Version
 
     #Base version is not set on config by default
     Setup SulDownloader Config File
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Verify Product Installed and Report Upgraded   ${result}
 
@@ -1519,8 +1531,8 @@ Test Suldownloader Can Install From Warehouse With Base Version 1 And Config Set
     &{List} =  Create Dictionary   rigidName=${BASE_RIGID_NAME}  tag=RECOMMENDED  baseVersion=1
 
     Setup SulDownloader Config File    primarySubscription=&{List}
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Verify Product Installed and Report Upgraded   ${result}
 
@@ -1535,8 +1547,8 @@ Test Suldownloader Can Install From Warehouse With Base Version 1 And Config Wit
 
     #Base version is not set on config by default
     Setup SulDownloader Config File
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Verify Product Installed and Report Upgraded   ${result}
 
@@ -1550,8 +1562,8 @@ Test Suldownloader Can Upgrade From Major Versions Using Warehouses
     Require Update Server
 
     Setup SulDownloader Config File    remove_entries=baseVersion
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Verify Product Installed and Report Upgraded   ${result}
 
@@ -1571,7 +1583,7 @@ Test Suldownloader Can Upgrade From Major Versions Using Warehouses
 
     # do not recreate the config file. Use the same
 
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Verify Product Installed and Report Upgraded   ${result}
 
@@ -1599,8 +1611,8 @@ Test Suldownloader Can Download A Component Suite And Component From A Single Wa
     Require Update Server
 
     Setup SulDownloader Config File    remove_entries=baseVersion   include_plugins=${True}
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Verify Product Installed and Report Upgraded   ${result}
 
@@ -1635,8 +1647,8 @@ Test Suldownloader Can Download A Component Suite And Component From A Multiple 
     Require Update Server
 
     Setup SulDownloader Config File   remove_entries=baseVersion   include_plugins=${True}
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Verify Product Installed and Report Upgraded   ${result}
 
@@ -1661,8 +1673,8 @@ Suldownloader Should Keep Reporting Failure While Verification Fails
     Require Update Server
 
     Setup SulDownloader Config File
-
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Verify Product Installed and Report Upgraded   ${result}
 
@@ -1677,19 +1689,18 @@ Suldownloader Should Keep Reporting Failure While Verification Fails
 	Generate Warehouse      RemoveBaseVersion=True   CORRUPTINSTALL=yes
     Require Update Server
 
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
-    Check Suldownloader Log Contains In Order  Checking signature.
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
+    Should Contain  ${log_contents}  Checking signature.
     Verify SulDownloader Failed With The Expected Errors  ${result}   ${INSTALLFAILED}   INSTALLFAILED  failed signature verification
     Move File   ${tmpdir}/update_report.json  ${tmpdir}/update_report_second.json
 
-    # run second time and expect it to continue to fail
-    Log File      ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    Remove File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    remove file  ${tmpdir}/sspl/logs/base/suldownloader.log
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
-
-    Check Suldownloader Log Contains In Order  Checking signature.
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
+    Should Contain  ${log_contents}  Checking signature.
     Verify SulDownloader Failed With The Expected Errors  ${result}   ${INSTALLFAILED}   INSTALLFAILED  failed signature verification
 
 Test SulDownloader Will Obtain Dictionary Values For Product Names In Warehouse
@@ -1713,7 +1724,7 @@ Test SulDownloader Will Obtain Dictionary Values For Product Names In Warehouse
     Can Curl Url    https://localhost:1234/catalogue/sdds.${EXAMPLE_PLUGIN_RIGID_NAME}.xml
 
     Recreate Installation In Temp Dir
-    ${config} =    Create JSON Config    install_path=${tmpdir}/sspl  include_plugins=${TRUE}
+    ${config} =    Create JSON Config    include_plugins=${TRUE}
     Create File    ${tmpdir}/update_config.json    content=${config}
 
     ${UninstallMessage} =   Set Variable   UNINSTALLER EXECUTED
@@ -1722,9 +1733,9 @@ Test SulDownloader Will Obtain Dictionary Values For Product Names In Warehouse
 
     Run Process    chmod +x ${InstallProductsDir}/BASE_RIGID_NAME.sh     shell=True
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
-    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
+    Setup Tmpdir Install
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -1878,7 +1889,7 @@ Start Warehouse servers
 Create SulDownloader Config
     [Arguments]  ${WarehouseRigidName}=${BASE_RIGID_NAME}
     ...          ${ConfigFileCert}=${SUPPORT_FILES}/sophos_certs/
-    ${config} =    Create JSON Config    install_path=${tmpdir}/sspl   rigidname=${WarehouseRigidName}
+    ${config} =    Create JSON Config    rigidname=${WarehouseRigidName}
     Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/sspl/base/update/rootcerts/
     Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${tmpdir}/sspl/base/update/rootcerts/
     Create File    ${tmpdir}/update_config.json    content=${config}
@@ -1888,8 +1899,7 @@ Create SulDownloader Config
 Perform Install
     [Arguments]  ${ExitCode}  ${Message}   ${OutputJsonFile}=${tmpdir}/update_report.json
     ...          ${ConfigRigidname}=${BASE_RIGID_NAME}   ${WarehouseRigidName}=${BASE_RIGID_NAME}
-    ...          ${ConfigFileCert}=${SUPPORT_FILES}/sophos_certs/
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
     Create Install File   ${ExitCode}   ${Message}  ${tmpdir}/TestInstallFiles/${ConfigRigidname}
     create directory   ${tmpdir}/sspl/var/
     create directory   ${tmpdir}/sspl/var/lock/
@@ -1905,6 +1915,13 @@ Perform Install
 
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${OutputJsonFile}  env:SOPHOS_INSTALL=${tmpdir}/sspl
     [Return]  ${result}
+
+Setup Tmpdir Install
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/sspl/base/update/rootcerts/
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${tmpdir}/sspl/base/update/rootcerts/
+    create directory   ${tmpdir}/sspl/var/
+    create directory   ${tmpdir}/sspl/var/lock/
+    create file   ${tmpdir}/sspl/base/etc/logger.conf   VERBOSITY = DEBUG
 
 Require Update Server
     Start Update Server    1233    ${tmpdir}/temp_warehouse/customer_files/

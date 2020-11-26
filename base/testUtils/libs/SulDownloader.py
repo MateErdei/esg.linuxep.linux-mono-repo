@@ -55,16 +55,14 @@ def create_config(rigidname="ServerProtectionLinux-Base",
     return config
 
 
-def create_update_cache_config(install_path=None, 
-                               rigidname="ServerProtectionLinux-Base",
-                               include_plugins=None):
+def create_update_cache_config(rigidname="ServerProtectionLinux-Base", include_plugins=None):
     """
     Create a JSON config to supply as input to SUL Downloader
     :param rigidname: the rigidname for the warehouse (optional)
     :param include_plugins: include the prefix Names section of the config file, default forces section to be removed (optional)
     :return: the JSON config as a string
     """
-    config = create_config(install_path, rigidname, include_plugins)
+    config = create_config(rigidname, include_plugins)
 
     config['updateCache'] = ["localhost:1235", "localhost:1236"]
     config['cacheUpdateSslPath'] = os.path.join(PathManager.get_support_file_path(), "https/ca")
@@ -106,14 +104,13 @@ def data_to_json(config):
     return json.dumps(config, separators=(',', ': '), indent=4)
 
 
-def create_json_update_cache_config(install_path=None, **kwargs):
+def create_json_update_cache_config(**kwargs):
     """
     Create a JSON config to supply as input to SUL Downloader
-    :param install_path: the target path into which the product should be installed (optional)
     :return: the JSON config as a string
     """
 
-    config = create_update_cache_config(install_path, **kwargs)
+    config = create_update_cache_config(**kwargs)
     return data_to_json(config)
 
 def create_json_config(**kwargs):
