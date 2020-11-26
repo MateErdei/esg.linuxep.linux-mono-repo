@@ -55,6 +55,13 @@ SUSI config can scan zip file as web archive
     Should Contain  ${output}  Detected "${SCAN_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
 
 
+SUSI config can scan a media file
+    Mark Sophos Threat Detector Log
+    Check Threat Detected  test.gif
+    Sophos Threat
+
+
+
 *** Variables ***
 
 

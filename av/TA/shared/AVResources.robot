@@ -460,7 +460,7 @@ Add IDE to installation
      Check IDE Present In Installation  ${ide_name}
 
 Check threat detected
-     [Arguments]  ${THREAT_FILE}  ${THREAT_NAME}  ${INFECTED_CONTENTS}=${EMPTY}
+     [Arguments]  ${THREAT_FILE}  ${THREAT_NAME}=${EMPTY}  ${INFECTED_CONTENTS}=${EMPTY}
      ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${RESOURCES_PATH}/file_samples/${THREAT_FILE}
      Log To Console  ${output}
      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
