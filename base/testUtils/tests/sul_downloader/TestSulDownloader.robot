@@ -1436,7 +1436,6 @@ Test SulDownloader times out installs
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Log File  ${tmpdir}/update_report.json
-    Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
     Error Codes Match   ${result.rc}    ${INSTALLFAILED}
