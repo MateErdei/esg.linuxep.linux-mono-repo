@@ -110,6 +110,11 @@ namespace Common
 
         /**helper method to create atomic file with permission to read/write for sophos-spl user and group
          * */
+        void createAtomicFileToSophosUser(const std::string & content, const std::string& finalPath, const std::string & tempDir);
+
+        /**
+         * helper method to create atomic file with specific permissions
+         */
         void createAtomicFileWithPermissions(const std::string &content, const std::string &finalPath, const std::string &tempDir,
                                         const std::string &user, const std::string &group, mode_t mode);
     } // namespace FileSystem

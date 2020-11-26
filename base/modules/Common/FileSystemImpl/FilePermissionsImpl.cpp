@@ -250,6 +250,12 @@ Common::FileSystem::IFilePermissions* Common::FileSystem::filePermissions()
     return Common::FileSystem::filePermissionsStaticPointer().get();
 }
 
+void Common::FileSystem::createAtomicFileToSophosUser(const std::string &content, const std::string &finalPath,
+                                                         const std::string &tempDir)
+{
+    createAtomicFileWithPermissions(content, finalPath, tempDir, sophos::user(), sophos::group(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+}
+
 void Common::FileSystem::createAtomicFileWithPermissions(const std::string &content, const std::string &finalPath,
                                                          const std::string &tempDir,
                                                          const std::string &user, const std::string &group, mode_t mode)
