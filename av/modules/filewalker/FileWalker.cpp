@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <common/AbortScanException.h>
+#include <common/PathUtils.h>
 
 #include <cstring>
 
@@ -33,7 +34,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     try
     {
         itemStatus = fs::status(starting_point);
-        symlinkStatus = fs::symlink_status(starting_point);
+        symlinkStatus = fs::symlink_status(common::PathUtils::removeForwardSlashFromPath(starting_point));
     }
     catch (const fs::filesystem_error& e)
     {
