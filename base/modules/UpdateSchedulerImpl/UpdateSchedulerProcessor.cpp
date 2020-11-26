@@ -384,6 +384,12 @@ namespace UpdateSchedulerImpl
             return std::string();
         }
 
+        // Handle upgrade from pre-xdr version
+        if (!iFileSystem->isFile(m_reportfilePath) && iFileSystem->exists(Common::ApplicationConfiguration::applicationPathManager().getPreXdrUpdateReportPath()))
+        {
+            iFileSystem->moveFile(Common::ApplicationConfiguration::applicationPathManager().getPreXdrUpdateReportPath(), m_reportfilePath);
+        }
+
         if (processLatestReport)
         {
             LOGINFO("Re-processing latest report to generate current status message information.");

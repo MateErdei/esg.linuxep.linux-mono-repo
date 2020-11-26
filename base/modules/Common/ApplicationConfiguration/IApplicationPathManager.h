@@ -63,6 +63,7 @@ namespace Common::ApplicationConfiguration
         virtual std::string getUpdateCacheCertificateFilePath() const = 0;
         virtual std::string getTempPath() const = 0;
 
+        virtual std::string getPreXdrUpdateReportPath() const = 0;
         virtual std::string getSulDownloaderReportPath() const = 0;
         virtual std::string getSulDownloaderProcessedReportPath() const = 0;
         virtual std::string getSulDownloaderConfigFilePath() const = 0;

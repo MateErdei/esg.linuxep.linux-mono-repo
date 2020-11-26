@@ -47,6 +47,7 @@ public:
     MOCK_CONST_METHOD0(getBaseSophossplLogDirectory, std::string(void));
     MOCK_CONST_METHOD0(getBaseSophossplConfigFileDirectory, std::string(void));
 
+    MOCK_CONST_METHOD0(getPreXdrUpdateReportPath, std::string(void));
     MOCK_CONST_METHOD0(getSulDownloaderReportPath, std::string(void));
     MOCK_CONST_METHOD0(getSulDownloaderConfigFilePath, std::string(void));
     MOCK_CONST_METHOD0(getSulDownloaderReportGeneratedFilePath, std::string(void));

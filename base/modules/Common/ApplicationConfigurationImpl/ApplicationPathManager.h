@@ -46,6 +46,7 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getTempPath() const override;
 
+        std::string getPreXdrUpdateReportPath() const override;
         std::string getSulDownloaderReportPath() const override;
         std::string getSulDownloaderProcessedReportPath() const override;
         std::string getSulDownloaderConfigFilePath() const override;

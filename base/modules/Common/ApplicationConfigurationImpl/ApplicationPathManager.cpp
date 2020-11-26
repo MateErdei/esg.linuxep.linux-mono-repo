@@ -162,6 +162,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/updatecachecerts", "cache_certificates.crt");
         }
 
+        std::string ApplicationPathManager::getPreXdrUpdateReportPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/var/update_report.json");
+        }
+
         std::string ApplicationPathManager::getSulDownloaderReportPath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler");
