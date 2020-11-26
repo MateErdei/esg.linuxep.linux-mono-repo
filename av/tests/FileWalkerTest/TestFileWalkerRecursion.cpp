@@ -55,7 +55,7 @@ TEST_F(TestFileWalkerRecursion, hugeFilePathStartFromPathRoot) // NOLINT
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
     EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_,_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
     EXPECT_NO_THROW(filewalker::walk("TestHugePathFileWalker", *callbacks));
@@ -103,7 +103,7 @@ TEST_F(TestFileWalkerRecursion, hugeStartingFilePath) // NOLINT
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
     EXPECT_CALL(*callbacks, includeDirectory(_)).Times(0);
-    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).Times(0);
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_,_)).Times(0);
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
     try
@@ -156,7 +156,7 @@ TEST_F(TestFileWalkerRecursion, deepFilePathStartFromPathRoot) // NOLINT
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
     EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_,_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
     EXPECT_CALL(*callbacks, processFile(EndsWith("/file.txt"), _)).Times(0);
@@ -187,7 +187,7 @@ TEST_F(TestFileWalkerRecursion, cannotIterate) // NOLINT
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
     EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_,_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
     // set the rlimit for number of open file descriptors

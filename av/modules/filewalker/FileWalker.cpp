@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include <common/PathUtils.h>
 #include <common/AbortScanException.h>
 
 #include <cstring>
@@ -34,7 +33,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     try
     {
         itemStatus = fs::status(starting_point);
-        symlinkStatus = fs::symlink_status(common::PathUtils::removeForwardSlashFromPath(starting_point));
+        symlinkStatus = fs::symlink_status(starting_point);
     }
     catch (const fs::filesystem_error& e)
     {
@@ -73,14 +72,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
             LOGERROR("Failed to process: " << starting_point.string());
         }
         return;
-    }
-    else if (fs::is_directory(itemStatus))
-    {
-        // TODO - superfluous - but need to update all test expectations first?
-        if (m_callback.userDefinedExclusionCheck(starting_point, m_startIsSymlink))
-        {
-            return;
-        }
     }
     else if (fs::is_directory(itemStatus))
     {
@@ -178,35 +169,11 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
             continue;
         }
 
-        // Backtrack protection for symlinks
         if (fs::is_symlink(symlinkStatus))
         {
             if (!m_follow_symlinks)
             {
                 LOGDEBUG("Not following symlink: " << p);
-                continue;
-            }
-
-            struct stat statBuf
-            {
-            };
-            int ret = ::stat(p.path().c_str(), &statBuf);
-            if (ret == 0)
-            {
-                file_id id = std::make_tuple(statBuf.st_dev, statBuf.st_ino);
-                if (m_seen_symlinks.find(id) != m_seen_symlinks.end())
-                {
-                    LOGDEBUG("Symlink target already scanned: " << p << " [" << statBuf.st_ino << "]");
-                    continue;
-                }
-                else
-                {
-                    m_seen_symlinks.insert(id);
-                }
-            }
-            else
-            {
-                LOGERROR("Failed to stat " << p << "(" << errno << ")");
                 continue;
             }
         }
