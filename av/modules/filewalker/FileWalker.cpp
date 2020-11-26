@@ -157,6 +157,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
          iterator != fs::directory_iterator();
          iterator.increment(ec))
     {
+        // if the iterator fails, it will set ec and return an end iterator. Check for ec is outside of the loop.
         const auto& p = *iterator;
         fs::file_status itemStatus;
         fs::file_status symlinkStatus;

@@ -366,6 +366,58 @@ AV Plugin Scan Now with Bind Mount
     ${result} =       Terminate Process  ${handle}
 
 
+AV Plugin Scan Now with ISO mount
+    ${source} =       Set Variable  /tmp/eicar.iso
+    ${destination} =  Set Variable  /tmp/iso_mount
+    Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
+    Register Cleanup  Remove File   ${source}
+    Create Directory  ${destination}
+    Register Cleanup  Remove Directory   ${destination}
+    Run Shell Process   mount -o ro,loop ${source} ${destination}     OnError=Failed to create loopback mount
+    Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
+    Should Exist      ${destination}/directory/subdir/eicar.com
+
+    ${handle} =       Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
+    Run Scan Now Scan
+    Wait Until AV Plugin Log Contains   Completed scan Scan Now   timeout=240   interval=5
+    AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp/iso_mount/directory/subdir/eicar.com'
+    ${result} =       Terminate Process  ${handle}
+
+
+AV Plugin Scan two mounts same inode numbers
+    # Mount two copies of the same iso file. inode numbers on the mounts will be identical, but device numbers should
+    # differ. We should walk both mounts.
+    ${source} =       Set Variable  /tmp/eicar.iso
+    ${destination} =  Set Variable  /tmp/iso_mount
+    Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
+    Register Cleanup  Remove File   ${source}
+    Create Directory  ${destination}
+    Register Cleanup  Remove Directory   ${destination}
+    Run Shell Process   mount -o ro,loop ${source} ${destination}     OnError=Failed to create loopback mount
+    Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
+    Should Exist      ${destination}/directory/subdir/eicar.com
+
+    ${source2} =       Set Variable  /tmp/eicar2.iso
+    ${destination2} =  Set Variable  /tmp/iso_mount2
+    Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source2}
+    Register Cleanup  Remove File   ${source2}
+    Create Directory  ${destination2}
+    Register Cleanup  Remove Directory   ${destination2}
+    Run Shell Process   mount -o ro,loop ${source2} ${destination2}     OnError=Failed to create loopback mount
+    Register Cleanup  Run Shell Process   umount ${destination2}   OnError=Failed to release loopback mount
+    Should Exist      ${destination2}/directory/subdir/eicar.com
+
+
+    ${handle} =       Start Process  ${AV_PLUGIN_BIN}
+    Check AV Plugin Installed
+    Run Scan Now Scan
+    Wait Until AV Plugin Log Contains   Completed scan Scan Now   timeout=240   interval=5
+    AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp/iso_mount/directory/subdir/eicar.com'
+    AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp/iso_mount2/directory/subdir/eicar.com'
+    ${result} =       Terminate Process  ${handle}
+
+
 *** Keywords ***
 
 AVBasic Suite Setup
