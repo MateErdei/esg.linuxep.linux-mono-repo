@@ -244,7 +244,6 @@ namespace UpdateSchedulerImpl
                         Common::UtilityImpl::StringUtils::replaceAll(attributes.value(attributes.TextId), "&#13;", "");
                 }
                 std::string cacheCertificatePath = applicationPathManager().getUpdateCacheCertificateFilePath();
-//                config.setUpdateCacheSslCertificatePath(cacheCertificatePath);
             }
 
             auto delayUpdating = attributesMap.lookup("AUConfigurations/AUConfig/delay_updating");
@@ -283,10 +282,6 @@ namespace UpdateSchedulerImpl
                     proxyAddress,
                     SulDownloader::suldownloaderdata::ProxyCredentials{ proxyUser, proxyPassword, proxyType } });
             }
-
-//            config.setCertificatePath(applicationPathManager().getUpdateCertificatesPath());
-//            config.setInstallationRootPath(applicationPathManager().sophosInstall());
-//            config.setSystemSslCertificatePath(":system:");
 
             auto cloudSubscriptions =
                 attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions/subscription");

@@ -30,10 +30,9 @@ public:
             Common::ApplicationConfiguration::SOPHOS_INSTALL, "/installroot");
 
         auto filesystemMock = new NiceMock<MockFileSystem>();
-        ON_CALL(*filesystemMock, isDirectory(m_absInstallationPath)).WillByDefault(Return(true));
+        ON_CALL(*filesystemMock, isDirectory(Common::ApplicationConfiguration::applicationPathManager().sophosInstall())).WillByDefault(Return(true));
         ON_CALL(*filesystemMock, isDirectory(m_primaryPath)).WillByDefault(Return(true));
         ON_CALL(*filesystemMock, isDirectory(m_distPath)).WillByDefault(Return(true));
-        ON_CALL(*filesystemMock, isDirectory(m_absCertificatePath)).WillByDefault(Return(true));
         std::string empty;
         ON_CALL(*filesystemMock, exists(empty)).WillByDefault(Return(false));
         ON_CALL(*filesystemMock, exists(Ne(empty))).WillByDefault(Return(true));
@@ -57,11 +56,6 @@ Tests::ScopedReplaceFileSystem m_replacer;
         {
             return ::testing::AssertionFailure() << s.str() << "log level differs";
         }
-
-//        if (expected.getUpdateCacheSslCertificatePath() != resulted.getUpdateCacheSslCertificatePath())
-//        {
-//            return ::testing::AssertionFailure() << s.str() << "update cache certificate path differs";
-//        }
 
         if (expected.getCredentials() != resulted.getCredentials())
         {
@@ -95,11 +89,6 @@ Tests::ScopedReplaceFileSystem m_replacer;
             return ::testing::AssertionFailure() << s.str() << "proxy list differs";
         }
 
-//        if (expected.getInstallationRootPath() != resulted.getInstallationRootPath())
-//        {
-//            return ::testing::AssertionFailure() << s.str() << "installation root path differs";
-//        }
-
         if (expected.getLocalWarehouseRepository() != resulted.getLocalWarehouseRepository())
         {
             return ::testing::AssertionFailure() << s.str() << "local warehouse repository differs";
@@ -109,16 +98,6 @@ Tests::ScopedReplaceFileSystem m_replacer;
         {
             return ::testing::AssertionFailure() << s.str() << "local distribution repository differs";
         }
-
-//        if (expected.getCertificatePath() != resulted.getCertificatePath())
-//        {
-//            return ::testing::AssertionFailure() << s.str() << "certificate path differs";
-//        }
-//
-//        if (expected.getSystemSslCertificatePath() != resulted.getSystemSslCertificatePath())
-//        {
-//            return ::testing::AssertionFailure() << s.str() << "system ssl certificate path differs";
-//        }
 
         if (expected.getInstallArguments() != resulted.getInstallArguments())
         {

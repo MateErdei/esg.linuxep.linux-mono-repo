@@ -51,11 +51,6 @@ public:
 
         m_tempDir->createFile(m_certificateRelPath + "/ps_rootca.crt", "empty");
         m_tempDir->createFile(m_certificateRelPath + "/rootca.crt", "empty");
-
-        m_absInstallationPath = m_tempDir->absPath(m_installRootRelPath);
-        m_absCertificatePath = m_tempDir->absPath(m_certificateRelPath);
-        m_absSystemSslPath = m_tempDir->absPath(m_systemSslRelPath);
-        m_absCacheUpdatePath = m_tempDir->absPath(m_cacheUpdateSslRelPath);
     }
 
     void TearDown() override {}
