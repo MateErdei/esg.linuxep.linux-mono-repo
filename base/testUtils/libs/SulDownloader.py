@@ -122,14 +122,14 @@ def create_json_update_cache_config(install_path=None, **kwargs):
     config = create_update_cache_config(install_path, **kwargs)
     return data_to_json(config)
 
-def create_json_config(install_path=None, **kwargs):
+def create_json_config(**kwargs):
     """
     Create a JSON config to supply as input to SUL Downloader
     :param install_path: the target path into which the product should be installed (optional)
     :return: the JSON config as a string
     """
 
-    config = create_config(install_path, **kwargs)
+    config = create_config(**kwargs)
     return data_to_json(config)
 
 
