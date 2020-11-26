@@ -694,10 +694,17 @@ namespace UpdateSchedulerImpl
         }
 
         LOGINFO("No instance of SulDownloader running.");
-        // Handle upgrade from pre-xdr version
-        if (!iFileSystem->isFile(m_reportfilePath) && iFileSystem->exists(Common::ApplicationConfiguration::applicationPathManager().getPreXdrUpdateReportPath()))
+        try
         {
-            iFileSystem->moveFile(Common::ApplicationConfiguration::applicationPathManager().getPreXdrUpdateReportPath(), m_reportfilePath);
+            // Handle upgrade from pre-xdr version
+            if (!iFileSystem->isFile(m_reportfilePath) && iFileSystem->exists(Common::ApplicationConfiguration::applicationPathManager().getPreXdrUpdateReportPath()))
+            {
+                iFileSystem->copyFile(Common::ApplicationConfiguration::applicationPathManager().getPreXdrUpdateReportPath(), m_reportfilePath);
+            }
+        }
+        catch (Common::FileSystem::IFileSystemException& e)
+        {
+            LOGWARN("Failed to copy updatereport from old location: " << e.what());
         }
     }
 } // namespace UpdateSchedulerImpl
