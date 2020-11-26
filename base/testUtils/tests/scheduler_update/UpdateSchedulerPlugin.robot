@@ -379,8 +379,8 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
 
     # Now we know we are in a good state simulate previous update state for the test
-    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_subscription_only.json   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
-    Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_subscription_only.json   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
+    Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
     Send Policy To UpdateScheduler  ALC_BaseOnlyFixedVersionPolicy.xml
@@ -402,8 +402,8 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
 
     # Now we know we are in a good state simulate previous update state for the test
-    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_and_example_plugin.json   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
-    Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_and_example_plugin.json   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
+    Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
     Send Policy To UpdateScheduler  ALC_policy_direct_base_and_example_plugin_beta.xml
@@ -424,8 +424,8 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
 
     # Now we know we are in a good state simulate previous update state for the test
-    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_and_example_plugin.json   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
-    Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/previous_update_config.json
+    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_and_example_plugin.json   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
+    Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
     Send Policy To UpdateScheduler  ALC_policy_direct_base_and_example_plugin_FixedVersion.xml
@@ -486,7 +486,7 @@ Convert report to success
 
 Teardown For Test
     Log SystemCtl Update Status
-    Log File  /opt/sophos-spl/tmp/fakesul.log
+    Run Keyword If Test Failed  Log File  /opt/sophos-spl/tmp/fakesul.log
     Run Keyword If Test Failed  Dump Mcs Router Dir Contents
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
     General Test Teardown

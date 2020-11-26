@@ -80,6 +80,7 @@ UpdateScheduler Status No Longer Contains Deprecated Fields
 UpdateScheduler Report Failure On Versig Error
     [Tags]  UPDATE_SCHEDULER
     [Documentation]  Reproduces the error reported in LINUXEP-8012
+    [Teardown]  Test Teardown With Cert Replacement
     #
     #  This test shows that after an update that fails on versig verification.
     #  The same error should be reported while the warehouse does not change
@@ -111,6 +112,9 @@ UpdateScheduler Report Failure On Versig Error
     Regenerate Warehouse For Update Scheduler   CORRUPTINSTALL=yes
 
     Replace Sophos URLS to Localhost
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${UPDATE_ROOTCERT_DIR}
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${UPDATE_ROOTCERT_DIR}
+
     Simulate Update Now
     ${eventPath} =  Check Event File Generated  120
 
@@ -210,6 +214,11 @@ UpdateScheduler Can Detect SulDownloader Service Runs Without Error After Error 
     Should Be Equal As Integers  ${result.rc}  1  msg="Failed to detect sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
 
 *** Keywords ***
+
+Test Teardown With Cert Replacement
+    Teardown For Test
+    Copy File   ${SUPPORT_FILES}/sophos_certs/prod_certs/ps_rootca.crt  ${UPDATE_ROOTCERT_DIR}
+    Copy File   ${SUPPORT_FILES}/sophos_certs/prod_certs/rootca.crt  ${UPDATE_ROOTCERT_DIR}
 
 SulDownloader Should Report Verification Failed
     ${sullog} =   Get File  ${logpath}
