@@ -32,7 +32,7 @@ namespace
     {
     public:
         MOCK_METHOD1(cleanFile, void(const path&));
-        MOCK_METHOD3(infectedFile, void(const path&, const std::string&, bool isSymlink));
+        MOCK_METHOD4(infectedFile, void(const path&, const std::string&, const fs::path& realPath,  bool isSymlink));
         MOCK_METHOD1(scanError, void(const std::string&));
         MOCK_METHOD0(scanStarted, void());
         MOCK_METHOD0(logSummary, void());
@@ -97,9 +97,9 @@ TEST(TestScanClient, TestScanArchive) // NOLINT
         new StrictMock<MockIScanCallbacks>()
     );
 
-    EXPECT_CALL(*mock_callbacks, infectedFile(infectedFile1, threatName, false))
+    EXPECT_CALL(*mock_callbacks, infectedFile(infectedFile1, threatName, _, false))
         .Times(1);
-    EXPECT_CALL(*mock_callbacks, infectedFile(infectedFile2, threatName, false))
+    EXPECT_CALL(*mock_callbacks, infectedFile(infectedFile2, threatName, _, false))
         .Times(1);
 
     ScanClient s(mock_socket, mock_callbacks, true, E_SCAN_TYPE_ON_DEMAND);
@@ -146,7 +146,7 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
             new StrictMock<MockIScanCallbacks>()
     );
 
-    EXPECT_CALL(*mock_callbacks, infectedFile(Eq("/etc/passwd"), Eq(THREAT), false))
+    EXPECT_CALL(*mock_callbacks, infectedFile(Eq("/etc/passwd"), Eq(THREAT), _, false))
             .Times(1);
 
     ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);

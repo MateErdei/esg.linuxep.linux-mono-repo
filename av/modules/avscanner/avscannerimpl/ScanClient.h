@@ -22,7 +22,7 @@ namespace avscanner::avscannerimpl
     public:
         virtual ~IScanCallbacks() = default;
         virtual void cleanFile(const path&) = 0;
-        virtual void infectedFile(const path&, const std::string& threatName, bool isSymlink) = 0;
+        virtual void infectedFile(const path&, const std::string& threatName, const sophos_filesystem::path& realPath, bool isSymlink) = 0;
         virtual void scanError(const std::string&) = 0;
         virtual void scanStarted() = 0;
         virtual void logSummary() = 0;

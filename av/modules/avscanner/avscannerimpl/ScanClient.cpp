@@ -69,7 +69,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
             {
                 for (const auto &detection : response.getDetections())
                 {
-                    m_callbacks->infectedFile(detection.first, detection.second, isSymlink);
+                    m_callbacks->infectedFile(detection.first, detection.second, fileToScanPath, isSymlink);
                 }
             }
         }

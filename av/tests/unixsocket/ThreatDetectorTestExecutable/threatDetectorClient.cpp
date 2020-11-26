@@ -35,10 +35,7 @@ public:
     FakeCallbacks() {}
 private:
     void cleanFile(const avscanner::avscannerimpl::path& ) override {}
-    void infectedFile(const avscanner::avscannerimpl::path& , const std::string& , bool )
-    override
-    {
-    }
+    void infectedFile(const avscanner::avscannerimpl::path& , const std::string& , const fs::path&, bool ) override {}
     void scanError(const std::string&) override {}
     void scanStarted() override {}
     void logSummary() override {}
