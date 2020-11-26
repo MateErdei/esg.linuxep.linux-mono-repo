@@ -558,6 +558,257 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsWithFilename) // NOLINT
     ASSERT_EQ(socket->m_paths.size(), 0);
 }
 
+TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteTargetExclusion) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("symlink_sandbox/");
+    std::ofstream("symlink_sandbox/file1.txt");
+
+    fs::path startingPoint = fs::path("symlink_to_sandbox_file");
+    fs::create_symlink("symlink_sandbox/file1.txt", startingPoint);
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute(startingPoint));
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back(fs::absolute("symlink_sandbox/file1.txt"));
+    Options options(false, paths, exclusions, true);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute("symlink_sandbox/file1.txt").string()));
+    EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: " + fs::absolute("symlink_sandbox/file1.txt").string()));
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeTargetExclusion) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("symlink_sandbox/");
+    std::ofstream("symlink_sandbox/file1.txt");
+
+    fs::path startingPoint = fs::path("symlink_to_sandbox_file");
+    fs::create_symlink("symlink_sandbox/file1.txt", startingPoint);
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute(startingPoint));
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back("symlink_sandbox/file1.txt");
+    Options options(false, paths, exclusions, true);
+
+    auto originalWD = fs::current_path();
+    fs::current_path("../");
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+    fs::current_path(originalWD);
+
+    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute("symlink_sandbox/file1.txt").string()));
+    EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: /symlink_sandbox/file1.txt"));
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteDirectExclusion) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("symlink_sandbox/");
+    std::ofstream("symlink_sandbox/file1.txt");
+
+    fs::path startingPoint = fs::path("symlink_to_sandbox_file");
+    fs::create_symlink("symlink_sandbox/file1.txt", startingPoint);
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute(startingPoint));
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back(fs::absolute(startingPoint));
+    Options options(false, paths, exclusions, true);
+
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_TRUE(appenderContains("Excluding symlinked file: \"" + fs::absolute(startingPoint).string()));
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeDirectExclusion) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("symlink_sandbox/");
+    std::ofstream("symlink_sandbox/file1.txt");
+
+    fs::path startingPoint = fs::path("symlink_to_sandbox_file");
+    fs::create_symlink("symlink_sandbox/file1.txt", startingPoint);
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute(startingPoint));
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back(startingPoint);
+    Options options(false, paths, exclusions, true);
+
+    auto originalWD = fs::current_path();
+    fs::current_path("../");
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+    fs::current_path(originalWD);
+
+    EXPECT_TRUE(appenderContains("Excluding symlinked file: \"" + fs::absolute(startingPoint).string()));
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeTargetExclusion) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("symlink_sandbox/a/b/c/");
+    std::ofstream("symlink_sandbox/a/b/c/file1.txt");
+
+    fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
+    fs::create_symlink("symlink_sandbox/", startingPoint);
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute(startingPoint));
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back("symlink_sandbox/");
+    Options options(false, paths, exclusions, true);
+
+    auto originalWD = fs::current_path();
+    fs::current_path("../");
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+    fs::current_path(originalWD);
+
+    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute("symlink_sandbox").string()));
+    EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: /symlink_sandbox/"));
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteTargetExclusion) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("symlink_sandbox/a/b/c/");
+    std::ofstream("symlink_sandbox/a/b/c/file1.txt");
+
+    fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
+    fs::create_symlink("symlink_sandbox/", startingPoint);
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute(startingPoint));
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back(fs::absolute("symlink_sandbox/"));
+    Options options(false, paths, exclusions, true);
+
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute("symlink_sandbox").string()));
+    EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: /tmp/TestCommandLineScanRunner/scanSymlinkedDirectoryWithAbsoluteTargetExclusion/symlink_sandbox/"));
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteDirectExclusion) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("symlink_sandbox/a/b/c/");
+    std::ofstream("symlink_sandbox/a/b/c/file1.txt");
+
+    fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
+    fs::create_symlink("symlink_sandbox/", startingPoint);
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute(startingPoint));
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back(fs::absolute(startingPoint.string() + "/"));
+    Options options(false, paths, exclusions, true);
+
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute(startingPoint).string()));
+    EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: /tmp/TestCommandLineScanRunner/scanSymlinkedDirectoryWithAbsoluteDirectExclusion/symlink_to_sandbox_directory/"));
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeDirectExclusion) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("symlink_sandbox/a/b/c/");
+    std::ofstream("symlink_sandbox/a/b/c/file1.txt");
+
+    fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
+    fs::create_symlink("symlink_sandbox/", startingPoint);
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute(startingPoint));
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back(startingPoint.string() + "/");
+    Options options(false, paths, exclusions, true);
+
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto originalWD = fs::current_path();
+    fs::current_path("../");
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+    fs::current_path(originalWD);
+
+    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute(startingPoint).string()));
+    EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: /symlink_to_sandbox_directory/"));
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, noSymlinkIsScannedWhenNotExplicitlyCalled) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("symlink_sandbox/");
+    std::ofstream("symlink_sandbox/file1.txt");
+
+    fs::path startingPoint = fs::path("symlink_to_sandbox_file");
+    fs::create_symlink("symlink_sandbox/file1.txt", startingPoint);
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::current_path());
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back("");
+    Options options(false, paths, exclusions, true);
+
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    ASSERT_FALSE(appenderContains("Scanning " + fs::absolute(startingPoint).string()));
+    ASSERT_EQ(socket->m_paths.size(), 1);
+}
+
 TEST_F(TestCommandLineScanRunner, excludeNamedFolders) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
