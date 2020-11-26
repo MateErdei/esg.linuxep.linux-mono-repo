@@ -167,7 +167,8 @@ Check Threat Detector Copied Files To Chroot
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/hosts
 
 Increase Threat Detector Log To Max Size
-    increase_threat_detector_log_to_max_size_by_path  ${THREAT_DETECTOR_LOG_PATH}
+    [Arguments]  ${remaining}=1
+    increase_threat_detector_log_to_max_size_by_path  ${THREAT_DETECTOR_LOG_PATH}  ${remaining}
 
 Wait Until AV Plugin Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15

@@ -93,11 +93,12 @@ Setup Component For Testing
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/tmp
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/var
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log
     Create Directory  ${COMPONENT_ROOT_PATH}/var
     Create Directory  ${COMPONENT_ROOT_PATH}/log
     Run Process   ln  -s  /  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}/chroot
     Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/chroot/log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
-    Run Process   ln  -snf  /log  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
+    Run Process   ln  -snf  /log  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
     Bootstrap SUSI From Update Source
 

@@ -78,7 +78,7 @@ def exclusions_for_everything_else(inclusion):
     return ''.join(exclusions)
 
 
-def increase_threat_detector_log_to_max_size_by_path(log_path):
+def increase_threat_detector_log_to_max_size_by_path(log_path, remaining=1):
     """
     Increase log_path to maxFileSize-1
     maxFileSize comes from FileLoggingSetup.cpp from SSPL-Base
@@ -88,7 +88,7 @@ def increase_threat_detector_log_to_max_size_by_path(log_path):
     :param log_path:
     :return:
     """
-    max_size = 10*1024*1024 - 1
+    max_size = 10*1024*1024 - remaining
     statbuf = os.stat(log_path)
     current_size = statbuf.st_size
     additional_required = max_size - current_size
@@ -102,7 +102,7 @@ def increase_threat_detector_log_to_max_size_by_path(log_path):
 
     last_additional_required = additional_required - len(extra)
     assert last_additional_required >= 0
-    extra += "\n" * last_additional_required
+    extra += "." * (last_additional_required - 1) + "\n"
     assert len(extra) == additional_required
 
     open(log_path, "ab").write(extra.encode("UTF-8"))

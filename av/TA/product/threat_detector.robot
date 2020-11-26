@@ -60,12 +60,38 @@ Alter Hosts
 *** Test Cases ***
 
 Threat Detector Log Rotates
+    Register Cleanup   Empty Directory   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
+
     # Ensure the log is created
     Start AV
     Stop AV
     Increase Threat Detector Log To Max Size
     Start AV
+    Wait Until Created   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1   timeout=10s
     Stop AV
+
+    ${result} =  Run Process  ls  -altr  ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
+    Log  ${result.stdout}
+
+    Verify threat detector log rotated
+
+Threat Detector Log Rotates while in chroot
+    Register Cleanup   Empty Directory   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
+    Register On Fail   dump log  ${AV_LOG_PATH}
+    Register On Fail   Stop AV
+
+    # Ensure the log is created
+    Start AV
+    Stop AV
+    Increase Threat Detector Log To Max Size   remaining=4096
+    Start AV
+    Wait Until Created   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1   timeout=10s
+    Sleep  250ms
+    Stop AV
+
+    ${result} =  Run Process  ls  -altr  ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
+    Log  ${result.stdout}
+
     Verify threat detector log rotated
 
 Threat Detector Restarts When /etc/hosts changed
