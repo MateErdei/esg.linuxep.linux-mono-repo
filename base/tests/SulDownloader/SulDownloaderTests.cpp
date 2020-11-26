@@ -112,11 +112,6 @@ public:
         proto_subscription->set_tag("RECOMMMENDED");
         proto_subscription->set_fixedversion("");
         settings.add_features("CORE");
-//        settings.set_certificatepath("/opt/sophos-spl/base/update/certificates");
-//        settings.set_installationrootpath("/opt/sophos-spl");
-//        settings.set_systemsslpath("/opt/sophos-spl/etc/ssl");
-//        settings.set_cacheupdatesslpath("/opt/sophos-spl/etc/cache/ssl");
-
         return settings;
     }
 
@@ -273,7 +268,6 @@ public:
     {
         auto* filesystemMock = new StrictMock<MockFileSystem>();
         EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
-//        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse"))
             .Times(expectCallCount)
             .WillRepeatedly(Return(true));
@@ -2345,7 +2339,6 @@ TEST_F( // NOLINT
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
     settings.clear_sophosurls();
-//    settings.clear_cacheupdatesslpath();
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::VERBOSE);
     suldownloaderdata::ConfigurationData configurationData = configData(settings);
@@ -2370,7 +2363,6 @@ TEST_F( // NOLINT
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
     settings.clear_sophosurls();
-//    settings.clear_cacheupdatesslpath();
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::NORMAL);
     ConfigurationData configurationData = configData(settings);

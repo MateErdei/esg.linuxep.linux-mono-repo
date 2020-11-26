@@ -21,7 +21,6 @@ class VersigTests : public ::testing::Test
 public:
     VersigTests() : m_configurationData(SulDownloader::suldownloaderdata::ConfigurationData::DefaultSophosLocationsURL)
     {
-//        m_configurationData.setCertificatePath("/opt/sophos-spl/cert");
         m_configurationData.setManifestNames({ "manifest.dat" });
         m_configurationData.setOptionalManifestNames({ "flags_manifest.dat" });
         rootca = "/opt/sophos-spl/base/update/rootcerts/rootca.crt";
