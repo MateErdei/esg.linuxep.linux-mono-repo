@@ -434,13 +434,6 @@ namespace Common
                 return;
             }
             LOGSUPPORT("Terminating process " << m_pid);
-//            ::kill(m_pid, SIGTERM);
-//            Proc::killProcess(int pid)
-            if (m_pid == -1 || m_pid == 1)
-            {
-                LOGERROR("");
-                return;
-            }
             ::kill(m_pid, SIGTERM);
         }
 
