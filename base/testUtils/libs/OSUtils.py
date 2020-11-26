@@ -339,7 +339,7 @@ def get_directory_of_expected_mcs_folders_and_permissions():
 
 def get_dictionary_of_expected_sockets_and_permissions():
     return {
-        "/opt/sophos-spl/var/ipc/mcs_agent.ipc":                ["sophos-spl-user", "sophos-spl-group", "srw-------"],
+        "/opt/sophos-spl/var/ipc/mcs_agent.ipc":                ["sophos-spl-user", "sophos-spl-group", "srw-rw----"],
         "/opt/sophos-spl/var/ipc/publisherdatachannel.ipc":     ["sophos-spl-user", "sophos-spl-group", "srw-------"],
         "/opt/sophos-spl/var/ipc/subscriberdatachannel.ipc":    ["sophos-spl-user", "sophos-spl-group", "srw-------"],
         "/opt/sophos-spl/var/ipc/watchdog.ipc":                 ["root",            "root",             "srw-------"],
