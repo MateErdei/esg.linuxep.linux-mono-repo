@@ -26,7 +26,7 @@ BUILD_SCRIPT_INSTALL_DIR="$(python3 -m pip show build_scripts | grep "Location" 
 
 [[ -d ${BUILD_SCRIPT_INSTALL_DIR} ]] || failure "Unable to find build_scripts install location"
 
-sed -i "s/\/mnt\/filer6/\/mnt\/filer6\/bfr/g" ${BUILD_SCRIPT_INSTALL_DIR}/build*
+sed -i "s/\'\/mnt\/filer6\'/\'\/mnt\/filer6\/bfr\/\'/g" ${BUILD_SCRIPT_INSTALL_DIR}/build*
 sed -i 's/\/mnt\/filer\/bir/\/uk-filer5\/prodro\/bir/g' ${BUILD_SCRIPT_INSTALL_DIR}/build*
 
 #Create temporary location used by scripts
