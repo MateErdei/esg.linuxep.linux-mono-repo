@@ -235,13 +235,14 @@ def remove_console_configuration():
             safe_delete(file_path)
 
 
-def remove_all_update_reports():
+def remove_all_update_reports_and_config():
     """
-    remove_all_update_reports
+    remove_all_update_reports_and_config
     """
     for file_to_remove in glob.glob(
-            "{}/report*.json".format(path_manager.update_var_path())):
-        os.remove(file_to_remove)
+            "{}/update_report*.json".format(path_manager.update_report_path())):
+        safe_delete(file_to_remove)
+    safe_delete(os.path.join(path_manager.update_report_path(), "update_config.json"))
 
 
 def stop_mcs_router():
@@ -428,15 +429,12 @@ def inner_main(argv):
             # cleanup RMS files
             safe_delete(path_manager.sophos_config_file())
 
-            # cleanup last reported update event
-            safe_delete(path_manager.get_update_last_event_file())
-
             # cleanup console config layers
             if not options.reregister:
                 # Only remove the configs if we are doing a new registration
                 remove_console_configuration()
 
-            remove_all_update_reports()
+            remove_all_update_reports_and_config()
             start_mcs_router()
             restart_management_agent()
             restart_update_scheduler()

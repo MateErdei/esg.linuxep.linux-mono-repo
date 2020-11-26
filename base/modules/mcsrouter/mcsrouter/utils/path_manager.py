@@ -39,6 +39,12 @@ def update_var_path():
     """
     return os.path.join(update_path(), 'var')
 
+def update_report_path():
+    """
+    update_report_path
+    """
+    return os.path.join(update_var_path(), 'updatescheduler')
+
 # base/mcs
 
 
