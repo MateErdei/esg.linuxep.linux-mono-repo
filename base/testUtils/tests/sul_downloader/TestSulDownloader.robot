@@ -1383,6 +1383,9 @@ Test SulDownloader Fails To Download From Update Cache If Using Wrong Certificat
     Run Process    chmod +x ${InstallProductsDir}/BASE_RIGID_NAME.sh     shell=True
     Run Process    chmod +x ${InstallProductsDir}/EXAMPLE_PLUGIN_RIGID_NAME.sh     shell=True
     Setup Tmpdir Install
+
+    # put a cert that is not the proper ssl cert in the update cache ssl cert path
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${tmpdir}/sspl/base/update/updatecachecerts/cache_certificates.crt
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
