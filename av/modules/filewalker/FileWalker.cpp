@@ -34,6 +34,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     try
     {
         itemStatus = fs::status(starting_point);
+        // if we don't remove the forward slash, it will be resolved to the target path
         symlinkStatus = fs::symlink_status(common::PathUtils::removeForwardSlashFromPath(starting_point));
     }
     catch (const fs::filesystem_error& e)
