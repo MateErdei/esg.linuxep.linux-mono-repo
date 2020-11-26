@@ -57,9 +57,9 @@ SUSI config can scan zip file as web archive
 
 SUSI config can scan a media file
     Mark Sophos Threat Detector Log
-    Check Threat Detected  test.gif
-    Sophos Threat
-
+    Check File Clean  test.gif
+    ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
+    Should Contain  ${contents}  Classifn: 0x93
 
 
 *** Variables ***

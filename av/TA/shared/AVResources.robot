@@ -37,6 +37,8 @@ ${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update
 ${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
 ${SCAN_DIRECTORY}   /home/vagrant/this/is/a/directory/for/scanning
 ${AVSCANNER}        /usr/local/bin/avscanner
+${CLEAN_RESULT}     ${0}
+
 
 *** Keywords ***
 Check Plugin Running
@@ -465,4 +467,11 @@ Check threat detected
      Log To Console  ${output}
      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
      Should Contain   ${output}    Detected "${RESOURCES_PATH}/file_samples/${THREAT_FILE}${INFECTED_CONTENTS}" is infected with ${THREAT_NAME}
+
+Check file clean
+     [Arguments]  ${THREAT_FILE}
+     ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${RESOURCES_PATH}/file_samples/${THREAT_FILE}
+     Log To Console  ${output}
+     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+     Should Contain   ${output}    0 files out of 1 were infected.
 
