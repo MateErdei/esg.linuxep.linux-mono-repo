@@ -144,7 +144,7 @@ function createUpdaterSystemdService()
         cat > ${STARTUP_DIR}/${service_name} << EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
-ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/update_config.json ${SOPHOS_INSTALL}/base/update/var/update_report.json
+ExecStart=${SOPHOS_INSTALL}/base/bin/SulDownloader ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json
 Restart=no
 
 [Unit]
@@ -248,6 +248,13 @@ function add_user()
       || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username"
 }
 
+function add_to_group()
+{
+    local username="$1"
+    local groupname="$2"
+    usermod -a -G "$groupname" "$username"  || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username to group $groupname"
+}
+
 if build_version_less_than_system_version
 then
     failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
@@ -260,6 +267,7 @@ export SOPHOS_INSTALL
 ## Add a low-privilege group
 GROUP_NAME=@SOPHOS_SPL_GROUP@
 NETWORK_GROUP_NAME=@SOPHOS_SPL_NETWORK@
+SOPHOS_SPL_IPC_GROUP=@SOPHOS_SPL_IPC_GROUP@
 
 GETENT=/usr/bin/getent
 [[ -x "${GETENT}" ]] || GETENT=$(which getent)
@@ -267,6 +275,7 @@ GETENT=/usr/bin/getent
 
 add_group "${GROUP_NAME}"
 add_group "${NETWORK_GROUP_NAME}"
+add_group "${SOPHOS_SPL_IPC_GROUP}"
 
 makeRootDirectory "${SOPHOS_INSTALL}"
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}"
@@ -278,18 +287,24 @@ touch "${SOPHOS_INSTALL}/.sophos" || failure ${EXIT_FAIL_DIR_MARKER} "Failed to 
 USER_NAME=@SOPHOS_SPL_USER@
 NETWORK_USER_NAME=@SOPHOS_SPL_NETWORK@
 LOCAL_USER_NAME=@SOPHOS_SPL_LOCAL@
+UPDATESCHEDULER_USER_NAME=@SOPHOS_SPL_UPDATESCHEDULER@
 add_user "${USER_NAME}" "${GROUP_NAME}"
 add_user "${NETWORK_USER_NAME}" "${NETWORK_GROUP_NAME}"
 add_user "${LOCAL_USER_NAME}" "${GROUP_NAME}"
+add_user "${UPDATESCHEDULER_USER_NAME}" "${GROUP_NAME}"
+
+# Add users to the IPC group which need to read and write the IPC socket
+add_to_group "${USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
+add_to_group "${UPDATESCHEDULER_USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
 
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 
 makedir 711 "${SOPHOS_INSTALL}/var"
-makedir 700 "${SOPHOS_INSTALL}/var/ipc"
-makedir 700 "${SOPHOS_INSTALL}/var/ipc/plugins"
-chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/ipc"
-chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/ipc/plugins"
+makedir 710 "${SOPHOS_INSTALL}/var/ipc"
+makedir 770 "${SOPHOS_INSTALL}/var/ipc/plugins"
+chown "${USER_NAME}:${SOPHOS_SPL_IPC_GROUP}" "${SOPHOS_INSTALL}/var/ipc"
+chown "${USER_NAME}:${SOPHOS_SPL_IPC_GROUP}" "${SOPHOS_INSTALL}/var/ipc/plugins"
 
 makedir 770 "${SOPHOS_INSTALL}/var/lock-sophosspl"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/lock-sophosspl"
@@ -331,6 +346,21 @@ then
     chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy"
 fi
 
+if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log" ]]
+then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log"
+fi
+
+if [[ -f "${SOPHOS_INSTALL}/base/telemetry/cache/updatescheduler-telemetry.json" ]]
+then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/telemetry/cache/updatescheduler-telemetry.json"
+fi
+
+if [[ -f "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse" ]]
+then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse"
+fi
+
 if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json" ]]
 then
     chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json"
@@ -346,20 +376,30 @@ chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl"
 makedir 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
 chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
 
-makedir 750 "${SOPHOS_INSTALL}/base/update"
+makedir 710 "${SOPHOS_INSTALL}/base/update"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primary"
 makedir 700 "${SOPHOS_INSTALL}/base/update/cache/primarywarehouse"
-makedir 750 "${SOPHOS_INSTALL}/base/update/certs"
-makedir 770 "${SOPHOS_INSTALL}/base/update/var"
+makedir 700 "${SOPHOS_INSTALL}/base/update/rootcerts"
+makedir 710 "${SOPHOS_INSTALL}/base/update/var"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproducts"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/installedproductversions"
-makedir 770 "${SOPHOS_INSTALL}/base/update/var/processedReports"
-chown "root:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update"
-chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/var"
-chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/var/processedReports"
-chown -R "${USER_NAME}:${GROUP_NAME}"  "${SOPHOS_INSTALL}/base/update/certs"
-chown -R "root:root"  "${SOPHOS_INSTALL}/base/update/var/installedproducts"
-chown -R "root:root"  "${SOPHOS_INSTALL}/base/update/var/installedproductversions"
+# Reset permissions on base/update so that they are locked down.
+chown -R "root:root" "${SOPHOS_INSTALL}/base/update"
+
+# Allow group to access (but not read or write) these so that the updatescheduler user can reach it's own directories
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/update"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/update/var"
+makedir 700 "${SOPHOS_INSTALL}/base/update/updatecachecerts"
+chown -R "${UPDATESCHEDULER_USER_NAME}:root" "${SOPHOS_INSTALL}/base/update/updatecachecerts"
+makedir 700 "${SOPHOS_INSTALL}/base/update/var/updatescheduler"
+makedir 700 "${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports"
+# Move old update reports into new location for upgrades coming from pre-xdr
+if [[ -d "${SOPHOS_INSTALL}/base/update/var/processedReports" ]]
+then
+  mv ${SOPHOS_INSTALL}/base/update/var/processedReports/update_report*.json ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports/ 2>&1 > /dev/null
+  mv ${SOPHOS_INSTALL}/base/update/var/update_report*.json ${SOPHOS_INSTALL}/base/update/var/updatescheduler/ 2>&1 > /dev/null
+fi
+chown -R "${UPDATESCHEDULER_USER_NAME}:root" "${SOPHOS_INSTALL}/base/update/var/updatescheduler"
 
 makedir 711 "${SOPHOS_INSTALL}/base/bin"
 makedir 711 "${SOPHOS_INSTALL}/base/lib64"
