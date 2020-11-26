@@ -37,7 +37,6 @@ ${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update
 ${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
 ${SCAN_DIRECTORY}   /home/vagrant/this/is/a/directory/for/scanning
 ${AVSCANNER}        /usr/local/bin/avscanner
-${CLEAN_RESULT}     ${0}
 
 
 *** Keywords ***
