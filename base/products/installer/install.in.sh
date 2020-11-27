@@ -672,7 +672,9 @@ function move_pre_xdr_update_report()
 # Spawn the post install script fix-up script
 if ((  $PRE_XDR_UPGRADE == 1  ))
 then
+  echo spawning child process
   move_pre_xdr_update_report &
+  echo pid of spawned process: $1
 fi
 
 ## Exit with error code if registration was run and failed

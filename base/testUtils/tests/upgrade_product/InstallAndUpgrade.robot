@@ -158,8 +158,6 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
-    log to console   3000
-    sleep  300
     Check Update Reports Have Been Processed
 
 VersionCopy File in the Wrong Location Is Removed
