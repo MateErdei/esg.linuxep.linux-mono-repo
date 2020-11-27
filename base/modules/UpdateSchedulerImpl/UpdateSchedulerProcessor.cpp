@@ -697,6 +697,8 @@ namespace UpdateSchedulerImpl
 
         // During the upgrade from pre-xdr this file can take a short time to show up as we rely on spawned process
         // to move it into place.
+        LOGINFO("waiting for report file to maybe appear at " << m_reportfilePath);
         iFileSystem->waitForFile(m_reportfilePath, 10);
+        LOGINFO("done waiting");
     }
 } // namespace UpdateSchedulerImpl
