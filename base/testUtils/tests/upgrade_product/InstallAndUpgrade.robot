@@ -307,67 +307,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ${osquery_pid_after_query_pack_restored} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
 
-We Can Upgrade From A Release With EDR To Master With Live Response
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEDROldWHFormat}
-
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEDROldWHFormat}
-
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    # Perform upgrade and make sure Live Response is installed and running after upgrade
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
-
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Should Exist   /opt/sophos-spl/plugins/liveresponse
-
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   2 secs
-    ...   Check Live Response Plugin Running
-
-    # check additional update does not restart key services
-    ${us_before_pid}=  Get Pid Of Process   UpdateScheduler
-    ${ma_before_pid}=  Get Pid Of Process   sophos_managementagent
-    ${wd_before_pid}=  Get Pid Of Process   sophos_watchdog
-    ${lr_before_pid}=  Get Pid Of Process   liveresponse
-    ${edr_before_pid}=  Get Pid Of Process  edr
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  4
-
-    ${us_after_pid}=  Get Pid Of Process   UpdateScheduler
-    ${ma_after_pid}=  Get Pid Of Process   sophos_managementagent
-    ${wd_after_pid}=  Get Pid Of Process   sophos_watchdog
-    ${lr_after_pid}=  Get Pid Of Process   liveresponse
-    ${edr_after_pid}=  Get Pid Of Process  edr
-
-    Should Be Equal As Integers    ${us_before_pid}   ${us_after_pid}
-    Should Be Equal As Integers    ${ma_before_pid}   ${ma_after_pid}
-    Should Be Equal As Integers    ${wd_before_pid}   ${wd_after_pid}
-    Should Be Equal As Integers    ${lr_before_pid}   ${lr_after_pid}
-    Should Be Equal As Integers    ${edr_before_pid}   ${edr_after_pid}
-
-
-
 Verify Upgrading Will Remove Files Which Are No Longer Required
     [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
     [Timeout]   10 minutes
