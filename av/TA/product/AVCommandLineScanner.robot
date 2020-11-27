@@ -654,6 +654,26 @@ CLS Can Scan Infected File Via Symlink To Directory
     File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
 
 
+CLS Does Not Backtrack Through Symlinks
+    ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
+    ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
+    Create Directory   ${targetDir}
+    Create Directory   ${sourceDir}
+    Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
+    Run Process   ln  -snf  ${targetDir}  ${sourceDir}/b
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/b ${targetDir}
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Log To Console  output is ${output}
+    Should Contain       ${output.replace("\n", " ")}  Detected "${sourceDir}/b/eicar.com" (symlinked to ${targetDir}/eicar.com) is infected with EICAR-AV-Test
+    Should Not Contain   ${output.replace("\n", " ")}  Detected "${targetDir}/eicar.com" is infected with EICAR-AV-Test
+    Should Contain       ${output.replace("\n", " ")}  Directory already scanned: "${targetDir}"
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
+
+
 CLS Can Scan Infected File Via Symlink To File
     Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
     Run Process   ln  -snf  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
