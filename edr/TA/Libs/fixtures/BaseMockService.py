@@ -3,7 +3,7 @@ import os
 import pwd
 import shutil
 import subprocess
-from Libs.UserUtils import UserUtils
+from Libs.UserUtils import create_users_and_group
 
 from Libs.FakeManagement import FakeManagement
 
@@ -23,7 +23,7 @@ def write_file(file_path, content):
 
 
 def install_component(sophos_install):
-    UserUtils.create_users_and_group()
+    create_users_and_group()
 
     plugin_dir_path = os.path.join(sophos_install, 'plugins/edr')
     for rel_path in ['tmp', 'var/ipc', 'var/ipc/plugins', 'base/etc', 'base/mcs/response','base/mcs/action']:
