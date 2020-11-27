@@ -10,6 +10,22 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace filewalker
 {
+    using file_id = std::tuple<dev_t, ino_t>;
+
+    /*
+     * We need our own hashing function to use an unordered_set.
+     * The hash combining step is not ideal, but sufficient for our purposes.
+     */
+    struct file_id_hash
+    {
+        std::size_t operator()(file_id const& fileId) const noexcept
+        {
+            std::size_t h1 = std::hash<dev_t>{}(std::get<0>(fileId));
+            std::size_t h2 = std::hash<ino_t>{}(std::get<1>(fileId));
+            return h1 ^ ( h2 << 1u );
+        }
+    };
+
     class IFileWalkCallbacks
     {
     public:

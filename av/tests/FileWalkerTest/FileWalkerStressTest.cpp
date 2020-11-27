@@ -150,7 +150,8 @@ int main(int argc, char* argv[])
     for(int i=0; i<2000; i++)
     {
         PRINT(i << ": Starting file walk");
-        filewalker::walk(starting_point, callbacks);
+        filewalker::FileWalker walker(callbacks);
+        walker.walk(starting_point);
         auto walked = callbacks.walked();
         PRINT(i << ": Scanned " << walked.size() << " files");
 

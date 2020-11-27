@@ -36,7 +36,8 @@ TEST_F(TestFileWalker, includeDirectory) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/a/b/file1.txt"), false)).WillOnce(Return());
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
 }
 
 TEST_F(TestFileWalker, includeCurrentDirectory) // NOLINT
@@ -52,7 +53,8 @@ TEST_F(TestFileWalker, includeCurrentDirectory) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(fs::path("./sandbox/a/b/file1.txt"), false)).WillOnce(Return());
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
 }
 
 TEST_F(TestFileWalker, useObject) // NOLINT
@@ -142,7 +144,8 @@ TEST_F(TestFileWalker, absoluteIncludePath) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(fs::absolute("sandbox/a/b/file1.txt"), false)).WillOnce(Return());
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
 }
 
 TEST_F(TestFileWalker, currentDirIsDeleted) // NOLINT
@@ -166,7 +169,8 @@ TEST_F(TestFileWalker, currentDirIsDeleted) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(expected, false)).WillOnce(Return());
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
 }
 
 TEST_F(TestFileWalker, deleteParentDirWhileWalking) // NOLINT
@@ -193,7 +197,8 @@ TEST_F(TestFileWalker, deleteParentDirWhileWalking) // NOLINT
     };
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(deleteGrandparent).RetiresOnSaturation();
 
-    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
 TEST_F(TestFileWalker, deleteCurrentDirWhileWalking) // NOLINT
@@ -220,7 +225,8 @@ TEST_F(TestFileWalker, deleteCurrentDirWhileWalking) // NOLINT
     };
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(deleteParent).RetiresOnSaturation();
 
-    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
 TEST_F(TestFileWalker, moveCurrentDirWhileWalking) // NOLINT
@@ -248,7 +254,8 @@ TEST_F(TestFileWalker, moveCurrentDirWhileWalking) // NOLINT
     };
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(moveParent).RetiresOnSaturation();
 
-    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
 class ScanRecorder
@@ -337,7 +344,8 @@ TEST_F(TestFileWalker, deleteFilesAlreadyScannedWhileWalking) // NOLINT
         EXPECT_CALL(*callbacks, processFile(_, _));
     }
 
-    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
 TEST_F(TestFileWalker, deleteDirsAlreadyScannedWhileWalking) // NOLINT
@@ -367,7 +375,8 @@ TEST_F(TestFileWalker, deleteDirsAlreadyScannedWhileWalking) // NOLINT
         EXPECT_CALL(*callbacks, processFile(_, _));
     }
 
-    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
 TEST_F(TestFileWalker, deleteFileNotYetScannedWhileWalking) // NOLINT
@@ -392,7 +401,8 @@ TEST_F(TestFileWalker, deleteFileNotYetScannedWhileWalking) // NOLINT
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(2);
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Invoke(&scanRecorder, &ScanRecorder::deleteOneNotYetScannedFile)).RetiresOnSaturation();
 
-    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
 TEST_F(TestFileWalker, deleteDirNotYetScannedWhileWalking) // NOLINT
@@ -417,7 +427,8 @@ TEST_F(TestFileWalker, deleteDirNotYetScannedWhileWalking) // NOLINT
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(2);
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Invoke(&scanRecorder, &ScanRecorder::deleteOneNotYetScannedDir)).RetiresOnSaturation();
 
-    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPoint));
 }
 
 
@@ -436,7 +447,8 @@ TEST_F(TestFileWalker, handlesExceptionFromProcessFile) // NOLINT
     fs::filesystem_error fileDoesNotExist("File does not exist", ec);
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Throw(fileDoesNotExist));
 
-    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPoint));
 
     EXPECT_TRUE(appenderContains(expected));
 }
@@ -468,7 +480,8 @@ TEST_F(TestFileWalker, handlesExceptionFromProcessFileInWalk) // NOLINT
     fs::filesystem_error fileDoesNotExist("File does not exist", ec);
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Throw(fileDoesNotExist)).RetiresOnSaturation();
 
-    EXPECT_NO_THROW(filewalker::walk(startingPoint, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPoint));
 
     EXPECT_TRUE(appenderContains(expected));
 }
@@ -487,7 +500,8 @@ TEST_F(TestFileWalker, abortScanExceptionFromProcessFile) // NOLINT
 
     try
     {
-        filewalker::walk(startingPoint, *callbacks);
+        filewalker::FileWalker fw(*callbacks);
+        fw.walk(startingPoint);
         FAIL() << "walk() did not throw";
     }
     catch (AbortScanException& ex)
@@ -520,7 +534,8 @@ TEST_F(TestFileWalker, abortScanExceptionFromProcessFileInWalk) // NOLINT
 
     try
     {
-        filewalker::walk(startingPoint, *callbacks);
+        filewalker::FileWalker fw(*callbacks);
+        fw.walk(startingPoint);
         FAIL() << "walk() did not throw";
     }
     catch (AbortScanException& ex)
@@ -541,7 +556,8 @@ TEST_F(TestFileWalker, excludeDirectory) // NOLINT
     EXPECT_CALL(*callbacks, includeDirectory(fs::path("sandbox/a/b"))).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/a/b/file1.txt"), _)).Times(0);
 
-    filewalker::walk("sandbox", *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk("sandbox");
 }
 
 TEST_F(TestFileWalker, userExcludeDirectory) // NOLINT
@@ -555,7 +571,8 @@ TEST_F(TestFileWalker, userExcludeDirectory) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(fs::path("sandbox"))).WillOnce(Return(true));
     EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/a/b/file1.txt"), _)).Times(0);
 
-    filewalker::walk("sandbox", *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk("sandbox");
 }
 
 TEST_F(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
@@ -564,7 +581,8 @@ TEST_F(TestFileWalker, scanFileThatDoesNotExist) // NOLINT
 
     try
     {
-        filewalker::walk("FileThatDoesNotExist", *callbacks);
+        filewalker::FileWalker fw(*callbacks);
+        fw.walk("FileThatDoesNotExist");
         FAIL() << "walk() didn't throw";
     }
     catch (fs::filesystem_error& e)
@@ -583,7 +601,8 @@ TEST_F(TestFileWalker, scanDirectoryThatDoesNotExist) // NOLINT
 
     try
     {
-        filewalker::walk("DirectoryThatDoesNotExist/", *callbacks);
+        filewalker::FileWalker fw(*callbacks);
+        fw.walk("DirectoryThatDoesNotExist/");
         FAIL() << "walk() didn't throw";
     }
     catch (fs::filesystem_error& e)
@@ -602,7 +621,8 @@ TEST_F(TestFileWalker, scanPathThatDoesNotExist) // NOLINT
 
     try
     {
-        filewalker::walk("DirThatDoesNotExist/FileThatDoesNotExist", *callbacks);
+        filewalker::FileWalker fw(*callbacks);
+        fw.walk("DirThatDoesNotExist/FileThatDoesNotExist");
         FAIL() << "walk() didn't throw";
     }
     catch (fs::filesystem_error& e)
@@ -629,7 +649,8 @@ TEST_F(TestFileWalker, includeSingleFile) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).Times(0);
     EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/a/b/file1.txt"), false)).WillOnce(Return());
 
-    filewalker::walk(startingPath, *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPath);
 }
 
 TEST_F(TestFileWalker, scanStartsFromSpecial) // NOLINT
@@ -644,7 +665,8 @@ TEST_F(TestFileWalker, scanStartsFromSpecial) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).Times(0);
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
-    EXPECT_NO_THROW(filewalker::walk(startingPath, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPath));
 
     EXPECT_TRUE(appenderContains("Not scanning special file/device: \"fifo\""));
 }
@@ -662,7 +684,8 @@ TEST_F(TestFileWalker, scanStartsFromSymlinkToSpecial) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).Times(0);
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
-    EXPECT_NO_THROW(filewalker::walk(startingPath, *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk(startingPath));
 
     EXPECT_TRUE(appenderContains("Not scanning special file/device: \"symlink_to_fifo\""));
 }
@@ -682,7 +705,8 @@ TEST_F(TestFileWalker, scanWalksSpecial) // NOLINT
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
     EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/a/b/file1.txt"), false)).WillOnce(Return());
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
 }
 
 TEST_F(TestFileWalker, scanWalksSymlinkToSpecial) // NOLINT
@@ -723,7 +747,8 @@ TEST_F(TestFileWalker, startWithSymlinkToDirectory) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(fs::path("symlink_to_sandbox/a/b/file1.txt"), true)).WillOnce(Return());
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
 }
 
 TEST_F(TestFileWalker, startWithDirectoryViaSymlink) // NOLINT
@@ -740,7 +765,8 @@ TEST_F(TestFileWalker, startWithDirectoryViaSymlink) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(fs::path("symlink_to_sandbox/a/b/file1.txt"), false)).WillOnce(Return());
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
 }
 
 TEST_F(TestFileWalker, startWithSymlinkToFile) // NOLINT
@@ -758,7 +784,8 @@ TEST_F(TestFileWalker, startWithSymlinkToFile) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).Times(0);
     EXPECT_CALL(*callbacks, processFile(fs::path("symlink_to_file"), true)).WillOnce(Return());
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
 }
 
 TEST_F(TestFileWalker, startWithBrokenSymlink) // NOLINT
@@ -778,7 +805,8 @@ TEST_F(TestFileWalker, startWithBrokenSymlink) // NOLINT
 
     try
     {
-        filewalker::walk(startingPoint, *callbacks);
+        filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
         FAIL() << "walk() didn't throw";
     }
     catch (fs::filesystem_error& e)
@@ -808,7 +836,8 @@ TEST_F(TestFileWalker, startWithBrokenSymlinkPath) // NOLINT
 
     try
     {
-        filewalker::walk(startingPoint, *callbacks);
+        filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
         FAIL() << "walk() didn't throw";
     }
     catch (fs::filesystem_error& e)
@@ -914,7 +943,8 @@ TEST_F(TestFileWalker, duplicateSymlinksInWalkNoFollow) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
-    filewalker::walk(startingPoint, *callbacks);
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
 }
 
 TEST_F(TestFileWalker, duplicateDirSymlinksInWalk) // NOLINT

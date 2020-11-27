@@ -150,6 +150,7 @@ int CommandLineScanRunner::run()
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
     ScanClient scanner(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
     CallbackImpl callbacks(std::move(scanner), excludedMountPoints, cmdExclusions);
+    filewalker::FileWalker fw(callbacks);
 
     scanCallbacks->scanStarted();
 
@@ -170,7 +171,8 @@ int CommandLineScanRunner::run()
         {
             auto p = fs::absolute(path);
             callbacks.setCurrentInclude(p);
-            filewalker::walk(p, callbacks);
+
+            fw.walk(p);
         }
         catch (fs::filesystem_error& e)
         {

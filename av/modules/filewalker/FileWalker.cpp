@@ -9,7 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <common/AbortScanException.h>
-#include <common/PathUtils.h>
 
 #include <cstring>
 
@@ -34,8 +33,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     try
     {
         itemStatus = fs::status(starting_point);
-        // if we don't remove the forward slash, it will be resolved to the target path
-        symlinkStatus = fs::symlink_status(common::PathUtils::removeForwardSlashFromPath(starting_point));
+        symlinkStatus = fs::symlink_status(starting_point);
     }
     catch (const fs::filesystem_error& e)
     {
@@ -78,7 +76,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     else if (fs::is_directory(itemStatus))
     {
         // TODO - unnecessary, but unit tests currently expect it
-        if (m_callback.userDefinedExclusionCheck(starting_point, m_startIsSymlink))
+        if (m_callback.userDefinedExclusionCheck(starting_point))
         {
             return;
         }
@@ -112,27 +110,15 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         m_starting_dev = statBuf.st_dev;
     }
 
-    m_loggedExclusionCheckFailed = false;
     scanDirectory(starting_point);
 }
 
 void FileWalker::scanDirectory(const fs::path& current_dir)
 {
-    try
+    if (!m_callback.includeDirectory(current_dir))
     {
-        if (!m_callback.includeDirectory(current_dir))
-        {
-            LOGDEBUG("Not recursing into " << current_dir << " as it is excluded");
-            return;
-        }
-    }
-    catch (const std::runtime_error& e)
-    {
-        if(!m_loggedExclusionCheckFailed)
-        {
-            LOGERROR("Failed to check exclusions against: " << current_dir.string() << " due to an error: " << e.what());
-            m_loggedExclusionCheckFailed = true;
-        }
+        LOGDEBUG("Not recursing into " << current_dir << " as it is excluded");
+        return;
     }
 
     struct stat statBuf {};
@@ -223,10 +209,4 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
         LOGERROR("Failed to iterate: " << current_dir << ": " << ec.message());
         return;
     }
-}
-
-void filewalker::walk(const sophos_filesystem::path& starting_point, IFileWalkCallbacks& callbacks)
-{
-    FileWalker f(callbacks);
-    f.walk(starting_point);
 }

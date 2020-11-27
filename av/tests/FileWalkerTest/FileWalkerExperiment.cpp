@@ -34,9 +34,10 @@ int main(int argc, char* argv[])
 {
     Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
     CallbackImpl callbacks;
+    filewalker::FileWalker walker(callbacks);
     for(int i=1; i < argc; i++)
     {
-        filewalker::walk(argv[i], callbacks);
+        walker.walk(argv[i]);
     }
 
     return 0;

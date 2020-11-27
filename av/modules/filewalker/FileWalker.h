@@ -74,5 +74,4 @@ namespace filewalker
         bool m_loggedExclusionCheckFailed = false;
         dev_t m_starting_dev = 0;
     };
-    void walk(const sophos_filesystem::path& starting_point, IFileWalkCallbacks& callbacks);
 }

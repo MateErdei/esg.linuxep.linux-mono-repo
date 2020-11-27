@@ -58,7 +58,8 @@ TEST_F(TestFileWalkerRecursion, hugeFilePathStartFromPathRoot) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_,_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
-    EXPECT_NO_THROW(filewalker::walk("TestHugePathFileWalker", *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk("TestHugePathFileWalker"));
 
     auto traverse_and_delete_huge_directory = [](const sophos_filesystem::path& startingPath, int targetDirectory) {
       fs::current_path("TestHugePathFileWalker");
@@ -108,7 +109,8 @@ TEST_F(TestFileWalkerRecursion, hugeStartingFilePath) // NOLINT
 
     try
     {
-        filewalker::walk(pathToScan, *callbacks);
+        filewalker::FileWalker fw(*callbacks);
+        fw.walk(pathToScan);
         FAIL() << "walk() didn't throw";
     }
     catch (fs::filesystem_error& e)
@@ -167,7 +169,8 @@ TEST_F(TestFileWalkerRecursion, deepFilePathStartFromPathRoot) // NOLINT
     struct rlimit new_limit = { .rlim_cur = 16, .rlim_max = old_limit.rlim_max };
     ASSERT_EQ(setrlimit(RLIMIT_NOFILE, &new_limit), 0);
 
-    EXPECT_NO_THROW(filewalker::walk("deep_path", *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk("deep_path"));
 
     // need to restore the rlimit now, otherwise fs::remove_all() fails
     EXPECT_EQ(setrlimit(RLIMIT_NOFILE, &old_limit), 0);
@@ -196,7 +199,8 @@ TEST_F(TestFileWalkerRecursion, cannotIterate) // NOLINT
     struct rlimit new_limit = { .rlim_cur = 3, .rlim_max = old_limit.rlim_max };
     ASSERT_EQ(setrlimit(RLIMIT_NOFILE, &new_limit), 0);
 
-    EXPECT_NO_THROW(filewalker::walk("directory", *callbacks));
+    filewalker::FileWalker fw(*callbacks);
+    EXPECT_NO_THROW(fw.walk("directory"));
 
     // need to restore the rlimit now, otherwise fs::remove_all() fails
     EXPECT_EQ(setrlimit(RLIMIT_NOFILE, &old_limit), 0);
