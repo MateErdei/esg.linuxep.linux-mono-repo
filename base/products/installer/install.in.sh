@@ -673,7 +673,7 @@ function move_pre_xdr_update_report()
 if ((  $PRE_XDR_UPGRADE == 1  ))
 then
   echo spawning child process
-  move_pre_xdr_update_report &
+  nohup move_pre_xdr_update_report &
   echo pid of spawned process: $1
 fi
 
