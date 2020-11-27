@@ -362,6 +362,12 @@ then
     chmod 600 "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json"
 fi
 
+if [[ -f "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse" ]]
+then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse"
+    chmod 660 "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse"
+fi
+
 makedir 711 "${SOPHOS_INSTALL}/base"
 
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
