@@ -672,8 +672,9 @@ function move_pre_xdr_update_report()
 # Spawn the post install script fix-up script
 if ((  $PRE_XDR_UPGRADE == 1  ))
 then
+  export -f move_pre_xdr_update_report
   echo spawning child process
-  nohup move_pre_xdr_update_report &
+  nohup bash -c move_pre_xdr_update_report &
   echo pid of spawned process: $1
 fi
 
