@@ -3,7 +3,7 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="bugfix/LINUXDAR-2495-spl-user-has-write-access-to-update-config-file"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
         </build-asset>
@@ -92,7 +92,7 @@
             The customer dest-dir matches up against constants set in WarehouseUtils.lib
 -->
         <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="test/LINUXDAR-2495-jenkins2" />
+            <development-version branch="develop" />
             <include artifact-path="develop/customer" dest-dir="local_warehouses/dev/sspl-warehouse/vut/warehouse/customer" />
             <include artifact-path="develop/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse" />
             <include artifact-path="edr-999/customer" dest-dir="local_warehouses/dev/sspl-warehouse/edr-999/warehouse/customer" />
