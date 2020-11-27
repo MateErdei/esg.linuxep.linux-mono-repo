@@ -78,6 +78,7 @@ CommandLineScanRunner::CommandLineScanRunner(const Options& options)
         : m_paths(options.paths())
         , m_exclusions(options.exclusions())
         , m_archiveScanning(options.archiveScanning())
+        , m_followSymlinks(options.followSymlinks())
         , m_logger(options.logFile(), options.logLevel(), true)
 {
 }
@@ -93,6 +94,9 @@ int CommandLineScanRunner::run()
 
     std::string printArchiveScanning = m_archiveScanning?"yes":"no";
     LOGINFO("Archive scanning enabled: " << printArchiveScanning);
+
+    std::string printFollowSymlink = m_followSymlinks?"yes":"no";
+    LOGINFO("Following symlinks: " << printFollowSymlink);
 
     // evaluate mount information
     auto mountInfo = getMountInfo();
@@ -151,6 +155,7 @@ int CommandLineScanRunner::run()
     ScanClient scanner(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
     CallbackImpl callbacks(std::move(scanner), excludedMountPoints, cmdExclusions);
     filewalker::FileWalker fw(callbacks);
+    fw.followSymlinks(m_followSymlinks);
 
     scanCallbacks->scanStarted();
 

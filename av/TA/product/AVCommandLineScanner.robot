@@ -686,6 +686,19 @@ CLS Can Scan Infected File Via Symlink To File
     File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToEicar
 
 
+CLS Can Scan Infected File Via Symlink To Directory Containing File
+    Create Directory    ${NORMAL_DIRECTORY}/a
+    Create File         ${NORMAL_DIRECTORY}/a/eicar.com    ${EICAR_STRING}
+    Run Process   ln  -snf  ${NORMAL_DIRECTORY}/a  ${NORMAL_DIRECTORY}/symlinkToDir
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToDir --follow-symlinks
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToDir/eicar.com" (symlinked to ${NORMAL_DIRECTORY}/a/eicar.com) is infected with EICAR-AV-Test
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToDir/eicar.com
+
+
 CLS Skips The Scanning Of Symlink Targets On Special Mount Points
     Run Process   ln  -snf  /proc/uptime  ${NORMAL_DIRECTORY}/symlinkToProcUptime
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToProcUptime

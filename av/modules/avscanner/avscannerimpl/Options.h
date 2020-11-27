@@ -20,7 +20,7 @@ namespace avscanner::avscannerimpl
     {
     public:
         Options(int argc, char* argv[]);
-        Options(bool printHelp, std::vector<std::string> paths, std::vector<std::string> exclusions, bool archiveScanning);
+        Options(bool printHelp, std::vector<std::string> paths, std::vector<std::string> exclusions, bool archiveScanning, bool followSymlinks);
 
         static log4cplus::LogLevel verifyLogLevel(const std::string& logLevel);
 
@@ -37,6 +37,11 @@ namespace avscanner::avscannerimpl
         [[nodiscard]] bool archiveScanning() const
         {
             return m_archiveScanning;
+        }
+
+        [[nodiscard]] bool followSymlinks() const
+        {
+            return m_followSymlinks;
         }
 
         [[nodiscard]] std::vector<std::string> exclusions() const
@@ -70,6 +75,7 @@ namespace avscanner::avscannerimpl
         std::vector <std::string> m_paths;
         std::vector <std::string> m_exclusions;
         bool m_archiveScanning = false;
+        bool m_followSymlinks = false;
 
         inline static std::unique_ptr<po::options_description> m_optionsDescription = nullptr;
         static boost::program_options::variables_map parseCommandLine(int argc, char** argv);

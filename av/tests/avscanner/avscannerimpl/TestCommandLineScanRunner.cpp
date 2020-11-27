@@ -50,7 +50,7 @@ TEST_F(TestCommandLineScanRunner, construction) // NOLINT
 {
     std::vector<std::string> paths;
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     CommandLineScanRunner runner(options);
 }
 
@@ -58,7 +58,7 @@ TEST_F(TestCommandLineScanRunner, constructionWithScanArchives) // NOLINT
 {
     std::vector<std::string> paths;
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     CommandLineScanRunner runner(options);
 }
 
@@ -72,7 +72,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativePath) // NOLINT
     std::vector<std::string> paths;
     paths.emplace_back(startingpoint);
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -83,17 +83,113 @@ TEST_F(TestCommandLineScanRunner, scanRelativePath) // NOLINT
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
 }
 
-TEST_F(TestCommandLineScanRunner, scanNonCanonicalPath) // NOLINT
+TEST_F(TestCommandLineScanRunner, scanSameDirectoryTwice) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
 
+    fs::path startingpoint = fs::absolute("sandbox");
+
     std::vector<std::string> paths;
-    paths.emplace_back(fs::absolute("./sandbox/"));
-    paths.emplace_back(fs::absolute( "sandbox/../sandbox/"));
-    paths.emplace_back(fs::absolute( "sandbox/a/.."));
+    paths.emplace_back(startingpoint);
+    paths.emplace_back(startingpoint);
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
+    CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    ASSERT_EQ(socket->m_paths.size(), 1);
+    EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
+}
+
+TEST_F(TestCommandLineScanRunner, scanSymlinkedPath) // NOLINT
+{
+    fs::create_directories("sandbox/a/b/d/e");
+    fs::create_directories("sandbox/f");
+    fs::create_symlink(fs::absolute("sandbox/a"), "sandbox/f/a");
+    std::ofstream("sandbox/a/b/file1.txt");
+
+    fs::path startingpoint = fs::absolute("sandbox/f");
+
+    std::vector<std::string> paths;
+    paths.emplace_back(startingpoint);
+    std::vector<std::string> exclusions;
+    Options options(false, paths, exclusions, false, true);
+    CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    ASSERT_EQ(socket->m_paths.size(), 1);
+    EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/f/a/b/file1.txt").string());
+}
+
+TEST_F(TestCommandLineScanRunner, doNotScanSymlinkedPath) // NOLINT
+{
+    fs::create_directories("sandbox/a/b/d/e");
+    fs::create_directories("sandbox/f");
+    fs::create_symlink(fs::absolute("sandbox/a"), "sandbox/f/a");
+    std::ofstream("sandbox/a/b/file1.txt");
+
+    fs::path startingpoint = fs::absolute("sandbox/f");
+
+    std::vector<std::string> paths;
+    paths.emplace_back(startingpoint);
+    std::vector<std::string> exclusions;
+    Options options(false, paths, exclusions, false, false);
+    CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, scanDirectoryAndSymlinkToDirectory) // NOLINT
+{
+    fs::create_directories("sandbox/a/b/d/e");
+    fs::create_directories("sandbox/f");
+    fs::create_symlink(fs::absolute("sandbox/a"), "sandbox/f/a");
+    std::ofstream("sandbox/a/b/file1.txt");
+
+    fs::path symlinkStartingPoint = fs::absolute("sandbox/f");
+    fs::path startingpoint = fs::absolute("sandbox/a");
+
+    std::vector<std::string> paths;
+    paths.emplace_back(symlinkStartingPoint);
+    paths.emplace_back(startingpoint);
+    std::vector<std::string> exclusions;
+    Options options(false, paths, exclusions, false, true);
+    CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    ASSERT_EQ(socket->m_paths.size(), 1);
+    EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/f/a/b/file1.txt").string());
+}
+
+TEST_F(TestCommandLineScanRunner, scanNonCanonicalPath) // NOLINT
+{
+    fs::create_directories("sandbox/a/b/d/e");
+    fs::create_directories("sandbox/b/d/e");
+    fs::create_directories("sandbox/d/e");
+    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/b/d/file1.txt");
+    std::ofstream("sandbox/d/e/file1.txt");
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute("./sandbox/a"));
+    paths.emplace_back(fs::absolute( "sandbox/b/../b/"));
+    paths.emplace_back(fs::absolute( "sandbox/d/.."));
+    std::vector<std::string> exclusions;
+    Options options(false, paths, exclusions, false, false);
     CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -102,8 +198,8 @@ TEST_F(TestCommandLineScanRunner, scanNonCanonicalPath) // NOLINT
 
     ASSERT_EQ(socket->m_paths.size(), 3);
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
-    EXPECT_EQ(socket->m_paths.at(1), fs::absolute("sandbox/a/b/file1.txt").string());
-    EXPECT_EQ(socket->m_paths.at(2), fs::absolute("sandbox/a/b/file1.txt").string());
+    EXPECT_EQ(socket->m_paths.at(1), fs::absolute("sandbox/b/d/file1.txt").string());
+    EXPECT_EQ(socket->m_paths.at(2), fs::absolute("sandbox/d/e/file1.txt").string());
 }
 
 TEST_F(TestCommandLineScanRunner, scanAbsolutePath) // NOLINT
@@ -116,7 +212,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsolutePath) // NOLINT
     std::vector<std::string> paths;
     paths.emplace_back(startingpoint);
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -137,7 +233,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectory) // NOLINT
     std::vector<std::string> paths;
     paths.emplace_back("sandbox/");
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -158,7 +254,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectory) // NOLINT
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox/"));
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -179,7 +275,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanArchives) // NOLI
     std::vector<std::string> paths;
     paths.emplace_back("sandbox");
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -202,7 +298,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithFilenameExclusion) //
     paths.emplace_back(fs::absolute("sandbox"));
     std::vector<std::string> exclusions;
     exclusions.emplace_back("file1.txt");
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -223,7 +319,7 @@ TEST_F(TestCommandLineScanRunner, exclusionIsFileToScan) // NOLINT
     paths.emplace_back(fs::absolute("sandbox/a/b/file1.txt"));
     std::vector<std::string> exclusions;
     exclusions.emplace_back(fs::absolute("sandbox/a/b/file1.txt"));
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -245,7 +341,7 @@ TEST_F(TestCommandLineScanRunner, anEmptyExclusionProvided) // NOLINT
     std::vector<std::string> exclusions;
     exclusions.emplace_back(fs::absolute("sandbox/a/b/file1.txt"));
     exclusions.emplace_back("");
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -268,7 +364,7 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
     paths.emplace_back(fs::absolute("sandbox/a/b/"));
     std::vector<std::string> exclusions;
     exclusions.emplace_back(fs::absolute("sandbox/a/b/"));
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -294,7 +390,7 @@ TEST_F(TestCommandLineScanRunner, scanDirectoryExcludedAsFilePath) // NOLINT
     std::vector<std::string> exclusions;
     exclusions.emplace_back(fs::absolute("sandbox"));
     exclusions.emplace_back("sandbox");
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -319,7 +415,7 @@ TEST_F(TestCommandLineScanRunner, scanFileExcludedAsDirectoryPath) // NOLINT
     std::vector<std::string> exclusions;
     exclusions.emplace_back(fs::absolute("sandbox/a/b/file1.txt/"));
     exclusions.emplace_back("sandbox/a/b/file1.txt/");
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -345,7 +441,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOL
     paths.emplace_back(fs::absolute("sandbox"));
     std::vector<std::string> exclusions;
     exclusions.emplace_back(fs::absolute("sandbox/a/b/"));
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -371,7 +467,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithFullPathExclusion) //
     paths.emplace_back(fs::absolute("sandbox"));
     std::vector<std::string> exclusions;
     exclusions.emplace_back(fs::absolute("sandbox/a/b/file2.txt"));
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -395,7 +491,7 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion) // NOL
     paths.emplace_back(fs::absolute("sandbox"));
     std::vector<std::string> exclusions;
     exclusions.emplace_back("sandbox/a/b/");
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -426,7 +522,7 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusions) // NOLINT
     exclusions.emplace_back(fs::absolute("sandbox/./a/f/"));
     exclusions.emplace_back(fs::absolute("sandbox/a/g/."));
     exclusions.emplace_back(fs::absolute("sandbox/../sandbox/a/b/"));
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -467,7 +563,7 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalNonExistentExclusions) // NOLINT
     exclusions.emplace_back(fs::absolute("sandbox/a/f/."));
     exclusions.emplace_back(fs::absolute(".does_not_exist/a/f/"));
     exclusions.emplace_back(fs::absolute("sandbox/../sandbox/a/b/"));
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -509,7 +605,7 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsRootExclusion) // NOLINT
     std::vector<std::string> exclusions;
     exclusions.emplace_back("/.");
 
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -540,7 +636,7 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsWithFilename) // NOLINT
     std::vector<std::string> exclusions;
     exclusions.emplace_back(fs::absolute("sandbox/./a/f/file2.txt"));
     exclusions.emplace_back(fs::absolute("sandbox/../sandbox/a/b/file1.txt"));
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -822,7 +918,7 @@ TEST_F(TestCommandLineScanRunner, excludeNamedFolders) // NOLINT
     paths.emplace_back(fs::absolute("sandbox"));
     std::vector<std::string> exclusions;
     exclusions.emplace_back("*/");
-    Options options(false, paths, exclusions, true);
+    Options options(false, paths, exclusions, true, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -914,7 +1010,7 @@ TEST_F(TestCommandLineScanRunner, excludeSpecialMounts) // NOLINT
     paths.emplace_back(startingpoint);
     std::vector<std::string> exclusions;
 
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -941,7 +1037,7 @@ TEST_F(TestCommandLineScanRunner, optionsButNoPathProvided) // NOLINT
     std::vector<std::string> emptyPathList;
     std::vector<std::string> exclusionList;
     exclusionList.emplace_back("/proc");
-    Options options(false, emptyPathList, exclusionList, true);
+    Options options(false, emptyPathList, exclusionList, true, false);
     CommandLineScanRunner runner(options);
 
     EXPECT_EQ(runner.run(), E_GENERIC_FAILURE);
@@ -954,7 +1050,7 @@ TEST_F(TestCommandLineScanRunner, noPathProvided) // NOLINT
 
     std::vector<std::string> emptyPathList;
     std::vector<std::string> emptyExclusionList;
-    Options options(false, emptyPathList, emptyExclusionList, false);
+    Options options(false, emptyPathList, emptyExclusionList, false, false);
     CommandLineScanRunner runner(options);
 
     EXPECT_EQ(runner.run(), E_GENERIC_FAILURE);
@@ -973,7 +1069,7 @@ TEST_F(TestCommandLineScanRunner, anEmptyPathProvided) // NOLINT
     paths.emplace_back(startingpoint);
     paths.emplace_back("");
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -997,7 +1093,7 @@ TEST_F(TestCommandLineScanRunner, RelativePathDoesntExist) // NOLINT
     fs::path nonexistentRelPath("notsandbox");
     paths.emplace_back(nonexistentRelPath);
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();
@@ -1025,7 +1121,7 @@ TEST_F(TestCommandLineScanRunner, AbsolutePathDoesntExist) // NOLINT
     fs::path nonexistentAbsPath = fs::absolute("notsandbox");
     paths.emplace_back(nonexistentAbsPath);
     std::vector<std::string> exclusions;
-    Options options(false, paths, exclusions, false);
+    Options options(false, paths, exclusions, false, false);
     avscanner::avscannerimpl::CommandLineScanRunner runner(options);
 
     auto socket = std::make_shared<RecordingMockSocket>();

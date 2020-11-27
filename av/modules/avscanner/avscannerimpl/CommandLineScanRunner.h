@@ -25,6 +25,7 @@ namespace avscanner::avscannerimpl
         std::vector<std::string> m_paths;
         std::vector<std::string> m_exclusions;
         bool m_archiveScanning;
+        bool m_followSymlinks;
 
         int m_returnCode = 0;
         Logger m_logger;

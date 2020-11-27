@@ -55,6 +55,7 @@ void Options::constructOptions()
         m_optionsDescription->add_options()
             ("help,h", "Print this help message")
             ("scan-archives,s", "Scan inside archives")
+            ("follow-symlinks,b", "Scan inside archives")
             ("exclude,x",po::value<std::vector<std::string>>()->value_name("EXCLUSION...")->multitoken(),"Exclude these locations from being scanned")
             ("output,o", po::value<std::string>()->value_name("OUTPUT..."), "Write to log file")
             ("log-level,l", po::value<std::string>()->value_name("LOGLEVEL..."), "Log level for Command Line Scanner")
@@ -77,6 +78,11 @@ Options::Options(int argc, char** argv)
         if (variableMap.count("scan-archives"))
         {
             m_archiveScanning = true;
+        }
+
+        if (variableMap.count("follow-symlinks"))
+        {
+            m_followSymlinks = true;
         }
 
         if (variableMap.count("exclude"))
@@ -106,11 +112,12 @@ Options::Options(int argc, char** argv)
     }
 }
 
-Options::Options(bool printHelp, std::vector<std::string> paths, std::vector<std::string> exclusions, bool archiveScanning)
+Options::Options(bool printHelp, std::vector<std::string> paths, std::vector<std::string> exclusions, bool archiveScanning, bool followSymlinks)
     : m_printHelp(printHelp),
     m_paths(std::move(paths)),
     m_exclusions(std::move(exclusions)),
-    m_archiveScanning(archiveScanning)
+    m_archiveScanning(archiveScanning),
+    m_followSymlinks(followSymlinks)
 {
     constructOptions();
 }
@@ -123,12 +130,14 @@ std::string Options::getHelp()
     helpText << "Allowed options:" << std::endl;
     helpText << "  -h, --help                  Print this help message" << std::endl;
     helpText << "  -s, --scan-archives         Scan inside archives" << std::endl;
+    helpText << "  -b, --follow-symlinks       Follow symlinks while scanning" << std::endl;
     helpText << "  -x, --exclude EXCLUSION...  Exclude these locations from being scanned" << std::endl;
     helpText << "  -o, --output OUTPUT...      Write to log file" << std::endl;
     helpText << "  -l, --log-level LOGLEVEL... Set the logging level" << std::endl << std::endl;
 
     helpText << "Examples:" << std::endl;
     helpText << "  avscanner / --scan-archives            Scan the Root Directory (recursively including dot files/directories) including the contents of any archive files found" << std::endl;
+    helpText << "  avscanner / --follow-symlinks          Scan the Root Directory and follow any symlinks encountered" << std::endl;
     helpText << "  avscanner /usr --exclude /usr/local/   Scan the /usr directory excluding /usr/local" << std::endl;
     helpText << "  avscanner folder --exclude '*.log'     Scan the directory named 'folder' but exclude any filenames ending with .log" << std::endl;
     helpText << "  avscanner foo.exe -o scan.log          Scan the file 'foo.exe' and redirect the output to a log file named 'scan.log'" << std::endl;
