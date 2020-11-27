@@ -262,8 +262,68 @@ Installer Resets Bad Permissions On Current Proxy file
     Run Full Installer
     Check Current Proxy Is Created With Correct Content And Permissions  {}
 
+Installer Moves Update Reports Using Spawned Function
+    Ensure Uninstalled
+    Should Not Exist   ${SOPHOS_INSTALL}
+    Create Directory   ${SOPHOS_INSTALL}/base/update/var/processedReports
+    ${consoleOutput} =  Run Full Installer Expecting Code  0
+    Should Not Exist   ${SOPHOS_INSTALL}/base/update/var/update_report.json
+    Should Not Exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json
+    ${result} =  Run Process  touch  ${SOPHOS_INSTALL}/base/update/var/update_report.json
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Should Not Exist   ${SOPHOS_INSTALL}/base/update/var/update_report.json
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Should Exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Installer Not Running
+
+Installer Times Out When Moving Nonexistent Update Reports Using Spawned Function
+    Ensure Uninstalled
+    Should Not Exist   ${SOPHOS_INSTALL}
+    Create Directory   ${SOPHOS_INSTALL}/base/update/var/processedReports
+
+    # change the timeout in the installer to be small for testing
+    ${installer_path} =  get_full_installer
+    copy file  ${installer_path}   ${installer_path}.2
+    should exist   ${installer_path}.2
+    ${result} =  Run Process  sed -i s/'local max_times_to_wait\=120'/'local max_times_to_wait\=5'/g ${installer_path}.2  shell=True
+    log  ${result.stdout}
+    log  ${result.stderr}
+    Should Be Equal As Integers    ${result.rc}    0
+
+    run_full_installer_from_location_expecting_code  ${installer_path}.2  0
+    Check Installer Running
+    Should Not Exist   ${SOPHOS_INSTALL}/base/update/var/update_report.json
+    Should Not Exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Installer Not Running
 
 *** Keywords ***
+
+Check Installer Running
+    ${result} =    Run Process  pgrep  -f  install.sh
+    log  ${result.stdout}
+    log  ${result.stderr}
+    Should Be Equal As Integers    ${result.rc}    0   install.sh not running
+
+Check Installer Not Running
+    ${result} =    Run Process  pgrep  -f  install.sh
+    log  ${result.stdout}
+    log  ${result.stderr}
+    Should Not Be Equal As Integers    ${result.rc}   0   install.sh still running
+
 Save Current InstalledFiles To Local Path
     Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/FileInfo  ${FileInfo}
     Create File  ${ROBOT_TESTS_DIR}/installer/InstallSet/DirectoryInfo  ${DirectoryInfo}

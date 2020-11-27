@@ -395,10 +395,13 @@ chown -R "${UPDATESCHEDULER_USER_NAME}:root" "${SOPHOS_INSTALL}/base/update/upda
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/updatescheduler"
 makedir 700 "${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports"
 # Move old update reports into new location for upgrades coming from pre-xdr
+PRE_XDR_UPGRADE=0
 if [[ -d "${SOPHOS_INSTALL}/base/update/var/processedReports" ]]
 then
+  PRE_XDR_UPGRADE=1
   mv ${SOPHOS_INSTALL}/base/update/var/processedReports/update_report*.json ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports/ 2>&1 > /dev/null
   mv ${SOPHOS_INSTALL}/base/update/var/update_report*.json ${SOPHOS_INSTALL}/base/update/var/updatescheduler/ 2>&1 > /dev/null
+  rm -rf ${SOPHOS_INSTALL}/base/update/var/processedReports
 fi
 chown -R "${UPDATESCHEDULER_USER_NAME}:root" "${SOPHOS_INSTALL}/base/update/var/updatescheduler"
 
@@ -647,6 +650,30 @@ then
 fi
 
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}
+
+function move_pre_xdr_update_report()
+{
+  local old_report="${SOPHOS_INSTALL}/base/update/var/update_report.json"
+  local times_waited=0
+  local max_times_to_wait=120
+  while [[  ! -f $old_report ]]  && [[  $times_waited -lt $max_times_to_wait  ]]
+  do
+    times_waited=$((times_waited+1))
+    sleep 1
+  done
+  if  [[  -f $old_report  ]]
+  then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" $old_report
+    chmod 660 $old_report
+    mv $old_report "${SOPHOS_INSTALL}/base/update/var/updatescheduler/"
+  fi
+}
+
+# Spawn the post install script fix-up script
+if ((  $PRE_XDR_UPGRADE == 1  ))
+then
+  move_pre_xdr_update_report &
+fi
 
 ## Exit with error code if registration was run and failed
 exit ${EXIT_CODE}
