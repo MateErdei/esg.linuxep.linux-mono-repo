@@ -95,6 +95,58 @@ static void copy_etc_files_for_dns(const fs::path& chrootPath)
     }
 }
 
+
+#if _BullseyeCoverage
+#pragma BullseyeCoverage save off
+static void copy_bullseye_files(const fs::path& chrootPath)
+{
+    LOGINFO("Setting up chroot for Bullseye coverage");
+
+    const fs::path envPath = "/tmp/BullseyeCoverageEnv.txt";
+
+    fs::path targetFile = chrootPath;
+    targetFile += envPath; // use += rather than /= to append an absolute path
+    try
+    {
+        fs::copy_file(envPath, targetFile, fs::copy_options::overwrite_existing);
+    }
+    catch (fs::filesystem_error& e)
+    {
+        LOGERROR("Failed to copy: " << envPath);
+    }
+
+    // find path to covfile, with fallback/default
+    fs::path covFile = "/tmp/sspl-plugin-av-robot.cov";
+    std::ifstream envFile(envPath);
+    std::string line;
+    while (std::getline(envFile, line))
+    {
+        if(line.rfind("COVFILE=", 0) == 0)
+        {
+            covFile = line.substr(8);
+            LOGINFO("Using covfile: " << covFile);
+            break;
+        }
+    }
+    envFile.close();
+
+    targetFile = chrootPath;
+    targetFile += covFile; // use += rather than /= to append an absolute path
+    try
+    {
+        if (!fs::exists(targetFile))
+        {
+            fs::create_hard_link(covFile, targetFile);
+        }
+    }
+    catch (fs::filesystem_error& e)
+    {
+        LOGERROR("Failed to link: " << covFile << " (" << e.code() << ": " << e.what() << ")");
+    }
+}
+#pragma BullseyeCoverage restore
+#endif
+
 static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chrootPath)
 {
     const std::vector<fs::path> fileVector
@@ -195,6 +247,12 @@ static int inner_main()
 
     // Copy etc files for DNS
     copy_etc_files_for_dns(chrootPath);
+
+#if _BullseyeCoverage
+#pragma BullseyeCoverage save off
+    copy_bullseye_files(chrootPath);
+#pragma BullseyeCoverage restore
+#endif
 
     int ret = ::chroot(chrootPath.c_str());
     if (ret != 0)

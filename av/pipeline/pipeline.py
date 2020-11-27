@@ -9,7 +9,7 @@ from tap._backend import Input
 
 COVFILE_UNITTEST = '/opt/test/inputs/av/sspl-plugin-av-unit.cov'
 COVFILE_PYTEST = '/opt/test/inputs/av/sspl-plugin-av-pytest.cov'
-COVFILE_ROBOT = '/sspl-plugin-av-robot.cov' ## Move to root, so that everyone can access it
+COVFILE_ROBOT = '/tmp/sspl-plugin-av-robot.cov' ## Move to /tmp, so that everyone can access it
 COVFILE_COMBINED = '/opt/test/inputs/av/sspl-plugin-av-combined.cov'
 BULLSEYE_SCRIPT_DIR = '/opt/test/inputs/bullseye_files'
 UPLOAD_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadResults.sh')
