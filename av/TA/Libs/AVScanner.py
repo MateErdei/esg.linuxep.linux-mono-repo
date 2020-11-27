@@ -80,12 +80,13 @@ def exclusions_for_everything_else(inclusion):
 
 def increase_threat_detector_log_to_max_size_by_path(log_path, remaining=1):
     """
-    Increase log_path to maxFileSize-1
+    Increase log_path to maxFileSize - remaining
     maxFileSize comes from FileLoggingSetup.cpp from SSPL-Base
 
     const long maxFileSize = 10 * 1024 * 1024;
 
-    :param log_path:
+    :param log_path: location of the log to fill
+    :param remaining: (optional) number of bytes to leave, defaults to 1
     :return:
     """
     max_size = 10*1024*1024 - remaining
