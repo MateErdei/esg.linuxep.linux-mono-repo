@@ -3,6 +3,7 @@ import os
 import pwd
 import shutil
 import subprocess
+from Libs.UserUtils import UserUtils
 
 from Libs.FakeManagement import FakeManagement
 
@@ -21,19 +22,7 @@ def write_file(file_path, content):
         file_handler.write(content)
 
 
-def create_user(user):
-    if user not in pwd.getpwall():
-        os.system('useradd {}'.format(user))
 
-
-def create_group(group):
-    if group not in grp.getgrall():
-        os.system('groupadd {}'.format(group))
-
-
-def create_users_and_group():
-    create_user('sophos-spl-user')
-    create_group('sophos-spl-group')
 
 
 def install_component(sophos_install):
@@ -80,7 +69,7 @@ def component_test_setup(sophos_install):
     os.environ['SOPHOS_INSTALL'] = sophos_install
 
 
-class BaseMockService:
+class BaseMockService():
     def __init__(self, root_path):
         self.sspl = root_path
         self.google_test_dir = os.path.join(root_path, 'componenttests')
@@ -89,3 +78,6 @@ class BaseMockService:
 
     def cleanup(self):
         self.management.stop_fake_management()
+
+    def create_users_and_group(self):
+        create_users_and_group()

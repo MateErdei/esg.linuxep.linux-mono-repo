@@ -2,7 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
-Library         ../Libs/BaseMockService.py
+Library         ../Libs/UserUtils.py
 
 Resource    ComponentSetup.robot
 Resource    EDRResources.robot
