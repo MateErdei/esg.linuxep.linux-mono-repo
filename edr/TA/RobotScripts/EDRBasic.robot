@@ -2,6 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/BaseMockService.py
 
 Resource    ComponentSetup.robot
 Resource    EDRResources.robot
@@ -13,6 +14,7 @@ ${EDR_LOG_PATH}    ${EDR_PLUGIN_PATH}/log/edr.log
 
 *** Test Cases ***
 EDR Plugin Can Recieve Actions
+    create_users_and_group
     ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
 
     Check EDR Plugin Installed
@@ -25,6 +27,7 @@ EDR Plugin Can Recieve Actions
     ...  EDR Plugin Log Contains  Received new Action
 
 EDR plugin Can Send Status
+    create_users_and_group
     ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
     Check EDR Plugin Installed
 
