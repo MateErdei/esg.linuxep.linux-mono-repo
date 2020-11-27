@@ -22,11 +22,8 @@ def write_file(file_path, content):
         file_handler.write(content)
 
 
-
-
-
 def install_component(sophos_install):
-    create_users_and_group()
+    UserUtils.create_users_and_group()
 
     plugin_dir_path = os.path.join(sophos_install, 'plugins/edr')
     for rel_path in ['tmp', 'var/ipc', 'var/ipc/plugins', 'base/etc', 'base/mcs/response','base/mcs/action']:
@@ -79,5 +76,3 @@ class BaseMockService():
     def cleanup(self):
         self.management.stop_fake_management()
 
-    def create_users_and_group(self):
-        create_users_and_group()
