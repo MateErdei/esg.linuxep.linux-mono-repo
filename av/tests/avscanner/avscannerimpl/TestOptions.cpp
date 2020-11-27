@@ -183,8 +183,8 @@ TEST(Options, TestShortArguments) // NOLINT
     argv[0] = "/usr/bin/avscanner";
     argv[1] = "-c";
     argv[2] = "/bar";
-    argv[3] = "-s";
-    argv[4] = "-b";
+    argv[3] = "-a";
+    argv[4] = "-s";
     argv[5] = "-h";
     argv[6] = "-x";
     argv[7] = "file.txt";

@@ -54,8 +54,8 @@ void Options::constructOptions()
         m_optionsDescription = std::make_unique<po::options_description>("Allowed options");
         m_optionsDescription->add_options()
             ("help,h", "Print this help message")
-            ("scan-archives,s", "Scan inside archives")
-            ("follow-symlinks,b", "Scan inside archives")
+            ("scan-archives,a", "Scan inside archives")
+            ("follow-symlinks,s", "Scan inside archives")
             ("exclude,x",po::value<std::vector<std::string>>()->value_name("EXCLUSION...")->multitoken(),"Exclude these locations from being scanned")
             ("output,o", po::value<std::string>()->value_name("OUTPUT..."), "Write to log file")
             ("log-level,l", po::value<std::string>()->value_name("LOGLEVEL..."), "Log level for Command Line Scanner")
@@ -129,8 +129,8 @@ std::string Options::getHelp()
     helpText << "Perform an on-demand scan of PATH" << std::endl << std::endl;
     helpText << "Allowed options:" << std::endl;
     helpText << "  -h, --help                  Print this help message" << std::endl;
-    helpText << "  -s, --scan-archives         Scan inside archives" << std::endl;
-    helpText << "  -b, --follow-symlinks       Follow symlinks while scanning" << std::endl;
+    helpText << "  -a, --scan-archives         Scan inside archives" << std::endl;
+    helpText << "  -s, --follow-symlinks       Follow symlinks while scanning" << std::endl;
     helpText << "  -x, --exclude EXCLUSION...  Exclude these locations from being scanned" << std::endl;
     helpText << "  -o, --output OUTPUT...      Write to log file" << std::endl;
     helpText << "  -l, --log-level LOGLEVEL... Set the logging level" << std::endl << std::endl;
