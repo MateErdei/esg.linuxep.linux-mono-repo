@@ -291,16 +291,19 @@ Installer Times Out When Moving Nonexistent Update Reports Using Spawned Functio
     Should Not Exist   ${SOPHOS_INSTALL}
     Create Directory   ${SOPHOS_INSTALL}/base/update/var/processedReports
 
-    # change the timeout in the installer to be small for testing
+    # change the timeout in the installer to be small for testing,  make sure we copy the installer so we don't
+    # edit the original that could affect other tests.
     ${installer_path} =  get_full_installer
-    copy file  ${installer_path}   ${installer_path}.2
-    should exist   ${installer_path}.2
-    ${result} =  Run Process  sed -i s/'local max_times_to_wait\=120'/'local max_times_to_wait\=5'/g ${installer_path}.2  shell=True
-    log  ${result.stdout}
-    log  ${result.stderr}
+
+    ${installer_path_copy} =  Set Variable  ${installer_path}_copy
+    Copy File  ${installer_path}   ${installer_path_copy}
+    Should Exist   ${installer_path_copy}
+    ${result} =  Run Process  sed -i s/'local max_times_to_wait\=120'/'local max_times_to_wait\=5'/g ${installer_path_copy}  shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
     Should Be Equal As Integers    ${result.rc}    0
 
-    run_full_installer_from_location_expecting_code  ${installer_path}.2  0
+    run_full_installer_from_location_expecting_code  ${installer_path_copy}  0
     Check Installer Running
     Should Not Exist   ${SOPHOS_INSTALL}/base/update/var/update_report.json
     Should Not Exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json
@@ -314,14 +317,14 @@ Installer Times Out When Moving Nonexistent Update Reports Using Spawned Functio
 
 Check Installer Running
     ${result} =    Run Process  pgrep  -f  install.sh
-    log  ${result.stdout}
-    log  ${result.stderr}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
     Should Be Equal As Integers    ${result.rc}    0   install.sh not running
 
 Check Installer Not Running
     ${result} =    Run Process  pgrep  -f  install.sh
-    log  ${result.stdout}
-    log  ${result.stderr}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
     Should Not Be Equal As Integers    ${result.rc}   0   install.sh still running
 
 Save Current InstalledFiles To Local Path
