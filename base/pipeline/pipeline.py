@@ -106,9 +106,9 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
          tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
         # add other distros here
     )
-    # with stage.parallel('integration'):
-    #     for template_name, machine in machines:
-    #         stage.task(task_name=template_name, func=robot_task, machine=machine)
+    with stage.parallel('integration'):
+        for template_name, machine in machines:
+            stage.task(task_name=template_name, func=robot_task, machine=machine)
 
     # with stage.group('component'):
     #     stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
