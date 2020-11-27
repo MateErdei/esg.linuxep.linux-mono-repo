@@ -134,17 +134,29 @@ def process(baseurl, filename, dirname):
     return zip_updated
 
 
-def run(dest):
+def run(dest, branch="master"):
     global DEST
     DEST = ensure_binary(dest)
     safe_mkdir(DEST)
+
+    if branch.startswith("origin/"):
+        branch = branch[len("origin/"):]
+
+    if not branch.startswith("/"):
+        branch = "/" + branch
+
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-build-tested/linuxep.sspl-plugin-anti-virus/"
-    updated = process(artifactory_base_url + "master", "build/output.zip", b"output")
+    updated = process(artifactory_base_url + branch, "build/output.zip", b"output")
     return updated
 
 
 def main(argv):
-    run(argv[1])
+    dest = argv[1]
+    if len(argv) > 2:
+        branch = argv[2]
+    else:
+        branch = "master"
+    run(dest, branch)
     return 0
 
 
