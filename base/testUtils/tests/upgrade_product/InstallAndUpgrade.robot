@@ -833,7 +833,8 @@ Check Update Reports Have Been Processed
     Log  ${filesInUpdateVar}
 
     ${ProcessedFileCountDir}=  Get length   ${files_in_processed_dir}
-    Should Be Equal As Numbers  ${ProcessedFileCountDir}     2
+    # TODO LINUXDAR-2512 Change this 1 back to 2 once the recommened build is newer than sept 2020
+    Should Be Equal As Numbers  ${ProcessedFileCountDir}     1
 
     Should Contain  ${files_in_processed_dir}[0]  update_report
     Should Not Contain  ${files_in_processed_dir}[0]  update_report.json
