@@ -64,8 +64,7 @@ namespace
             m_currentExclusions.clear();
             for (const auto& e : m_mountExclusions)
             {
-                if (common::PathUtils::longer(e, inclusionPath) &&
-                    common::PathUtils::startswith(e, inclusionPath))
+                if (common::PathUtils::startswith(e, inclusionPath))
                 {
                     m_currentExclusions.emplace_back(e);
                 }

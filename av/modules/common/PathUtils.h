@@ -28,7 +28,12 @@ namespace common
 
         static bool startswith(const fs::path& p, const fs::path& value)
         {
-            return p.string().rfind(value.string(), 0) == 0;
+            if (longer(p, value))
+            {
+                return p.string().rfind(value.string(), 0) == 0;
+            }
+
+            return false;
         }
 
         static bool contains(const fs::path& p, const fs::path& value)

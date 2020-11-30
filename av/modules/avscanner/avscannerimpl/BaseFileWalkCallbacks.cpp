@@ -48,6 +48,9 @@ bool BaseFileWalkCallbacks::processSymlinkExclusions(const fs::path& path)
 
 void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget)
 {
+    std::string escapedPath(common::toUtf8(path, false, false));
+    common::escapeControlCharacters(escapedPath);
+
     if (symlinkTarget)
     {
         if(processSymlinkExclusions(path))
@@ -55,16 +58,15 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
             return;
         }
     }
-
-    std::string escapedPath(common::toUtf8(path, false, false));
-    common::escapeControlCharacters(escapedPath);
-
-    for (const auto& exclusion: m_userDefinedExclusions)
+    else
     {
-        if (exclusion.appliesToPath(path))
+        for (const auto& exclusion: m_userDefinedExclusions)
         {
-            LOGINFO("Excluding file: " << escapedPath);
-            return;
+            if (exclusion.appliesToPath(path))
+            {
+                LOGINFO("Excluding file: " << escapedPath);
+                return;
+            }
         }
     }
 
