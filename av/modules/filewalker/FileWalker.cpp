@@ -117,6 +117,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
 
 void FileWalker::scanDirectory(const fs::path& current_dir)
 {
+    // don't try catch we do that in the Scan Runners
     if (!m_callback.includeDirectory(current_dir))
     {
         LOGDEBUG("Not recursing into " << current_dir << " as it is excluded");
