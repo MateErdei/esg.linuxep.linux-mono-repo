@@ -12,8 +12,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "avscanner/mountinfoimpl/Mounts.h"
 
-#include "common/PathUtils.h"
-
 #include <capnp/message.h>
 #include <common/StringUtils.h>
 #include <filewalker/FileWalker.h>

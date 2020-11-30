@@ -71,6 +71,7 @@ namespace filewalker
         std::unordered_set<file_id, file_id_hash> m_seen_directories;
         sophos_filesystem::directory_options m_options = sophos_filesystem::directory_options::none;
         bool m_startIsSymlink = false;
+        bool m_loggedExclusionCheckFailed = false;
         dev_t m_starting_dev = 0;
     };
     void walk(const sophos_filesystem::path& starting_point, IFileWalkCallbacks& callbacks);

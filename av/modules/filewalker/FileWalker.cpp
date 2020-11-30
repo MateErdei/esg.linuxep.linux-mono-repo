@@ -112,16 +112,27 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         m_starting_dev = statBuf.st_dev;
     }
 
+    m_loggedExclusionCheckFailed = false;
     scanDirectory(starting_point);
 }
 
 void FileWalker::scanDirectory(const fs::path& current_dir)
 {
-    // no need to try catch for exclusions we do that in the Scan Runners
-    if (!m_callback.includeDirectory(current_dir))
+    try
     {
-        LOGDEBUG("Not recursing into " << current_dir << " as it is excluded");
-        return;
+        if (!m_callback.includeDirectory(current_dir))
+        {
+            LOGDEBUG("Not recursing into " << current_dir << " as it is excluded");
+            return;
+        }
+    }
+    catch (const std::runtime_error& e)
+    {
+        if(!m_loggedExclusionCheckFailed)
+        {
+            LOGERROR("Failed to check exclusions against: " << current_dir.string() << " due to an error: " << e.what());
+            m_loggedExclusionCheckFailed = true;
+        }
     }
 
     struct stat statBuf {};
