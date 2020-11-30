@@ -32,13 +32,15 @@ bool BaseFileWalkCallbacks::processSymlinkExclusions(const fs::path& path)
     {
         if (exclusion.appliesToPath(path))
         {
-            LOGINFO("Excluding symlinked file: " << path);
+            LOGINFO("Excluding symlinked file: " << common::toUtf8(path, false, false));
             return true;
         }
 
         if (exclusion.appliesToPath(symlinkTargetPath))
         {
-            LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is excluded by user defined exclusion: " << exclusion.path());
+            LOGINFO("Skipping the scanning of symlink target (\"" << common::toUtf8(fs::canonical(path), false, false)
+                                                                  << "\") which is excluded by user defined exclusion: "
+                                                                  <<  common::toUtf8(exclusion.path(), false, false));
             return true;
         }
     }
@@ -64,7 +66,7 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
         {
             if (exclusion.appliesToPath(path))
             {
-                LOGINFO("Excluding file: " << escapedPath);
+                LOGINFO("Excluding file: " << common::toUtf8(escapedPath, false, false));
                 return;
             }
         }
@@ -106,7 +108,7 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path
             }
         }
 
-        LOGINFO("Checking exclusions against symlink directory: " << path);
+        LOGINFO("Checking exclusions against symlink directory: " << common::toUtf8(path, false, false));
         return !userDefinedExclusionCheck(symlinkTargetPath, true);
     }
 
@@ -123,11 +125,13 @@ bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::p
         {
             if(isSymlink)
             {
-                LOGINFO("Skipping the scanning of symlink target (" << fs::canonical(path) << ") which is excluded by user defined exclusion: " << exclusion.path());
+                LOGINFO("Skipping the scanning of symlink target (\"" << common::toUtf8(fs::canonical(path), false, false)
+                                                                      << "\") which is excluded by user defined exclusion: "
+                                                                      <<  common::toUtf8(exclusion.path(), false, false));
             }
             else
             {
-                LOGINFO("Excluding directory: " << pathWithSlash);
+                LOGINFO("Excluding directory: " << common::toUtf8(pathWithSlash, false, false));
             }
             return true;
         }
