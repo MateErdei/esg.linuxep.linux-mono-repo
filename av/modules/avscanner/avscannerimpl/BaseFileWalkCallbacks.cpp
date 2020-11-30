@@ -24,7 +24,7 @@ bool BaseFileWalkCallbacks::processSymlinkExclusions(const fs::path& path)
     {
         if (common::PathUtils::startswith(symlinkTargetPath, e))
         {
-            LOGINFO("Skipping the scanning of symlink target (" << escapedTarget << ") which is on excluded mount point: " << common::escapePathForLogging(e));
+            LOGINFO("Skipping the scanning of symlink target (\"" << escapedTarget << "\") which is on excluded mount point: " << common::escapePathForLogging(e));
             return true;
         }
     }

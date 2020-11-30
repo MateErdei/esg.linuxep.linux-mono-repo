@@ -61,10 +61,10 @@ Start AV
     Wait until threat detector running
 
 Stop AV
-     ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
-     Log  ${result.stderr}
-     Log  ${result.stdout}
-     Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
+    Log  ${result.stderr}
+    Log  ${result.stdout}
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
 
 *** Variables ***
 ${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
@@ -111,13 +111,13 @@ CLS Does Not Ordinarily Output To Stderr
 
 
 CLS Can Scan Infected File
-   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naugthy_eicar
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naugthy_eicar
 
 
 CLS Can Scan Shallow Archive But not Deep Archive
@@ -139,28 +139,28 @@ CLS Can Scan Shallow Archive But not Deep Archive
     Remove Directory  ${NORMAL_DIRECTORY}/archives  recursive=True
 
 CLS Summary is Correct
-   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-   Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar ${NORMAL_DIRECTORY}/clean_file
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar ${NORMAL_DIRECTORY}/clean_file
 
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-   Should Contain   ${output}  2 files scanned in
-   Should Contain   ${output}  1 file out of 2 was infected.
-   Should Contain   ${output}  1 EICAR-AV-Test infection discovered.
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain   ${output}  2 files scanned in
+    Should Contain   ${output}  1 file out of 2 was infected.
+    Should Contain   ${output}  1 EICAR-AV-Test infection discovered.
 
 
 CLS Does not request TFTClassification from SUSI
-      Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
-      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-      File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naugthy_eicar
-      Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  TFTClassifications
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naugthy_eicar
+    Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  TFTClassifications
 
 CLS Can Evaluate High Ml Score As A Threat
-      Copy File  ${RESOURCES_PATH}/file_samples/MLengHighScore.exe  ${NORMAL_DIRECTORY}
-      Mark Sophos Threat Detector Log
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Copy File  ${RESOURCES_PATH}/file_samples/MLengHighScore.exe  ${NORMAL_DIRECTORY}
+    Mark Sophos Threat Detector Log
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
       Log  return code is ${rc}
       Log  output is ${output}
@@ -168,100 +168,100 @@ CLS Can Evaluate High Ml Score As A Threat
       Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with
       Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A
 
-      ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
-      ${primary_score} =  Find Score  Primary score:  ${contents}
-      ${secondary_score} =  Find Score  Secondary score:  ${contents}
-      ${value} =  Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${15}
-      Should Be Equal As Integers  ${value}  ${1}
+    ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
+    ${primary_score} =  Find Score  Primary score:  ${contents}
+    ${secondary_score} =  Find Score  Secondary score:  ${contents}
+    ${value} =  Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${15}
+    Should Be Equal As Integers  ${value}  ${1}
 
 CLS Can Evaluate Low Ml Score As A Clean File
-      Copy File  ${RESOURCES_PATH}/file_samples/MLengLowScore.exe  ${NORMAL_DIRECTORY}
-      Mark Sophos Threat Detector Log
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengLowScore.exe
+    Copy File  ${RESOURCES_PATH}/file_samples/MLengLowScore.exe  ${NORMAL_DIRECTORY}
+    Mark Sophos Threat Detector Log
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengLowScore.exe
 
-      Log  return code is ${rc}
-      Log  output is ${output}
-      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-      Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengLowScore.exe"
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengLowScore.exe"
 
-      ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
-      ${primary_score} =  Find Score  Primary score:  ${contents}
-      ${value} =  Check Ml Primary Score Is Below Threshold  ${primary_score}  ${30}
-      Should Be Equal As Integers  ${value}  ${1}
+    ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
+    ${primary_score} =  Find Score  Primary score:  ${contents}
+    ${value} =  Check Ml Primary Score Is Below Threshold  ${primary_score}  ${30}
+    Should Be Equal As Integers  ${value}  ${1}
 
 CLS Can Scan Archive File
-      ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
-      Create Directory  ${ARCHIVE_DIR}
-      Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
-      Create File  ${ARCHIVE_DIR}/2_clean    ${CLEAN_STRING}
-      Create File  ${ARCHIVE_DIR}/3_eicar    ${EICAR_STRING}
-      Create File  ${ARCHIVE_DIR}/4_clean    ${CLEAN_STRING}
-      Create File  ${ARCHIVE_DIR}/5_eicar    ${EICAR_STRING}
+    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+    Create Directory  ${ARCHIVE_DIR}
+    Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
+    Create File  ${ARCHIVE_DIR}/2_clean    ${CLEAN_STRING}
+    Create File  ${ARCHIVE_DIR}/3_eicar    ${EICAR_STRING}
+    Create File  ${ARCHIVE_DIR}/4_clean    ${CLEAN_STRING}
+    Create File  ${ARCHIVE_DIR}/5_eicar    ${EICAR_STRING}
 
-      Run Process     tar  -cf  ${NORMAL_DIRECTORY}/test.tar  ${ARCHIVE_DIR}
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.tar --scan-archives
+    Run Process     tar  -cf  ${NORMAL_DIRECTORY}/test.tar  ${ARCHIVE_DIR}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.tar --scan-archives
 
-      Log  return code is ${rc}
-      Log  output is ${output}
-      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
 CLS Doesnt Detect eicar in zip without archive option
-      Create File  ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
-      Create Zip   ${NORMAL_DIRECTORY}   eicar   eicar.zip
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar.zip
+    Create File  ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
+    Create Zip   ${NORMAL_DIRECTORY}   eicar   eicar.zip
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar.zip
 
-      Log  return code is ${rc}
-      Log  output is ${output}
-      Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
-      Should Not Contain  ${output}  is infected with EICAR-AV-Test
-      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
+    Should Not Contain  ${output}  is infected with EICAR-AV-Test
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Can Scan Multiple Archive Files
-      ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
-      ${SCAN_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/scan_dir
+    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+    ${SCAN_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/scan_dir
 
-      Create Directory  ${ARCHIVE_DIR}
-      Create Directory  ${SCAN_DIR}
+    Create Directory  ${ARCHIVE_DIR}
+    Create Directory  ${SCAN_DIR}
 
-      Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
-      Create File  ${ARCHIVE_DIR}/2_clean    ${CLEAN_STRING}
-      Create File  ${ARCHIVE_DIR}/3_eicar    ${EICAR_STRING}
-      Create File  ${ARCHIVE_DIR}/4_clean    ${CLEAN_STRING}
-      Create File  ${ARCHIVE_DIR}/5_eicar    ${EICAR_STRING}
+    Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
+    Create File  ${ARCHIVE_DIR}/2_clean    ${CLEAN_STRING}
+    Create File  ${ARCHIVE_DIR}/3_eicar    ${EICAR_STRING}
+    Create File  ${ARCHIVE_DIR}/4_clean    ${CLEAN_STRING}
+    Create File  ${ARCHIVE_DIR}/5_eicar    ${EICAR_STRING}
 
-      Run Process     tar  -cf  ${SCAN_DIR}/test.tar  ${ARCHIVE_DIR}
-      Run Process     tar  -czf  ${SCAN_DIR}/test.tgz  ${ARCHIVE_DIR}
-      Run Process     tar  -cjf  ${SCAN_DIR}/test.tar.bz2  ${ARCHIVE_DIR}
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${SCAN_DIR} --scan-archives
+    Run Process     tar  -cf  ${SCAN_DIR}/test.tar  ${ARCHIVE_DIR}
+    Run Process     tar  -czf  ${SCAN_DIR}/test.tgz  ${ARCHIVE_DIR}
+    Run Process     tar  -cjf  ${SCAN_DIR}/test.tar.bz2  ${ARCHIVE_DIR}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${SCAN_DIR} --scan-archives
 
-      Log  return code is ${rc}
-      Log  output is ${output}
-      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
-      Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
-      Remove Directory  ${SCAN_DIR}  recursive=True
-      Remove Directory  ${ARCHIVE_DIR}  recursive=True
+    Remove Directory  ${SCAN_DIR}  recursive=True
+    Remove Directory  ${ARCHIVE_DIR}  recursive=True
 
 CLS Abort Scanning of Zip Bomb
-      Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
+    Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
 
-      ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zipbomb.zip --scan-archives
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zipbomb.zip --scan-archives
 
-      Log  return code is ${rc}
-      Log  output is ${output}
-      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-      Should Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/zipbomb.zip was aborted
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/zipbomb.zip was aborted
 
 AV Log Contains No Errors When Scanning File
     Mark AV Log
@@ -343,12 +343,12 @@ CLS Will Not Scan Inside Restricted Folder
 
 
 CLS Can Scan Zero Byte File
-     Create File  ${NORMAL_DIRECTORY}/zero_bytes
-     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zero_bytes
+    Create File  ${NORMAL_DIRECTORY}/zero_bytes
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zero_bytes
 
-     Log  return code is ${rc}
-     Log  output is ${output}
-     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 # Long Path is 4064 characters long
 CLS Can Scan Long Path
@@ -379,58 +379,58 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Creates Threat Report
-   Mark AV Log
+    Mark AV Log
 
-   Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
+    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-   Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central
-   AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
-   AV Plugin Log Contains With Offset  type="sophos.mgt.msg.event.threat"
-   AV Plugin Log Contains With Offset  domain="local"
-   AV Plugin Log Contains With Offset  type="1"
-   AV Plugin Log Contains With Offset  name="EICAR-AV-Test"
-   AV Plugin Log Contains With Offset  scanType="203"
-   AV Plugin Log Contains With Offset  status="200"
-   AV Plugin Log Contains With Offset  id="Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8"
-   AV Plugin Log Contains With Offset  idSource="Tsha256(path,name)"
-   AV Plugin Log Contains With Offset  <item file="naugthy_eicar"
-   AV Plugin Log Contains With Offset  path="${NORMAL_DIRECTORY}/"/>
-   AV Plugin Log Contains With Offset  <action action="101"/>
+    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central
+    AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+    AV Plugin Log Contains With Offset  type="sophos.mgt.msg.event.threat"
+    AV Plugin Log Contains With Offset  domain="local"
+    AV Plugin Log Contains With Offset  type="1"
+    AV Plugin Log Contains With Offset  name="EICAR-AV-Test"
+    AV Plugin Log Contains With Offset  scanType="203"
+    AV Plugin Log Contains With Offset  status="200"
+    AV Plugin Log Contains With Offset  id="Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8"
+    AV Plugin Log Contains With Offset  idSource="Tsha256(path,name)"
+    AV Plugin Log Contains With Offset  <item file="naugthy_eicar"
+    AV Plugin Log Contains With Offset  path="${NORMAL_DIRECTORY}/"/>
+    AV Plugin Log Contains With Offset  <action action="101"/>
 
 CLS Encoded Eicars
-   # TODO - Fix  "Wait Until AV Plugin Log Contains With Offset" to match UTF-8 strings, then replace this with "Mark AV Log"
-   # Reset AVCommandLineScanner Suite
-   Stop AV
-   Remove File  ${THREAT_DETECTOR_LOG_PATH}
-   Start AV
+    # TODO - Fix  "Wait Until AV Plugin Log Contains With Offset" to match UTF-8 strings, then replace this with "Mark AV Log"
+    # Reset AVCommandLineScanner Suite
+    Stop AV
+    Remove File  ${THREAT_DETECTOR_LOG_PATH}
+    Start AV
 
-   ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
-   Should Be Equal As Integers  ${result.rc}  0
-   ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp/encoded_eicars/  timeout=120s
-   Log   ${result.stdout}
-   Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
+    ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
+    Should Be Equal As Integers  ${result.rc}  0
+    ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp/encoded_eicars/  timeout=120s
+    Log   ${result.stdout}
+    Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
 
-   # Once CORE-1517 has been fixed, uncomment the check below
-   #Threat Detector Does Not Log Contain  Failed to parse response from SUSI
-   AV Plugin Log Contains  Sending threat detection notification to central
+    # Once CORE-1517 has been fixed, uncomment the check below
+    #Threat Detector Does Not Log Contain  Failed to parse response from SUSI
+    AV Plugin Log Contains  Sending threat detection notification to central
 
-   ${FILE_CONTENT}=    Get File  ${SUPPORT_FILES_PATH}/list_of_expected_encoded_eicars
-   @{eicar_names_list}=    Split to lines  ${FILE_CONTENT}
-   FOR  ${item}  IN  @{eicar_names_list}
+    ${FILE_CONTENT}=    Get File  ${SUPPORT_FILES_PATH}/list_of_expected_encoded_eicars
+    @{eicar_names_list}=    Split to lines  ${FILE_CONTENT}
+    FOR  ${item}  IN  @{eicar_names_list}
         Wait Until AV Plugin Log Contains  ${item}
-   END
+    END
 
-   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
-   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp/encoded_eicars/PairDoubleQuote-"VIRUS.com"
-   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp/encoded_eicars/PairDoubleQuote-"VIRUS.com"
-   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp/encoded_eicars/PairDoubleQuote-"VIRUS.com"
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp/encoded_eicars/PairDoubleQuote-"VIRUS.com"
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
 
-   Remove Directory  /tmp/encoded_eicars  true
+    Remove Directory  /tmp/encoded_eicars  true
 
 CLS Handles Wild Card Eicars
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
@@ -591,70 +591,113 @@ CLS Prints Help and Failure When Parsing Incomplete Arguments
 
 
 CLS Can Log To A File
-   ${LOG_FILE}      Set Variable   ${NORMAL_DIRECTORY}/scan.log
-   ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
+    ${LOG_FILE}      Set Variable   ${NORMAL_DIRECTORY}/scan.log
+    ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
 
-   Create File     ${THREAT_FILE}    ${EICAR_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${THREAT_FILE} --output ${LOG_FILE}
+    Create File     ${THREAT_FILE}    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${THREAT_FILE} --output ${LOG_FILE}
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-   File Log Contains    ${LOG_FILE}    "${THREAT_FILE}" is infected with EICAR-AV-Test
+    File Log Contains    ${LOG_FILE}    "${THREAT_FILE}" is infected with EICAR-AV-Test
 
 CLS Will Not Log To A Directory
-   ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
+    ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
 
-   Create File     ${THREAT_FILE}    ${EICAR_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${THREAT_FILE} --output ${NORMAL_DIRECTORY}
+    Create File     ${THREAT_FILE}    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${THREAT_FILE} --output ${NORMAL_DIRECTORY}
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${BAD_OPTION_RESULT}
 
-   Should Contain    ${output}    Failed to log to ${NORMAL_DIRECTORY} as it is a directory
-   Should Contain    ${output}    Usage: avscanner PATH... [OPTION]...
-   Should Not Contain    ${output}    "${THREAT_FILE}" is infected with EICAR-AV-Test
+    Should Contain    ${output}    Failed to log to ${NORMAL_DIRECTORY} as it is a directory
+    Should Contain    ${output}    Usage: avscanner PATH... [OPTION]...
+    Should Not Contain    ${output}    "${THREAT_FILE}" is infected with EICAR-AV-Test
 
 
 CLS Can Scan Infected File Via Symlink To Directory
-   ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
-   ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
-   Create Directory   ${targetDir}
-   Create Directory   ${sourceDir}
-   Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
-   Run Process   ln  -snf  ${targetDir}  ${sourceDir}/b
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/b
+    ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
+    ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
+    Create Directory   ${targetDir}
+    Create Directory   ${sourceDir}
+    Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
+    Run Process   ln  -snf  ${targetDir}  ${sourceDir}/b
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/b
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Contain       ${output.replace("\n", " ")}  Detected "${sourceDir}/b/eicar.com" (symlinked to ${targetDir}/eicar.com) is infected with EICAR-AV-Test
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Contain       ${output.replace("\n", " ")}  Detected "${sourceDir}/b/eicar.com" (symlinked to ${targetDir}/eicar.com) is infected with EICAR-AV-Test
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
 
 
 CLS Can Scan Infected File Via Symlink To File
-   Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
-   Run Process   ln  -snf  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar
+    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Run Process   ln  -snf  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToEicar" (symlinked to ${NORMAL_DIRECTORY}/eicar.com) is infected with EICAR-AV-Test
-   Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-   File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToEicar
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToEicar" (symlinked to ${NORMAL_DIRECTORY}/eicar.com) is infected with EICAR-AV-Test
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToEicar
 
 
 CLS Skips The Scanning Of Symlink Targets On Special Mount Points
-   Run Process   ln  -snf  /proc/uptime  ${NORMAL_DIRECTORY}/symlinkToProcUptime
-   ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToProcUptime
+    Run Process   ln  -snf  /proc/uptime  ${NORMAL_DIRECTORY}/symlinkToProcUptime
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToProcUptime
 
-   Log  return code is ${rc}
-   Log  output is ${output}
-   Should Contain       ${output.replace("\n", " ")}  Skipping the scanning of symlink target ("/proc/uptime") which is on excluded mount point: "/proc"
-   Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Contain       ${output.replace("\n", " ")}  Skipping the scanning of symlink target ("/proc/uptime") which is on excluded mount point: /proc
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+CLS Can Exclude Scanning of Symlink To File
+    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Run Process   ln  -snf  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar -x eicar.com
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${NORMAL_DIRECTORY}/eicar.com") which is excluded by user defined exclusion: /eicar.com
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar -x ${NORMAL_DIRECTORY}/eicar.com
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${NORMAL_DIRECTORY}/eicar.com") which is excluded by user defined exclusion: ${NORMAL_DIRECTORY}/eicar.com
+
+CLS Can Exclude Scanning of Symlink To Folder
+    ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
+    ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
+    Create Directory   ${targetDir}
+    Create Directory   ${sourceDir}
+    Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
+    Run Process   ln  -snf  ${targetDir}  ${sourceDir}/directory_link
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/directory_link/ -x directory_link/
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir}") which is excluded by user defined exclusion: /directory_link/
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/directory_link -x ${targetDir}/
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir}") which is excluded by user defined exclusion: ${targetDir}/
 
 
 CLS Reports Error Once When Using Custom Log File
@@ -711,28 +754,28 @@ CLS Scans file on NFS
     Should Contain   ${output}   Detected "${destination}/eicar.com" is infected with EICAR-AV-Test
 
 CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
-   ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
+    ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
 
-   ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
-   Wait Until Keyword Succeeds
-   ...  60 secs
-   ...  1 secs
-   ...  File Log Contains  ${LOG_FILE}  Scanning
-   Stop AV
-   Start AV
-   Wait Until Keyword Succeeds
-   ...  120 secs
-   ...  1 secs
-   ...  File Log Contains  ${LOG_FILE}  Reconnected to Sophos Threat Detector
-   File Log Should Not Contain  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  1 secs
+    ...  File Log Contains  ${LOG_FILE}  Scanning
+    Stop AV
+    Start AV
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  1 secs
+    ...  File Log Contains  ${LOG_FILE}  Reconnected to Sophos Threat Detector
+    File Log Should Not Contain  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
-   ${offset} =  Count File Log Lines   ${LOG_FILE}
-   Wait Until Keyword Succeeds
-   ...  60 secs
-   ...  1 secs
-   ...  File Log Contains With Offset  ${LOG_FILE}   Scanning   offset=${offset}
+    ${offset} =  Count File Log Lines   ${LOG_FILE}
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  1 secs
+    ...  File Log Contains With Offset  ${LOG_FILE}   Scanning   offset=${offset}
 
-   Terminate Process   handle=${HANDLE}
+    Terminate Process   handle=${HANDLE}
 
 CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
@@ -759,17 +802,16 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ...  10 secs
     ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
-    File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
-
     # After the log message, only wait ten seconds for avscanner to exit
     ${result} =  Wait For Process  handle=${HANDLE}  timeout=10s  on_timeout=kill
+
+    ${line_count} =  Count Lines In Log  ${LOG_FILE}  Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
+    Should Be Equal As Strings  ${line_count}  9
 
     File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
     # Should have an error output, not 0 or a signal
     Should Be True  ${result.rc} > 0
-
-
 
 CLS scan with Bind Mount
     ${source} =       Set Variable  /tmp/directory
