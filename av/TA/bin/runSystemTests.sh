@@ -10,8 +10,7 @@ echo "Test scripts from git branch: $GIT_BRANCH"
 VUT_BRANCH=${VUT_BRANCH:-master}
 echo "Product version under test from $VUT_BRANCH"
 
-apt-get install -y libcap-dev
-apt-get install -y python3.7 python3.7-dev python3.7-venv
+apt-get install -y libcap-dev python3.7 python3.7-dev python3.7-venv
 
 # Create and enter TAP Python Virtual Environment
 python3.7 -m venv tapvenv
