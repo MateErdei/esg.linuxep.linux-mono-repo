@@ -18,12 +18,13 @@ BaseFileWalkCallbacks::BaseFileWalkCallbacks(ScanClient scanner)
 bool BaseFileWalkCallbacks::processSymlinkExclusions(const fs::path& path)
 {
     fs::path symlinkTargetPath = fs::canonical(path);
+    std::string escapedTarget = common::escapePathForLogging(symlinkTargetPath);
 
     for (const auto& e : m_mountExclusions)
     {
         if (common::PathUtils::startswith(symlinkTargetPath, e))
         {
-            LOGINFO("Skipping the scanning of symlink target (" << symlinkTargetPath << ") which is on excluded mount point: " << e);
+            LOGINFO("Skipping the scanning of symlink target (" << escapedTarget << ") which is on excluded mount point: " << common::escapePathForLogging(e));
             return true;
         }
     }
@@ -32,15 +33,15 @@ bool BaseFileWalkCallbacks::processSymlinkExclusions(const fs::path& path)
     {
         if (exclusion.appliesToPath(path))
         {
-            LOGINFO("Excluding symlinked file: " << common::toUtf8(path, false, false));
+            LOGINFO("Excluding symlinked file: " << common::escapePathForLogging(path));
             return true;
         }
 
         if (exclusion.appliesToPath(symlinkTargetPath))
         {
-            LOGINFO("Skipping the scanning of symlink target (\"" << common::toUtf8(fs::canonical(path), false, false)
+            LOGINFO("Skipping the scanning of symlink target (\"" << escapedTarget
                                                                   << "\") which is excluded by user defined exclusion: "
-                                                                  <<  common::toUtf8(exclusion.path(), false, false));
+                                                                  << common::escapePathForLogging(exclusion.path()));
             return true;
         }
     }
@@ -50,9 +51,7 @@ bool BaseFileWalkCallbacks::processSymlinkExclusions(const fs::path& path)
 
 void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget)
 {
-    std::string escapedPath(common::toUtf8(path, false, false));
-    common::escapeControlCharacters(escapedPath);
-
+    std::string escapedPath(common::escapePathForLogging(path));
     if (symlinkTarget)
     {
         if(processSymlinkExclusions(path))
@@ -66,7 +65,7 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
         {
             if (exclusion.appliesToPath(path))
             {
-                LOGINFO("Excluding file: " << common::toUtf8(escapedPath, false, false));
+                LOGINFO("Excluding file: " << escapedPath);
                 return;
             }
         }
@@ -108,7 +107,7 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path
             }
         }
 
-        LOGINFO("Checking exclusions against symlink directory: " << common::toUtf8(path, false, false));
+        LOGINFO("Checking exclusions against symlink directory: " << common::escapePathForLogging(path));
         return !userDefinedExclusionCheck(symlinkTargetPath, true);
     }
 
@@ -125,13 +124,13 @@ bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::p
         {
             if(isSymlink)
             {
-                LOGINFO("Skipping the scanning of symlink target (\"" << common::toUtf8(fs::canonical(path), false, false)
+                LOGINFO("Skipping the scanning of symlink target (\"" << common::escapePathForLogging(fs::canonical(path))
                                                                       << "\") which is excluded by user defined exclusion: "
-                                                                      <<  common::toUtf8(exclusion.path(), false, false));
+                                                                      <<  common::escapePathForLogging(exclusion.path()));
             }
             else
             {
-                LOGINFO("Excluding directory: " << common::toUtf8(pathWithSlash, false, false));
+                LOGINFO("Excluding directory: " << common::escapePathForLogging(pathWithSlash));
             }
             return true;
         }

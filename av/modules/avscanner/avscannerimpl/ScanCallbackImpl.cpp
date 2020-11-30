@@ -20,13 +20,11 @@ void ScanCallbackImpl::cleanFile(const path&)
 
 void ScanCallbackImpl::infectedFile(const path& susiPath, const std::string& threatName, const fs::path& realPath, bool isSymlink)
 {
-    std::string escapedPath(common::toUtf8(susiPath, false, false));
-    common::escapeControlCharacters(escapedPath);
+    std::string escapedPath(common::escapePathForLogging(susiPath));
 
     if (isSymlink)
     {
-        std::string escapedTargetPath(common::toUtf8(fs::canonical(realPath), false, false));
-        common::escapeControlCharacters(escapedTargetPath);
+        std::string escapedTargetPath(common::escapePathForLogging(fs::canonical(realPath)));
         LOGWARN("Detected \"" << escapedPath << "\" (symlinked to " << escapedTargetPath << ") is infected with " << threatName);
     }
     else

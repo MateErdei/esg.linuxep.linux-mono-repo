@@ -36,8 +36,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
     datatypes::AutoFd file_fd(::open(fileToScanPath.c_str(), O_RDONLY));
     if (!file_fd.valid())
     {
-        std::string escapedPath = common::toUtf8(fileToScanPath, true, false);
-        common::escapeControlCharacters(escapedPath);
+        std::string escapedPath = common::escapePathForLogging(fileToScanPath, true);
         LOGERROR("Failed to open: "<< escapedPath);
 
         return scan_messages::ScanResponse();

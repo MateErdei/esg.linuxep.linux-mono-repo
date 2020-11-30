@@ -195,5 +195,12 @@ namespace common
             return pluralString;
         }
     }
+
+    std::string escapePathForLogging(const std::string& path, bool appendUtf8Conversion, bool Utf8ConversionThrows, bool escapeXmlCharacters)
+    {
+        std::string pathToEscape = toUtf8(path, appendUtf8Conversion, Utf8ConversionThrows);
+        escapeControlCharacters(pathToEscape, escapeXmlCharacters);
+        return pathToEscape;
+    }
 }
 
