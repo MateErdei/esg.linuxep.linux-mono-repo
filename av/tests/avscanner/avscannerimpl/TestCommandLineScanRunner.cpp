@@ -564,16 +564,9 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteTargetExclusion) // NOL
 
     fs::create_directories("symlink_sandbox");
     std::ofstream("symlink_sandbox/file1.txt");
-    LOGINFO("current working dir: " << fs::current_path());
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
     fs::create_symlink("symlink_sandbox/file1.txt", fs::absolute(startingPoint));
-
-    for (const auto & entry : fs::directory_iterator(fs::current_path()))
-        LOGINFO("files in cwd: " << fs::absolute(entry.path()));
-
-    for (const auto & entry : fs::directory_iterator(fs::absolute("symlink_sandbox/")))
-        LOGINFO("files in sandbox: " << fs::absolute(entry.path()));
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute(startingPoint));
@@ -595,7 +588,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeTargetExclusion) // NOL
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    fs::create_directories("symlink_sandbox/");
+    fs::create_directories("symlink_sandbox");
     std::ofstream("symlink_sandbox/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
@@ -625,7 +618,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteDirectExclusion) // NOL
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    fs::create_directories("symlink_sandbox/");
+    fs::create_directories("symlink_sandbox");
     std::ofstream("symlink_sandbox/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
@@ -651,7 +644,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeDirectExclusion) // NOL
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    fs::create_directories("symlink_sandbox/");
+    fs::create_directories("symlink_sandbox");
     std::ofstream("symlink_sandbox/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
@@ -680,7 +673,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeTargetExclus
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    fs::create_directories("symlink_sandbox/a/b/c/");
+    fs::create_directories("symlink_sandbox/a/b/c");
     std::ofstream("symlink_sandbox/a/b/c/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
@@ -710,7 +703,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteTargetExclus
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    fs::create_directories("symlink_sandbox/a/b/c/");
+    fs::create_directories("symlink_sandbox/a/b/c");
     std::ofstream("symlink_sandbox/a/b/c/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
@@ -737,7 +730,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteDirectExclus
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    fs::create_directories("symlink_sandbox/a/b/c/");
+    fs::create_directories("symlink_sandbox/a/b/c");
     std::ofstream("symlink_sandbox/a/b/c/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
@@ -764,7 +757,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeDirectExclus
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    fs::create_directories("symlink_sandbox/a/b/c/");
+    fs::create_directories("symlink_sandbox/a/b/c");
     std::ofstream("symlink_sandbox/a/b/c/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
@@ -794,7 +787,7 @@ TEST_F(TestCommandLineScanRunner, noSymlinkIsScannedWhenNotExplicitlyCalled) // 
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    fs::create_directories("symlink_sandbox/");
+    fs::create_directories("symlink_sandbox");
     std::ofstream("symlink_sandbox/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
