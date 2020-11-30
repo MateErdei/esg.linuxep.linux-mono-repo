@@ -57,23 +57,6 @@ TEST_F(TestFileWalker, includeCurrentDirectory) // NOLINT
     fw.walk(startingPoint);
 }
 
-TEST_F(TestFileWalker, useObject) // NOLINT
-{
-    fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
-
-    fs::path startingPoint = fs::path("sandbox");
-
-    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
-
-    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
-    EXPECT_CALL(*callbacks, processFile(fs::path("sandbox/a/b/file1.txt"), false)).WillOnce(Return());
-
-    filewalker::FileWalker fw(*callbacks);
-    fw.walk(startingPoint);
-}
-
 TEST_F(TestFileWalker, reuseObject) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
@@ -806,7 +789,7 @@ TEST_F(TestFileWalker, startWithBrokenSymlink) // NOLINT
     try
     {
         filewalker::FileWalker fw(*callbacks);
-    fw.walk(startingPoint);
+        fw.walk(startingPoint);
         FAIL() << "walk() didn't throw";
     }
     catch (fs::filesystem_error& e)
