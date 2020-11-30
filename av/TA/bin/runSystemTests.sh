@@ -42,9 +42,6 @@ ln -s $OUTPUT/base-sdds /opt/test/inputs/av/base-sdds
 
 cd /opt/test/inputs/test_scripts
 
-# Set log level
-sed -i "s/SUPPORT/${LOGLEVEL}/g" shared/AVResources.robot
-
 ## run system tests
 [ -f /opt/sophos-spl/bin/uninstall.sh ] && /opt/sophos-spl/bin/uninstall.sh --force
 python3.7 -m robot --include system .
