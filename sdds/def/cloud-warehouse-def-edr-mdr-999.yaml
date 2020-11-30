@@ -18,6 +18,8 @@ warehouses:
                       tag: BETA
                 subcomponents:
                     sspl-base-component:
+                        supplements:
+                            - ssplflags-supp
                     sspl-liveterminal:
             sspl-edr:
                 import:
