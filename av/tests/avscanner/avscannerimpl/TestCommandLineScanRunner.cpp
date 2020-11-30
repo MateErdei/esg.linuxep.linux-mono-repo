@@ -562,7 +562,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteTargetExclusion) // NOL
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    fs::create_directories("symlink_sandbox/");
+    fs::create_directories("symlink_sandbox");
     std::ofstream("symlink_sandbox/file1.txt");
     LOGINFO("current working dir: " << fs::current_path());
 
