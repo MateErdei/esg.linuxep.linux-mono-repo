@@ -566,7 +566,8 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteTargetExclusion) // NOL
     std::ofstream("symlink_sandbox/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
-    fs::create_symlink("symlink_sandbox/file1.txt", startingPoint);
+    fs::create_symlink("symlink_sandbox/file1.txt", fs::absolute(startingPoint));
+
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute(startingPoint));
@@ -592,7 +593,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeTargetExclusion) // NOL
     std::ofstream("symlink_sandbox/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
-    fs::create_symlink("symlink_sandbox/file1.txt", startingPoint);
+    fs::create_symlink("symlink_sandbox/file1.txt", fs::absolute(startingPoint));
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute(startingPoint));
@@ -622,7 +623,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteDirectExclusion) // NOL
     std::ofstream("symlink_sandbox/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
-    fs::create_symlink("symlink_sandbox/file1.txt", startingPoint);
+    fs::create_symlink("symlink_sandbox/file1.txt", fs::absolute(startingPoint));
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute(startingPoint));
@@ -648,7 +649,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeDirectExclusion) // NOL
     std::ofstream("symlink_sandbox/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
-    fs::create_symlink("symlink_sandbox/file1.txt", startingPoint);
+    fs::create_symlink("symlink_sandbox/file1.txt", fs::absolute(startingPoint));
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute(startingPoint));
@@ -677,7 +678,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeTargetExclus
     std::ofstream("symlink_sandbox/a/b/c/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
-    fs::create_symlink("symlink_sandbox/", startingPoint);
+    fs::create_symlink("symlink_sandbox/", fs::absolute(startingPoint));
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute(startingPoint));
@@ -707,7 +708,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteTargetExclus
     std::ofstream("symlink_sandbox/a/b/c/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
-    fs::create_symlink("symlink_sandbox/", startingPoint);
+    fs::create_symlink("symlink_sandbox/", fs::absolute(startingPoint));
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute(startingPoint));
@@ -734,7 +735,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteDirectExclus
     std::ofstream("symlink_sandbox/a/b/c/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
-    fs::create_symlink("symlink_sandbox/", startingPoint);
+    fs::create_symlink("symlink_sandbox/", fs::absolute(startingPoint));
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute(startingPoint));
@@ -761,7 +762,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeDirectExclus
     std::ofstream("symlink_sandbox/a/b/c/file1.txt");
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
-    fs::create_symlink("symlink_sandbox/", startingPoint);
+    fs::create_symlink("symlink_sandbox/", fs::absolute(startingPoint));
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute(startingPoint));
