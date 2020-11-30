@@ -72,8 +72,6 @@ ${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${CLEAN_STRING}     not an eicar
 ${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
 ${LONG_DIRECTORY}   0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-${CLEAN_RESULT}     ${0}
-${VIRUS_DETECTED_RESULT}     ${69}
 ${UKNOWN_OPTION_RESULT}      ${2}
 ${FILE_NOT_FOUND_RESULT}     ${2}
 ${PERMISSION_DENIED_RESULT}  ${13}
@@ -143,16 +141,16 @@ CLS Can Scan Shallow Archive But not Deep Archive
     Create File     ${NORMAL_DIRECTORY}/archives/eicar    ${EICAR_STRING}
     create archive test files  ${NORMAL_DIRECTORY}/archives
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar5.zip --scan-archives
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar2.zip -s
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar6.zip --scan-archives
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar30.zip -s
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar15.tar --scan-archives
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar15.tar -s
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar16.tar --scan-archives
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar16.tar -s
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     Remove Directory  ${NORMAL_DIRECTORY}/archives  recursive=True
@@ -181,11 +179,11 @@ CLS Can Evaluate High Ml Score As A Threat
     Mark Sophos Threat Detector Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
-      Log  return code is ${rc}
-      Log  output is ${output}
-      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with
-      Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A
 
     ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
     ${primary_score} =  Find Score  Primary score:  ${contents}
@@ -654,26 +652,6 @@ CLS Can Scan Infected File Via Symlink To Directory
     File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
 
 
-CLS Does Not Backtrack Through Symlinks
-    ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
-    ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
-    Create Directory   ${targetDir}
-    Create Directory   ${sourceDir}
-    Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
-    Run Process   ln  -snf  ${targetDir}  ${sourceDir}/b
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/b ${targetDir}
-
-    Log  return code is ${rc}
-    Log  output is ${output}
-    Log To Console  output is ${output}
-    Should Contain       ${output.replace("\n", " ")}  Detected "${sourceDir}/b/eicar.com" (symlinked to ${targetDir}/eicar.com) is infected with EICAR-AV-Test
-    Should Not Contain   ${output.replace("\n", " ")}  Detected "${targetDir}/eicar.com" is infected with EICAR-AV-Test
-    Should Contain       ${output.replace("\n", " ")}  Directory already scanned: "${targetDir}"
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
-
-
 CLS Can Scan Infected File Via Symlink To File
     Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
     Run Process   ln  -snf  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
@@ -684,19 +662,6 @@ CLS Can Scan Infected File Via Symlink To File
     Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToEicar" (symlinked to ${NORMAL_DIRECTORY}/eicar.com) is infected with EICAR-AV-Test
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToEicar
-
-
-CLS Can Scan Infected File Via Symlink To Directory Containing File
-    Create Directory    ${NORMAL_DIRECTORY}/a
-    Create File         ${NORMAL_DIRECTORY}/a/eicar.com    ${EICAR_STRING}
-    Run Process   ln  -snf  ${NORMAL_DIRECTORY}/a  ${NORMAL_DIRECTORY}/symlinkToDir
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToDir --follow-symlinks
-
-    Log  return code is ${rc}
-    Log  output is ${output}
-    Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToDir/eicar.com" (symlinked to ${NORMAL_DIRECTORY}/a/eicar.com) is infected with EICAR-AV-Test
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToDir/eicar.com
 
 
 CLS Skips The Scanning Of Symlink Targets On Special Mount Points

@@ -173,7 +173,7 @@ def create_archive_test_files(path):
         create_tar(path, file_to_tar, tar_name)
 
     create_zip(path, "eicar", "eicar1.zip")
-    for x in range(2,7):
+    for x in range(2,31):
         file_to_tar = "eicar" + str(x - 1) + ".zip"
         tar_name = "eicar" + str(x) + ".zip"
 
