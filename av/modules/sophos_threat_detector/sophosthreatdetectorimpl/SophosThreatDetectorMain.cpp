@@ -13,17 +13,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #else
 #include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
 #endif
+#include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
-#include "datatypes/sophos_filesystem.h"
-
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include <fstream>
 #include <string>
-#include <netdb.h>
 
 #include <linux/securebits.h>
+#include <netdb.h>
 #include <sys/capability.h>
 #include <sys/prctl.h>
 #include <unistd.h>
@@ -153,14 +153,21 @@ static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chr
     {
         "base/etc/logger.conf",
         "base/etc/machine_id.txt",
-        "base/update/var/update_config.json",
+        Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath(),
         "plugins/av/VERSION.ini"
     };
 
     for (const fs::path& file : fileVector)
     {
         fs::path sourceFile = sophosInstall;
-        sourceFile /= file;
+        if (file.is_absolute())
+        {
+            sourceFile = file;
+        }
+        else
+        {
+            sourceFile /= file;
+        }
 
         fs::path targetFile = chrootPath;
         /*

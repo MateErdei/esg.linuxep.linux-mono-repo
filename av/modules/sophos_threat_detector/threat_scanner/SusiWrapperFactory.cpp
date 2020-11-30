@@ -4,21 +4,22 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #include "SusiWrapperFactory.h"
 
+#include "Logger.h"
 #include "ScannerInfo.h"
 #include "SusiWrapper.h"
-#include "Logger.h"
-#include "common/StringUtils.h"
+
+#include "Common/UtilityImpl/StringUtils.h"
 #include "common/PluginUtils.h"
+#include "common/StringUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include "Common/UtilityImpl/StringUtils.h"
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/XmlUtilities/AttributesMap.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
-#include <thirdparty/nlohmann-json/json.hpp>
 
 using namespace threat_scanner;
 using json = nlohmann::json;
@@ -56,13 +57,13 @@ static std::string getEndpointId()
         }
     }
 
+    LOGERROR("Failed to read machine ID - using default value");
     return "66b8fd8b39754951b87269afdfcb285c";
 }
 
 static std::string getCustomerId()
 {
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    fs::path customerIdPath = appConfig.getData("SOPHOS_INSTALL") + "/base/update/var/update_config.json";
+    auto customerIdPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
 
     std::ifstream fs(customerIdPath, std::ifstream::in);
 
@@ -83,6 +84,7 @@ static std::string getCustomerId()
         }
     }
 
+    LOGERROR("Failed to read customerID - using default value");
     return "c1cfcf69a42311a6084bcefe8af02c8a";
 }
 

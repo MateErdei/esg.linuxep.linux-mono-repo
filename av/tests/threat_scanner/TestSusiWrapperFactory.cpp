@@ -13,12 +13,11 @@ void setupFilesForTestingGlobalRep()
 
     fs::path fakeEtcDirectory  = BASE;
     fakeEtcDirectory  /= "base/etc";
-    fs::path fakeMcsDirectory = BASE;
-    fakeMcsDirectory /= "base/update/var";
     fs::path machineIdFilePath = fakeEtcDirectory;
     machineIdFilePath /= "machine_id.txt";
-    fs::path customerIdFilePath = fakeMcsDirectory;
-    customerIdFilePath /= "update_config.json";
+
+    fs::path customerIdFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
+    auto fakeMcsDirectory = customerIdFilePath.parent_path();
 
     fs::create_directories("tmp/TestSusiWrapperFactory");
     fs::create_directories(BASE);
