@@ -564,6 +564,10 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteTargetExclusion) // NOL
 
     fs::create_directories("symlink_sandbox/");
     std::ofstream("symlink_sandbox/file1.txt");
+    LOGINFO("current working dir: " << fs::current_path());
+
+    for (const auto & entry : fs::directory_iterator("symlink_sandbox/"))
+       LOGINFO(fs::absolute(entry.path()));
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
     fs::create_symlink("symlink_sandbox/file1.txt", fs::absolute(startingPoint));
