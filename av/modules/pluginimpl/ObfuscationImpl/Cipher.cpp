@@ -16,6 +16,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <iostream>
 #include <pwd.h>
+#include <memory>
 #include <vector>
 // ------------------------------------------------------------------------------------------------
 
@@ -173,21 +174,21 @@ SecureString Cipher::Decrypt(
     return value;
 }
 
-IEvpCipherWrapperPtr& evpCipherWrapperStaticPointer()
+static IEvpCipherWrapperPtr& evpCipherWrapperStaticPointer()
 {
     static IEvpCipherWrapperPtr instance =
         IEvpCipherWrapperPtr(new Common::ObfuscationImpl::EvpCipherWrapper());
     return instance;
 }
 
-void replaceEvpCipherWrapper(IEvpCipherWrapperPtr pointerToReplace)
+void Common::ObfuscationImpl::replaceEvpCipherWrapper(IEvpCipherWrapperPtr pointerToReplace)
 {
-    evpCipherWrapperStaticPointer().reset(pointerToReplace.release());
+    evpCipherWrapperStaticPointer() = std::move(pointerToReplace);
 }
 
-void restoreEvpCipherWrapper()
+void Common::ObfuscationImpl::restoreEvpCipherWrapper()
 {
-    evpCipherWrapperStaticPointer().reset(new Common::ObfuscationImpl::EvpCipherWrapper());
+    evpCipherWrapperStaticPointer() = std::make_unique<Common::ObfuscationImpl::EvpCipherWrapper>();
 }
 
 Common::Obfuscation::IEvpCipherWrapper* Common::Obfuscation::evpCipherWrapper()

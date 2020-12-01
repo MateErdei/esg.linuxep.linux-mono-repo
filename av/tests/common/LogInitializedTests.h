@@ -43,4 +43,13 @@ namespace
         }
     };
 
+/** Inherit from this class when the tests 'uses' log4cplus but the log messages are irrelevant*/
+    class LogOffInitializedTests: public ::testing::Test
+    {
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    public:
+        LogOffInitializedTests():m_loggingSetup{Common::Logging::LOGOFFFORTEST()}{
+        }
+    };
+
 }

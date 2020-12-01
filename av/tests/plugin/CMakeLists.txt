@@ -1,3 +1,6 @@
+
+add_subdirectory(ObfuscationImpl)
+
 include(GoogleTest)
 
 SophosAddTest(TestPlugin
