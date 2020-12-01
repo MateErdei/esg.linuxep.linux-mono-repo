@@ -153,7 +153,6 @@ static void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chr
     {
         "base/etc/logger.conf",
         "base/etc/machine_id.txt",
-        Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath(),
         "plugins/av/VERSION.ini"
     };
 
