@@ -262,14 +262,17 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     with stage.parallel('testing'):
         test_inputs = get_inputs(context, av_build)
         ubuntu1804_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        ubuntu2004_machine = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
         centos7_machine = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
 
         with stage.parallel('component'):
             stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu1804_machine)
+            stage.task(task_name='ubuntu2004_x64', func=pytest_task, machine=ubuntu2004_machine)
             stage.task(task_name='centos77_x64',   func=pytest_task, machine=centos7_machine)
 
         with stage.parallel('integration'):
             stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
+            stage.task(task_name='ubuntu2004_x64', func=robot_task, machine=ubuntu2004_machine)
             stage.task(task_name='centos77_x64',   func=robot_task, machine=centos7_machine)
 
         if do_coverage:
