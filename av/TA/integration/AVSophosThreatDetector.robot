@@ -14,7 +14,8 @@ Test Setup      AVSophosThreatDetector Test Setup
 Test Teardown   AVSophosThreatDetector Test TearDown
 
 *** Variables ***
-${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
+${CLI_SCANNER_PATH}         ${COMPONENT_ROOT_PATH}/bin/avscanner
+${CHROOT_LOGGING_SYMLINK}   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
 
 *** Test Cases ***
 Test Global Rep works in chroot
@@ -30,6 +31,40 @@ Sophos Threat Detector Has No Unnecessary Capabilities
     Should Not Contain  ${output}  cap_sys_chroot
     # Handle different format of the output from getpcaps on Ubuntu 20.04
     Run Keyword Unless  "${output}" == "Capabilities for `${pid}\': =" or "${output}" == "${pid}: ="  FAIL  msg=Enexpected capabilities: ${output}
+
+Threat detector does not recreate logging symlink if present
+    Should Exist   ${CHROOT_LOGGING_SYMLINK}
+    Restart sophos_threat_detector
+    Threat Detector Does Not Log Contain   LogSetup <> Create symlink for logs at
+    Threat Detector Does Not Log Contain   LogSetup <> Failed to create symlink for logs at
+
+Threat detector recreates logging symlink if missing
+    register cleanup   Install With Base SDDS
+    Should Exist   ${CHROOT_LOGGING_SYMLINK}
+
+    Run Process   rm   ${CHROOT_LOGGING_SYMLINK}
+    Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
+    Create File   ${THREAT_DETECTOR_LOG_PATH}   # truncate the log
+    Restart sophos_threat_detector
+
+    Threat Detector Log Contains   LogSetup <> Create symlink for logs at
+    Threat Detector Does Not Log Contain   LogSetup <> Failed to create symlink for logs at
+    Should Exist   ${CHROOT_LOGGING_SYMLINK}
+
+Threat detector aborts if logging symlink cannot be created
+    register cleanup   Install With Base SDDS
+    Should Exist   ${CHROOT_LOGGING_SYMLINK}
+
+    Run Process   rm   ${CHROOT_LOGGING_SYMLINK}
+    # stop sophos_threat_detector from creating the link, by denying group access to the directory
+    Run Process   chmod   g-rwx    ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log
+    Create File   ${THREAT_DETECTOR_LOG_PATH}   # truncate the log
+    Restart sophos_threat_detector
+
+    Threat Detector Log Contains   LogSetup <> Failed to create symlink for logs at
+    Threat Detector Does Not Log Contain   LogSetup <> Create symlink for logs at
+    Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
+
 
 *** Keywords ***
 
@@ -54,7 +89,7 @@ scan GR test file
     BuiltIn.Should Be Equal As Integers  ${rc}  ${0}  Failed to scan gui.exe
 
 check sophos_threat_dector log for successful global rep lookup
-    Threat Detector Log Contains  =GR= Connection #0 to host 4.sophosxl.net left intact
+    Threat Detector Log Contains  =GR= Connection \#0 to host 4.sophosxl.net left intact
 
 AVSophosThreatDetector Suite Setup
     Log  AVSophosThreatDetector Suite Setup
