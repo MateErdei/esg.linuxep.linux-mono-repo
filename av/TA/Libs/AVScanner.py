@@ -103,7 +103,8 @@ def increase_threat_detector_log_to_max_size_by_path(log_path, remaining=1):
 
     last_additional_required = additional_required - len(extra)
     assert last_additional_required >= 0
-    extra += "." * (last_additional_required - 1) + "\n"
+    if last_additional_required > 0:
+        extra += "." * (last_additional_required - 1) + "\n"
     assert len(extra) == additional_required
 
     open(log_path, "ab").write(extra.encode("UTF-8"))
