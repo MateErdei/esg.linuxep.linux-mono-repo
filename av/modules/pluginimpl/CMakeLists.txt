@@ -1,4 +1,6 @@
 sophos_add_library(pluginimpl SHARED
+        AlcPolicyProcessor.cpp
+        AlcPolicyProcessor.h
         PluginCallback.cpp
         PluginCallback.h
         QueueTask.cpp

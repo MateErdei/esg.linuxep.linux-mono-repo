@@ -123,10 +123,18 @@ void PluginAdapter::processPolicy(const std::string& policyXml)
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
 
     // Work out whether it's ALC or SAV policy
+    auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
+    auto policyType = alc_comp.value("policyType", "unknown");
+    if (policyType == "1")
+    {
+        // ALC policy
+        m_updatePolicyProcessor.processAlcPolicy(attributeMap);
+        return;
+    }
 
 
     // SAV policy
-    std::string policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
+    policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
     if ( policyType != "2")
     {
         LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
@@ -137,6 +145,7 @@ void PluginAdapter::processPolicy(const std::string& policyXml)
     std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
     m_callback->sendStatus(revID);
 }
+
 
 void PluginAdapter::processAction(const std::string& actionXml)
 {

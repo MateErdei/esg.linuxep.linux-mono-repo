@@ -6,15 +6,16 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "AlcPolicyProcessor.h"
 #include "PluginCallback.h"
 #include "QueueTask.h"
 
-#include "manager/scheduler/ScanScheduler.h"
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
+#include "manager/scheduler/ScanScheduler.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
-#include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/ApiException.h>
+#include <Common/PluginApi/IBaseServiceApi.h>
 
 namespace Plugin
 {
@@ -43,5 +44,6 @@ namespace Plugin
         void innerLoop();
 
         void incrementTelemetryThreatCount(const std::string &threatName);
+        AlcPolicyProcessor m_updatePolicyProcessor;
     };
 } // namespace Plugin
