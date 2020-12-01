@@ -92,7 +92,7 @@
         <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release,coverage"/>
         <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release,coverage"/>
         <build-asset artifact-path="componenttests" source-dir="output/componenttests" mode="release,coverage"/>
-        <build-asset artifact-path="build_log" source-dir="output" mode="release,coverage">
+        <build-asset artifact-path="build_log" source-dir="output" mode="release,coverage,analysis">
             <include glob="./build.log" />
         </build-asset>
 
@@ -103,10 +103,7 @@
             <include glob="./sspl-edr-combined.cov" />
         </build-asset>
 
-        <build-asset artifact-path="analysis" source-dir="output" mode="analysis">
-            <include glob="./coverage/cppcheck" />
-            <include glob="./build.log" />
-        </build-asset>
+        <build-asset artifact-path="analysis" source-dir="output/coverage/cppcheck" mode="analysis"/>
 
         <destdir>sspl-plugin-edr-component</destdir>
         <!--  Legacy build outputs to uk-filer6 -->
