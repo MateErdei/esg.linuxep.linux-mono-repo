@@ -21,10 +21,11 @@ static std::string getPluginInstall()
     return appConfig.getData("PLUGIN_INSTALL");
 }
 
-void Plugin::AlcPolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
+bool Plugin::AlcPolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
 {
-    auto customerId = getCustomerId(policy);
-    if (customerId.empty())
+    auto oldCustomerId = m_customerId;
+    m_customerId = getCustomerId(policy);
+    if (m_customerId.empty())
     {
         LOGWARN("Failed to find customer ID from ALC policy");
     }
@@ -34,11 +35,12 @@ void Plugin::AlcPolicyProcessor::processAlcPolicy(const Common::XmlUtilities::At
         auto* fs = Common::FileSystem::fileSystem();
         auto pluginInstall = getPluginInstall();
         auto dest = pluginInstall + "/var/customer_id.txt";
-        fs->writeFile(dest, customerId);
+        fs->writeFile(dest, m_customerId);
         auto chroot = pluginInstall + "/chroot";
         dest = chroot + dest;
-        fs->writeFile(dest, customerId);
+        fs->writeFile(dest, m_customerId);
     }
+    return (m_customerId != oldCustomerId && !oldCustomerId.empty());
 }
 
 std::string Plugin::AlcPolicyProcessor::getCustomerId(const Common::XmlUtilities::AttributesMap& policy)
