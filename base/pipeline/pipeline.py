@@ -96,6 +96,8 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     else:
         base_build = context.artifact.build()
 
+    if mode == 'analysis':
+        return
 
     test_inputs = get_inputs(context, base_build, mode)
     machines = (
