@@ -53,6 +53,7 @@ GOOGLETESTTAR=googletest-release-1.8.1
 NO_BUILD=0
 LOCAL_GCC=0
 LOCAL_CMAKE=0
+DUMP_LAST_TEST_ON_FAILURE=1
 
 while [[ $# -ge 1 ]]
 do
@@ -84,6 +85,7 @@ do
             NPROC=4
             CLEAN=0
             UNITTEST=1
+            DUMP_LAST_TEST_ON_FAILURE=0
             ;;
         --centos7-local|--centos7|--centos)
             export ENABLE_STRIP=0
@@ -115,6 +117,9 @@ do
             ;;
         --no-unpack)
             NO_UNPACK=1
+            ;;
+        --no-dump-last-test-on-failure)
+            DUMP_LAST_TEST_ON_FAILURE=0
             ;;
         --cmake-option)
             shift
@@ -395,7 +400,10 @@ function build()
         make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
             local EXITCODE=$?
             echo "Unit tests failed with $EXITCODE"
-            cat Testing/Temporary/LastTest.log || true
+            if (( DUMP_LAST_TEST_ON_FAILURE == 1 ))
+            then
+                cat Testing/Temporary/LastTest.log || true
+            fi
             exitFailure $FAILURE_UNIT_TESTS "Unit tests failed for $PRODUCT"
         }
     fi

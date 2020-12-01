@@ -6,6 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScannerInfo.h"
 
+#include "Logger.h"
+
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
@@ -41,8 +43,22 @@ std::string threat_scanner::create_scanner_info(bool scanArchives)
     return scannerInfo;
 }
 
+static sophos_filesystem::path sophosInstall()
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    return appConfig.getData("SOPHOS_INSTALL");
+}
+
 sophos_filesystem::path threat_scanner::pluginInstall()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    return appConfig.getData("PLUGIN_INSTALL");
+    try
+    {
+        return appConfig.getData("PLUGIN_INSTALL");
+    }
+    catch (const std::out_of_range&)
+    {
+        LOGWARN("PLUGIN_INSTALL not set");
+    }
+    return sophosInstall() / "plugins/av";
 }

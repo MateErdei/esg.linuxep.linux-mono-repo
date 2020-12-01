@@ -51,7 +51,7 @@ static std::string getEndpointId()
 
             return endpointIdContents.str();
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
             LOGERROR("Unexpected error when reading endpoint id for global rep setup: " << e.what());
         }
@@ -63,7 +63,7 @@ static std::string getEndpointId()
 
 static std::string getCustomerId()
 {
-    auto customerIdPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
+    auto customerIdPath = pluginInstall() / "var/customer_id.txt";
 
     std::ifstream fs(customerIdPath, std::ifstream::in);
 
@@ -71,14 +71,12 @@ static std::string getCustomerId()
     {
         try
         {
-            std::stringstream updateConfigContents;
-            updateConfigContents << fs.rdbuf();
+            std::stringstream customerId;
+            customerId << fs.rdbuf();
 
-            auto jsonContents = json::parse(updateConfigContents);
-            return common::md5_hash(jsonContents["credential"]["password"]);
-
+            return customerId.str();
         }
-        catch (std::exception& e)
+        catch (const std::exception& e)
         {
             LOGERROR("Unexpected error when reading customer id for global rep setup: " << e.what());
         }

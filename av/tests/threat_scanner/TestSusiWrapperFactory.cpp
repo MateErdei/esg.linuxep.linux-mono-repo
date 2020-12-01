@@ -1,111 +1,55 @@
-#include "sophos_threat_detector/threat_scanner/SusiWrapperFactory.cpp"
+/******************************************************************************************************
 
-#include <gmock/gmock.h>
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "../common/LogInitializedTests.h"
+
+// Include the .cpp to get static functions...
+#include "sophos_threat_detector/threat_scanner/SusiWrapperFactory.cpp" // NOLINT
+
 #include <gtest/gtest.h>
 
 #define BASE "/tmp/TestSusiWrapperFactory/chroot/"
 using namespace threat_scanner;
 
+namespace
+{
+    class TestSusiWrapperFactory : public LogInitializedTests
+    {};
+}
+
 void setupFilesForTestingGlobalRep()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     appConfig.setData("SOPHOS_INSTALL", BASE);
+    fs::path PLUGIN_INSTALL = BASE;
+    PLUGIN_INSTALL /= "plugins/av";
+    appConfig.setData("PLUGIN_INSTALL", PLUGIN_INSTALL);
 
     fs::path fakeEtcDirectory  = BASE;
     fakeEtcDirectory  /= "base/etc";
     fs::path machineIdFilePath = fakeEtcDirectory;
     machineIdFilePath /= "machine_id.txt";
 
-    fs::path customerIdFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
-    auto fakeMcsDirectory = customerIdFilePath.parent_path();
+    fs::path customerIdFilePath = PLUGIN_INSTALL;
+    customerIdFilePath /= "var/customer_id.txt";
+    auto varDirectory = customerIdFilePath.parent_path();
 
     fs::create_directories("tmp/TestSusiWrapperFactory");
     fs::create_directories(BASE);
     fs::create_directories(fakeEtcDirectory);
-    fs::create_directories(fakeMcsDirectory);
+    fs::create_directories(varDirectory);
 
     std::ofstream machineIdFile(machineIdFilePath);
     ASSERT_TRUE(machineIdFile.good());
     machineIdFile << "ab7b6758a3ab11ba8a51d25aa06d1cf4";
     machineIdFile.close();
 
-    std::string alcContents = R"sophos({
- "sophosURLs": [
-  "http://dci.sophosupd.com/update",
-  "http://dci.sophosupd.net/update"
- ],
- "credential": {
-  "username": "5af36d92f3773a9083bdea545230a507",
-  "password": "5af36d92f3773a9083bdea545230a507"
- },
- "proxy": {
-  "url": "",
-  "credential": {
-   "username": "",
-   "password": "",
-   "proxyType": ""
-  }
- },
- "certificatePath": "/opt/sophos-spl/base/update/certs",
- "installationRootPath": "/opt/sophos-spl",
- "systemSslPath": ":system:",
- "cacheUpdateSslPath": "",
- "installArguments": [
-  "--instdir",
-  "/opt/sophos-spl"
- ],
- "logLevel": "VERBOSE",
- "manifestNames": [
-  "manifest.dat"
- ],
- "primarySubscription": {
-  "rigidName": "ServerProtectionLinux-Base",
-  "baseVersion": "",
-  "tag": "RECOMMENDED",
-  "fixedVersion": ""
- },
- "products": [
-  {
-   "rigidName": "ServerProtectionLinux-Plugin-AV",
-   "baseVersion": "",
-   "tag": "RECOMMENDED",
-   "fixedVersion": ""
-  },
-  {
-   "rigidName": "ServerProtectionLinux-Plugin-EDR",
-   "baseVersion": "",
-   "tag": "RECOMMENDED",
-   "fixedVersion": ""
-  },
-  {
-   "rigidName": "ServerProtectionLinux-Plugin-MDR",
-   "baseVersion": "",
-   "tag": "RECOMMENDED",
-   "fixedVersion": ""
-  }
- ],
- "features": [
-  "APPCNTRL",
-  "AV",
-  "CORE",
-  "DLP",
-  "DVCCNTRL",
-  "EFW",
-  "HBT",
-  "LIVEQUERY",
-  "LIVETERMINAL",
-  "MDR",
-  "MTD",
-  "NTP",
-  "SAV",
-  "SDU",
-  "WEBCNTRL"
- ]
-})sophos";
-
     std::ofstream customerIdFileStream(customerIdFilePath);
     ASSERT_TRUE(customerIdFileStream.good());
-    customerIdFileStream << alcContents;
+    customerIdFileStream << "d22829d94b76c016ec4e04b08baeffaa";
     customerIdFileStream.close();
 }
 
