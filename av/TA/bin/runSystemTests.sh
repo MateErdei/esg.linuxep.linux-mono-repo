@@ -44,7 +44,7 @@ cd /opt/test/inputs/test_scripts
 
 ## run system tests
 [ -f /opt/sophos-spl/bin/uninstall.sh ] && /opt/sophos-spl/bin/uninstall.sh --force
-python3.7 -m robot --include system .
+python3.7 -m robot -x robot.xml --include system .
 cd $SCRIPT_DIR
 
 if [[ -d /opt/sophos-spl ]]
