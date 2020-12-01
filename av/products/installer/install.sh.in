@@ -174,10 +174,11 @@ function install_product()
     CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL}"
     mkdir -p ${CHROOT_LINK_DIR}
     ln -snf / ${CHROOT_LINK_DIR}/chroot
+    mkdir -p "${CHROOT_LINK_DIR}/var"
+
     mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
     mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
     chmod -R 0710 ${CHROOT}/${SOPHOS_INSTALL%%/*}
-    chmod 0770 ${CHROOT_LINK_DIR}
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
     mkdir -p ${CHROOT}/etc
@@ -187,6 +188,9 @@ function install_product()
     mkdir -p ${CHROOT}/var
     chmod 0771 ${CHROOT}/var
     chmod 0711 ${CHROOT}
+    chmod 0770 "${CHROOT_LINK_DIR}/var"
+    chmod 0770 ${CHROOT_LINK_DIR}
+
 
     chmod -R g+rX "${CHROOT}/susi"
 
