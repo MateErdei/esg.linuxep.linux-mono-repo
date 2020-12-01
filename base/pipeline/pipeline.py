@@ -86,7 +86,7 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     component = tap.Component(name='sspl-base', base_version='1.1.4')
 
     # export TAP_PARAMETER_MODE=release|analysis
-    mode = parameters.get('MODE', 'release')
+    mode = parameters.mode or 'release'
     base_build = None
     INCLUDE_BUILD_IN_PIPELINE = parameters.get('INCLUDE_BUILD_IN_PIPELINE', True)
     if INCLUDE_BUILD_IN_PIPELINE:
