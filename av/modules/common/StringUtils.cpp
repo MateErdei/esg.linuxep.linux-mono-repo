@@ -114,9 +114,10 @@ namespace common
         MD5((unsigned char*) str.c_str(), str.size(), hashArray);
 
         std::stringstream ss;
+        ss << std::hex << std::setfill('0')  << std::nouppercase;
         for(const auto& ch : hashArray)
         {
-            ss << std::hex << std::setw(2) << std::setfill('0') << (int)ch;
+            ss << std::setw(2) << (int)ch;
         }
         return ss.str();
     }

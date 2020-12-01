@@ -102,6 +102,7 @@ if(NOT DEFINED BOOSTPATH)
 endif()
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
+set(LOG4CPLUS_INCLUDE_DIR ${pluginapiinclude})
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
 set(testhelpersinclude ${PLUGINAPIPATH}/tests/include)
 set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
@@ -142,6 +143,8 @@ find_library(CRYPTO_LIBRARY
         PATHS ${OPENSSL_INPUT}/lib64
         NO_DEFAULT_PATH
         )
+
+set(OPENSSLCRYPTO_LIBRARY ${CRYPTO_LIBRARY})
 
 add_subdirectory(modules)
 add_subdirectory(products)

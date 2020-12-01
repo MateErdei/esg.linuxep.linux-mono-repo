@@ -13,6 +13,8 @@ namespace Plugin
     class AlcPolicyProcessor
     {
     public:
-        void processAlcPolicy(const Common::XmlUtilities::AttributesMap& map);
+        void processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy);
+    private:
+        std::string getCustomerId(const Common::XmlUtilities::AttributesMap& policy);
     };
 }
