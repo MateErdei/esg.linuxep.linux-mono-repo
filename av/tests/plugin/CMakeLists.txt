@@ -5,6 +5,8 @@ include(GoogleTest)
 
 SophosAddTest(TestPlugin
         ../common/LogInitializedTests.cpp
+        MockFileSystem.cpp
+        MockFileSystem.h
         TestAlcPolicyProcessor.cpp
         TestPlugin.cpp
         TestPluginAdapter.cpp

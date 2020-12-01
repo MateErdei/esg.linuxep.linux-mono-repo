@@ -5,22 +5,47 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginMemoryAppenderUsingTests.h"
+#include "MockFileSystem.h"
+
+#include "datatypes/sophos_filesystem.h"
 
 #include <pluginimpl/AlcPolicyProcessor.h>
 
 #include <gtest/gtest.h>
 
 
+namespace fs = sophos_filesystem;
+
 namespace
 {
     class TestAlcPolicyProcessor : public PluginMemoryAppenderUsingTests
     {
+    protected:
+        fs::path m_testDir;
+        void SetUp() override
+        {
+            const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+            m_testDir = fs::temp_directory_path();
+            m_testDir /= test_info->test_case_name();
+            m_testDir /= test_info->name();
+            fs::remove_all(m_testDir);
+            fs::create_directories(m_testDir);
+
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
+            appConfig.setData("PLUGIN_INSTALL", m_testDir );
+        }
+
+        void TearDown() override
+        {
+            fs::remove_all(m_testDir);
+        }
     };
 }
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMap) // NOLINT
-{
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
+const std::string FULL_POLICY //NOLINT
+    {
+    R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="4d77291c5f5be04f62f04b6f379cf5d80e62c9a13d149c1acce06aba819b83cc" policyType="1"/>
   <AUConfig platform="Linux">
@@ -66,7 +91,12 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMap) // NOLINT
   <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
   <customer id="b67ee4d2-baef-b4b6-6bf9-19b5ddcb2ef7"/>
 </AUConfigurations>
-)sophos";
+)sophos"
+};
+
+TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMap) // NOLINT
+{
+    std::string policyXml = FULL_POLICY;
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
@@ -107,4 +137,28 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromClearAttributeMap) // NOLINT
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
     EXPECT_EQ(customerId, "a1c0f318e58aad6bf90d07cabda54b7d");
+}
+
+TEST_F(TestAlcPolicyProcessor, processAlcPolicy) // NOLINT
+{
+    std::string policyXml = FULL_POLICY;
+    Plugin::AlcPolicyProcessor proc;
+
+    // Setup Mock filesystem
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+
+    const std::string expectedMd5 = "5e259db8da3ae4df8f18a2add2d3d47d";
+    const std::string customerIdFilePath1 = m_testDir / "var/customer_id.txt";
+    const std::string customerIdFilePath2 = std::string(m_testDir / "chroot") + customerIdFilePath1;
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).Times(1);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    bool changed = proc.processAlcPolicy(attributeMap);
+    EXPECT_FALSE(changed);
+
+    changed = proc.processAlcPolicy(attributeMap);
+    EXPECT_FALSE(changed);
 }

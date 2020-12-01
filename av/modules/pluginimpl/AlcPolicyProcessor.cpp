@@ -28,19 +28,25 @@ bool Plugin::AlcPolicyProcessor::processAlcPolicy(const Common::XmlUtilities::At
     if (m_customerId.empty())
     {
         LOGWARN("Failed to find customer ID from ALC policy");
+        return false;
     }
-    else
+
+    if (m_customerId == oldCustomerId)
     {
-        // write customer ID to a file
-        auto* fs = Common::FileSystem::fileSystem();
-        auto pluginInstall = getPluginInstall();
-        auto dest = pluginInstall + "/var/customer_id.txt";
-        fs->writeFile(dest, m_customerId);
-        auto chroot = pluginInstall + "/chroot";
-        dest = chroot + dest;
-        fs->writeFile(dest, m_customerId);
+        // customer ID not changed
+        return false;
     }
-    return (m_customerId != oldCustomerId && !oldCustomerId.empty());
+
+    // write customer ID to a file
+    auto* fs = Common::FileSystem::fileSystem();
+    auto pluginInstall = getPluginInstall();
+    auto dest = pluginInstall + "/var/customer_id.txt";
+    fs->writeFile(dest, m_customerId);
+    auto chroot = pluginInstall + "/chroot";
+    dest = chroot + dest;
+    fs->writeFile(dest, m_customerId);
+
+    return !oldCustomerId.empty(); // Only restart sophos_threat_detector if it changes
 }
 
 std::string Plugin::AlcPolicyProcessor::getCustomerId(const Common::XmlUtilities::AttributesMap& policy)
