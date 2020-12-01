@@ -261,6 +261,7 @@ TEST_F(TestMounts, octalEscaped) // NOLINT
                "/dev/abc1 / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n"
                "/dev/with\\040space /mnt xfs rw,relatime,errors=remount-ro,data=ordered 0 0\n"
                "/dev/ghi1 /with\\011tab xfs rw,relatime,errors=remount-ro,data=ordered 0 0\n"
+               "/dev/digit\\1340follows /home xfs rw,relatime,errors=remount-ro,data=ordered 0 0\n"
                );
 
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
@@ -270,7 +271,26 @@ TEST_F(TestMounts, octalEscaped) // NOLINT
     EXPECT_EQ(mountInfo->device("/"), "/dev/abc1");
     EXPECT_EQ(mountInfo->device("/mnt"), "/dev/with\040space");
     EXPECT_EQ(mountInfo->device("/with\011tab"), "/dev/ghi1");
+    EXPECT_EQ(mountInfo->device("/home"), "/dev/digit\\0follows");
+    auto allMountpoints = mountInfo->mountPoints();
+    EXPECT_EQ(allMountpoints.size(), 4);
+}
+
+TEST_F(TestMounts, octalEscapedInvalid) // NOLINT
+{
+    CreateFile(m_mountInfoFile,
+               "/dev/abc1 / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n"
+               "/dev/short\\01.code /mnt xfs rw,relatime,errors=remount-ro,data=ordered 0 0\n"
+               "/dev/ghi1 /invalid\\018digit xfs rw,relatime,errors=remount-ro,data=ordered 0 0\n"
+    );
+
+    EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
+    EXPECT_CALL(*m_systemPaths, mountCmdPath()).Times(0);
+
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    EXPECT_EQ(mountInfo->device("/"), "/dev/abc1");
+    EXPECT_EQ(mountInfo->device("/mnt"), "/dev/short\\01.code");
+    EXPECT_EQ(mountInfo->device("/invalid\\018digit"), "/dev/ghi1");
     auto allMountpoints = mountInfo->mountPoints();
     EXPECT_EQ(allMountpoints.size(), 3);
 }
-

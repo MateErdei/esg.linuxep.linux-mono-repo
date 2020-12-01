@@ -42,9 +42,9 @@ std::string octalUnescape(const std::string& input)
             unsigned int val = 0;
 
 
-            for (i = 0; i < 3; i++, ptr++)
+            for (i = 0; i < 3; i++)
             {
-                ch = *ptr;
+                ch = *ptr++;
                 buf += ch; // store characters in case it turns out not to be an octal escape
                 if (ch < '0' || ch > '7')
                 {
