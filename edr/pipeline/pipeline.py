@@ -160,6 +160,8 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
     with stage.parallel('build'):
         edr_build = stage.artisan_build(name=mode, component=component, image='JenkinsLinuxTemplate5',
                                         mode=mode, release_package='./build-files/release-package.xml')
+    if mode == 'analysis':
+        return
 
     with stage.parallel('test'):
         machines = (
