@@ -121,10 +121,15 @@ void PluginAdapter::processPolicy(const std::string& policyXml)
     LOGDEBUG("Process policy: " << policyXml);
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+
+    // Work out whether it's ALC or SAV policy
+
+
+    // SAV policy
     std::string policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
     if ( policyType != "2")
     {
-        LOGDEBUG("Ignoring policy of incorrect type");
+        LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
         return;
     }
     m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
@@ -149,7 +154,7 @@ void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
 {
     LOGDEBUG("Sending scan complete notification to central: " << scanCompletedXml);
 
-    m_queueTask->push(Task{.taskType=Task::TaskType::ScanComplete, scanCompletedXml});
+    m_queueTask->push(Task{.taskType=Task::TaskType::ScanComplete, .Content=scanCompletedXml});
 }
 
 void PluginAdapter::processThreatReport(const std::string& threatDetectedXML)
@@ -157,7 +162,7 @@ void PluginAdapter::processThreatReport(const std::string& threatDetectedXML)
     LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
     auto attributeMap = Common::XmlUtilities::parseXml(threatDetectedXML);
     incrementTelemetryThreatCount(attributeMap.lookupMultiple("notification/threat")[0].value("name"));
-    m_queueTask->push(Task{.taskType=Task::TaskType::ThreatDetected, threatDetectedXML});
+    m_queueTask->push(Task{.taskType=Task::TaskType::ThreatDetected, .Content=threatDetectedXML});
 }
 
 void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName)

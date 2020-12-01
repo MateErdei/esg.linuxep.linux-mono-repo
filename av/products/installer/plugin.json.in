@@ -1,6 +1,7 @@
 {
   "policyAppIds": [
-        "SAV"
+        "SAV",
+        "ALC"
   ],
   "actionAppIds": [
         "SAV"
