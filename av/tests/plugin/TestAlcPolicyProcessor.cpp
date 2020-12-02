@@ -94,6 +94,18 @@ const std::string FULL_POLICY //NOLINT
 )sophos"
 };
 
+
+std::string GL_POLICY_2 =  // NOLINT
+    R"sophos(<?xml version="1.0"?>
+<AUConfigurations>
+  <AUConfig>
+    <primary_location>
+      <server Algorithm="Clear" UserPassword="A" UserName="B"/>
+    </primary_location>
+  </AUConfig>
+</AUConfigurations>
+)sophos";
+
 TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMap) // NOLINT
 {
     std::string policyXml = FULL_POLICY;
@@ -124,15 +136,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromMinimalAttributeMap) // NOLINT
 
 TEST_F(TestAlcPolicyProcessor, getCustomerIdFromClearAttributeMap) // NOLINT
 {
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
-<AUConfigurations>
-  <AUConfig>
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="A" UserName="B"/>
-    </primary_location>
-  </AUConfig>
-</AUConfigurations>
-)sophos";
+    std::string policyXml = GL_POLICY_2;
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
@@ -157,8 +161,37 @@ TEST_F(TestAlcPolicyProcessor, processAlcPolicy) // NOLINT
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     bool changed = proc.processAlcPolicy(attributeMap);
-    EXPECT_FALSE(changed);
+    EXPECT_FALSE(changed); // First time doesn't count as a change
 
     changed = proc.processAlcPolicy(attributeMap);
     EXPECT_FALSE(changed);
 }
+
+
+TEST_F(TestAlcPolicyProcessor, processAlcPolicyReturnsUpdate) // NOLINT
+{
+    Plugin::AlcPolicyProcessor proc;
+
+    // Setup Mock filesystem
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+
+    const std::string expectedMd5_1 = "5e259db8da3ae4df8f18a2add2d3d47d";
+    const std::string expectedMd5_2 = "a1c0f318e58aad6bf90d07cabda54b7d";
+    const std::string customerIdFilePath1 = m_testDir / "var/customer_id.txt";
+    const std::string customerIdFilePath2 = std::string(m_testDir / "chroot") + customerIdFilePath1;
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_1)).Times(1);
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_1)).Times(1);
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_2)).Times(1);
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_2)).Times(1);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+
+    auto attributeMap = Common::XmlUtilities::parseXml(FULL_POLICY);
+    bool changed = proc.processAlcPolicy(attributeMap);
+    EXPECT_FALSE(changed); // First time doesn't count as a change
+
+    attributeMap = Common::XmlUtilities::parseXml(GL_POLICY_2);
+    changed = proc.processAlcPolicy(attributeMap);
+    EXPECT_TRUE(changed);
+}
+
