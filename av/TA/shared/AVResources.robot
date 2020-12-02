@@ -144,7 +144,6 @@ Count Lines In Log
 Check Threat Detector Copied Files To Chroot
     Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/logger.conf" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf"
     Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/machine_id.txt" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/machine_id.txt"
-    Threat Detector Log Contains  Copying "/opt/sophos-spl/base/update/var/update_config.json" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/update/var/update_config.json"
     Threat Detector Log Contains  Copying "/opt/sophos-spl/plugins/av/VERSION.ini" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/VERSION.ini"
     #dns query files
     Threat Detector Log Contains  Copying "/etc/nsswitch.conf" to: "/opt/sophos-spl/plugins/av/chroot/etc/nsswitch.conf"
