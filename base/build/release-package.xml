@@ -154,11 +154,6 @@
             <output name="coverage_build_log" srcfolder="log" artifactpath="coverage/build_log"
                     mode="coverage"></output>
 
-            <!-- Analysis -->
-<!--            <output name="analysis" srcfolder="output" artifactpath="analysis" mode="analysis"></output>-->
-<!--            <output name="analysis_build_log" srcfolder="log" artifactpath="analysis/build_log"-->
-<!--                    mode="analysis"></output>-->
-
         </buildoutputs>
         <publishbranches>master,feature,release,develop,bugfix</publishbranches>
     </publish>
