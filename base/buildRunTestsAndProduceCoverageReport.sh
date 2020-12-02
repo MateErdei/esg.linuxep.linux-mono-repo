@@ -12,6 +12,20 @@ rm -rf modules/.coverage
 echo "build Run Tests and Produce Coverge Report.sh with systemtests"
 git checkout build/release-package.xml
 sudo -H ./testUtils/SupportFiles/jenkins/SetupCIBuildScripts.sh
+mkdir -p ~/.config/pip/
+pushd ~/.config/pip/
+echo [global] > pip.conf
+echo index-url = https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple >> pip.conf
+echo trusted-host = tap-artifactory1.eng.sophos >> pip.conf
+
+echo cert = testUtils/SupportFiles/jenkins/sophos_certs.pem >> pip.conf
+
+python3 -m pip install --upgrade tap || echo "Unable to install tap"
+
+popd
+rm -rf ~/.config/pip/
+which sb_manifest_sign
+
 ./fetchandbuild.sh --python-coverage
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
