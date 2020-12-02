@@ -39,6 +39,7 @@ Mock Base Installation
     Create Directory   ${SOPHOS_INSTALL}/var/ipc/plugins
     Set Log Level  DEBUG
     Run Process   groupadd  sophos-spl-group
+    Run Process   useradd  sophos-spl-user  --no-create-home  --no-user-group  --gid  sophos-spl-group  --system
 
 Set Log Level
     [Arguments]  ${logLevel}
