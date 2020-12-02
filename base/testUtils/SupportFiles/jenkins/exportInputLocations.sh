@@ -2,7 +2,11 @@
 set -e
 
 SYSTEMPRODUCT_TEST_INPUT=/tmp/system-product-test-inputs
-export BASE_DIST="$SYSTEMPRODUCT_TEST_INPUT/sspl-base"
+if [[  -n $COVERAGE_BASE_BUILD ]]; then
+  export BASE_DIST=$COVERAGE_BASE_BUILD
+else
+  export BASE_DIST="$SYSTEMPRODUCT_TEST_INPUT/sspl-base"
+fi
 export EXAMPLEPLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-exampleplugin"
 export SSPL_AUDIT_PLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-audit"
 export SSPL_PLUGIN_EVENTPROCESSOR_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-eventprocessor"

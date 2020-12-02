@@ -12,20 +12,8 @@ rm -rf modules/.coverage
 echo "build Run Tests and Produce Coverge Report.sh with systemtests"
 git checkout build/release-package.xml
 sudo -H ./testUtils/SupportFiles/jenkins/SetupCIBuildScripts.sh
-mkdir -p ~/.config/pip/
-pushd ~/.config/pip/
-echo [global] > pip.conf
-echo index-url = https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple >> pip.conf
-echo trusted-host = tap-artifactory1.eng.sophos >> pip.conf
-
-echo cert = testUtils/SupportFiles/jenkins/sophos_certs.pem >> pip.conf
-
-sudo -H python3 -m pip install --upgrade tap || echo "Unable to install tap"
-
-popd
-rm -rf ~/.config/pip/
 export PATH=$PATH:/usr/local/bin/
-ll /usr/local/bin/sb_manifest_sign || echo "file not found"
+
 which sb_manifest_sign
 
 ./fetchandbuild.sh --python-coverage
@@ -41,10 +29,11 @@ sudo cp -r redist/pycryptodome/Crypto/*   /usr/local/lib64/python3.6/site-packag
 
 pushd testUtils
 echo 'run system tests'
-TESTS2RUN="-e AMAZON_LINUX -i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE"
+TESTS2RUN="-e AMAZON_LINUX -i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESSAGE_RELAY -i REGISTRATION -i THIN_INSTALLER -i UPDATE_CACHE -e EDR_PLUGIN -e OSTIA -e LIVERESPONSE_PLUGIN -e MDR_PLUGIN"
 USER=$(whoami)
 if [[ ${USER} == "jenkins" ]]; then
-  BASE_SOURCE="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
+#  COVERAGE_BASE_BUILD="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
+  COVERAGE_BASE_BUILD="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  -i TAP_TESTS || echo "Test failure does not prevent the coverage report. "
   sudo chown ${USER} .coverage
 else
   ./robot ${TESTS2RUN}
