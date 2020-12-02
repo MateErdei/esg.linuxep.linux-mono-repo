@@ -107,7 +107,7 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path
             }
         }
 
-        LOGINFO("Checking exclusions against symlink directory: " << common::escapePathForLogging(path));
+        LOGDEBUG("Checking exclusions against symlink directory: " << common::escapePathForLogging(path));
         return !userDefinedExclusionCheck(symlinkTargetPath, true);
     }
 
