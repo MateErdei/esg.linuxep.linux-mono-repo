@@ -24,6 +24,8 @@ sudo -H python3 -m pip install --upgrade tap || echo "Unable to install tap"
 
 popd
 rm -rf ~/.config/pip/
+export PATH=$PATH:/usr/local/bin/
+ll /usr/local/bin/sb_manifest_sign || echo "file not found"
 which sb_manifest_sign
 
 ./fetchandbuild.sh --python-coverage
