@@ -177,3 +177,8 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::subprocess_exited(
 {
     m_subprocess_terminated.notify();
 }
+
+void plugin::manager::scanprocessmonitor::ScanProcessMonitor::configuration_changed()
+{
+    m_config_changed.notify();
+}

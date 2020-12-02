@@ -128,10 +128,13 @@ void PluginAdapter::processPolicy(const std::string& policyXml)
     if (policyType == "1")
     {
         // ALC policy
-        m_updatePolicyProcessor.processAlcPolicy(attributeMap);
+        bool updated = m_updatePolicyProcessor.processAlcPolicy(attributeMap);
+        if (updated)
+        {
+            m_sophosThreadDetector->configuration_changed();
+        }
         return;
     }
-
 
     // SAV policy
     policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");

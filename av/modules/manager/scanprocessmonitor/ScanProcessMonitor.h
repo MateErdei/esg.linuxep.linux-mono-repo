@@ -18,6 +18,12 @@ namespace plugin::manager::scanprocessmonitor
         explicit ScanProcessMonitor(sophos_filesystem::path scanner_path = "");
         void run() override;
         void subprocess_exited();
+
+        /**
+         * Externally drive a configuration change event.
+         * Causes sophos_threat_detector to be restarted.
+         */
+        void configuration_changed();
     private:
         sophos_filesystem::path m_scanner_path;
         Common::Threads::NotifyPipe m_subprocess_terminated;
