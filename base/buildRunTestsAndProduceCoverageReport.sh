@@ -20,7 +20,7 @@ echo trusted-host = tap-artifactory1.eng.sophos >> pip.conf
 
 echo cert = testUtils/SupportFiles/jenkins/sophos_certs.pem >> pip.conf
 
-python3 -m pip install --upgrade tap || echo "Unable to install tap"
+sudo -H python3 -m pip install --upgrade tap || echo "Unable to install tap"
 
 popd
 rm -rf ~/.config/pip/
