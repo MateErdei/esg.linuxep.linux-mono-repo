@@ -11,7 +11,7 @@ echo 'remove previous coverage results'
 rm -rf modules/.coverage
 echo "build Run Tests and Produce Coverge Report.sh with systemtests"
 git checkout build/release-package.xml
-./testUtils/SupportFiles/jenkins/SetupCIBuildScripts.sh
+sudo -H ./testUtils/SupportFiles/jenkins/SetupCIBuildScripts.sh
 ./fetchandbuild.sh --python-coverage
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
