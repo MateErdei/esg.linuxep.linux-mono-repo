@@ -60,7 +60,8 @@ Wait For Scan Now to start
     Wait Until AV Plugin Log Contains  Starting scan Scan Now   120
 
 Wait For Central Scheduled Scan to start
-    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan     1800
+    # Wait up to 32 minutes for the scan to start
+    Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan     1920
 
 Wait For Scan Now to complete
     Wait Until AV Plugin Log Contains  Completed scan Scan Now
