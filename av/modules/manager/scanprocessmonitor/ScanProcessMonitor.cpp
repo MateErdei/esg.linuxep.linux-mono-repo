@@ -57,6 +57,14 @@ static int addFD(fd_set* fds, int fd, int currentMax)
     return std::max(fd, currentMax);
 }
 
+static void clearPipe(Common::Threads::NotifyPipe& pipe)
+{
+    while (pipe.notified())
+    {
+        // clear pipe
+    }
+}
+
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 {
     announceThreadStarted();
@@ -95,6 +103,9 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 
         if (process->getStatus() != Common::Process::ProcessStatus::RUNNING)
         {
+            // Clear the config changed pipe before starting scanner, since it will read config at startup
+            // we might have something here e.g. if the customer ID changes before we get running.
+            clearPipe(m_config_changed);
             LOGINFO("Starting " << m_scanner_path);
             process->exec(m_scanner_path, {});
         }
@@ -118,18 +129,12 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 
         if (fd_isset(m_subprocess_terminated.readFd(), &tempReadfds))
         {
-            while (m_subprocess_terminated.notified())
-            {
-                // do nothing - check is done later
-            }
+            clearPipe(m_subprocess_terminated);
         }
 
         if (fd_isset(m_config_changed.readFd(), &tempReadfds))
         {
-            while (m_config_changed.notified())
-            {
-                // clear pipe
-            }
+            clearPipe(m_config_changed);
             LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");
             process->kill();
             process->waitUntilProcessEnds();
