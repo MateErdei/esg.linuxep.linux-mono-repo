@@ -11,14 +11,37 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <pluginimpl/ObfuscationImpl/Obfuscate.h>
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <common/StringUtils.h>
 
 static std::string getPluginInstall()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     return appConfig.getData("PLUGIN_INSTALL");
+}
+
+static std::string getNonChrootCustomerIdPath()
+{
+    auto pluginInstall = getPluginInstall();
+    return pluginInstall + "/var/customer_id.txt";
+}
+
+
+Plugin::AlcPolicyProcessor::AlcPolicyProcessor()
+{
+    auto* fs = Common::FileSystem::fileSystem();
+    auto dest = getNonChrootCustomerIdPath();
+
+    try
+    {
+        m_customerId = fs->readFile(dest);
+    }
+    catch (const Common::FileSystem::IFileSystemException& ex)
+    {
+        // Will happen the first time - so can't report it
+        m_customerId = "";
+    }
 }
 
 bool Plugin::AlcPolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
@@ -39,14 +62,16 @@ bool Plugin::AlcPolicyProcessor::processAlcPolicy(const Common::XmlUtilities::At
 
     // write customer ID to a file
     auto* fs = Common::FileSystem::fileSystem();
-    auto pluginInstall = getPluginInstall();
-    auto dest = pluginInstall + "/var/customer_id.txt";
+    auto dest = getNonChrootCustomerIdPath();
     fs->writeFile(dest, m_customerId);
+
+    // write a copy into the chroot
+    auto pluginInstall = getPluginInstall();
     auto chroot = pluginInstall + "/chroot";
     dest = chroot + dest;
     fs->writeFile(dest, m_customerId);
 
-    return !oldCustomerId.empty(); // Only restart sophos_threat_detector if it changes
+    return true; // Only restart sophos_threat_detector if it changes
 }
 
 std::string Plugin::AlcPolicyProcessor::getCustomerId(const Common::XmlUtilities::AttributesMap& policy)

@@ -7,9 +7,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "PluginMemoryAppenderUsingTests.h"
 #include "MockFileSystem.h"
 
+#include <pluginimpl/AlcPolicyProcessor.h>
+
 #include "datatypes/sophos_filesystem.h"
 
-#include <pluginimpl/AlcPolicyProcessor.h>
+#include <Common/FileSystem/IFileSystemException.h>
 
 #include <gtest/gtest.h>
 
@@ -143,35 +145,31 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromClearAttributeMap) // NOLINT
     EXPECT_EQ(customerId, "a1c0f318e58aad6bf90d07cabda54b7d");
 }
 
-TEST_F(TestAlcPolicyProcessor, processAlcPolicy) // NOLINT
+TEST_F(TestAlcPolicyProcessor, processAlcPolicyNoChangePolicy) // NOLINT
 {
-    std::string policyXml = FULL_POLICY;
-    Plugin::AlcPolicyProcessor proc;
-
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
 
     const std::string expectedMd5 = "5e259db8da3ae4df8f18a2add2d3d47d";
     const std::string customerIdFilePath1 = m_testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(m_testDir / "chroot") + customerIdFilePath1;
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).Times(1);
+    EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Return(expectedMd5));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
-    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    Plugin::AlcPolicyProcessor proc;
+
+    auto attributeMap = Common::XmlUtilities::parseXml(FULL_POLICY);
     bool changed = proc.processAlcPolicy(attributeMap);
-    EXPECT_FALSE(changed); // First time doesn't count as a change
+    EXPECT_FALSE(changed);
 
     changed = proc.processAlcPolicy(attributeMap);
     EXPECT_FALSE(changed);
 }
 
 
-TEST_F(TestAlcPolicyProcessor, processAlcPolicyReturnsUpdate) // NOLINT
+TEST_F(TestAlcPolicyProcessor, processAlcPolicyChangedPolicy) // NOLINT
 {
-    Plugin::AlcPolicyProcessor proc;
-
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
 
@@ -179,6 +177,8 @@ TEST_F(TestAlcPolicyProcessor, processAlcPolicyReturnsUpdate) // NOLINT
     const std::string expectedMd5_2 = "a1c0f318e58aad6bf90d07cabda54b7d";
     const std::string customerIdFilePath1 = m_testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(m_testDir / "chroot") + customerIdFilePath1;
+    Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
+    EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_1)).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_1)).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_2)).Times(1);
@@ -186,12 +186,13 @@ TEST_F(TestAlcPolicyProcessor, processAlcPolicyReturnsUpdate) // NOLINT
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
+    Plugin::AlcPolicyProcessor proc;
+
     auto attributeMap = Common::XmlUtilities::parseXml(FULL_POLICY);
     bool changed = proc.processAlcPolicy(attributeMap);
-    EXPECT_FALSE(changed); // First time doesn't count as a change
+    EXPECT_TRUE(changed);
 
     attributeMap = Common::XmlUtilities::parseXml(GL_POLICY_2);
     changed = proc.processAlcPolicy(attributeMap);
     EXPECT_TRUE(changed);
 }
-

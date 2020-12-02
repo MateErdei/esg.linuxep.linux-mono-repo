@@ -13,6 +13,7 @@ namespace Plugin
     class AlcPolicyProcessor
     {
     public:
+        AlcPolicyProcessor();
         /**
          *
          * @param policy
