@@ -26,7 +26,7 @@ namespace avscanner::avscannerimpl
     protected:
         explicit BaseFileWalkCallbacks(ScanClient scanner);
         virtual void logScanningLine(std::string escapedPath) = 0;
-        virtual void genericFailure(const std::exception& e, std::string escapedPath) = 0;
+        void genericFailure(const std::exception& e, const std::string& escapedPath);
         ScanClient m_scanner;
         std::vector<fs::path>   m_mountExclusions;
         // m_currentExclusions are the exclusions that are going to be relevant to the specific scan currently running
@@ -37,7 +37,6 @@ namespace avscanner::avscannerimpl
     public:
         BaseFileWalkCallbacks(const BaseFileWalkCallbacks&) = delete;
         BaseFileWalkCallbacks(BaseFileWalkCallbacks&&) = delete;
-        virtual ~BaseFileWalkCallbacks() = default;
 
         void processFile(const fs::path& path, bool symlinkTarget) override;
         bool includeDirectory(const sophos_filesystem::path& path) override;

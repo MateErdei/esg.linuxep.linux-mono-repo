@@ -48,17 +48,6 @@ namespace
             LOGINFO("Scanning " << escapedPath);
         }
 
-        void genericFailure(const std::exception& e, std::string escapedPath) override
-        {
-            std::ostringstream errorString;
-            errorString << "Failed to scan file: " << escapedPath << " [" << e.what() << "]";
-
-            m_scanner.scanError(errorString);
-            m_returnCode = E_GENERIC_FAILURE;
-            throw AbortScanException(e.what());
-        }
-
-
         void setCurrentInclude(const fs::path& inclusionPath)
         {
             m_currentExclusions.clear();
@@ -207,7 +196,7 @@ int CommandLineScanRunner::run()
         LOGERROR("Failed to scan one or more files due to an error");
     }
 
-    scanCallbacks->logSummary();
+    scanCallbacks->logSummary(); //NOLINT
 
     return m_returnCode;
 }

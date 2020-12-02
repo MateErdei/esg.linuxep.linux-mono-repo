@@ -4,9 +4,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <common/StringUtils.h>
-#include "Logger.h"
 #include "BaseFileWalkCallbacks.h"
+
+#include "Logger.h"
+
+#include <common/AbortScanException.h>
+#include <common/StringUtils.h>
 
 using namespace avscanner::avscannerimpl;
 
@@ -137,4 +140,14 @@ bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::p
     }
 
     return false;
+}
+
+void BaseFileWalkCallbacks::genericFailure(const std::exception& e, const std::string& escapedPath)
+{
+    std::ostringstream errorString;
+    errorString << "Failed to scan" << escapedPath << " [" << e.what() << "]";
+
+    m_scanner.scanError(errorString);
+    m_returnCode = E_GENERIC_FAILURE;
+    throw AbortScanException(e.what());
 }

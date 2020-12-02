@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "avscanner/mountinfoimpl/Mounts.h"
 
 #include <capnp/message.h>
+#include <common/AbortScanException.h>
 #include <common/StringUtils.h>
 #include <filewalker/FileWalker.h>
 
@@ -41,12 +42,10 @@ namespace
         explicit CallbackImpl(
                 ScanClient scanner,
                 std::vector<fs::path> mountExclusions,
-                NamedScanConfig& config,
-                avscanner::mountinfo::IMountPointSharedVector allMountPoints
+                NamedScanConfig& config
                 )
                 : BaseFileWalkCallbacks(std::move(scanner))
                 , m_config(config)
-                , m_allMountPoints(std::move(allMountPoints))
         {
             m_userDefinedExclusions = m_config.m_excludePaths;
 
@@ -63,18 +62,8 @@ namespace
             LOGDEBUG("Scanning " << escapedPath);
         }
 
-        void genericFailure(const std::exception& e, std::string escapedPath) override
-        {
-            std::ostringstream errorString;
-            errorString << "Failed to scan" << escapedPath << " [" << e.what() << "]";
-
-            m_scanner.scanError(errorString);
-            m_returnCode = E_GENERIC_FAILURE;
-        }
-
     private:
         NamedScanConfig& m_config;
-        avscanner::mountinfo::IMountPointSharedVector m_allMountPoints;
     };
 }
 
@@ -125,7 +114,7 @@ int NamedScanRunner::run()
     auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
     ScanClient scanner(*getSocket(), scanCallbacks, m_config.m_scanArchives, E_SCAN_TYPE_SCHEDULED);
-    CallbackImpl callbacks(std::move(scanner), excludedMountPoints, m_config, allMountpoints);
+    CallbackImpl callbacks(std::move(scanner), excludedMountPoints, m_config);
 
     filewalker::FileWalker walker(callbacks);
     walker.stayOnDevice();
@@ -155,6 +144,12 @@ int NamedScanRunner::run()
         {
             LOGERROR("Failed to completely scan " << mountpointToScan << " due to an error: " << e.what());
             m_returnCode = e.code().value();
+        }
+        catch (const AbortScanException& e)
+        {
+            // Abort scan has already been logged in the genericFailure method
+            // genericFailure -> ScanCallbackImpl::scanError(const std::string& errorMsg)
+            break;
         }
 
         // we want virus found to override any other return code
