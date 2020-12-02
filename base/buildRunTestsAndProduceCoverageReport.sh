@@ -11,10 +11,8 @@ echo 'remove previous coverage results'
 rm -rf modules/.coverage
 echo "build Run Tests and Produce Coverge Report.sh with systemtests"
 git checkout build/release-package.xml
-# FIXME LINUXDAR-749: Jenkins fails to find the dev package in filer6.
-sed  -i 's#package buildtype="dev" name="sspl-telemetry-config-dev" version="1.0"#package buildtype="dev" name="sspl-telemetry-config" version="1.0/EES-9377"#' build/release-package.xml
-DEPLOYMENT_TYPE="dev" python3 -m build_scripts.artisan_fetch build/release-package.xml
-./build.sh --python-coverage
+./testUtils/SupportFiles/jenkins/SetupCIBuildScripts.sh
+./fetchandbuild.sh --python-coverage
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
 pushd modules
