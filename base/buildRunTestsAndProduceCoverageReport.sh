@@ -33,7 +33,7 @@ TESTS2RUN="-e AMAZON_LINUX -i CENTRAL -i FAKE_CLOUD -i MCS -i MCS_ROUTER -i MESS
 USER=$(whoami)
 if [[ ${USER} == "jenkins" ]]; then
 #  COVERAGE_BASE_BUILD="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  ${TESTS2RUN} || echo "Test failure does not prevent the coverage report. "
-  COVERAGE_BASE_BUILD="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  -i TAP_TESTS || echo "Test failure does not prevent the coverage report. "
+  COVERAGE_BASE_BUILD="${SDDS_COMPONENT}" bash SupportFiles/jenkins/jenkinsBuildCommand.sh  -s mcs_router-update_scheduler -s mcs_router || echo "Test failure does not prevent the coverage report. "
   sudo chown ${USER} .coverage
 else
   ./robot ${TESTS2RUN}
