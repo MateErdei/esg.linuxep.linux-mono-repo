@@ -40,7 +40,6 @@ namespace avscanner::avscannerimpl
     private:
         NamedScanConfig m_config;
         Logger m_logger;
-        int m_returnCode = 0;
     };
 }
 

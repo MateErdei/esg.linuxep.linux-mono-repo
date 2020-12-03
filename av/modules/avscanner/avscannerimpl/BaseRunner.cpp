@@ -6,8 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "BaseRunner.h"
 
+#include "Logger.h"
+
 #include "avscanner/mountinfoimpl/Mounts.h"
 #include "avscanner/mountinfoimpl/SystemPathsFactory.h"
+#include "common/AbortScanException.h"
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
@@ -59,4 +62,26 @@ avscanner::mountinfo::IMountInfoSharedPtr BaseRunner::getMountInfo()
         m_mountInfo = std::make_shared<mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
     }
     return m_mountInfo;
+}
+
+bool BaseRunner::walk(filewalker::FileWalker& filewalker,
+                      const sophos_filesystem::path& abspath,
+                      const std::string& reportpath)
+{
+    try
+    {
+        filewalker.walk(abspath);
+    }
+    catch (fs::filesystem_error& e)
+    {
+        LOGERROR("Failed to completely scan " << reportpath << " due to an error: " << e.what());
+        m_returnCode = e.code().value();
+    }
+    catch (const AbortScanException& e)
+    {
+        // Abort scan has already been logged in the genericFailure method
+        // genericFailure -> ScanCallbackImpl::scanError(const std::string& errorMsg)
+        return false;
+    }
+    return true;
 }

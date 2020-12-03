@@ -164,19 +164,9 @@ int CommandLineScanRunner::run()
         auto p = fs::absolute(path);
         callbacks.setCurrentInclude(p);
 
-        try
+        if (!walk(fw, p, path))
         {
-            fw.walk(p);
-        }
-        catch (fs::filesystem_error& e)
-        {
-            LOGERROR("Failed to completely scan " << path << " due to an error: " << e.what());
-            m_returnCode = e.code().value();
-        }
-        catch (const AbortScanException& e)
-        {
-            // Abort scan has already been logged in the genericFailure method
-            // genericFailure -> ScanCallbackImpl::scanError(const std::string& errorMsg)
+            // Abort scan
             break;
         }
     }

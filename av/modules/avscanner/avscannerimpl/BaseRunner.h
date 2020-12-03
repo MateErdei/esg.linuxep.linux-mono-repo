@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IRunner.h"
 
+#include <filewalker/FileWalker.h>
 #include <unixsocket/threatDetectorSocket/IScanningClientSocket.h>
 
 #include <memory>
@@ -22,6 +23,7 @@ namespace avscanner::avscannerimpl
         void setMountInfo(mountinfo::IMountInfoSharedPtr ptr) override;
 
     protected:
+        int m_returnCode = 0;
         std::shared_ptr<unixsocket::IScanningClientSocket> m_socket;
         mountinfo::IMountInfoSharedPtr m_mountInfo;
 
@@ -35,5 +37,7 @@ namespace avscanner::avscannerimpl
          * @return
          */
         std::shared_ptr<unixsocket::IScanningClientSocket> getSocket();
+
+        bool walk(filewalker::FileWalker& filewalker, const sophos_filesystem::path& abspath, const std::string& reportpath);
     };
 }

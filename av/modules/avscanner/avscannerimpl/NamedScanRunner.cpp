@@ -137,19 +137,9 @@ int NamedScanRunner::run()
         LOGINFO("Attempting to scan: " << mountpointToScan);
         mountsScanned.insert(mountpointToScan);
 
-        try
+        if (!walk(walker, mountpointToScan, mountpointToScan))
         {
-            walker.walk(mountpointToScan);
-        }
-        catch (sophos_filesystem::filesystem_error& e)
-        {
-            LOGERROR("Failed to completely scan " << mountpointToScan << " due to an error: " << e.what());
-            m_returnCode = e.code().value();
-        }
-        catch (const AbortScanException& e)
-        {
-            // Abort scan has already been logged in the genericFailure method
-            // genericFailure -> ScanCallbackImpl::scanError(const std::string& errorMsg)
+            // Abort scan
             break;
         }
 

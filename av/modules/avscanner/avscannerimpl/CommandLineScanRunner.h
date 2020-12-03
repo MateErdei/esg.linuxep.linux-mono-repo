@@ -27,7 +27,6 @@ namespace avscanner::avscannerimpl
         bool m_archiveScanning;
         bool m_followSymlinks;
 
-        int m_returnCode = 0;
         Logger m_logger;
     };
 }
