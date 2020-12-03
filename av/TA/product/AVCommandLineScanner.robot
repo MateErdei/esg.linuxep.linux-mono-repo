@@ -191,7 +191,7 @@ CLS Can Evaluate High Ml Score As A Threat
     ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
     ${primary_score} =  Find Score  Primary score:  ${contents}
     ${secondary_score} =  Find Score  Secondary score:  ${contents}
-    ${value} =  Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${15}
+    ${value} =  Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${20}
     Should Be Equal As Integers  ${value}  ${1}
 
 CLS Can Evaluate Low Ml Score As A Clean File
