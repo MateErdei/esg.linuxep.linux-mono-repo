@@ -108,7 +108,7 @@ Check permissions after upgrade
     append to file   /opt/sophos-spl/plugins/av/var/manifest.dat   "junk"
     Run Installer From Install Set
 
-    # check our files still writable
+    # check our files are still writable
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${files_as_args}
     Should Be Equal As Integers  ${rc}  0

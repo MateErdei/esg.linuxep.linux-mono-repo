@@ -152,7 +152,11 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
     chmod 0751 "${PLUGIN_INSTALL}"
+    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}"
+
     chmod 0644 "${PLUGIN_INSTALL}/VERSION.ini"*
+    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/VERSION.ini"
+
     chmod 0751 "${PLUGIN_INSTALL}/lib64"
     chmod 0755 "${PLUGIN_INSTALL}/lib64"/*
     # Lock down libraries which are not needed by avscanner
@@ -160,23 +164,42 @@ function install_product()
     chmod 0750 "${PLUGIN_INSTALL}/lib64/libscanscheduler.so"*
     chmod 0750 "${PLUGIN_INSTALL}/lib64/libsophosthreatdetectorimpl.so"*
     chmod 0750 "${PLUGIN_INSTALL}/lib64/libthreat_scanner.so"*
-    chmod -R 0711 "${PLUGIN_INSTALL}/bin"
-    chmod -R 0710 "${PLUGIN_INSTALL}/sbin"
+    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/lib64"
 
-    mkdir -p "$VAR"
-    chmod 0770 "$VAR"
+    chmod -R 0711 "${PLUGIN_INSTALL}/bin"
+    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/bin"
+
+    chmod -R 0710 "${PLUGIN_INSTALL}/sbin"
+    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/sbin"
+
+    mkdir -p "${PLUGIN_INSTALL}/log"
+    chmod 0770 "${PLUGIN_INSTALL}/log"
+    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
+
+    mkdir -p "${PLUGIN_INSTALL}/var"
+    chmod 0770 "${PLUGIN_INSTALL}/var"
+    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
 
     CHROOT="${PLUGIN_INSTALL}/chroot"
     CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL#/}"
     mkdir -p ${CHROOT_LINK_DIR}
+    chmod 0770 ${CHROOT_LINK_DIR}
+    chmod 0710 ${CHROOT_LINK_DIR%/*}
     ln -snf / ${CHROOT_LINK_DIR}/chroot
+
+    mkdir -p "${CHROOT_LINK_DIR}/log"
+    chmod 0770 "${CHROOT_LINK_DIR}/log"
+    chown root:${GROUP_NAME} "${CHROOT_LINK_DIR}/log"
+
     mkdir -p "${CHROOT_LINK_DIR}/var"
+    chmod 0770 "${CHROOT_LINK_DIR}/var"
+    chown root:${GROUP_NAME} "${CHROOT_LINK_DIR}/var"
 
     mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
     mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
 
     p=${CHROOT}/${SOPHOS_INSTALL#/}/base/update
-    while [[ $p == ${CHROOT}* ]]
+    while [[ $p == ${CHROOT}/* ]]
     do
       chmod 0710 $p
       chown root:${GROUP_NAME} $p
@@ -185,39 +208,35 @@ function install_product()
 
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
+    find ${CHROOT}/${SOPHOS_INSTALL} -type d -exec chown root:${GROUP_NAME} {} \;
+
     mkdir -p ${CHROOT}/etc
     chmod 0770 ${CHROOT}/etc
+    chown root:${GROUP_NAME} "${CHROOT}/etc"
+
+    mkdir -p "${CHROOT}/log"
+    chmod 0770 "${CHROOT}/log"
+    chown root:${GROUP_NAME} "${CHROOT}/log"
+
     chmod 0750 ${CHROOT}/susi
+    chown root:${GROUP_NAME} "${CHROOT}/susi"
+
     mkdir -p ${CHROOT}/tmp
     chmod 0770 ${CHROOT}/tmp
+    chown root:${GROUP_NAME} "${CHROOT}/tmp"
+
     mkdir -p ${CHROOT}/var
     chmod 0771 ${CHROOT}/var
-    chmod 0711 ${CHROOT}
-    chmod 0770 "${CHROOT_LINK_DIR}/var"
-    chmod 0770 ${CHROOT_LINK_DIR}
-    chmod 0710 ${CHROOT_LINK_DIR%/*}
+    chown root:${GROUP_NAME} "${CHROOT}/var"
 
-    ## Create log directory symlinks for sophos_threat_detector
-    mkdir -p "$CHROOT/log" "${PLUGIN_INSTALL}/log" "${CHROOT_LINK_DIR}/log"
-    chmod 0770 "$CHROOT/log" "${PLUGIN_INSTALL}/log"
-    chmod 0770 "${CHROOT_LINK_DIR}/log"
+    chmod 0711 ${CHROOT}
+    chown root:${GROUP_NAME} "${CHROOT}"
+
+    ## Create logging symlinks for sophos_threat_detector
     ln -snf "$CHROOT/log" "${PLUGIN_INSTALL}/log/sophos_threat_detector"
     ln -snf "/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector" \
         ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create symlink ${CHROOT_LINK_DIR}/log/sophos_threat_detector: $?"
     ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
-
-    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/bin"
-    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/lib64"
-    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
-    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/sbin"
-    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
-    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/VERSION.ini"
-    chown root:${GROUP_NAME} "${CHROOT}/etc"
-    chown root:${GROUP_NAME} "${CHROOT}/log"
-    find ${CHROOT}/${SOPHOS_INSTALL} -type d -exec chown root:${GROUP_NAME} {} \;
-    chown root:${GROUP_NAME} "${CHROOT}/susi"
-    chown root:${GROUP_NAME} "${CHROOT}/tmp"
-    chown root:${GROUP_NAME} "${CHROOT}/var"
 
     pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
     THREAT_DETECTOR="sophos_threat_detector_launcher"
