@@ -13,9 +13,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace avscanner::avscannerimpl;
 namespace fs = sophos_filesystem;
 
-void ScanCallbackImpl::cleanFile(const path&)
+void ScanCallbackImpl::cleanFile(const path& scannedPath)
 {
-    incrementCleanCount();
+//    incrementCleanCount();
+    recordCleanFile(scannedPath);
 }
 
 void ScanCallbackImpl::infectedFile(const path& susiPath, const std::string& threatName, const fs::path& realPath, bool isSymlink)
@@ -33,7 +34,8 @@ void ScanCallbackImpl::infectedFile(const path& susiPath, const std::string& thr
     }
 
     addThreat(threatName);
-    incrementInfectedCount();
+    recordInfectedFile(realPath);
+//    incrementInfectedCount();
     m_returnCode = E_VIRUS_FOUND;
 }
 
