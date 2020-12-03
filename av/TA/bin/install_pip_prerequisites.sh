@@ -4,8 +4,14 @@ set -ex
 
 if [[ -x $(which apt) ]]
 then
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-    apt install -y python3.8 python3.8-dev nfs-kernel-server zip unzip
+    if [[ $(lsb_release -rs) == "18.04" ]]; then
+        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+        apt install -y python3.7 python3.7-dev
+    else
+        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+        apt install -y python3.8 python3.8-dev
+    fi
+    apt install -y nfs-kernel-server zip unzip
 elif [[ -x $(which yum) ]]
 then
     ping -c2 abn-centosrepo || true
