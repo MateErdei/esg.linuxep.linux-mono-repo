@@ -89,3 +89,6 @@ def Replace_Exclusions_For_Exclusion_Test(sourceFile):
                     "/eicar.com"
     ]
     return replace_exclusions_in_policy_return_string(sourceFile, exclusions)
+
+def Get_Sav_Policy_With_No_Exclusions(sourceFile):
+    return replace_exclusions_in_policy_return_string(sourceFile, [])

@@ -311,7 +311,11 @@ Create Install Options File With Content
 Check ScanNow Log Exists
     File Should Exist  ${SCANNOW_LOG_PATH}
 
+Check AV Plugin Log exists
+    File Should Exist  ${AV_LOG_PATH}
+
 Wait until scheduled scan updated
+    Check AV Plugin Log exists
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans  timeout=240
 
 Configure Scan Exclusions Everything Else

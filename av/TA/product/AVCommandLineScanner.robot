@@ -59,7 +59,6 @@ Start AV
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
-    Wait until threat detector running
 
 Stop AV
     ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}

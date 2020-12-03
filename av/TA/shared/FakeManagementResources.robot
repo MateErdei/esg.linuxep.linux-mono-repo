@@ -34,3 +34,9 @@ Run Scan Now Scan For Excluded Files Test
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
+
+Run Scan Now Scan With No Exclusions
+    ${policy_contents} =  Get Sav Policy With No Exclusions  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
+    Send Plugin Policy  av  sav  ${policy_contents}
+    Wait until scheduled scan updated
+    Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
