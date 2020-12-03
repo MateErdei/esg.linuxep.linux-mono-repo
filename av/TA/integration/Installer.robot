@@ -43,6 +43,34 @@ IDE update doesnt restart av processes
     Check Threat Detected  peend.exe  PE/ENDTEST
 
 
+Scanner works after upgrade
+    Mark Sophos Threat Detector Log
+
+    # modify the manifest to force the installer to perform a full product update
+    Append To File   /opt/sophos-spl/plugins/av/var/manifest.dat   "junk"
+    Run Installer From Install Set
+
+    # Existing robot functions don't check marked logs, so we do our own log check instead
+    # Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=40
+
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
+    # Check we can detect EICAR following upgrade
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.com
+    Log   ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test
+
+    # check that the logs are still working (LINUXDAR-2535)
+    Sophos Threat Detector Log Contains With Offset   EICAR-AV-Test
+    AV Plugin Log Contains With Offset   EICAR-AV-Test
+
+
 IDE can be removed
     Add IDE To Install Set  ${IDE_NAME}
     Run Installer From Install Set
@@ -137,15 +165,15 @@ ${IDE3_NAME}        Sus2Exp.ide
 
 *** Keywords ***
 Installer Suite Setup
-    Register On Fail  Debug install set
-    Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
-    Register On Fail  dump log  ${AV_LOG_PATH}
     Install With Base SDDS
 
 Installer Suite TearDown
     Log  Installer Suite TearDown
 
 Installer Test Setup
+    Register On Fail  Debug install set
+    Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
+    Register On Fail  dump log  ${AV_LOG_PATH}
     Check AV Plugin Installed With Base
     Mark AV Log
 
