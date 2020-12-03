@@ -2,9 +2,9 @@
 
 set -ex
 
-if [[ -x $(which apt) ]]
+if [[ -x $(which apt-get) ]]
 then
-    apt install -y python3.7-dev nfs-kernel-server zip unzip
+    apt-get install -y python3.7-dev nfs-kernel-server zip unzip
 elif [[ -x $(which yum) ]]
 then
     ping -c2 abn-centosrepo || true
