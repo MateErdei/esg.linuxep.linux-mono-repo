@@ -13,29 +13,34 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace avscanner::avscannerimpl;
 namespace fs = sophos_filesystem;
 
-void ScanCallbackImpl::cleanFile(const path& scannedPath)
+void ScanCallbackImpl::cleanFile(const path&)
 {
-//    incrementCleanCount();
-    recordCleanFile(scannedPath);
+    incrementCleanFileCount();
 }
 
-void ScanCallbackImpl::infectedFile(const path& susiPath, const std::string& threatName, const fs::path& realPath, bool isSymlink)
+void ScanCallbackImpl::infectedFile(const std::map<path, std::string>& detections, const fs::path& realPath, bool isSymlink)
 {
-    std::string escapedPath(common::escapePathForLogging(susiPath));
+    incrementInfectedFileCount();
 
-    if (isSymlink)
+    for (const auto& detection: detections)
     {
-        std::string escapedTargetPath(common::escapePathForLogging(fs::canonical(realPath)));
-        LOGWARN("Detected \"" << escapedPath << "\" (symlinked to " << escapedTargetPath << ") is infected with " << threatName);
-    }
-    else
-    {
-        LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName);
-    }
+        std::string escapedPath(common::escapePathForLogging(detection.first));
+        std::string threatName = detection.second;
 
-    addThreat(threatName);
-    recordInfectedFile(realPath);
-//    incrementInfectedCount();
+        if (isSymlink)
+        {
+            std::string escapedTargetPath(common::escapePathForLogging(fs::canonical(realPath)));
+            LOGWARN(
+                "Detected \"" << escapedPath << "\" (symlinked to " << escapedTargetPath << ") is infected with "
+                              << threatName);
+        }
+        else
+        {
+            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName);
+        }
+
+        addThreat(threatName);
+    }
     m_returnCode = E_VIRUS_FOUND;
 }
 

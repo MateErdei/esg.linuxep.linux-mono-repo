@@ -28,7 +28,7 @@ namespace avscanner::avscannerimpl
          * @param realPath - the path that's on the filesystem, it differs from the first argument path which is the path that SUSI returns
          * @param isSymlink
          */
-        virtual void infectedFile(const path& susiPath, const std::string& threatName, const sophos_filesystem::path& realPath, bool isSymlink) = 0;
+        virtual void infectedFile(const std::map<path, std::string>& detections, const sophos_filesystem::path& realPath, bool isSymlink) = 0;
         virtual void scanError(const std::string&) = 0;
         virtual void scanStarted() = 0;
         virtual void logSummary() = 0;

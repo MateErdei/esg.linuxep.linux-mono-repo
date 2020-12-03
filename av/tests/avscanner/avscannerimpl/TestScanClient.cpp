@@ -32,7 +32,7 @@ namespace
     {
     public:
         MOCK_METHOD1(cleanFile, void(const path&));
-        MOCK_METHOD4(infectedFile, void(const path&, const std::string&, const fs::path& realPath,  bool isSymlink));
+        MOCK_METHOD3(infectedFile, void(const std::map<path, std::string>& detections, const fs::path& realPath,  bool isSymlink));
         MOCK_METHOD1(scanError, void(const std::string&));
         MOCK_METHOD0(scanStarted, void());
         MOCK_METHOD0(logSummary, void());
@@ -88,6 +88,9 @@ TEST(TestScanClient, TestScanArchive) // NOLINT
     scan_messages::ScanResponse response;
     response.addDetection(infectedFile1, threatName);
     response.addDetection(infectedFile2, threatName);
+    std::map<path, std::string> detections;
+    detections.emplace(infectedFile1, threatName);
+    detections.emplace(infectedFile2, threatName);
 
     EXPECT_CALL(mock_socket, scan(_,_))
         .Times(1)
@@ -97,9 +100,7 @@ TEST(TestScanClient, TestScanArchive) // NOLINT
         new StrictMock<MockIScanCallbacks>()
     );
 
-    EXPECT_CALL(*mock_callbacks, infectedFile(infectedFile1, threatName, _, false))
-        .Times(1);
-    EXPECT_CALL(*mock_callbacks, infectedFile(infectedFile2, threatName, _, false))
+    EXPECT_CALL(*mock_callbacks, infectedFile(detections, _, false))
         .Times(1);
 
     ScanClient s(mock_socket, mock_callbacks, true, E_SCAN_TYPE_ON_DEMAND);
@@ -137,6 +138,8 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
     response.addDetection("/etc/passwd", THREAT);
+    std::map<path, std::string> detections;
+    detections.emplace("/etc/passwd", THREAT);
 
     EXPECT_CALL(mock_socket, scan(_, _))
         .Times(1)
@@ -146,7 +149,7 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
             new StrictMock<MockIScanCallbacks>()
     );
 
-    EXPECT_CALL(*mock_callbacks, infectedFile(Eq("/etc/passwd"), Eq(THREAT), _, false))
+    EXPECT_CALL(*mock_callbacks, infectedFile(Eq(detections), _, false))
             .Times(1);
 
     ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
