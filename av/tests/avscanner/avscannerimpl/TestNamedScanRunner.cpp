@@ -104,6 +104,17 @@ protected:
         return scanConfigOut;
     }
 
+    Sophos::ssplav::NamedScan::Reader createNamedScanConfig(::capnp::MallocMessageBuilder& message)
+    {
+        return createNamedScanConfig(
+            message,
+            m_expectedExclusions,
+            m_scanHardDisc,
+            m_scanNetwork,
+            m_scanOptical,
+            m_scanRemovable);
+    }
+
     fs::path m_testDir;
     std::string m_expectedScanName = "testScan";
     std::vector<std::string> m_expectedExclusions;
@@ -581,6 +592,23 @@ TEST_F(TestNamedScanRunner, TestNamedScanRunnerStopsAtExcludedDirectory) // NOLI
     runner.setSocket(socket);
     runner.run();
 
-    ASSERT_FALSE(appenderContains("Excluding file: " + testfile.string()));
-    ASSERT_FALSE(appenderContains("Excluding directory: " + testdir.string()));
+    EXPECT_FALSE(appenderContains("Excluding file: " + testfile.string()));
+    EXPECT_FALSE(appenderContains("Excluding directory: " + testdir.string()));
+}
+
+
+TEST_F(TestNamedScanRunner, TestAbortOnlyHappensOnce) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(message);
+
+    NamedScanRunner runner(scanConfigOut);
+    auto socket = std::make_shared<AbortingTestSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_EQ(socket->m_abortCount, 1);
+    EXPECT_EQ(appenderCount("Deliberate Abort"), 1);
 }

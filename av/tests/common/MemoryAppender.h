@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/Print.h"
 
 #include <chrono>
+#include <numeric>
 #include <thread>
 
 
@@ -26,7 +27,9 @@ namespace
         MemoryAppender() = default;
         ~MemoryAppender() override;
 
+        int count(const std::string& expected) const;
         bool contains(const std::string& expected) const;
+        bool contains(const std::string& expected, int count) const;
         EventVector m_events;
         void close() override {}
         EventVector::size_type size() const { return m_events.size(); }
@@ -57,6 +60,29 @@ namespace
         return std::any_of(m_events.begin(), m_events.end(), contains_expected);
     }
 
+    int countSubstring(const std::string& str, const std::string& sub)
+    {
+        if (sub.length() == 0) return 0;
+        int count = 0;
+        for (size_t offset = str.find(sub); offset != std::string::npos;
+             offset = str.find(sub, offset + sub.length()))
+        {
+            ++count;
+        }
+        return count;
+    }
+
+    int MemoryAppender::count(const std::string& expected) const
+    {
+        auto count_expected = [&](int c, const std::string& e){ return c + countSubstring(e, expected); };
+        auto actualCount = std::accumulate(m_events.begin(), m_events.end(), 0, count_expected);
+        return actualCount;
+    }
+
+    bool MemoryAppender::contains(const std::string& expected, int expectedCount) const
+    {
+        return expectedCount == count(expected);
+    }
 
     class MemoryAppenderUsingTests : public LogInitializedTests
     {
@@ -72,10 +98,22 @@ namespace
 
         [[nodiscard]] log4cplus::Logger getLogger() const;
 
+        [[nodiscard]] int appenderCount(const std::string& expected) const
+        {
+            assert(m_memoryAppender != nullptr);
+            return m_memoryAppender->count(expected);
+        }
+
         [[nodiscard]] bool appenderContains(const std::string& expected) const
         {
             assert(m_memoryAppender != nullptr);
             return m_memoryAppender->contains(expected);
+        }
+
+        [[nodiscard]] bool appenderContains(const std::string& expected, int expectedCount) const
+        {
+            assert(m_memoryAppender != nullptr);
+            return m_memoryAppender->contains(expected, expectedCount);
         }
 
         [[nodiscard]] EventVector::size_type appenderSize() const

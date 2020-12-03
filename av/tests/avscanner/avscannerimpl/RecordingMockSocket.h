@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "common/AbortScanException.h"
 #include "scan_messages/ClientScanRequest.h"
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
@@ -37,5 +38,19 @@ namespace
         }
 
         std::vector <std::string> m_paths;
+    };
+
+    class AbortingTestSocket : public unixsocket::IScanningClientSocket
+    {
+    public:
+        int m_abortCount = 0;
+        scan_messages::ScanResponse scan(
+            datatypes::AutoFd&,
+            const scan_messages::ClientScanRequest&) override
+        {
+            m_abortCount++;
+            throw AbortScanException("Deliberate Abort");
+        }
+
     };
 }
