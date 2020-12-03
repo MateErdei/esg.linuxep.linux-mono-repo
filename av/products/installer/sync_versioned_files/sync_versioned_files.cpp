@@ -30,15 +30,17 @@ fs::path sync_versioned_files::replace_stem(const fs::path& p, const fs::path& c
     return required_stem / result;
 }
 
-static void delete_removed_file(const fs::path& p)
+void sync_versioned_files::delete_removed_file(const fs::path& p)
 {
     fs::path temp = p;
     while (true)
     {
         PRINT("Delete "<< temp);
         fs::remove(temp);
-        fs::path temp2 = temp.replace_extension();
-        if (temp2 == temp)
+
+        fs::path last = temp;
+        temp.replace_extension();
+        if (last == temp)
         {
             break;
         }
