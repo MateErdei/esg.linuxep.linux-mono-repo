@@ -16,7 +16,7 @@ export PATH=$PATH:/usr/local/bin/
 
 which sb_manifest_sign
 
-./fetchandbuild.sh --python-coverage  --no-unit-tests
+./fetchandbuild.sh --python-coverage  --no-unittests
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
 pushd modules
