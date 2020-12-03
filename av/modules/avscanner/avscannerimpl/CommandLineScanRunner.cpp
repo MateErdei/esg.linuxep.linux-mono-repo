@@ -161,11 +161,11 @@ int CommandLineScanRunner::run()
             path = fs::canonical(path);
         }
 
+        auto p = fs::absolute(path);
+        callbacks.setCurrentInclude(p);
+
         try
         {
-            auto p = fs::absolute(path);
-            callbacks.setCurrentInclude(p);
-
             fw.walk(p);
         }
         catch (fs::filesystem_error& e)

@@ -135,9 +135,10 @@ int NamedScanRunner::run()
         }
 
         LOGINFO("Attempting to scan: " << mountpointToScan);
+        mountsScanned.insert(mountpointToScan);
+
         try
         {
-            mountsScanned.insert(mountpointToScan);
             walker.walk(mountpointToScan);
         }
         catch (sophos_filesystem::filesystem_error& e)
