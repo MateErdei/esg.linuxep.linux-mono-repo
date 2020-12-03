@@ -9,6 +9,7 @@ Library         Collections
 Library         Process
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
+Library         ../Libs/OSUtils.py
 
 Suite Setup     Installer Suite Setup
 Suite Teardown  Installer Suite TearDown
@@ -64,7 +65,6 @@ sophos_threat_detector can start after multiple IDE updates
 Check install permissions
     [Documentation]   Find files or directories owned by sophos-spl-user or writable by sophos-spl-group.
     ...               Check results against an allowed list.
-    Run Installer From Install Set
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     find ${COMPONENT_ROOT_PATH} -! -type l -\\( -user sophos-spl-user -o -group sophos-spl-group -perm -0020 -\\) -prune
     Should Be Equal As Integers  ${rc}  0
@@ -77,6 +77,46 @@ Check install permissions
     Log List   ${items}
     Should Be Empty   ${items}
 
+Check permissions after upgrade
+    # find writable directories
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     find ${COMPONENT_ROOT_PATH} -name susi -prune -o -type d -\\( -user sophos-spl-user -perm -0200 -o -group sophos-spl-group -perm -0020 -\\) -print
+    Should Be Equal As Integers  ${rc}  0
+    @{items} =    Split To Lines   ${output}
+    Sort List   ${items}
+    Log List   ${items}
+
+    # create writable files
+    @{files} =   Create List
+    FOR   ${item}   IN   @{items}
+       ${file} =   Set Variable   ${item}/test_file
+       Create File   ${file}   test data
+       Change Owner   ${file}   sophos-spl-user   sophos-spl-group
+       Append To List   ${files}   ${file}
+    END
+    Log List   ${files}
+    ${files_as_args} =   Catenate   @{files}
+
+    # store current permissions for our files
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     ls -l ${files_as_args}
+    Should Be Equal As Integers  ${rc}  0
+    Log   ${output}
+    ${before} =   Set Variable   ${output}
+
+    # modify the manifest to force the installer to perform a full product update
+    append to file   /opt/sophos-spl/plugins/av/var/manifest.dat   "junk"
+    Run Installer From Install Set
+
+    # check our files still writable
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     ls -l ${files_as_args}
+    Should Be Equal As Integers  ${rc}  0
+    Log   ${output}
+    ${after} =   Set Variable   ${output}
+    Should Be Equal   ${before}   ${after}
+
+    Remove Files   @{files}
 
 *** Variables ***
 ${IDE_NAME}         peend.ide

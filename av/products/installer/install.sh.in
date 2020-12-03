@@ -101,8 +101,6 @@ function generate_susi_package_manifest()
     echo $manifest_hash > $package_manifest
     cat $temp_manifest >> $package_manifest
 
-    #chmod -R g+rX "${SUSI_UPDATE_SRC}"
-    #chown -R root:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
     chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
 }
 
@@ -130,8 +128,6 @@ function bootstrap_susi_from_update_source()
 
     cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${SUSI_V1DIR}
 
-    #chmod -R g+rX "${SUSI_DIST_VERS}"
-    #chown -R root:${GROUP_NAME} "${SUSI_DIST_VERS}"
     chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_DIST_VERS}"
 }
 
@@ -171,18 +167,27 @@ function install_product()
     chmod 0770 "$VAR"
 
     CHROOT="${PLUGIN_INSTALL}/chroot"
-    CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL}"
+    CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL#/}"
     mkdir -p ${CHROOT_LINK_DIR}
     ln -snf / ${CHROOT_LINK_DIR}/chroot
     mkdir -p "${CHROOT_LINK_DIR}/var"
 
     mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
     mkdir -p ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
-    chmod -R 0710 ${CHROOT}/${SOPHOS_INSTALL%%/*}
+
+    p=${CHROOT}/${SOPHOS_INSTALL#/}/base/update
+    while [[ $p == ${CHROOT}* ]]
+    do
+      chmod 0710 $p
+      chown root:${GROUP_NAME} $p
+      p=${p%/*}
+    done
+
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
     mkdir -p ${CHROOT}/etc
     chmod 0770 ${CHROOT}/etc
+    chmod 0750 ${CHROOT}/susi
     mkdir -p ${CHROOT}/tmp
     chmod 0770 ${CHROOT}/tmp
     mkdir -p ${CHROOT}/var
@@ -190,9 +195,7 @@ function install_product()
     chmod 0711 ${CHROOT}
     chmod 0770 "${CHROOT_LINK_DIR}/var"
     chmod 0770 ${CHROOT_LINK_DIR}
-
-
-    chmod -R g+rX "${CHROOT}/susi"
+    chmod 0710 ${CHROOT_LINK_DIR%/*}
 
     ## Create log directory symlinks for sophos_threat_detector
     mkdir -p "$CHROOT/log" "${PLUGIN_INSTALL}/log" "${CHROOT_LINK_DIR}/log"
@@ -203,10 +206,18 @@ function install_product()
         ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create symlink ${CHROOT_LINK_DIR}/log/sophos_threat_detector: $?"
     ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
 
-    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}"
-
-    #chmod -R g+rwX "${CHROOT}/susi/distribution_version/"
-    #chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/susi/distribution_version/"
+    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/bin"
+    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/lib64"
+    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
+    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/sbin"
+    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
+    chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/VERSION.ini"
+    chown root:${GROUP_NAME} "${CHROOT}/etc"
+    chown root:${GROUP_NAME} "${CHROOT}/log"
+    find ${CHROOT}/${SOPHOS_INSTALL} -type d -exec chown root:${GROUP_NAME} {} \;
+    chown root:${GROUP_NAME} "${CHROOT}/susi"
+    chown root:${GROUP_NAME} "${CHROOT}/tmp"
+    chown root:${GROUP_NAME} "${CHROOT}/var"
 
     pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
     THREAT_DETECTOR="sophos_threat_detector_launcher"

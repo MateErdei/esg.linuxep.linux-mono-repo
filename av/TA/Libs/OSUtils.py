@@ -1,5 +1,7 @@
 
 import os
+import pwd
+import grp
 import subprocess
 import sys
 from robot.api import logger
@@ -23,7 +25,14 @@ def install_system_ca_cert(certificate_path):
         logger.info("stdout: {}\nstderr: {}".format(out, err))
         raise OSError("Failed to install \"{}\" to system".format(certificate_path))
 
+
 def get_cwd_then_change_directory(path):
     cwd = os.getcwd()
     os.chdir(path)
     return cwd
+
+
+def change_owner(path, user, group):
+    uid = pwd.getpwnam(user)[2]
+    gid = grp.getgrnam(group)[2]
+    os.chown(path, uid, gid)
