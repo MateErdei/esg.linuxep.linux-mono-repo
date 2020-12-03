@@ -4,7 +4,12 @@ set -ex
 
 if [[ -x $(which apt-get) ]]
 then
-    apt-get install -y python3.7-dev nfs-kernel-server zip unzip
+    if [[ $(lsb_release -rs) == "18.04" ]]; then
+        apt-get install -y python3.7 python3.7-dev
+    else
+        apt-get install -y python3.8 python3.8-dev
+    fi
+    apt-get install -y nfs-kernel-server zip unzip
 elif [[ -x $(which yum) ]]
 then
     ping -c2 abn-centosrepo || true
