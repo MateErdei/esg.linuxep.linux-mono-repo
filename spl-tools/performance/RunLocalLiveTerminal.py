@@ -65,16 +65,15 @@ def create_server_and_send_string(string_to_send: str, number_of_parallel_termin
                 except:
                     # just keep trying until timeout.
                     pass
-
         if keepalive != 0:
             # If this is the keep alive test we want to check the terminal is still running ok every second up until
             # the keep alive timeout is reached.
             target_time = start_time + keepalive
-            now = get_current_unix_epoch_in_seconds()
-            while target_time > now:
-                msg = "echo {}".format(str(now))
-                server.send_message_with_newline(msg, path_with_slash)
-                if not server.match_message(msg, path_with_slash):
+            while target_time > get_current_unix_epoch_in_seconds():
+                # Use the current unix timestamp as a marker message, it will be unique so we don't see old messages.
+                marker_message = str(get_current_unix_epoch_in_seconds())
+                server.send_message_with_newline("echo {}".format(marker_message), path_with_slash)
+                if not server.match_message(marker_message, path_with_slash):
                     break
                 time.sleep(1)
 
