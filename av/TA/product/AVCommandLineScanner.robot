@@ -157,13 +157,16 @@ CLS Can Scan Shallow Archive But not Deep Archive
 
 CLS Summary is Correct
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_2    ${EICAR_STRING}
+    Run Process     tar  -cf  ${NORMAL_DIRECTORY}/multiple_eicar.tar  ${NORMAL_DIRECTORY}/naughty_eicar  ${NORMAL_DIRECTORY}/naughty_eicar_2
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar ${NORMAL_DIRECTORY}/clean_file
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar ${NORMAL_DIRECTORY}/clean_file ${NORMAL_DIRECTORY}/multiple_eicar.tar -a
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}  2 files scanned in
-    Should Contain   ${output}  1 file out of 2 was infected.
-    Should Contain   ${output}  1 EICAR-AV-Test infection discovered.
+    Should Contain   ${output}  3 files scanned in
+    Should Contain   ${output}  2 files out of 3 were infected.
+    Should Contain   ${output}  3 EICAR-AV-Test infections discovered.
 
 
 CLS Does not request TFTClassification from SUSI
