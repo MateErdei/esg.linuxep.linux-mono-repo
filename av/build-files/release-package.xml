@@ -154,6 +154,6 @@
             <!-- rename output for coverage builds -->
             <output name="output" srcfolder="output" artifactpath="output" mode="oldci"> </output>
         </buildoutputs>
-        <publishbranches>master,develop,bugfix/fix_coverage,bugfix/LINUXDAR-2323-current-sdds-component-has-many-copy-of-susi-libraries</publishbranches>
+        <publishbranches>master,develop,feature/LINUXDAR-2501-make-changes-necessary-to-use-2020.47-version-of-susi</publishbranches>
     </publish>
 </package>
