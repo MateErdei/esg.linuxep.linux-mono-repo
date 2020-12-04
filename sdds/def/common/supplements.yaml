@@ -15,3 +15,17 @@ scheduled-query-pack-supp:
   line-id: ScheduledQueryPack
   tag: RECOMMENDED
   warehouse: scheduled-query-pack-wh
+
+vdl-data:
+  canonical-name: VDL
+  decode-path: .
+  line-id: VDL
+  tag: LATEST
+  warehouse: VDB_supp
+
+localrepdata-data:
+  canonical-name: LocalRepData
+  decode-path: .
+  line-id: LocalRepData
+  tag: LATEST_CLOUD_ENDPOINT
+  warehouse: ixdata
