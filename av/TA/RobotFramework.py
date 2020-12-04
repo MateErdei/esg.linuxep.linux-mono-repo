@@ -5,12 +5,15 @@ import sys
 from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 
-def main():
+def main(argv):
     # Exclude OSTIA on TAP, since we are testing builds immediately, before they have a chance to be put in warehouses
     # Exclude MANUAL on TAP
     # Exclude STRESS on TAP; as some of the tests here will not be appropriate
+    exclude = []
+    for arg in argv:
+        exclude.append(arg)
 
-    tags = {'include': ['INTEGRATION', 'PRODUCT'], 'exclude': ['OSTIA', 'MANUAL', 'STRESS']}
+    tags = {'include': ['INTEGRATION', 'PRODUCT'], 'exclude': exclude}
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {
@@ -40,4 +43,4 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))
