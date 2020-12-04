@@ -451,7 +451,9 @@ function build()
             }
             echo 'Valgrind test finished'
             exit 0
-        elif (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))
+
+#        change back to 0 if test fail
+        elif (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
         then
             ## If we are doing bullseye system tests then don't run unit test first
             ## Otherwise run the unit-tests now
