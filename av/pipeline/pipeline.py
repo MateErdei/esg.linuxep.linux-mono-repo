@@ -80,11 +80,11 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
     try:
         if BRANCH_NAME == "master":
             machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
-            machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py ', 'OSTIA', 'MANUAL', 'STRESS', environment=environment,
+            machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py OSTIA MANUAL STRESS', environment=environment,
                         timeout=3600)
         else:
             machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
-            machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py ', 'OSTIA', 'MANUAL', 'STRESS', 'VQA', environment=environment,
+            machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py OSTIA MANUAL STRESS VQA', environment=environment,
                         timeout=3600)
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
