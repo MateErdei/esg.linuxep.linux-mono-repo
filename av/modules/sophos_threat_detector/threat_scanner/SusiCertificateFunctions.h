@@ -11,6 +11,4 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 namespace threat_scanner
 {
     SusiCertTrustType isTrustedCert(void *token, SusiHashAlg algorithm, const char *pkcs7, size_t size);
-
-    bool isWhitelistedCert(void *token, const char *fileTopLevelCert, size_t size);
 }

@@ -12,16 +12,6 @@
 // NOLINTNEXTLINE
 #define P(_X) std::cerr << _X << '\n';
 
-static bool isWhitelistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
-{
-    (void)token;
-    (void)algorithm;
-    (void)fileChecksum;
-    (void)size;
-    P("isWhitelistedFile: " << fileChecksum);
-    return false;
-}
-
 static SusiCertTrustType isTrustedCert(void *token, SusiHashAlg algorithm, const char *pkcs7, size_t size)
 {
     (void)token;
@@ -34,23 +24,10 @@ static SusiCertTrustType isTrustedCert(void *token, SusiHashAlg algorithm, const
     return SUSI_TRUSTED;
 }
 
-static bool isWhitelistedCert(void *token, const char *fileTopLevelCert, size_t size)
-{
-    (void)token;
-    (void)fileTopLevelCert;
-    (void)size;
-
-    P("isWhitelistedCert: " << size);
-
-    return false;
-}
-
 static SusiCallbackTable my_susi_callbacks{
         .version = CALLBACK_TABLE_VERSION,
         .token = nullptr, //NOLINT
-        .IsWhitelistedFile = isWhitelistedFile,
         .IsTrustedCert = isTrustedCert,
-        .IsWhitelistedCert = isWhitelistedCert
 };
 
 class SusiGlobalHandler
