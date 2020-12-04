@@ -2,6 +2,7 @@
 Documentation    Prove end-to-end management from Central
 
 Library         ../Libs/CloudClient/CloudClient.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         DateTime
 Library         OperatingSystem
@@ -15,9 +16,17 @@ Suite Teardown  Global Teardown Tasks
 Test Setup      DevCentral Test Setup
 Test Teardown   DevCentral Test TearDown
 
+*** Variables ***
+
+${MCSROUTER_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
+
 *** Keywords ***
 
 DevCentral Test Setup
+    register on fail  Dump Log   ${AV_LOG_PATH}
+    register on fail  Dump Log   ${SCANNOW_LOG_PATH}
+    register on fail  Dump Log   ${MCSROUTER_LOG_PATH}
+    register on fail  Dump Log   ${THREAT_DETECTOR_LOG_PATH}
     No Operation
 
 DevCentral Test TearDown
