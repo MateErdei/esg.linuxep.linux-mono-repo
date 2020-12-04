@@ -29,15 +29,16 @@ fi
 CLEAN=0
 if [[ ! -f ${COVFILE} ]]
 then
-    mkdir -p $(dirname ${COVFILE})
-    chmod 777 $(dirname ${COVFILE})
+    mkdir -p "$(dirname ${COVFILE})"
+    chmod 777 "$(dirname ${COVFILE})"
     covmgr --list --create
     cov01 --on
 
-    [[ -f ${COVFILE} ]] || {
+    if [[ ! -f ${COVFILE} ]]
+    then
         echo "Failed to create COVFILE: $?"
         exit 1
-    }
+    fi
     CLEAN=1
 fi
 
@@ -100,22 +101,14 @@ echo "BASE_DIR=$BASE_DIR"
 function exclude()
 {
     echo "covselect --add $*"
-    covselect --add $@ || failure 3 "Failed to add exclusion $*"
+    covselect --add "$@" || failure 3 "Failed to add exclusion $*"
 }
-
-#echo "Excluding \!../../redist/"
-#covselect --quiet --add \!../../redist/ || failure 4 "Failed to exclude /redist"
-#echo "Excluding \!../../opt/"
-#covselect --quiet --add \!../../opt/ || failure 5 "Failed to exclude /opt"
-#echo "Excluding \!../../lib/"
-#covselect --quiet --add \!../../lib/ || failure 6 "Failed to exclude /lib"
 
 exclude \!build/
 exclude \!build64/
 exclude \!redist/
 exclude \!tests/
 exclude \!tools/
-exclude \!products/susi_experiment_scanner/
 
 echo "Exclusions:"
 covselect --list --no-banner
