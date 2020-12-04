@@ -14,7 +14,7 @@
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
-        <package name="versig" version="2-0-0-72/219560/output" dest="input">
+        <package name="versig" version="2-0-0-80/221233/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
         <package name="curllinux11" version="7-71-1-2/220751/output" dest="input">
@@ -32,22 +32,22 @@
         <package name="zliblinux11" version="1-2-11-4/219630/output" dest="input">
             <include src="zlib.tar" dest="."/>
         </package>
+
+        <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input/update_certs">
+            <include src="ps_rootca.crt" dest="."/>
+        </package>
     </inputs>
 
     <buildcommands>
         <command>
           <program>/bin/bash</program>
           <args>./buildLinux.sh</args>
-          <workingdir>sspl-thininstaller-build</workingdir>
+<!--          <workingdir>sspl-thininstaller-build</workingdir>-->
+          <workingdir>.</workingdir>
         </command>
     </buildcommands>
     <publish>
-        <workingdir>sspl-thininstaller-build</workingdir>
-        <destdir>sspl-thininstaller</destdir>
-        <buildoutputs>
-            <output name="output" srcfolder="output"> </output>
-            <output name="build_log" srcfolder="log"> </output>
-        </buildoutputs>
-        <publishbranches>master,release,develop,feature</publishbranches>
+        <release-asset artifact-path="output" source-dir="output/SDDS-COMPONENT" mode="release"/>
+        <build-asset artifact-path="build_log" source-dir="log" mode="release,coverage"/>
     </publish>
 </package>
