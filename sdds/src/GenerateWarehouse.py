@@ -34,7 +34,7 @@ check_call(["python", "warehouse-def.py", "-v", "-c",
 
 print "Components fetched and warehouse definition generated successfully!"
 
-print("Build starting...", sys.argv)
+print("Starting GenerateWarehouse.py:", sys.argv)
 
 # **********************
 # NOTE: SDDSImport.exe sometimes crashes even though it has completed its
@@ -64,24 +64,26 @@ def sdds_import(path, name):
     check_call(["cscript.exe", "//nologo", "SDDSImport-ErrorCheck.vbs", "-logfile", log_path])
 
 
-print("Importing dictionary file...")
+print("GenerateWarehouse.py:Importing dictionary file...")
 sdds_import(path=sys.argv[1], name='dictionary')
-print("Dictionary file imported successfully!")
+print("GenerateWarehouse.py:Dictionary file imported successfully!")
 
 
-print("Combining warehouse defintion with common component and supplement definitions...")
+print("GenerateWarehouse.py:Combining warehouse defintion with common component and supplement definitions...")
 definition_merger.merge(r'..\output\def\def.yaml', input_files=sys.argv[2:])
 
 
-print("Fetch components and generate warehouse definition...")
+print("GenerateWarehouse.py:Fetch components and generate warehouse definition...")
 check_call(["python", "warehouse-def.py", "-v", "-o", r"..\output\def\def.xml",
             "--bom", r"..\logs\bom.json", r"..\output\def\def.yaml"])
-print("Components fetched and warehouse definition generated successfully!")
+print("GenerateWarehouse.py:Components fetched and warehouse definition generated successfully!")
 
-print("Importing warehouse...")
+print("GenerateWarehouse.py:Importing warehouse...")
 sdds_import(path=r'..\output\def\def.xml', name='warehouse')
-print("Warehouse imported successfully!")
+print("GenerateWarehouse.py:Warehouse imported successfully!")
 
-print("Generating customer file...")
+print("GenerateWarehouse.py:Generating customer file...")
 check_call(["python", "CustomerFile.py", "-v", r"..\output\def\def.yaml"])
-print("Customer file generated successfully!")
+print("GenerateWarehouse.py:Customer file generated successfully!")
+
+print("FINISHING GenerateWarehouse.py")
