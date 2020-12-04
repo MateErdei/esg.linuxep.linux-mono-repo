@@ -397,7 +397,7 @@ function build()
         }
     elif (( ${UNITTEST} == 1 ))
     then
-        make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
+        make ARGS=-j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
             local EXITCODE=$?
             echo "Unit tests failed with $EXITCODE"
             if (( DUMP_LAST_TEST_ON_FAILURE == 1 ))
