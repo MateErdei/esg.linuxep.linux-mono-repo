@@ -7,6 +7,7 @@ add_executable(TestCommsComponent
         TestConfigurator.cpp
         TestCommsDistributor.cpp
         TestCommsConfig.cpp
+        TestNetworkSide.cpp
         MockOtherSideApi.h
         CommsMsgUtils.h
         CommsMsgUtils.cpp
