@@ -154,9 +154,9 @@
             <output name="build_log" srcfolder="log" mode="release,oldci"/>
 
             <!-- coverage(bullseye) -->
-            <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"></output>
-            <output name="coverage_build_log" srcfolder="log" artifactpath="coverage/build_log"
-                    mode="coverage"></output>
+<!--            <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"></output>-->
+<!--            <output name="coverage_build_log" srcfolder="log" artifactpath="coverage/build_log"-->
+<!--                    mode="coverage"></output>-->
 
         </buildoutputs>
         <publishbranches>master,feature,release,develop,bugfix</publishbranches>
