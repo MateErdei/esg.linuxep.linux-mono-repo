@@ -314,8 +314,25 @@ Check ScanNow Log Exists
 Check AV Plugin Log exists
     File Should Exist  ${AV_LOG_PATH}
 
+Wait Until File exists
+    [Arguments]  ${filename}  ${timeout}=15  ${interval}=0
+    ${interval} =   Set Variable If
+    ...   ${interval} > 0   ${interval}
+    ...   ${timeout} >= 120   10
+    ...   ${timeout} >= 60   5
+    ...   ${timeout} >= 15   3
+    ...   1
+    Wait Until Keyword Succeeds
+        ...    ${timeout} secs
+        ...    ${interval}
+        ...    File Should Exist  ${filename}
+
+Wait Until AV Plugin Log exists
+    [Arguments]  ${timeout}=15  ${interval}=0
+    Wait Until File exists  ${AV_LOG_PATH}  ${timeout}  ${interval}
+
 Wait until scheduled scan updated
-    Check AV Plugin Log exists
+    Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans  timeout=240
 
 Configure Scan Exclusions Everything Else
