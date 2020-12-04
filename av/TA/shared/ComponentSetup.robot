@@ -116,4 +116,4 @@ Undo Use Fake AVScanner
     Remove Directory  /tmp/config-files-test/  recursive=true
 
 Delete Eicars From Tmp
-    Remove File  /tmp/*eicar*
+    Remove File  /tmp_test/*eicar*

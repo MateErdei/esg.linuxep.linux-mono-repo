@@ -431,7 +431,7 @@ CLS Encoded Eicars
 
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
     Should Be Equal As Integers  ${result.rc}  0
-    ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp/encoded_eicars/  timeout=120s
+    ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp_test/encoded_eicars/  timeout=120s
     Log   ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
 
@@ -445,12 +445,12 @@ CLS Encoded Eicars
         Wait Until AV Plugin Log Contains  ${item}
     END
 
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp/encoded_eicars/PairDoubleQuote-"VIRUS.com"
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp/encoded_eicars/PairDoubleQuote-"VIRUS.com"
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
+    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
 
-    Remove Directory  /tmp/encoded_eicars  true
+    Remove Directory  /tmp_test/encoded_eicars  true
 
 CLS Handles Wild Card Eicars
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
@@ -792,7 +792,7 @@ CLS Scans Paths That Exist and Dont Exist
 
 CLS Scans file on NFS
     [Tags]  NFS
-    ${source} =       Set Variable  /tmp/nfsshare
+    ${source} =       Set Variable  /tmp_test/nfsshare
     ${destination} =  Set Variable  /mnt/nfsshare
 
     Create Directory  ${source}
@@ -867,8 +867,8 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Should Be True  ${result.rc} > 0
 
 CLS scan with Bind Mount
-    ${source} =       Set Variable  /tmp/directory
-    ${destination} =  Set Variable  /tmp/bind_mount
+    ${source} =       Set Variable  /tmp_test/directory
+    ${destination} =  Set Variable  /tmp_test/bind_mount
     Register Cleanup  Remove Directory   ${destination}
     Register Cleanup  Remove Directory   ${source}   recursive=true
     Create Directory  ${source}
@@ -890,8 +890,8 @@ CLS scan with Bind Mount
 
 
 CLS scan with ISO mount
-    ${source} =       Set Variable  /tmp/iso_test/eicar.iso
-    ${destination} =  Set Variable  /tmp/iso_test/iso_mount
+    ${source} =       Set Variable  /tmp_test/iso_test/eicar.iso
+    ${destination} =  Set Variable  /tmp_test/iso_test/iso_mount
     Create Directory  ${destination}
     Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
     Register Cleanup  Remove File   ${source}
@@ -900,7 +900,7 @@ CLS scan with ISO mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
     Should Exist      ${destination}/directory/subdir/eicar.com
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp/iso_test/
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/iso_test/
     Log  return code is ${rc}
     Log  output is ${output}
 
@@ -911,8 +911,8 @@ CLS scan with ISO mount
 CLS scan two mounts same inode numbers
     # Mount two copies of the same iso file. inode numbers on the mounts will be identical, but device numbers should
     # differ. We should walk both mounts.
-    ${source} =       Set Variable  /tmp/inode_test/eicar.iso
-    ${destination} =  Set Variable  /tmp/inode_test/iso_mount
+    ${source} =       Set Variable  /tmp_test/inode_test/eicar.iso
+    ${destination} =  Set Variable  /tmp_test/inode_test/iso_mount
     Create Directory  ${destination}
     Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
     Register Cleanup  Remove File   ${source}
@@ -921,8 +921,8 @@ CLS scan two mounts same inode numbers
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
     Should Exist      ${destination}/directory/subdir/eicar.com
 
-    ${source2} =       Set Variable  /tmp/inode_test/eicar2.iso
-    ${destination2} =  Set Variable  /tmp/inode_test/iso_mount2
+    ${source2} =       Set Variable  /tmp_test/inode_test/eicar2.iso
+    ${destination2} =  Set Variable  /tmp_test/inode_test/iso_mount2
     Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source2}
     Register Cleanup  Remove File   ${source2}
     Create Directory  ${destination2}
@@ -932,7 +932,7 @@ CLS scan two mounts same inode numbers
     Should Exist      ${destination2}/directory/subdir/eicar.com
 
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp/inode_test/
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/inode_test/
     Log  return code is ${rc}
     Log  output is ${output}
 

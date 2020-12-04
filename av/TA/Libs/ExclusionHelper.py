@@ -12,15 +12,15 @@ def __generate_root_exclusions():
             yield "/%s" % t
 
 
-def __generate_exclusions_to_scan_tmp():
+def __generate_exclusions_to_scan_tmp_test():
     for t in __generate_root_exclusions():
-        if t == "/tmp/":
+        if t == "/tmp_test/":
             continue
         yield t
 
 
-def get_exclusions_to_scan_tmp():
-    return list(__generate_exclusions_to_scan_tmp())
+def get_exclusions_to_scan_tmp_test():
+    return list(__generate_exclusions_to_scan_tmp_test())
 
 
 def Get_Root_Exclusions_for_avscanner_except_proc():
@@ -70,7 +70,7 @@ def replace_exclusions_in_policy(source, destination, exclusions):
 
 
 def Fill_In_On_Demand_Posix_Exclusions(source, destination):
-    return replace_exclusions_in_policy(source, destination, __generate_exclusions_to_scan_tmp())
+    return replace_exclusions_in_policy(source, destination, __generate_exclusions_to_scan_tmp_test())
 
 
 def Replace_Exclusions_For_Exclusion_Test(sourceFile):

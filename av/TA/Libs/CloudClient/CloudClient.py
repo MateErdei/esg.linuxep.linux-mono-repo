@@ -176,7 +176,7 @@ class CloudClient(object):
                 logger.debug("Too early")
                 continue
 
-            # "Manual cleanup required: 'EICAR' at '/tmp/testeicar/eicar.com'"
+            # "Manual cleanup required: 'EICAR' at '/tmp_test/testeicar/eicar.com'"
             actual_description = event['description']
             if actual_description != expected_description:
                 logger.debug("Wrong description: expected: {}, actual: {}".format(expected_description, actual_description))

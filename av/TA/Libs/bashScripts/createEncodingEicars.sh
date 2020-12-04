@@ -4,7 +4,7 @@
 #
 
 BASE_DIR=$1
-[ -n "$BASE_DIR" ] || BASE_DIR=/tmp/encoded_eicars
+[ -n "$BASE_DIR" ] || BASE_DIR=/tmp_test/encoded_eicars
 mkdir -p "${BASE_DIR}"
 cd "${BASE_DIR}"
 

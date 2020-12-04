@@ -78,7 +78,7 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
     if machine_name is None:
         machine_name = machine.template
     try:
-        if BRANCH_NAME == "master":
+        if BRANCH_NAME == "master" or "vqa" in BRANCH_NAME:
             machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
             machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py OSTIA MANUAL STRESS', environment=environment,
                         timeout=3600)

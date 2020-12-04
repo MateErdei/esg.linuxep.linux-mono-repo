@@ -92,7 +92,7 @@ class _SavPolicyBuilder:
                                 "{{excludeUserDefined}}": "",
                                 "{{noExtensions}}": "true",
                                 "{{IncludeOnlyTmpExclusions}}":
-                                    self._create_tagged_lines(ExclusionHelper.get_exclusions_to_scan_tmp(), "filePath")
+                                    self._create_tagged_lines(ExclusionHelper.get_exclusions_to_scan_tmp_test(), "filePath")
                                 }
 
     def send_sav_policy(self):

@@ -68,7 +68,7 @@ AV plugin Can Send Status
 AV Plugin Can Process Scan Now
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
-    ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp/
+    ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Policy  av  sav  ${policyContent}
@@ -90,7 +90,7 @@ AV Plugin Scan Now Updates Telemetry Count
     ${telemetryString}=  Get Plugin Telemetry  av
     Log   ${telemetryString}
 
-    ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp/
+    ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Policy  av  sav  ${policyContent}
@@ -196,7 +196,7 @@ AV Plugin Will Fail Scan Now If No Policy
 
 
 AV Plugin Scans local secondary mount only once
-    ${source} =       Set Variable  /tmp/ext2.fs
+    ${source} =       Set Variable  /tmp_test/ext2.fs
     ${destination} =  Set Variable  /mnt/ext2mnt
     Create Directory  ${destination}
     Create ext2 mount   ${source}   ${destination}
@@ -234,7 +234,7 @@ AV Plugin Scans local secondary mount only once
 
 AV Plugin Can Disable Scanning Of Mounted NFS Shares
     [Tags]  NFS
-    ${source} =       Set Variable  /tmp/nfsshare
+    ${source} =       Set Variable  /tmp_test/nfsshare
     ${destination} =  Set Variable  /testmnt/nfsshare
     Create Directory  ${source}
     Create File       ${source}/eicar.com    ${EICAR_STRING}
@@ -248,7 +248,7 @@ AV Plugin Can Disable Scanning Of Mounted NFS Shares
 
 AV Plugin Can Disable Scanning Of Mounted SMB Shares
     [Tags]  SMB
-    ${source} =       Set Variable  /tmp/smbshare
+    ${source} =       Set Variable  /tmp_test/smbshare
     ${destination} =  Set Variable  /testmnt/smbshare
     Create Directory  ${source}
     Create File       ${source}/eicar.com    ${EICAR_STRING}
@@ -261,11 +261,11 @@ AV Plugin Can Disable Scanning Of Mounted SMB Shares
 
 
 AV Plugin Can Exclude Filepaths From Scheduled Scans
-    ${eicar_path1} =  Set Variable  /tmp/eicar.com
-    ${eicar_path2} =  Set Variable  /tmp/eicar.1
-    ${eicar_path3} =  Set Variable  /tmp/eicar.txt
-    ${eicar_path4} =  Set Variable  /tmp/eicarStr
-    ${eicar_path5} =  Set Variable  /tmp/eicar
+    ${eicar_path1} =  Set Variable  /tmp_test/eicar.com
+    ${eicar_path2} =  Set Variable  /tmp_test/eicar.1
+    ${eicar_path3} =  Set Variable  /tmp_test/eicar.txt
+    ${eicar_path4} =  Set Variable  /tmp_test/eicarStr
+    ${eicar_path5} =  Set Variable  /tmp_test/eicar
     Create File      ${eicar_path1}    ${EICAR_STRING}
     Create File      ${eicar_path2}    ${EICAR_STRING}
     Create File      ${eicar_path3}    ${EICAR_STRING}
@@ -281,8 +281,8 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
-    ${allButTmp} =  Configure Scan Exclusions Everything Else  /tmp/
-    ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}<filePath>${eicar_path1}</filePath><filePath>/tmp/eicar.?</filePath><filePath>/tmp/*.txt</filePath><filePath>eicarStr</filePath></filePathSet></posixExclusions>
+    ${allButTmp} =  Configure Scan Exclusions Everything Else  /tmp_test/
+    ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}<filePath>${eicar_path1}</filePath><filePath>/tmp_test/eicar.?</filePath><filePath>/tmp_test/*.txt</filePath><filePath>eicarStr</filePath></filePathSet></posixExclusions>
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
@@ -299,9 +299,9 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 
 
 AV Plugin Scan of Infected File Increases Threat Eicar Count
-    Create File      /tmp/eicar.com    ${EICAR_STRING}
-    Register Cleanup  Remove File  /tmp/eicar.com
-    Remove Files      /file_excluded/eicar.com  /tmp/smbshare/eicar.com
+    Create File      /tmp_test/eicar.com    ${EICAR_STRING}
+    Register Cleanup  Remove File  /tmp_test/eicar.com
+    Remove Files      /file_excluded/eicar.com  /tmp_test/smbshare/eicar.com
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
@@ -323,7 +323,7 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
 
 
 AV Plugin Scan Now Does Not Detect PUA
-    Create File      /tmp/eicar_pua.com    ${EICAR_PUA_STRING}
+    Create File      /tmp_test/eicar_pua.com    ${EICAR_PUA_STRING}
 
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
@@ -332,16 +332,16 @@ AV Plugin Scan Now Does Not Detect PUA
 
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
 
-    AV Plugin Log Does Not Contain  /tmp/eicar_pua.com
+    AV Plugin Log Does Not Contain  /tmp_test/eicar_pua.com
 
-    File Log Should Not Contain  ${AV_PLUGIN_PATH}/log/Scan Now.log  "/tmp/eicar_pua.com" is infected
+    File Log Should Not Contain  ${AV_PLUGIN_PATH}/log/Scan Now.log  "/tmp_test/eicar_pua.com" is infected
 
     ${result} =   Terminate Process  ${handle}
 
 
 AV Plugin Scan Now with Bind Mount
-    ${source} =       Set Variable  /tmp/directory
-    ${destination} =  Set Variable  /tmp/bind_mount
+    ${source} =       Set Variable  /tmp_test/directory
+    ${destination} =  Set Variable  /tmp_test/bind_mount
     Register Cleanup  Remove Directory   ${destination}
     Register Cleanup  Remove Directory   ${source}   recursive=true
     Create Directory  ${source}
@@ -367,8 +367,8 @@ AV Plugin Scan Now with Bind Mount
 
 
 AV Plugin Scan Now with ISO mount
-    ${source} =       Set Variable  /tmp/eicar.iso
-    ${destination} =  Set Variable  /tmp/iso_mount
+    ${source} =       Set Variable  /tmp_test/eicar.iso
+    ${destination} =  Set Variable  /tmp_test/iso_mount
     Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
     Register Cleanup  Remove File   ${source}
     Create Directory  ${destination}
@@ -381,15 +381,15 @@ AV Plugin Scan Now with ISO mount
     Check AV Plugin Installed
     Run Scan Now Scan
     Wait Until AV Plugin Log Contains   Completed scan Scan Now   timeout=240   interval=5
-    AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp/iso_mount/directory/subdir/eicar.com'
+    AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/directory/subdir/eicar.com'
     ${result} =       Terminate Process  ${handle}
 
 
 AV Plugin Scan two mounts same inode numbers
     # Mount two copies of the same iso file. inode numbers on the mounts will be identical, but device numbers should
     # differ. We should walk both mounts.
-    ${source} =       Set Variable  /tmp/eicar.iso
-    ${destination} =  Set Variable  /tmp/iso_mount
+    ${source} =       Set Variable  /tmp_test/eicar.iso
+    ${destination} =  Set Variable  /tmp_test/iso_mount
     Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
     Register Cleanup  Remove File   ${source}
     Create Directory  ${destination}
@@ -398,8 +398,8 @@ AV Plugin Scan two mounts same inode numbers
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
     Should Exist      ${destination}/directory/subdir/eicar.com
 
-    ${source2} =       Set Variable  /tmp/eicar2.iso
-    ${destination2} =  Set Variable  /tmp/iso_mount2
+    ${source2} =       Set Variable  /tmp_test/eicar2.iso
+    ${destination2} =  Set Variable  /tmp_test/iso_mount2
     Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source2}
     Register Cleanup  Remove File   ${source2}
     Create Directory  ${destination2}
@@ -413,8 +413,8 @@ AV Plugin Scan two mounts same inode numbers
     Check AV Plugin Installed
     Run Scan Now Scan
     Wait Until AV Plugin Log Contains   Completed scan Scan Now   timeout=240   interval=5
-    AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp/iso_mount/directory/subdir/eicar.com'
-    AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp/iso_mount2/directory/subdir/eicar.com'
+    AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/directory/subdir/eicar.com'
+    AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount2/directory/subdir/eicar.com'
     ${result} =       Terminate Process  ${handle}
 
 

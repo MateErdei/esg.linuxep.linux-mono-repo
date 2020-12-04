@@ -387,7 +387,7 @@ Check Scan Now Configuration File is Correct
         ...    15 secs
         ...    1 secs
         ...    File Should Exist  ${configFilename}
-    @{exclusions} =  ExclusionHelper.get exclusions to scan tmp
+    @{exclusions} =  ExclusionHelper.get exclusions to scan tmp test
     CapnpHelper.check named scan object   ${configFilename}
         ...     name=Scan Now
         ...     exclude_paths=@{exclusions}
@@ -409,7 +409,7 @@ Check Scheduled Scan Configuration File is Correct
         ...    File Should Exist  ${configFilename}
     # TODO LINUXDAR-1482 Update this to check all the configuration is correct - run the test and see what's outputted first
     # TODO LINUXDAR-1482 Make the check more complicated so we check the list attributes
-    @{exclusions} =  ExclusionHelper.get exclusions to scan tmp
+    @{exclusions} =  ExclusionHelper.get exclusions to scan tmp test
     CapnpHelper.check named scan object   ${configFilename}
         ...     name=Sophos Cloud Scheduled Scan
         ...     exclude_paths=@{exclusions}

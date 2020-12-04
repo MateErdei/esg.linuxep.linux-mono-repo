@@ -18,7 +18,7 @@ Test Teardown  Threat Detector Test Teardown
 ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
-${TESTTMP}  /tmp/SSPLAVTests
+${TESTTMP}  /tmp_test/SSPLAVTests
 ${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
 
 *** Keywords ***

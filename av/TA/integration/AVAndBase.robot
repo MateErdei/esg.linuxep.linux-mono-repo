@@ -52,14 +52,14 @@ AV plugin runs scan now while CLS is running
 
 AV plugin runs CLS while scan now is running
     [Teardown]  Run Keywords    AV And Base Teardown
-    ...         AND             Remove Directory    /tmp/three_hundred_eicars/  recursive=True
+    ...         AND             Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
     Check AV Plugin Installed With Base
     Configure scan now
 
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
 
-    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp/three_hundred_eicars/
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp_test/three_hundred_eicars/
     Send Sav Action To Base  ScanNow_Action.xml
 
     Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
@@ -183,7 +183,7 @@ AV plugin runs scheduled scan while CLS is running
 
 AV plugin runs CLS while scheduled scan is running
     [Teardown]  Run Keywords    AV And Base Teardown
-        ...         AND             Remove Directory    /tmp/three_hundred_eicars/  recursive=True
+        ...         AND             Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
     Check AV Plugin Installed With Base
     Send Sav Policy With Imminent Scheduled Scan To Base
@@ -191,7 +191,7 @@ AV plugin runs CLS while scheduled scan is running
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
 
     Wait Until AV Plugin Log Contains  Starting scan Sophos Cloud Scheduled Scan  timeout=150
-    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp/three_hundred_eicars/
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp_test/three_hundred_eicars/
 
     Process Should Be Running   ${cls_handle}
     Wait for Process    ${cls_handle}
@@ -328,17 +328,17 @@ Avscanner runs as non-root
          ...  check threat event received by base  1  naugthyEicarThreatReportAsNobody
 
 AV Plugin Reports encoded eicars To Base
-   [Teardown]  Run Keywords      Remove Directory  /tmp/encoded_eicars  true
+   [Teardown]  Run Keywords      Remove Directory  /tmp_test/encoded_eicars  true
    ...         AND               AV And Base Teardown
 
    Check AV Plugin Installed With Base
 
    Create Encoded Eicars
 
-   ${expected_count} =  Count Eicars in Directory  /tmp/encoded_eicars/
+   ${expected_count} =  Count Eicars in Directory  /tmp_test/encoded_eicars/
    Should Be True  ${expected_count} > 0
 
-   ${result} =  Run Process  /usr/local/bin/avscanner  /tmp/encoded_eicars/  timeout=120s  stderr=STDOUT
+   ${result} =  Run Process  /usr/local/bin/avscanner  /tmp_test/encoded_eicars/  timeout=120s  stderr=STDOUT
    Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
    Log  ${result.stdout}
 

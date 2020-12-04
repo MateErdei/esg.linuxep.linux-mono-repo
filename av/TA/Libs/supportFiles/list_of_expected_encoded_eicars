@@ -1,6 +1,6 @@
-WIERDPATH-eicar.com-VIRUS" path="/tmp/encoded_eicars/.\r/
+WIERDPATH-eicar.com-VIRUS" path="/tmp_test/encoded_eicars/.\r/
 LATIN1-ENGLISH-For all good men-VIRUS
-sh" path="/tmp/encoded_eicars/NEWLINEDIR\n/\n/bin/
+sh" path="/tmp_test/encoded_eicars/NEWLINEDIR\n/\n/bin/
 LATIN1-CHINESE--VIRUS
 SJIS-KOREAN--VIRUS
 ES-Español
@@ -9,7 +9,7 @@ UTF-8-FRENCH-à ta santé âge-VIRUS
 LATIN1-KOREAN--VIRUS
 SJIS-FRENCH- ta sant ge-VIRUS
 .‌.
-bash" path="/tmp/encoded_eicars/..‌/..‌/bin/
+bash" path="/tmp_test/encoded_eicars/..‌/..‌/bin/
 SJIS-CHINESE-最場腔醴腔-VIRUS (SJIS)
 PairDoubleQuote-&quot;VIRUS.com&quot;
 LATIN1-JAPANESE--VIRUS
@@ -37,12 +37,12 @@ SJIS-ENGLISH-For all good men-VIRUS
 EUC-JP-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (EUC-JP)
 ES-NFC-Español
 EUC-JP-CHINESE-涴最場腔醴腔-VIRUS (EUC-JP)
-eicar.com" path="/tmp/encoded_eicars/.‌/
+eicar.com" path="/tmp_test/encoded_eicars/.‌/
 EUC-JP-KOREAN--VIRUS
 ES-NFD-Español
-eicar.com" path="/tmp/encoded_eicars/‌./
+eicar.com" path="/tmp_test/encoded_eicars/‌./
 UTF-8-KOREAN-디렉토리입다-VIRUS
-path="/tmp/encoded_eicars/"
+path="/tmp_test/encoded_eicars/"
 UTF-8-CHINESE-涴跺最唗郔場腔醴腔-VIRUS
 ES-Español
 SJIS-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (SJIS)
