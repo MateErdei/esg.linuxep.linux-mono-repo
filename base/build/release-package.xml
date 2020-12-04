@@ -9,32 +9,32 @@
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>
-        <package name="openssllinux11" version="1-1-1i-1/221620/output" dest="input">
+        <package name="openssllinux11" version="1-1-1g-6/219531/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="cmakelinux"
                  version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
-        <package name="versig" version="2-0-0-84/221636/output" dest="input">
+        <package name="versig" version="2-0-0-80/221233/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
-        <package name="curllinux11" version="7-74-0-2/221622/output" dest="input">
+        <package name="curllinux11" version="7-71-1-2/220751/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-66/221637/output" dest="input">
+        <package name="sullinux11" version="1-0-0-63/221291/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
-        <package name="boostlinux11" version="1-74-0-5/221614/output" dest="input">
+        <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
-        <package name="expatlinux11" version="2-2-10-4/221623/output" dest="input">
+        <package name="expatlinux11" version="2-2-9-9/219532/output" dest="input">
             <include src="expat.tar" dest="."/>
         </package>
-        <package name="protobuflinux11" version="3-14-0-6/221619/output" dest="input">
+        <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
-        <package name="zeromqlinux11" version="4-3-3-2/221624/output" dest="input">
+        <package name="zeromqlinux11" version="4-3-2-27/219061/output" dest="input">
             <include src="zeromq.tar" dest="."/>
         </package>
         <package name="log4cpluslinux11" version="2-0-5-19/220731/output" dest="input">
@@ -49,16 +49,16 @@
         <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
             <include src="capnproto.tar" dest="."/>
         </package>
-        <package name="pythonlinux11" version="3-9-1-3/221630/output" dest="input">
+        <package name="pythonlinux11" version="3-7-7-28/219665/output" dest="input">
             <include src="python.tar" dest="." />
         </package>
-        <package name="python-watchdog" version="0-10-6-3/221633/watchdog" dest="input">
+        <package name="python-watchdog" version="0-10-2-2/218866/watchdog" dest="input">
             <include src="python-watchdog.tar" dest="." />
         </package>
         <package name="python-pathtools" version="0-1-1-9/216281/pathtools" dest="input">
             <include src="python-pathtools.tar" dest="." />
         </package>
-        <package name="pycryptodomelinux11" version="3-9-8-3/221638/pycryptodome" dest="input">
+        <package name="pycryptodomelinux11" version="3-9-0-4/218828/pycryptodome" dest="input">
             <include src="pycryptodome.tar" dest="." />
         </package>
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
@@ -123,8 +123,7 @@
         <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="coverage,release">
             <include glob="pluginapi.tar.gz"/>
         </build-asset>
-
-        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="release"/>
+        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="coverage"/>
 
         <!-- coverage(bullseye) -->
         <build-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
@@ -136,7 +135,11 @@
             <include glob="symbols"/>
         </build-asset>
 
-        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="coverage"/>
+        <build-asset artifact-path="coverage" source-dir="output/" mode="coverage">
+            <include glob="./*.cov"/>
+        </build-asset>
+
+        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="analysis, coverage,release"/>
 
         <!-- Analysis -->
         <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>

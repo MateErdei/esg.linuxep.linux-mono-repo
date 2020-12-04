@@ -38,8 +38,7 @@ BULLSEYE_SYSTEM_TESTS=0
 export NO_REMOVE_GCC=1
 INPUT=$BASE/input
 
-COVFILE="/tmp/root/sspl-unit.cov"
-COV_HTML_BASE=sspl-unittest
+COVFILE="/tmp/root/sspl-base-unittest.cov"
 BULLSEYE_SYSTEM_TEST_BRANCH=develop
 export TEST_SELECTOR=
 CMAKE_BUILD_TYPE=RelWithDebInfo
@@ -105,16 +104,12 @@ do
             shift
             COVFILE=$1
             ;;
-        --cov-html)
-            shift
-            COV_HTML_BASE=$1
-            ;;
         --bullseye-system-tests)
             BULLSEYE=1
             BULLSEYE_UPLOAD=1
             BULLSEYE_SYSTEM_TESTS=1
-            COVFILE="/tmp/root/sspl-combined.cov"
-            COV_HTML_BASE=sspl-functional
+            COVFILE="/tmp/root/sspl-base-combined.cov"
+            #ToDo remove the above LINUXDAR-1816
             ;;
         --bullseye-system-test-selector)
             shift
@@ -384,7 +379,6 @@ function build()
         export PATH=${PATH}:${BULLSEYE_DIR}/bin:$PATH
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE
-        export COV_HTML_BASE
         export BULLSEYE_DIR
         bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
         export CC=$BULLSEYE_DIR/bin/gcc
@@ -503,51 +497,11 @@ function build()
         cp -a build${BITS}/symbols output/
     fi
 
-    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 ))
-    then
-        cd $BASE
-        export BULLSEYE_SYSTEM_TEST_BRANCH
-        bash -x $BASE/build/bullseye/runSystemTest.sh || {
-            ## System tests failed to sync or similar
-            EXIT=$?
-            echo "System tests failed: $EXIT"
-            exit $EXIT
-        }
-    fi
-
-    if [[ ${BULLSEYE_UPLOAD} == 1 ]]
-    then
-        ## Process bullseye output
-        ## upload unit or functional tests
-        cd $BASE
-        bash -x build/bullseye/uploadResults.sh || exit $?
-    fi
-
-    if (( ${BULLSEYE_SYSTEM_TESTS} == 1 )) && (( ${UNIT_TESTS} == 1 ))
-    then
-        ## Now generate combined results
-        cd ${BASE}
-        cd build${BITS}
-        export COV_HTML_BASE=sspl-combined
-        make CTEST_OUTPUT_ON_FAILURE=1 test || echo "Unit tests failed for $PRODUCT: $?"
-
-        ## Upload combined results
-        cd ${BASE}
-        bash -x build/bullseye/uploadResults.sh || exit $?
-    fi
-
     if [[ ${BULLSEYE} == 1 ]]
     then
-      if [[ ${UNITTEST} == 1 ]]
-      then
-            ## Process bullseye output
-            ## upload unit tests
-            cd $BASE
-
-            #keep the local jenkins tests seperated
-            export COV_HTML_BASE=sspl-plugin-edr-unittest
-            cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
-        fi
+      ## upload unit tests
+      cd $BASE
+      cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
     fi
     echo "Build completed"
 }
