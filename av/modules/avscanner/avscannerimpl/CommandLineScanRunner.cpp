@@ -186,7 +186,7 @@ int CommandLineScanRunner::run()
         LOGERROR("Failed to scan one or more files due to an error");
     }
 
-    scanCallbacks->logSummary(); //NOLINT
+    scanCallbacks->logSummary();
 
     return m_returnCode;
 }

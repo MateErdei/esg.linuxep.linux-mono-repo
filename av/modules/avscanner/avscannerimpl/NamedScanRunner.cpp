@@ -13,7 +13,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "avscanner/mountinfoimpl/Mounts.h"
 
 #include <capnp/message.h>
-#include <common/AbortScanException.h>
 #include <common/StringUtils.h>
 #include <filewalker/FileWalker.h>
 
