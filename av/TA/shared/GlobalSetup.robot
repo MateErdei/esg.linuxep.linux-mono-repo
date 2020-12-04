@@ -40,6 +40,7 @@ Global Setup Tasks
     Set Global Variable  ${AV_LOG_PATH}                     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
     Set Global Variable  ${VIRUS_DETECTED_RESULT}           ${69}
     Set Global Variable  ${CLEAN_RESULT}                    ${0}
+    Set Global Variable  ${ERROR_RESULT}                    ${1}
 
 
     Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}            UsingFakeAvScanner

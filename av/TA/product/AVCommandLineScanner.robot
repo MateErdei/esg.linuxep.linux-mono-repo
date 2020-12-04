@@ -145,7 +145,7 @@ CLS Can Scan Shallow Archive But not Deep Archive
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar30.zip --scan-archives
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar15.tar --scan-archives
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
