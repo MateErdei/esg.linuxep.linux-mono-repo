@@ -1,3 +1,8 @@
+#!/bin/env python
+
+from __future__ import print_function
+
+
 from xmlrpclib import ServerProxy
 import os.path
 import socket
@@ -36,7 +41,7 @@ def update_ca(sdds, package):
     empty_vdl = False
     if len(sav_marker) > 0 and not empty_vdl:
         # Note if we want this to work with dev and production it will not work
-        print "Skipping certificate update on SAVXP, because its for VDL"
+        print("Skipping certificate update on SAVXP, because its for VDL")
         return
     root_cas = [f for f in sdds.findall(".//File")
                 if f.attrib["Name"] == "ps_rootca.crt"]
@@ -52,8 +57,8 @@ def update_ca(sdds, package):
         with open(file_path, "wb") as f:
             crldata = ""
             if sau_marker and product_version < [4, 4]:
-                print "WARNING! Forcing a NULL root crl for SAU%s because its CRL"\
-                      " handling is broken!" % product_version
+                print("WARNING! Forcing a NULL root crl for SAU%s because its CRL"\
+                      " handling is broken!" % product_version)
             else:
                 crldata = server.get_cert("rootcrl", None)
 
@@ -66,11 +71,11 @@ def update_file_checksum_and_size(node, file_path):
         md5 = hashlib.md5(f.read()).hexdigest()
         size = str(os.stat(file_path).st_size)
         if node.attrib["MD5"] != md5 or node.attrib["Size"] != size:
-            print "Updating %s MD5 %s->%s size %s->%s" % (file_path,
+            print("Updating %s MD5 %s->%s size %s->%s" % (file_path,
                                                           node.attrib["MD5"],
                                                           md5,
                                                           node.attrib["Size"],
-                                                          size)
+                                                          size))
         node.attrib["MD5"] = md5
         node.attrib["Size"] = size
 
@@ -120,13 +125,13 @@ def update_manifest_dat_file(manifest, rootpath):
 
         try:
             m_file.write(server.sign_file(file_data, manifest, None))
-        except socket.error, e:
+        except socket.error as e:
             print("ERROR - Signing Failed: {}".format(e))
             raise
         for cert in ("pub", "ca"):
             try:
                 m_file.write(server.get_cert(cert, None))
-            except socket.error, e:
+            except socket.error as e:
                 print("ERROR - Failed to get cert {}: {}".format(cert, e))
                 raise
 
@@ -160,8 +165,8 @@ def update_manifest_dat_file_orig(manifest, rootpath):
 
             new_size, new_checksum = get_file_size_and_checksum(rootpath, filename, checksum_type)
             if new_size != size or new_checksum != checksum:
-                print "Updating %s  %s->%s %s->%s" % (checksum_type, size, new_size,
-                                                      checksum, new_checksum)
+                print("Updating %s  %s->%s %s->%s" % (checksum_type, size, new_size,
+                                                      checksum, new_checksum))
             if checksum_type == "sha1":
                 manifestdata.writelines(
                     ['"%s" %s %s\n' % (filename, new_size, new_checksum)])
@@ -185,14 +190,14 @@ def update_manifest_dat_file_orig(manifest, rootpath):
 
         try:
             m_file.write(server.sign_file(file_data, manifest, None))
-        except socket.error, e:
-            print "ERROR - Signing Failed: %s" % e
+        except socket.error as e:
+            print("ERROR - Signing Failed: %s" % e)
             raise
         for cert in ("pub", "ca"):
             try:
                 m_file.write(server.get_cert(cert, None))
-            except socket.error, e:
-                print "ERROR - Failed to get cert %s: %s" % (cert, e)
+            except socket.error as e:
+                print("ERROR - Failed to get cert %s: %s" % (cert, e))
                 raise
 
 
@@ -209,7 +214,7 @@ def update_component_suite_version(sdds, path_to_match,
                                    component_suite_lable_updates):
     if path_to_match in component_suite_lable_updates:
         item = component_suite_lable_updates[path_to_match]
-        print "Updating component suite version", path_to_match, "to", item
+        print("Updating component suite version", path_to_match, "to", item)
         sdds.find(".//Version").text = item["version"]
         sdds.find(".//ShortDesc").text = item["description"]
         sdds.find(".//LongDesc").text = item["description"]
@@ -224,11 +229,11 @@ def main(root_path):
 
     for collatedir in collatedirs:
         sdds_ready_dir = os.path.join(root_path, collatedir, "SDDS-Ready-Packages")
-        print "Searching", sdds_ready_dir
+        print("Searching", sdds_ready_dir)
         if os.path.isdir(sdds_ready_dir):
             inputs = get_full_subdirs(sdds_ready_dir)
             for package in inputs:
-                print "Searching", package
+                print("Searching", package)
                 manifest = os.path.join(root_path, package, "manifest.dat")
                 sddsimport = os.path.join(root_path, package, "SDDS-Import.xml")
 

@@ -90,6 +90,11 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
+                supplements:
+                    - warehouse: "VDB_supp"
+                      line-id: "VDL"
+                      tag: LATEST
+                      decode-path: "savi/sav"
 
 customer-files:
     - warehouse: sspl-wh
