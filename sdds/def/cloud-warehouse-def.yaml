@@ -91,10 +91,7 @@ warehouses:
                     - base-version: ""
                       tag: BETA
                 supplements:
-                    - warehouse: "VDB_supp"
-                      line-id: "VDL"
-                      tag: LATEST
-                      decode-path: "savi/sav"
+                    - vdl-data
 
 customer-files:
     - warehouse: sspl-wh
