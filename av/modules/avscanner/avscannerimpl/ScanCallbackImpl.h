@@ -31,11 +31,10 @@ namespace avscanner::avscannerimpl
         void scanStarted() override { m_startTime = time(nullptr); }
         void logSummary() override;
 
-        [[nodiscard]] int getNoOfScanErrors() { return m_noOfErrors; }
-
     protected:
         [[nodiscard]] time_t  getStartTime() { return m_startTime; }
         [[nodiscard]] int getNoOfInfectedFiles() { return m_noOfInfectedFiles; }
+        [[nodiscard]] int getNoOfScanErrors() { return m_noOfErrors; }
         [[nodiscard]] int getNoOfCleanFiles() { return m_noOfCleanFiles; }
         [[nodiscard]] int getNoOfScannedFiles() { return m_noOfCleanFiles + m_noOfInfectedFiles; }
         [[nodiscard]] std::map<std::string, int> getThreatTypes() { return m_threatCounter; }
