@@ -16,10 +16,24 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace threat_scanner;
 
+static bool isAllowlistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
+{
+    (void)token;
+    (void)algorithm;
+    (void)fileChecksum;
+    (void)size;
+
+    LOGDEBUG("isWhitelistedFile: size="<<size);
+
+    return false;
+}
+
 static SusiCallbackTable my_susi_callbacks{ // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
         .version = CALLBACK_TABLE_VERSION,
         .token = nullptr,
+        .IsAllowlistedFile = isAllowedlistedFile,
         .IsTrustedCert = threat_scanner::isTrustedCert,
+        .IsAllowlistedCert = threat_scanner::isAllowlistedCert
 };
 
 static const SusiLogCallback GL_log_callback{

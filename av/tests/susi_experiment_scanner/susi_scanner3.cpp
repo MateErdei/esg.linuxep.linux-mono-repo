@@ -20,6 +20,16 @@ static const int THREAD_COUNT = 100;
 
 #define ASSERT(_X) do { if (!(_X)) { P("!" #_X); abort(); } } while(false)
 
+static bool isAllowlistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
+{
+    (void)token;
+    (void)algorithm;
+    (void)fileChecksum;
+    (void)size;
+    P("isWhitelistedFile: " << fileChecksum);
+    return false;
+}
+
 static SusiCertTrustType isTrustedCert(void *token, SusiHashAlg algorithm, const char *pkcs7, size_t size)
 {
     (void)token;
@@ -32,10 +42,23 @@ static SusiCertTrustType isTrustedCert(void *token, SusiHashAlg algorithm, const
     return SUSI_TRUSTED;
 }
 
+static bool isAllowlistedCert(void *token, const char *fileTopLevelCert, size_t size)
+{
+    (void)token;
+    (void)fileTopLevelCert;
+    (void)size;
+
+    P("isWhitelistedCert: " << size);
+
+    return false;
+}
+
 static SusiCallbackTable my_susi_callbacks{ //NOLINT
     .version = CALLBACK_TABLE_VERSION,
     .token = nullptr, //NOLINT
+    .IsAllowlistedFile = isAllowlistedFile,
     .IsTrustedCert = isTrustedCert,
+    .IsAllowlistedCert = isAllowlistedCert
 };
 
 class SusiGlobalHandler
