@@ -43,14 +43,14 @@ void sendMessageToNetworkSideAndCheckItRespondsWithoutCrashing(std::string& msgC
     EXPECT_THROW(commsNetwork(channel, mockedOutCommsDistributorSide), std::runtime_error);
 }
 
-TEST_F(TestNetworkSide, NetworkSideHandlesEmptyMessageFromCommsDitrbutor) // NOLINT
+TEST_F(TestNetworkSide, NetworkSideHandlesEmptyMessageFromCommsDistributor) // NOLINT
 {
     // Set content data to be empty
     std::string content = "";
     sendMessageToNetworkSideAndCheckItRespondsWithoutCrashing(content);
 }
 
-TEST_F(TestNetworkSide, NetworkSideHandlesLargeMessageFromCommsDitrbutor) // NOLINT
+TEST_F(TestNetworkSide, NetworkSideHandlesLargeMessageFromCommsDistributor) // NOLINT
 {
     // Set content data to be a very large string (100MB)
     std::string content = std::string(100000000,'a');
