@@ -74,7 +74,9 @@ def get_suffix():
     return "-" + BRANCH_NAME
 
 
-def robot_task_with_env(machine: tap.Machine, environment=None):
+def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=None):
+    if machine_name is None:
+        machine_name = machine.template
     try:
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
         machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', environment=environment,
@@ -84,7 +86,9 @@ def robot_task_with_env(machine: tap.Machine, environment=None):
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
-                    "robot-log" + get_suffix() + "_" + machine.template + ".html")
+                    "robot-log" + get_suffix() + "_" + machine_name + ".html")
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/report.html",
+                    "robot-report" + get_suffix() + "_" + machine_name + ".html")
 
 
 def robot_task(machine: tap.Machine):
@@ -191,10 +195,12 @@ def bullseye_coverage_task(machine: tap.Machine):
 
         # don't abort immediately if robot tests fail, generate the coverage report, then re-raise the exception
         try:
-            robot_task_with_env(machine, environment={
-                'COVFILE': COVFILE_ROBOT,
-                'COVSRCDIR': COVSRCDIR,
-            })
+            robot_task_with_env(machine,
+                                environment={
+                                    'COVFILE': COVFILE_ROBOT,
+                                    'COVSRCDIR': COVSRCDIR,
+                                },
+                                machine_name="coverage")
         except tap.exceptions.PipelineProcessExitNonZeroError as e:
             exception = e
 
@@ -230,7 +236,6 @@ def bullseye_coverage_task(machine: tap.Machine):
         if exception is not None:
             raise exception
     finally:
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html", "robot-coverage-log"+suffix+".html")
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
 
