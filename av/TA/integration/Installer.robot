@@ -22,9 +22,15 @@ Test Teardown   Installer Test TearDown
 IDE update doesnt restart av processes
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Install IDE  ${IDE_NAME}
+    Add IDE to Install Set  ${IDE_NAME}
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    Run installer From Install Set
+    Check IDE Present In Installation  ${IDE_NAME}
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1
+    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI update finished successfully  timeout=120
 
     # Check we can detect EICAR following update
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
@@ -66,11 +72,13 @@ Scanner works after upgrade
 
 
 IDE can be removed
-    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Install IDE  ${IDE_NAME}
-    Uninstall IDE  ${IDE_NAME}
-    File Should Not Exist   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/libsusi.so
-    Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    Add IDE To Install Set  ${IDE_NAME}
+    Run Installer From Install Set
+    Check IDE Present In Installation  ${IDE_NAME}
+    Remove IDE From Install Set  ${IDE_NAME}
+    Run Installer From Install Set
+    Check IDE Absent From Installation  ${IDE_NAME}
+
 
 sophos_threat_detector can start after multiple IDE updates
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
@@ -157,14 +165,10 @@ ${IDE3_NAME}        Sus2Exp.ide
 
 *** Keywords ***
 Installer Suite Setup
-    Remove Files
-    ...   ${IDE_DIR}/${IDE_NAME}
-    ...   ${IDE_DIR}/${IDE2_NAME}
-    ...   ${IDE_DIR}/${IDE3_NAME}
     Install With Base SDDS
 
 Installer Suite TearDown
-    No Operation
+    Log  Installer Suite TearDown
 
 Installer Test Setup
     Register On Fail  Debug install set
@@ -175,12 +179,42 @@ Installer Test Setup
 
 Installer Test TearDown
     Run Teardown Functions
+    #TODO: Remove this line once CORE-2095 is fixed
+    #Currently loading more than 1 IDE in test, stops SUSI
+    Install With Base SDDS
+
+Sophos Threat Detector Log Contains With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
+    File Log Contains With Offset  ${THREAT_DETECTOR_LOG_PATH}   ${input}   offset=${offset}
+
+Wait Until Sophos Threat Detector Log Contains With Offset
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  Sophos Threat Detector Log Contains With Offset  ${input}   timeout=${timeout}
+
+Install IDE
+    [Arguments]  ${ide_name}
+    Add IDE to install set  ${ide_name}
+    Run installer from install set
+    Check IDE present in installation  ${ide_name}
+
+Check IDE absent from installation
+    [Arguments]  ${ide_name}
+    file should not exist  ${INSTALL_IDE_DIR}/${ide_name}
+
+Check AV Plugin has same PID
+    [Arguments]  ${PID}
+    ${currentPID} =  Record AV Plugin PID
+    Should Be Equal As Integers  ${PID}  ${currentPID}
+
+Check Sophos Threat Detector has different PID
+    [Arguments]  ${PID}
+    ${currentPID} =  Record Sophos Threat Detector PID
+    Should Not Be Equal As Integers  ${PID}  ${currentPID}
 
 Debug install set
-    ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update_source  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
+    ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
     Log  INSTALL_SET= ${result.stdout}
-    ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/update_source  -type  f   stdout=/tmp/proc.out    stderr=STDOUT
-    Log  INSTALLATION= ${result.stdout}
     ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/distribution_version   stdout=/tmp/proc.out    stderr=STDOUT
     Log  INSTALLATION= ${result.stdout}
 
@@ -192,11 +226,6 @@ Kill sophos_threat_detector
    Run Process   /bin/kill   -9   ${output}
 
 Restart sophos_threat_detector
-    Mark AV Log
     Kill sophos_threat_detector
-
-    # Existing robot functions don't check marked logs, so we do our own log check instead
-    # Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
-    ...   timeout=40
+    Mark AV Log
+    Wait until threat detector running

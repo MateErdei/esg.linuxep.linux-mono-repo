@@ -280,7 +280,7 @@ CLS Abort Scanning of Zip Bomb
 
     Log  return code is ${rc}
     Log  output is ${output}
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
     Should Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/zipbomb.zip was aborted
 
 AV Log Contains No Errors When Scanning File
