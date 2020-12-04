@@ -78,6 +78,17 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
             openssl=base_build / 'sspl-base' / 'openssl',
             websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server'
         )
+    if mode == 'coverage':
+        test_inputs = dict(
+        test_scripts=context.artifact.from_folder('./testUtils'),
+        base_sdds=base_build / 'coverage/SDDS-COMPONENT',
+        system_test=base_build / 'sspl-base/system_test',
+        openssl=base_build / 'sspl-base' / 'openssl',
+        websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server',
+        bullseye_files=context.artifact.from_folder('./build/bullseye'),
+        coverage=base_build / 'coverage',
+        coverage_unittest=base_build / 'coverage/unittest'
+    )
     return test_inputs
 
 

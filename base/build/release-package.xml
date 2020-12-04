@@ -131,10 +131,10 @@
 
         <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="coverage,release">
             <include glob="SystemProductTestOutput.tar.gz"/>
-            <include glob="./*.cov"/>
             <include glob="symbols"/>
         </build-asset>
 
+        <build-asset artifact-path="coverage/unittest" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>
         <build-asset artifact-path="coverage" source-dir="output/" mode="coverage">
             <include glob="./*.cov"/>
         </build-asset>

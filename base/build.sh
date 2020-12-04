@@ -501,7 +501,17 @@ function build()
     if [[ ${BULLSEYE} == 1 ]]
     then
       ## upload unit tests
-      cd $BASE
+      if [[ ${UNIT_TEST} == 1 ]]
+      then
+            ## Process bullseye output
+            ## upload unit tests
+            cd $BASE
+
+            #keep the local jenkins tests seperated
+            export COV_HTML_BASE=sspl-base-unittest
+            export BULLSEYE_UPLOAD
+            bash -x build/bullseye/uploadResults.sh || exit $?
+      fi
       cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
     fi
     echo "Build completed"
