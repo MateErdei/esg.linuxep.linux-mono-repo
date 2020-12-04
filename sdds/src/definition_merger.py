@@ -52,6 +52,7 @@ class DefinitionMerger:
         if 'supplements' in comp_data:
             supplements = []
             for supp_id in comp_data['supplements']:
+                assert not isinstance(supp_id, dict), "Got a supp_id that is a dictionary!"
                 supplements.append(self.common_supplement_data[supp_id])
             warehouse['supplements'] = supplements
         component['warehouses'].append(warehouse)
