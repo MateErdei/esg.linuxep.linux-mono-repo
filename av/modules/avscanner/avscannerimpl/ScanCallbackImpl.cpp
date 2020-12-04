@@ -41,7 +41,6 @@ void ScanCallbackImpl::infectedFile(const std::map<path, std::string>& detection
 
         addThreat(threatName);
     }
-    m_returnCode = E_VIRUS_FOUND;
 }
 
 void ScanCallbackImpl::scanError(const std::string& errorMsg)
@@ -50,6 +49,21 @@ void ScanCallbackImpl::scanError(const std::string& errorMsg)
     LOGERROR(errorMsg);
 }
 
+avscanner::avscannerimpl::E_ERROR_CODES ScanCallbackImpl::returnCode()
+{
+    if (getNoOfInfectedFiles() > 0)
+    {
+        return E_VIRUS_FOUND;
+    }
+    else if (getNoOfScanErrors() > 0)
+    {
+        return E_GENERIC_FAILURE;
+    }
+    else
+    {
+        return E_CLEAN;
+    }
+}
 void ScanCallbackImpl::logSummary()
 {
     auto endTime = time(nullptr);

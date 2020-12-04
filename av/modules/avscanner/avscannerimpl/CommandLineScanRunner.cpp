@@ -170,11 +170,6 @@ int CommandLineScanRunner::run()
         }
     }
 
-    if (scanCallbacks->getNoOfScanErrors() > 0)
-    {
-        m_returnCode = E_GENERIC_FAILURE;
-    }
-
     // we want virus found to override any other return code
     if (scanCallbacks->returnCode() != E_CLEAN)
     {
