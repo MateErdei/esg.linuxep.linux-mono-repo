@@ -64,7 +64,7 @@ class Warehouse:
         return root
 
 
-class WarehouseItem:
+class WarehouseItem(object):
     def __init__(self, line_id, version):
         self._id = line_id
         self._version = version
@@ -95,7 +95,7 @@ class WarehouseItem:
 
     def to_element_tree(self):
         instance = etree.Element("Instance", version=self._version)
-        if self._promotional_state != None:
+        if self._promotional_state is not None:
             instance.set("promotionalstate", self._promotional_state)
         if len(self._supplements) != 0:
             supps = etree.SubElement(instance, "Supplements")
@@ -108,7 +108,8 @@ class WarehouseItem:
                 supp = etree.SubElement(tags, "ReleaseTag", {'tag': tag})
                 if 'base-version' in tagentry:
                     supp.set('baseversion', str(tagentry['base-version']))
-        if self._resubscription != None:
+
+        if self._resubscription is not None:
             resubs = etree.SubElement(instance, "Resubscriptions")
             (id, bv, v) = self._resubscription
             etree.SubElement(resubs, "Resubscription", line=id, baseversion=bv, version=v)

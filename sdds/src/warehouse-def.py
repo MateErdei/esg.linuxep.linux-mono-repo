@@ -99,7 +99,7 @@ def publish_components(parsed_input, whouses, components):
     for c in parsed_input['components']:
         name = c['instance-name']
 
-        logging.debug ("Publishing %s", name)
+        logging.debug("Publishing %s", name)
         for w in c['warehouses']:
             logging.debug("To %s", w['id'])
             item = warehouses.WarehouseItem(
@@ -116,17 +116,17 @@ def publish_components(parsed_input, whouses, components):
                 line_id = components[goto_name].line_id
                 version = components[goto_name].version
                 item.set_resubscription(line_id, base_version, version)
-            if 'supplements' in w:
-                for s in w['supplements']:
-                    supp = warehouses.Supplement(
-                        s['warehouse'],
-                        s['line-id'],
-                        s['tag'])
-                    if 'base-version' in s:
-                        supp.set_base_version(s['base-version'])
-                    if 'decode-path' in s:
-                        supp.set_decode_path(s['decode-path'])
-                    item.add_supplement(supp)
+            for s in w.get('supplements', []):
+                logging.info("Adding supplement {} to {}".format(s['warehouse'], w['id']))
+                supp = warehouses.Supplement(
+                    s['warehouse'],
+                    s['line-id'],
+                    s['tag'])
+                if 'base-version' in s:
+                    supp.set_base_version(s['base-version'])
+                if 'decode-path' in s:
+                    supp.set_decode_path(s['decode-path'])
+                item.add_supplement(supp)
             whouses[w['id']].add_item(item)
 
 
@@ -258,6 +258,8 @@ def main(argv=None):
     if options.verbose:
         logging.getLogger('').setLevel(logging.DEBUG)
 
+    logging.info("STARTING warehouse-def.py")
+
     # read and parse the input file
     input_file = args[0]
     logging.debug("input file : {}".format(input_file))
@@ -301,6 +303,8 @@ def main(argv=None):
         with open(options.bom, "w") as b:
             write_bom(b, comps, options)
 
+
+    logging.info("FINISHING warehouse-def.py")
     return 0        # success
 
 
