@@ -11,6 +11,7 @@ target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         unixsocket
         datatypes
         cap
+        libz.so.1
         )
 
 target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)

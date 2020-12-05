@@ -229,8 +229,10 @@ Check Sophos Threat Detector has different PID
     Should Not Be Equal As Integers  ${PID}  ${currentPID}
 
 Debug install set
-    ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
+    ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update_source  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
     Log  INSTALL_SET= ${result.stdout}
+    ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/update_source  -type  f   stdout=/tmp/proc.out    stderr=STDOUT
+    Log  INSTALLATION= ${result.stdout}
     ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/distribution_version   stdout=/tmp/proc.out    stderr=STDOUT
     Log  INSTALLATION= ${result.stdout}
 

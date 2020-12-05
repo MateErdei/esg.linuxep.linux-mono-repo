@@ -27,6 +27,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/capability.h>
 #include <sys/prctl.h>
 #include <unistd.h>
+#include <zlib.h>
 
 using namespace sspl::sophosthreatdetectorimpl;
 namespace fs = sophos_filesystem;
@@ -246,6 +247,9 @@ static int inner_main()
 #ifdef USE_CHROOT
     // attempt DNS query
     attempt_dns_query();
+
+    // ensure zlib library is loaded
+    (void) zlibVersion();
 
     // Copy logger config from base
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");

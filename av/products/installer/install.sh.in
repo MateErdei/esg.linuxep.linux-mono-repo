@@ -126,8 +126,6 @@ function bootstrap_susi_from_update_source()
 
     cp -rd ${SUSI_UPDATE_SRC}/rules ${SUSI_V1DIR}/rules
 
-    cp ${SOPHOS_INSTALL}/base/lib64/libz.so.1 ${SUSI_V1DIR}
-
     chown -R ${USER_NAME}:${GROUP_NAME} "${SUSI_DIST_VERS}"
 }
 
