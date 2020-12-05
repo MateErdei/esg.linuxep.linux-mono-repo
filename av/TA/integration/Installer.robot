@@ -72,13 +72,11 @@ Scanner works after upgrade
 
 
 IDE can be removed
-    Add IDE To Install Set  ${IDE_NAME}
-    Run Installer From Install Set
-    Check IDE Present In Installation  ${IDE_NAME}
-    Remove IDE From Install Set  ${IDE_NAME}
-    Run Installer From Install Set
-    Check IDE Absent From Installation  ${IDE_NAME}
-
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Install IDE  ${IDE_NAME}
+    Uninstall IDE  ${IDE_NAME}
+    File Should Not Exist   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/libsusi.so
+    Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
 sophos_threat_detector can start after multiple IDE updates
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
@@ -194,9 +192,22 @@ Wait Until Sophos Threat Detector Log Contains With Offset
 
 Install IDE
     [Arguments]  ${ide_name}
+    Mark Sophos Threat Detector Log
     Add IDE to install set  ${ide_name}
     Run installer from install set
     Check IDE present in installation  ${ide_name}
+    Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1
+    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI update finished successfully  timeout=120
+
+Uninstall IDE
+    [Arguments]  ${ide_name}
+    Mark Sophos Threat Detector Log
+    Remove IDE From Install Set  ${ide_name}
+    Run installer from install set
+    Check IDE Absent From Installation  ${ide_name}
+    Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1
+    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI update finished successfully  timeout=120
+
 
 Check IDE absent from installation
     [Arguments]  ${ide_name}
