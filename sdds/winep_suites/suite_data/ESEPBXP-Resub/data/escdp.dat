@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<License format-version="1.0">
+	<Features>
+		<Feature>AV</Feature>
+		<Feature>CLNTFRWLL</Feature>
+		<Feature>CRT</Feature>
+		<Feature>DVCCNTRL</Feature>
+		<Feature>HIPS</Feature>
+		<Feature>PUA</Feature>
+		<Feature>APPCNTRL</Feature>
+		<Feature>URLSCRTY</Feature>
+		<Feature>WEBCNTRL</Feature>
+	</Features>
+</License>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package name="winep_suites" version="11.0">
+
+  <versioning>
+    <workingdir>.\winep_suites\AutoVersion</workingdir>
+  </versioning>
+
+  <inputs>
+    <workingdir>.\winep_suites</workingdir>
+
+    <!-- SDDSImportGen -->
+    <package name="sddsimportgen" version="1-0-12/214456" dest=".">
+      <include src="sddsimportgen" dest="."/>
+    </package>
+
+    <build-asset project="winep" repo="winsav">
+      <release-version branch="release/2020.38" build-id="20200910153324-5a77781fe2fd8c24fd6f90f867a5c01a4f569ea3-QgOPwp" />
+      <development-version branch="develop" />
+      <include artifact-path="savcfg" dest-dir="savcfg" />
+    </build-asset>
+  </inputs>
+
+  <buildcommands>
+    <!-- Setup "logs" directory. -->
+    <command>
+      <program> cmd.exe </program>
+        <args> /c if EXIST logs (del /Q /S logs) ELSE (mkdir logs) </args>
+      <workingdir>.\winep_suites</workingdir>
+    </command>
+
+    <!-- Build winep_suites -->
+    <command>
+      <program>py -3</program>
+        <args>makesuites.py</args>
+      <workingdir>.\winep_suites</workingdir>
+    </command>
+  </buildcommands>
+
+  <publish>
+    <publishbranches>master,develop,feature,bugfix,release</publishbranches>
+    <workingdir>.\winep_suites</workingdir>
+    <destdir>winep_suites</destdir>
+
+    <logs name="logs" source-dir="logs">
+      <include glob="makesuites.log" />
+      <include glob="makesuites.err" />
+    </logs>
+
+    <release-asset artifact-path="winep_suites/SDDS-Ready-Packages" source-dir="suite_data" />
+
+  </publish>
+
+</package>

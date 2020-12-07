@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SDDSData>
+	<ProductInstance>
+		<!-- Product Instance Identity (Primary) -->
+		<ProductLineId>7ba49542-049c-4154-aad9-cf19a9ec7be5</ProductLineId>
+		<ProductVersionId>10.3.7.3530</ProductVersionId>
+		<!-- Product Instance Identity (Secondary) -->
+		<ProductLineCanonicalName>ESEPBXP</ProductLineCanonicalName>
+		<ProductVersionLabels>
+			<Label>10.3.7.3530</Label>
+		</ProductVersionLabels>
+		<ProductInstanceNames>
+			<Name>Windows Endpoint Security and Control v10.3.7.3530</Name>
+		</ProductInstanceNames>
+		<EMLVersion>10.3.7.3530</EMLVersion>
+		<!-- Product Instance Form -->
+		<Form>simple</Form>
+		<Managed>1</Managed>
+		<SignedManifest>0</SignedManifest>
+		<!-- Product Instance Details -->
+		<DefaultHomeFolder>SAVSCFXP</DefaultHomeFolder>
+		<Roles>
+			<Role>CRT</Role>
+		</Roles>
+    <Features>
+      <Feature>CRT</Feature>
+    </Features>
+    <Platforms>
+      <Platform>WIN_2003_SVR</Platform>
+    </Platforms>
+    <TargetTypes>
+			<TargetType>ENDPOINT</TargetType>
+		</TargetTypes>
+	</ProductInstance>
+</SDDSData>

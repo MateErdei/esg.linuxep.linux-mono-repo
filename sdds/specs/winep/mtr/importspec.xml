@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<importspec>
+  <warehouses>
+    <warehouse id="WIN_MTR" name="WIN_MTR_1-0-3-11"/>
+  </warehouses>
+  <imports>
+    <!-- Component Suites -->
+    <line id="WindowsCloudMDR">
+      <!-- released -->
+      <componentsuite fileset="\\uk-filer5.prod.sophos\PRODRO\bir\mdr\1-0-3-11\219259\suite" id="1.0.3.11" longdic="1.0.3.11" shortdic="1.0.3.11" version="1.0.3.11"/>
+      <componentsuite fileset="\\uk-filer5.prod.sophos\PRODRO\bir\mdr\1-0-3-2\218298\suite" id="1.0.3.2" longdic="1.0.3.2" shortdic="1.0.3.2" version="1.0.3.2"/>
+      <componentsuite fileset="\\uk-filer5.prod.sophos\PRODRO\bir\mdr\1-0-2-1\217627\suite" id="1.0.2.10" longdic="1.0.2.10" shortdic="1.0.2.10" version="1.0.2.10"/>
+      <componentsuite fileset="\\uk-filer5.prod.sophos\PRODRO\bir\mdr\1-0-1-44\217233\suite" id="1.0.1.44" longdic="1.0.1.44" shortdic="1.0.1.44" version="1.0.1.44"/>
+    </line>
+
+    <line id="MDR64">
+      <!-- released -->
+      <component fileset="\\uk-filer5.prod.sophos\prodro\bir\mdr\1-0-1-44\217233\release\x64" id="1.0.1.44" version="1.0.1.44"/>
+    </line>
+    <line id="MDR32">
+      <!-- released -->
+      <component fileset="\\uk-filer5.prod.sophos\prodro\bir\mdr\1-0-1-44\217233\release\Win32" id="1.0.1.44" version="1.0.1.44"/>
+    </line>
+
+    <line id="MTR64">
+      <!-- released -->
+      <component fileset="\\uk-filer5.prod.sophos\PRODRO\bir\mdr\1-0-3-11\219259\release\x64" id="1.0.3.11" version="1.0.3.11"/>
+      <component fileset="\\uk-filer5.prod.sophos\PRODRO\bir\mdr\1-0-3-2\218298\release\x64" id="1.0.3.2" version="1.0.3.2"/>
+      <component fileset="\\uk-filer5.prod.sophos\prodro\bir\mdr\1-0-2-10\217676\release\x64" id="1.0.2.10" version="1.0.2.10"/>
+    </line>
+    <line id="MTR32">
+      <!-- released -->
+      <component fileset="\\uk-filer5.prod.sophos\PRODRO\bir\mdr\1-0-3-11\219259\release\Win32" id="1.0.3.11" version="1.0.3.11"/>
+      <component fileset="\\uk-filer5.prod.sophos\PRODRO\bir\mdr\1-0-3-2\218298\release\Win32" id="1.0.3.2" version="1.0.3.2"/>
+      <component fileset="\\uk-filer5.prod.sophos\prodro\bir\mdr\1-0-2-10\217676\release\Win32" id="1.0.2.10" version="1.0.2.10"/>
+    </line>
+
+  </imports>
+</importspec>

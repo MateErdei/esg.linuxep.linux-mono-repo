@@ -1,0 +1,179 @@
+%YAML 1.1
+---
+warehouses:
+    sa:
+        components:
+            saxp:
+                import:
+                    description: "Standalone Windows"
+                    version: "10.8.10"
+                features: [AV, HIPS, PUA, CLNTFRWLL]
+                platforms: []
+                release-tags:
+                    -   base-version: 10
+                        tag: PREVIEW
+                subcomponents:
+                    opm-savxp:
+                        supplements:
+                            - opm-savcontrol-data
+                            - userappfeed-data
+                            - hips-data
+                            - sxlsup-data
+                            - vdl-data
+                    opm-sau:
+                        supplements:
+                            - saucontrol-data
+                            - telemetry-data
+                    scf:
+                    opm-sed32:
+                        supplements:
+                            - userappfeed-data
+                    opm-sed64:
+                        supplements:
+                            - userappfeed-data
+
+    sum:
+        components:
+            sum:
+
+    opm:
+        components:
+            sec:
+                supplements:
+                    - msdc-supp
+            psvr3:
+                release-tags:
+                    -   base-version: 3
+                        tag: RECOMMENDED
+                supplements:
+                    -   pdata-supp
+            opm-adv-suite:
+                import:
+                    description: "Windows Endpoint Security and Control"
+                    version: "10.8.10"
+                features: [AV, CLNTFRWLL, CRT, DLP, DVCCNTRL, HIPS, PUA, APPCNTRL, URLSCRTY, PATCH, WEBCNTRL, NTP]
+                platforms: []
+                release-tags:
+                    -   base-version: 10
+                        tag: PREVIEW
+                subcomponents:
+                    opm-savxp:
+                        supplements:
+                            - opm-savcontrol-data
+                            - appfeed-data
+                            - hips-data
+                            - sxlsup-data
+                            - vdl-data
+                    opm-sau:
+                        supplements:
+                            - saucontrol-data
+                            - telemetry-data
+                    cbs:
+                        supplements:
+                            - crt-supp
+                    rms:
+                    scf:
+                    opm-ntp32:
+                    opm-ntp64:
+                    spa32:
+                    spa64:
+                    web_config:
+                    opm-sed32:
+                        supplements:
+                            - appfeed-data
+                    opm-sed64:
+                        supplements:
+                            - appfeed-data
+            old-opm-adv-suite:
+                import:
+                    description: "Windows Endpoint Security and Control"
+                    version: "10.8.9"
+                features: [AV, CLNTFRWLL, CRT, DLP, DVCCNTRL, HIPS, PUA, APPCNTRL, URLSCRTY, PATCH, WEBCNTRL, NTP]
+                platforms: []
+                release-tags:
+                    -   base-version: 10
+                        tag: RECOMMENDED
+                subcomponents:
+                    old-opm-savxp:
+                        supplements:
+                            - opm-savcontrol-data
+                            - appfeed-data
+                            - hips-data
+                            - sxlsup-data
+                            - vdl-data
+                    old-opm-sau:
+                        supplements:
+                            - saucontrol-data
+                            - telemetry-data
+                    old-cbs:
+                        supplements:
+                            - crt-supp
+                    old-rms:
+                    old-scf:
+                    old-opm-ntp32:
+                    old-opm-ntp64:
+                    old-spa32:
+                    old-spa64:
+                    web_config:
+                    old-opm-sed32:
+                        supplements:
+                            - appfeed-data
+                    old-opm-sed64:
+                        supplements:
+                            - appfeed-data
+
+    opm-hmpa:
+        components:
+            opmhmpa-suite:
+                features: [XPD, CLEAN]
+                platforms: []
+                release-tags:
+                    -   base-version: 1
+                        tag: RECOMMENDED
+                subcomponents:
+                    opm-clean32:
+                    opm-clean64:
+                    hmpa32:
+                        supplements:
+                            - hmpadatasup-data
+                    hmpa64:
+                        supplements:
+                            - hmpadatasup-data
+
+
+customer-files:
+    -   warehouse: opm
+        user: cidgen_user
+        password: password
+        output-dir: update
+        split-warehouses:
+            - warehouse: opm
+            - warehouse: opm-hmpa
+            - warehouse: sum
+
+    -   warehouse: opm
+        user: cidgen_user
+        password: password
+        split-warehouses:
+            - warehouse: opm
+            - warehouse: opm-hmpa
+            - warehouse: sum
+
+    -   warehouse: opm-hmpa
+        user: cidgen_hmpa_user
+        password: password
+        split-warehouses:
+            - warehouse: opm-hmpa
+
+    -   warehouse: sa
+        user: sa_user
+        password: password
+        output-dir: update
+        split-warehouses:
+            - warehouse: sa
+
+    -   warehouse: sa
+        user: sa_user
+        password: password
+        split-warehouses:
+            - warehouse: sa

@@ -85,7 +85,6 @@ def create(warehouse_def_file):
     logging.info("Creating customer files at %s", output_folder)
 
     customer_files = model['customer-files']
-    redirects = None
     if "redirects" in model:
         redirects = model['redirects']
 

@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package
+  name="dev"
+  version="1.0.0">
+
+    <!-- filer5 components are fetched directly by the warehouse generation scripts according to the specs in the
+         warehouse definition file. These inputs are the tools that are needed and a couple of oddball
+         components.
+    -->
+
+    <inputs>
+      <workingdir>.</workingdir>
+      <intermediate artifact-path="winep_suites/SDDS-Ready-Packages" dest-dir="inputs/winep_suites" />
+
+      <build-asset project="winep" repo="amsi">
+        <development-version branch="develop"/>
+        <include artifact-path="x86/installer" dest-dir="inputs/amsi32"/>
+        <include artifact-path="x64/installer" dest-dir="inputs/amsi64"/>
+        <include artifact-path="arm64/installer" dest-dir="inputs/amsiarm64" mode="sdds3"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="winsav" mode="sdds2">
+        <development-version branch="develop"/>
+        <include artifact-path="release/savxp" dest-dir="inputs/cloud_savxp"/>
+        <include artifact-path="savcontrol/cloud" dest-dir="inputs/savcontrolsupplement"/>
+        <include artifact-path="savcontrol/on_premise" dest-dir="inputs/opm_savcontrolsupplement"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="ep_opm" mode="sdds2">
+        <development-version branch="develop"/>
+        <include artifact-path="legacy-package/sav" dest-dir="inputs/opm_savxp"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="crt">
+        <development-version branch="develop"/>
+        <include artifact-path="icrt/sddscrti" dest-dir="inputs/crt"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="esh">
+        <development-version branch="develop"/>
+        <include artifact-path="installer/esh" dest-dir="inputs/eshsup"/>
+        <include artifact-path="installer/esh64" dest-dir="inputs/esh64sup"/>
+        <include artifact-path="installer/esharm64" dest-dir="inputs/esharm64sup" mode="sdds3"/>
+        <include artifact-path="rules" dest-dir="inputs/eshrulessup"/>
+        <include artifact-path="component" dest-dir="inputs/eshconfig"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="health">
+        <development-version branch="develop"/>
+        <include artifact-path="Win32/Release/Installer" dest-dir="inputs/health"/>
+        <include artifact-path="ARM64/Release/Installer" dest-dir="inputs/healtharm64" mode="sdds3"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="xpd">
+        <development-version branch="develop"/>
+        <include artifact-path="installer/Win32" dest-dir="inputs/hmpa32"/>
+        <include artifact-path="installer/x64" dest-dir="inputs/hmpa64"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="livequery">
+        <development-version branch="develop"/>
+        <include artifact-path="x86/release/sdds_package" dest-dir="inputs/livequery32"/>
+        <include artifact-path="x64/release/sdds_package" dest-dir="inputs/livequery64"/>
+        <include artifact-path="arm64/release/sdds_package" dest-dir="inputs/livequeryarm64" mode="sdds3"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="liveterminal">
+        <development-version branch="develop"/>
+        <include artifact-path="x86/installer" dest-dir="inputs/liveterminal32"/>
+        <include artifact-path="x64/installer" dest-dir="inputs/liveterminal64"/>
+        <include artifact-path="arm64/installer" dest-dir="inputs/liveterminalarm64" mode="sdds3"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="mcs">
+        <development-version branch="develop"/>
+        <include artifact-path="x86/Release/Installer" dest-dir="inputs/mcs"/>
+        <include artifact-path="ARM64/Release/Installer" dest-dir="inputs/mcsarm64" mode="sdds3"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="mdr">
+        <development-version branch="develop"/>
+        <include artifact-path="release/Win32" dest-dir="inputs/mtr32"/>
+        <include artifact-path="release/x64" dest-dir="inputs/mtr64"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="ntp">
+        <!-- TODO WINEP-30768: switch back to develop when NTP's x64 output works.
+        <development-version branch="develop"/>
+        <include artifact-path="installers/x86_rel" dest-dir="inputs/ntp32"/>
+        <include artifact-path="installers/x64_rel" dest-dir="inputs/ntp64"/>
+        <include artifact-path="installers-opm/x86_rel" dest-dir="inputs/opm_ntp32"/>
+        <include artifact-path="installers-opm/x64_rel" dest-dir="inputs/opm_ntp64"/> -->
+        <release-version branch="release/2020.6" build-id="20201123162736-c3fe6d7a7f4769e2b4844dff327dae8d0104a068-LtPZU7" />
+        <include artifact-path="release-32/installer" dest-dir="inputs/ntp32"/>
+        <include artifact-path="release-64/installer" dest-dir="inputs/ntp64"/>
+        <include artifact-path="release-32/installer-opm" dest-dir="inputs/opm_ntp32"/>
+        <include artifact-path="release-64/installer-opm" dest-dir="inputs/opm_ntp64"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="sau">
+        <development-version branch="develop"/>
+        <include artifact-path="Release-Win32/Installer" dest-dir="inputs/sauxg32"/>
+        <include artifact-path="Release-ARM64/Installer" dest-dir="inputs/sauxgarm64" mode="sdds3"/>
+        <include artifact-path="Release-Win32/RepairKit" dest-dir="inputs/repairkit"/>
+        <include artifact-path="Release-Win32/TelemetrySupplement" dest-dir="inputs/telemetrysup"/>
+        <include artifact-path="Release-Win32/SDU" dest-dir="inputs/sdu32"/>
+        <include artifact-path="Release-ARM64/SDU" dest-dir="inputs/sduarm64" mode="sdds3"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="sau_opm" mode="sdds2">
+        <development-version branch="develop"/>
+        <include artifact-path="sau/Installer" dest-dir="inputs/opm_sau"/>
+        <include artifact-path="saucontrol/minimal_update" dest-dir="inputs/saucontrolsupplement"/>
+        <include artifact-path="cbs/ClientBootstrap" dest-dir="inputs/cbs"/>
+      </build-asset>
+
+      <build-asset project="em" repo="esg">
+        <development-version branch="develop"/>
+        <include artifact-path="scheduled-query-pack-sdds" dest-dir="inputs/scheduled-query-pack-sdds"/>
+        <include artifact-path="winepflags" dest-dir="inputs/winepflags"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="sed">
+        <development-version branch="develop"/>
+        <include artifact-path="sed/Release/Win32-sdds3" dest-dir="inputs/sed32" mode="sdds3"/>
+        <include artifact-path="sed/Release/Win32" dest-dir="inputs/sed32" mode="sdds2"/>
+        <include artifact-path="sed/Release/x64-sdds3" dest-dir="inputs/sed64" mode="sdds3"/>
+        <include artifact-path="sed/Release/x64" dest-dir="inputs/sed64" mode="sdds2"/>
+        <include artifact-path="sed/Release/arm64-sdds3" dest-dir="inputs/sedarm64" mode="sdds3"/>
+        <include artifact-path="sed/Release_OPM/Win32" dest-dir="inputs/opm_sed32" mode="sdds2"/>
+        <include artifact-path="sed/Release_OPM/x64" dest-dir="inputs/opm_sed64" mode="sdds2"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="winsfs">
+        <development-version branch="develop"/>
+        <include artifact-path="x86/installer" dest-dir="inputs/sfs"/>
+        <include artifact-path="x64/installer" dest-dir="inputs/sfs64"/>
+        <include artifact-path="ARM64/installer" dest-dir="inputs/sfsarm64" mode="sdds3"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="winui">
+        <development-version branch="develop"/>
+        <include artifact-path="Win32/Installer" dest-dir="inputs/ui"/>
+        <include artifact-path="x64/Installer" dest-dir="inputs/ui64"/>
+        <include artifact-path="arm64/Installer" dest-dir="inputs/uiarm64" mode="sdds3"/>
+      </build-asset>
+
+      <build-asset project="winep" repo="uninstaller">
+        <development-version branch="develop"/>
+        <include artifact-path="Release-Win32" dest-dir="inputs/uninstaller32"/>
+        <include artifact-path="Release-x64" dest-dir="inputs/uninstaller64"/>
+        <include artifact-path="Release-ARM64" dest-dir="inputs/uninstallerarm64" mode="sdds3"/>
+      </build-asset>
+
+      <build-asset project="core" repo="installer">
+        <development-version branch="develop"/>
+        <include artifact-path="warehouse/release/sse/vc15_32" dest-dir="inputs/sse"/>
+        <include artifact-path="warehouse/release/sse/vc15_64" dest-dir="inputs/sse64"/>
+        <include artifact-path="warehouse/release/sse/vc15_arm64" dest-dir="inputs/ssearm64" mode="sdds3"/>
+        <include artifact-path="warehouse/release/sme/vc15_32" dest-dir="inputs/sme"/>
+        <include artifact-path="warehouse/release/sme/vc15_64" dest-dir="inputs/sme64"/>
+        <include artifact-path="warehouse/release/sme/vc15_arm64" dest-dir="inputs/smearm64" mode="sdds3"/>
+      </build-asset>
+
+      <build-asset project="core" repo="engine" mode="sdds2">
+        <development-version branch="develop"/>
+        <include artifact-path="warehouse/release/legacy/eng/vc15_32" dest-dir="inputs/eng"/>
+      </build-asset>
+
+      <!-- Legacy packages -->
+      <package name="sophosclean_sdds" version="3-7-23\217892" dest="inputs" mode="sdds2">
+        <include src="bin\Release\x86\sdds" dest="opm_clean"/>
+        <include src="bin\Release\x64\sdds" dest="opm_clean64"/>
+      </package>
+
+      <package name="rms" version="4-1-2\213011" dest="inputs" mode="sdds2">
+        <include src="RMSDistributables\Installer\RMSNT" dest="rms"/>
+        <include src="RMSDistributables\Installer\RMSNT" dest="old_rms"/>
+      </package>
+
+      <package name="scf" version="3-0-6\212019" dest="inputs" mode="sdds2">
+        <include src="endpoint_installer" dest="scf"/>
+        <include src="endpoint_installer" dest="old_scf"/>
+      </package>
+
+      <package name="collate" version="10-0\98987" dest="inputs" mode="sdds2">
+        <include src="SDDS-Ready-Packages\sec" dest="opm-server"/>
+      </package>
+
+      <package name="sumpackages" version="1-7-1\217879" dest="inputs" mode="sdds2">
+        <include src="SDDSSUM" dest="sum"/>
+      </package>
+
+      <package name="web_config" version="1-0\99550" dest="inputs" mode="sdds2">
+        <include src="SDDS-Ready-Packages\default\data" dest="web_config"/>
+      </package>
+
+      <package name="cbs" version="3-4-0\214643" dest="inputs" mode="sdds2">
+        <include src="clientbootstrap" dest="old_cbs"/>
+      </package>
+
+      <package name="sau" version="5-16\217387" dest="inputs" mode="sdds2">
+        <include src="sau" dest="old_opm_sau"/>
+      </package>
+
+      <package name="pdata" version="3-0\211585" dest="inputs" mode="sdds2">
+        <include src="PSRVR_Package" dest="psvr3"/>
+      </package>
+
+      <package name="pmsr" version="1-1-0\95996" dest="inputs" mode="sdds2">
+        <include src="sdds" dest="pmsr1"/>
+      </package>
+
+      <package name="legacy_package" version="2\220385" dest="inputs" mode="sdds2">
+        <include src="sav" dest="old_opm_savxp"/>
+      </package>
+
+      <package name="sed" version="2-2-0-3405\218260" dest="inputs" mode="sdds2">
+        <include src="release\Release_OPM\Win32" dest="old_opm_sed32"/>
+        <include src="release\Release_OPM\x64" dest="old_opm_sed64"/>
+      </package>
+
+      <package name="ntp" version="1-9-2235\217977" dest="inputs" mode="sdds2">
+        <include src="x86\installer-opm" dest="old_opm_ntp32"/>
+        <include src="x64\installer-opm" dest="old_opm_ntp64"/>
+      </package>
+
+      <package name="manifestspa" version="3\219034" dest="inputs" mode="sdds2">
+        <include src="SDDS-Ready-Packages\spa" dest="spa"/>
+        <include src="SDDS-Ready-Packages\spa64" dest="spa64"/>
+      </package>
+
+      <package name="manifestspa" version="3\213927" dest="inputs" mode="sdds2">
+        <include src="SDDS-Ready-Packages\spa" dest="old_spa"/>
+        <include src="SDDS-Ready-Packages\spa64" dest="old_spa64"/>
+      </package>
+
+      <package name="cloud_dotnet" version="4-5-2\218588" dest="inputs">
+        <include src="sdds" dest="dotnet"/>
+      </package>
+
+      <package name="winfirewall" version="1-2-0\218895" dest="inputs">
+        <include src="x86\installer" dest="efw"/>
+        <include src="x64\installer" dest="efw64"/>
+      </package>
+
+      <package name="cloud_encryption" version="1-20-70\216954" dest="inputs">
+        <include src="installer" dest="encryption"/>
+      </package>
+
+      <package name="fim" version="1-0-1-11\213986" dest="inputs">
+        <include src="x64\installer" dest="fim"/>
+      </package>
+
+      <build-asset project="csrv" repo="messages-relays">
+        <development-version branch="develop"/>
+        <include artifact-path="message-relay/x64/Release/SDDS" dest-dir="inputs/mr"/>
+      </build-asset>
+
+      <package name="sld" version="7-1-2\212924" dest="inputs">
+        <include src="winany\SDDS" dest="sld"/>
+      </package>
+
+      <build-asset project="winep" repo="clean">
+        <development-version branch="develop"/>
+        <include artifact-path="sdds/release" dest-dir="inputs/sophosclean"/>
+      </build-asset>
+
+      <build-asset project="csrv" repo="uc">
+        <development-version branch="develop"/>
+        <include artifact-path="uc/build/x64/Release/SDDS" dest-dir="inputs/uc"/>
+      </build-asset>
+
+      <!-- SDDS3 tools -->
+      <build-asset project="winep" repo="sau" mode="sdds3">
+        <!-- Import a specific release version of SDDS3 tools, because we don't want the sdds3 repo rebuilding for each SAU build. -->
+        <release-version branch="release/WINEP-2020.50" build-id="20201202180116-3a25f1f62022a8930a63d58db3b8569f23da2c66-b6fq12"/>
+        <include artifact-path="Release-x64/SDDS3-Utils" dest-dir="inputs/sdds3"/>
+      </build-asset>
+      <!-- SDDS3 tools end -->
+
+      <!-- Bazel tools -->
+      <build-asset project="em" repo="esg" mode="sdds3">
+        <!-- release-version fetches for all branches with no development-version -->
+        <release-version branch="release/tools" build-id="20200922012353-73687b4ea6c47f3c1737d3f983308783165fefb9-r0lxP5"/>
+        <include artifact-path="bazel-tools" dest-dir="." />
+      </build-asset>
+      <!-- Bazel tools end -->
+
+    </inputs>
+
+    <buildcommands>
+      <command mode="sdds3">
+        <program>py.exe</program>
+        <args>-3 -u tools/src/dump_environment/dump_environment.py</args>
+        <workingdir>.</workingdir>
+      </command>
+      <command mode="sdds3">
+        <program>py.exe</program>
+        <args>-3 -u sdds3/tools/prep_dev.py</args>
+        <workingdir>.</workingdir>
+      </command>
+      <command mode="sdds3">
+        <program>bazel</program>
+        <args>build //sdds3/... --verbose_failures %CI_BAZEL_CACHE_PARAMS_V1%</args>
+        <workingdir>.</workingdir>
+      </command>
+
+      <command mode="sdds2">
+        <program>py.exe</program>
+        <args>-3 -u -m pip install -r requirements.txt --index-url=https://authproxy.sophos-ops.com/artifactory/api/pypi/esg-pypi-trusted/simple</args>
+        <workingdir>src</workingdir>
+      </command>
+      <command mode="sdds2">
+        <program>py.exe</program>
+        <args>-3 -u prepare.py</args>
+        <workingdir>src</workingdir>
+      </command>
+      <command mode="sdds2">
+        <program>py.exe</program>
+        <args>-3 -u warehouse_sign\patch_renderer_signing.py</args>
+        <workingdir>src</workingdir>
+      </command>
+      <!-- a dodgy fix for issue where cannot use same comp twice in a warehouse-->
+      <command mode="sdds2">
+        <program>cmd.exe</program>
+        <args>/c xcopy /q /I /E OnPremAdvanced OnPremAdvanced_prev</args>
+        <workingdir>inputs/winep_suites</workingdir>
+      </command>
+      <command mode="sdds2">
+        <program>py.exe</program>
+        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def.yaml ..\def\server-warehouse-def.yaml ..\def\opm-warehouse-def.yaml</args>
+        <workingdir>src</workingdir>
+      </command>
+    </buildcommands>
+
+  <publish>
+    <build-asset artifact-path="warehouse" source-dir="output\warehouse" mode="sdds2">
+      <include glob="update/**"/>
+      <include glob="content/**"/>
+    </build-asset>
+    <logs name="generate-warehouse" source-dir="logs" mode="sdds2"/>
+
+    <release-asset artifact-path="sdds3-repo" source-dir="bazel-out/x64_windows-fastbuild/bin/sdds3" mode="sdds3">
+      <include glob="package/**"/>
+      <include glob="suite/**"/>
+      <include glob="supplement/**"/>
+    </release-asset>
+    <release-asset artifact-path="sdds3-sus" source-dir="output/sus" mode="sdds3">
+      <include glob="mock_sus_response_*.json"/>
+    </release-asset>
+    <release-asset artifact-path="sdds3-launchdarkly" source-dir="output/launchdarkly" mode="sdds3">
+      <include glob="*.json"/>
+    </release-asset>
+  </publish>
+
+  <signingexclusions mode="sdds3">
+    <!-- ENCRYPTION package -->
+    <promotedfile name="Castle.Core.dll"/>
+    <promotedfile name="FluentNHibernate.dll"/>
+    <promotedfile name="Iesi.Collections.dll"/>
+    <promotedfile name="log4net.dll"/>
+    <promotedfile name="NHibernate.dll"/>
+    <promotedfile name="Ninject.dll"/>
+    <promotedfile name="Ninject.Extensions.Factory.dll"/>
+    <promotedfile name="Ninject.Extensions.NamedScope.dll"/>
+    <promotedfile name="System.Data.SQLite.dll"/>
+    <promotedfile name="SQLite.Interop.dll"/>
+    <!-- SophosFIM package -->
+    <promotedfile name="SophosFIM.db"/>
+    <!-- CRT -->
+    <promotedfile name="msvcm90.dll"/>
+    <promotedfile name="perfmon.pyd"/>
+    <promotedfile name="pythoncom37.dll"/>
+    <promotedfile name="pywintypes37.dll"/>
+    <promotedfile name="servicemanager.pyd"/>
+    <promotedfile name="win32api.pyd"/>
+    <promotedfile name="win32event.pyd"/>
+    <promotedfile name="win32evtlog.pyd"/>
+    <promotedfile name="win32file.pyd"/>
+    <promotedfile name="win32pipe.pyd"/>
+    <promotedfile name="win32process.pyd"/>
+    <promotedfile name="win32security.pyd"/>
+    <promotedfile name="win32service.pyd"/>
+    <promotedfile name="win32trace.pyd"/>
+    <promotedfile name="win32wnet.pyd"/>
+    <promotedfile name="_win32sysloader.pyd"/>
+    <promotedfile name="shell.pyd"/>
+  </signingexclusions>
+</package>

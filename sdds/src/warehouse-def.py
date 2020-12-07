@@ -116,17 +116,17 @@ def publish_components(parsed_input, whouses, components):
                 line_id = components[goto_name].line_id
                 version = components[goto_name].version
                 item.set_resubscription(line_id, base_version, version)
-            for s in w.get('supplements', []):
-                logging.info("Adding supplement {} to {}".format(s['warehouse'], w['id']))
-                supp = warehouses.Supplement(
-                    s['warehouse'],
-                    s['line-id'],
-                    s['tag'])
-                if 'base-version' in s:
-                    supp.set_base_version(s['base-version'])
-                if 'decode-path' in s:
-                    supp.set_decode_path(s['decode-path'])
-                item.add_supplement(supp)
+            if 'supplements' in w:
+                for s in w['supplements']:
+                    supp = warehouses.Supplement(
+                        s['warehouse'],
+                        s['line-id'],
+                        s['tag'])
+                    if 'base-version' in s:
+                        supp.set_base_version(s['base-version'])
+                    if 'decode-path' in s:
+                        supp.set_decode_path(s['decode-path'])
+                    item.add_supplement(supp)
             whouses[w['id']].add_item(item)
 
 
@@ -194,14 +194,13 @@ def write_bom(f, comps, options):
                                    "build_name": build_spec.name,
                                    "version": comps[comp_name].version,
                                    })
-
     bom_build = {"branch": os.environ.get('SOURCE_CODE_BRANCH'),
                  "commit": os.environ.get('SOURCE_CODE_COMMIT_HASH'),
                  "jenkins_job_name": os.environ.get('JOB_NAME'),
                  "jenkins_branch_name": os.environ.get('BRANCH_NAME'),
                  "jenkins_build_number": os.environ.get('BUILD_NUMBER')}
     bom_trigger_build = {"warehouse_component": "",
-                         "build_name":"",
+                         "build_name": "",
                          "branch": "",
                          "version": "",
                          "source_id": "",
@@ -213,6 +212,7 @@ def write_bom(f, comps, options):
            "components": bom_components,
            "trigger": bom_trigger_build}
     json.dump(bom, f, indent=4)
+
 
 def process_command_line(argv):
     """
@@ -236,7 +236,7 @@ def process_command_line(argv):
     parser.add_option('-v', '--verbose', action="store_true", dest='verbose')
     parser.add_option('--dry_run', action="store_true",
                       help="Check the filer references are resolvable (useful for pre-commit hook)")
-    parser.add_option(      # customized description; put --help last
+    parser.add_option(  # customized description; put --help last
         '-h', '--help', action='help',
         help='Show this help message and exit.')
 
@@ -258,16 +258,9 @@ def main(argv=None):
     if options.verbose:
         logging.getLogger('').setLevel(logging.DEBUG)
 
-    logging.info("STARTING warehouse-def.py")
-
     # read and parse the input file
-    input_file = args[0]
-    logging.debug("input file : {}".format(input_file))
-    with open(input_file, 'r') as infile:
-        yaml_input = infile.read()
-        logging.debug("input : {}".format(yaml_input))
-
-    model = yaml.safe_load(yaml_input)
+    input = open(args[0]).read()
+    model = yaml.safe_load(input)
 
     if options.dry_run:
         check_components(model)
@@ -303,9 +296,7 @@ def main(argv=None):
         with open(options.bom, "w") as b:
             write_bom(b, comps, options)
 
-
-    logging.info("FINISHING warehouse-def.py")
-    return 0        # success
+    return 0  # success
 
 
 if __name__ == '__main__':

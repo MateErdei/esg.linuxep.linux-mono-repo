@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ComponentData>
+    <Component>
+        <Name>SLDFEED</Name>
+        <RigidName>SLDFEED</RigidName>
+        <Version>1.0.0</Version>
+        <Build>0</Build>
+        <ProductType>Component</ProductType>
+        <DefaultHomeFolder>.</DefaultHomeFolder>
+        <TargetTypes>
+            <TargetType Name="SERVER"/>
+        </TargetTypes>
+        <Roles>
+            <Role Name="SLDFEED"/>
+        </Roles>
+        <Platforms>
+            <Platform Name="WIN_2008_SVR"/>
+            <Platform Name="WIN_2008_SVR_X64"/>
+            <Platform Name="WIN_2008_R2_SVR_X64"/>
+            <Platform Name="WIN_8_SVR_X64"/>
+            <Platform Name="WIN_81_SVR_X64"/>
+        </Platforms>
+        <Features>
+            <Feature Name="LOCKDOWN"/>
+        </Features>
+        <FileList/>
+        <Comment>[0]</Comment>
+    </Component>
+    <Dictionary>
+        <Name>
+            <Label>
+                <Token>SLDFEED#1.0.0</Token>
+                <Language lang="en">
+                    <ShortDesc>SLDFEED 1.0.0</ShortDesc>
+                    <LongDesc>SLDFEED 1.0.0</LongDesc>
+                </Language>
+            </Label>
+        </Name>
+    </Dictionary>
+</ComponentData>

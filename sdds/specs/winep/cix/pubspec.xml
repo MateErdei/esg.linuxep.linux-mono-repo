@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<publicationspec importspec="importspec.xml">
+  <componentsuites>
+    <line id="WindowsCloudHitmanProAlert">
+      <componentsuite importreference="beta">
+        <component importreference="3.8.1.333.333" line="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" mountpoint="hmpa"/>
+        <component importreference="3.8.1.333.333" line="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" mountpoint="hmpa64"/>
+        <component importreference="1.7.0.19" line="12D32E6C-4CFF-435B-BC98-5E14CCB54950" mountpoint="sme"/>
+        <component importreference="1.7.0.19" line="70FDD40E-986A-44E5-9620-2B894A06702A" mountpoint="sme64"/>
+      </componentsuite>
+      <componentsuite importreference="beta2">
+        <component importreference="3.8.1.333.333" line="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" mountpoint="hmpa"/>
+        <component importreference="3.8.1.333.333" line="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" mountpoint="hmpa64"/>
+        <component importreference="1.7.0.19" line="12D32E6C-4CFF-435B-BC98-5E14CCB54950" mountpoint="sme"/>
+        <component importreference="1.7.0.19" line="70FDD40E-986A-44E5-9620-2B894A06702A" mountpoint="sme64"/>
+      </componentsuite>
+      <componentsuite importreference="rec">
+        <component importreference="3.8.0.523.523" line="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" mountpoint="hmpa"/>
+        <component importreference="3.8.0.523.523" line="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" mountpoint="hmpa64"/>
+        <component importreference="1.7.0.19" line="12D32E6C-4CFF-435B-BC98-5E14CCB54950" mountpoint="sme"/>
+        <component importreference="1.7.0.19" line="70FDD40E-986A-44E5-9620-2B894A06702A" mountpoint="sme64"/>
+      </componentsuite>
+      <componentsuite importreference="1.0.470">
+        <component importreference="3.8.0.523.523" line="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" mountpoint="hmpa"/>
+        <component importreference="3.8.0.523.523" line="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" mountpoint="hmpa64"/>
+        <component importreference="1.5.3" line="12D32E6C-4CFF-435B-BC98-5E14CCB54950" mountpoint="sme"/>
+        <component importreference="1.5.3" line="70FDD40E-986A-44E5-9620-2B894A06702A" mountpoint="sme64"/>
+      </componentsuite>
+      <componentsuite importreference="1.0.495">
+        <component importreference="3.8.0.523.523" line="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" mountpoint="hmpa"/>
+        <component importreference="3.8.0.523.523" line="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" mountpoint="hmpa64"/>
+        <component importreference="1.5.3" line="12D32E6C-4CFF-435B-BC98-5E14CCB54950" mountpoint="sme"/>
+        <component importreference="1.5.3" line="70FDD40E-986A-44E5-9620-2B894A06702A" mountpoint="sme64"/>
+      </componentsuite>
+      <componentsuite importreference="1.0.450">
+        <component importreference="3.7.17.321.321" line="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" mountpoint="hmpa"/>
+        <component importreference="3.7.17.321.321" line="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" mountpoint="hmpa64"/>
+        <component importreference="1.5.3" line="12D32E6C-4CFF-435B-BC98-5E14CCB54950" mountpoint="sme"/>
+        <component importreference="1.5.3" line="70FDD40E-986A-44E5-9620-2B894A06702A" mountpoint="sme64"/>
+      </componentsuite>
+      <componentsuite importreference="1.0.415">
+        <component importreference="3.7.15.446.446" line="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" mountpoint="hmpa"/>
+        <component importreference="3.7.15.446.446" line="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" mountpoint="hmpa64"/>
+        <component importreference="1.5.3" line="12D32E6C-4CFF-435B-BC98-5E14CCB54950" mountpoint="sme"/>
+        <component importreference="1.5.3" line="70FDD40E-986A-44E5-9620-2B894A06702A" mountpoint="sme64"/>
+      </componentsuite>
+      <componentsuite importreference="1.0.375">
+        <component importreference="3.7.14.40.40" line="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" mountpoint="hmpa"/>
+        <component importreference="3.7.14.40.40" line="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" mountpoint="hmpa64"/>
+        <component importreference="1.2.13" line="12D32E6C-4CFF-435B-BC98-5E14CCB54950" mountpoint="sme"/>
+        <component importreference="1.2.13" line="70FDD40E-986A-44E5-9620-2B894A06702A" mountpoint="sme64"/>
+      </componentsuite>
+      <componentsuite importreference="1.0.265">
+        <component importreference="3.7.12.466.466" line="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" mountpoint="hmpa"/>
+        <component importreference="3.7.12.466.466" line="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" mountpoint="hmpa64"/>
+        <component importreference="1.1.202" line="12D32E6C-4CFF-435B-BC98-5E14CCB54950" mountpoint="sme"/>
+        <component importreference="1.1.202" line="70FDD40E-986A-44E5-9620-2B894A06702A" mountpoint="sme64"/>
+      </componentsuite>
+      <componentsuite importreference="1.0.216">
+        <component importreference="3.7.10.762.174" line="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" mountpoint="hmpa"/>
+        <component importreference="3.7.10.762.174" line="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" mountpoint="hmpa64"/>
+        <component importreference="1.1.202" line="12D32E6C-4CFF-435B-BC98-5E14CCB54950" mountpoint="sme"/>
+        <component importreference="1.1.202" line="70FDD40E-986A-44E5-9620-2B894A06702A" mountpoint="sme64"/>
+      </componentsuite>
+    </line>
+  </componentsuites>
+  <warehouses>
+    <warehouse furcatedentitlement="WIN_HMP" id="WIN_HMP">
+      <!-- Component Suites -->
+      <line id="WindowsCloudClean">
+        <componentsuite importreference="1.0.42">
+          <releasetag baseversion="1" tag="BETA"/>
+          <releasetag baseversion="1" tag="RECOMMENDED"/>
+        </componentsuite>
+      </line>
+      <line id="WindowsCloudHitmanProAlert">
+        <!-- README: When updating/adding component suites, check the flags-supplement tag -->
+        <componentsuite importreference="beta" flags="3-8-1-EAP">
+          <releasetag baseversion="1" tag="BETA"/>
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="telemetry" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="telemetry" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="scan" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_SCAN" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="scan" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_SCAN" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="docmodel" line="DOC_MODEL_32" tag="USER_TELEM" warehousename="doc_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="docmodel" line="DOC_MODEL_64" tag="USER_TELEM" warehousename="doc_models" />
+        </componentsuite>
+        <componentsuite importreference="beta2" flags="3-8-1-EAP2">
+          <releasetag baseversion="1" tag="BETA2"/>
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="telemetry" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="telemetry" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="scan" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_SCAN" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="scan" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_SCAN" warehousename="ml_models" />
+        </componentsuite>
+        <componentsuite importreference="rec" flags="3-8-0">
+          <releasetag baseversion="1" tag="RECOMMENDED"/>
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="telemetry" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="telemetry" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="scan" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_SCAN" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="scan" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_SCAN" warehousename="ml_models" />
+        </componentsuite>
+        <componentsuite importreference="1.0.470" flags="3-8-0">
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="telemetry" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="telemetry" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="scan" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_SCAN" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="scan" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_SCAN" warehousename="ml_models" />
+        </componentsuite>
+        <componentsuite importreference="1.0.495" flags="3-8-0">
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="telemetry" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="telemetry" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="scan" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_SCAN" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="scan" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_SCAN" warehousename="ml_models" />
+        </componentsuite>
+        <componentsuite importreference="1.0.450" flags="2020-3">
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="telemetry" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="telemetry" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="scan" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_SCAN" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="scan" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_SCAN" warehousename="ml_models" />
+        </componentsuite>
+        <componentsuite importreference="1.0.415" flags="2019-3">
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="telemetry" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="telemetry" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="scan" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_SCAN" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="scan" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_SCAN" warehousename="ml_models" />
+        </componentsuite>
+        <componentsuite importreference="1.0.375" flags="2019-2">
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="telemetry" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="telemetry" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="scan" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_SCAN" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="scan" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_SCAN" warehousename="ml_models" />
+        </componentsuite>
+        <componentsuite importreference="1.0.265">
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="telemetry" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="telemetry" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="scan" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_SCAN" warehousename="ml_models" baseversion="13"/>
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="scan" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_SCAN" warehousename="ml_models" baseversion="13"/>
+        </componentsuite>
+        <componentsuite importreference="1.0.216">
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="telemetry" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="telemetry" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_TELEM" warehousename="ml_models" />
+          <genericsupplement relativeto="12D32E6C-4CFF-435B-BC98-5E14CCB54950" decodepath="scan" line="995645D3-DA2A-407E-AC5D-7267B8B43975" tag="USER_SCAN" warehousename="ml_models" baseversion="11"/>
+          <genericsupplement relativeto="70FDD40E-986A-44E5-9620-2B894A06702A" decodepath="scan" line="C19A85E4-728F-4E92-8528-6B42B30639B2" tag="USER_SCAN" warehousename="ml_models" baseversion="11"/>
+        </componentsuite>
+      </line>
+      <!-- Components Supplements-->
+      <line id="16D59F7E-6D84-449C-A7F7-7D8DA2268A26">
+        <component importreference="3.8.1.333.333">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.8.0.523.523">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.7.17.321.321">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.7.15.446.446">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.7.14.40.40">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.7.12.466.466">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.7.10.762.174">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+      </line>
+      <line id="244E68BF-E1BB-4A6B-AC18-A492DE0134C0">
+        <component importreference="3.8.1.333.333">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.8.0.523.523">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.7.17.321.321">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.7.15.446.446">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.7.14.40.40">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.7.12.466.466">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+        <component importreference="3.7.10.762.174">
+          <genericsupplement baseversion="1" decodepath="." line="hmpa_data" tag="LATEST" warehousename="hmpa_data"/>
+        </component>
+      </line>
+
+      <line id="70FDD40E-986A-44E5-9620-2B894A06702A">
+        <component importreference="1.2.13">
+        </component>
+        <component importreference="1.1.202">
+        </component>
+      </line>
+      <line id="12D32E6C-4CFF-435B-BC98-5E14CCB54950">
+        <component importreference="1.2.13">
+        </component>
+        <component importreference="1.1.202">
+        </component>
+      </line>
+    </warehouse>
+  </warehouses>
+  <licenses>
+    <license name="CEP"/>
+  </licenses>
+</publicationspec>

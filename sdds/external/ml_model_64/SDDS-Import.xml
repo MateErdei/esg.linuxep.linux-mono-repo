@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ComponentData>
+    <Component>
+        <Name>ML_MODEL64</Name>
+        <RigidName>C19A85E4-728F-4E92-8528-6B42B30639B2</RigidName>
+        <Version>1.0.0</Version>
+        <Build>0</Build>
+        <ProductType>Component</ProductType>
+        <DefaultHomeFolder>.</DefaultHomeFolder>
+        <TargetTypes>
+            <TargetType Name="ENDPOINT"/>
+        </TargetTypes>
+        <Roles/>
+        <Platforms>
+            <Platform Name="WIN_7_X64"/>
+            <Platform Name="WIN_8_X64"/>
+            <Platform Name="WIN_81_X64"/>
+            <Platform Name="WIN_10_X64"/>
+            <Platform Name="WIN_2008_R2_SVR_X64"/>
+            <Platform Name="WIN_2011_SVR_X64"/>
+            <Platform Name="WIN_2012_SVR_X64"/>
+            <Platform Name="WIN_8_SVR_X64"/>
+            <Platform Name="WIN_81_SVR_X64"/>
+            <Platform Name="WIN_10_SVR_X64"/>
+        </Platforms>
+        <Features>
+            <Feature Name="XPD"/>
+        </Features>
+        <FileList/>
+        <Comment>[0]</Comment>
+    </Component>
+    <Dictionary>
+        <Name>
+            <Label>
+                <Token>C19A85E4-728F-4E92-8528-6B42B30639B2#1.0.0</Token>
+                <Language lang="en">
+                    <ShortDesc>ML_MODEL64 1.0.0</ShortDesc>
+                    <LongDesc>ML_MODEL64 1.0.0</LongDesc>
+                </Language>
+            </Label>
+        </Name>
+    </Dictionary>
+</ComponentData>
