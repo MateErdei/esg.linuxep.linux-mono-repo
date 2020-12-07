@@ -47,7 +47,7 @@
         </command>
     </buildcommands>
     <publish>
-        <release-asset artifact-path="output" source-dir="output/SDDS-COMPONENT" mode="release"/>
+        <release-asset artifact-path="output" source-dir="output" mode="release"/>
         <build-asset artifact-path="build_log" source-dir="log" mode="release,coverage"/>
     </publish>
 </package>

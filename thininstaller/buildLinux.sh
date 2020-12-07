@@ -191,5 +191,4 @@ function build()
 
 build | tee -a $LOG
 EXIT=$?
-cp $LOG $OUTPUT/ || true
 exit $EXIT
