@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ComponentData>
+	<Component>
+		<Name>MSDC</Name>
+		<RigidName>AE6CB2F2-43F1-4C0E-B1B7-907AEB1A6823</RigidName>
+		<Version>0.0.0.0</Version>
+		<Build>0</Build>
+		<ProductType>Component</ProductType>
+		<DefaultHomeFolder>msdc</DefaultHomeFolder>
+		<TargetTypes>
+			<TargetType Name="SERVER"/>
+		</TargetTypes>
+		<Roles/>
+		<Platforms/>
+		<Features/>
+		<FileList/>
+		<Comment>[0]</Comment>
+	</Component>
+	<Dictionary>
+		<Name>
+			<Label>
+				<Token>AE6CB2F2-43F1-4C0E-B1B7-907AEB1A6823#0.0.0.0</Token>
+				<Language lang="en">
+					<ShortDesc>0.0.0.0</ShortDesc>
+					<LongDesc>Management Service Data Component v0.0.0.0</LongDesc>
+				</Language>
+			</Label>
+		</Name>
+	</Dictionary>
+</ComponentData>

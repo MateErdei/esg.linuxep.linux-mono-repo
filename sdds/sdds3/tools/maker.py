@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------
-# Copyright 2020-2021 Sophos Limited. All rights reserved.
+# Copyright 2020 Sophos Limited. All rights reserved.
 #
 # Sophos is a registered trademark of Sophos Limited and Sophos Group. All
 # other product and company names mentioned are trademarks or registered
@@ -13,10 +13,7 @@ import xml.etree.ElementTree as ET
 
 import argparse
 import hashlib
-import itertools
-import logging
 import os
-import re
 import subprocess
 import tempfile
 import time
@@ -25,10 +22,6 @@ import yaml
 
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 BASE = os.path.dirname(TOOLS)
-
-
-def say(msg, level=logging.INFO):
-    logging.log(level=level, msg=msg)
 
 
 class AutoRemove:
@@ -61,32 +54,22 @@ def calculate_suite_nonce(args):
     return metadata_sha256[:10]
 
 
-def find_metadata(fileset, metadata, by_views=False):
+def find_metadata(fileset, metadata):
     def _patheq(patha, pathb):
         return patha.lower() == pathb.lower()
-    views = []
-    for view in metadata['views']:
-        if 'platforms' not in view:
-            raise NameError('Internal error: view has no platforms')
-        vdef = view['def']
-        view_fileset = os.path.abspath(os.path.join(BASE, vdef['fileset']))
-        if _patheq(fileset, view_fileset):
-            if not by_views:
-                return vdef
-            views.append(vdef)
-        for comp in view.get('subcomponents', []):
-            cdef = view['subcomponents'][comp]
-            cdef_fileset = os.path.abspath(os.path.join(BASE, cdef['fileset']))
-            if _patheq(fileset, cdef_fileset):
-                if not by_views:
-                    return cdef
-                views.append(cdef)
-    if len(views) == 0:
-        raise SyntaxError(f'Did not find {fileset} in metadata?')
-    return views
+    suite_fileset = os.path.abspath(os.path.join(BASE, metadata['fileset']))
+    if _patheq(fileset, suite_fileset):
+        return metadata
+    for comp in metadata['subcomponents']:
+        cdef = metadata['subcomponents'][comp]
+        cdef_fileset = os.path.abspath(os.path.join(BASE, cdef['fileset']))
+        if _patheq(fileset, cdef_fileset):
+            return cdef
+    raise SyntaxError(f'Did not find {fileset} in metadata?')
 
 
-def find_supplements(meta):
+def find_supplements(fileset, metadata):
+    meta = find_metadata(fileset, metadata)
     return meta['supplements'] if 'supplements' in meta else []
 
 
@@ -101,37 +84,29 @@ def _map_suite_packages(args, metadata):
     #
     # Finally create the package using the sdds3-builder.exe tool.
 
-    # map package name to tuple(parsed-sdds-import, package-filename, fileset, list-of-views)
+    # map package name to tuple(parsed-sdds-import, package-filename)
     packages = {}
-    suiteids = []
-    suitename = None
+    suiteid = None
     while args.imports:
         imp = args.imports.pop(0)
         pkg = args.packages.pop(0)
 
         fileset = os.path.abspath(os.path.dirname(imp))
+        meta = find_metadata(fileset, metadata)
 
-        views = find_metadata(fileset, metadata, by_views=True)
+        name = meta['package_name']
 
-        name = views[0]['package_name']
-        version = views[0]['package_version']
-        nonce = views[0]['package_nonce']
-        key = f'{name}_{version}.{nonce}'
-
-        if key in packages:
+        if name in packages:
             raise SyntaxError(f'Duplicate package {name}')
 
         with open(imp) as f:
             xml = ET.ElementTree(None, f)
-
-        packages[key] = (xml, pkg, os.path.abspath(os.path.dirname(imp)), views)
+        packages[name] = (xml, pkg, os.path.abspath(os.path.dirname(imp)))
 
         # The first package is always the top-level suite package
-        if suitename is None:
-            suitename = name
-        if name == suitename:
-            suiteids.append(key)
-    return packages, suiteids
+        if suiteid is None:
+            suiteid = name
+    return packages, suiteid
 
 
 def _make_pkgref(root, pkgfile):
@@ -145,27 +120,6 @@ def _make_pkgref(root, pkgfile):
 
 def _override_or(table, field, default):
     return table.get(field) or default()
-
-
-def _optional_intersection_of(collection, table, field):
-    filter_by = _override_or(table, field, lambda: [])
-    return [val for val in collection if val in filter_by] if len(filter_by) > 0 else collection
-
-
-def _get_platforms(pkgroot):
-    return [x.attrib['Name'] for x in pkgroot.findall('Component/Platforms/Platform')]
-
-
-def _choose_platforms(pkgroot, meta):
-    if 'override_platforms' in meta:
-        return meta['override_platforms']
-    return _optional_intersection_of(_get_platforms(pkgroot), meta, 'platforms')
-
-
-def _choose_features(pkgroot, meta):
-    if 'override_features' in meta:
-        return meta['override_features']
-    return _optional_intersection_of(pkgroot.findall('Component/Features/Feature'), meta, 'features')
 
 
 def _add_pkgref_meta(pkgref, pkgroot, override):
@@ -183,22 +137,10 @@ def _add_pkgref_meta(pkgref, pkgroot, override):
         override,
         'description',
         lambda: pkgroot.findtext('Dictionary/Name/Label/Language[@lang="en"]/LongDesc'))
-    compat_code = _override_or(
-        override,
-        'compat_code',
-        lambda: pkgroot.findtext('Component/CompatCode'))
-    if compat_code is not None:
-        ET.SubElement(pkgref, 'compat-code').text = compat_code
-    if 'thumbprint-include-root' in override:
-        thumbprint = ET.SubElement(pkgref, 'thumbprint')
-        thumbprint.attrib['include-root'] = 'true' if override['thumbprint-include-root'] else 'false'
 
 
 def _add_pkgref_platform_features(pkgref, pkgroot, meta):
-    ET.SubElement(pkgref, 'decode-path').text = _override_or(
-        meta,
-        'mountpoint',
-        lambda: pkgroot.findtext('Component/DefaultHomeFolder'))
+    ET.SubElement(pkgref, 'decode-path').text = pkgroot.findtext('Component/DefaultHomeFolder')
 
     symbolic_paths = _override_or(meta, 'define-symbolic-paths', lambda: [])
     if len(symbolic_paths) > 0:
@@ -206,183 +148,56 @@ def _add_pkgref_platform_features(pkgref, pkgroot, meta):
         for sym in sorted(symbolic_paths):
             ET.SubElement(paths, 'symbolic-path').attrib['id'] = sym
 
-    platforms = _choose_platforms(pkgroot, meta)
+    platforms = pkgroot.findall('Component/Platforms/Platform')
     if len(platforms) > 0:
         plats = ET.SubElement(pkgref, 'platforms')
         for platform in platforms:
-            ET.SubElement(plats, 'platform').attrib['name'] = platform
-    features = _choose_features(pkgroot, meta)
+            ET.SubElement(plats, 'platform').attrib['name'] = platform.attrib['Name']
+    features = pkgroot.findall('Component/Features/Feature')
     if len(features) > 0:
         feats = ET.SubElement(pkgref, 'features')
         for feature in features:
             ET.SubElement(feats, 'feature').attrib['name'] = feature.attrib['Name']
 
 
-def _add_pkgref_supplements(pkgref, meta):
-    supplements = find_supplements(meta)
+def _add_pkgref_supplements(pkgref, fileset, metadata):
+    supplements = find_supplements(fileset, metadata)
     if len(supplements) > 0:
         for supplement in supplements:
             supref = ET.SubElement(pkgref, 'supplement-ref')
             supref.attrib['src'] = supplement['line-id']
             supref.attrib['tag'] = supplement['tag']
-            supref.attrib['decode-path'] = _override_or(supplement, 'decode-path', lambda: '.')
+            supref.attrib['decode-path'] = supplement['decode-path']
 
 
-def _parse_integrity_line(line):
-    verb, rest = line.split(maxsplit=1)
-    line = rest
-
-    vals = []
-    while len(line) > 0:
-        match = re.search(r'^([0-9a-f]{4}):', line)
-        if match:
-            length = int(match[1], base=16)
-            vals.append(line[5:5 + length])
-            line = line[5 + length + 1:]
-        else:
-            try:
-                var, rest = line.split(maxsplit=1)
-                vals.append(var)
-                line = rest
-            except ValueError:
-                vals.append(line)
-                line = ''
-
-    return verb, vals
-
-
-def _verify_integrity_statement(integrity_statements, location, name, token, vals):
-    if not token.startswith('Protect'):
-        return
-
-    if token not in integrity_statements:
-        integrity_statements[token] = {}
-    protect_statements = integrity_statements[token]
-
-    canonical_object = vals[0].lower()
-
-    if canonical_object in protect_statements:
-        previous = protect_statements[canonical_object]
-        if previous['name'] != name:
-            raise SyntaxError(
-                f'Duplicate {token} {vals[0]}: declared in {location} and also in {previous["location"]}')
-
-    integrity_statements[token][canonical_object] = {'name': name, 'location': location}
-
-
-def _verify_integrity_file(allowed_duplicates, integrity_statements, pkgfile, pkgroot, tmpdir, integrity):
-    path = os.path.join(tmpdir, integrity)
-    okay = True
-    with open(path, 'r') as f:
-        name = None
-        for line in f.readlines():
-            token, vals = _parse_integrity_line(line)
-            if token == 'ProtectDetails':
-                name = vals[3]
-            else:
-                for platform in _get_platforms(pkgroot):
-                    if platform not in integrity_statements:
-                        integrity_statements[platform] = {}
-
-                    try:
-                        _verify_integrity_statement(
-                            integrity_statements[platform], f'{pkgfile}/{integrity}', name, token, vals)
-                    except SyntaxError as e:
-                        if not (token in allowed_duplicates and vals[0].lower() in allowed_duplicates[token]):
-                            say(f'{platform}: {e}', level=logging.ERROR)
-                            okay = False
-                        else:
-                            # say(f'{platform}: {e}', level=logging.WARN)
-                            pass
-    return okay
-
-
-def _load_allowed_integrity_duplicates(args):
-    allowed_duplicates = {}
-    with open(args.allowed_integrity_duplicates, 'r') as f:
-        for line in f.readlines():
-            line = line.strip()
-            if not line.startswith('Protect'):
-                continue
-            token, val = line.split(maxsplit=1)
-            if token not in allowed_duplicates:
-                allowed_duplicates[token] = []
-            allowed_duplicates[token].append(val.lower())
-    return allowed_duplicates
-
-
-def _verify_integrity_files(args, integrity_statements, pkgfile, pkgroot):
-    # TODO remove?
-    # allowed_duplicates = _load_allowed_integrity_duplicates(args)
-
-    files = subprocess.check_output(
-        [args.sdds3_builder,
-         '--print-package-manifest',
-         '--package', pkgfile],
-        encoding='utf-8', stderr=subprocess.PIPE)
-
-    integrity_files = []
-    for line in files.splitlines():
-        if 'integrity' in line and line.endswith('.dat'):
-            _, _, _, filename = line.split(maxsplit=3)
-            integrity_files.append(filename)
-    if not integrity_files:
-        return True
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        cmd = [args.sdds3_builder,
-               '--extract-package',
-               '--package', pkgfile,
-               '--dir', tmpdir] + list(itertools.chain.from_iterable(('--file', f) for f in integrity_files))
-        subprocess.run(cmd, capture_output=True, check=True)
-
-        # TODO remove?
-        # okay = True
-        # for integrity in integrity_files:
-        #     if not _verify_integrity_file(
-        #             allowed_duplicates, integrity_statements, pkgfile, pkgroot, tmpdir, integrity):
-        #         okay = False
-        # return okay
-
-
-# pylint: disable=R0914     # too many local variables.
 def make_sdds3_suite(args):
     if not args.meta:
         raise NameError('The --metadata option is required with --suite-dir')
 
     metadata = yaml.safe_load(open(args.meta).read())
-    print(metadata)
-    packages, suiteids = _map_suite_packages(args, metadata)
+
+    packages, suiteid = _map_suite_packages(args, metadata)
 
     root = ET.Element('suite')
-    root.attrib['name'] = metadata['def']['package_name']
-    root.attrib['version'] = metadata['def']['package_version']
-    root.attrib['marketing-version'] = metadata['marketing_version']
+    suite_meta = find_metadata(packages[suiteid][2], metadata)
+    root.attrib['name'] = suite_meta['package_name']
+    root.attrib['version'] = suite_meta['package_version']
+    root.attrib['marketing-version'] = suite_meta['marketing_version']
 
-    okay = True
     for pkg in sorted(packages):
-        pkgroot, pkgfile, _, views = packages[pkg][:]
+        pkgroot, pkgfile, fileset = packages[pkg][:]
 
-        for meta in views:
-            integrity_statements = {}
-            pkgref = _make_pkgref(root, pkgfile)
-            _add_pkgref_meta(pkgref, pkgroot, meta)
+        pkgref = _make_pkgref(root, pkgfile)
+        _add_pkgref_meta(pkgref, pkgroot, find_metadata(fileset, metadata))
 
-            # Load integrity.dat statements, and check for duplicates
-            if not _verify_integrity_files(args, integrity_statements, pkgfile, pkgroot):
-                okay = False
+        # If this package is the top-level suite's package, *IGNORE* the platforms and features.
+        # We *always* want to download and decode the suite package.
+        if pkg == suiteid:
+            ET.SubElement(pkgref, 'decode-path').text = '.'
+        else:
+            _add_pkgref_platform_features(pkgref, pkgroot, find_metadata(fileset, metadata))
 
-            _add_pkgref_platform_features(pkgref, pkgroot, meta)
-
-            # If the platform list is empty, discard this entire pkgref!
-            if pkgref.find('platforms') is None:
-                root.remove(pkgref)
-                continue
-
-            _add_pkgref_supplements(pkgref, meta)
-
-    if not okay:
-        raise SyntaxError('One or more errors found - stopping')
+        _add_pkgref_supplements(pkgref, fileset, metadata)
 
     with tempfile.TemporaryDirectory() as tmpdir:
         suite_xml = os.path.join(tmpdir, 'suite.xml')
@@ -396,7 +211,7 @@ def make_sdds3_suite(args):
                '--nonce', calculate_suite_nonce(args)]
         if args.verbose:
             cmd.append('--verbose')
-        run_with_retries(cmd)
+        subprocess.check_call(cmd)
 
 
 def _map_supplement_packages(args):
@@ -457,21 +272,7 @@ def make_sdds3_supplement(args):
                '--dir', args.supplement]
         if args.verbose:
             cmd.append('--verbose')
-        run_with_retries(cmd)
-
-
-# @retry(exceptions=subprocess.CalledProcessError, tries=5, delay=2, backoff=2)
-def run_with_retries(cmd):
-    retry_count = 4
-    sleep = 2
-    while retry_count > 0:
-        result = subprocess.run(cmd)
-        if result.returncode == 0:
-            return
-        time.sleep(sleep)
-        sleep *= 2
-        retry_count -= 1
-    subprocess.check_call(cmd)
+        subprocess.check_call(cmd)
 
 
 def main():
@@ -479,7 +280,6 @@ def main():
     parser.add_argument('--metadata', dest='meta')
     parser.add_argument('--suite-dir', dest='suite')
     parser.add_argument('--supplement-dir', dest='supplement')
-    parser.add_argument('--allowed-integrity-duplicates')
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--package', dest='packages', action='append')
     parser.add_argument('--import', dest='imports', action='append')
@@ -496,5 +296,4 @@ def main():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
     main()

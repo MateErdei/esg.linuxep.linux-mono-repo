@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SDDSData>
+    <ProductInstance>
+        <!-- Product Instance Identity (Primary) -->
+        <ProductLineId>WindowsCloudHome</ProductLineId>
+        <ProductVersionId>0.0.0</ProductVersionId>
+        <!-- Product Instance Identity (Secondary) -->
+        <ProductLineCanonicalName>Windows Cloud Home</ProductLineCanonicalName>
+        <ProductVersionLabels>
+            <Label>0.0.0</Label>
+        </ProductVersionLabels>
+        <ProductInstanceNames>
+            <Name>Windows Cloud Home v0.0.0</Name>
+        </ProductInstanceNames>
+        <EMLVersion>0.0.0</EMLVersion>
+        <!-- Product Instance Form -->
+        <Form>compound</Form>
+        <Managed>1</Managed>
+        <SignedManifest>0</SignedManifest>
+        <!-- Product Instance Details -->
+        <DefaultHomeFolder>CLOUD</DefaultHomeFolder>
+        <Roles>
+            <Role>EPS</Role>
+        </Roles>
+        <Platforms>
+            <Platform>WIN_7</Platform>
+            <Platform>WIN_7_X64</Platform>
+            <Platform>WIN_8</Platform>
+            <Platform>WIN_8_X64</Platform>
+            <Platform>WIN_81</Platform>
+            <Platform>WIN_81_X64</Platform>
+        </Platforms>
+        <Features>
+            <Feature>AV</Feature>
+            <Feature>DVCCNTRL</Feature>
+            <Feature>HIPS</Feature>
+            <Feature>PUA</Feature>
+            <Feature>WEBCNTRL</Feature>
+            <Feature>APPCNTRL</Feature>
+        </Features>
+        <TargetTypes>
+            <TargetType>ENDPOINT</TargetType>
+        </TargetTypes>
+    </ProductInstance>
+</SDDSData>

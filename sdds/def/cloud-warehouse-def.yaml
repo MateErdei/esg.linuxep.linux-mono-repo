@@ -1,114 +1,230 @@
 %YAML 1.1
 ---
 warehouses:
-    sspl-wh:
+    cloud:
         components:
-            sspl-base:
+            eshsxp:
                 import:
-                    description: "Sophos Linux Base"
-                    # The version used here is just an identifier and does not need to match the actual version of the product for ostia.
-                    # Means we dont have to keep updating the metadata for the build numbers....
+                    description: "Hosted Service For Windows 2000+ v1.0.0"
                     version: "1.0.0"
-                features: [CORE]
+                features: [AV, DLP, DVCCNTRL, HIPS]
                 platforms: []
                 release-tags:
-                    - base-version: ""
-                      tag: RECOMMENDED
-                    - base-version: ""
-                      tag: BETA
+                    -   base-version: 1
+                        tag: RECOMMENDED
                 subcomponents:
-                    sspl-base-component:
+                    cloud_savxp:
                         supplements:
-                            - ssplflags-supp
-                    sspl-liveterminal:
-            sspl-edr:
-                import:
-                    description: "Sophos Linux Endpoint Detection and Response"
-                    version: "1.0.0"
-                features: [LIVEQUERY]
-                platforms: []
-                release-tags:
-                    - base-version: ""
-                      tag: RECOMMENDED
-                    - base-version: ""
-                      tag: BETA
-                supplements:
-                    - scheduled-query-pack-supp
+                            - userappfeed-data
+                            - hips-data
+                            - sxlsup-data
+                            - vdl-data
+                            - crt-supp
+                            - savcontrol-data
+                    opm-sau:
+                        supplements:
+                            - telemetry-data
+                            - saucontrol-data
+                    sdu:
+                    mcs:
+                    eng:
 
-    ssplmdr-wh:
+    cloud-hmp:
         components:
-            ssplmdr-suite:
-                import:
-                    description: "Sophos Server Protection for Linux MTR"
-                    version: "1.0.0"
-                features: [MDR]
+            cleansuite:
+                features: [XPD]
                 platforms: []
                 release-tags:
-                    - base-version: ""
-                      tag: RECOMMENDED
-                    - base-version: ""
-                      tag: BETA
+                    -   base-version: 1
+                        tag: RECOMMENDED
+                    -   base-version: 1
+                        tag: BETA
                 subcomponents:
-                    ssplmdr-control-component:
-                    ssplmdr-dbos-component:
-                    ssplmdr-osquery-component:
-    ssplav-wh:
+
+            hmpasuite:
+                features: [XPD]
+                platforms: []
+                release-tags:
+                    -   base-version: 1
+                        tag: RECOMMENDED
+                    -   base-version: 1
+                        tag: BETA
+                    -   base-version: 1
+                        tag: BETA2
+                subcomponents:
+                    hmpa32:
+                        supplements:
+                            - hmpadatasup-data
+                    hmpa64:
+                        supplements:
+                            - hmpadatasup-data
+
+    cloud-ng:
         components:
-            sspl-base:
+            nextgen:
                 import:
-                    description: "Sophos Linux Base"
-                    # The version used here is just an identifier and does not need to match the actual version of the product for ostia.
-                    # Means we dont have to keep updating the metadata for the build numbers....
+                    description: "Hosted Service For Windows 7+ v11.0.0"
+                    version: "11.0.0"
+                features: [AV, CORE, CLEAN, DLP, DVCCNTRL, HIPS, LIVEQUERY, LIVETERMINAL, NTP, XPD, UI]
+                platforms: []
+                release-tags:
+                    -   base-version: 11
+                        tag: RECOMMENDED
+                    -   base-version: 11
+                        tag: BETA
+                    -   base-version: 11
+                        tag: BETA2
+                supplements:
+                    - winepflags-supp
+                subcomponents:
+                    sauxg32:
+                        supplements:
+                            - repairkit-supp
+                            - telemetry-data
+                    sdu:
+                    mcs:
+                    amsi32:
+                    amsi64:
+                    health:
+                    livequery32:
+                        supplements:
+                            - scheduled-query-pack-supp
+                    livequery64:
+                        supplements:
+                            - scheduled-query-pack-supp
+                    liveterminal32:
+                    liveterminal64:
+                    ntp32:
+                        supplements:
+                            - epips-data
+                    ntp64:
+                        supplements:
+                            - epips-data
+                    uninstaller32:
+                    uninstaller64:
+                    dotnet:
+                    ui:
+                    ui64:
+                    sed32:
+                        supplements:
+                            - behave-supp
+                    sed64:
+                        supplements:
+                            - behave-supp
+                    eshepconfig:
+                        supplements:
+                            - esh-supp
+                            - eshrules-supp
+                    eshepconfig64:
+                        supplements:
+                            - esh64-supp
+                            - eshrules-supp
+                    sfs:
+                        supplements:
+                            - localrepdata-data
+                    sfs64:
+                        supplements:
+                            - localrepdata-data
+                    sse:
+                        supplements:
+                            - dataseta-data
+                    sse64:
+                        supplements:
+                            - dataseta-data
+                    sophosclean32:
+                    sophosclean64:
+                    sme:
+                        supplements:
+                            - ml-model-user-scan-supp
+                            - ml-model-user-telemetry-supp
+                            - ml-docmodel-user-telem
+                    sme64:
+                        supplements:
+                            - ml-model64-user-scan-supp
+                            - ml-model64-user-telemetry-supp
+                            - ml-docmodel64-user-telem
+
+            av:
+                import:
+                    description: "Windows Cloud AV v11.0.0"
+                    version: "11.0.0"
+                features: []
+                platforms: []
+                release-tags:
+                    -   base-version: 11
+                        tag: RECOMMENDED
+                    -   base-version: 11
+                        tag: BETA
+                    -   base-version: 11
+                        tag: BETA2
+                subcomponents:
+                    cloud_savxp:
+                        supplements:
+                            - userappfeed-data
+                            - hips-data
+                            - sxlsup-data
+                            - vdl-data
+                            - crt-supp
+                            - savcontrol-data
+                    efw:
+                    efw64:
+                    eng:
+
+    encryption:
+        components:
+            encryptionsuite:
+                features: []
+                platforms: []
+                release-tags:
+                    -   base-version: 1
+                        tag: RECOMMENDED
+                subcomponents:
+                    encryption:
+                    dotnet:
+
+        fileencryptionsuite:
+            features: []
+            platforms: []
+            release-tags:
+                -   base-version: 1
+                    tag: RECOMMENDED
+            subcomponents:
+
+    cloud-mtr:
+        components:
+            mtrsuite:
+                import:
+                    description: "Windows Cloud MTR"
                     version: "1.0.0"
-                features: [CORE]
+                features: []
                 platforms: []
                 release-tags:
                     -   base-version: ""
                         tag: RECOMMENDED
                     -   base-version: ""
                         tag: BETA
-            sspl-edr:
-                import:
-                    description: "Sophos Linux Endpoint Detection and Response"
-                    version: "1.0.0"
-                features: [LIVEQUERY]
-                platforms: []
-                release-tags:
-                    - base-version: ""
-                      tag: RECOMMENDED
-                    - base-version: ""
-                      tag: BETA
-
-            sspl-av:
-                import:
-                    description: "Sophos Server Protection for Linux Anti-Virus"
-                    version: "11.0.0"
-                features: [AV]
-                platforms: []
-                release-tags:
-                    - base-version: ""
-                      tag: RECOMMENDED
-                    - base-version: ""
-                      tag: BETA
-                supplements:
-                    - vdl-data
+                subcomponents:
+                    mtr32:
+                    mtr64:
 
 customer-files:
-    - warehouse: sspl-wh
-      user: base_user_vut
-      password: password
-      split-warehouses:
-          - warehouse: sspl-wh
+    -   warehouse: cloud
+        user: cloud_user
+        password: password
+        output-dir: update
+        split-warehouses:
+            - warehouse: cloud
+            - warehouse: cloud-ng
+            - warehouse: cloud-hmp
+            - warehouse: encryption
+            - warehouse: cloud-mtr
 
-    - warehouse: sspl-wh
-      user: mtr_user_vut
-      password: password
-      split-warehouses:
-          - warehouse: sspl-wh
-          - warehouse: ssplmdr-wh
-
-    -   warehouse: ssplav-wh
-        user: av_user_vut
+    -   warehouse: cloud
+        user: cloud_user
         password: password
         split-warehouses:
-            - warehouse: ssplav-wh
+            - warehouse: cloud
+            - warehouse: cloud-ng
+            - warehouse: cloud-hmp
+            - warehouse: encryption
+            - warehouse: cloud-mtr

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SDDSData>
+  <ProductInstance>
+    <!-- Product Instance Identity (Primary) -->
+    <ProductLineId>F26F7EC0-1302-4DA7-8B6B-A5383051D41A</ProductLineId>
+    <ProductVersionId>0.0.0</ProductVersionId>
+    <!-- Product Instance Identity (Secondary) -->
+    <ProductLineCanonicalName>ES2SCPXP</ProductLineCanonicalName>
+    <ProductVersionLabels>
+      <Label>0.0.0</Label>
+    </ProductVersionLabels>
+    <ProductInstanceNames>
+      <Name>Windows Endpoint Security and Control v0.0.0</Name>
+    </ProductInstanceNames>
+    <EMLVersion>0.0.0</EMLVersion>
+    <!-- Product Instance Form -->
+    <Form>compound</Form>
+    <Managed>1</Managed>
+    <SignedManifest>0</SignedManifest>
+    <!-- Product Instance Details -->
+    <DefaultHomeFolder>SAVSCFXP</DefaultHomeFolder>
+    <Roles>
+      <Role>EPS</Role>
+    </Roles>
+    <Features>
+      <Feature>AV</Feature>
+      <Feature>CRT</Feature>
+      <Feature>DVCCNTRL</Feature>
+      <Feature>DLP</Feature>
+      <Feature>HIPS</Feature>
+      <Feature>APPCNTRL</Feature>
+      <Feature>WEBCNTRL</Feature>
+      <Feature>NTP</Feature>
+      <Feature>CORE</Feature>	  
+    </Features>
+    <Platforms>
+      <Platform>WIN_2008_R2_SVR_X64</Platform>
+      <Platform>WIN_2008_SVR</Platform>
+      <Platform>WIN_2008_SVR_X64</Platform>
+      <Platform>WIN_2011_SVR_X64</Platform>
+      <Platform>WIN_7</Platform>
+      <Platform>WIN_7_X64</Platform>
+      <Platform>WIN_8</Platform>
+      <Platform>WIN_8_SVR_X64</Platform>
+      <Platform>WIN_8_X64</Platform>
+      <Platform>WIN_81</Platform>
+      <Platform>WIN_81_SVR_X64</Platform>
+      <Platform>WIN_81_X64</Platform>
+      <Platform>WIN_10</Platform>
+      <Platform>WIN_10_X64</Platform>
+	  <Platform>WIN_10_SVR_X64</Platform>
+    </Platforms>
+    <TargetTypes>
+      <TargetType>ENDPOINT</TargetType>
+    </TargetTypes>
+  </ProductInstance>
+</SDDSData>

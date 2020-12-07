@@ -3,8 +3,7 @@ import os.path
 
 cwd = os.getcwd()
 LOGS = os.path.join(cwd, "..", "logs")
-WAREHOUSE_WRITE = os.path.join(cwd, "..", "output", "warehouse")
-CUSTOMER_FILES_WRITE = os.path.join(cwd, "..", "output", "customer")
-branch = os.environ.get("PIPELINE_NAME")
-WAREHOUSE_READ  = ["http://ostia.eng.sophos/dev/sspl-warehouse/{}/warehouse/warehouse".format(branch)]
+WAREHOUSE_WRITE = os.path.join(cwd, "..", "output", "warehouse", "content")
+CUSTOMER_FILES_WRITE = os.path.join(cwd, "..", "output", "warehouse")
+WAREHOUSE_READ = ["http://d1.sophosupd.net/update/"]
 REPOSITORY_ID = "ES+C"

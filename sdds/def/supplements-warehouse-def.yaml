@@ -1,18 +1,63 @@
 %YAML 1.1
 ---
 warehouses:
-    ssplflags-wh:
+    winepflags:
         components:
-            ssplpflags:
+            winepflags:
                 release-tags:
-                   - base-version: 1
-                     tag: RECOMMENDED
+                    -   base-version: 1
+                        tag: LATEST
 
-    scheduled-query-pack-wh:
-      components:
-        scheduled-query-pack:
-          release-tags:
-            - base-version: 1
-              tag: RECOMMENDED
+    repairkit:
+        components:
+            repairkit:
+                release-tags:
+                    -   tag: LATEST
 
+    esh:
+        components:
+            eshsup:
+                release-tags:
+                    -   base-version: 3
+                        tag: RECOMMENDED
+            esh64sup:
+                release-tags:
+                    -   base-version: 3
+                        tag: RECOMMENDED
+            eshrulessup:
+                release-tags:
+                    -   base-version: 1
+                        tag: RECOMMENDED
+
+    CRTSUPP:
+        components:
+            crt:
+                release-tags:
+                    -   base-version: 2
+                        tag: LATEST
+
+    supp:
+        components:
+            savcontrolsupplement:
+                release-tags:
+                    -   base-version: 2
+                        tag: RECOMMENDED
+            telemetrysup:
+                release-tags:
+                    -   tag: RECOMMENDED
+            saucontrolsupplement:
+                release-tags:
+                    -   base-version: 1
+                        tag: RECOMMENDED
+            scheduled-query-pack:
+                release-tags:
+                    -   tag: RECOMMENDED
+
+    opm-supp:
+        components:
+            opm-savcontrolsupplement:
+                release-tags:
+                    -   base-version: 2
+                        tag: PREVIEW
+ 
 customer-files: []

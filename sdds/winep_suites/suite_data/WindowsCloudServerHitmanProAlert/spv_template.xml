@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SDDSData>
+    <ProductInstance>
+        <!-- Product Instance Identity (Primary) -->
+        <ProductLineId>WindowsCloudServerHitmanProAlert</ProductLineId>
+        <ProductVersionId>1.0.0</ProductVersionId>
+        <!-- Product Instance Identity (Secondary) -->
+        <ProductLineCanonicalName>Windows Cloud Server HitmanPro.Alert</ProductLineCanonicalName>
+        <ProductVersionLabels>
+            <Label>1.0.0</Label>
+        </ProductVersionLabels>
+        <ProductInstanceNames>
+            <Name>Windows Cloud Server HitmanPro.Alert v1.0.0</Name>
+        </ProductInstanceNames>
+        <!-- Product Instance Form -->
+        <Form>compound</Form>
+        <Managed>1</Managed>
+        <SignedManifest>0</SignedManifest>
+        <!-- Product Instance Details -->
+        <DefaultHomeFolder>CLOUDHMPA</DefaultHomeFolder>
+        <TargetTypes>
+            <TargetType>ENDPOINT</TargetType>
+        </TargetTypes>
+    </ProductInstance>
+</SDDSData>

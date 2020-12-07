@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<publicationspec importspec="importspec.xml">
+  <componentsuites>
+    <line id="WindowsCloudMDR">
+      <!-- released -->
+      <componentsuite importreference="1.0.3.11">
+        <component importreference="1.0.3.11" line="MTR64" mountpoint="mtr64"/>
+        <component importreference="1.0.3.11" line="MTR32" mountpoint="mtr32"/>
+      </componentsuite>
+      <componentsuite importreference="1.0.3.2">
+        <component importreference="1.0.3.2" line="MTR64" mountpoint="mtr64"/>
+        <component importreference="1.0.3.2" line="MTR32" mountpoint="mtr32"/>
+      </componentsuite>
+      <componentsuite importreference="1.0.2.10">
+        <component importreference="1.0.2.10" line="MTR64" mountpoint="mtr64"/>
+        <component importreference="1.0.2.10" line="MTR32" mountpoint="mtr32"/>
+      </componentsuite>
+      <componentsuite importreference="1.0.1.44">
+        <component importreference="1.0.1.44" line="MDR64" mountpoint="mdr64"/>
+        <component importreference="1.0.1.44" line="MDR32" mountpoint="mdr32"/>
+      </componentsuite>
+    </line>
+  </componentsuites>
+  <warehouses>
+    <warehouse furcatedentitlement="WIN_MDR" id="WIN_MTR">
+      <!-- Component Suites -->
+      <line id="WindowsCloudMDR">
+        <!-- released -->
+        <componentsuite importreference="1.0.3.11">
+          <releasetag tag="BETA"/>
+          <releasetag tag="RECOMMENDED"/>
+        </componentsuite>
+        <componentsuite importreference="1.0.3.2"/>
+        <componentsuite importreference="1.0.2.10"/>
+        <componentsuite importreference="1.0.1.44"/>
+      </line>
+    </warehouse>
+  </warehouses>
+  <licenses/>
+</publicationspec>

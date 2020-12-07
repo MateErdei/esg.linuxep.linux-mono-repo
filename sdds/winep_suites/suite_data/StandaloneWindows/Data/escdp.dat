@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<License format-version="1.0">
+
+	<Features>
+
+		<Feature>AV</Feature>
+
+		<Feature>CLNTFRWLL</Feature>
+
+		<Feature>CRT</Feature>
+
+		<Feature>HIPS</Feature>
+
+		<Feature>PUA</Feature>
+
+		<Feature>URLSCRTY</Feature>
+
+	</Features>
+
+</License>
+

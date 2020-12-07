@@ -1,4 +1,4 @@
-# Copyright 2019-2023 Sophos Limited. All rights reserved.
+# Copyright 2019-2020 Sophos Limited. All rights reserved.
 """
 Wrapper script to allow SDDS3 tools to invoke digest_sign from bazel.
 Takes care of setting environment variables that need to be defined before
@@ -15,19 +15,20 @@ import sys
 def _set_environment():
     # Set the path so the tool can be found. The path varies between the CI
     # environment and local dev machines.
+    os.environ["PATH"] += r";C:\python37\scripts;C:\temp;C:\bazeltools\python\scripts"
 
-    # Needed for dev machines
-    os.environ["PATH"] += r":/opt/tapvenv/bin"
+    # If the environment file isn't there (for example, because the user is
+    # running bazel commands directly), just silently continue.
+    if not os.path.exists('./tools/environment.json'):
+        return
 
     # Set the specific environment variables that the signing tools care about.
     # These variables won't exist on a developer machine.
-    environment = json.loads(open('./imports/environment.json').read())
+    environment = json.loads(open('./tools/environment.json').read())
     if "CI_SIGNING_URL" in environment:
         os.environ["CI_SIGNING_URL"] = environment["CI_SIGNING_URL"]
     if "BUILD_JWT_PATH" in environment:
         os.environ["BUILD_JWT_PATH"] = environment["BUILD_JWT_PATH"]
-    if "VIRTUAL_ENV" in environment:
-        os.environ["VIRTUAL_ENV"] = environment["VIRTUAL_ENV"]
 
 
 def main(args):

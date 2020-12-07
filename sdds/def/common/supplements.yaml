@@ -1,31 +1,253 @@
 %YAML 1.1
 ---
-ssplflags-supp:
-  base-version: 1
-  canonical-name: SSPLFLAGS
-  decode-path: .
-  line-id: SSPLFLAGS
-  tag: RECOMMENDED
-  warehouse: ssplflags-wh
-
-scheduled-query-pack-supp:
-  base-version: 1
-  canonical-name: ScheduledQueryPack
-  decode-path: scheduled_query_pack
-  line-id: ScheduledQueryPack
-  tag: RECOMMENDED
-  warehouse: scheduled-query-pack-wh
-
-vdl-data:
-  canonical-name: VDL
-  decode-path: .
-  line-id: VDL
-  tag: LATEST
-  warehouse: VDB_supp
-
+appfeed-data:
+    canonical-name: APPFEED
+    decode-path: .
+    line-id: APPFEED
+    tag: LATEST
+    warehouse: APPFEED_d1
+behave-supp:
+    canonical-name: behave
+    decode-path: Config\BehavioralRules
+    line-id: behave
+    tag: LATEST_CLOUD_ENDPOINT
+    warehouse: behave
+crt-supp:
+    base-version: 2
+    canonical-name: CRT
+    decode-path: crt
+    line-id: 97B6A561-5F87-4A2E-A4FE-177F48D8899F
+    tag: LATEST
+    warehouse: CRTSUPP
+epips-data:
+    canonical-name: EPIPS_data
+    decode-path: .
+    line-id: EPIPS_data
+    tag: LATEST
+    warehouse: epips_data
+esh-supp:
+    base-version: 3
+    canonical-name: ESHSUPP
+    decode-path: .
+    line-id: E629CAD9-B6A4-47B8-8B2F-16B8FD42067B
+    tag: RECOMMENDED
+    warehouse: esh
+esh64-supp:
+    base-version: 3
+    canonical-name: ESH64SUPP
+    decode-path: .
+    line-id: 07A049D2-0CC4-4E42-8EE8-5C31194954ED
+    tag: RECOMMENDED
+    warehouse: esh
+esharm64-supp:
+    base-version: 3
+    canonical-name: ESHARM64SUPP
+    decode-path: .
+    line-id: ED9BC68C-F0C8-4CD0-90FD-11C2011206AB
+    tag: RECOMMENDED
+    warehouse: esh
+eshrules-supp:
+    base-version: 1
+    canonical-name: ESHRULES
+    decode-path: .
+    line-id: D3147E4B-BECB-4CE5-A2B4-DD098CD8AEFE
+    tag: RECOMMENDED
+    warehouse: esh
+fimfeed-data:
+    canonical-name: FIMFEED
+    decode-path: .
+    line-id: FIMFEED
+    tag: LATEST
+    warehouse: FIMFEED
+hips-data:
+    canonical-name: HIPS
+    decode-path: .
+    line-id: HIPS
+    tag: LATEST
+    warehouse: hips
+hmpadatasup-data:
+    base-version: 1
+    canonical-name: hmpa_data
+    decode-path: .
+    line-id: hmpa_data
+    tag: LATEST
+    warehouse: hmpa_data
 localrepdata-data:
-  canonical-name: LocalRepData
-  decode-path: .
-  line-id: LocalRepData
-  tag: LATEST_CLOUD_ENDPOINT
-  warehouse: ixdata
+    canonical-name: LocalRepData
+    decode-path: .
+    line-id: LocalRepData
+    tag: LATEST_CLOUD_ENDPOINT
+    warehouse: ixdata
+ml-model-user-scan-supp:
+    canonical-name: MODEL32
+    decode-path: scan
+    line-id: 995645D3-DA2A-407E-AC5D-7267B8B43975
+    tag: USER_SCAN
+    warehouse: ml_models
+ml-model-user-telemetry-supp:
+    canonical-name: MODEL32
+    decode-path: telemetry
+    line-id: 995645D3-DA2A-407E-AC5D-7267B8B43975
+    tag: USER_TELEM
+    warehouse: ml_models
+ml-model64-user-scan-supp:
+    canonical-name: MODEL64
+    decode-path: scan
+    line-id: C19A85E4-728F-4E92-8528-6B42B30639B2
+    tag: USER_SCAN
+    warehouse: ml_models
+ml-model64-user-telemetry-supp:
+    canonical-name: MODEL64
+    decode-path: telemetry
+    line-id: C19A85E4-728F-4E92-8528-6B42B30639B2
+    tag: USER_TELEM
+    warehouse: ml_models
+ml-modelarm64-user-scan-supp:
+    canonical-name: MODELARM64
+    decode-path: scan
+    line-id: ML_MODEL_ARM64
+    tag: USER_SCAN
+    warehouse: ml_models
+ml-modelarm64-user-telemetry-supp:
+    canonical-name: MODELARM64
+    decode-path: telemetry
+    line-id: ML_MODEL_ARM64
+    tag: USER_TELEM
+    warehouse: ml_models
+ml-model64-svr-scan-supp:
+    canonical-name: MODEL64
+    decode-path: scan
+    line-id: C19A85E4-728F-4E92-8528-6B42B30639B2
+    tag: SVR_SCAN
+    warehouse: ml_models
+ml-model64-svr-telemetry-supp:
+    canonical-name: MODEL64
+    decode-path: telemetry
+    line-id: C19A85E4-728F-4E92-8528-6B42B30639B2
+    tag: SVR_TELEM
+    warehouse: ml_models
+ml-docmodel-user-telem:
+    canonical-name: DOC_MODEL_32
+    decode-path: docmodel
+    line-id: DOC_MODEL_32
+    tag: USER_TELEM
+    warehouse: doc_models
+ml-docmodel64-user-telem:
+    canonical-name: DOC_MODEL_64
+    decode-path: docmodel
+    line-id: DOC_MODEL_64
+    tag: USER_TELEM
+    warehouse: doc_models
+ml-docmodelarm64-user-telem:
+    canonical-name: DOC_MODEL_ARM64
+    decode-path: docmodel
+    line-id: DOC_MODEL_ARM64
+    tag: USER_TELEM
+    warehouse: doc_models
+ml-docmodel64-svr-telem:
+    canonical-name: DOC_MODEL_64
+    decode-path: docmodel
+    line-id: DOC_MODEL_64
+    tag: SVR_TELEM
+    warehouse: doc_models
+msdc-supp:
+    canonical-name: MSDC
+    line-id: AE6CB2F2-43F1-4C0E-B1B7-907AEB1A6823
+    tag: LATEST
+    decode-path: MSDC
+    warehouse: msdc
+pdata-supp:
+    base-version: 2
+    canonical-name: PDATA
+    line-id: 280D5B59-4BF7-40a9-9C08-1BE7A11A5058
+    tag: LATEST
+    decode-path: PDATA
+    warehouse: pdata
+pmsr1-supp:
+    canonical-name: PMSR1
+    line-id: PMSR_CCI
+    tag: LATEST
+    decode-path: .
+    warehouse: pmsr_cci
+repairkit-supp:
+    canonical-name: REPAIRKIT
+    decode-path: .
+    line-id: REPAIRKIT
+    tag: LATEST
+    warehouse: repairkit
+saucontrol-data:
+    base-version: 1
+    canonical-name: SAUCONTROL
+    decode-path: .
+    line-id: SAUCONTROLLINE
+    tag: RECOMMENDED
+    warehouse: supp
+savcontrol-data:
+    base-version: 2
+    canonical-name: SAVCONTROL
+    decode-path: .
+    line-id: SAVCONTROLLINE
+    tag: RECOMMENDED
+    warehouse: supp
+opm-savcontrol-data:
+    base-version: 2
+    canonical-name: SAVCONTROL
+    decode-path: .
+    line-id: SAVCONTROLLINE
+    tag: PREVIEW
+    warehouse: opm-supp
+winepflags-supp:
+    base-version: 1
+    canonical-name: WINEPFLAGS
+    decode-path: .
+    line-id: WINEPFLAGS
+    tag: LATEST
+    warehouse: winepflags
+winepflags-sdds3-supp:
+    canonical-name: WINEPFLAGS
+    line-id: WINEPFLAGS
+    tag: LATEST
+    decode-path: '@flags'
+sldfeed-data:
+    canonical-name: SLDFEED
+    decode-path: .
+    line-id: SLDFEED
+    tag: LATEST
+    warehouse: SLDFEED_d1
+sxlsup-data:
+    base-version: 2
+    canonical-name: SXLSUP
+    decode-path: .
+    line-id: SXLSUP
+    tag: LATEST
+    warehouse: sxl_supp
+telemetry-data:
+    canonical-name: TELEMSUP
+    decode-path: .
+    line-id: TELEMSUP
+    tag: RECOMMENDED
+    warehouse: supp
+userappfeed-data:
+    canonical-name: USERAPPFEED
+    decode-path: .
+    line-id: USERAPPFEED
+    tag: LATEST
+    warehouse: APPFEED_d1
+vdl-data:
+    canonical-name: VDL
+    decode-path: .
+    line-id: VDL
+    tag: LATEST
+    warehouse: VDB_supp
+dataseta-data:
+    canonical-name: DataSetA
+    decode-path: .
+    line-id: DataSetA
+    tag: NEXT
+    warehouse: ixdata
+scheduled-query-pack-supp:
+    canonical-name: ScheduledQueryPack
+    decode-path: .
+    line-id: ScheduledQueryPack
+    tag: RECOMMENDED
+    warehouse: supp

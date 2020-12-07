@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ComponentData>
+    <Component>
+        <Name>hmpa_data</Name>
+        <RigidName>hmpa_data</RigidName>
+        <Version>1.0.0.0</Version>
+        <Build>0</Build>
+        <ProductType>Component</ProductType>
+        <DefaultHomeFolder>.</DefaultHomeFolder>
+        <TargetTypes>
+            <TargetType Name="ENDPOINT"/>
+        </TargetTypes>
+        <Roles/>
+        <Platforms/>
+        <Features/>
+        <FileList/>
+        <Comment>[0]</Comment>
+    </Component>
+    <Dictionary>
+        <Name>
+            <Label>
+                <Token>hmpa_data#1.0.0.0</Token>
+                <Language lang="en">
+                    <ShortDesc>hmpa_data 1.0.0.0</ShortDesc>
+                    <LongDesc>hmpa_data 1.0.0.0</LongDesc>
+                </Language>
+            </Label>
+        </Name>
+    </Dictionary>
+</ComponentData>

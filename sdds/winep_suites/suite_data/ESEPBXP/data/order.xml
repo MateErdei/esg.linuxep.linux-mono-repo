@@ -1,0 +1,41 @@
+<components>
+  <!--SED early-->
+  <component lineId="BD3D3F43-188F-4930-86C4-54343CC78289" order="-10" />
+  <component lineId="1129226C-32AB-4B72-85E1-A9CC8DFBC859" order="-10" />
+
+  <!--RMS-->
+  <component lineId="390DCDC2-10A9-4ef3-B8D8-0CA7F0E7EB92" order="-7" />
+
+  <!--SSP-->
+  <component lineId="F8FFD42E-47AC-4CFF-9E27-EC84ED62128E" order="-5" />
+  <component lineId="6DA9E48A-5756-47E9-BAA3-F0286CF945BF" order="-5" />
+  
+  <!--HMPA late-->
+  <component lineId="16D59F7E-6D84-449C-A7F7-7D8DA2268A26" order="-3" />
+  <component lineId="244E68BF-E1BB-4A6B-AC18-A492DE0134C0" order="-3" />
+  
+  <!--CLEAN late-->
+  <component lineId="46810557-453C-4DC7-B30A-3F60FEF885E4" order="-2" />
+  <component lineId="7A91E6C5-57F2-406E-94BC-E03DC13C6445" order="-2" /> 
+
+  <!--SAV-->
+  <component lineId="E17FE03B-0501-4aaa-BC69-0129D965F311" order="0" />
+
+  <!--MTD/MTD64-->
+  <component lineId="AFB2EB41-7301-4143-90D0-D19ADD7CA53D" order="1" />
+  <component lineId="8087796B-2289-4897-98A5-58FF23DAAFD0" order="1" />
+
+  <!--SCF-->
+  <component lineId="4DB41E90-DC56-41DC-B91E-9B8E537489A8" order="3" />
+  
+  <!--SPA/SPA64-->
+  <component lineId="C58B1255-C24E-43d6-B2EB-9FB302B42E99" order="4" />
+  <component lineId="D918120F-5C45-4e77-BEBF-7D921273B2E0" order="4" />
+
+  <!--PMSR-->
+  <component lineId="B5E7E2A7-3B64-437D-801F-21CC9D67CC6D" order="5" />
+
+  <!--SAU last-->
+  <component lineId="9BF40A4E-23AE-48be-9974-5A1F261DBEE8" order="10" />
+
+</components>

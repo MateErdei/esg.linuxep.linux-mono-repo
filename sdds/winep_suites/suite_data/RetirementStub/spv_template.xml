@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SDDSData>
+	<ProductInstance>
+		<!-- Product Instance Identity (Primary) -->
+		<ProductLineId>RetirementStub</ProductLineId>
+		<ProductVersionId>1.0.0</ProductVersionId>
+		<!-- Product Instance Identity (Secondary) -->
+		<ProductLineCanonicalName>Resubscription Stub</ProductLineCanonicalName>
+		<ProductVersionLabels>
+			<Label>1.0.0</Label>
+		</ProductVersionLabels>
+		<ProductInstanceNames>
+			<Name>RetirementStub 1.0.0</Name>
+		</ProductInstanceNames>
+		<!-- Product Instance Form -->
+		<Form>simple</Form>
+		<Managed>1</Managed>
+		<SignedManifest>0</SignedManifest>
+		<!-- Product Instance Details -->
+		<DefaultHomeFolder>.</DefaultHomeFolder>
+		<TargetTypes>
+			<TargetType>ENDPOINT</TargetType>
+		</TargetTypes>
+	</ProductInstance>
+</SDDSData>

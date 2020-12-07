@@ -1,5 +1,4 @@
-# Copyright 2021-2023 Sophos Limited. All rights reserved.
-"""Tools to build SDDS3 suites/packages/supplements"""
+load("//tools/config:sophos_utils.bzl", "copy_file")
 
 ####################################################################################
 # Build SDDS3 package
@@ -13,10 +12,10 @@ def _build_sdds3_package_impl(ctx):
 
     args = ctx.actions.args()
     args.add(ctx.executable._make_sdds3_package.path)
-    args.add("--fileset", sdds_import.dirname)
-    args.add("--package-dir", "{}".format(outfile.dirname))
+    args.add('--fileset', sdds_import.dirname)
+    args.add('--package-dir', '{}'.format(outfile.dirname))
     if (ctx.attr.version):
-        args.add("--version", ctx.attr.version)
+        args.add('--version', ctx.attr.version)
     ctx.actions.run(
         mnemonic = "BuildSdds3Package",
         inputs = [sdds_import],
@@ -25,14 +24,12 @@ def _build_sdds3_package_impl(ctx):
         executable = ctx.executable._env,
         tools = [ctx.executable._make_sdds3_package, ctx.executable._sdds3_builder_exe],
         use_default_shell_env = True,
-        execution_requirements = {
-            "no-sandbox": "1",
-        },
     )
 
     return [
-        DefaultInfo(files = depset(outputs)),
+        DefaultInfo(files = depset(outputs))
     ]
+
 
 build_sdds3_package = rule(
     _build_sdds3_package_impl,
@@ -46,23 +43,25 @@ build_sdds3_package = rule(
         "sdds_import": attr.label(
             allow_single_file = True,
         ),
+
         "_env": attr.label(
             default = ":env",
             executable = True,
             cfg = "host",
         ),
         "_make_sdds3_package": attr.label(
-            default = "//imports/internal/sdds3_utils:make_sdds3_package",
+            default = "//inputs/sdds3:make_sdds3_package",
             executable = True,
             cfg = "host",
         ),
         "_sdds3_builder_exe": attr.label(
-            default = "//imports/internal/sdds3_utils:sdds3_builder_exe",
+            default = "//inputs/sdds3:sdds3_builder_exe",
             executable = True,
             cfg = "host",
         ),
-    },
+    }
 )
+
 
 ####################################################################################
 # Copy prebuilt SDDS3 packages
@@ -73,10 +72,10 @@ def _copy_prebuilt_sdds3_package_impl(ctx):
     outputs.append(outfile)
 
     prebuilt_package = ctx.file.prebuilt_package
-    ctx.actions.symlink(target_file = prebuilt_package, output = outfile)
+    copy_file(ctx, prebuilt_package, outfile)
 
     return [
-        DefaultInfo(files = depset(outputs)),
+        DefaultInfo(files = depset(outputs))
     ]
 
 copy_prebuilt_sdds3_package = rule(
@@ -88,35 +87,9 @@ copy_prebuilt_sdds3_package = rule(
         "prebuilt_package": attr.label(
             allow_single_file = True,
         ),
-    },
+    }
 )
 
-####################################################################################
-# Copy prebuilt SDDS3 supplements
-####################################################################################
-def _copy_prebuilt_sdds3_supplement_impl(ctx):
-    outputs = []
-    outfile = ctx.actions.declare_file(ctx.attr.supplement)
-    outputs.append(outfile)
-
-    prebuilt_supplement = ctx.file.prebuilt_supplement
-    ctx.actions.symlink(target_file = prebuilt_supplement, output = outfile)
-
-    return [
-        DefaultInfo(files = depset(outputs)),
-    ]
-
-copy_prebuilt_sdds3_supplement = rule(
-    _copy_prebuilt_sdds3_supplement_impl,
-    attrs = {
-        "supplement": attr.string(
-            doc = "Fully-qualified name of the generated supplement",
-        ),
-        "prebuilt_supplement": attr.label(
-            allow_single_file = True,
-        ),
-    },
-)
 
 ####################################################################################
 # Build SDDS3 suite
@@ -127,21 +100,19 @@ def _build_sdds3_suite_impl(ctx):
     outputs.append(outfile)
 
     metadata = ctx.file.metadata
+    inputs = [metadata]
 
     args = ctx.actions.args()
     args.add(ctx.executable._maker.path)
-    args.add("--suite-dir", outfile.dirname)
-    args.add("--metadata", metadata.path)
-    args.add("--sdds3-builder", ctx.executable._sdds3_builder_exe.path)
-
-    packages = depset(transitive = [f.files for f in ctx.attr.packages])
-    args.add_all(packages, before_each = "--package")
-
-    sdds_imports = depset(transitive = [i.files for i in ctx.attr.sdds_imports])
-    args.add_all(sdds_imports, before_each = "--import")
-    _allowed_integrity_duplicates = None
-    inputs = depset(direct = [metadata], transitive = [packages, sdds_imports])
-
+    args.add('--suite-dir', outfile.dirname)
+    args.add('--metadata', metadata.path)
+    args.add('--sdds3-builder', ctx.executable._sdds3_builder_exe.path)
+    for pkg in ctx.files.packages:
+        args.add('--package', pkg.path)
+        inputs.append(pkg)
+    for imp in ctx.files.sdds_imports:
+        args.add('--import', imp.path)
+        inputs.append(imp)
     ctx.actions.run(
         mnemonic = "BuildSdds3Suite",
         inputs = inputs,
@@ -150,14 +121,12 @@ def _build_sdds3_suite_impl(ctx):
         executable = ctx.executable._env,
         tools = [ctx.executable._maker, ctx.executable._sdds3_builder_exe],
         use_default_shell_env = True,
-        execution_requirements = {
-            "no-sandbox": "1",
-        },
     )
 
     return [
-        DefaultInfo(files = depset(outputs)),
+        DefaultInfo(files = depset(outputs))
     ]
+
 
 build_sdds3_suite = rule(
     _build_sdds3_suite_impl,
@@ -174,6 +143,7 @@ build_sdds3_suite = rule(
         "metadata": attr.label(
             allow_single_file = True,
         ),
+
         "_env": attr.label(
             default = ":env",
             executable = True,
@@ -185,11 +155,11 @@ build_sdds3_suite = rule(
             cfg = "host",
         ),
         "_sdds3_builder_exe": attr.label(
-            default = "//imports/internal/sdds3_utils:sdds3_builder_exe",
+            default = "//inputs/sdds3:sdds3_builder_exe",
             executable = True,
             cfg = "host",
         ),
-    },
+    }
 )
 
 ####################################################################################
@@ -200,34 +170,34 @@ def _build_sdds3_supplement_impl(ctx):
     outfile = ctx.actions.declare_file(ctx.attr.supplement)
     outputs.append(outfile)
 
+    inputs = []
+
     args = ctx.actions.args()
     args.add(ctx.executable._maker.path)
-    args.add("--supplement-dir", outfile.dirname)
-    args.add("--sdds3-builder", ctx.executable._sdds3_builder_exe.path)
-    packages = depset(transitive = [f.files for f in ctx.attr.packages])
-    args.add_all(packages, before_each = "--package")
-
-    sdds_imports = depset(transitive = [i.files for i in ctx.attr.sdds_imports])
-    args.add_all(sdds_imports, before_each = "--import")
-
-    args.add_all(ctx.attr.release_tags, before_each = "--tag")
-
+    args.add('--supplement-dir', outfile.dirname)
+    args.add('--sdds3-builder', ctx.executable._sdds3_builder_exe.path)
+    for pkg in ctx.files.packages:
+        args.add('--package', pkg.path)
+        inputs.append(pkg)
+    for imp in ctx.files.sdds_imports:
+        args.add('--import', imp.path)
+        inputs.append(imp)
+    for tag in ctx.attr.release_tags:
+        args.add('--tag', tag)
     ctx.actions.run(
         mnemonic = "BuildSdds3Supplement",
-        inputs = depset(transitive = [packages, sdds_imports]),
+        inputs = inputs,
         outputs = outputs,
         arguments = [args],
         executable = ctx.executable._env,
         tools = [ctx.executable._maker, ctx.executable._sdds3_builder_exe],
         use_default_shell_env = True,
-        execution_requirements = {
-            "no-sandbox": "1",
-        },
     )
 
     return [
-        DefaultInfo(files = depset(outputs)),
+        DefaultInfo(files = depset(outputs))
     ]
+
 
 build_sdds3_supplement = rule(
     _build_sdds3_supplement_impl,
@@ -244,6 +214,7 @@ build_sdds3_supplement = rule(
         "release_tags": attr.string_list(
             doc = "List of tags for each package included in the supplement",
         ),
+
         "_env": attr.label(
             default = ":env",
             executable = True,
@@ -255,11 +226,11 @@ build_sdds3_supplement = rule(
             cfg = "host",
         ),
         "_sdds3_builder_exe": attr.label(
-            default = "//imports/internal/sdds3_utils:sdds3_builder_exe",
+            default = "//inputs/sdds3:sdds3_builder_exe",
             executable = True,
             cfg = "host",
         ),
-    },
+    }
 )
 
 # vim: set ft=python sw=4 sts=4 et:

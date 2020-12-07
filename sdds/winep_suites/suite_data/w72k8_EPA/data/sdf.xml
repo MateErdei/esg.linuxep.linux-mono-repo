@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<SDF>
+
+  <Product UUID="{CA77C325-52A8-4607-A603-19C8EA087C6E}" >
+
+
+    <SubPackages>
+      <SubPackage folder="savxp" ProductUUID="{E17FE03B-0501-4aaa-BC69-0129D965F311}"/>
+      <SubPackage folder="sau"   ProductUUID="{9BF40A4E-23AE-48be-9974-5A1F261DBEE8}"/>
+      <SubPackage folder="rms"   ProductUUID="{390DCDC2-10A9-4ef3-B8D8-0CA7F0E7EB92}"/>
+      <SubPackage folder="ntp"   ProductUUID="{AFB2EB41-7301-4143-90D0-D19ADD7CA53D}"/>
+      <SubPackage folder="ntp64" ProductUUID="{8087796B-2289-4897-98A5-58FF23DAAFD0}"/>
+      <SubPackage folder="sed"   ProductUUID="{BD3D3F43-188F-4930-86C4-54343CC78289}"/>
+      <SubPackage folder="sed64" ProductUUID="{1129226C-32AB-4B72-85E1-A9CC8DFBC859}"/>
+    </SubPackages>
+
+  </Product>
+
+</SDF>
+

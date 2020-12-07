@@ -1,0 +1,46 @@
+%YAML 1.1
+---
+supplements:
+    winepflags:
+        components:
+            winepflags-sdds3:
+                release-tags:
+                    -   base-version: 1
+                        tag: LATEST
+
+    repairkit:
+        components:
+            repairkit:
+                release-tags:
+                    -   tag: LATEST
+
+    esh:
+        components:
+            eshsup:
+                release-tags:
+                    -   base-version: 3
+                        tag: RECOMMENDED
+            esh64sup:
+                release-tags:
+                    -   base-version: 3
+                        tag: RECOMMENDED
+            esharm64sup:
+                release-tags:
+                    -   base-version: 3
+                        tag: RECOMMENDED
+
+    CRTSUPP:
+        components:
+            crt:
+                release-tags:
+                    -   base-version: 2
+                        tag: LATEST
+
+    supp:
+        components:
+            telemetrysup:
+                release-tags:
+                    -   tag: RECOMMENDED
+            scheduled-query-pack:
+                release-tags:
+                    -   tag: RECOMMENDED

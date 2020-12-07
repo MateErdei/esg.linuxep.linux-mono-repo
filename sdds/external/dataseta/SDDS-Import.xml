@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ComponentData>
+    <Component>
+        <Name>DataSetA</Name>
+        <RigidName>DataSetA</RigidName>
+        <Version>1.0.0</Version>
+        <Build>0</Build>
+        <ProductType>Component</ProductType>
+        <TargetTypes>
+            <TargetType Name="ENDPOINT"/>
+        </TargetTypes>
+        <Roles>
+            <Role Name="VDATA"/>
+        </Roles>
+        <Platforms/>
+        <Features>
+            <Feature Name="CORE"/>
+        </Features>
+        <FileList/>
+        <Comment>[0]</Comment>
+    </Component>
+    <Dictionary>
+        <Name>
+            <Label>
+                <Token>DataSetA#1.0.0</Token>
+                <Language lang="en">
+                    <ShortDesc>Dataset A v 1.0.0</ShortDesc>
+                    <LongDesc>Dataset A v 1.0.0</LongDesc>
+                </Language>
+            </Label>
+        </Name>
+    </Dictionary>
+</ComponentData>
