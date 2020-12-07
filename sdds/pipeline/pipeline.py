@@ -27,37 +27,9 @@ def build_dev_warehouse(stage: tap.Root):
     stage.artisan_build(name='sdds2', component=component, image='Warehouse', release_package='./build/dev.xml', mode='sdds2')
 
 
-def build_dev_sdds3(stage: tap.Root):
-    component = tap.Component(name='dev-sdds3', base_version='1.0.0')
-    stage.artisan_build(name='sdds3', component=component, image=BAZEL_TEMPLATE, release_package='./build/dev.xml', mode='sdds3')
-
-
-def build_prod_sdds3(stage: tap.Root):
-    component = tap.Component(name='prod-sdds3', base_version='1.0.0')
-    stage.artisan_build(name='prod-sdds3', component=component, image=BAZEL_TEMPLATE, release_package='./build/prod.xml', mode='sdds3')
-
-
 @tap.pipeline(root_sequential=False)
 def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    branch = context.branch
-    is_release_branch = branch.startswith('release-') or branch.startswith('hotfix-')
-
-    if is_release_branch:
-        do_dev_sdds3 = False
-        do_dev_warehouse = False
-        do_prod_sdds3 = True
-    else:
-        do_dev_sdds3 = parameters.dev != 'false'
-        do_dev_warehouse = parameters.dev != 'false' and parameters.omit_sdds2 != 'true'
-        do_prod_sdds3 = parameters.prod_sdds3 != 'false'
-
-    print(f'Building: dev_sdds3:{do_dev_sdds3} dev_warehouse:{do_dev_warehouse} prod_sdds3:{do_prod_sdds3}')
 
     with stage.parallel('build'):
         build_winep_suites(stage=stage)
-        if do_prod_sdds3:
-            build_prod_sdds3(stage=stage)
-        if do_dev_sdds3:
-            build_dev_sdds3(stage=stage)
-        if do_dev_warehouse:
-            build_dev_warehouse(stage=stage)
+        build_dev_warehouse(stage=stage)
