@@ -64,8 +64,6 @@ def coverage_task(machine: tap.Machine):
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
             package_install(machine, 'python3.7-dev')
         install_requirements(machine)
-        tests_dir = str(machine.inputs.test_scripts)
-
 
         # upload unit test coverage html results to allegro
         unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-base-unittest")
@@ -132,7 +130,7 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
     if mode == 'coverage':
         test_inputs = dict(
         test_scripts=context.artifact.from_folder('./testUtils'),
-        base_sdds=base_build / 'coverage/SDDS-COMPONENT',
+        base_sdds=base_build / 'sspl-base/SDDS-COMPONENT',
         system_test=base_build / 'sspl-base/system_test',
         openssl=base_build / 'sspl-base' / 'openssl',
         websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server',
