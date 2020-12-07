@@ -14,8 +14,6 @@ git checkout build/release-package.xml
 sudo -H ./testUtils/SupportFiles/jenkins/SetupCIBuildScripts.sh
 export PATH=$PATH:/usr/local/bin/
 
-which sb_manifest_sign
-
 ./fetchandbuild.sh --python-coverage
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
@@ -44,12 +42,10 @@ sed -i "s/py.0/py/g" .coverage
 sed -i "s_/opt/sophos-spl/base/lib_${SDDS_COMPONENT}/files/base/lib_g" .coverage
 
 
-find . -name '*coverage*' || echo "could not perform find"
 # create the xml report that is used by jenkins
 python3 -m coverage combine || echo 'ignore error'
 python3 -m coverage xml -i  --omit="*python3.7*,*site-packages*,*build64*,*tests"
 # publish the report to filer 6
-find . -name "*coverage*"  || echo "could not perform find"
 if [[ ${USER} == "jenkins" ]]; then
   TARGET_PATH=/mnt/filer6/linux/SSPL/testautomation/pythoncoverage/
   sudo cp .coverage ${TARGET_PATH}/latest_python_coverage
