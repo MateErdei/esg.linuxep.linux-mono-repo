@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <filewalker/FileWalker.h>
 #include <unixsocket/threatDetectorSocket/IScanningClientSocket.h>
+#include "ScanCallbackImpl.h"
 
 #include <memory>
 
@@ -38,6 +39,7 @@ namespace avscanner::avscannerimpl
          */
         std::shared_ptr<unixsocket::IScanningClientSocket> getSocket();
 
-        bool walk(filewalker::FileWalker& filewalker, const sophos_filesystem::path& abspath, const std::string& reportpath);
+        bool walk(filewalker::FileWalker& filewalker, const sophos_filesystem::path& abspath,
+                  const std::string& reportpath, const std::shared_ptr<ScanCallbackImpl>& scanCallbacks);
     };
 }

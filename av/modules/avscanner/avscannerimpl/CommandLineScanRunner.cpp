@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "BaseFileWalkCallbacks.h"
 #include "Options.h"
-#include "ScanCallbackImpl.h"
 #include "ScanClient.h"
 
 #include "avscanner/mountinfoimpl/Mounts.h"
@@ -164,7 +163,7 @@ int CommandLineScanRunner::run()
         auto p = fs::absolute(path);
         callbacks.setCurrentInclude(p);
 
-        if (!walk(fw, p, path))
+        if (!walk(fw, p, path, scanCallbacks))
         {
             // Abort scan
             break;

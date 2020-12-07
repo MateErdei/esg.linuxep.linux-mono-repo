@@ -136,7 +136,7 @@ int NamedScanRunner::run()
         LOGINFO("Attempting to scan: " << mountpointToScan);
         mountsScanned.insert(mountpointToScan);
 
-        if (!walk(walker, mountpointToScan, mountpointToScan))
+        if (!walk(walker, mountpointToScan, mountpointToScan, scanCallbacks))
         {
             // Abort scan
             break;
