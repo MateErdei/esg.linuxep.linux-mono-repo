@@ -78,7 +78,7 @@ void PluginAdapter::mainLoop()
     }
     catch (Common::PluginApi::ApiException& e)
     {
-        LOGERROR("Failed to get SAV policy at startup");
+        LOGERROR("Failed to get SAV policy at startup (" << e.what() << ")");
     }
     ThreadRunner scheduler(m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
     ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
@@ -118,7 +118,8 @@ void PluginAdapter::innerLoop()
 
 void PluginAdapter::processPolicy(const std::string& policyXml)
 {
-    LOGDEBUG("Process policy: " << policyXml);
+    LOGINFO("Received SAV Policy");
+    LOGDEBUG("Processing policy: " << policyXml);
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
 
