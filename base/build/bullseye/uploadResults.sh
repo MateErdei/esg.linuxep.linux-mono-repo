@@ -63,10 +63,10 @@ fi
 
 chmod -R a+rX "$htmldir"
 
-if [[ ${BULLSEYE_UPLOAD} == 1 ]]
-then
-  rsync -va --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" --delete $htmldir \
-      upload@allegro.eng.sophos:public_html/bullseye/  \
-      </dev/null \
-      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
-fi
+#if [[ ${BULLSEYE_UPLOAD} == 1 ]]
+#then
+#  rsync -va --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" --delete $htmldir \
+#      upload@allegro.eng.sophos:public_html/bullseye/  \
+#      </dev/null \
+#      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
+#fi
