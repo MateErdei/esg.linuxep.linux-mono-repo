@@ -19,7 +19,7 @@ Teardown
 
 *** Test Case ***
 Thin Installer Can install Via Real Dogfood Update Cache With Middle Which Caused Segfault In Sul
-    [Tags]  MANUAL   THININSTALLER
+    [Tags]  MANUAL   THIN_INSTALLER
     Require Uninstalled
     Get Thininstaller
     Build Thininstaller From Sections  ${SUPPORT_FILES}/ThinInstallerMiddles/dogfood.txt

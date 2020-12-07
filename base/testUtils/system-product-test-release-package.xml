@@ -26,12 +26,21 @@
             <development-version branch="develop"/>
             <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="sspl-componentsuite"/>
         </build-asset>
-
-        <package name="sspl-thininstaller"
-                 version="develop/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.7/output"
-                 dest="." buildtype="dev">
-            <include src="." dest="sspl-thininstaller"/>
-        </package>
+        <build-asset project="winep" repo="liveterminal">
+            <development-version branch="develop" />
+            <include artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
+            <include artifact-path="websocket_server" dest-dir="websocket_server" />
+        </build-asset>
+        <!--        <package name="liveterminal_linux" version="develop/%LASTGOODBUILD%/liveterminal_linux/1.2.0/output" dest="." buildtype="dev">-->
+        <!--            <include src="SDDS-COMPONENT"   dest="liveterminal" />-->
+        <!--        </package>-->
+        <!--        <package name="liveterminal" version="develop/%LASTGOODBUILD%/liveterminal/1.1/websocket_server/" dest="." buildtype="dev">-->
+        <!--            <include src="."   dest="websocket_server" />-->
+        <!--        </package>-->
+        <build-asset project="linuxep" repo="thininstaller">
+            <development-version branch="feature/LINUXDAR-2355-move-sspl-thininstaller-repository-to-unified-pipeline" />
+            <include artifact-path="output" dest-dir="sspl-thininstaller" />
+        </build-asset>
 
 <!--        <package name="sspl-thininstaller" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output" dest="." buildtype="dev">-->
 <!--            <include src="."   dest="sspl-thininstaller" />-->
@@ -72,17 +81,6 @@
         <package name="savlinux9-package" version="10-5-0/217084/savlinux-package" dest=".">
             <include src="sav-linux-x86-aggregated-10.5.0.0.25.tgz" dest="savlinux9-package"/>
         </package>
-<!--        <package name="liveterminal_linux" version="develop/%LASTGOODBUILD%/liveterminal_linux/1.2.0/output" dest="." buildtype="dev">-->
-<!--            <include src="SDDS-COMPONENT"   dest="liveterminal" />-->
-<!--        </package>-->
-<!--        <package name="liveterminal" version="develop/%LASTGOODBUILD%/liveterminal/1.1/websocket_server/" dest="." buildtype="dev">-->
-<!--            <include src="."   dest="websocket_server" />-->
-<!--        </package>-->
-        <build-asset project="winep" repo="liveterminal">
-            <development-version branch="develop" />
-            <include artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
-            <include artifact-path="websocket_server" dest-dir="websocket_server" />
-        </build-asset>
 
 
 <!--
