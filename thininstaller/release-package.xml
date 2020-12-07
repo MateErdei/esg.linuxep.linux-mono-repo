@@ -42,7 +42,6 @@
         <command>
           <program>/bin/bash</program>
           <args>./buildLinux.sh</args>
-<!--          <workingdir>sspl-thininstaller-build</workingdir>-->
           <workingdir>.</workingdir>
         </command>
     </buildcommands>
