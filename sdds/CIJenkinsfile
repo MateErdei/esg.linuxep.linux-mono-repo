@@ -2,12 +2,6 @@
 library "tap-pipe"
 
 def params = [
-    booleanParam(name: 'PROD_SDDS3', defaultValue: false,
-                 description: 'Build production SDDS3 repo? (builds if checked OR on release branches)'),
-    booleanParam(name: 'DEV', defaultValue: true,
-                 description: 'Build dev pipeline: SDDS2 warehouse and SDDS3 repo? (builds if checked AND NOT on release branches)'),
-    booleanParam(name: 'OMIT_SDDS2', defaultValue: false,
-                 description: 'Omit dev SDDS2 warehouse? (only applicable for DEV pipeline)'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'warehouse'; buildParameters = params }
