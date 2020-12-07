@@ -141,7 +141,7 @@ function install_product()
     #This could happen if a plugin is being freshly installed (e.g. for the first time)
     if is_already_installed
     then
-        "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
+        "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || [ $? == 2 ] || echo Failed to stop plugin: ${PLUGIN_NAME}
     fi
 
     #Create plugin registration file
