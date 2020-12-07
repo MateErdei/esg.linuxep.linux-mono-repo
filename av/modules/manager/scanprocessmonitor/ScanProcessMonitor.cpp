@@ -84,7 +84,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     restartBackoff.tv_sec = 0;
     restartBackoff.tv_nsec = 100*1000*1000;
 
-    fd_set readfds;
+    fd_set readfds {};
     int max_fd = -1;
     max_fd = addFD(&readfds, m_notifyPipe.readFd(), max_fd);
     max_fd = addFD(&readfds, m_subprocess_terminated.readFd(), max_fd);
@@ -158,7 +158,8 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
             else
             {
                 process->waitUntilProcessEnds();
-                LOGERROR("Exiting sophos_threat_detector with code: " << process->exitCode());
+                int exitCode = process->exitCode();
+                LOGERROR("Exiting sophos_threat_detector with code: " << exitCode);
                 if (!output.empty())
                 {
                     LOGERROR("Exiting sophos_threat_detector output: " << output);

@@ -89,6 +89,7 @@ TEST_F(TestScanProcessMonitor, constructWithEmptyConfig) // NOLINT
         FAIL() <<  "Unexpected exception type";
     }
 }
+
 TEST_F(TestScanProcessMonitor, testRunner) // NOLINT
 {
     auto m = std::make_unique<ScanProcessMonitor>("/bin/bash");
@@ -120,6 +121,24 @@ TEST_F(TestScanProcessMonitor, testRunnerCallTerminateImmediately) // NOLINT
         ThreadRunner sophos_thread_detector(*m, "scanProcessMonitor");
         sophos_thread_detector.killThreads();
         EXPECT_TRUE(waitForLog("Exiting sophos_threat_detector monitor", 500ms));
+    }
+    catch (std::exception& e)
+    {
+        FAIL() << e.what();
+    }
+}
+
+TEST_F(TestScanProcessMonitor, testRunnerProcessQuits) // NOLINT
+{
+    auto m = std::make_unique<ScanProcessMonitor>("/bin/false");
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    try
+    {
+        ThreadRunner sophos_thread_detector(*m, "scanProcessMonitor");
+        EXPECT_TRUE(waitForLog("Starting \"/bin/false\"", 500ms));
+        EXPECT_TRUE(waitForLog("Exiting sophos_threat_detector with code: 1", 500ms));
     }
     catch (std::exception& e)
     {

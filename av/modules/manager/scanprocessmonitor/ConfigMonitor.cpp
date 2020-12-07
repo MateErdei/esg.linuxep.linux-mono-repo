@@ -84,7 +84,7 @@ void ConfigMonitor::run()
     // Only announce we've started once the watch is setup.
     announceThreadStarted();
 
-    fd_set readfds;
+    fd_set readfds {};
     int max_fd = -1;
     max_fd = addFD(&readfds, m_notifyPipe.readFd(), max_fd);
     max_fd = addFD(&readfds, inotifyFD.fd(), max_fd);
