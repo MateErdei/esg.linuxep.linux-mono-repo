@@ -176,7 +176,7 @@ function build()
     pushd output
     chmod u+x ${output_install_script}
     LD_LIBRARY_PATH= \
-        python ../generateManifestDat.py .
+        sb_manifest_sign --folder . --output manifest.dat
     tar cf installer.tar *
     gzip installer.tar
     sha256=$(python ../sha256OfFile.py installer.tar.gz)
