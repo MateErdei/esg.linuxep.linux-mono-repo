@@ -2,6 +2,7 @@
 Documentation    Prove end-to-end management from Central
 
 Library         ../Libs/CloudClient/CloudClient.py
+Library         ../Libs/AVScanner.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         DateTime
@@ -10,8 +11,8 @@ Library         String
 
 Resource        ../shared/AVResources.robot
 
-Suite Setup     No Operation
-Suite Teardown  Global Teardown Tasks
+Suite Setup     DevCentral Suite Setup
+Suite Teardown  DevCentral Suite Teardown
 
 Test Setup      DevCentral Test Setup
 Test Teardown   DevCentral Test TearDown
@@ -21,6 +22,12 @@ Test Teardown   DevCentral Test TearDown
 ${MCSROUTER_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 
 *** Keywords ***
+
+DevCentral Suite Setup
+    alter etc hosts  /etc/hosts  127.0.0.1 dci.sophosupd.com dci.sophosupd.net
+
+DevCentral Suite Teardown
+    restore etc hosts
 
 DevCentral Test Setup
     register on fail  Dump Log   ${SCANNOW_LOG_PATH}

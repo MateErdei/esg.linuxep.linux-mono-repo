@@ -187,12 +187,12 @@ def restore_etc_hosts(path="/etc/hosts"):
         os.rename(backup, path)
 
 
-def alter_etc_hosts(path="/etc/hosts"):
+def alter_etc_hosts(path="/etc/hosts", newline="127.0.0.1 really_fake_server"):
     backup = path+"_avscanner_backup"
     if os.path.isfile(backup):
         restore_etc_hosts()
 
     contents = open(path).read()
     open(backup, "w").write(contents)
-    contents += "\n127.0.0.1 really_fake_server\n"
+    contents += "\n"+newline+"\n"
     open(path, "w").write(contents)
