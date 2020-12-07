@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exu
+set -ex
 
 function fail {
 local msg=${1:-"ERROR"}
@@ -11,7 +11,7 @@ sudo rm -rf /tmp/system-product-test-inputs/
 
 # Create venv
 # undo set -eu because venv/bin/activate script produces errors.
-set +eu
+set +e
 python3 -m venv /tmp/venv-for-ci
 source /tmp/venv-for-ci/bin/activate
   $TEST_UTILS/SupportFiles/jenkins/SetupCIBuildScripts.sh || fail "Error: Failed to get CI scripts"
@@ -19,4 +19,4 @@ source /tmp/venv-for-ci/bin/activate
   python3 -m build_scripts.artisan_fetch $TEST_UTILS/system-product-test-release-package.xml || fail "Error: Failed to fetch inputs"
 deactivate
 # restore bash strictness (for scripts that source this one)
-set -eu
+set -e
