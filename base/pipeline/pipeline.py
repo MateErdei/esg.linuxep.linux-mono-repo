@@ -4,6 +4,12 @@ import os
 
 from tap._pipeline.tasks import ArtisanInput
 
+COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-base-unittest.cov'
+COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-base-taptests.cov'
+UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
+
+RESULTS_DIR = '/opt/test/results'
+INPUTS_DIR = '/opt/test/inputs'
 
 def pip_install(machine: tap.Machine, *install_args: str):
     """Installs python packages onto a TAP machine"""
@@ -51,6 +57,51 @@ def robot_task(machine: tap.Machine):
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
+
+
+def coverage_task(machine: tap.Machine):
+    try:
+        if machine.run('which', 'apt-get', return_exit_code=True) == 0:
+            package_install(machine, 'python3.7-dev')
+        install_requirements(machine)
+        tests_dir = str(machine.inputs.test_scripts)
+
+
+        # upload unit test coverage html results to allegro
+        unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-base-unittest")
+        machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
+        machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
+
+        # publish unit test coverage file and results to artifactory results/coverage
+        coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
+        machine.run('rm', '-rf', coverage_results_dir)
+        machine.run('mkdir', coverage_results_dir)
+        machine.run('cp', "-r", unitest_htmldir, coverage_results_dir)
+        machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
+
+        # run component pytests and integration robot tests with coverage file to get combined coverage
+        machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS)
+
+        # Run component pytest
+        # These are disabled for now
+        try:
+            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
+                        environment={'COVFILE': COVFILE_TAPTESTS})
+        finally:
+            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+
+
+        # generate combined coverage html results and upload to allegro
+        taptest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-base-taptests')
+        machine.run('bash', '-x', UPLOAD_SCRIPT,
+                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': taptest_htmldir})
+
+        # publish combined html results and coverage file to artifactory
+        machine.run('mv', taptest_htmldir, coverage_results_dir)
+        machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
+    finally:
+        machine.output_artifact('/opt/test/results', 'results')
+        machine.output_artifact('/opt/test/logs', 'logs')
 
 
 def pytest_task(machine: tap.Machine):
@@ -126,7 +177,7 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     else:
         base_build = context.artifact.build()
 
-    if mode == 'analysis' or mode == 'coverage':
+    if mode == 'analysis':
         return
 
     test_inputs = get_inputs(context, base_build, mode)
