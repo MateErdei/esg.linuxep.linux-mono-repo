@@ -19,27 +19,27 @@ Test Teardown   VQA Test TearDown
 *** Test Cases ***
 
 SUSI config can scan android file
-    Add IDE To Installation  axml.ide
+    Install IDE  axml.ide
     Check Threat Detected  AndroidManifest.xml  Test/Axml
 
 
 SUSI config can scan msoffice file
-    Add IDE To Installation  office.ide
+    Install IDE  office.ide
     Check Threat Detected  cleanmacro.xlsm  Test/Office
 
 
 SUSI config can scan adobe file
-    Add IDE To Installation  pdf.ide
+    Install IDE  pdf.ide
     Check Threat Detected  test.pdf  Pass/URI
 
 
 SUSI config can scan internet file
-    Add IDE To Installation  internet.ide
+    Install IDE  internet.ide
     Check Threat Detected  test.html  Test/Html
 
 
 SUSI config can scan macintosh file
-    Add IDE To Installation  hfs.ide
+    Install IDE  hfs.ide
     Check Threat Detected  testfile.hfs  Test/Hfs  /:Disk Image:.journal
 
 
@@ -67,20 +67,25 @@ SUSI config can scan a media file
 
 *** Keywords ***
 VQA Suite Setup
+    Remove Files
+    ...   ${IDE_DIR}/axml.ide
+    ...   ${IDE_DIR}/office.ide
+    ...   ${IDE_DIR}/pdf.ide
+    ...   ${IDE_DIR}/internet.ide
+    ...   ${IDE_DIR}/hfs.ide
+    Install With Base SDDS
+    Check AV Plugin Installed With Base
+
+VQA Suite TearDown
+    No Operation
+
+VQA Test Setup
     Register On Fail  Debug install set
     Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
-    Install With Base SDDS
-
-VQA Suite TearDown
-    Log  VQA Suite TearDown
-
-VQA Test Setup
     Check AV Plugin Installed With Base
     Mark AV Log
 
 VQA Test TearDown
     Run Teardown Functions
-    #TODO: Remove this line once CORE-2095 is fixed
-    #Currently loading more than 1 IDE in test, stops SUSI
-    Install With Base SDDS
+    Run Keyword If Test Failed   VQA Suite Setup

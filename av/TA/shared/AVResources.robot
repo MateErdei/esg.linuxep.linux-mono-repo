@@ -134,6 +134,20 @@ Threat Detector Does Not Log Contain
     [Arguments]  ${input}
     File Log Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  ${input}
 
+Sophos Threat Detector Log Contains With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
+    File Log Contains With Offset  ${THREAT_DETECTOR_LOG_PATH}   ${input}   offset=${offset}
+
+Threat Detector Log Should Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
+    File Log Should Not Contain With Offset  ${THREAT_DETECTOR_LOG_PATH}   ${input}   offset=${offset}
+
+Wait Until Sophos Threat Detector Log Contains With Offset
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  Sophos Threat Detector Log Contains With Offset  ${input}   timeout=${timeout}
+
 Count Lines In Log
     [Arguments]  ${log_file}  ${line_to_count}
     ${contents} =  Get File  ${log_file}
@@ -423,8 +437,9 @@ Add IDE to install set
     [Arguments]  ${ide_name}
     # COMPONENT_INSTALL_SET
     ${IDE} =  Set Variable  ${RESOURCES_PATH}/ides/${ide_name}
+    File Should Exist   ${IDE}
+    File Should Not Exist   ${IDE_DIR}/${ide_name}
     Copy file  ${IDE}  ${IDE_DIR}/${ide_name}
-    Register cleanup  Remove IDE from install set  ${ide_name}
 
 Debug install set
     ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
@@ -434,6 +449,7 @@ Debug install set
 
 Remove IDE from install set
     [Arguments]  ${ide_name}
+    File Should Exist   ${IDE_DIR}/${ide_name}
     Remove File  ${IDE_DIR}/${ide_name}
 
 Run installer from install set
@@ -444,6 +460,36 @@ Run installer from install set
 Check IDE present in installation
     [Arguments]  ${ide_name}
     File should exist  ${INSTALL_IDE_DIR}/${ide_name}
+
+Check IDE absent from installation
+    [Arguments]  ${ide_name}
+    file should not exist  ${INSTALL_IDE_DIR}/${ide_name}
+
+Run IDE update
+    # TODO - find a way to do this without clobbering any existing log mark
+    Mark Sophos Threat Detector Log
+    ${threat_detector_pid} =  Record Sophos Threat Detector PID
+    Run installer from install set
+    Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1
+    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI update finished successfully  timeout=120
+    Threat Detector Log Should Not Contain With Offset    Current version matches that of the update source. Nothing to do.
+    Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
+
+
+Install IDE
+    [Arguments]  ${ide_name}
+    Add IDE to install set  ${ide_name}
+    Run IDE update
+    Check IDE present in installation  ${ide_name}
+    Register cleanup  Uninstall IDE  ${ide_name}
+
+Uninstall IDE
+    [Arguments]  ${ide_name}
+    Deregister Cleanup   Uninstall IDE  ${ide_name}
+    Remove IDE From Install Set  ${ide_name}
+    Run IDE update
+    Check IDE Absent From Installation  ${ide_name}
+
 
 Get Pid
     [Arguments]  ${EXEC}
@@ -475,23 +521,17 @@ Check Sophos Threat Detector has different PID
     ${currentPID} =  Record Sophos Threat Detector PID
     Should Not Be Equal As Integers  ${PID}  ${currentPID}
 
-Add IDE to installation
-     [Arguments]  ${ide_name}
-     Add IDE To Install Set  ${ide_name}
-     Run Installer From Install Set
-     Check IDE Present In Installation  ${ide_name}
-
 Check threat detected
      [Arguments]  ${THREAT_FILE}  ${THREAT_NAME}  ${INFECTED_CONTENTS}=${EMPTY}
      ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${RESOURCES_PATH}/file_samples/${THREAT_FILE}
-     Log To Console  ${output}
+     Log  ${output}
      Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
      Should Contain   ${output}    Detected "${RESOURCES_PATH}/file_samples/${THREAT_FILE}${INFECTED_CONTENTS}" is infected with ${THREAT_NAME}
 
 Check file clean
      [Arguments]  ${THREAT_FILE}
      ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${RESOURCES_PATH}/file_samples/${THREAT_FILE}
-     Log To Console  ${output}
+     Log  ${output}
      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
      Should Contain   ${output}    0 files out of 1 were infected.
 

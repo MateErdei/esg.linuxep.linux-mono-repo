@@ -1,5 +1,4 @@
 from robot.libraries.BuiltIn import BuiltIn
-from robot.api import logger
 
 
 class OnFail(object):
@@ -13,12 +12,17 @@ class OnFail(object):
     def register_on_fail(self, keyword, *args):
         self.__m_fail_actions.append((keyword, args))
 
+    def deregister_on_fail(self, keyword, *args):
+        self.__m_fail_actions.remove((keyword, args))
+
     def register_cleanup(self, keyword, *args):
         self.__m_cleanup_actions.append((keyword, args))
 
+    def deregister_cleanup(self, keyword, *args):
+        self.__m_cleanup_actions.remove((keyword, args))
+
     def __run_actions(self, builtin, actions, if_failed=True):
         for (keyword, args) in reversed(actions):
-            logger.info("Running %s" % keyword)
             args = args or []
             if if_failed:
                 builtin.run_keyword_if_test_failed(keyword, *args)
