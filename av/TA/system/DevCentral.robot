@@ -28,7 +28,6 @@ DevCentral Test Setup
     register on fail  Dump Log   ${AV_LOG_PATH}
     register on fail  Dump Log   ${MCSROUTER_LOG_PATH}
     register on fail  Dump Log   ${MANAGEMENT_AGENT_LOG_PATH}
-    No Operation
 
 DevCentral Test TearDown
     Run Teardown Functions
