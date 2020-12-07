@@ -501,7 +501,7 @@ function build()
     if [[ ${BULLSEYE} == 1 ]]
     then
       ## upload unit tests
-      if [[ ${UNIT_TEST} == 1 ]]
+      if [[ ${UNIT_TESTS} == 1 ]]
       then
             ## Process bullseye output
             ## upload unit tests
