@@ -10,7 +10,7 @@ import os
 
 def readAutoVersion():
     BASE = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    assert os.path.isfile(os.path.join(BASE, "Jenkinsfile"))
+    assert os.path.isfile(os.path.join(BASE, "CIJenkinsfile"))
     autoVersionFile = os.path.join(BASE, "AutoVersioningHeaders", "AutoVersion.ini")
 
     if os.path.isfile(autoVersionFile):
