@@ -360,6 +360,14 @@ AV Plugin uninstalls
     Check AV Plugin Not Installed
     [Teardown]   Install AV Directly from SDDS
 
+AV Plugin Saves Logs On Downgrade
+    Check avscanner in /usr/local/bin
+    Run plugin uninstaller with downgrade flag
+    Check avscanner not in /usr/local/bin
+    Check AV Plugin Not Installed
+    Check Logs Saved On Downgrade
+    [Teardown]   Install AV Directly from SDDS
+
 AV Plugin Can Send Telemetry
     Check AV Plugin Installed With Base
     Prepare To Run Telemetry Executable

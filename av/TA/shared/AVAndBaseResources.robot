@@ -25,8 +25,17 @@ Check AV Plugin Not Installed
     Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}
     File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
 
+Check Logs Saved On Downgrade
+    File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
+    Directory Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV
+    File Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV/av.log
+    File Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV/sophos_threat_detector.log
+
 Run plugin uninstaller
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
+
+Run plugin uninstaller with downgrade flag
+    Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh  --downgrade
 
 Configure and check scan now
     Configure scan now
