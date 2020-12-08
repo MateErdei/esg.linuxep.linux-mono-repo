@@ -135,7 +135,7 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
     if mode == 'coverage':
         test_inputs = dict(
         test_scripts=context.artifact.from_folder('./testUtils'),
-        base_sdds=base_build / 'sspl-base-coverage/SDDS-COMPONENT2',
+        base_sdds=base_build / 'sspl-base-coverage/SDDS-COMPONENT',
         system_test=base_build / 'sspl-base-coverage/system_test',
         openssl=base_build / 'sspl-base-coverage' / 'openssl',
         websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server',
