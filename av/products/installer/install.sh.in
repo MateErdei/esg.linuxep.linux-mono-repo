@@ -131,7 +131,7 @@ function bootstrap_susi_from_update_source()
 
 function is_already_installed()
 {
-    [[ -f "${DIST}/files/base/pluginRegistry/${PLUGIN_NAME}.json" ]]
+    [[ -d "${PLUGIN_INSTALL}" ]]
 }
 
 function install_product()
