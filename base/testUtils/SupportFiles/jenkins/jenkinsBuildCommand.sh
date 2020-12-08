@@ -83,13 +83,13 @@ COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
 if [[ -n $BASE_COVERAGE ]]; then
   mv $COVERAGE_STAGING/sspl-base-unittest.cov $COVERAGE_STAGING/sspl-base-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-base-combined.cov
-  export htmldir=$SYSTEM_PRODUCT_TEST/coverage/sspl-base-combined
+  export htmldir=$COVERAGE_STAGING/sspl-base-combined
   export COV_HTML_BASE=sspl-base-combined
   export BULLSEYE_UPLOAD=1
 elif [[ -n $MDR_COVERAGE ]]; then
   mv $COVERAGE_STAGING/sspl-mdr-unittest.cov $COVERAGE_STAGING/sspl-mdr-combined.cov
-  export COVFILE=$SYSTEM_PRODUCT_TEST/coverage/sspl-mdr-combined.cov
-  export htmldir=$SYSTEM_PRODUCT_TEST/coverage/sspl-mdr-combined
+  export COVFILE=$COVERAGE_STAGING/sspl-mdr-combined.cov
+  export htmldir=$COVERAGE_STAGING/sspl-mdr-combined
   export COV_HTML_BASE=sspl-mdr-combined
   export BULLSEYE_UPLOAD=1
 fi
