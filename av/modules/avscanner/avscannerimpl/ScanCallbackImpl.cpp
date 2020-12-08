@@ -64,6 +64,7 @@ avscanner::avscannerimpl::E_ERROR_CODES ScanCallbackImpl::returnCode()
         return E_CLEAN;
     }
 }
+
 void ScanCallbackImpl::logSummary()
 {
     auto endTime = time(nullptr);
