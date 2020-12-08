@@ -1,5 +1,43 @@
 %YAML 1.1
 ---
+
+ssplflags-supp:
+    base-version: 1
+    canonical-name: SSPLFLAGS
+    decode-path: .
+    line-id: SSPLFLAGS
+    tag: RECOMMENDED
+    warehouse: ssplflags-wh
+
+scheduled-query-pack-supp:
+    base-version: 1
+    canonical-name: ScheduledQueryPack
+    decode-path: scheduled_query_pack
+    line-id: ScheduledQueryPack
+    tag: RECOMMENDED
+    warehouse: scheduled-query-pack-wh
+
+vdl-data:
+    canonical-name: VDL
+    decode-path: .
+    line-id: VDL
+    tag: LATEST
+    warehouse: VDB_supp
+
+localrepdata-data:
+    canonical-name: LocalRepData
+    decode-path: .
+    line-id: LocalRepData
+    tag: LATEST_CLOUD_ENDPOINT
+    warehouse: ixdata
+
+ml-model-sspl-linux-supp:
+    canonical-name: ML_MODEL_LINUX
+    decode-path: scan
+    line-id: ML_MODEL_LINUX
+    tag: LINUX_SCAN
+    warehouse: ml_models
+
 appfeed-data:
     canonical-name: APPFEED
     decode-path: .
@@ -72,12 +110,6 @@ hmpadatasup-data:
     line-id: hmpa_data
     tag: LATEST
     warehouse: hmpa_data
-localrepdata-data:
-    canonical-name: LocalRepData
-    decode-path: .
-    line-id: LocalRepData
-    tag: LATEST_CLOUD_ENDPOINT
-    warehouse: ixdata
 ml-model-user-scan-supp:
     canonical-name: MODEL32
     decode-path: scan
@@ -233,21 +265,9 @@ userappfeed-data:
     line-id: USERAPPFEED
     tag: LATEST
     warehouse: APPFEED_d1
-vdl-data:
-    canonical-name: VDL
-    decode-path: .
-    line-id: VDL
-    tag: LATEST
-    warehouse: VDB_supp
 dataseta-data:
     canonical-name: DataSetA
     decode-path: .
     line-id: DataSetA
     tag: NEXT
     warehouse: ixdata
-scheduled-query-pack-supp:
-    canonical-name: ScheduledQueryPack
-    decode-path: .
-    line-id: ScheduledQueryPack
-    tag: RECOMMENDED
-    warehouse: supp
