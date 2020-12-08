@@ -363,10 +363,6 @@ sec:
     fileset: ..\inputs\opm-server
     canonical-name: SEC1
     line-id: 7D48A012-0C64-4F21-BA27-A9CEDF442749
-scheduled-query-pack:
-    fileset: ..\inputs\scheduled-query-pack-sdds
-    canonical-name: ScheduledQueryPack
-    line-id: ScheduledQueryPack
 sdu:
     fileset: ..\inputs\sdu32\Installer
     canonical-name: SDU
