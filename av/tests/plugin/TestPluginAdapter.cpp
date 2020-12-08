@@ -140,7 +140,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
 
-    EXPECT_TRUE("Received SAV Policy");
+    EXPECT_TRUE(appenderContains("Received Policy"));
     EXPECT_TRUE(appenderContains("Processing policy: " + policy1Xml));
     EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
@@ -176,7 +176,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     pluginAdapter.mainLoop();
 
-    EXPECT_TRUE(appenderContains("Received SAV Policy"));
+    EXPECT_TRUE(appenderContains("Received Policy"));
     EXPECT_TRUE(appenderContains("Processing policy: " + policy1Xml));
     EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
     EXPECT_TRUE(appenderContains("Ignoring policy of incorrect type"));

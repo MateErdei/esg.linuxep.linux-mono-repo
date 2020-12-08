@@ -118,7 +118,7 @@ void PluginAdapter::innerLoop()
 
 void PluginAdapter::processPolicy(const std::string& policyXml)
 {
-    LOGINFO("Received SAV Policy");
+    LOGINFO("Received Policy");
     LOGDEBUG("Processing policy: " << policyXml);
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
