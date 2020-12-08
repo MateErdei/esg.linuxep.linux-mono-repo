@@ -78,14 +78,14 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
     if machine_name is None:
         machine_name = machine.template
     try:
+        robot_tags = ['OSTIA', 'MANUAL', 'STRESS']
+
         if BRANCH_NAME == "master" or "vqa" in BRANCH_NAME:
-            machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
-            machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', 'OSTIA', 'MANUAL', 'STRESS', environment=environment,
-                        timeout=3600)
-        else:
-            machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
-            machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', 'OSTIA', 'MANUAL', 'STRESS', 'VQA', environment=environment,
-                        timeout=3600)
+            robot_tags.append('VQA')
+
+        machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
+        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', *robot_tags, environment=environment,
+                    timeout=3600)
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
