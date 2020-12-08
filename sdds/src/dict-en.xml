@@ -3,6 +3,141 @@
   <Dictionary>
     <Identity>
       <Label>
+        <Token>ServerProtectionLinux-Base</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Base</LongDesc>
+          <ShortDesc>SSPL Base</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-Base-component</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Base component</LongDesc>
+          <ShortDesc>SSPL Base component</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-Plugin-liveresponse</Token>
+        <Language lang="en">
+          <LongDesc>ServerProtectionLinux Plugin live response</LongDesc>
+          <ShortDesc>SSPL live response</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-Plugin-MDR</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Plugin MTR</LongDesc>
+          <ShortDesc>SSPL Plugin MTR</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-Plugin-EDR</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Plugin EDR</LongDesc>
+          <ShortDesc>SSPL Plugin EDR</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-Plugin-AV</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Plugin AV</LongDesc>
+          <ShortDesc>SSPL Plugin AV</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-MDR-Control-Component</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux MTR Control Component</LongDesc>
+          <ShortDesc>SSPL MTR Control Component</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-MDR-DBOS-Component</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux MTR DBOS Component</LongDesc>
+          <ShortDesc>SSPL MTR DBOS Component</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-MDR-osquery-Component</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux MTR osquery Component</LongDesc>
+          <ShortDesc>SSPL MTR osquery Component</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-Plugin-Example</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Plugin Example</LongDesc>
+          <ShortDesc>SSPL Plugin Example</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-Plugin-AuditPlugin</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Audit Plugin</LongDesc>
+          <ShortDesc>SSPL Audit Plugin</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ServerProtectionLinux-Plugin-EventProcessor</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Event Processor</LongDesc>
+          <ShortDesc>SSPL Event Processor</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>SSPLTELEMSUPP</Token>
+        <Language lang="en">
+          <LongDesc>Server Protection for Linux Telemetry Supplement</LongDesc>
+          <ShortDesc>SSPL Telemetry Supplement</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>SSPLFLAGS</Token>
+        <Language lang="en">
+          <LongDesc>SSPL Endpoint Warehouse Flags</LongDesc>
+          <ShortDesc>SSPLFLAGS</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
+        <Token>ScheduledQueryPack</Token>
+        <Language lang="en">
+          <LongDesc>Sophos Scheduled Query Pack</LongDesc>
+          <ShortDesc>ScheduledQueryPack</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
         <Token>WindowsCloudServerHitmanProAlert</Token>
         <Language lang="en">
           <LongDesc>Windows Cloud Server HitmanPro.Alert</LongDesc>
@@ -385,15 +520,6 @@
         <Language lang="en">
           <LongDesc>Windows Endpoint Flags</LongDesc>
           <ShortDesc>WINEPFLAGS</ShortDesc>
-        </Language>
-      </Label>
-    </Identity>
-    <Identity>
-      <Label>
-        <Token>ScheduledQueryPack</Token>
-        <Language lang="en">
-          <LongDesc>Scheduled Query Pack</LongDesc>
-          <ShortDesc>ScheduledQueryPack</ShortDesc>
         </Language>
       </Label>
     </Identity>
@@ -929,6 +1055,19 @@
       </Label>
     </Identity>
 
+
+
+    <Roles>
+      <Label>
+        <Token>SAU</Token>
+        <Language lang="en">
+          <LongDesc>Sophos Auto Update</LongDesc>
+          <ShortDesc>Sophos Auto Update</ShortDesc>
+        </Language>
+      </Label>
+    </Roles>
+
+
     <Roles>
       <Label>
         <Token>ENCRYPTION</Token>
@@ -1145,6 +1284,18 @@
         </Language>
       </Label>
     </Roles>
+
+
+
+    <ReleaseTags>
+      <Label>
+        <Token>RECOMMENDED</Token>
+        <Language lang="en">
+          <LongDesc>Recommended for base version</LongDesc>
+          <ShortDesc>Recommended</ShortDesc>
+        </Language>
+      </Label>
+    </ReleaseTags>
     <ReleaseTags>
       <Label>
         <Token>Latest#1</Token>
@@ -1371,6 +1522,45 @@
       </Label>
     </ReleaseTags>
 
+
+
+    <Features>
+      <Label>
+        <Token>CORE</Token>
+        <Language lang="en">
+          <ShortDesc>SSPL Base Product</ShortDesc>
+          <LongDesc>SSPL Base Product</LongDesc>
+        </Language>
+      </Label>
+    </Features>
+    <Features>
+      <Label>
+        <Token>SENSOR</Token>
+        <Language lang="en">
+          <ShortDesc>SSPL Sensor Plugin</ShortDesc>
+          <LongDesc>SSPL Sensor Plugin</LongDesc>
+        </Language>
+      </Label>
+    </Features>
+    <Features>
+      <Label>
+        <Token>LIVEQUERY</Token>
+        <Language lang="en">
+          <ShortDesc>Live Query</ShortDesc>
+          <LongDesc>Live Query</LongDesc>
+        </Language>
+      </Label>
+    </Features>
+    <Features>
+      <Label>
+        <Token>LIVETERMINAL</Token>
+        <Language lang="en">
+          <ShortDesc>Live Terminal</ShortDesc>
+          <LongDesc>Live Terminal</LongDesc>
+        </Language>
+      </Label>
+    </Features>
+
     <Features>
       <Label>
         <Token>MR</Token>
@@ -1593,15 +1783,6 @@
         <Language lang="en">
           <ShortDesc>SAU Control Data</ShortDesc>
           <LongDesc>SAU Control Data</LongDesc>
-        </Language>
-      </Label>
-    </Features>
-    <Features>
-      <Label>
-        <Token>CORE</Token>
-        <Language lang="en">
-          <ShortDesc>Infrastructure Components</ShortDesc>
-          <LongDesc>Infrastructure Components</LongDesc>
         </Language>
       </Label>
     </Features>
