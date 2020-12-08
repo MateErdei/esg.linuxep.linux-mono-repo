@@ -8,7 +8,7 @@ Library   ${LIBS_DIRECTORY}/CommsComponentUtils.py
 Library   ${LIBS_DIRECTORY}/LogUtils.py
 Library   ${LIBS_DIRECTORY}/OSUtils.py
 
-Default Tags  COMMS
+Default Tags  _COMMS
 Test Setup  Test Setup
 Test Teardown  Test Teardown
 
