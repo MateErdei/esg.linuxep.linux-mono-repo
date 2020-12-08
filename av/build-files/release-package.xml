@@ -56,7 +56,7 @@
         </package> -->
 
         <build-asset project="ec" repo="liblocalrep">
-            <release-version branch="develop" build-id="20201119165956-167143fc9dc5447f3e6829ffb8d1471daa684349-z2pQlf"/>
+            <release-version branch="feature/target_glibc_fix" build-id="20201207161232-e4b7eddd8b1efa33be888f0176429ee09a678f97-inGzKf"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
@@ -78,7 +78,7 @@
 <!--            <include src="rules/rules" dest="rules" />-->
 <!--        </package>-->
         <build-asset project="ec" repo="susi">
-            <release-version branch="develop" build-id="20201203151402-3b98dd80bd2f85fac8eda0b71301fba4fa1d9199-Eny9Lw/"/>
+            <release-version branch="develop" build-id="20201208063945-880f25759fe40cdddbb88f7b8dc97b89c7019a44-CK8C6w"/>
             <include artifact-path="release/centos7/libsusi" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/updater" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/interface" dest-dir="input/susi_input/susi/include" />
