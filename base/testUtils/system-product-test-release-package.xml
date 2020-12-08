@@ -38,7 +38,7 @@
         <!--            <include src="."   dest="websocket_server" />-->
         <!--        </package>-->
         <build-asset project="linuxep" repo="thininstaller">
-            <development-version branch="feature/LINUXDAR-2355-move-sspl-thininstaller-repository-to-unified-pipeline" />
+            <development-version branch="develop" />
             <include artifact-path="output" dest-dir="sspl-thininstaller" />
         </build-asset>
 
