@@ -939,3 +939,23 @@ CLS scan two mounts same inode numbers
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test
     Should Contain   ${output}   Detected "${destination2}/directory/subdir/eicar.com" is infected with EICAR-AV-Test
+
+
+CLS Can Scan Infected And Error Files
+    Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
+    Create File  ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
+
+    ${rc}   ${output} =  Run And Return Rc And Output  ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar.com ${NORMAL_DIRECTORY}/zipbomb.zip --scan-archives
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+
+CLS Can Scan Clean And Error Files
+    Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
+    Create File  ${NORMAL_DIRECTORY}/cleanfile.txt    ${CLEAN_STRING}
+
+    ${rc}   ${output} =  Run And Return Rc And Output  ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/cleanfile.txt ${NORMAL_DIRECTORY}/zipbomb.zip --scan-archives
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
