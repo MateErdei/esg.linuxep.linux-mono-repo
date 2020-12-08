@@ -78,10 +78,10 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
     if machine_name is None:
         machine_name = machine.template
     try:
-        robot_tags = ['OSTIA', 'MANUAL', 'STRESS']
+        robot_tags = ['OSTIA', 'MANUAL', 'STRESS', 'VQA']
 
         if BRANCH_NAME == "master" or "vqa" in BRANCH_NAME:
-            robot_tags.append('VQA')
+            robot_tags.remove('VQA')
 
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
         machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', *robot_tags, environment=environment,
