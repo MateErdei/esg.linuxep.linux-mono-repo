@@ -78,6 +78,14 @@ export TEST_UTILS=$WORKSPACE/testUtils
 source $WORKSPACE/testUtils/SupportFiles/jenkins/exportInputLocations.sh            || fail "Error: failed to export expected input locations"
 source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh     || fail "Error: failed to validate gathered inputs"
 
+SYSTEM_PRODUCT_TEST=/tmp/system-product-test-inputs
+if [[ -n $BASE_COVERAGE ]]; then
+  mv $SYSTEM_PRODUCT_TEST/coverage/sspl-base-unittest.cov $SYSTEM_PRODUCT_TEST/coverage/sspl-base-combined.cov
+  export COVFILE=$SYSTEM_PRODUCT_TEST/coverage/sspl-base-combined.cov
+elif [[ -n $MDR_COVERAGE ]]; then
+  mv $SYSTEM_PRODUCT_TEST/coverage/sspl-mdr-unittest.cov $SYSTEM_PRODUCT_TEST/coverage/sspl-mdr-combined.cov
+  export COVFILE=$SYSTEM_PRODUCT_TEST/coverage/sspl-mdr-combined.cov
+fi
 
 bash ${JENKINS_DIR}/install_dependencies.sh
 

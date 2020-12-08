@@ -1,8 +1,8 @@
-import tap.v1 as tap
-
 import os
-
+import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
+
+import requests
 
 COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-base-unittest.cov'
 COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-base-taptests.cov'
@@ -85,18 +85,22 @@ def coverage_task(machine: tap.Machine):
         try:
             machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
                         environment={'COVFILE': COVFILE_TAPTESTS})
+            #start systemtest coverage in jenkins
+            url = 'https://sspljenkins.eng.sophos/job/SSPL-Base-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
+            run_sys = requests.get(url, verify=False)
+            
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
 
-        # generate combined coverage html results and upload to allegro
-        taptest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-base-taptests')
-        machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': taptest_htmldir})
-
-        # publish combined html results and coverage file to artifactory
-        machine.run('mv', taptest_htmldir, coverage_results_dir)
-        machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
+        # # generate combined coverage html results and upload to allegro
+        # taptest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-base-taptests')
+        # machine.run('bash', '-x', UPLOAD_SCRIPT,
+        #             environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': taptest_htmldir})
+        # 
+        # # publish combined html results and coverage file to artifactory
+        # machine.run('mv', taptest_htmldir, coverage_results_dir)
+        # machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -183,8 +187,8 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         ("ubuntu1804",
          tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
                      platform=tap.Platform.Linux)),
-        ("centos77",
-         tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
+        # ("centos77",
+        #  tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
         # add other distros here
     )
     with stage.parallel('integration'):
