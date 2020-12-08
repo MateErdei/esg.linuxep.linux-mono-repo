@@ -31,5 +31,4 @@ def build_dev_warehouse(stage: tap.Root):
 def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
 
     with stage.parallel('build'):
-        build_winep_suites(stage=stage)
         build_dev_warehouse(stage=stage)
