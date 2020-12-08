@@ -141,7 +141,7 @@
             <include glob="./*.cov"/>
         </build-asset>
 
-        <build-asset artifact-path="sspl-base-analysis/build_log" source-dir="log" mode="analysis, coverage,release"/>
+        <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>
 
         <!-- Analysis -->
         <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>
