@@ -1,5 +1,54 @@
 %YAML 1.1
 ---
+sspl-base:
+    fileset: ..\redist\sspl-plugin-edr-componentsuite
+    canonical-name: ServerProtectionLinux-Base
+    line-id: ServerProtectionLinux-Base
+sspl-base-component:
+    fileset: ..\redist\sspl-base
+    canonical-name: ServerProtectionLinux-Base-component
+    line-id: ServerProtectionLinux-Base-component
+    mountpoint: ServerProtectionLinux-Base-component
+sspl-liveterminal:
+    fileset: ..\redist\liveterminal
+    canonical-name: ServerProtectionLinux-Plugin-liveresponse
+    line-id: ServerProtectionLinux-Plugin-liveresponse
+    mountpoint: ServerProtectionLinux-Plugin-liveresponse
+sspl-edr:
+    fileset: ..\redist\sspl-plugin-edr-component
+    canonical-name: ServerProtectionLinuxPlugin-EDR
+    line-id: ServerProtectionLinux-Plugin-EDR
+ssplmdr-suite:
+    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-MDR-COMPONENT-SUITE
+    canonical-name: ServerProtectionLinuxPlugin-MDR
+    line-id: ServerProtectionLinux-Plugin-MDR
+ssplmdr-control-component:
+    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-MDR-COMPONENT
+    canonical-name: ServerProtectionLinux-MDR-Control-Component
+    line-id: ServerProtectionLinux-MDR-Control-Component
+    mountpoint: .
+ssplmdr-dbos-component:
+    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-DBOS-COMPONENT
+    canonical-name: ServerProtectionLinux-MDR-DBOS-Component
+    line-id: ServerProtectionLinux-MDR-DBOS-Component
+    mountpoint: .
+ssplmdr-osquery-component:
+    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-OSQUERY-COMPONENT
+    canonical-name: ServerProtectionLinux-MDR-osquery-Component
+    line-id: ServerProtectionLinux-MDR-osquery-Component
+    mountpoint: .
+sspl-av:
+    fileset: ..\redist\sspl-plugin-anti-virus
+    canonical-name: ServerProtectionLinuxPlugin-AV
+    line-id: ServerProtectionLinux-Plugin-AV
+ssplpflags:
+    fileset: ..\redist\flags2
+    canonical-name: SSPLFLAGS
+    line-id: SSPLFLAGS
+scheduled-query-pack:
+    fileset: ..\redist\scheduled-query-pack-sdds
+    canonical-name: ScheduledQueryPack
+    line-id: ScheduledQueryPack
 amsi32:
     fileset: ..\inputs\amsi32
     canonical-name: AMSI32
