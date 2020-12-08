@@ -313,26 +313,17 @@ customer-files:
           - warehouse: sspl-wh
           - warehouse: ssplmdr-wh
 
-    - warehouse: ssplav-wh
-      user: av_user_vut
-      password: password
-      split-warehouses:
-          - warehouse: ssplav-wh
+    -   warehouse: ssplav-wh
+        user: av_user_vut
+        password: password
+        output-dir: update
+        split-warehouses:
+            - warehouse: ssplav-wh
 
     -   warehouse: cloud
         user: cloud_user
         password: password
         output-dir: update
-        split-warehouses:
-            - warehouse: cloud
-            - warehouse: cloud-ng
-            - warehouse: cloud-hmp
-            - warehouse: encryption
-            - warehouse: cloud-mtr
-
-    -   warehouse: cloud
-        user: cloud_user
-        password: password
         split-warehouses:
             - warehouse: cloud
             - warehouse: cloud-ng
