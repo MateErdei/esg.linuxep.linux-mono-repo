@@ -74,7 +74,7 @@ def sdds_import(*, path, name):
 
     # Check if a line of the log contains "All operations appear to have completed successfully"
     # check_call(["cscript.exe", "//nologo", "SDDSImport-ErrorCheck.vbs", "-logfile", log_path])
-    if not sddsimport_errorcheck(log_path):
+    if not sdds_import_errorcheck(log_path):
         print("Success message was not found in log file")
         print("Success message was not found in log file", file=sys.stderr)
         raise Exception("Success message was not found in log file")
