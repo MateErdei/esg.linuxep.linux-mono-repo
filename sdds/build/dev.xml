@@ -49,9 +49,6 @@
         <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
       </build-asset>
 
-
-      <intermediate artifact-path="winep_suites/SDDS-Ready-Packages" dest-dir="inputs/winep_suites" />
-
       <build-asset project="winep" repo="amsi">
         <development-version branch="develop"/>
         <include artifact-path="x86/installer" dest-dir="inputs/amsi32"/>
@@ -311,22 +308,6 @@
         <include artifact-path="uc/build/x64/Release/SDDS" dest-dir="inputs/uc"/>
       </build-asset>
 
-      <!-- SDDS3 tools -->
-      <build-asset project="winep" repo="sau" mode="sdds3">
-        <!-- Import a specific release version of SDDS3 tools, because we don't want the sdds3 repo rebuilding for each SAU build. -->
-        <release-version branch="release/WINEP-2020.50" build-id="20201202180116-3a25f1f62022a8930a63d58db3b8569f23da2c66-b6fq12"/>
-        <include artifact-path="Release-x64/SDDS3-Utils" dest-dir="inputs/sdds3"/>
-      </build-asset>
-      <!-- SDDS3 tools end -->
-
-      <!-- Bazel tools -->
-      <build-asset project="em" repo="esg" mode="sdds3">
-        <!-- release-version fetches for all branches with no development-version -->
-        <release-version branch="release/tools" build-id="20200922012353-73687b4ea6c47f3c1737d3f983308783165fefb9-r0lxP5"/>
-        <include artifact-path="bazel-tools" dest-dir="." />
-      </build-asset>
-      <!-- Bazel tools end -->
-
     </inputs>
 
     <buildcommands>
@@ -344,12 +325,6 @@
         <program>py.exe</program>
         <args>-3 -u warehouse_sign\patch_renderer_signing.py</args>
         <workingdir>src</workingdir>
-      </command>
-      <!-- a dodgy fix for issue where cannot use same comp twice in a warehouse-->
-      <command mode="sdds2">
-        <program>cmd.exe</program>
-        <args>/c xcopy /q /I /E OnPremAdvanced OnPremAdvanced_prev</args>
-        <workingdir>inputs/winep_suites</workingdir>
       </command>
       <command mode="sdds2">
         <program>py.exe</program>
