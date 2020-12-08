@@ -97,7 +97,7 @@ def coverage_task(machine: tap.Machine):
         # generate combined coverage html results and upload to allegro
         taptest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-base-taptests')
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': taptest_htmldir})
+                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': taptest_htmldir}, return_exit_code=True)
 
         # publish combined html results and coverage file to artifactory
         machine.run('mv', taptest_htmldir, coverage_results_dir)
