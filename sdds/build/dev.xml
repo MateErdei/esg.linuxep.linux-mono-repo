@@ -359,56 +359,12 @@
     </buildcommands>
 
   <publish>
-    <build-asset artifact-path="warehouse" source-dir="output\warehouse" mode="sdds2">
+    <build-asset artifact-path="warehouse" source-dir="output/warehouse" mode="sdds2">
       <include glob="update/**"/>
       <include glob="content/**"/>
     </build-asset>
     <logs name="generate-warehouse" source-dir="logs" mode="sdds2"/>
 
-    <release-asset artifact-path="sdds3-repo" source-dir="bazel-out/x64_windows-fastbuild/bin/sdds3" mode="sdds3">
-      <include glob="package/**"/>
-      <include glob="suite/**"/>
-      <include glob="supplement/**"/>
-    </release-asset>
-    <release-asset artifact-path="sdds3-sus" source-dir="output/sus" mode="sdds3">
-      <include glob="mock_sus_response_*.json"/>
-    </release-asset>
-    <release-asset artifact-path="sdds3-launchdarkly" source-dir="output/launchdarkly" mode="sdds3">
-      <include glob="*.json"/>
-    </release-asset>
   </publish>
 
-  <signingexclusions mode="sdds3">
-    <!-- ENCRYPTION package -->
-    <promotedfile name="Castle.Core.dll"/>
-    <promotedfile name="FluentNHibernate.dll"/>
-    <promotedfile name="Iesi.Collections.dll"/>
-    <promotedfile name="log4net.dll"/>
-    <promotedfile name="NHibernate.dll"/>
-    <promotedfile name="Ninject.dll"/>
-    <promotedfile name="Ninject.Extensions.Factory.dll"/>
-    <promotedfile name="Ninject.Extensions.NamedScope.dll"/>
-    <promotedfile name="System.Data.SQLite.dll"/>
-    <promotedfile name="SQLite.Interop.dll"/>
-    <!-- SophosFIM package -->
-    <promotedfile name="SophosFIM.db"/>
-    <!-- CRT -->
-    <promotedfile name="msvcm90.dll"/>
-    <promotedfile name="perfmon.pyd"/>
-    <promotedfile name="pythoncom37.dll"/>
-    <promotedfile name="pywintypes37.dll"/>
-    <promotedfile name="servicemanager.pyd"/>
-    <promotedfile name="win32api.pyd"/>
-    <promotedfile name="win32event.pyd"/>
-    <promotedfile name="win32evtlog.pyd"/>
-    <promotedfile name="win32file.pyd"/>
-    <promotedfile name="win32pipe.pyd"/>
-    <promotedfile name="win32process.pyd"/>
-    <promotedfile name="win32security.pyd"/>
-    <promotedfile name="win32service.pyd"/>
-    <promotedfile name="win32trace.pyd"/>
-    <promotedfile name="win32wnet.pyd"/>
-    <promotedfile name="_win32sysloader.pyd"/>
-    <promotedfile name="shell.pyd"/>
-  </signingexclusions>
 </package>

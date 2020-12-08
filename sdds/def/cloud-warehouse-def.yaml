@@ -1,6 +1,98 @@
 %YAML 1.1
 ---
 warehouses:
+    sspl-wh:
+        components:
+            sspl-base:
+                import:
+                    description: "Sophos Linux Base"
+                    # The version used here is just an identifier and does not need to match the actual version of the product for ostia.
+                    # Means we dont have to keep updating the metadata for the build numbers....
+                    version: "1.0.0"
+                features: [ CORE ]
+                platforms: [ ]
+                release-tags:
+                    - base-version: ""
+                      tag: RECOMMENDED
+                    - base-version: ""
+                      tag: BETA
+                subcomponents:
+                    sspl-base-component:
+                        supplements:
+                            - ssplflags-supp
+                    sspl-liveterminal:
+            sspl-edr:
+                import:
+                    description: "Sophos Linux Endpoint Detection and Response"
+                    version: "1.0.0"
+                features: [ LIVEQUERY ]
+                platforms: [ ]
+                release-tags:
+                    - base-version: ""
+                      tag: RECOMMENDED
+                    - base-version: ""
+                      tag: BETA
+                supplements:
+                    - scheduled-query-pack-supp
+
+    ssplmdr-wh:
+        components:
+            ssplmdr-suite:
+                import:
+                    description: "Sophos Server Protection for Linux MTR"
+                    version: "1.0.0"
+                features: [ MDR ]
+                platforms: [ ]
+                release-tags:
+                    - base-version: ""
+                      tag: RECOMMENDED
+                    - base-version: ""
+                      tag: BETA
+                subcomponents:
+                    ssplmdr-control-component:
+                    ssplmdr-dbos-component:
+                    ssplmdr-osquery-component:
+    ssplav-wh:
+        components:
+            sspl-base:
+                import:
+                    description: "Sophos Linux Base"
+                    # The version used here is just an identifier and does not need to match the actual version of the product for ostia.
+                    # Means we dont have to keep updating the metadata for the build numbers....
+                    version: "1.0.0"
+                features: [ CORE ]
+                platforms: [ ]
+                release-tags:
+                    - base-version: ""
+                      tag: RECOMMENDED
+                    - base-version: ""
+                      tag: BETA
+            sspl-edr:
+                import:
+                    description: "Sophos Linux Endpoint Detection and Response"
+                    version: "1.0.0"
+                features: [ LIVEQUERY ]
+                platforms: [ ]
+                release-tags:
+                    - base-version: ""
+                      tag: RECOMMENDED
+                    - base-version: ""
+                      tag: BETA
+
+            sspl-av:
+                import:
+                    description: "Sophos Server Protection for Linux Anti-Virus"
+                    version: "11.0.0"
+                features: [ AV ]
+                platforms: [ ]
+                release-tags:
+                    - base-version: ""
+                      tag: RECOMMENDED
+                    - base-version: ""
+                      tag: BETA
+                supplements:
+                    - vdl-data
+
     cloud:
         components:
             eshsxp:
@@ -208,6 +300,25 @@ warehouses:
                     mtr64:
 
 customer-files:
+    - warehouse: sspl-wh
+      user: base_user_vut
+      password: password
+      split-warehouses:
+          - warehouse: sspl-wh
+
+    - warehouse: sspl-wh
+      user: mtr_user_vut
+      password: password
+      split-warehouses:
+          - warehouse: sspl-wh
+          - warehouse: ssplmdr-wh
+
+    - warehouse: ssplav-wh
+      user: av_user_vut
+      password: password
+      split-warehouses:
+          - warehouse: ssplav-wh
+
     -   warehouse: cloud
         user: cloud_user
         password: password
