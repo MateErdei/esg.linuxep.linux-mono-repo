@@ -619,6 +619,27 @@ TEST_F(TestFileWalker, scanPathThatDoesNotExist) // NOLINT
     }
 }
 
+TEST_F(TestFileWalker, scanPathThatDoesNotExistWithSpecialCharacter) // NOLINT
+{
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    try
+    {
+        filewalker::FileWalker fw(*callbacks);
+        fw.walk("DirThatDoesNotExist/FileThatDoesNotExist\a");
+        FAIL() << "walk() didn't throw";
+    }
+    catch (fs::filesystem_error& e)
+    {
+        EXPECT_EQ(
+            e.what(),
+            std::string(
+                "filesystem error: Failed to scan "
+                "\"DirThatDoesNotExist/FileThatDoesNotExist\\a\": file/folder does not exist: No such file or directory"));
+        EXPECT_EQ(e.code().value(), ENOENT);
+    }
+}
+
 TEST_F(TestFileWalker, includeSingleFile) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
