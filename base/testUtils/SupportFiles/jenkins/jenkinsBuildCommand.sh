@@ -78,13 +78,20 @@ export TEST_UTILS=$WORKSPACE/testUtils
 source $WORKSPACE/testUtils/SupportFiles/jenkins/exportInputLocations.sh            || fail "Error: failed to export expected input locations"
 source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh     || fail "Error: failed to validate gathered inputs"
 
-SYSTEM_PRODUCT_TEST=/tmp/system-product-test-inputs
+#setup coverage inputs and exports
+COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
 if [[ -n $BASE_COVERAGE ]]; then
-  mv $SYSTEM_PRODUCT_TEST/coverage/sspl-base-unittest.cov $SYSTEM_PRODUCT_TEST/coverage/sspl-base-combined.cov
-  export COVFILE=$SYSTEM_PRODUCT_TEST/coverage/sspl-base-combined.cov
+  mv $COVERAGE_STAGING/sspl-base-unittest.cov $SCOVERAGE_STAGING/sspl-base-combined.cov
+  export COVFILE=$COVERAGE_STAGING/sspl-base-combined.cov
+  export htmldir=$SYSTEM_PRODUCT_TEST/coverage/sspl-base-combined
+  export COV_HTML_BASE=sspl-base-combined
+  export BULLSEYE_UPLOAD=1
 elif [[ -n $MDR_COVERAGE ]]; then
-  mv $SYSTEM_PRODUCT_TEST/coverage/sspl-mdr-unittest.cov $SYSTEM_PRODUCT_TEST/coverage/sspl-mdr-combined.cov
+  mv $COVERAGE_STAGING/sspl-mdr-unittest.cov $COVERAGE_STAGINGe/sspl-mdr-combined.cov
   export COVFILE=$SYSTEM_PRODUCT_TEST/coverage/sspl-mdr-combined.cov
+  export htmldir=$SYSTEM_PRODUCT_TEST/coverage/sspl-mdr-combined
+  export COV_HTML_BASE=sspl-mdr-combined
+  export BULLSEYE_UPLOAD=1
 fi
 
 bash ${JENKINS_DIR}/install_dependencies.sh
@@ -120,6 +127,11 @@ if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
     sudo -E mv output.xml output1.xml
     sudo -E python3 -m robot --rerunfailed output1.xml --output output2.xml  . || echo "Failed tests on rerun"
     sudo -E rebot --merge --output output.xml -l log.html -r report.html output1.xml output2.xml
+fi
+
+#upload coverage results
+if [[ -n $BASE_COVERAGE || -n $MDR_COVERAGE ]]; then
+  bash -x build/bullseye/uploadResults.sh || exit $?
 fi
 
 if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]

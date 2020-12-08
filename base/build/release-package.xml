@@ -119,27 +119,29 @@
         <!-- Release -->
         <release-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
 
-        <build-asset artifact-path="sspl-base/openssl" source-dir="redist/openssl" mode="coverage,release"/>
-        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="coverage,release">
+        <build-asset artifact-path="sspl-base/openssl" source-dir="redist/openssl" mode="release"/>
+        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">
             <include glob="pluginapi.tar.gz"/>
         </build-asset>
-        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="coverage"/>
-
-        <!-- coverage(bullseye) -->
-        <build-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
-
-
-        <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="coverage,release">
+        <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="release">
             <include glob="SystemProductTestOutput.tar.gz"/>
             <include glob="symbols"/>
         </build-asset>
+
+        <!-- coverage(bullseye) -->
+        <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
+        <build-asset artifact-path="sspl-base-coverage/system_test" source-dir="output" mode="coverage">
+            <include glob="SystemProductTestOutput.tar.gz"/>
+            <include glob="symbols"/>
+        </build-asset>
+        <build-asset artifact-path="sspl-base-coverage/build_log" source-dir="log" mode="coverage"/>
 
         <build-asset artifact-path="coverage/unittest" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>
         <build-asset artifact-path="coverage" source-dir="output/" mode="coverage">
             <include glob="./*.cov"/>
         </build-asset>
 
-        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="analysis, coverage,release"/>
+        <build-asset artifact-path="sspl-base-analysis/build_log" source-dir="log" mode="analysis, coverage,release"/>
 
         <!-- Analysis -->
         <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>

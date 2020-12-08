@@ -86,7 +86,8 @@ def coverage_task(machine: tap.Machine):
             machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
                         environment={'COVFILE': COVFILE_TAPTESTS})
             #start systemtest coverage in jenkins
-            url = 'https://sspljenkins.eng.sophos/job/SSPL-Base-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
+            #url = 'https://sspljenkins.eng.sophos/job/SSPL-Base-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
+            url = 'https://sspljenkins.eng.sophos/job/UserTestJobs/job/wellington-test/build?token=sspl-linuxdarwin-coverage-token'
             run_sys = requests.get(url, verify=False)
             
         finally:
@@ -134,9 +135,8 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
     if mode == 'coverage':
         test_inputs = dict(
         test_scripts=context.artifact.from_folder('./testUtils'),
-        base_sdds=base_build / 'sspl-base/SDDS-COMPONENT',
-        system_test=base_build / 'sspl-base/system_test',
-        openssl=base_build / 'sspl-base' / 'openssl',
+        base_sdds=base_build / 'sspl-base-coverage/SDDS-COMPONENT',
+        system_test=base_build / 'sspl-base-coverage/system_test',
         websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server',
         bullseye_files=context.artifact.from_folder('./build/bullseye'),
         coverage=base_build / 'coverage',
@@ -148,38 +148,30 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
 @tap.pipeline(version=1, component='sspl-base', root_sequential=False)
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     component = tap.Component(name='sspl-base', base_version='1.1.4')
-
-    release_mode = 'release'
-    analysis_mode = 'analysis'
-
+    
+    RELEASE_MODE = 'release'
+    ANALYSIS_MODE = 'analysis'
+    COVERAGE_MODE = 'coverage'
     # export TAP_PARAMETER_MODE=release|analysis
-    mode = parameters.mode or release_mode
+    mode = parameters.mode or RELEASE_MODE
     base_build = None
     INCLUDE_BUILD_IN_PIPELINE = parameters.get('INCLUDE_BUILD_IN_PIPELINE', True)
     if INCLUDE_BUILD_IN_PIPELINE:
         with stage.parallel('build'):
-            if mode == release_mode or mode == analysis_mode:
-                base_build = stage.artisan_build(name=release_mode,
-                                                 component=component,
-                                                 image='JenkinsLinuxTemplate5',
-                                                 mode=release_mode,
-                                                 release_package='./build/release-package.xml')
-
-                analysis_build = stage.artisan_build(name=analysis_mode,
-                                                     component=component,
-                                                     image='JenkinsLinuxTemplate5',
-                                                     mode=analysis_mode,
-                                                     release_package='./build/release-package.xml')
-            else:
-                base_build = stage.artisan_build(name=mode,
-                                                 component=component,
-                                                 image='JenkinsLinuxTemplate5',
-                                                 mode=mode,
-                                                 release_package='./build/release-package.xml')
+            if mode == RELEASE_MODE or mode == ANALYSIS_MODE:
+                analysis_build = stage.artisan_build(name=ANALYSIS_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                                 mode=ANALYSIS_MODE, release_package='./build/release-package.xml')
+                base_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                                 mode=RELEASE_MODE, release_package='./build/release-package.xml')
+            elif mode == COVERAGE_MODE:
+                base_build = stage.artisan_build(name=COVERAGE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                             mode=COVERAGE_MODE, release_package='./build/release-package.xml')
+                release_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                                    mode=RELEASE_MODE, release_package='./build/release-package.xml')
     else:
         base_build = context.artifact.build()
 
-    if mode == 'analysis':
+    if mode == ANALYSIS_MODE:
         return
 
     test_inputs = get_inputs(context, base_build, mode)
@@ -187,13 +179,13 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         ("ubuntu1804",
          tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
                      platform=tap.Platform.Linux)),
-        # ("centos77",
-        #  tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
+        ("centos77",
+         tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
         # add other distros here
     )
     with stage.parallel('integration'):
         task_func = robot_task
-        if mode == "coverage":
+        if mode == COVERAGE_MODE:
             task_func = coverage_task
         for template_name, machine in machines:
             stage.task(task_name=template_name, func=task_func, machine=machine)

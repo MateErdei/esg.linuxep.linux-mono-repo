@@ -8,7 +8,7 @@ Library   ${LIBS_DIRECTORY}/CommsComponentUtils.py
 Library   ${LIBS_DIRECTORY}/LogUtils.py
 Library   ${LIBS_DIRECTORY}/OSUtils.py
 
-Default Tags  _COMMS
+Default Tags  COMMS
 Test Setup  Test Setup
 Test Teardown  Test Teardown
 
@@ -20,7 +20,7 @@ ${CommsNetworkLogsPath}  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_netw
 *** Test Cases ***
 
 Test Comms Component Starts
-    [Tags]   COMMS  TAP_TESTS
+    [Tags]   _COMMS  TAP_TESTS
     Require Installed
     File Should Exist  ${SOPHOS_INSTALL}/base/bin/CommsComponent
 
