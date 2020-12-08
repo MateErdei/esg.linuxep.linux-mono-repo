@@ -93,14 +93,14 @@ def coverage_task(machine: tap.Machine):
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
 
-        # # generate combined coverage html results and upload to allegro
-        # taptest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-base-taptests')
-        # machine.run('bash', '-x', UPLOAD_SCRIPT,
-        #             environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': taptest_htmldir})
-        # 
-        # # publish combined html results and coverage file to artifactory
-        # machine.run('mv', taptest_htmldir, coverage_results_dir)
-        # machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
+        # generate combined coverage html results and upload to allegro
+        taptest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-base-taptests')
+        machine.run('bash', '-x', UPLOAD_SCRIPT,
+                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': taptest_htmldir})
+
+        # publish combined html results and coverage file to artifactory
+        machine.run('mv', taptest_htmldir, coverage_results_dir)
+        machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
