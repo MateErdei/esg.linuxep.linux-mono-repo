@@ -136,12 +136,9 @@ function is_already_installed()
 
 function install_product()
 {
-    #In case this is an upgrade request the watchdog stops the plugin
-    #A failure with exit code 2 will be ignored as this just means the plugin was not registered
-    #This could happen if a plugin is being freshly installed (e.g. for the first time)
     if is_already_installed
     then
-        "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || [ $? == 2 ] || echo Failed to stop plugin: ${PLUGIN_NAME}
+        "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
     fi
 
     #Create plugin registration file
