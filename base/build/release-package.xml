@@ -130,11 +130,12 @@
 
         <!-- coverage(bullseye) -->
         <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
+        <build-asset artifact-path="sspl-base-coverage/openssl" source-dir="redist/openssl" mode="coverage"/>
         <build-asset artifact-path="sspl-base-coverage/system_test" source-dir="output" mode="coverage">
             <include glob="SystemProductTestOutput.tar.gz"/>
             <include glob="symbols"/>
         </build-asset>
-        <build-asset artifact-path="sspl-base-coverage/build_log" source-dir="log" mode="coverage"/>
+        <build-asset artifact-path="sspl-base/coverage_build_log" source-dir="log" mode="coverage"/>
 
         <build-asset artifact-path="coverage/unittest" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>
         <build-asset artifact-path="coverage" source-dir="output/" mode="coverage">
