@@ -1,3 +1,7 @@
+#!/bin/env python3
+
+from __future__ import print_function
+
 import subprocess
 import sys
 import os
@@ -47,6 +51,13 @@ SDDS_IMPORT_PATH = r"c:\program files\Sophos Plc\SDDS\SDDSImport.exe"
 SDDS_SERVER = os.environ['COMPUTERNAME']
 
 
+def sdds_import_errorcheck(log_path):
+    for line in open(log_path, 'rb').readlines():
+        if b"All operations appear to have completed successfully" in line:
+            return True
+    return False
+
+
 def sdds_import(*, path, name):
     os.makedirs('logs', exist_ok=True)
     args = [SDDS_IMPORT_PATH, '-server', SDDS_SERVER, '-user', 'Admin', '-verbose', '-file', path]
@@ -61,7 +72,12 @@ def sdds_import(*, path, name):
             print(log.read().decode('latin-1'))
     sys.stdout.flush()
 
-    check_call(["cscript.exe", "//nologo", "SDDSImport-ErrorCheck.vbs", "-logfile", log_path])
+    # Check if a line of the log contains "All operations appear to have completed successfully"
+    # check_call(["cscript.exe", "//nologo", "SDDSImport-ErrorCheck.vbs", "-logfile", log_path])
+    if not sddsimport_errorcheck(log_path):
+        print("Success message was not found in log file")
+        print("Success message was not found in log file", file=sys.stderr)
+        raise Exception("Success message was not found in log file")
 
 
 print("Importing dictionary file...")
