@@ -144,8 +144,9 @@ CLS Can Scan Shallow Archive But not Deep Archive
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar2.zip --scan-archives
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar30.zip --scan-archives
-    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+    # TODO: Broken by CORE-2151 uncomment once fixed
+    #${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar30.zip --scan-archives
+    #Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar15.tar --scan-archives
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
@@ -942,6 +943,8 @@ CLS scan two mounts same inode numbers
 
 
 CLS Can Scan Infected And Error Files
+    # Broken by CORE-2151 removed MANUAL Tag once fixed
+    [Tags]  MANUAL
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
     Create File  ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
 
@@ -952,6 +955,8 @@ CLS Can Scan Infected And Error Files
 
 
 CLS Can Scan Clean And Error Files
+    # Broken by CORE-2151 removed MANUAL Tag once fixed
+    [Tags]  MANUAL
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
     Create File  ${NORMAL_DIRECTORY}/cleanfile.txt    ${CLEAN_STRING}
 
