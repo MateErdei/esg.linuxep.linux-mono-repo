@@ -520,7 +520,23 @@ CLS Exclusions Filename
     Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
-CLS Exclusions Folder
+CLS Relative File Exclusion
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude naughty_eicar_folder/eicar
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/clean_eicar
+    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+
+CLS Absolute Folder Exclusion
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
@@ -537,7 +553,41 @@ CLS Exclusions Folder
     AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
-CLS Exclusions Folder And File
+CLS Relative Folder Exclusion
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude this/is/a/directory/for/scanning/
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+CLS Folder Name Exclusion
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude scanning/
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+CLS Absolute Folder Exclusion And Filename Exclusion
     Mark AV Log
 
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
@@ -556,6 +606,47 @@ CLS Exclusions Folder And File
     AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
     AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+CLS Can Handle Wildcard Exclusions
+    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Create File     ${NORMAL_DIRECTORY}/exe_eicar.exe    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar.com    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/another_eicar_folder/eicar.com    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/eic.nope    ${EICAR_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude "*.com" "exe_eicar.*" "???.*"
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Contain      ${output}  Excluding file: ${NORMAL_DIRECTORY}/exe_eicar.exe
+    Should Contain      ${output}  Excluding file: ${NORMAL_DIRECTORY}/eic.nope
+    Should Contain      ${output}  Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar.com
+    Should Contain      ${output}  Excluding file: ${NORMAL_DIRECTORY}/another_eicar_folder/eicar.com
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude "${NORMAL_DIRECTORY}/*/"
+
+    Log  return code is ${rc}
+    Log To Console  output is ${output}
+
+    Should Contain      ${output}  Excluding directory:  ${NORMAL_DIRECTORY}/clean_eicar_folder/
+    Should Contain      ${output}  Excluding directory:  ${NORMAL_DIRECTORY}/another_eicar_folder/
+    Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/eic.nope
+    Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/exe_eicar.exe
+
+CLS Can Handle Relative Non-Canonical Exclusions
+    ${test_dir} =  Set Variable  ${CURDIR}/exclusion_test_dir/
+    Create File     ${test_dir}/eicar.nope    ${EICAR_STRING}
+    Register Cleanup    Remove Directory      ${test_dir}     recursive=True
+
+    # Run And Return Rc And Output has a cwd of /opt/test/inputs/test_scripts while ${CURDIR} has a path of
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${CURDIR} --exclude "./product/exclusion_test_dir/"
+
+    Log   ${rc}
+    Log   ${output}
+
+    Should Contain      ${output}  Exclusions: ${CURDIR}/exclusion_test_dir/
 
 CLS Can Change Log Level
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --log-level=WARN
