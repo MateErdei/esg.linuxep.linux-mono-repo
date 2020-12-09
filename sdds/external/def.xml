@@ -19,6 +19,12 @@
                 <Instance version="1.0.0" fileset="..\external\ml_model_64"/>
             </Instances>
         </Line>
+        <Line id="ML_MODEL_LINUX">
+            <CanonicalName name="ML_MODEL_LINUX"/>
+            <Instances>
+                <Instance version="1.0.0" fileset="..\external\ml_model_linux"/>
+            </Instances>
+        </Line>
         <Line id="DOC_MODEL_32">
             <CanonicalName name="DOC_MODEL_32"/>
             <Instances>
