@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package
-  name="dev"
+  name="sspl-warehouse"
   version="1.0.0">
 
     <!-- filer5 components are fetched directly by the warehouse generation scripts according to the specs in the
@@ -75,11 +75,11 @@
     </buildcommands>
 
   <publish>
-    <build-asset artifact-path="warehouse" source-dir="output/warehouse" mode="sdds2">
+    <build-asset artifact-path="warehouse" source-dir="output/warehouse">
       <include glob="update/**"/>
       <include glob="content/**"/>
     </build-asset>
-    <logs name="generate-warehouse" source-dir="logs" mode="sdds2"/>
+    <logs name="generate-warehouse" source-dir="logs"/>
 
   </publish>
 
