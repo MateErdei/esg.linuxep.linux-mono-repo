@@ -13,12 +13,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 
-BaseFileWalkCallbacks::BaseFileWalkCallbacks(ScanClient scanner)
-        : m_scanner(std::move(scanner))
-{
-}
+BaseFileWalkCallbacks::BaseFileWalkCallbacks(std::shared_ptr<IScanClient> scanner) : m_scanner(std::move(scanner)) {}
 
-bool BaseFileWalkCallbacks::processSymlinkExclusions(const fs::path& path)
+bool BaseFileWalkCallbacks::excludeSymlink(const fs::path& path)
 {
     fs::path symlinkTargetPath = fs::canonical(path);
     std::string escapedTarget = common::escapePathForLogging(symlinkTargetPath);
@@ -27,12 +24,14 @@ bool BaseFileWalkCallbacks::processSymlinkExclusions(const fs::path& path)
     {
         if (common::PathUtils::startswith(symlinkTargetPath, e))
         {
-            LOGINFO("Skipping the scanning of symlink target (\"" << escapedTarget << "\") which is on excluded mount point: " << common::escapePathForLogging(e));
+            LOGINFO(
+                "Skipping the scanning of symlink target (\""
+                << escapedTarget << "\") which is on excluded mount point: " << common::escapePathForLogging(e));
             return true;
         }
     }
 
-    for (const auto& exclusion: m_userDefinedExclusions)
+    for (const auto& exclusion : m_userDefinedExclusions)
     {
         if (exclusion.appliesToPath(path))
         {
@@ -42,9 +41,10 @@ bool BaseFileWalkCallbacks::processSymlinkExclusions(const fs::path& path)
 
         if (exclusion.appliesToPath(symlinkTargetPath))
         {
-            LOGINFO("Skipping the scanning of symlink target (\"" << escapedTarget
-                                                                  << "\") which is excluded by user defined exclusion: "
-                                                                  << common::escapePathForLogging(exclusion.path()));
+            LOGINFO(
+                "Skipping the scanning of symlink target (\"" << escapedTarget
+                                                              << "\") which is excluded by user defined exclusion: "
+                                                              << common::escapePathForLogging(exclusion.path()));
             return true;
         }
     }
@@ -57,14 +57,14 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
     std::string escapedPath(common::escapePathForLogging(path));
     if (symlinkTarget)
     {
-        if(processSymlinkExclusions(path))
+        if (excludeSymlink(path))
         {
             return;
         }
     }
     else
     {
-        for (const auto& exclusion: m_userDefinedExclusions)
+        for (const auto& exclusion : m_userDefinedExclusions)
         {
             if (exclusion.appliesToPath(path))
             {
@@ -78,7 +78,7 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
 
     try
     {
-        m_scanner.scan(path, symlinkTarget);
+        m_scanner->scan(path, symlinkTarget);
     }
     catch (const std::exception& e)
     {
@@ -88,7 +88,7 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
 
 bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path)
 {
-    for (const auto& exclusion: m_currentExclusions)
+    for (const auto& exclusion : m_currentExclusions)
     {
         if (common::PathUtils::startswith(path, exclusion.path()))
         {
@@ -102,7 +102,7 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path
         // fs canonical resolves the symlink and creates the absolute path to the target
         fs::path symlinkTargetPath = fs::canonical(path);
 
-        for (const auto& exclusion: m_currentExclusions)
+        for (const auto& exclusion : m_currentExclusions)
         {
             if (common::PathUtils::startswith(symlinkTargetPath, exclusion.path()))
             {
@@ -121,11 +121,11 @@ bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::p
 {
     const std::string pathWithSlash = common::PathUtils::appendForwardSlashToPath(path);
 
-    for (const auto& exclusion: m_userDefinedExclusions)
+    for (const auto& exclusion : m_userDefinedExclusions)
     {
         if (exclusion.appliesToPath(pathWithSlash, true))
         {
-            if(isSymlink)
+            if (isSymlink)
             {
                 LOGINFO("Skipping the scanning of symlink target (\"" << common::escapePathForLogging(fs::canonical(path))
                                                                       << "\") which is excluded by user defined exclusion: "
@@ -147,7 +147,7 @@ void BaseFileWalkCallbacks::genericFailure(const std::exception& e, const std::s
     std::ostringstream errorString;
     errorString << "Failed to scan" << escapedPath << " [" << e.what() << "]";
 
-    m_scanner.scanError(errorString);
+    m_scanner->scanError(errorString);
     m_returnCode = E_GENERIC_FAILURE;
     throw AbortScanException(e.what());
 }

@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "IScanClient.h"
 #include "NamedScanConfig.h"
 
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
@@ -34,7 +35,7 @@ namespace avscanner::avscannerimpl
         virtual void logSummary() = 0;
     };
 
-    class ScanClient
+    class ScanClient : public IScanClient
     {
     public:
         ScanClient(const ScanClient&) = delete;
@@ -51,8 +52,21 @@ namespace avscanner::avscannerimpl
          * @param p Path to open and scan
          * @return Scan response
          */
-        scan_messages::ScanResponse scan(const path& fileToScanPath, bool isSymlink=false);
-        void scanError(const std::ostringstream& error) { m_callbacks->scanError(error.str()); } ;
+        scan_messages::ScanResponse scan(const sophos_filesystem::path& fileToScanPath)
+        {
+            return scan(fileToScanPath, false);
+        }
+
+        /**
+         *
+         * Calls IScanCallbacks if provided
+         *
+         * @param p Path to open and scan
+         * @param isSymlink Has path been found via a symlink
+         * @return Scan response
+         */
+        scan_messages::ScanResponse scan(const path& fileToScanPath, bool isSymlink) override;
+        void scanError(const std::ostringstream& error) override { m_callbacks->scanError(error.str()); };
 
     private:
         unixsocket::IScanningClientSocket& m_socket;
