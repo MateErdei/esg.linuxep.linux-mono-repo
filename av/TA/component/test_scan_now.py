@@ -19,7 +19,7 @@ def test_scan_now(sspl_mock, av_plugin_instance):
     av_plugin_instance.wait_log_contains("Received new Action")
     av_plugin_instance.wait_log_contains("Evaluating Scan Now")
     av_plugin_instance.wait_log_contains("Starting scan Scan Now")
-    av_plugin_instance.wait_log_contains("Completed scan Scan Now")
+    av_plugin_instance.wait_log_contains("Sending scan complete event to Central")
     # TODO needs to check for reply from plugin
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)
 
