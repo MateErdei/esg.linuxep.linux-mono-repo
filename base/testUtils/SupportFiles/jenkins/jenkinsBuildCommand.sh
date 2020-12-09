@@ -80,13 +80,13 @@ source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh 
 
 #setup coverage inputs and exports
 COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
-if [[ -n $BASE_COVERAGE ]]; then
+if [[ -n "$BASE_COVERAGE" ]]; then
   mv $COVERAGE_STAGING/sspl-base-unittest.cov $COVERAGE_STAGING/sspl-base-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-base-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-base-combined
   export COV_HTML_BASE=sspl-base-combined
   export BULLSEYE_UPLOAD=1
-elif [[ -n $MDR_COVERAGE ]]; then
+elif [[ -n "$MDR_COVERAGE" ]]; then
   mv $COVERAGE_STAGING/sspl-mtr-unittest.cov $COVERAGE_STAGING/sspl-mtr-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-mtr-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-mtr-combined
@@ -130,7 +130,7 @@ if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
 fi
 
 #upload coverage results
-if [[ -n $BASE_COVERAGE || -n $MDR_COVERAGE ]]; then
+if [[ -n "$BASE_COVERAGE" || -n "$MDR_COVERAGE" ]]; then
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || exit $?
 fi
 
