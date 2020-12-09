@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <iostream>
 
 using namespace boost::asio;
+using namespace boost::placeholders;
 namespace CommsComponent
 {
     AsyncMessager::AsyncMessager(
