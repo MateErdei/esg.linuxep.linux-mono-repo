@@ -6,7 +6,6 @@
             <development-version branch="feature/LINUXDAR-1816-change-everest-base-mtr-coverage-jenkins-job-to-pull-bullseye"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
-            <include artifact-path="coverage" dest-dir="coverage"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
             <development-version branch="develop"/>
@@ -15,6 +14,7 @@
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
             <development-version branch="feature/LINUXDAR-1816-change-everest-base-mtr-coverage-jenkins-job-to-pull-bullseye"/>
             <include artifact-path="mdr-coverage/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
+            <include artifact-path="mdr-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
             <development-version branch="develop"/>

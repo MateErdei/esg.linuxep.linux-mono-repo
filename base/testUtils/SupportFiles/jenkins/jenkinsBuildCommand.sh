@@ -87,10 +87,10 @@ if [[ -n $BASE_COVERAGE ]]; then
   export COV_HTML_BASE=sspl-base-combined
   export BULLSEYE_UPLOAD=1
 elif [[ -n $MDR_COVERAGE ]]; then
-  mv $COVERAGE_STAGING/sspl-mdr-unittest.cov $COVERAGE_STAGING/sspl-mdr-combined.cov
-  export COVFILE=$COVERAGE_STAGING/sspl-mdr-combined.cov
-  export htmldir=$COVERAGE_STAGING/sspl-mdr-combined
-  export COV_HTML_BASE=sspl-mdr-combined
+  mv $COVERAGE_STAGING/sspl-mtr-unittest.cov $COVERAGE_STAGING/sspl-mtr-combined.cov
+  export COVFILE=$COVERAGE_STAGING/sspl-mtr-combined.cov
+  export htmldir=$COVERAGE_STAGING/sspl-mtr-combined
+  export COV_HTML_BASE=sspl-mtr-combined
   export BULLSEYE_UPLOAD=1
 fi
 
