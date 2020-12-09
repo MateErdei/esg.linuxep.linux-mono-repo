@@ -4,6 +4,7 @@ def params = [
     choice(name: 'MODE', choices: ['release', 'coverage','analysis','oldci'], defaultValue: 'release', description: 'Build mode'),
     booleanParam(name: 'INCLUDE_BUILD_IN_PIPELINE', defaultValue: true, description: 'Perform a build via the pipeline: unified builds'),
     string(name: 'test_type', defaultValue: 'regression', description: 'Test type [regression|faultinjection]'),
+    string(name: 'TRIGGER', defaultValue: 'hourly')
 ]
 
 CIPipeline { pipelineEntryPoint = 'sspl_base'; buildParameters = params }
