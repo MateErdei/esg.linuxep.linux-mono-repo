@@ -10,9 +10,9 @@ exit 1
 sudo rm -rf /tmp/system-product-test-inputs/
 
 TEST_PACKAGE_XML=system-product-test-release-package.xml
-if [[ -n "$BASE_COVERAGE" ]]; then
+if [[ -n ${BASE_COVERAGE} ]]; then
   TEST_PACKAGE_XML=system-product-test-base-coverage.xml
-elif [[ -n "$MDR_COVERAGE" ]]; then
+elif [[ -n ${MDR_COVERAGE} ]]; then
   TEST_PACKAGE_XML=system-product-test-mdr-coverage.xml
 fi
 
