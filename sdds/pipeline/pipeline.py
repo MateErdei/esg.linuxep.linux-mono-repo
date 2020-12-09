@@ -15,3 +15,6 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     with stage.parallel('build'):
         build_dev_warehouse(stage=stage, name="release-package")
+        build_dev_warehouse(stage=stage, name="release-package-edr-999")
+        build_dev_warehouse(stage=stage, name="release-package-mdr-999")
+        build_dev_warehouse(stage=stage, name="release-package-edr-mdr-999")
