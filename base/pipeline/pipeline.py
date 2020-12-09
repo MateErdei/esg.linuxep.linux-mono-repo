@@ -141,8 +141,8 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
         openssl=base_build / 'sspl-base-coverage' / 'openssl',
         websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server',
         bullseye_files=context.artifact.from_folder('./build/bullseye'),
-        coverage=base_build / 'coverage',
-        coverage_unittest=base_build / 'coverage/unittest'
+        coverage=base_build / 'sspl-base-coverage/covfile',
+        coverage_unittest=base_build / 'sspl-base-coverage/unittest-htmlreport'
     )
     return test_inputs
 
@@ -188,13 +188,10 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     with stage.parallel('integration'):
         task_func = robot_task
         if mode == COVERAGE_MODE:
-            task_func = coverage_task
-            machines = (
-                ("centos77",
-                 tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
-            )
-        for template_name, machine in machines:
-            stage.task(task_name=template_name, func=task_func, machine=machine)
+            stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
+        else:
+            for template_name, machine in machines:
+                stage.task(task_name=template_name, func=task_func, machine=machine)
 
     # with stage.group('component'):
     #     stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)

@@ -135,10 +135,10 @@
             <include glob="SystemProductTestOutput.tar.gz"/>
             <include glob="symbols"/>
         </build-asset>
-        <build-asset artifact-path="sspl-base/coverage_build_log" source-dir="log" mode="coverage"/>
+        <build-asset artifact-path="sspl-base-coverage/build_log" source-dir="log" mode="coverage"/>
 
-        <build-asset artifact-path="coverage/unittest" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>
-        <build-asset artifact-path="coverage" source-dir="output/" mode="coverage">
+        <build-asset artifact-path="sspl-base-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>
+        <build-asset artifact-path="sspl-base-coverage/covfile" source-dir="output/" mode="coverage">
             <include glob="./*.cov"/>
         </build-asset>
 
