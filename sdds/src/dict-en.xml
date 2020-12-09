@@ -1530,8 +1530,15 @@
         </Language>
       </Label>
     </ReleaseTags>
-
-
+    <ReleaseTags>
+      <Label>
+        <Token>LINUX_SCAN#</Token>
+        <Language lang="en">
+          <LongDesc>ML Model for Linux</LongDesc>
+          <ShortDesc>ML Model Linux</ShortDesc>
+        </Language>
+      </Label>
+    </ReleaseTags>
 
     <Features>
       <Label>
