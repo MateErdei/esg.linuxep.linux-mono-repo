@@ -104,17 +104,17 @@
       </command>
       <command mode="release-package-edr-999">
         <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def-edr-999.yaml ..\def\cloud-warehouse-def.yaml</args>
+        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-edr-999.yaml</args>
         <workingdir>src</workingdir>
       </command>
       <command mode="release-package-mdr-999">
         <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def-mdr-999.yaml ..\def\cloud-warehouse-def.yaml</args>
+        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-mdr-999.yaml</args>
         <workingdir>src</workingdir>
       </command>
       <command mode="release-package-edr-mdr-999">
         <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def-edr-mdr-999.yaml ..\def\cloud-warehouse-def.yaml</args>
+        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-edr-mdr-999.yaml</args>
         <workingdir>src</workingdir>
       </command>
     </buildcommands>
