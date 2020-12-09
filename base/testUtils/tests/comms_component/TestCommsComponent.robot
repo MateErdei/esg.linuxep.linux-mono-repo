@@ -20,7 +20,7 @@ ${CommsNetworkLogsPath}  ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_netw
 *** Test Cases ***
 
 Test Comms Component Starts
-    [Tags]   _COMMS  TAP_TESTS
+    [Tags]   COMMS  TAP_TESTS
     Require Installed
     File Should Exist  ${SOPHOS_INSTALL}/base/bin/CommsComponent
 

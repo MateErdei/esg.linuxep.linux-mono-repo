@@ -27,7 +27,7 @@ Telemetry Scheduler Plugin Test Teardown
 
 *** Test Cases ***
 Check Telemetry Scheduler Plugin Is Started by Watchdog
-    [Tags]  SMOKE  TELEMETRY SCHEDULER  TAP_TESTS  _COMMS
+    [Tags]  SMOKE  TELEMETRY SCHEDULER  TAP_TESTS  COMMS
     Wait Until Keyword Succeeds  10 seconds  0.5 seconds   Check Telemetry Scheduler Is Running
 
 
