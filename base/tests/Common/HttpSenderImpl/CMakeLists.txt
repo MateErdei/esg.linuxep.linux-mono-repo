@@ -7,8 +7,8 @@ add_executable(HttpSenderTests
         MockCurlWrapper.h
         CurlWrapperTests.cpp)
 
-target_include_directories(HttpSenderTests PUBLIC ${PROTOBUF_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/modules/Common/HttpSender)
-target_include_directories(HttpSenderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CURL_INCLUDE_DIR})
+target_include_directories(HttpSenderTests PUBLIC  ${CMAKE_SOURCE_DIR}/modules/Common/HttpSender)
+target_include_directories(HttpSenderTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CURL_INCLUDE_DIR})
 target_include_directories(HttpSenderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}")
 
 target_link_libraries(HttpSenderTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto httpsenderimpl testhelpers)

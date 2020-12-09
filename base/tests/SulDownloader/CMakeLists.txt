@@ -20,8 +20,7 @@ add_executable(SulDownloaderTests
         TestProductMetadata.cpp
         TestCatalogueInfo.cpp TestUpdateSupplementDecider.cpp)
 
-target_include_directories(SulDownloaderTests PUBLIC ${PROTOBUF_INCLUDE_DIR})
-target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
+target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include"  ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}"
         "${CMAKE_BINARY_DIR}/modules/SulDownloader/suldownloaderdata"
         )

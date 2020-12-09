@@ -23,9 +23,12 @@ set_property(TARGET fuzzer-proto
         )
 
 target_include_directories(fuzzer-proto PUBLIC
-        ${Protobuf_INCLUDE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_SOURCE_DIR}
+        )
+target_include_directories(fuzzer-proto SYSTEM BEFORE PUBLIC
+        ${Protobuf_INCLUDE_DIR}
+
         )
 target_link_libraries(fuzzer-proto PUBLIC ${Protobuf_LIBRARIES})
 
