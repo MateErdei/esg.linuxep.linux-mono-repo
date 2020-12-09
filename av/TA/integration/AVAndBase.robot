@@ -474,6 +474,54 @@ AV plugin Saves and Restores Scan Now Counter
     Dictionary Should Contain Item   ${avDict}   scan-now-count   1
 
 
+AV plugin increments Scan Now Counter after Save and Restore
+    Check AV Plugin Installed With Base
+
+    # Run telemetry to reset counters to 0
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Remove File   ${TELEMETRY_OUTPUT_JSON}
+
+    # run a scan, count should increase to 1
+    Configure and check scan now
+
+    Stop AV Plugin
+
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_BACKUP_JSON}
+
+    ${backupfileContents} =  Get File    ${TELEMETRY_BACKUP_JSON}
+    Log   ${backupfileContents}
+    ${backupJson}=    Evaluate     json.loads("""${backupfileContents}""")    json
+    ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
+    Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   1
+
+    Start AV Plugin
+
+    # run a scan, count should increase to 1
+    Configure and check scan now
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   2
+
+
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now
     [Teardown]  Run Keywords    AV And Base Teardown
     ...         AND             Remove Directory    /tmp_test/file_maker/  recursive=True
