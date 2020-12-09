@@ -27,25 +27,26 @@ namespace scan_messages
         ~ScanRequest();
 
         /*
-         * Accessors for fields from the scan request.
-         */
-        int fd();
-
-        /*
          * Receiver side interface
          */
-        ScanRequest(int fd, Reader& requestMessage);
-        void resetRequest(int fd, Reader& requestMessage);
+        ScanRequest(Reader& requestMessage);
+        void resetRequest(Reader& requestMessage);
 
         /**
          * Should we scan inside archives in this file
          */
          [[nodiscard]] bool scanInsideArchives() const;
 
-
+        /**
+         * The path to scan
+         */
         [[nodiscard]] std::string path() const;
+
+        /**
+         * The type of scan
+         */
+        [[nodiscard]] E_SCAN_TYPE getScanType() const;
     private:
-        datatypes::AutoFd m_fd;
         void close();
         void setRequestFromMessage(Reader& requestMessage);
     };

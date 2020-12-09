@@ -14,7 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "common/StringUtils.h"
 
 #include <capnp/serialize.h>
-#include <common/FDUtils.h>
+#include <scan_messages/ScanRequest.h>
 
 #include <cassert>
 #include <iostream>
@@ -55,6 +55,24 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
 //    throw std::runtime_error(message);
 //}
 
+static inline bool fd_isset(int fd, fd_set* fds)
+{
+    assert(fd >= 0);
+    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
+}
+
+static inline void internal_fd_set(int fd, fd_set* fds)
+{
+    assert(fd >= 0);
+    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
+}
+
+static int addFD(fd_set* fds, int fd, int currentMax)
+{
+    internal_fd_set(fd, fds);
+    return std::max(fd, currentMax);
+}
+
 /**
  * Parse a request.
  *
@@ -64,7 +82,7 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
  * @param bytes_read
  * @return
  */
-static unixsocket::ScanRequestObject parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
+static std::shared_ptr<scan_messages::ScanRequest> parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
 {
     auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 
@@ -72,12 +90,9 @@ static unixsocket::ScanRequestObject parseRequest(kj::Array<capnp::word>& proto_
     Sophos::ssplav::FileScanRequest::Reader requestReader =
             messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
 
-    unixsocket::ScanRequestObject scanRequest;
-    scanRequest.pathname = requestReader.getPathname();
-    scanRequest.scanArchives = requestReader.getScanInsideArchives();
-    scanRequest.scanType = requestReader.getScanType();
-    scanRequest.userID = requestReader.getUserID();
-    return scanRequest;
+    std::shared_ptr<scan_messages::ScanRequest> request = std::make_shared<scan_messages::ScanRequest>(requestReader);
+
+    return request;
 }
 
 void unixsocket::ScanningServerConnectionThread::run()
@@ -128,8 +143,8 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
-    max = FDUtils::addFD(&readFDs, exitFD, max);
-    max = FDUtils::addFD(&readFDs, socket_fd, max);
+    max = addFD(&readFDs, exitFD, max);
+    max = addFD(&readFDs, socket_fd, max);
     threat_scanner::IThreatScannerPtr scanner;
     bool loggedLengthOfZero = false;
 
@@ -156,17 +171,17 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
         // We don't set a timeout so something should have happened
         assert(activity != 0);
 
-        if (FDUtils::fd_isset(exitFD, &tempRead))
+        if (fd_isset(exitFD, &tempRead))
         {
             LOGSUPPORT("Closing scanning socket thread");
             break;
         }
-        else // if(FDUtils::fd_isset(socket_fd, &tempRead))
+        else // if(fd_isset(socket_fd, &tempRead))
         {
             // If shouldn't be required - we have no timeout, and only 2 FDs in the pselect.
             // exitFD will cause break
             // therefore "else" must be fd_isset(socket_fd, &tempRead)
-            assert(FDUtils::fd_isset(socket_fd, &tempRead));
+            assert(fd_isset(socket_fd, &tempRead));
             // read length
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
@@ -211,9 +226,9 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
             LOGDEBUG("Read capn of " << bytes_read);
 
-            ScanRequestObject requestReader = parseRequest(proto_buffer, bytes_read);
+            std::shared_ptr<scan_messages::ScanRequest> requestReader = parseRequest(proto_buffer, bytes_read);
 
-            std::string escapedPath(requestReader.pathname);
+            std::string escapedPath(requestReader->getPath());
             common::escapeControlCharacters(escapedPath);
 
             LOGDEBUG("Scan requested of " << escapedPath);
@@ -257,7 +272,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
             if (!scanner)
             {
-                scanner = m_scannerFactory->createScanner(requestReader.scanArchives);
+                scanner = m_scannerFactory->createScanner(requestReader->scanInsideArchives());
                 if (!scanner)
                 {
                     throw std::runtime_error("Failed to create scanner");
@@ -265,7 +280,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
 
             // The User ID could be spoofed by an untrusted client. Until this is made secure, hardcode it to "n/a"
-            auto result = scanner->scan(file_fd, requestReader.pathname, requestReader.scanType, "n/a");
+            auto result = scanner->scan(file_fd, requestReader->getPath(), requestReader->getScanType(), "n/a");
             file_fd.reset();
 
             std::string serialised_result = result.serialise();

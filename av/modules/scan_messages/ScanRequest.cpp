@@ -15,8 +15,7 @@ using namespace scan_messages;
 using Builder = ScanRequest::Builder;
 using Reader = ScanRequest::Reader;
 
-ScanRequest::ScanRequest(int fd, Reader& requestMessage)
-    : m_fd(fd)
+ScanRequest::ScanRequest(Reader& requestMessage)
 {
     setRequestFromMessage(requestMessage);
 }
@@ -26,9 +25,8 @@ ScanRequest::~ScanRequest()
     close();
 }
 
-void ScanRequest::resetRequest(int fd, Reader& requestMessage)
+void ScanRequest::resetRequest(Reader& requestMessage)
 {
-    m_fd.reset(fd);
     setRequestFromMessage(requestMessage);
 }
 
@@ -36,16 +34,12 @@ void scan_messages::ScanRequest::setRequestFromMessage(Reader &requestMessage)
 {
     setPath(requestMessage.getPathname());
     setScanInsideArchives(requestMessage.getScanInsideArchives());
-}
-
-int scan_messages::ScanRequest::fd()
-{
-    return m_fd.get();
+    setScanType(static_cast<E_SCAN_TYPE>(requestMessage.getScanType()));
+    setUserID(requestMessage.getUserID());
 }
 
 void scan_messages::ScanRequest::close()
 {
-    m_fd.reset(-1);
     setPath("");
 }
 
@@ -57,4 +51,9 @@ std::string ScanRequest::path() const
 bool ScanRequest::scanInsideArchives() const
 {
     return m_scanInsideArchives;
+}
+
+E_SCAN_TYPE ScanRequest::getScanType() const
+{
+    return m_scanType;
 }

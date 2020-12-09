@@ -14,6 +14,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <ctime>
 
+//TODO ED Update these to include all bits
 TEST(TestScanMessages, CreateScanRequestSerialisation) // NOLINT
 {
     ::capnp::MallocMessageBuilder message;
@@ -22,6 +23,8 @@ TEST(TestScanMessages, CreateScanRequestSerialisation) // NOLINT
 
     requestBuilder.setPathname("/etc/fstab");
     requestBuilder.setScanInsideArchives(true);
+    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    requestBuilder.setUserID("sophos-spl");
 
     // Convert to byte string
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
@@ -38,25 +41,27 @@ TEST(TestScanMessages, CreateScanRequestSerialisation) // NOLINT
             messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
 
     EXPECT_EQ(requestReader.getPathname(), "/etc/fstab");
+    EXPECT_EQ(requestReader.getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    EXPECT_EQ(requestReader.getUserID(), "sophos-spl");
     EXPECT_TRUE(requestReader.getScanInsideArchives());
 }
 
 TEST(TestScanMessages, CreateScanRequestObject) // NOLINT
 {
-
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::FileScanRequest::Builder requestBuilder =
             message.initRoot<Sophos::ssplav::FileScanRequest>();
 
     requestBuilder.setPathname("/etc/fstab");
     requestBuilder.setScanInsideArchives(false);
+    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
 
     Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
 
-    auto scanRequest = std::make_unique<scan_messages::ScanRequest>(-1, requestReader);
+    auto scanRequest = std::make_unique<scan_messages::ScanRequest>(requestReader);
 
-    EXPECT_EQ(scanRequest->fd(), -1);
     EXPECT_EQ(scanRequest->path(), "/etc/fstab");
+    EXPECT_EQ(scanRequest->getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
     EXPECT_FALSE(scanRequest->scanInsideArchives());
 }
 
@@ -70,12 +75,13 @@ TEST(TestScanMessages, ReuseScanRequestObject) // NOLINT
                 message.initRoot<Sophos::ssplav::FileScanRequest>();
         requestBuilder.setPathname("/etc/fstab");
         requestBuilder.setScanInsideArchives(true);
+        requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
         Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
-        scanRequest->resetRequest(-1, requestReader);
+        scanRequest->resetRequest(requestReader);
     }
 
-    EXPECT_EQ(scanRequest->fd(), -1);
     EXPECT_EQ(scanRequest->path(), "/etc/fstab");
+    EXPECT_EQ(scanRequest->getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
     EXPECT_TRUE(scanRequest->scanInsideArchives());
 
     {
@@ -84,11 +90,12 @@ TEST(TestScanMessages, ReuseScanRequestObject) // NOLINT
                 message.initRoot<Sophos::ssplav::FileScanRequest>();
         requestBuilder.setPathname("/etc/shadow");
         requestBuilder.setScanInsideArchives(false);
+        requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_UNKNOWN);
         Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
-        scanRequest->resetRequest(-1, requestReader);
+        scanRequest->resetRequest(requestReader);
     }
 
-    EXPECT_EQ(scanRequest->fd(), -1);
     EXPECT_EQ(scanRequest->path(), "/etc/shadow");
+    EXPECT_EQ(scanRequest->getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_UNKNOWN);
     EXPECT_FALSE(scanRequest->scanInsideArchives());
 }
