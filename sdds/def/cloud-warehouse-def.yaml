@@ -92,6 +92,8 @@ warehouses:
                       tag: BETA
                 supplements:
                     - vdl-data
+                    - localrepdata-data
+                    - ml-model-sspl-linux-supp
 
 customer-files:
     - warehouse: sspl-wh

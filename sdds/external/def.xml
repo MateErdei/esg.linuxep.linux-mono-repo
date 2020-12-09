@@ -347,6 +347,15 @@
                                         </Instance>
                                     </Instances>
                                 </Line>
+                                <Line id="ML_MODEL_LINUX">
+                                    <Instances>
+                                        <Instance version="1.0.0">
+                                            <ReleaseTags>
+                                                <ReleaseTag tag="LINUX_SCAN"/>
+                                            </ReleaseTags>
+                                        </Instance>
+                                    </Instances>
+                                </Line>
                             </Lines>
                         </Warehouse>
                         <Warehouse id="doc_models" type="sdds2" snapshot="false">

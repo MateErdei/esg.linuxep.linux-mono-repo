@@ -19,21 +19,21 @@ scheduled-query-pack-supp:
 
 vdl-data:
     canonical-name: VDL
-    decode-path: .
+    decode-path: files/plugins/av/chroot/susi/update_source/vdl
     line-id: VDL
     tag: LATEST
     warehouse: VDB_supp
 
 localrepdata-data:
     canonical-name: LocalRepData
-    decode-path: .
+    decode-path: files/plugins/av/chroot/susi/update_source/reputation
     line-id: LocalRepData
     tag: LATEST_CLOUD_ENDPOINT
     warehouse: ixdata
 
 ml-model-sspl-linux-supp:
     canonical-name: ML_MODEL_LINUX
-    decode-path: scan
+    decode-path: files/plugins/av/chroot/susi/update_source/model
     line-id: ML_MODEL_LINUX
     tag: LINUX_SCAN
     warehouse: ml_models
