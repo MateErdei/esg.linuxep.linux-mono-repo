@@ -56,7 +56,7 @@
         </package> -->
 
         <build-asset project="ec" repo="liblocalrep">
-            <release-version branch="feature/target_glibc_fix" build-id="20201207161232-e4b7eddd8b1efa33be888f0176429ee09a678f97-inGzKf"/>
+            <release-version branch="release/2.0_for_susi" build-id="20201208154755-40d3b6f7709cd6e6d68586be84ac3920be4307af-BJDUBz"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
