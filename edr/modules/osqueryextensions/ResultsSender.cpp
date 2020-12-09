@@ -38,6 +38,7 @@ ResultsSender::ResultsSender(
     LOGDEBUG("Created results sender");
     try
     {
+        // cppcheck-suppress virtualCallInConstructor
         Send();
     }
     catch (const std::exception& e)
@@ -59,6 +60,7 @@ ResultsSender::~ResultsSender()
 {
     try
     {
+        // cppcheck-suppress virtualCallInConstructor
         Send();
     }
     catch (const std::exception& e)

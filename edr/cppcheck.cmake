@@ -19,16 +19,20 @@ add_custom_target(
         cppcheck
         COMMAND /usr/bin/cppcheck
         --enable=all
-        --std=c++11
+        --inline-suppr
+        --std=c++17
         --language=c++
         --template="[{severity}][{id}] {message} {callstack} \(On {file}:{line}\)"
         --verbose
-        -I ${BOOST_INCLUDE_DIR}
         -I ${pluginapiinclude}/Common
         -I ${pluginapiinclude}/log4cplus
         -I ${testhelpersinclude}
+        -i ${INPUT}
+        -i ${CMAKE_SOURCE_DIR}/input
+        -i ${CMAKE_SOURCE_DIR}/venv
+        -i ${CMAKE_SOURCE_DIR}/tests/googletest
         --quiet
         --force
         --xml
-        ${ALL_SOURCE_FILES}
+        ${CMAKE_SOURCE_DIR}
 )

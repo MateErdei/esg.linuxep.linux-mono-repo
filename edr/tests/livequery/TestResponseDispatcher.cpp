@@ -364,7 +364,6 @@ TEST_F(TestResponseDispatcher, JsonForExceededEntriesHasEmptyDataColumnsIfTheyEx
     ResponseData::ColumnData columnData;
     columnData.reserve(10*1024);
     ResponseData::RowData  firstRow;
-    std::cout << ctime(nullptr)<<std::endl;
     std::string largestring(1000,'b');
     firstRow["pathname"] = largestring;
     firstRow["sophosPID"] = "17984:132164677472649892";
@@ -373,11 +372,9 @@ TEST_F(TestResponseDispatcher, JsonForExceededEntriesHasEmptyDataColumnsIfTheyEx
     {
         columnData.push_back(firstRow);
     }
-    std::cout << ctime(nullptr)<<std::endl;
     QueryResponse response{ResponseStatus{ErrorCode::SUCCESS},
                            ResponseData{headerExample(), columnData },
                            ResponseMetaData()};
-    std::cout << ctime(nullptr)<<std::endl;
     std::string expected = R"({
     "type": "sophos.mgt.response.RunLiveQuery",
     "queryMetaData": {
@@ -394,7 +391,6 @@ TEST_F(TestResponseDispatcher, JsonForExceededEntriesHasEmptyDataColumnsIfTheyEx
 })";
     ResponseDispatcher dispatcher;
     std::string calculated = dispatcher.serializeToJson(response);
-    std::cout << ctime(nullptr)<<std::endl;
     EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated)) << calculated;
 }
 

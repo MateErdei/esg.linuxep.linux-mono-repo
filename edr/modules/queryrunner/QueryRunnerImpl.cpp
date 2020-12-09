@@ -19,7 +19,7 @@ namespace{
 
 namespace queryrunner{
     QueryRunnerImpl::QueryRunnerImpl(const std::string &osquerySocketPath, const std::string &executablePath)
-    : m_osquerySocketPath{osquerySocketPath}, m_executablePath(executablePath)
+    : m_osquerySocketPath{osquerySocketPath}, m_executablePath(executablePath), m_runnerStatus({})
     {
         
 

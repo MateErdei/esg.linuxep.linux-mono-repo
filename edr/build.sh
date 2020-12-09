@@ -226,11 +226,28 @@ function cppcheck_build() {
     CPP_REPORT_DIR="cppcheck"
     make cppcheck 2> ${CPP_XML_REPORT}
     python3 "$BASE/build/analysis/cppcheck-htmlreport.py" --file=${CPP_XML_REPORT} --report-dir=${CPP_REPORT_DIR} --source-dir=${BASE}
+    ANALYSIS_ERRORS=$(grep 'severity="error"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_WARNINGS=$(grep 'severity="warning"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_PERFORMANCE=$(grep 'severity="performance"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_INFORMATION=$(grep 'severity="information"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_STYLE=$(grep 'severity="style"' ${CPP_XML_REPORT} | wc -l)
 
-    ANALYSIS_OUTPUT_DIR="${OUTPUT}/coverage/"
+    echo "The full XML static analysis report:"
+    cat ${CPP_XML_REPORT}
+    echo "There are $ANALYSIS_ERRORS static analysis error issues"
+    echo "There are $ANALYSIS_WARNINGS static analysis warning issues"
+    echo "There are $ANALYSIS_PERFORMANCE static analysis performance issues"
+    echo "There are $ANALYSIS_INFORMATION static analysis information issues"
+    echo "There are $ANALYSIS_STYLE static analysis style issues"
+
+    ANALYSIS_OUTPUT_DIR="${OUTPUT}/analysis/"
     [[ -d ${ANALYSIS_OUTPUT_DIR} ]] || mkdir -p "${ANALYSIS_OUTPUT_DIR}"
     cp -a ${CPP_REPORT_DIR}  "${ANALYSIS_OUTPUT_DIR}" || exitFailure $FAILURE_COPY_CPPCHECK_RESULT_FAILED  "Failed to copy cppcheck report to output"
     cd "${CURR_WD}"
+
+     # Fail the build if there are any static analysis warnings or errors.
+    [[ $ANALYSIS_ERRORS == 0 ]] || exitFailure $FAILURE_CPPCHECK "Build failed. There are $ANALYSIS_ERRORS static analysis errors"
+    [[ $ANALYSIS_WARNINGS == 0 ]] || exitFailure $FAILURE_CPPCHECK "Build failed. There are $ANALYSIS_WARNINGS static analysis warnings"
 }
 
 function build()
@@ -334,8 +351,9 @@ function build()
     export CXX
 
     [[ $CLEAN == 1 ]] && rm -rf build64
+    [[ $CLEAN == 1 ]] && rm -rf $OUTPUT
 
-    #run static analysis
+    # Run static analysis
     if [[ $ANALYSIS == 1 ]]
     then
       cppcheck_build  build64 || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"

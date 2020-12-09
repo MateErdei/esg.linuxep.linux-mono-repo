@@ -155,11 +155,18 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
     mode = parameters.mode or 'release'
     component = tap.Component(name='edr', base_version='1.1.0')
 
+    release_mode = 'release'
+    analysis_mode = 'analysis'
+
     #export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     edr_build = None
     with stage.parallel('build'):
-        edr_build = stage.artisan_build(name=mode, component=component, image='JenkinsLinuxTemplate5',
-                                        mode=mode, release_package='./build-files/release-package.xml')
+        if mode == release_mode or mode == analysis_mode:
+            edr_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate5',
+                                            mode=release_mode, release_package='./build-files/release-package.xml')
+            edr_analysis_build = stage.artisan_build(name=analysis_mode, component=component, image='JenkinsLinuxTemplate5',
+                                                     mode=analysis_mode, release_package='./build-files/release-package.xml')
+
     if mode == 'analysis':
         return
 

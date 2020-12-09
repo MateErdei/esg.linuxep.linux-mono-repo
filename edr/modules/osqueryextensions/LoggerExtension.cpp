@@ -39,6 +39,7 @@ LoggerExtension::LoggerExtension(
 
 LoggerExtension::~LoggerExtension()
 {
+    // cppcheck-suppress virtualCallInConstructor
     Stop();
 }
 
@@ -65,9 +66,9 @@ void LoggerExtension::Start(
 
 void LoggerExtension::Stop()
 {
-    LOGINFO("Stopping LoggerExtension");
     if (!m_stopped)
     {
+        LOGINFO("Stopping LoggerExtension");
         m_stopped = true;
         m_extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())

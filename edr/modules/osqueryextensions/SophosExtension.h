@@ -15,6 +15,7 @@ class SophosExtension   :   public IServiceExtension
 public:
     ~SophosExtension();
     void Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished) override;
+    // cppcheck-suppress virtualCallInConstructor
     void Stop() override;
 
 private:

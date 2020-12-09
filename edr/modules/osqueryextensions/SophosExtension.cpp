@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 SophosExtension::~SophosExtension()
 {
+    // cppcheck-suppress virtualCallInConstructor
     Stop();
 }
 
@@ -49,6 +50,7 @@ void SophosExtension::Stop()
             m_runnerThread->join();
             m_runnerThread.reset();
         }
+        LOGINFO("SophosExtension::Stopped");
     }
 }
 

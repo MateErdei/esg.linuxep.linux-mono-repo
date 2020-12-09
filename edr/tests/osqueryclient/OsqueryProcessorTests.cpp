@@ -86,8 +86,8 @@ public:
     ::testing::AssertionResult responseIsEquivalent(
         const char* m_expr,
         const char* n_expr,
-        const livequery::QueryResponse& expectedResponse,
-        const livequery::QueryResponse& actualResponse);
+        const livequery::QueryResponse& actualResponse,
+        const livequery::QueryResponse& expectedResponse);
 
     ~TestOSQueryProcessor()
     {

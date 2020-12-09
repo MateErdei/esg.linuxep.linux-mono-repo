@@ -32,6 +32,7 @@ public:
         );
     ~ResultsSender();
     void Add(const std::string& result) override;
+    // cppcheck-suppress virtualCallInConstructor
     void Send() override;
     void Reset() override;
     void setDataLimit(unsigned int limitBytes);
