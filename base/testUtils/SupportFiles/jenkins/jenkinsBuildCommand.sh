@@ -88,8 +88,7 @@ elif [[ -n "${MDR_COVERAGE:-}" ]]; then
   export COV_HTML_BASE=sspl-mtr-combined
   export BULLSEYE_UPLOAD=1
 fi
-export BASE_COVERAGE
-export MDR_COVERAGE
+
 
 export TEST_UTILS=$WORKSPACE/testUtils
 [[ -n $NO_GATHER ]] || source $WORKSPACE/testUtils/SupportFiles/jenkins/gatherTestInputs.sh                || fail "Error: failed to gather test inputs"
@@ -133,7 +132,7 @@ if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
 fi
 
 #upload coverage results
-if [[ -n "$BASE_COVERAGE" || -n "$MDR_COVERAGE" ]]; then
+if [[ -n "${MDR_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" ]]; then
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || exit $?
 fi
 
