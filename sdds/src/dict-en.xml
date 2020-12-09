@@ -1002,6 +1002,15 @@
     </Identity>
     <Identity>
       <Label>
+        <Token>ML_MODEL_LINUX</Token>
+        <Language lang="en">
+          <LongDesc>Sophos ML Data (Linux)</LongDesc>
+          <ShortDesc>ML_MODEL_LINUX</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
         <Token>DOC_MODEL_32</Token>
         <Language lang="en">
           <LongDesc>Sophos ML Doc Model (32-bit)</LongDesc>
