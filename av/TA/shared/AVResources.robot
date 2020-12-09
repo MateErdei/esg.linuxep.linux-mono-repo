@@ -322,6 +322,7 @@ Display All SSPL Files Installed
     Log  ${result.stderr}
 
 AV And Base Teardown
+    Run Teardown Functions
     Run Keyword If Test Failed   Display All SSPL Files Installed
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
     Wait Until Keyword Succeeds

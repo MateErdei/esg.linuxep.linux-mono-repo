@@ -8,6 +8,7 @@ Library         String
 Library         XML
 Library         ../Libs/fixtures/AVPlugin.py
 Library         ../Libs/LogUtils.py
+Library         ../Libs/OnFail.py
 Library         ../Libs/ThreatReportUtils.py
 
 Resource        ../shared/AVResources.robot
@@ -523,19 +524,17 @@ AV plugin increments Scan Now Counter after Save and Restore
 
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now
-    [Teardown]  Run Keywords    AV And Base Teardown
-    ...         AND             Remove Directory    /tmp_test/file_maker/  recursive=True
-    ...         AND             Uninstall and full reinstall
-
     Check AV Plugin Installed With Base
     Configure scan now
     Run Process  bash  ${BASH_SCRIPTS_PATH}/fileMaker.sh  1000  stderr=STDOUT
+    Register Cleanup    Remove Directory    /tmp_test/file_maker/  recursive=True
+
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
     ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
 
     Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved
-
+    Register Cleanup    Uninstall and full reinstall
     Run Process   /bin/kill   -SIGSEGV   ${output}
 
     Wait Until Keyword Succeeds
@@ -544,13 +543,10 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, terminated with exit code: 70
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
-    [Teardown]  Run Keywords    AV And Base Teardown
-    ...         AND             Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
-    ...         AND             Uninstall and full reinstall
-
     Check AV Plugin Installed With Base
     Configure scan now
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
+    Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
@@ -559,7 +555,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  $${SOPHOS_THREAT_DETECTOR_BINARY}_moved
 
     Wait Until AV Plugin Log Contains   Sending threat detection notification to central
-
+    Register Cleanup    Uninstall and full reinstall
     Run Process   /bin/kill   -SIGSEGV   ${output}
 
     Wait Until Keyword Succeeds
