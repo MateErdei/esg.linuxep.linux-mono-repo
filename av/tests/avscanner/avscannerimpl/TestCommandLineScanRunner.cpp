@@ -1040,7 +1040,7 @@ TEST_F(TestCommandLineScanRunner, optionsButNoPathProvided) // NOLINT
     Options options(false, emptyPathList, exclusionList, true, false);
     CommandLineScanRunner runner(options);
 
-    EXPECT_EQ(runner.run(), E_GENERIC_FAILURE);
+    EXPECT_EQ(runner.run(), common::E_GENERIC_FAILURE);
     EXPECT_TRUE(appenderContains("Missing a file path from the command line arguments."));
 }
 
@@ -1053,7 +1053,7 @@ TEST_F(TestCommandLineScanRunner, noPathProvided) // NOLINT
     Options options(false, emptyPathList, emptyExclusionList, false, false);
     CommandLineScanRunner runner(options);
 
-    EXPECT_EQ(runner.run(), E_GENERIC_FAILURE);
+    EXPECT_EQ(runner.run(), common::E_GENERIC_FAILURE);
     EXPECT_TRUE(appenderContains("Missing a file path from the command line arguments."));
 }
 

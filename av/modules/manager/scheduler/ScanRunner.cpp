@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 // Module
 #include "Logger.h"
 // Product
+#include "common/ErrorCodes.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Time.h"
 // Base
@@ -77,7 +78,20 @@ void ScanRunner::run()
     process->waitUntilProcessEnds();
     int exitCode = process->exitCode();
 
-    LOGINFO("Completed scan " << m_name << " with exit code: " << exitCode);
+    // 15 is SIGTERM
+    if (exitCode == 15 or exitCode == common::E_SCAN_ABORTED)
+    {
+        LOGERROR("Scan: " << m_name << ", terminated with exit code: " << exitCode);
+    }
+    else if(exitCode == common::E_SCAN_ABORTED_WITH_THREATS)
+    {
+        LOGERROR("Scan: " << m_name << ", found threats but aborted with exit code: " << exitCode);
+    }
+    else
+    {
+        LOGINFO("Completed scan " << m_name << " with exit code: " << exitCode);
+    }
+
     process.reset();
 
     std::error_code ec;

@@ -1094,8 +1094,8 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     # Rename the sophos threat detector launcher so that it cannot be restarted
     Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
     register cleanup  Start AV
-   register cleanup  Stop AV
-   register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
+    register cleanup  Stop AV
+    register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
 
     Wait Until Keyword Succeeds
     ...  60 secs

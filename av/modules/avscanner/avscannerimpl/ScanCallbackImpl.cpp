@@ -49,19 +49,19 @@ void ScanCallbackImpl::scanError(const std::string& errorMsg)
     LOGERROR(errorMsg);
 }
 
-avscanner::avscannerimpl::E_ERROR_CODES ScanCallbackImpl::returnCode()
+common::E_ERROR_CODES ScanCallbackImpl::returnCode()
 {
     if (getNoOfInfectedFiles() > 0)
     {
-        return E_VIRUS_FOUND;
+        return common::E_VIRUS_FOUND;
     }
     else if (getNoOfScanErrors() > 0)
     {
-        return E_GENERIC_FAILURE;
+        return common::E_GENERIC_FAILURE;
     }
     else
     {
-        return E_CLEAN;
+        return common::E_CLEAN;
     }
 }
 

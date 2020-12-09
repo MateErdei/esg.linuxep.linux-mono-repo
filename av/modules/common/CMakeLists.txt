@@ -1,5 +1,6 @@
 add_library(common SHARED
         AbortScanException.h
+        ErrorCodes.h
         Logger.cpp
         Logger.h
         StringUtils.cpp

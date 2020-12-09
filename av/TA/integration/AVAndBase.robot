@@ -474,49 +474,47 @@ AV plugin Saves and Restores Scan Now Counter
     Dictionary Should Contain Item   ${avDict}   scan-now-count   1
 
 
-AV plugin increments Scan Now Counter after Save and Restore
+AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now
+    [Teardown]  Run Keywords    AV And Base Teardown
+    ...         AND             Remove Directory    /tmp_test/file_maker/  recursive=True
+    ...         AND             Uninstall and full reinstall
+
     Check AV Plugin Installed With Base
+    Configure scan now
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/fileMaker.sh  1000  stderr=STDOUT
+    Send Sav Action To Base  ScanNow_Action.xml
+    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
 
-    # Run telemetry to reset counters to 0
-    Prepare To Run Telemetry Executable
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                 ...  10 secs
-                 ...  1 secs
-                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
-    Remove File   ${TELEMETRY_OUTPUT_JSON}
+    Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved
 
-    # run a scan, count should increase to 1
-    Configure and check scan now
-
-    Stop AV Plugin
+    Run Process   /bin/kill   -SIGSEGV   ${output}
 
     Wait Until Keyword Succeeds
-                 ...  10 secs
-                 ...  1 secs
-                 ...  File Should Exist  ${TELEMETRY_BACKUP_JSON}
+    ...  240 secs
+    ...  5 secs
+    ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, terminated with exit code: 70
 
-    ${backupfileContents} =  Get File    ${TELEMETRY_BACKUP_JSON}
-    Log   ${backupfileContents}
-    ${backupJson}=    Evaluate     json.loads("""${backupfileContents}""")    json
-    ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
-    Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   1
+AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
+    [Teardown]  Run Keywords    AV And Base Teardown
+    ...         AND             Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+    ...         AND             Uninstall and full reinstall
 
-    Start AV Plugin
+    Check AV Plugin Installed With Base
+    Configure scan now
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
 
-    # run a scan, count should increase to 1
-    Configure and check scan now
+    Send Sav Action To Base  ScanNow_Action.xml
+    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
 
-    Prepare To Run Telemetry Executable
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  $${SOPHOS_THREAT_DETECTOR_BINARY}_moved
+
+    Wait Until AV Plugin Log Contains   Sending threat detection notification to central
+
+    Run Process   /bin/kill   -SIGSEGV   ${output}
+
     Wait Until Keyword Succeeds
-                 ...  10 secs
-                 ...  1 secs
-                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
-
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log   ${telemetryFileContents}
-
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-    Dictionary Should Contain Item   ${avDict}   scan-now-count   2
+    ...  240 secs
+    ...  10 secs
+    ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, found threats but aborted with exit code: 71
