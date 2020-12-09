@@ -65,7 +65,7 @@
         </package> -->
 
         <build-asset project="core" repo="engine">
-            <release-version branch="feature--CORE-2186-symbols" build-id="20201208163326-d5cc14789283c0d3b5bfefb86200c25ea740e603-sesbDP"/>
+            <release-version branch="release/3.80.5-CORE-2186" build-id="20201208191108-03d225957ed6db60d5cc2ab1e8c7ac74fde84ea9-OlHYFe"/>
             <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
