@@ -9,16 +9,16 @@ add_library(pluginregistryimpl SHARED
         )
 target_include_directories(pluginregistryimpl PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 target_link_libraries(pluginregistryimpl
-            utilityimpl
-            filesystemimpl
-            applicationconfigurationimpl
-            processimpl
-            protobufutil
-            ${LOG4CPLUS_LIBRARY}
+        utilityimpl
+        filesystemimpl
+        applicationconfigurationimpl
+        processimpl
+        protobufutil
+        ${LOG4CPLUS_LIBRARY}
         )
 add_dependencies(pluginregistryimpl generatePluginInfoProto)
 
-SET_TARGET_PROPERTIES( pluginregistryimpl
+SET_TARGET_PROPERTIES(pluginregistryimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS pluginregistryimpl

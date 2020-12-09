@@ -5,12 +5,14 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include "IWatchdogRequest.h"
+#include "WatchdogServiceException.h"
+
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApiImpl/PluginCallBackHandler.h>
 #include <Common/UtilityImpl/Factory.h>
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
-#include "IWatchdogRequest.h"
-#include "WatchdogServiceException.h"
+
 #include <functional>
 
 namespace watchdog
@@ -20,7 +22,9 @@ namespace watchdog
         class WatchdogServiceLine
         {
         public:
-            WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr, std::function<std::vector<std::string>(void)> getPluginListFunc);
+            WatchdogServiceLine(
+                Common::ZMQWrapperApi::IContextSharedPtr,
+                std::function<std::vector<std::string>(void)> getPluginListFunc);
             ~WatchdogServiceLine();
 
             static std::string WatchdogServiceLineName() { return "watchdogservice"; }

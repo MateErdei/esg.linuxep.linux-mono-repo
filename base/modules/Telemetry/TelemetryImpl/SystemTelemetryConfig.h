@@ -36,6 +36,6 @@ namespace Telemetry
      */
     using SystemTelemetryConfig = std::map<const std::string, const SystemTelemetryTuple>;
 
-    SystemTelemetryConfig  systemTelemetryObjectsConfig();
-    SystemTelemetryConfig  systemTelemetryArraysConfig();
+    SystemTelemetryConfig systemTelemetryObjectsConfig();
+    SystemTelemetryConfig systemTelemetryArraysConfig();
 } // namespace Telemetry

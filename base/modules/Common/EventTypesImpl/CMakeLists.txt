@@ -35,7 +35,7 @@ target_link_libraries(eventtypesimpl
         "${CAPNPROTO_LIBRARY_DIR}/libkj-async.a"
         "${CAPNPROTO_LIBRARY_DIR}/libkj.a")
 
-SET_TARGET_PROPERTIES( eventtypesimpl
+SET_TARGET_PROPERTIES(eventtypesimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS eventtypesimpl

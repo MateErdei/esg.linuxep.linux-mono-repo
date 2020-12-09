@@ -117,8 +117,15 @@ namespace
         }
     }
 
-    void copyFileAndSetPermission(const Path& src, const Path& dest, const mode_t mode, std::string& ownerName, std::string& groupName) {
-        Common::FileSystem::fileSystem()->copyFileAndSetPermissions(src, dest, mode, ownerName, groupName); }
+    void copyFileAndSetPermission(
+        const Path& src,
+        const Path& dest,
+        const mode_t mode,
+        std::string& ownerName,
+        std::string& groupName)
+    {
+        Common::FileSystem::fileSystem()->copyFileAndSetPermissions(src, dest, mode, ownerName, groupName);
+    }
 
     void copyFile(const Path& src, const Path& dest) { Common::FileSystem::fileSystem()->copyFile(src, dest); }
 
@@ -174,7 +181,7 @@ namespace
             ret = Installer::VersionedCopy::VersionedCopy::versionedCopy(filename, DIST, INST);
             if (ret > 0)
             {
-                std::cerr << "Failed to copy "<< filename << " to installation\n";
+                std::cerr << "Failed to copy " << filename << " to installation\n";
                 return ret;
             }
         }
@@ -296,7 +303,7 @@ int VersionedCopy::versionedCopy(const Path& filename, const Path& DIST, const P
     // Copy file
     if (Common::FileSystem::fileSystem()->exists(fullInstallFilename))
     {
-        auto filePermissions =  Common::FileSystem::filePermissions();
+        auto filePermissions = Common::FileSystem::filePermissions();
         std::string groupName = filePermissions->getGroupName(fullInstallFilename);
         std::string userName = filePermissions->getUserName(fullInstallFilename);
         mode_t mode = filePermissions->getFilePermissions(fullInstallFilename);

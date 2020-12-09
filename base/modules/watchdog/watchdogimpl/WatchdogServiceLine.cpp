@@ -13,9 +13,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/PluginCommunicationImpl/PluginProxy.h>
 #include <Common/Process/IProcess.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Common/UtilityImpl/ConfigException.h>
 #include <Common/UtilityImpl/Factory.h>
 #include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/UtilityImpl/ConfigException.h>
 
 namespace
 {
@@ -47,13 +47,16 @@ namespace
             return trigger;
         }
         WDServiceCallBack(std::function<std::vector<std::string>(void)> getPluginListFunc) :
-                m_getListOfPluginsFunc(std::move(getPluginListFunc))
-        {}
-
+            m_getListOfPluginsFunc(std::move(getPluginListFunc))
+        {
+        }
 
         ~WDServiceCallBack() = default;
 
-        void applyNewPolicy(const std::string& policyXml) override { LOGWARN("NotSupported: Received apply new policy: " << policyXml); }
+        void applyNewPolicy(const std::string& policyXml) override
+        {
+            LOGWARN("NotSupported: Received apply new policy: " << policyXml);
+        }
 
         /**
          * Current action available is ontly TriggerUpdate which triggers the sophos-spl-update.
@@ -85,12 +88,10 @@ namespace
         {
             LOGSUPPORT("Received get telemetry request");
 
-            for (auto pluginName: m_getListOfPluginsFunc())
+            for (auto pluginName : m_getListOfPluginsFunc())
             {
                 Common::Telemetry::TelemetryHelper::getInstance().increment(
-                        watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(pluginName),
-                        0UL
-                        );
+                    watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(pluginName), 0UL);
             }
 
             return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
@@ -153,25 +154,30 @@ namespace watchdog
             requestUpdateService(*context);
         }
 
-        WatchdogServiceLine::WatchdogServiceLine(Common::ZMQWrapperApi::IContextSharedPtr context, std::function<std::vector<std::string>(void)> getPluginListFunc) : m_context(context)
+        WatchdogServiceLine::WatchdogServiceLine(
+            Common::ZMQWrapperApi::IContextSharedPtr context,
+            std::function<std::vector<std::string>(void)> getPluginListFunc) :
+            m_context(context)
         {
             try
             {
                 Common::Telemetry::TelemetryHelper::getInstance().restore(WatchdogServiceLineName());
 
                 auto replier = m_context->getReplier();
-                Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, WatchdogServiceLineName(), 5000, 5000);
-                std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new WDServiceCallBack(getPluginListFunc) };
+                Common::PluginApiImpl::PluginResourceManagement::setupReplier(
+                    *replier, WatchdogServiceLineName(), 5000, 5000);
+                std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new WDServiceCallBack(
+                    getPluginListFunc) };
                 m_pluginHandler.reset(new Common::PluginApiImpl::PluginCallBackHandler(
-                        WatchdogServiceLineName(),
-                        std::move(replier),
-                        std::move(pluginCallback),
-                        Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM));
+                    WatchdogServiceLineName(),
+                    std::move(replier),
+                    std::move(pluginCallback),
+                    Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM));
                 m_pluginHandler->start();
-
-            }catch ( std::exception & ex)
+            }
+            catch (std::exception& ex)
             {
-                throw Common::UtilityImpl::ConfigException( "WatchdogService", ex.what());
+                throw Common::UtilityImpl::ConfigException("WatchdogService", ex.what());
             }
         }
 

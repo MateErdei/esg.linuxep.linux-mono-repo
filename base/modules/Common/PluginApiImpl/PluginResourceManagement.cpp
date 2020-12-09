@@ -14,6 +14,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/PluginApi/ApiException.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
@@ -22,8 +24,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 
 #include <unistd.h>
-#include <Common/UtilityImpl/ProjectNames.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 namespace Common
 {
@@ -59,7 +59,7 @@ namespace Common
             if (::getuid() != Common::FileSystem::filePermissions()->getUserId(sophos::user()))
             {
                 Common::FileSystem::filePermissions()->chmod(
-                        pluginAddressFile, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
+                    pluginAddressFile, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // NOLINT
             }
         }
         void PluginResourceManagement::setupRequester(
@@ -82,9 +82,7 @@ namespace Common
         {
         }
         PluginResourceManagement::PluginResourceManagement(Common::ZMQWrapperApi::IContextSharedPtr context) :
-            m_contextPtr(std::move(context)),
-            m_defaultTimeout(10000),
-            m_defaultConnectTimeout(10000)
+            m_contextPtr(std::move(context)), m_defaultTimeout(10000), m_defaultConnectTimeout(10000)
         {
         }
 

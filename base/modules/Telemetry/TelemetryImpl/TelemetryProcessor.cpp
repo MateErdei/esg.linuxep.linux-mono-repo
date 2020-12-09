@@ -23,9 +23,7 @@ TelemetryProcessor::TelemetryProcessor(
     std::shared_ptr<const Common::TelemetryConfigImpl::Config> config,
     std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
     std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
-    m_config(config),
-    m_httpSender(std::move(httpSender)),
-    m_telemetryProviders(std::move(telemetryProviders))
+    m_config(config), m_httpSender(std::move(httpSender)), m_telemetryProviders(std::move(telemetryProviders))
 {
 }
 

@@ -10,8 +10,7 @@ namespace Common
     namespace UtilityImpl
     {
         UniformIntDistribution::UniformIntDistribution(int minValue, int maxValue) :
-            m_uid(minValue, maxValue),
-            m_engine(m_randomDevice())
+            m_uid(minValue, maxValue), m_engine(m_randomDevice())
         {
         }
 

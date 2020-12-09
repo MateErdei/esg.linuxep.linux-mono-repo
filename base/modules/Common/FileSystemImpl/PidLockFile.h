@@ -31,6 +31,7 @@ namespace Common
         {
             PidLockFile& operator=(const PidLockFile&) = delete;
             PidLockFile(const PidLockFile&) = delete;
+
         public:
             /**
              * Attempts to creates a file lock at pidfile and write the pid to it and throws

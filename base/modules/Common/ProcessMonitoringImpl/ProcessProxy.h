@@ -17,7 +17,6 @@ namespace Common
 {
     namespace ProcessMonitoringImpl
     {
-
         class ProcessProxy : public Common::ProcessMonitoring::IProcessProxy
         {
         public:
@@ -57,22 +56,19 @@ namespace Common
              */
             void setEnabled(bool enabled) override;
 
-            bool isRunning() override ;
+            bool isRunning() override;
 
             std::string name() const override;
 
-
-
         protected:
-
             bool runningFlag();
             bool enabledFlag();
-
 
             /**
              * Information object for the process
              */
             Common::Process::IProcessInfoPtr m_processInfo;
+
         private:
             /**
              * Get the current status of the process.
@@ -90,8 +86,8 @@ namespace Common
                 bool m_enabled;
 
                 /**
-                * True if the process is currently running.
-                */
+                 * True if the process is currently running.
+                 */
                 bool m_running;
 
                 /**
@@ -105,15 +101,12 @@ namespace Common
                 time_t m_deathTime;
 
                 time_t m_killIssuedTime;
-
             };
 
             /**
              * Starts the process.
              */
             void start();
-
-
 
             /**
              * Wait for the exit code from the process.
@@ -126,8 +119,6 @@ namespace Common
              * Full path to the executable
              */
             std::string m_exe;
-
-
         };
     } // namespace ProcessMonitoringImpl
 } // namespace Common

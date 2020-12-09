@@ -22,8 +22,9 @@ namespace Common::HttpSenderImpl
         CURL* curlEasyInit() override;
 
         CURLcode curlEasySetOptHeaders(CURL* handle, curl_slist* headers) override;
-        CURLcode curlEasySetOpt(CURL* handle, CURLoption option, const std::variant<std::string, long> parameter) override;
-        CURLcode curlGetResponseCode(CURL *handle, long* codep) override;
+        CURLcode curlEasySetOpt(CURL* handle, CURLoption option, const std::variant<std::string, long> parameter)
+            override;
+        CURLcode curlGetResponseCode(CURL* handle, long* codep) override;
 
         curl_slist* curlSlistAppend(curl_slist* list, const std::string& value) override;
 

@@ -8,9 +8,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Telemetry/LoggerImpl/Logger.h>
 
+#include <climits>
 #include <iostream>
 #include <json.hpp>
-#include <climits>
 
 namespace Common::TelemetryConfigImpl
 {
@@ -149,7 +149,8 @@ namespace Common::TelemetryConfigImpl
             auto value = j.at(INTERVAL_CONFIG_KEY);
             if (!value.is_number_unsigned() || value.get<unsigned long>() > (unsigned long)(UINT_MAX))
             {
-                throw nlohmann::detail::other_error::create( invalidNumberConversion ,"Value for interval is negative or too large");
+                throw nlohmann::detail::other_error::create(
+                    invalidNumberConversion, "Value for interval is negative or too large");
             }
             config.setInterval(value);
         }

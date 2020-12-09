@@ -72,13 +72,13 @@ std::optional<Proc::ProcStat> Proc::parseProcStat(const std::string& contentOfPr
     }
     else
     {
-        return std::optional<Proc::ProcStat> {};
+        return std::optional<Proc::ProcStat>{};
     }
 
     sstream >> procStat.ppid;
     if (sstream.bad() || sstream.fail())
     {
-        return std::optional<Proc::ProcStat> {};
+        return std::optional<Proc::ProcStat>{};
     }
     return procStat;
 }
@@ -131,35 +131,35 @@ int Proc::getUserIdFromStatus(const long pid)
 
     std::optional<std::string> content = Common::FileSystem::fileSystem()->readProcFile(pid, "status");
 
-    if(content == std::nullopt)
+    if (content == std::nullopt)
     {
         return -1;
     }
 
-
     std::stringstream contentStream;
-    contentStream << content.value();  //Convert to stream so that we can call getline on the content.
+    contentStream << content.value(); // Convert to stream so that we can call getline on the content.
     std::string line;
 
-    while(std::getline(contentStream, line))
+    while (std::getline(contentStream, line))
     {
-        if(line.find("Uid") != std::string::npos)
+        if (line.find("Uid") != std::string::npos)
         {
-            int iterator = 0; //position 0 of the line
+            int iterator = 0; // position 0 of the line
             int tempUid = -1;
             int count = 0; // no digit found yet
-            while (uid == -1 && iterator<(int)line.size()-1)
+            while (uid == -1 && iterator < (int)line.size() - 1)
             {
-                if (isdigit(line[iterator])) //we found the first digit of the uid
+                if (isdigit(line[iterator])) // we found the first digit of the uid
                 {
                     count++;
                     if (tempUid == -1)
                         tempUid = 0;
                     tempUid = tempUid * 10 + (line[iterator] - '0');
                 }
-                if (line[iterator] == '\t' && count > 0) //we found the real uid, which is the first number and we also finished reading it
+                if (line[iterator] == '\t' &&
+                    count > 0) // we found the real uid, which is the first number and we also finished reading it
                 {
-                    uid=tempUid;
+                    uid = tempUid;
                     break;
                 }
                 iterator++;
@@ -186,9 +186,9 @@ std::vector<int> Proc::listProcWithUserName(std::string& userName)
         if (pid.has_value())
         {
             // if uid = given uid we add it to vector
-            if (Proc::getUserIdFromStatus(pid.value())==userId)
+            if (Proc::getUserIdFromStatus(pid.value()) == userId)
             {
-                //renamed method now gets as argument status content aswell
+                // renamed method now gets as argument status content aswell
                 procList.emplace_back(pid.value());
             }
         }
@@ -214,6 +214,5 @@ void Proc::killAllProcessesInProcList(std::vector<int>& procList)
             // is possible when processes are stuck running from the mount points.
             // Logging should be provided in other places to state comms component failed to start up.
         }
-
     }
 }

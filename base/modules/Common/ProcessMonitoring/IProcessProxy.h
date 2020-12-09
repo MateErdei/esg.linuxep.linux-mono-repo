@@ -6,8 +6,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/Process/IProcessInfo.h>
 #include <Common/Process/IProcess.h>
+#include <Common/Process/IProcessInfo.h>
 
 #include <chrono>
 
@@ -40,7 +40,6 @@ namespace Common
             virtual bool isRunning() = 0;
 
             virtual std::string name() const = 0;
-
         };
         using IProcessProxyPtr = std::unique_ptr<IProcessProxy>;
         extern IProcessProxyPtr createProcessProxy(Common::Process::IProcessInfoPtr processInfoPtr);

@@ -5,28 +5,28 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ProcessSecurityUtils.h"
+
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <sys/mount.h>
 
 #include <cstdlib>
-#include <grp.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <sstream>
-#include <sys/mount.h>
 #include <cstring>
+#include <grp.h>
 #include <iostream>
-
+#include <sstream>
 
 namespace Common::SecurityUtils
 {
-    const char *GL_NOTMOUNTED_MARKER = "SPL.NOTMOUNTED_MARKER";
+    const char* GL_NOTMOUNTED_MARKER = "SPL.NOTMOUNTED_MARKER";
 
     void FatalSecuritySetupFailureException::onError(const std::string& errMsg)
     {
         int e = errno;
         std::string errorMsg = strerror(e);
         std::stringstream err;
-        if(!errorMsg.empty())
+        if (!errorMsg.empty())
         {
             err << errMsg << " Reason: " << errorMsg;
         }
@@ -52,35 +52,39 @@ namespace Common::SecurityUtils
          * Ref: https://people.eecs.berkeley.edu/~daw/papers/setuid-usenix02.pdf
          */
 
-        if (!olduid&&setgroups(1, &newgid) == -1)
+        if (!olduid && setgroups(1, &newgid) == -1)
         {
             FatalSecuritySetupFailureException::onError("Failed to drop other associated group ids.");
         }
 
-        if (newgid != oldgid&&(setresgid(newgid, newgid, newgid) == -1))
+        if (newgid != oldgid && (setresgid(newgid, newgid, newgid) == -1))
         {
             FatalSecuritySetupFailureException::onError("Failed to set the new real and effective group ids.");
         }
 
-        if (newuid != olduid&&(setresuid(newuid, newuid, newuid) == -1))
+        if (newuid != olduid && (setresuid(newuid, newuid, newuid) == -1))
         {
             FatalSecuritySetupFailureException::onError("Failed to set the new real and effective user ids.");
         }
         /* verify that the changes were successful */
-        if (newgid != oldgid&&(setegid(oldgid) != -1||getegid() != newgid))
+        if (newgid != oldgid && (setegid(oldgid) != -1 || getegid() != newgid))
         {
             FatalSecuritySetupFailureException::onError(
-                    "Process should fail to set effective user ids after dropping privilege.");
+                "Process should fail to set effective user ids after dropping privilege.");
         }
-        if (newuid != olduid&&(seteuid(olduid) != -1||geteuid() != newuid))
+        if (newuid != olduid && (seteuid(olduid) != -1 || geteuid() != newuid))
         {
             FatalSecuritySetupFailureException::onError(
-                    "Process should fail to set effective group ids after dropping privilege.");
+                "Process should fail to set effective group ids after dropping privilege.");
         }
-        out.push_back(std::make_pair("Dropped privilege to user_id: " + std::to_string(newuid) + " group_id: " + std::to_string(newgid), 2));
+        out.push_back(std::make_pair(
+            "Dropped privilege to user_id: " + std::to_string(newuid) + " group_id: " + std::to_string(newgid), 2));
     }
 
-    void dropPrivileges(const std::string& userString, const std::string& groupString, std::vector<std::pair<std::string, int>>& out)
+    void dropPrivileges(
+        const std::string& userString,
+        const std::string& groupString,
+        std::vector<std::pair<std::string, int>>& out)
     {
         auto runUser = getUserIdAndGroupId(userString, groupString, out);
         if (!runUser.has_value())
@@ -92,7 +96,6 @@ namespace Common::SecurityUtils
 
         dropPrivileges(runUser->m_userid, runUser->m_groupid, out);
     }
-
 
     /*
      * Must be called after user look up and before privilege drop
@@ -118,8 +121,10 @@ namespace Common::SecurityUtils
         out.push_back(std::make_pair("Chroot to " + chrootDirPath, 2));
     }
 
-    std::optional<UserIdStruct> getUserIdAndGroupId(const std::string& userName, const std::string& groupName,
-                                                    std::vector<std::pair<std::string, int>>& out)
+    std::optional<UserIdStruct> getUserIdAndGroupId(
+        const std::string& userName,
+        const std::string& groupName,
+        std::vector<std::pair<std::string, int>>& out)
     {
         try
         {
@@ -138,14 +143,16 @@ namespace Common::SecurityUtils
         }
     }
 
-
-    void chrootAndDropPrivileges(const std::string& userName, const std::string& groupName,
-                                 const std::string& chrootDirPath, std::vector<std::pair<std::string, int>>& out)
+    void chrootAndDropPrivileges(
+        const std::string& userName,
+        const std::string& groupName,
+        const std::string& chrootDirPath,
+        std::vector<std::pair<std::string, int>>& out)
     {
         auto runAsUser = getUserIdAndGroupId(userName, groupName, out);
 
-        //do user lookup before chroot
-        if (!runAsUser.has_value()||getuid() != 0U)
+        // do user lookup before chroot
+        if (!runAsUser.has_value() || getuid() != 0U)
         {
             if (!runAsUser.has_value())
             {
@@ -164,26 +171,29 @@ namespace Common::SecurityUtils
                 out.push_back(std::make_pair("Running not as root", 2));
             }
 
-
             throw FatalSecuritySetupFailureException("Current user needs to be root and target user must exist.");
         }
         setupJailAndGoIn(chrootDirPath, out);
         dropPrivileges(runAsUser->m_userid, runAsUser->m_groupid, out);
     }
 
-
-    bool bindMountReadOnly(const std::string& sourceFile, const std::string& targetMountLocation, std::vector<std::pair<std::string, int>>& out)
+    bool bindMountReadOnly(
+        const std::string& sourceFile,
+        const std::string& targetMountLocation,
+        std::vector<std::pair<std::string, int>>& out)
     {
         auto fs = Common::FileSystem::fileSystem();
 
         if (isAlreadyMounted(targetMountLocation, out))
         {
-            out.push_back(std::make_pair("Source '" + sourceFile + "' is already mounted on '" + targetMountLocation + " Error: "
-                + std::strerror(errno), 3));
+            out.push_back(std::make_pair(
+                "Source '" + sourceFile + "' is already mounted on '" + targetMountLocation +
+                    " Error: " + std::strerror(errno),
+                3));
             return true;
         }
 
-        //mark the mount location to indicated when not mounted
+        // mark the mount location to indicated when not mounted
         if (fs->isFile(targetMountLocation))
         {
             fs->writeFile(targetMountLocation, GL_NOTMOUNTED_MARKER);
@@ -193,41 +203,47 @@ namespace Common::SecurityUtils
             fs->writeFile(Common::FileSystem::join(targetMountLocation, GL_NOTMOUNTED_MARKER), GL_NOTMOUNTED_MARKER);
         }
 
-        if (mount(sourceFile.c_str(), targetMountLocation.c_str(), nullptr, MS_MGC_VAL | MS_RDONLY | MS_BIND, nullptr)
-            == -1)
+        if (mount(
+                sourceFile.c_str(), targetMountLocation.c_str(), nullptr, MS_MGC_VAL | MS_RDONLY | MS_BIND, nullptr) ==
+            -1)
         {
-            out.push_back(std::make_pair("Mount for '" + sourceFile + "' to path '" + targetMountLocation + " failed. Reason: "
-                + std::strerror(errno), 4));
+            out.push_back(std::make_pair(
+                "Mount for '" + sourceFile + "' to path '" + targetMountLocation +
+                    " failed. Reason: " + std::strerror(errno),
+                4));
             return false;
         }
 
         if (mount("none", targetMountLocation.c_str(), nullptr, MS_RDONLY | MS_REMOUNT | MS_BIND, nullptr) == -1)
         {
-            out.push_back(std::make_pair("Mount for '" + sourceFile + "' to path '" + targetMountLocation + " failed. Reason: "
-                + std::strerror(errno), 4));
+            out.push_back(std::make_pair(
+                "Mount for '" + sourceFile + "' to path '" + targetMountLocation +
+                    " failed. Reason: " + std::strerror(errno),
+                4));
             return false;
         }
-        out.push_back(std::make_pair("Successfully read only mounted '" + sourceFile + "' to path: '" + targetMountLocation, 0));
+        out.push_back(
+            std::make_pair("Successfully read only mounted '" + sourceFile + "' to path: '" + targetMountLocation, 0));
         return true;
     }
 
     bool isFreeMountLocation(const std::string& targetFile, std::vector<std::pair<std::string, int>>& out)
     {
-        //we will alway create a file to indicated mounted in our mount directories
+        // we will alway create a file to indicated mounted in our mount directories
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isDirectory(targetFile))
         {
-            return fs->listFilesAndDirectories(targetFile).empty()
-                   ||fs->exists(Common::FileSystem::join(targetFile, GL_NOTMOUNTED_MARKER));
+            return fs->listFilesAndDirectories(targetFile).empty() ||
+                   fs->exists(Common::FileSystem::join(targetFile, GL_NOTMOUNTED_MARKER));
         }
 
-        //always mark the mount file to indicate not mounted
+        // always mark the mount file to indicate not mounted
         if (fs->isFile(targetFile))
         {
             try
             {
                 auto nomounted = fs->readFile(targetFile, FILENAME_MAX);
-                return nomounted.empty()||nomounted == GL_NOTMOUNTED_MARKER;
+                return nomounted.empty() || nomounted == GL_NOTMOUNTED_MARKER;
             }
             catch (const Common::FileSystem::IFileSystemException& fileSystemException)
             {
@@ -247,8 +263,10 @@ namespace Common::SecurityUtils
             auto expectedValue = (errno == EINVAL);
             if (!expectedValue)
             {
-                out.push_back(std::make_pair("Warning file is mounted test on: '" + targetMountLocation
-                    + "' unexpected errro. Error: " + std::strerror(errno), 3));
+                out.push_back(std::make_pair(
+                    "Warning file is mounted test on: '" + targetMountLocation +
+                        "' unexpected errro. Error: " + std::strerror(errno),
+                    3));
             }
             return false;
         }
@@ -259,9 +277,10 @@ namespace Common::SecurityUtils
     {
         if (umount2(targetDir.c_str(), MNT_FORCE) == -1)
         {
-            out.push_back(std::make_pair("un-mount for '" + targetDir + "' failed. Reason: " + std::strerror(errno), 4));
+            out.push_back(
+                std::make_pair("un-mount for '" + targetDir + "' failed. Reason: " + std::strerror(errno), 4));
             return false;
         }
         return true;
     }
-}
+} // namespace Common::SecurityUtils

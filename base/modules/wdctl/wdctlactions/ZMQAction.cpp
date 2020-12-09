@@ -20,8 +20,7 @@ namespace
 }
 
 wdctl::wdctlactions::ZMQAction::ZMQAction(const wdctl::wdctlarguments::Arguments& args) :
-    Action(args),
-    m_context(Common::ZMQWrapperApi::createContext())
+    Action(args), m_context(Common::ZMQWrapperApi::createContext())
 {
 }
 

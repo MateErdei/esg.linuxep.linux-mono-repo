@@ -80,13 +80,15 @@ log4cplus::LogLevel log4cplus::supportFromStringMethod(const log4cplus::tstring&
     return NOT_SET_LOG_LEVEL;
 }
 
-const std::string& Common::Logging::LOGFORTEST(){
-    static std::string l{"LOGFORTEST"};
+const std::string& Common::Logging::LOGFORTEST()
+{
+    static std::string l{ "LOGFORTEST" };
     return l;
 }
 
-const std::string& Common::Logging::LOGOFFFORTEST(){
-    static std::string l{"LOGOFFFORTEST"}; 
+const std::string& Common::Logging::LOGOFFFORTEST()
+{
+    static std::string l{ "LOGOFFFORTEST" };
     return l;
 }
 

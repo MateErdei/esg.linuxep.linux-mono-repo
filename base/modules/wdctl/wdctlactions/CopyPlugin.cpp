@@ -12,12 +12,12 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include <grp.h>
 #include <unistd.h>
-#include <Common/UtilityImpl/ProjectNames.h>
 
 using namespace wdctl::wdctlactions;
 

@@ -16,8 +16,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 using namespace Common::ZeroMQWrapperImpl;
 
 Common::ZeroMQWrapperImpl::SocketImpl::SocketImpl(Common::ZeroMQWrapperImpl::ContextHolderSharedPtr context, int type) :
-    m_context(context),
-    m_socket(context, type)
+    m_context(context), m_socket(context, type)
 {
     m_appliedSettings.socketType = type;
 }

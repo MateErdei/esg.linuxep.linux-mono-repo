@@ -161,7 +161,7 @@ namespace Common
                     {
                         // enforcing the terminate that ensure strings are null terminated.
                         // given that event-name should be null terminated anyway, there is no byte lost.
-                        size_t safeDelimiter = len < static_cast<ssize_t>(sizeof(buf)) ? len : sizeof(buf)-1;
+                        size_t safeDelimiter = len < static_cast<ssize_t>(sizeof(buf)) ? len : sizeof(buf) - 1;
                         buf[safeDelimiter] = 0;
                         for (char* ptr = buf; ptr < buf + len; ptr += sizeof(struct inotify_event) + event->len)
                         {
@@ -177,9 +177,9 @@ namespace Common
                                     try
                                     {
                                         listenerMapIter->second->fileMoved(
-                                                Common::UtilityImpl::StringUtils::checkAndConstruct(event->name));
+                                            Common::UtilityImpl::StringUtils::checkAndConstruct(event->name));
                                     }
-                                    catch (std::invalid_argument &e)
+                                    catch (std::invalid_argument& e)
                                     {
                                         LOGERROR("File name is not valid utf8: " << event->name);
                                     }
@@ -200,15 +200,18 @@ namespace Common
     } // namespace DirectoryWatcherImpl
 } // namespace Common
 
-
-namespace Common {
-    namespace DirectoryWatcher {
+namespace Common
+{
+    namespace DirectoryWatcher
+    {
         using Common::DirectoryWatcherImpl::DirectoryWatcher;
 
-        IDirectoryWatcherPtr createDirectoryWatcher(IiNotifyWrapperPtr iNotifyWrapperPtr) {
+        IDirectoryWatcherPtr createDirectoryWatcher(IiNotifyWrapperPtr iNotifyWrapperPtr)
+        {
             if (!iNotifyWrapperPtr)
             {
-                iNotifyWrapperPtr = std::unique_ptr<IiNotifyWrapper>(new Common::DirectoryWatcherImpl::iNotifyWrapper());
+                iNotifyWrapperPtr =
+                    std::unique_ptr<IiNotifyWrapper>(new Common::DirectoryWatcherImpl::iNotifyWrapper());
             }
             return std::unique_ptr<DirectoryWatcher>(new DirectoryWatcher(std::move(iNotifyWrapperPtr)));
         }

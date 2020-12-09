@@ -20,7 +20,7 @@ namespace Common
     namespace Logging
     {
         const std::string& LOGFORTEST();
-        const std::string& LOGOFFFORTEST(); 
+        const std::string& LOGOFFFORTEST();
         /**
          *   Function that applies the settings defined in <installdir>/etc/logger.conf
          *   Currently, the options are:

@@ -46,8 +46,10 @@ namespace Common
             return createDefaultDataMessage(Commands::REQUEST_PLUGIN_APPLY_POLICY, appId, policyContent);
         }
 
-        DataMessage MessageBuilder::requestDoActionMessage(const std::string& appId, const std::string& actionContent, const std::string & correlationId)
-            const
+        DataMessage MessageBuilder::requestDoActionMessage(
+            const std::string& appId,
+            const std::string& actionContent,
+            const std::string& correlationId) const
         {
             auto message = createDefaultDataMessage(Commands::REQUEST_PLUGIN_DO_ACTION, appId, actionContent);
             message.m_correlationId = correlationId;

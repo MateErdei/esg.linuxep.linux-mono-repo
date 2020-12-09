@@ -1,4 +1,4 @@
-add_library(watchdogservice  SHARED
+add_library(watchdogservice SHARED
         WatchdogServiceLine.cpp
         WatchdogServiceLine.h
         IWatchdogRequest.h
@@ -13,7 +13,7 @@ add_library(watchdogimpl STATIC
         PluginProxy.h
         Watchdog.cpp
         Watchdog.h
-)
+        )
 
 target_link_libraries(watchdogimpl PUBLIC
         pluginregistryimpl
@@ -31,7 +31,7 @@ target_link_libraries(watchdogservice PUBLIC
         commscomponentimpl
         )
 
-SET_TARGET_PROPERTIES( watchdogservice
+SET_TARGET_PROPERTIES(watchdogservice
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS watchdogservice

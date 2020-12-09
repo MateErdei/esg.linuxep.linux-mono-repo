@@ -32,7 +32,10 @@ namespace Common
              * @param appId
              * @param actionXml
              */
-            virtual void queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId) = 0;
+            virtual void queueAction(
+                const std::string& appId,
+                const std::string& actionXml,
+                const std::string& correlationId) = 0;
 
             /**
              * Query the plugin for the status of each appId that the plugin support.

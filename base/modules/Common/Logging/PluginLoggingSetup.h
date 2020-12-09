@@ -14,10 +14,11 @@ namespace Common
         class PluginLoggingSetup
         {
         public:
-            explicit PluginLoggingSetup(const std::string& pluginName, const std::string & overrideFileName="");
+            explicit PluginLoggingSetup(const std::string& pluginName, const std::string& overrideFileName = "");
             ~PluginLoggingSetup();
+
         private:
-            static void setupFileLogging(const std::string& pluginNameDir, const std::string & pluginFileName);
+            static void setupFileLogging(const std::string& pluginNameDir, const std::string& pluginFileName);
         };
     } // namespace Logging
 } // namespace Common

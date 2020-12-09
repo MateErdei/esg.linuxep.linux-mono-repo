@@ -118,16 +118,9 @@ namespace Common
             return std::make_pair(m_executableGroup != -1, groupId);
         }
 
-        int ProcessInfo::getSecondsToShutDown() const
-        {
-            return m_secondsToShutDown;
+        int ProcessInfo::getSecondsToShutDown() const { return m_secondsToShutDown; }
 
-        }
-
-        void ProcessInfo::setSecondsToShutDown(int seconds)
-        {
-            m_secondsToShutDown = seconds;
-        }
+        void ProcessInfo::setSecondsToShutDown(int seconds) { m_secondsToShutDown = seconds; }
 
     } // namespace ProcessImpl
 } // namespace Common

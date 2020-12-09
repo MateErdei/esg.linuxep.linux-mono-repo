@@ -6,9 +6,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <memory>
 #include <stdint.h>
 #include <unistd.h>
-#include <memory>
 
 namespace Common
 {

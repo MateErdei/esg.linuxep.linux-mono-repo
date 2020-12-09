@@ -113,14 +113,6 @@ namespace Common
             virtual std::string readFile(const Path& path) const = 0;
 
             /**
-             * Reads a "file" of the type found under the /proc directory
-             *
-             * @param path, location of the file to read
-             * @return the content of the read file
-             */
-            virtual std::string readProcStyleFile(const Path& path) const = 0;
-
-            /**
              * Reads a given file content into string.
              * @param path, location of the file to read.
              * @param maxSize The maximum file size to read, throws exception if the file is larger than that
@@ -158,17 +150,30 @@ namespace Common
              * @param path, location of the file to create
              * @param content, the string value to write into the given file.
              * @param tempDir, staging area where the file will be created before being moved to the correct place.
-             * @param mode the chmod to be applied when the file is created (can be used to extend file to read group). If set to 0, no permisison will be changed. 
+             * @param mode the chmod to be applied when the file is created (can be used to extend file to read group).
+             * If set to 0, no permisison will be changed.
              */
-            virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir, mode_t mode)
-                const = 0;
+            virtual void writeFileAtomically(
+                const Path& path,
+                const std::string& content,
+                const Path& tempDir,
+                mode_t mode) const = 0;
             /** Keep the interface without mode_t, by setting it to 0 (do not change it) */
-            virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir) const = 0;
+            virtual void writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir)
+                const = 0;
+
+            /**
+             * Appends the given string content to the given file.
+             * @param path, location of the file to append to (the file will be created if it doesn't exist)
+             * @param content, the string value to append into the given file, new lines are not added implicitly
+             */
+            virtual void appendFile(const Path& path, const std::string& content) const = 0;
 
             /**
              * Provide the fullPath of the files under the directoryPath given.
              *
-             * @note Only regular files and symlinks are listed, directories or special file system entries will not be listed.
+             * @note Only regular files and symlinks are listed, directories or special file system entries will not be
+             * listed.
              *
              * @param directoryPath
              * @return List of the full path of files under the directoryPath.
@@ -291,18 +296,25 @@ namespace Common
              * @return
              */
             virtual std::time_t lastModifiedTime(const Path& path) const = 0;
+            /**
+             * Wait for the given file to exist.
+             * @param path, location of the file to wait for
+             * @param timeout, maximum time in milliseconds to wait for the file to exist before returning
+             *@return true if file exists within given time, false if the file did not exist within the given time
+             */
+            virtual bool waitForFile(const Path& path, unsigned int timeout) const = 0;
 
             /** Return the content of
-            * /proc/<pid>/<filename>
-            * Given the nature of proc files being ephemeral, it returns optional which means that if the value is not
-            * available or it fail to read the content, it will return an empty optional value.
-            *
-            * Look that fileSystem()->readContent can not be used as it tries to hold the size of the file which is not valid
-            * for /proc files.
-            * @param pid
-            * @param filename
-            * @return
-            */
+             * /proc/<pid>/<filename>
+             * Given the nature of proc files being ephemeral, it returns optional which means that if the value is not
+             * available or it fail to read the content, it will return an empty optional value.
+             *
+             * Look that fileSystem()->readContent can not be used as it tries to hold the size of the file which is not
+             * valid for /proc files.
+             * @param pid
+             * @param filename
+             * @return
+             */
             virtual std::optional<std::string> readProcFile(int pid, const std::string& filename) const = 0;
         };
 

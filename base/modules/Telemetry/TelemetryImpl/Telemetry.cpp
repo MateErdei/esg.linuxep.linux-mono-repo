@@ -6,12 +6,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Telemetry.h"
 
+#include "BaseTelemetryReporter.h"
 #include "ISystemTelemetryCollector.h"
 #include "PluginTelemetryReporter.h"
 #include "SystemTelemetryCollectorImpl.h"
 #include "SystemTelemetryReporter.h"
 #include "TelemetryProcessor.h"
-#include "BaseTelemetryReporter.h"
 #include "TelemetrySender.h"
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -41,7 +41,7 @@ namespace Telemetry
         std::vector<Common::PluginRegistryImpl::PluginInfo> pluginInfos =
             Common::PluginRegistryImpl::PluginInfo::loadFromPluginRegistry();
 
-        //Add watchdog to the pluginInfo list as not in plugin registry
+        // Add watchdog to the pluginInfo list as not in plugin registry
         Common::PluginRegistryImpl::PluginInfo watchDogPluginInfo = Common::PluginRegistryImpl::PluginInfo();
         watchDogPluginInfo.setPluginName(watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName());
         pluginInfos.insert(pluginInfos.begin(), std::move(watchDogPluginInfo));
@@ -68,8 +68,8 @@ namespace Telemetry
                 requester->connect(pluginSocketAddress);
 
                 telemetryProvider = std::make_shared<PluginTelemetryReporter>(
-                        std::make_unique<Common::PluginCommunicationImpl::PluginProxy>(
-                                Common::PluginCommunicationImpl::PluginProxy{std::move(requester), pluginName}));
+                    std::make_unique<Common::PluginCommunicationImpl::PluginProxy>(
+                        Common::PluginCommunicationImpl::PluginProxy{ std::move(requester), pluginName }));
             }
             else
             {
@@ -90,15 +90,15 @@ namespace Telemetry
         // System telemetry provider
         auto systemTelemetryReporter =
             std::make_shared<SystemTelemetryReporter>(std::make_unique<SystemTelemetryCollectorImpl>(
-                    systemTelemetryObjectsConfig(),
-                    systemTelemetryArraysConfig(),
+                systemTelemetryObjectsConfig(),
+                systemTelemetryArraysConfig(),
                 telemetryConfig->getExternalProcessWaitTime(),
                 telemetryConfig->getExternalProcessWaitRetries()));
 
         telemetryProviders.emplace_back(systemTelemetryReporter);
 
         // Base telemetry provider
-        auto baseTelemetryReporter =  std::make_shared<BaseTelemetryReporter>();
+        auto baseTelemetryReporter = std::make_shared<BaseTelemetryReporter>();
         telemetryProviders.emplace_back(baseTelemetryReporter);
 
         // Plugins telemetry providers
@@ -132,7 +132,8 @@ namespace Telemetry
                 throw std::runtime_error(msg.str());
             }
 
-            std::string telemetryConfigJson = Common::FileSystem::fileSystem()->readFile(configFilePath, GL_maximumMbSize);
+            std::string telemetryConfigJson =
+                Common::FileSystem::fileSystem()->readFile(configFilePath, GL_maximumMbSize);
             auto telemetryConfig = std::make_shared<Common::TelemetryConfigImpl::Config>(
                 Common::TelemetryConfigImpl::Serialiser::deserialise(telemetryConfigJson));
             LOGDEBUG("Using configuration: " << Common::TelemetryConfigImpl::Serialiser::serialise(*telemetryConfig));

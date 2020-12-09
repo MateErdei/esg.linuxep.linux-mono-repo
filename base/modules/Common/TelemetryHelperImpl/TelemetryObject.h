@@ -6,11 +6,12 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "TelemetryValue.h"
-#include <vector>
+
 #include <list>
 #include <map>
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace Common::Telemetry
 {
@@ -19,8 +20,7 @@ namespace Common::Telemetry
     public:
         // helper function to reduce the boiler plate code and allow for
         // TelemetryObject v = fromVectorOfKeyValues( { {"key1","value1"}, {"key2","value2"}});
-        static TelemetryObject fromVectorOfKeyValues( const std::vector<std::pair<std::string, std::string>>&  );
-
+        static TelemetryObject fromVectorOfKeyValues(const std::vector<std::pair<std::string, std::string>>&);
 
         // This must be in the same order as the variant types of m_value.
         enum class Type

@@ -5,16 +5,19 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ProcessImpl.h"
-#include "Logger.h"
-#include <Common/Process/IProcessException.h>
+
 #include "BoostProcessHolder.h"
+#include "Logger.h"
+
+#include <Common/Process/IProcessException.h>
+
 #include <algorithm>
+#include <future>
 #include <iostream>
 #include <pwd.h>
 #include <queue>
 #include <thread>
 #include <unistd.h>
-#include <future>
 
 std::unique_ptr<Common::Process::IProcess> Common::Process::createProcess()
 {
@@ -26,57 +29,49 @@ Common::Process::Milliseconds Common::Process::milli(int n_ms)
     return std::chrono::milliseconds(n_ms);
 }
 
-namespace Common{
-    namespace ProcessImpl{
+namespace Common
+{
+    namespace ProcessImpl
+    {
         /* In order to keep previous behaviour of ProcessImpl that would throw for some case in ::exec and not throw in
-         * other cases of failure. And in order to avoid to have to keep track of the state of the process in the ProcessImpl,
-         * there are two 'dummy' IProcessImpl
+         * other cases of failure. And in order to avoid to have to keep track of the state of the process in the
+         * ProcessImpl, there are two 'dummy' IProcessImpl
          *
          * Failed to StartProcess keep track of when the exec failed.
          */
-        class FailedToStartProcess
-                : public IProcessHolder
+        class FailedToStartProcess : public IProcessHolder
         {
             int m_errorCode;
-        public:
-            FailedToStartProcess(int errorCode): m_errorCode(errorCode){}
-            int pid() override
-            { return -1; }
 
-            void wait() override
-            { return; }
+        public:
+            FailedToStartProcess(int errorCode) : m_errorCode(errorCode) {}
+            int pid() override { return -1; }
+
+            void wait() override { return; }
 
             Process::ProcessStatus wait(std::chrono::milliseconds) override
             {
                 return Process::ProcessStatus::FINISHED;
             };
 
-            int exitCode() override
-            { return m_errorCode; }
+            int exitCode() override { return m_errorCode; }
 
-            std::string output() override
-            { return ""; }
+            std::string output() override { return ""; }
 
-            bool hasFinished() override
-            { return true; }
+            bool hasFinished() override { return true; }
 
-            void sendTerminateSignal() override
-            { return; }
+            void sendTerminateSignal() override { return; }
 
-            void kill() override
-            { return; }
+            void kill() override { return; }
         };
 
         /* Initial state, keep track that no exec was ever called */
-        class NoExecCalled
-                : public IProcessHolder
+        class NoExecCalled : public IProcessHolder
         {
         public:
-            int pid() override
-            { return -1; }
+            int pid() override { return -1; }
 
-            void wait() override
-            { return; }
+            void wait() override { return; }
 
             Process::ProcessStatus wait(std::chrono::milliseconds) override
             {
@@ -88,23 +83,17 @@ namespace Common{
                 throw Process::IProcessException("Exit Code can be called only after exec and process exit.");
             }
 
-            std::string output() override
-            {
-                throw Process::IProcessException("Output can be called only after exec.");
-            }
+            std::string output() override { throw Process::IProcessException("Output can be called only after exec."); }
 
-            bool hasFinished() override
-            { return true; }
+            bool hasFinished() override { return true; }
 
-            void sendTerminateSignal() override
-            { return; }
+            void sendTerminateSignal() override { return; }
 
-            void kill() override
-            { return; }
+            void kill() override { return; }
         };
 
         ProcessImpl::ProcessImpl() :
-            m_pid{-1},
+            m_pid{ -1 },
             m_outputLimit(0),
             m_flushOnNewLine(false),
             m_callback{ []() {} },
@@ -118,9 +107,9 @@ namespace Common{
         Process::ProcessStatus ProcessImpl::wait(Process::Milliseconds period, int attempts)
         {
             Process::Milliseconds fullPeriod = period * attempts;
-            if( fullPeriod < Process::Milliseconds{1})
+            if (fullPeriod < Process::Milliseconds{ 1 })
             {
-                fullPeriod = Process::Milliseconds{1};
+                fullPeriod = Process::Milliseconds{ 1 };
             }
             auto processOnBoost = safeAccess();
             return processOnBoost->wait(fullPeriod);
@@ -150,8 +139,16 @@ namespace Common{
             m_pid = -1;
             try
             {
-                m_d = std::make_shared<BoostProcessHolder>(path, arguments, extraEnvironment, uid, gid, m_callback,
-                        m_notifyTrimmed, m_outputLimit, m_flushOnNewLine);
+                m_d = std::make_shared<BoostProcessHolder>(
+                    path,
+                    arguments,
+                    extraEnvironment,
+                    uid,
+                    gid,
+                    m_callback,
+                    m_notifyTrimmed,
+                    m_outputLimit,
+                    m_flushOnNewLine);
                 m_pid = m_d->pid();
             }
             catch (Common::Process::IProcessException& ex)
@@ -160,17 +157,17 @@ namespace Common{
                 m_d = std::make_shared<FailedToStartProcess>(2);
                 throw;
             }
-            catch (std::system_error & system_error)
+            catch (std::system_error& system_error)
             {
                 LOGWARN("Failure to start process: " << system_error.what());
                 m_d = std::make_shared<FailedToStartProcess>(system_error.code().value());
                 m_callback();
-            }catch ( std::exception& ex)
+            }
+            catch (std::exception& ex)
             {
                 LOGWARN("Failure to start process: " << ex.what());
                 m_d = std::make_shared<FailedToStartProcess>(2);
                 m_callback();
-
             }
         }
         int ProcessImpl::exitCode()
@@ -207,38 +204,29 @@ namespace Common{
         Process::ProcessStatus ProcessImpl::getStatus()
         {
             auto processOnBoost = safeAccess();
-            if ( !processOnBoost)
+            if (!processOnBoost)
             {
                 LOGSUPPORT("getStatus can be called only after exec");
                 return Process::ProcessStatus::NOTSTARTED;
             }
 
-            if( processOnBoost->hasFinished())
+            if (processOnBoost->hasFinished())
             {
                 return Process::ProcessStatus::FINISHED;
             }
             return Process::ProcessStatus::RUNNING;
         }
 
-        void ProcessImpl::setOutputLimit(size_t limit)
-        {
-            m_outputLimit = limit;
-        }
+        void ProcessImpl::setOutputLimit(size_t limit) { m_outputLimit = limit; }
 
-        void ProcessImpl::setFlushBufferOnNewLine(bool flushOnNewLine)
-        {
-            m_flushOnNewLine = flushOnNewLine;
-        }
+        void ProcessImpl::setFlushBufferOnNewLine(bool flushOnNewLine) { m_flushOnNewLine = flushOnNewLine; }
 
         void ProcessImpl::setNotifyProcessFinishedCallBack(Process::IProcess::functor callback)
         {
             m_callback = callback;
         }
 
-        int ProcessImpl::childPid() const
-        {
-            return m_pid;
-        }
+        int ProcessImpl::childPid() const { return m_pid; }
 
         ProcessFactory::ProcessFactory() { restoreCreator(); }
 

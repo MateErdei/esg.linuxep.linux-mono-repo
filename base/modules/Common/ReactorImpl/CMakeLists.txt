@@ -14,11 +14,11 @@ add_library(reactorimplobject OBJECT
         Logger.cpp)
 
 target_include_directories(reactorimplobject PUBLIC ../Reactor ../../Common ../../Common/ZeroMQWrapper ${LOG4CPLUS_INCLUDE_DIR})
-add_library(reactorimpl SHARED $<TARGET_OBJECTS:reactorimplobject> )
+add_library(reactorimpl SHARED $<TARGET_OBJECTS:reactorimplobject>)
 
 target_link_libraries(reactorimpl PUBLIC zeromqwrapperimpl logging threads)
 
-SET_TARGET_PROPERTIES( reactorimpl
+SET_TARGET_PROPERTIES(reactorimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS reactorimpl

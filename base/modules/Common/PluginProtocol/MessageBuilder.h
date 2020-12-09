@@ -33,7 +33,10 @@ namespace Common
 
             DataMessage requestApplyPolicyMessage(const std::string& appId, const std::string& policyContent) const;
 
-            DataMessage requestDoActionMessage(const std::string& appId, const std::string& actionContent, const std::string& correlationId) const;
+            DataMessage requestDoActionMessage(
+                const std::string& appId,
+                const std::string& actionContent,
+                const std::string& correlationId) const;
 
             DataMessage requestRequestPluginStatusMessage(const std::string& appId) const;
             DataMessage requestRequestTelemetryMessage() const;

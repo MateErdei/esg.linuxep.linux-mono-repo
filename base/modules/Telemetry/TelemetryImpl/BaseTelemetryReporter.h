@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "ITelemetryProvider.h"
+
 #include <Common/FileSystem/IFileSystem.h>
 
 #include <optional>

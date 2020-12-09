@@ -12,10 +12,10 @@ add_library(zmqwrapperapiimplobject OBJECT
 
 target_include_directories(zmqwrapperapiimplobject PUBLIC ${ZeroMQ_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${CMAKE_SOURCE_DIR})
 
-add_library(zmqwrapperapiimpl SHARED $<TARGET_OBJECTS:zmqwrapperapiimplobject> )
+add_library(zmqwrapperapiimpl SHARED $<TARGET_OBJECTS:zmqwrapperapiimplobject>)
 target_link_libraries(zmqwrapperapiimpl PUBLIC ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY} reactorimpl zeromqwrapperimpl)
 
-SET_TARGET_PROPERTIES( zmqwrapperapiimpl
+SET_TARGET_PROPERTIES(zmqwrapperapiimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS zmqwrapperapiimpl

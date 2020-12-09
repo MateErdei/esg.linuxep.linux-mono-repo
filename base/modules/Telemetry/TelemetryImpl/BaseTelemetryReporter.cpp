@@ -4,18 +4,19 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "TelemetryProcessor.h"
 #include "BaseTelemetryReporter.h"
+
+#include "TelemetryProcessor.h"
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
-#include <Telemetry/LoggerImpl/Logger.h>
-#include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/UtilityImpl/FileUtils.h>
+#include <Common/XmlUtilities/AttributesMap.h>
+#include <Telemetry/LoggerImpl/Logger.h>
 
 namespace
 {
-    using telemetryGetFuctor = std::function< std::optional<std::string>(void)>;
+    using telemetryGetFuctor = std::function<std::optional<std::string>(void)>;
     void updateTelemetryRoot(TelemetryObject& root, const std::string& telemetryKey, const telemetryGetFuctor& functor)
     {
         try
@@ -33,11 +34,10 @@ namespace
             LOGWARN("Could not get telemetry for " << telemetryKey << ". Exception: " << ex.what());
         }
     }
-}
+} // namespace
 
 namespace Telemetry
 {
-
     std::string BaseTelemetryReporter::getTelemetry()
     {
         TelemetryObject root;
@@ -89,10 +89,11 @@ namespace Telemetry
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(filePath))
         {
-            std::pair<std::string,std::string> value = Common::UtilityImpl::FileUtils::extractValueFromFile(filePath,key);
+            std::pair<std::string, std::string> value =
+                Common::UtilityImpl::FileUtils::extractValueFromFile(filePath, key);
             if (value.first.empty() && !value.second.empty())
             {
-                LOGWARN("Failed to find key: " << key << " in file: " << filePath << " due to error: "<< value.second);
+                LOGWARN("Failed to find key: " << key << " in file: " << filePath << " due to error: " << value.second);
                 return std::nullopt;
             }
             return value.first;
@@ -106,11 +107,13 @@ namespace Telemetry
     {
         try
         {
-            //TODO - LINUXDAR-735
-            // Current implementation has to get around the limitations of AttributesMap::entitiesThatContainPath implementation -
+            // TODO - LINUXDAR-735
+            // Current implementation has to get around the limitations of AttributesMap::entitiesThatContainPath
+            // implementation -
             Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(policyXml);
 
-            // Search for paths that include the # so that we don't match sub-elements of customer or elements that start with customer
+            // Search for paths that include the # so that we don't match sub-elements of customer or elements that
+            // start with customer
             std::string customerElementPath = "AUConfigurations/customer#";
             auto matchingPaths = attributesMap.entitiesThatContainPath(customerElementPath);
             if (matchingPaths.empty())
@@ -118,14 +121,14 @@ namespace Telemetry
                 return std::nullopt;
             }
 
-            for( auto& matchingPath: matchingPaths)
+            for (auto& matchingPath : matchingPaths)
             {
                 Common::XmlUtilities::Attributes attributes = attributesMap.lookup(matchingPath);
                 std::string customerId = attributes.value("id");
                 std::string expectedCustomerIdPath;
                 expectedCustomerIdPath += customerElementPath;
                 expectedCustomerIdPath += customerId;
-                if( matchingPath == (expectedCustomerIdPath) )
+                if (matchingPath == (expectedCustomerIdPath))
                 {
                     return customerId;
                 }
@@ -138,4 +141,4 @@ namespace Telemetry
         }
         return std::nullopt;
     }
-}
+} // namespace Telemetry

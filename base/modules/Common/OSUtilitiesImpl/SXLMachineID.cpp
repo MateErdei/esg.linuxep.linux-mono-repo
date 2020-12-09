@@ -11,9 +11,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/sslimpl/Md5Calc.h>
 #include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/sslimpl/Md5Calc.h>
 #include <sys/stat.h>
 
 #include <iostream>
@@ -64,7 +64,8 @@ namespace Common
         {
             if (argc != 2)
             {
-                std::cerr << "Invalid argument. Usage: ./machineid /opt/sophos-spl OR ./machineid --dump-mac-addresses" << std::endl;
+                std::cerr << "Invalid argument. Usage: ./machineid /opt/sophos-spl OR ./machineid --dump-mac-addresses"
+                          << std::endl;
                 return 1;
             }
             std::string argument;
@@ -72,7 +73,7 @@ namespace Common
             {
                 argument = UtilityImpl::StringUtils::checkAndConstruct(argv[1]);
             }
-            catch (std::invalid_argument &e)
+            catch (std::invalid_argument& e)
             {
                 std::cerr << "Invalid argument. Argument is not utf8: " << argument << std::endl;
                 return 2;

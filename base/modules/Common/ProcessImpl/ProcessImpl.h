@@ -6,12 +6,14 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/Process/IProcess.h>
 #include "IProcessHolder.h"
+
+#include <Common/Process/IProcess.h>
 #include <sys/types.h>
+
+#include <atomic>
 #include <functional>
 #include <mutex>
-#include <atomic>
 
 namespace Common
 {

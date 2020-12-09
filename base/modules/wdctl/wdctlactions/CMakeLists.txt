@@ -17,7 +17,7 @@ add_library(wdctlactions STATIC
         IsRunning.cpp
         IsRunning.h)
 
-set( LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include )
+set(LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include)
 
 find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus

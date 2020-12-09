@@ -60,7 +60,8 @@ namespace Common
             if (ret != 0)
             {
                 std::stringstream errorMessage;
-                errorMessage << "chmod failed to set file permissions to " << mode << " on " << path << " with error "  << std::strerror(errno);
+                errorMessage << "chmod failed to set file permissions to " << mode << " on " << path << " with error "
+                             << std::strerror(errno);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
         }
@@ -73,7 +74,7 @@ namespace Common
             const int multiplier = 2;
             const int bufferStartSize = 1024;
             // max size is 131072
-            const double bufferMaxSize = bufferStartSize*pow(multiplier, 7);
+            const double bufferMaxSize = bufferStartSize * pow(multiplier, 7);
             size_t bufferSize = bufferStartSize;
             while (err == ERANGE && bufferSize <= bufferMaxSize)
             {
@@ -140,7 +141,7 @@ namespace Common
             if (ret != 0)
             {
                 std::stringstream errorMessage;
-                errorMessage << "Calling stat on " << filePath << " caused this error: " <<  std::strerror(errno);
+                errorMessage << "Calling stat on " << filePath << " caused this error: " << std::strerror(errno);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
             return getGroupName(statbuf.st_gid);
@@ -158,7 +159,7 @@ namespace Common
             if (ret != 0)
             {
                 std::stringstream errorMessage;
-                errorMessage << "Calling stat on " << filePath << " caused this error: " <<  std::strerror(errno);
+                errorMessage << "Calling stat on " << filePath << " caused this error: " << std::strerror(errno);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
             return getUserName(statbuf.st_uid);
@@ -229,7 +230,7 @@ namespace Common
             if (ret != 0)
             {
                 std::stringstream errorMessage;
-                errorMessage << "Calling stat on " << filePath << " caused this error: " <<  std::strerror(errno);
+                errorMessage << "Calling stat on " << filePath << " caused this error: " << std::strerror(errno);
                 throw FileSystem::IFileSystemException(errorMessage.str());
             }
             return statbuf.st_mode;
@@ -250,21 +251,28 @@ Common::FileSystem::IFilePermissions* Common::FileSystem::filePermissions()
     return Common::FileSystem::filePermissionsStaticPointer().get();
 }
 
-void Common::FileSystem::createAtomicFileToSophosUser(const std::string &content, const std::string &finalPath,
-                                                         const std::string &tempDir)
+void Common::FileSystem::createAtomicFileToSophosUser(
+    const std::string& content,
+    const std::string& finalPath,
+    const std::string& tempDir)
 {
-    createAtomicFileWithPermissions(content, finalPath, tempDir, sophos::user(), sophos::group(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+    createAtomicFileWithPermissions(
+        content, finalPath, tempDir, sophos::user(), sophos::group(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 }
 
-void Common::FileSystem::createAtomicFileWithPermissions(const std::string &content, const std::string &finalPath,
-                                                         const std::string &tempDir,
-                                                         const std::string &user, const std::string &group, mode_t mode)
+void Common::FileSystem::createAtomicFileWithPermissions(
+    const std::string& content,
+    const std::string& finalPath,
+    const std::string& tempDir,
+    const std::string& user,
+    const std::string& group,
+    mode_t mode)
 {
-
     Common::UtilityImpl::UniformIntDistribution uniformIntDistribution(1000, 9999);
     std::string fileName = Common::FileSystem::basename(finalPath);
     auto fileSystem = Common::FileSystem::fileSystem();
-    std::string tempFilePath = Common::FileSystem::join(tempDir, fileName + std::to_string(uniformIntDistribution.next()));
+    std::string tempFilePath =
+        Common::FileSystem::join(tempDir, fileName + std::to_string(uniformIntDistribution.next()));
     try
     {
         fileSystem->writeFile(tempFilePath, content);
@@ -278,6 +286,6 @@ void Common::FileSystem::createAtomicFileWithPermissions(const std::string &cont
         static_cast<void>(ret);
         std::string reason = ex.what();
         throw Common::FileSystem::IFileSystemException(
-                std::string{"Failed to create file at: "} + finalPath + ". Reason: " + reason);
+            std::string{ "Failed to create file at: " } + finalPath + ". Reason: " + reason);
     }
 }

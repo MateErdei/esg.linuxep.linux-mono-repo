@@ -17,12 +17,12 @@ namespace Common::Telemetry
         try
         {
             nlohmann::json jsonObj = nlohmann::json::parse(jsonString);
-            for( auto & item : jsonObj.items() )
+            for (auto& item : jsonObj.items())
             {
                 // Only interpret the top level of the json string passed ignore arrays and objects
                 if (item.value().is_primitive() && !item.value().is_null())
                 {
-                    if(item.value().is_string())
+                    if (item.value().is_string())
                     {
                         map[item.key()] = TelemetryValue(item.value().get<std::string>());
                     }
@@ -53,4 +53,4 @@ namespace Common::Telemetry
         }
         return map;
     }
-}
+} // namespace Common::Telemetry

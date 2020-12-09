@@ -17,7 +17,7 @@ add_library(filesystemimpl SHARED $<TARGET_OBJECTS:filesystemimplobject>)
 
 target_link_libraries(filesystemimpl PUBLIC utilityimpl)
 
-SET_TARGET_PROPERTIES( filesystemimpl
+SET_TARGET_PROPERTIES(filesystemimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS filesystemimpl

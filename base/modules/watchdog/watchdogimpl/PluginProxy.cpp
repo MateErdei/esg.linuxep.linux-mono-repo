@@ -27,13 +27,11 @@ std::pair<std::chrono::seconds, Common::Process::ProcessStatus> PluginProxy::che
     bool previousRunning = runningFlag();
     std::pair<std::chrono::seconds, Common::Process::ProcessStatus> processProxyPair = ProcessProxy::checkForExit();
     auto statusCode = processProxyPair.second;
-    if (statusCode == Common::Process::ProcessStatus::FINISHED  && enabledFlag() && previousRunning)
+    if (statusCode == Common::Process::ProcessStatus::FINISHED && enabledFlag() && previousRunning)
     {
         LOGSUPPORT("Update Telemetry Unexpected restart: " << name());
         Common::Telemetry::TelemetryHelper::getInstance().increment(
-                watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(name()),
-                1UL
-        );
+            watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(name()), 1UL);
     }
     return processProxyPair;
 }

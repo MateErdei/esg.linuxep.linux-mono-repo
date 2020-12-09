@@ -28,7 +28,7 @@ namespace Common
 {
     namespace UtilityImpl
     {
-        std::string TimeUtils::fromTime(std::time_t time_, const char *format)
+        std::string TimeUtils::fromTime(std::time_t time_, const char* format)
         {
             if (time_ == -1)
             {
@@ -55,7 +55,7 @@ namespace Common
             return curr - info.uptime;
         }
 
-        std::string TimeUtils::fromTime(std::tm time_tm, const char *format)
+        std::string TimeUtils::fromTime(std::tm time_tm, const char* format)
         {
             char formattedTime[16];
             size_t ret = strftime(formattedTime, 16, format, &time_tm);
@@ -80,25 +80,20 @@ namespace Common
             return mktime(&timebuffer); // should be local time
         }
 
-        std::string TimeUtils::fromTime(std::time_t time_)
-        {
-            return fromTime(time_, "%Y%m%d %H%M%S");
-        }
+        std::string TimeUtils::fromTime(std::time_t time_) { return fromTime(time_, "%Y%m%d %H%M%S"); }
 
-        std::string TimeUtils::fromTime(std::tm time_tm)
-        {
-            return fromTime(time_tm, "%Y%m%d %H%M%S");
-        }
+        std::string TimeUtils::fromTime(std::tm time_tm) { return fromTime(time_tm, "%Y%m%d %H%M%S"); }
 
-        std::time_t TimeUtils::toTime(const std::string& str)
-        {
-            return toTime(str, "%Y%m%d %H%M%S");
-        }
+        std::time_t TimeUtils::toTime(const std::string& str) { return toTime(str, "%Y%m%d %H%M%S"); }
 
-        std::string FormattedTime::currentTime() const { return TimeUtils::fromTime(TimeUtils::getCurrTime(), "%Y%m%d %H%M%S"); }
+        std::string FormattedTime::currentTime() const
+        {
+            return TimeUtils::fromTime(TimeUtils::getCurrTime(), "%Y%m%d %H%M%S");
+        }
         std::string FormattedTime::bootTime() const { return TimeUtils::getBootTime(); }
 
-        std::string FormattedTime::currentEpochTimeInSeconds() const {
+        std::string FormattedTime::currentEpochTimeInSeconds() const
+        {
             return TimeUtils::fromTime(TimeUtils::getCurrTime(), "%s");
         }
 

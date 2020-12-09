@@ -247,15 +247,18 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/mcs/policy/ALC-1_policy.xml");
         }
 
-        std::string ApplicationPathManager::getMachineIdFilePath() const {
+        std::string ApplicationPathManager::getMachineIdFilePath() const
+        {
             return Common::FileSystem::join(sophosInstall(), "base/etc/machine_id.txt");
         }
 
-        std::string ApplicationPathManager::getVersionFilePath() const {
+        std::string ApplicationPathManager::getVersionFilePath() const
+        {
             return Common::FileSystem::join(sophosInstall(), "base/VERSION.ini");
         }
 
-        std::string ApplicationPathManager::getMcsConfigFilePath() const {
+        std::string ApplicationPathManager::getMcsConfigFilePath() const
+        {
             return Common::FileSystem::join(sophosInstall(), "base/etc/sophosspl/mcs.config");
         }
 
@@ -288,7 +291,7 @@ namespace Common
             }
             else
             {
-                path = Common::FileSystem::join(getLocalVersionSymLinkPath(),component + ".ini");
+                path = Common::FileSystem::join(getLocalVersionSymLinkPath(), component + ".ini");
             }
 
             return path;

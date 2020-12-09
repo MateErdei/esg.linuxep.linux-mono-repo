@@ -20,8 +20,7 @@ namespace Common
         {
         public:
             using std::runtime_error::runtime_error;
-            ConfigException( const std::string&  where, const std::string&  cause);
+            ConfigException(const std::string& where, const std::string& cause);
         };
-    }
-}
-
+    } // namespace UtilityImpl
+} // namespace Common

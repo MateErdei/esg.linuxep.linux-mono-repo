@@ -23,32 +23,29 @@ namespace Common
         PluginProxy::PluginProxy(
             Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester,
             const std::string& pluginName) :
-            m_socket(std::move(socketRequester)),
-            m_messageBuilder(pluginName),
-            m_name(pluginName)
+            m_socket(std::move(socketRequester)), m_messageBuilder(pluginName), m_name(pluginName)
         {
             m_appIdCollection.setAppIdsForStatus({ pluginName });
             m_appIdCollection.setAppIdsForPolicy({ pluginName });
             m_appIdCollection.setAppIdsForActions({ pluginName });
-
         }
 
         void PluginProxy::applyNewPolicy(const std::string& appId, const std::string& policyXml)
         {
             // policyXml will only contain the path to the policy file.
 
-//            std::string policyXmlData("");
-//
-//            try
-//            {
-//                policyXmlData = Common::FileSystem::fileSystem()->readFile(policyXml);
-//            }
-//            catch(Common::FileSystem::IFileSystemException&)
-//            {
-//                std::stringstream errorMessage;
-//                errorMessage << "Failed to read action file" << policyXml;
-//                throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
-//            }
+            //            std::string policyXmlData("");
+            //
+            //            try
+            //            {
+            //                policyXmlData = Common::FileSystem::fileSystem()->readFile(policyXml);
+            //            }
+            //            catch(Common::FileSystem::IFileSystemException&)
+            //            {
+            //                std::stringstream errorMessage;
+            //                errorMessage << "Failed to read action file" << policyXml;
+            //                throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
+            //            }
 
             Common::PluginProtocol::DataMessage replyMessage =
                 getReply(m_messageBuilder.requestApplyPolicyMessage(appId, policyXml));
@@ -58,25 +55,28 @@ namespace Common
             }
         }
 
-        void PluginProxy::queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId)
+        void PluginProxy::queueAction(
+            const std::string& appId,
+            const std::string& actionXml,
+            const std::string& correlationId)
         {
-//            std::string actionXmlData(actionXml);
-//            // Some actions are passed as content when not comming from MCS communication channel.
-//            // i.e. when comming directly from watchdog
-//
-//            if (actionXml.find(".xml") != std::string::npos)
-//            {
-//                try
-//                {
-//                    actionXmlData = Common::FileSystem::fileSystem()->readFile(actionXml);
-//                }
-//                catch(Common::FileSystem::IFileSystemException&)
-//                {
-//                    std::stringstream errorMessage;
-//                    errorMessage << "Failed to read action file" << actionXml;
-//                    throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
-//                }
-//            }
+            //            std::string actionXmlData(actionXml);
+            //            // Some actions are passed as content when not comming from MCS communication channel.
+            //            // i.e. when comming directly from watchdog
+            //
+            //            if (actionXml.find(".xml") != std::string::npos)
+            //            {
+            //                try
+            //                {
+            //                    actionXmlData = Common::FileSystem::fileSystem()->readFile(actionXml);
+            //                }
+            //                catch(Common::FileSystem::IFileSystemException&)
+            //                {
+            //                    std::stringstream errorMessage;
+            //                    errorMessage << "Failed to read action file" << actionXml;
+            //                    throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
+            //                }
+            //            }
 
             Common::PluginProtocol::DataMessage replyMessage =
                 getReply(m_messageBuilder.requestDoActionMessage(appId, actionXml, correlationId));
@@ -152,10 +152,7 @@ namespace Common
             m_appIdCollection.setAppIdsForStatus(appIds);
         }
 
-        bool PluginProxy::hasPolicyAppId(const std::string& appId)
-        {
-            return m_appIdCollection.usePolicyId(appId);
-        }
+        bool PluginProxy::hasPolicyAppId(const std::string& appId) { return m_appIdCollection.usePolicyId(appId); }
 
         bool PluginProxy::hasActionAppId(const std::string& appId)
         {

@@ -10,7 +10,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/LoggingSetup.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -22,7 +21,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 using namespace Common::ApplicationConfigurationImpl;
 using namespace Common::ApplicationConfiguration;
-
 
 Common::Logging::ConsoleFileLoggingSetup::ConsoleFileLoggingSetup(const std::string& logbase, bool lowpriv)
 {
@@ -64,7 +62,7 @@ void Common::Logging::ConsoleFileLoggingSetup::setupConsoleFileLoggingWithPath(c
     const bool createDirs = true;
 
     log4cplus::SharedAppenderPtr fileAppender(
-            new log4cplus::RollingFileAppender(logfilepath, maxFileSize, maxBackupIndex, immediateFlush, createDirs));
+        new log4cplus::RollingFileAppender(logfilepath, maxFileSize, maxBackupIndex, immediateFlush, createDirs));
     Common::Logging::LoggingSetup::applyDefaultPattern(fileAppender);
     log4cplus::Logger::getRoot().addAppender(fileAppender);
 

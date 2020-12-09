@@ -5,6 +5,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "SystemTelemetryCollectorImpl.h"
 
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/Process/IProcessException.h>
 #include <Common/UtilityImpl/StrError.h>
 #include <Telemetry/LoggerImpl/Logger.h>
@@ -13,7 +14,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <map>
 #include <string>
 #include <variant>
-#include <Common/FileSystem/IFileSystem.h>
 
 namespace Telemetry
 {
@@ -53,11 +53,11 @@ namespace Telemetry
                                                      << ", exception: " << processException.what());
                 continue;
             }
-            catch(const std::invalid_argument& invalidArg)
+            catch (const std::invalid_argument& invalidArg)
             {
                 LOGWARN(
-                        "Failed to get telemetry item: " << name << ", could not find executable for command: " << command
-                                                         << ", exception: " << invalidArg.what());
+                    "Failed to get telemetry item: " << name << ", could not find executable for command: " << command
+                                                     << ", exception: " << invalidArg.what());
             }
 
             T values;
@@ -101,7 +101,7 @@ namespace Telemetry
         auto processPtr = Common::Process::createProcess();
         processPtr->setOutputLimit(GL_outputSize);
 
-        //search for command executable full path
+        // search for command executable full path
         auto commandExecutablePath = getSystemCommandExecutablePath(command);
         // gather raw telemetry, ignoring failures
         processPtr->exec(commandExecutablePath, args);
@@ -116,8 +116,8 @@ namespace Telemetry
         if (exitCode != 0)
         {
             throw Common::Process::IProcessException(
-                    "Process execution returned non-zero exit code, 'Exit Code: [" + std::to_string(exitCode) + "] " +
-                    Common::UtilityImpl::StrError(exitCode) + "'");
+                "Process execution returned non-zero exit code, 'Exit Code: [" + std::to_string(exitCode) + "] " +
+                Common::UtilityImpl::StrError(exitCode) + "'");
         }
 
         auto output = processPtr->output();

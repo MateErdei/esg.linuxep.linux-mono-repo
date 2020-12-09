@@ -12,7 +12,7 @@ namespace Common
 {
     namespace ApplicationConfiguration
     {
-        static const std::string SOPHOS_INSTALL = "SOPHOS_INSTALL"; // NOLINT
+        static const std::string SOPHOS_INSTALL = "SOPHOS_INSTALL";     // NOLINT
         static const std::string TELEMETRY_RESTORE_DIR = "RESTORE_DIR"; // NOLINT
 
         class IApplicationConfiguration

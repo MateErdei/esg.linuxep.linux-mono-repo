@@ -14,6 +14,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <sys/stat.h>
+
 #include <cmath>
 #include <functional>
 
@@ -23,15 +24,14 @@ namespace Common::Telemetry
     const char* ROOTKEY = "rootkey";
     const char* STATSKEY = "statskey";
 
-    TelemetryHelper::TelemetryHelper(): 
-     m_fileSystem( std::unique_ptr<Common::FileSystem::IFileSystem>{new Common::FileSystem::FileSystemImpl()})
+    TelemetryHelper::TelemetryHelper() :
+        m_fileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ new Common::FileSystem::FileSystemImpl() })
     {
-
     }
-    
+
     void TelemetryHelper::replaceFS(std::unique_ptr<Common::FileSystem::IFileSystem> fs)
     {
-        m_fileSystem = std::move(fs); 
+        m_fileSystem = std::move(fs);
     }
 
     void TelemetryHelper::set(const std::string& key, long value) { setInternal(key, value, false); }
@@ -119,11 +119,12 @@ namespace Common::Telemetry
 
     TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(const std::string& keyPath)
     {
-
         return getTelemetryObjectByKey(keyPath, std::ref<TelemetryObject>(m_root));
     }
 
-    TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(const std::string& keyPath, std::reference_wrapper<TelemetryObject> root)
+    TelemetryObject& TelemetryHelper::getTelemetryObjectByKey(
+        const std::string& keyPath,
+        std::reference_wrapper<TelemetryObject> root)
     {
         for (const auto& key : Common::UtilityImpl::StringUtils::splitString(keyPath, "."))
         {
@@ -137,7 +138,6 @@ namespace Common::Telemetry
         // cppcheck-suppress returnReference
         return root;
     }
-
 
     std::string TelemetryHelper::serialise()
     {
@@ -163,7 +163,7 @@ namespace Common::Telemetry
 
     void TelemetryHelper::reset()
     {
-        std::scoped_lock scopedLock( m_callbackLock, m_dataLock);
+        std::scoped_lock scopedLock(m_callbackLock, m_dataLock);
         locked_reset();
     }
     void TelemetryHelper::locked_reset()
@@ -179,7 +179,6 @@ namespace Common::Telemetry
             }
         }
         m_root = another.m_root;
-
     }
 
     void TelemetryHelper::clearData()
@@ -197,7 +196,7 @@ namespace Common::Telemetry
 
     std::string TelemetryHelper::serialiseAndReset()
     {
-        std::scoped_lock scopedLock( m_callbackLock, m_dataLock);
+        std::scoped_lock scopedLock(m_callbackLock, m_dataLock);
 
         // Serialise
         std::string serialised = TelemetrySerialiser::serialise(m_root);
@@ -205,15 +204,15 @@ namespace Common::Telemetry
         return serialised;
     }
 
-
     void TelemetryHelper::set(const std::string& key, const TelemetryObject& object, bool stick)
     {
         std::lock_guard<std::mutex> lock(m_dataLock);
         TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
         telemetryObject = object;
-        if ( stick)
+        if (stick)
         {
-            TelemetryObject& telemetryObjectStick = getTelemetryObjectByKey(key, std::ref<TelemetryObject>(m_resetToThis));
+            TelemetryObject& telemetryObjectStick =
+                getTelemetryObjectByKey(key, std::ref<TelemetryObject>(m_resetToThis));
             telemetryObjectStick = object;
         }
     }
@@ -261,7 +260,7 @@ namespace Common::Telemetry
         double sumation = 0;
         for (auto& stat : m_statsCollection[statsKey])
         {
-            double  term = stat - statMean;
+            double term = stat - statMean;
             term = term * term;
             sumation += term;
         }
@@ -300,7 +299,7 @@ namespace Common::Telemetry
         std::map<std::string, double> maxValues;
         for (const auto& keyValuePair : m_statsCollection)
         {
-            set(keyValuePair.first + "-max",getStatMax(keyValuePair.first));
+            set(keyValuePair.first + "-max", getStatMax(keyValuePair.first));
         }
     }
 
@@ -309,14 +308,11 @@ namespace Common::Telemetry
         std::map<std::string, double> maxValues;
         for (const auto& keyValuePair : m_statsCollection)
         {
-            set(keyValuePair.first + "-std-deviation",getStatStdDeviation(keyValuePair.first));
+            set(keyValuePair.first + "-std-deviation", getStatStdDeviation(keyValuePair.first));
         }
     }
 
-    void TelemetryHelper::noLockRestoreRoot(const TelemetryObject& savedTelemetryRoot)
-    {
-        m_root = savedTelemetryRoot;
-    }
+    void TelemetryHelper::noLockRestoreRoot(const TelemetryObject& savedTelemetryRoot) { m_root = savedTelemetryRoot; }
 
     void TelemetryHelper::save()
     {
@@ -324,7 +320,7 @@ namespace Common::Telemetry
         {
             std::lock_guard<std::mutex> lock(m_dataLock);
 
-            if(m_fileSystem->isDirectory(Common::FileSystem::dirName(m_saveTelemetryPath)))
+            if (m_fileSystem->isDirectory(Common::FileSystem::dirName(m_saveTelemetryPath)))
             {
                 TelemetryObject restoreTelemetryObj;
                 restoreTelemetryObj.set(ROOTKEY, m_root);
@@ -340,26 +336,26 @@ namespace Common::Telemetry
                 LOGINFO("Restore directory " << Common::FileSystem::dirName(m_saveTelemetryPath) << " does not exists");
             }
         }
-        catch(std::exception& ex)
+        catch (std::exception& ex)
         {
             LOGINFO("Unable to save telemetry reason: " << ex.what());
         }
     }
 
-    void TelemetryHelper::restore(const std::string &pluginName)
+    void TelemetryHelper::restore(const std::string& pluginName)
     {
         try
         {
             auto restoreDir = Common::ApplicationConfiguration::applicationConfiguration().getData(
-                    Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR);
+                Common::ApplicationConfiguration::TELEMETRY_RESTORE_DIR);
             m_saveTelemetryPath = Common::FileSystem::join(restoreDir, pluginName + "-telemetry.json");
         }
-        catch(std::out_of_range& outOfRange)
+        catch (std::out_of_range& outOfRange)
         {
             LOGERROR("Telemetry restore directory path is not defined");
             return;
         }
-        
+
         try
         {
             if (m_fileSystem->isFile(m_saveTelemetryPath))
@@ -377,15 +373,16 @@ namespace Common::Telemetry
                 LOGINFO("There is no saved telemetry at: " << m_saveTelemetryPath);
             }
         }
-        catch(std::exception& ex)
+        catch (std::exception& ex)
         {
             LOGINFO("Restore Telemetry unsuccessful reason: " << ex.what());
-            if( m_fileSystem->isFile(m_saveTelemetryPath) )
+            if (m_fileSystem->isFile(m_saveTelemetryPath))
             {
-                try {
+                try
+                {
                     m_fileSystem->removeFile(m_saveTelemetryPath);
                 }
-                catch(std::exception& ex)
+                catch (std::exception& ex)
                 {
                     LOGINFO("Failed to remove cached telemetry file, reason: " << ex.what());
                 }
@@ -396,10 +393,10 @@ namespace Common::Telemetry
     TelemetryObject TelemetryHelper::noLockStatsCollectionToTelemetryObject()
     {
         TelemetryObject statsTelemetryObj;
-        for(const auto& values : m_statsCollection)
+        for (const auto& values : m_statsCollection)
         {
             std::list<TelemetryObject> valuesTelemetryObject;
-            for(const auto& value : values.second)
+            for (const auto& value : values.second)
             {
                 TelemetryObject valueTObj;
                 valueTObj.set(TelemetryValue(value));
@@ -412,13 +409,13 @@ namespace Common::Telemetry
 
     void TelemetryHelper::noLockUpdateStatsCollection(const TelemetryObject& statsObject)
     {
-       auto statsCollection = statsObject.getChildObjects();
-       for( auto stat : statsCollection)
-       {
-           for(const auto& value : stat.second.getArray())
-           {
-               noLockAppendStat(stat.first, value.getValue().getDouble());
-           }
-       }
+        auto statsCollection = statsObject.getChildObjects();
+        for (auto stat : statsCollection)
+        {
+            for (const auto& value : stat.second.getArray())
+            {
+                noLockAppendStat(stat.first, value.getValue().getDouble());
+            }
+        }
     }
 } // namespace Common::Telemetry

@@ -32,23 +32,23 @@ namespace Common::HttpSender
             const std::string& certPath,
             const std::string& resourcePath);
 
-        RequestConfig() = default; 
+        RequestConfig() = default;
         ~RequestConfig() = default;
 
-        void setRequestTypeFromString(const std::string& ); 
+        void setRequestTypeFromString(const std::string&);
         void setData(const std::string& data);
         void setServer(const std::string& server);
         void setPort(const int port);
         void setCertPath(const std::string& certPath);
         void setResourcePath(const std::string& resourcePath);
-        void setAdditionalHeaders(std::vector<std::string>); 
+        void setAdditionalHeaders(std::vector<std::string>);
 
         const std::string& getData() const;
         std::vector<std::string> getAdditionalHeaders() const;
         RequestType getRequestType() const;
         const std::string& getCertPath() const;
         const std::string& getServer() const;
-        const std::string& getResourcePath() const ;
+        const std::string& getResourcePath() const;
         std::string getRequestTypeAsString() const;
         int getPort() const;
 
@@ -65,4 +65,4 @@ namespace Common::HttpSender
         std::string m_certPath;
         std::string m_resourcePath;
     };
-} // namespace Common::HttpSenderImpl
+} // namespace Common::HttpSender

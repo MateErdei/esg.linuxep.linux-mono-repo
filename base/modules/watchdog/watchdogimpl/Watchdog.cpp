@@ -16,6 +16,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
+#include <Common/UtilityImpl/ConfigException.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
@@ -25,13 +26,18 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <cstdlib>
 #include <unistd.h>
-#include <Common/UtilityImpl/ConfigException.h>
 
 namespace
 {
     const char* PLUGINNOTFOUND = "Error: Plugin not found";
-    enum class PluginStatus{NotFound, NotRunning, Running, Disabled };
-}
+    enum class PluginStatus
+    {
+        NotFound,
+        NotRunning,
+        Running,
+        Disabled
+    };
+} // namespace
 
 using namespace watchdog::watchdogimpl;
 
@@ -42,9 +48,7 @@ Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) :
 }
 Watchdog::Watchdog() : Watchdog(Common::ZMQWrapperApi::createContext()) {}
 
-Watchdog::~Watchdog()
-{
-}
+Watchdog::~Watchdog() {}
 
 int Watchdog::initialiseAndRun()
 {
@@ -63,9 +67,9 @@ int Watchdog::initialiseAndRun()
 
         addReplierSocketAndHandleToPoll(m_socket.get(), [this]() { this->handleSocketRequest(); });
     }
-    catch (std::exception & ex)
+    catch (std::exception& ex)
     {
-        throw Common::UtilityImpl::ConfigException( "Watchdog", ex.what());
+        throw Common::UtilityImpl::ConfigException("Watchdog", ex.what());
     }
 
     run();
@@ -121,13 +125,10 @@ void Watchdog::handleSocketRequest()
 std::string Watchdog::disablePlugin(const std::string& pluginName)
 {
     LOGINFO("Requesting stop of " << pluginName);
-    PluginStatus status{PluginStatus::NotFound};
-    auto functor = [&status]( Common::ProcessMonitoring::IProcessProxy& processProxy)
-    {
-
+    PluginStatus status{ PluginStatus::NotFound };
+    auto functor = [&status](Common::ProcessMonitoring::IProcessProxy& processProxy) {
         processProxy.setEnabled(false);
         status = PluginStatus::Disabled;
-
     };
 
     ProcessMonitor::applyToProcessProxy(pluginName, functor);
@@ -143,21 +144,16 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
 {
     LOGINFO("Starting " << pluginName);
     bool pluginIsManaged = false;
-    auto detectPluginIsManaged = [&pluginIsManaged]( Common::ProcessMonitoring::IProcessProxy& )
-    {
+    auto detectPluginIsManaged = [&pluginIsManaged](Common::ProcessMonitoring::IProcessProxy&) {
         pluginIsManaged = true;
-
     };
 
-    auto enablePlugin = []( Common::ProcessMonitoring::IProcessProxy& processProxy)
-    {
-        processProxy.setEnabled(true);
-    };
+    auto enablePlugin = [](Common::ProcessMonitoring::IProcessProxy& processProxy) { processProxy.setEnabled(true); };
 
     ProcessMonitor::applyToProcessProxy(pluginName, detectPluginIsManaged);
 
     std::pair<Common::PluginRegistryImpl::PluginInfo, bool> loadResult =
-            Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(pluginName);
+        Common::PluginRegistryImpl::PluginInfo::loadPluginInfoFromRegistry(pluginName);
 
     if (!pluginIsManaged && !loadResult.second)
     {
@@ -174,10 +170,9 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
     {
         // update info from disk
 
-        auto infoUpdater = [&loadResult](Common::ProcessMonitoring::IProcessProxy& processProxy )
-        {
+        auto infoUpdater = [&loadResult](Common::ProcessMonitoring::IProcessProxy& processProxy) {
             PluginProxy* proxy = dynamic_cast<PluginProxy*>(&processProxy);
-            if( proxy != nullptr)
+            if (proxy != nullptr)
             {
                 proxy->updatePluginInfo(loadResult.first);
             }
@@ -238,13 +233,13 @@ std::string Watchdog::handleCommand(Common::ZeroMQWrapper::IReadable::data_t req
 
 std::string Watchdog::checkPluginIsRunning(const std::string& pluginName)
 {
-    PluginStatus status{PluginStatus::NotFound};
-    auto functor = [&status]( Common::ProcessMonitoring::IProcessProxy& processProxy)
-    {
-        if ( processProxy.isRunning())
+    PluginStatus status{ PluginStatus::NotFound };
+    auto functor = [&status](Common::ProcessMonitoring::IProcessProxy& processProxy) {
+        if (processProxy.isRunning())
         {
             status = PluginStatus::Running;
-        } else
+        }
+        else
         {
             status = PluginStatus::NotRunning;
         }

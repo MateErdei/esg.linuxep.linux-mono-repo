@@ -12,10 +12,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Logging/FileLoggingSetup.h>
 #include <sys/select.h>
 #include <wdctl/wdctlactions/CopyPlugin.h>
+#include <wdctl/wdctlactions/IsRunning.h>
 #include <wdctl/wdctlactions/RemoveAction.h>
 #include <wdctl/wdctlactions/StartAction.h>
 #include <wdctl/wdctlactions/StopAction.h>
-#include <wdctl/wdctlactions/IsRunning.h>
 
 #include <csignal>
 #include <cstdlib>
@@ -80,19 +80,18 @@ int wdctl_bootstrap::main_afterLogConfigured(const StringVector& args, bool dete
     {
         action.reset(new wdctl::wdctlactions::RemoveAction(m_args));
     }
-    else if ( command == "isrunning")
+    else if (command == "isrunning")
     {
-        action.reset( new wdctl::wdctlactions::IsRunning(m_args));
+        action.reset(new wdctl::wdctlactions::IsRunning(m_args));
     }
     else
     {
         LOGERROR("Unknown command: " << m_args.m_command);
         return 10;
     }
-    if( !detectWatchdog)
+    if (!detectWatchdog)
     {
         action->setSkipWatchdogDetection();
     }
     return action->run();
 }
-

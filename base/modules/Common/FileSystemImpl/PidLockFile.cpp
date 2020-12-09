@@ -86,10 +86,7 @@ namespace Common
             return ::open(pathname.c_str(), flags, mode);
         }
 
-        int PidLockFileUtils::flock(int fd) const
-        {
-            return ::flock(fd, LOCK_EX | LOCK_NB);
-        }
+        int PidLockFileUtils::flock(int fd) const { return ::flock(fd, LOCK_EX | LOCK_NB); }
 
         int PidLockFileUtils::ftruncate(int fd, off_t length) const { return ::ftruncate(fd, length); }
 
@@ -105,10 +102,9 @@ namespace Common
 
 std::unique_ptr<Common::FileSystem::ILockFileHolder> Common::FileSystem::acquireLockFile(const std::string& fullPath)
 {
-    std::unique_ptr<Common::FileSystem::ILockFileHolder> pidLock{ new Common::FileSystemImpl::PidLockFile(fullPath)};
+    std::unique_ptr<Common::FileSystem::ILockFileHolder> pidLock{ new Common::FileSystemImpl::PidLockFile(fullPath) };
     return pidLock;
 }
-
 
 Common::FileSystemImpl::IPidLockFileUtilsPtr& pidLockUtilsStaticPointer()
 {

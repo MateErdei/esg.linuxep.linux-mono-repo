@@ -9,7 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace sophos
 {
-    //use an inteface to allow unit testing with different users
+    // use an inteface to allow unit testing with different users
     class ISophosSplUsers
     {
     public:
@@ -44,4 +44,4 @@ namespace sophos
         [[nodiscard]] virtual std::string splLocalGroup() const = 0;
     };
 
-} // namespace Common::sophos
+} // namespace sophos

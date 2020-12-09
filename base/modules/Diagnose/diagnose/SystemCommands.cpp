@@ -77,13 +77,13 @@ namespace diagnose
 
         processPtr->exec(command, args);
         auto period = Common::Process::milli(GL_ProcTimeoutMilliSecs);
-        if (processPtr->wait(period, GL_ProcMaxRetries) !=
-            Common::Process::ProcessStatus::FINISHED)
+        if (processPtr->wait(period, GL_ProcMaxRetries) != Common::Process::ProcessStatus::FINISHED)
         {
             processPtr->kill();
             auto output = processPtr->output();
             std::stringstream ssTimeoutMessage;
-            ssTimeoutMessage << "Timed out after " << std::chrono::duration_cast<std::chrono::seconds>(period * GL_ProcMaxRetries).count()
+            ssTimeoutMessage << "Timed out after "
+                             << std::chrono::duration_cast<std::chrono::seconds>(period * GL_ProcMaxRetries).count()
                              << "s while running: '" << commandAndArgs << "'";
             throw SystemCommandsException(ssTimeoutMessage.str(), output);
         }

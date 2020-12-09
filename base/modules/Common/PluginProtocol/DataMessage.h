@@ -80,7 +80,7 @@ namespace Common
              * correlation id refers to the id of the command received by central.
              * Currently, it is populated only by Command Request (LiveQuery)
              */
-             std::string m_correlationId;
+            std::string m_correlationId;
         };
 
         std::string ConvertCommandEnumToString(Commands command);

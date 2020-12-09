@@ -40,4 +40,4 @@ namespace sophos
      */
     std::string updateSchedulerUser();
 
-} // namespace Common
+} // namespace sophos

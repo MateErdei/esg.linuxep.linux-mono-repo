@@ -10,11 +10,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 log4cplus::Logger& getNameOfMyLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getNameOfMyLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getNameOfMyLogger(), x)       // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getNameOfMyLogger(), x) // NOLINT
+#define LOGINFO(x) LOG4CPLUS_INFO(getNameOfMyLogger(), x) // NOLINT
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getNameOfMyLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getNameOfMyLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getNameOfMyLogger(), x)     // NOLINT
+#define LOGWARN(x) LOG4CPLUS_WARN(getNameOfMyLogger(), x) // NOLINT
+#define LOGERROR(x) LOG4CPLUS_ERROR(getNameOfMyLogger(), x) // NOLINT
 
 /*
  * 1. Copy the lines above and rename it Logger.h

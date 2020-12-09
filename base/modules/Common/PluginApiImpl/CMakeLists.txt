@@ -29,12 +29,12 @@ add_library(pluginapiobjects OBJECT
         ../PluginApi/NoPolicyAvailableException.cpp
         ../PluginApi/NoACKReplyException.h)
 
-target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR} )
-add_library(pluginapiimpl SHARED $<TARGET_OBJECTS:pluginapiobjects> )
+target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR})
+add_library(pluginapiimpl SHARED $<TARGET_OBJECTS:pluginapiobjects>)
 
 target_link_libraries(pluginapiimpl PUBLIC threads pluginprotocol ${LOG4CPLUS_LIBRARY} eventtypesimpl zmqwrapperapiimpl telemetryhelperimpl logging)
 
-SET_TARGET_PROPERTIES( pluginapiimpl
+SET_TARGET_PROPERTIES(pluginapiimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS pluginapiimpl

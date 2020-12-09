@@ -93,7 +93,7 @@ namespace Common::ApplicationConfiguration
          * The file will be only used when wanting to test the product with dev warehouses.
          * @return the full path for sophos_alias.txt file.
          */
-        virtual std::string getSophosAliasFilePath() const  = 0;
+        virtual std::string getSophosAliasFilePath() const = 0;
     };
 
     IApplicationPathManager& applicationPathManager();

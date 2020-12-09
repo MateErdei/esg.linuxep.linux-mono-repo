@@ -101,7 +101,6 @@ namespace Common
             virtual std::pair<bool, gid_t> getExecutableGroup() const = 0;
 
             virtual int getSecondsToShutDown() const = 0;
-
         };
 
         using IProcessInfoPtr = std::unique_ptr<IProcessInfo>;

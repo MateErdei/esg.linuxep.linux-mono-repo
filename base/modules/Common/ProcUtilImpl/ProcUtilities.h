@@ -11,7 +11,6 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 namespace Proc
 {
-
     /// Related to the content of /proc/pid/stat
     struct ProcStat
     {
@@ -34,7 +33,6 @@ namespace Proc
         /** Filename of the executable*/
         std::string comm;
     };
-
 
     /** Parse the content of /proc/pid/stat and return the ProcStat as optional for cases where the parse can not suceed
      * This method does not aim to be generic to work for all possible cases, but to be capable of correctly parsing the

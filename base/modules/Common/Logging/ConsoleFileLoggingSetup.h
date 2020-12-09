@@ -20,4 +20,3 @@ namespace Common
         };
     } // namespace Logging
 } // namespace Common
-

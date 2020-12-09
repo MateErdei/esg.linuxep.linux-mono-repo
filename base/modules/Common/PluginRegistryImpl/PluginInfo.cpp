@@ -70,7 +70,7 @@ namespace Common
                 pluginInfoProto.add_statusappids(statusAppId);
             }
 
-            if ( pluginInfo.getIsManagedPlugin())
+            if (pluginInfo.getIsManagedPlugin())
             {
                 pluginInfoProto.set_pluginname(pluginInfo.getPluginName());
             }
@@ -103,7 +103,7 @@ namespace Common
             using namespace google::protobuf::util;
             ProtoPluginInfo protoPluginInfo;
             JsonParseOptions jsonParseOptions;
-            jsonParseOptions.ignore_unknown_fields = true; 
+            jsonParseOptions.ignore_unknown_fields = true;
 
             auto status = JsonStringToMessage(settingsString, &protoPluginInfo, jsonParseOptions);
 
@@ -132,7 +132,7 @@ namespace Common
             std::string pluginname = protoPluginInfo.pluginname();
             if (pluginname.empty())
             {
-                //all plugins without names in the json configs are not managed by sophos_management
+                // all plugins without names in the json configs are not managed by sophos_management
                 // this covers mcsrouter and sophos_management itsself
                 pluginInfo.setIsManagedPlugin(false);
                 pluginname = pluginNameFromFilename;

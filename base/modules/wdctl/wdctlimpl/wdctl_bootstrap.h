@@ -18,7 +18,7 @@ namespace wdctl
         public:
             int main(int argc, char* argv[]);
             int main(const StringVector& args);
-            int main_afterLogConfigured(const StringVector & args, bool detectWatchdog = true);
+            int main_afterLogConfigured(const StringVector& args, bool detectWatchdog = true);
             static StringVector convertArgv(unsigned int argc, char* argv[]);
 
         private:

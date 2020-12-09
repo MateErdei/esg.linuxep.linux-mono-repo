@@ -19,9 +19,9 @@ namespace
 
     struct AttributesEntry
     {
-        std::string fullpath; // NOLINT(misc-non-private-member-variables-in-classes)
+        std::string fullpath;               // NOLINT(misc-non-private-member-variables-in-classes)
         AttributePairCollection attributes; // NOLINT(misc-non-private-member-variables-in-classes)
-        std::string content; // NOLINT(misc-non-private-member-variables-in-classes)
+        std::string content;                // NOLINT(misc-non-private-member-variables-in-classes)
         void appendText(const std::string&);
     };
 
@@ -86,7 +86,7 @@ namespace
         auto attributesMap() const -> std::unordered_map<std::string, Attributes>;
 
         std::vector<std::string> m_pathIds; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-        XML_Parser m_parser; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
+        XML_Parser m_parser;                // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
     private:
         auto getElementPath(const std::string& currentElement, const std::string& id) -> std::string;
@@ -100,12 +100,7 @@ namespace
 
     /** implementation of SimpleXmlParser **/
     SimpleXmlParser::SimpleXmlParser(XML_Parser parser, size_t maxdepth) :
-        m_parser(parser),
-        m_stack(),
-        m_attributesMap(),
-        m_maxdepth(maxdepth),
-        m_lastEntry(""),
-        m_entryCount(0)
+        m_parser(parser), m_stack(), m_attributesMap(), m_maxdepth(maxdepth), m_lastEntry(""), m_entryCount(0)
     {
     }
 
@@ -131,7 +126,8 @@ namespace
         {
             topElement.attributes.push_back(AttributePair{ Attributes::TextId, topElement.content });
         }
-        m_attributesMap[topElement.fullpath] = Attributes(std::move(topElement.attributes), std::move(topElement.content));
+        m_attributesMap[topElement.fullpath] =
+            Attributes(std::move(topElement.attributes), std::move(topElement.content));
         m_stack.pop();
     }
 
@@ -171,10 +167,7 @@ namespace
         return elementPath;
     }
 
-    std::unordered_map<std::string, Attributes> SimpleXmlParser::attributesMap() const
-    {
-        return m_attributesMap;
-    }
+    std::unordered_map<std::string, Attributes> SimpleXmlParser::attributesMap() const { return m_attributesMap; }
 
     /** call backs for lib expat **/
 
@@ -223,17 +216,14 @@ namespace Common::XmlUtilities
 {
     /** Attributes **/
     const std::string Attributes::TextId("TextId"); // NOLINT(cert-err58-cpp)
-    Attributes::Attributes(AttributePairCollection attributes, std::string contents)
-        : m_attributes(std::move(attributes)),
-          m_contents(std::move(contents))
-    {}
+    Attributes::Attributes(AttributePairCollection attributes, std::string contents) :
+        m_attributes(std::move(attributes)), m_contents(std::move(contents))
+    {
+    }
 
     Attributes::Attributes() = default;
 
-    auto Attributes::empty() const -> bool
-    {
-        return m_attributes.empty();
-    }
+    auto Attributes::empty() const -> bool { return m_attributes.empty(); }
 
     auto Attributes::value(const std::string& attributeName, const std::string& defaultValue) const -> std::string
     {
@@ -247,17 +237,13 @@ namespace Common::XmlUtilities
         return defaultValue;
     }
 
-    auto Attributes::contents() const -> std::string
-    {
-        return m_contents;
-    }
+    auto Attributes::contents() const -> std::string { return m_contents; }
 
     /** SimpleXml **/
     AttributesMap::AttributesMap(
         std::unordered_map<std::string, Attributes> attributesMap,
         std::vector<std::string> idOrderedFullName) :
-        m_attributesMap(std::move(attributesMap)),
-        m_idOrderedFullName(std::move(idOrderedFullName))
+        m_attributesMap(std::move(attributesMap)), m_idOrderedFullName(std::move(idOrderedFullName))
     {
     }
 
@@ -276,8 +262,8 @@ namespace Common::XmlUtilities
         return entitiesThatContainPath(entityPath, true);
     }
 
-    auto AttributesMap::entitiesThatContainPath(const std::string &entityPath,
-                                                bool includeChildren) const -> std::vector<std::string>
+    auto AttributesMap::entitiesThatContainPath(const std::string& entityPath, bool includeChildren) const
+        -> std::vector<std::string>
     {
         std::vector<std::string> fullPaths;
         for (const auto& fullPathEntry : m_idOrderedFullName)
@@ -299,7 +285,8 @@ namespace Common::XmlUtilities
         std::vector<Attributes> results;
         for (const auto& fullPathEntry : m_idOrderedFullName)
         {
-            if (fullPathEntry.find(entityFullPath) == 0 && fullPathEntry.substr(entityFullPath.size()).find('/') == std::string::npos)
+            if (fullPathEntry.find(entityFullPath) == 0 &&
+                fullPathEntry.substr(entityFullPath.size()).find('/') == std::string::npos)
             {
                 results.push_back(m_attributesMap.at(fullPathEntry));
             }
@@ -333,10 +320,7 @@ namespace Common::XmlUtilities
             throw XmlUtilitiesException(errorInfoStream.str());
         }
 
-        return AttributesMap(
-                simpleXmlParser.attributesMap(),
-                std::move(simpleXmlParser.m_pathIds)
-                );
+        return AttributesMap(simpleXmlParser.attributesMap(), std::move(simpleXmlParser.m_pathIds));
     }
 
 } // namespace Common::XmlUtilities

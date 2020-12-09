@@ -7,7 +7,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "TelemetryObject.h"
+
 #include <Common/FileSystem/IFileSystem.h>
+
 #include <functional>
 #include <mutex>
 #include <string>
@@ -33,7 +35,7 @@ namespace Common::Telemetry
         void set(const std::string& key, const std::string& value);
         void set(const std::string& key, const char* value);
         void set(const std::string& key, bool value);
-        void set(const std::string& key, const TelemetryObject & object, bool stick);
+        void set(const std::string& key, const TelemetryObject& object, bool stick);
 
         /**
          *  Increments the value of the key by the value passed in
@@ -78,17 +80,16 @@ namespace Common::Telemetry
         std::string serialise();
         std::string serialiseAndReset();
         void save();
-        void restore(const std::string &pluginName);
-        // Both TelemetryHelper and FileSystem are often used as singleton. Having dependency in 'static' objects is not good. 
-        // For this reason, TelemetryHelper will have an instance of the FileSystemImpl. For some tests that need to verify or 
-        // mock the call for the filesystem, they may use this method. 
-        void replaceFS(std::unique_ptr<Common::FileSystem::IFileSystem>); 
-
+        void restore(const std::string& pluginName);
+        // Both TelemetryHelper and FileSystem are often used as singleton. Having dependency in 'static' objects is not
+        // good. For this reason, TelemetryHelper will have an instance of the FileSystemImpl. For some tests that need
+        // to verify or mock the call for the filesystem, they may use this method.
+        void replaceFS(std::unique_ptr<Common::FileSystem::IFileSystem>);
 
         // Normally with a singleton the constructor is private but here we make the constructor public
         // so that plugins can instantiate multiple Telemetry Helpers and not share a root data structure if they want
         // to.
-        TelemetryHelper();        
+        TelemetryHelper();
 
     private:
         TelemetryObject m_root;
@@ -98,7 +99,7 @@ namespace Common::Telemetry
         std::map<std::string, std::function<void(TelemetryHelper&)>> m_callbacks;
         std::map<std::string, std::vector<double>> m_statsCollection;
         std::string m_saveTelemetryPath;
-        std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem; 
+        std::unique_ptr<Common::FileSystem::IFileSystem> m_fileSystem;
 
         void locked_reset();
 
@@ -108,9 +109,9 @@ namespace Common::Telemetry
             std::lock_guard<std::mutex> lock(m_dataLock);
             TelemetryValue telemetryValue(value);
             getTelemetryObjectByKey(key).set(telemetryValue);
-            if ( stick )
+            if (stick)
             {
-                getTelemetryObjectByKey(key,m_resetToThis).set(telemetryValue);
+                getTelemetryObjectByKey(key, m_resetToThis).set(telemetryValue);
             }
         }
 
@@ -180,14 +181,16 @@ namespace Common::Telemetry
         }
 
         TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);
-        TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath, std::reference_wrapper<TelemetryObject> root);
+        TelemetryObject& getTelemetryObjectByKey(
+            const std::string& keyPath,
+            std::reference_wrapper<TelemetryObject> root);
         void clearData();
 
         // The following set of lockedXxx... methods do not lock the mutex before access.
         // the calling method must acquire the mutex before calling them
         TelemetryObject noLockStatsCollectionToTelemetryObject();
         void noLockUpdateStatsCollection(const TelemetryObject& statsObject);
-        void noLockRestoreRoot(const TelemetryObject &savedTelemetryRoot);
-        void noLockAppendStat(const std::string &statsKey, double value);
+        void noLockRestoreRoot(const TelemetryObject& savedTelemetryRoot);
+        void noLockAppendStat(const std::string& statsKey, double value);
     };
 } // namespace Common::Telemetry

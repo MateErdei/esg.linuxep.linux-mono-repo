@@ -6,9 +6,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "AbstractListenerServer.h"
 
+#include "Logger.h"
+
 #include "Common/PluginApi/ApiException.h"
 #include "Common/ReactorImpl/ReactorImpl.h"
-#include "Logger.h"
 namespace Common
 {
     namespace PluginProtocol

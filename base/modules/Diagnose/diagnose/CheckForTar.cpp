@@ -10,10 +10,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include <cstdlib>
 #include <vector>
 
 namespace
@@ -69,7 +69,7 @@ bool diagnose::CheckForTar::isTarAvailable()
     {
         path = Common::UtilityImpl::StringUtils::checkAndConstruct(PATH);
     }
-    catch (std::invalid_argument &e)
+    catch (std::invalid_argument& e)
     {
         LOGERROR("Path is not valid utf8: " << PATH);
         return false;

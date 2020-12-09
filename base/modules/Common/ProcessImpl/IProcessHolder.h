@@ -9,19 +9,17 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcess.h>
 #include <sys/types.h>
 
+#include <atomic>
 #include <functional>
 #include <mutex>
-#include <atomic>
 namespace Common
 {
     namespace ProcessImpl
     {
-
         class IProcessHolder
         {
         public:
-            virtual ~IProcessHolder()
-            {};
+            virtual ~IProcessHolder(){};
 
             virtual int pid() = 0;
 
@@ -39,5 +37,5 @@ namespace Common
 
             virtual void kill() = 0;
         };
-    }
-}
+    } // namespace ProcessImpl
+} // namespace Common

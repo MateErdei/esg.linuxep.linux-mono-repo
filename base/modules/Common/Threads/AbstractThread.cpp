@@ -10,11 +10,7 @@ namespace Common
     namespace Threads
     {
         AbstractThread::AbstractThread() :
-            m_threadStarted(),
-            m_ensureThreadStarted(),
-            m_notifyPipe(),
-            m_thread(),
-            m_threadStartedFlag(false)
+            m_threadStarted(), m_ensureThreadStarted(), m_notifyPipe(), m_thread(), m_threadStartedFlag(false)
         {
         }
 

@@ -22,8 +22,7 @@ namespace Telemetry
 
     std::string PluginTelemetryReporter::getTelemetry() { return m_pluginProxy->getTelemetry(); }
 
-    PluginTelemetryReporterWithoutIPC::PluginTelemetryReporterWithoutIPC(
-        std::string pluginName) :
+    PluginTelemetryReporterWithoutIPC::PluginTelemetryReporterWithoutIPC(std::string pluginName) :
         m_pluginName(std::move(pluginName))
     {
     }

@@ -29,22 +29,25 @@ namespace Common
         {
         }
 
-        std::string PluginCallBackHandler::GetContentFromPayload(Common::PluginProtocol::Commands commandType, const std::string& payload) const
+        std::string PluginCallBackHandler::GetContentFromPayload(
+            Common::PluginProtocol::Commands commandType,
+            const std::string& payload) const
         {
             // If the payload does not contain .xml extension assume payload is not a file name but the data
             // if the payload is the data, this should only be for commands such as TriggerUpdate from watchdog.
 
-            std::string payloadData(payload);                        
-            if( Common::FileSystem::basename(payload) != payload)
+            std::string payloadData(payload);
+            if (Common::FileSystem::basename(payload) != payload)
             {
-                LOGINFO(payload); 
-                throw PluginCommunication::IPluginCommunicationException("Invalid payload in message, expected only file name");
+                LOGINFO(payload);
+                throw PluginCommunication::IPluginCommunicationException(
+                    "Invalid payload in message, expected only file name");
             }
 
             if ((payload.find(".xml") != std::string::npos) || (payload.find(".json") != std::string::npos))
             {
                 std::string rootPath("");
-                if(commandType == Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY)
+                if (commandType == Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY)
                 {
                     rootPath = Common::ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
                 }
@@ -59,10 +62,11 @@ namespace Common
 
                 try
                 {
-                    payloadData = Common::FileSystem::fileSystem()->readFile(Common::FileSystem::join(rootPath, payload));
+                    payloadData =
+                        Common::FileSystem::fileSystem()->readFile(Common::FileSystem::join(rootPath, payload));
                     return payloadData;
                 }
-                catch(Common::FileSystem::IFileSystemException& ex)
+                catch (Common::FileSystem::IFileSystemException& ex)
                 {
                     std::stringstream errorMessage;
                     errorMessage << "Failed to read action file" << payload << ", error, " << ex.what();
@@ -72,15 +76,15 @@ namespace Common
             else
             {
                 // Allowed list of non file name strings
-                for(auto& allowedStringData : {"TriggerUpdate"})
+                for (auto& allowedStringData : { "TriggerUpdate" })
                 {
-                    if(payloadData == allowedStringData)
+                    if (payloadData == allowedStringData)
                     {
                         return payloadData;
                     }
                 }
             }
-            LOGDEBUG(payload); 
+            LOGDEBUG(payload);
 
             throw PluginCommunication::IPluginCommunicationException("Invalid command sent.");
         }
@@ -98,16 +102,21 @@ namespace Common
                         // Some actions are passed as content when not coming from MCS communication channel.
                         // i.e. when coming directly from watchdog
 
-                        m_pluginCallback->applyNewPolicyWithAppId( request.m_applicationId, GetContentFromPayload(Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
-                                                  m_messageBuilder.requestExtractPolicy(request)));
+                        m_pluginCallback->applyNewPolicyWithAppId(
+                            request.m_applicationId,
+                            GetContentFromPayload(
+                                Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY,
+                                m_messageBuilder.requestExtractPolicy(request)));
 
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION:
                         LOGSUPPORT("Received new Action");
 
                         m_pluginCallback->queueActionWithCorrelation(
-                            GetContentFromPayload(Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION,
-                                                  m_messageBuilder.requestExtractAction(request)), request.m_correlationId);
+                            GetContentFromPayload(
+                                Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION,
+                                m_messageBuilder.requestExtractAction(request)),
+                            request.m_correlationId);
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS:
                     {

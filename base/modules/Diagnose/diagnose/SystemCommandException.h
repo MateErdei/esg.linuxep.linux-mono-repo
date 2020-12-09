@@ -14,8 +14,7 @@ namespace diagnose
     {
     public:
         SystemCommandsException(const std::string& what, const std::string& output) :
-            IProcessException(what),
-            m_message(output)
+            IProcessException(what), m_message(output)
         {
         }
 

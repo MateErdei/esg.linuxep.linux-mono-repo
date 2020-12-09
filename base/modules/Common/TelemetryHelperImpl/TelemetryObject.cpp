@@ -142,11 +142,11 @@ void Common::Telemetry::TelemetryObject::checkType(Type expectedType) const
     }
 }
 
-Common::Telemetry::TelemetryObject
-Common::Telemetry::TelemetryObject::fromVectorOfKeyValues(const std::vector<std::pair<std::string, std::string>>& entries)
+Common::Telemetry::TelemetryObject Common::Telemetry::TelemetryObject::fromVectorOfKeyValues(
+    const std::vector<std::pair<std::string, std::string>>& entries)
 {
     Common::Telemetry::TelemetryObject groupedObject;
-    for( auto & entry: entries)
+    for (auto& entry : entries)
     {
         Common::Telemetry::TelemetryValue value;
         value.set(entry.second);

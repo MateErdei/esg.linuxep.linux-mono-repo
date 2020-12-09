@@ -20,20 +20,18 @@ namespace Common
 {
     namespace ProcessMonitoringImpl
     {
-        ProcessProxy::ProcessSharedState::ProcessSharedState()
-        :            m_mutex{},
-                     m_enabled(true),
-                     m_running(false),
-                     m_process(Common::Process::createProcess()),
-                     m_deathTime(0),
-                     m_killIssuedTime(0)
+        ProcessProxy::ProcessSharedState::ProcessSharedState() :
+            m_mutex{},
+            m_enabled(true),
+            m_running(false),
+            m_process(Common::Process::createProcess()),
+            m_deathTime(0),
+            m_killIssuedTime(0)
         {
-
         }
 
         ProcessProxy::ProcessProxy(Common::Process::IProcessInfoPtr processInfo) :
-            m_processInfo(std::move(processInfo)),
-            m_sharedState()
+            m_processInfo(std::move(processInfo)), m_sharedState()
         {
             m_exe = m_processInfo->getExecutableFullPath();
             if ((!m_exe.empty()) && m_exe[0] != '/')
@@ -82,13 +80,15 @@ namespace Common
             m_sharedState.m_running = true;
         }
 
-        void ProcessProxy::stop() {
+        void ProcessProxy::stop()
+        {
             std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
             lock_acquired_stop();
         }
         void ProcessProxy::lock_acquired_stop()
         {
-            if (m_exe.empty()) {
+            if (m_exe.empty())
+            {
                 return;
             }
 
@@ -103,7 +103,6 @@ namespace Common
 
         Common::Process::ProcessStatus ProcessProxy::status()
         {
-
             if (m_exe.empty())
             {
                 return Common::Process::ProcessStatus::FINISHED;
@@ -145,7 +144,8 @@ namespace Common
                     {
                         if (m_sharedState.m_killIssuedTime != 0)
                         {
-                            time_t secondsElapsed = Common::UtilityImpl::TimeUtils::getCurrTime() - m_sharedState.m_killIssuedTime;
+                            time_t secondsElapsed =
+                                Common::UtilityImpl::TimeUtils::getCurrTime() - m_sharedState.m_killIssuedTime;
                             LOGWARN(
                                 m_exe << " killed after waiting for " << secondsElapsed
                                       << " seconds for it to stop cleanly");
@@ -238,22 +238,20 @@ namespace Common
 
         bool ProcessProxy::isRunning()
         {
-
-            std::pair<std::chrono::seconds, Process::ProcessStatus>  data = checkForExit();
+            std::pair<std::chrono::seconds, Process::ProcessStatus> data = checkForExit();
             return data.second == Process::ProcessStatus::RUNNING;
         }
 
-        std::string ProcessProxy::name() const
-        {
-            return "";
-        }
+        std::string ProcessProxy::name() const { return ""; }
 
-        bool ProcessProxy::runningFlag() {
+        bool ProcessProxy::runningFlag()
+        {
             std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
             return m_sharedState.m_running;
         }
 
-        bool ProcessProxy::enabledFlag() {
+        bool ProcessProxy::enabledFlag()
+        {
             std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
             return m_sharedState.m_enabled;
         }

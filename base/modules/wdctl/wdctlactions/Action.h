@@ -26,17 +26,12 @@ namespace wdctl
 
             virtual int run() = 0;
 
-            void setSkipWatchdogDetection()
-            {
-                m_detectWatchdog = false;
-            }
+            void setSkipWatchdogDetection() { m_detectWatchdog = false; }
 
         protected:
             const Arguments& m_args;
-            bool detectWatchdog() const
-            {
-                return m_detectWatchdog;
-            }
+            bool detectWatchdog() const { return m_detectWatchdog; }
+
         private:
             bool m_detectWatchdog = true;
         };

@@ -15,16 +15,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <sys/types.h>
 
 #include <cassert>
-#include <cstring>
 #include <dirent.h>
+#include <fcntl.h>
 #include <fstream>
 #include <grp.h>
 #include <iostream>
-#include <pwd.h>
 #include <sstream>
 #include <unistd.h>
-#include <fcntl.h>
-
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
@@ -141,7 +138,9 @@ namespace Common
 
         bool FileSystemImpl::isFile(const Path& path) const
         {
-            struct stat statbuf{};
+            struct stat statbuf
+            {
+            };
             int ret = stat(path.c_str(), &statbuf);
             if (ret != 0)
             { // if it does not exists, it is not a file
@@ -152,7 +151,9 @@ namespace Common
 
         bool FileSystemImpl::isDirectory(const Path& path) const
         {
-            struct stat statbuf{};
+            struct stat statbuf
+            {
+            };
             int ret = stat(path.c_str(), &statbuf);
             if (ret != 0)
             { // if it does not exists, it is not a directory
@@ -163,7 +164,9 @@ namespace Common
 
         bool FileSystemImpl::isFileOrDirectory(const Path& path) const
         {
-            struct stat statbuf{};
+            struct stat statbuf
+            {
+            };
             int ret = stat(path.c_str(), &statbuf);
             if (ret != 0)
             { // if it does not exists, it is not a file
@@ -174,7 +177,9 @@ namespace Common
 
         bool FileSystemImpl::isSymlink(const Path& path) const
         {
-            struct stat statbuf{};
+            struct stat statbuf
+            {
+            };
             int ret = ::lstat(path.c_str(), &statbuf);
             if (ret != 0)
             { // if it does not exists, it is not a directory
@@ -253,9 +258,13 @@ namespace Common
             }
         }
 
-        std::vector<std::string> FileSystemImpl::readLines(const Path& path) const { return readLines(path, GL_MAX_SIZE); }
+        std::vector<std::string> FileSystemImpl::readLines(const Path& path) const
+        {
+            return readLines(path, GL_MAX_SIZE);
+        }
 
-        std::vector<std::string> FileSystemImpl::readLines(const Path& path, unsigned long maxSize) const {
+        std::vector<std::string> FileSystemImpl::readLines(const Path& path, unsigned long maxSize) const
+        {
             std::vector<std::string> list;
             if (isDirectory(path))
             {
@@ -291,16 +300,34 @@ namespace Common
                 }
                 return list;
             }
-            catch (const std::bad_alloc & ex)
+            catch (const std::bad_alloc& ex)
             {
-                LOGSUPPORT( ex.what());
-                throw IFileSystemException("Error, Failed to read from file '" + path + "' caused by memory allocation issue.");
+                LOGSUPPORT(ex.what());
+                throw IFileSystemException(
+                    "Error, Failed to read from file '" + path + "' caused by memory allocation issue.");
             }
             catch (const std::system_error& ex)
             {
                 LOGSUPPORT(ex.what());
                 throw IFileSystemException("Error, Failed to read from file '" + path + "'");
             }
+        }
+
+        void FileSystemImpl::appendFile(const Path& path, const std::string& content) const
+        {
+            std::ofstream outFileStream(path.c_str(), std::ios::app);
+
+            if (!outFileStream.good())
+            {
+                int error = errno;
+                std::string errdesc = StrError(error);
+
+                throw IFileSystemException("Error, Failed to append file: '" + path + "', " + errdesc);
+            }
+
+            outFileStream << content;
+
+            outFileStream.close();
         }
 
         void FileSystemImpl::writeFile(const Path& path, const std::string& content) const
@@ -320,8 +347,11 @@ namespace Common
             outFileStream.close();
         }
 
-        void FileSystemImpl::writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir, mode_t mode)
-            const
+        void FileSystemImpl::writeFileAtomically(
+            const Path& path,
+            const std::string& content,
+            const Path& tempDir,
+            mode_t mode) const
         {
             if (!isDirectory(tempDir))
             {
@@ -334,9 +364,9 @@ namespace Common
             try
             {
                 writeFile(tempFilePath, content);
-                if ( mode != 0)
+                if (mode != 0)
                 {
-                    Common::FileSystem::filePermissions()->chmod(tempFilePath, mode); 
+                    Common::FileSystem::filePermissions()->chmod(tempFilePath, mode);
                 }
                 moveFile(tempFilePath, path);
             }
@@ -350,7 +380,7 @@ namespace Common
             }
         }
 
-        void FileSystemImpl::writeFileAtomically(const Path &path, const std::string &content, const Path &tempDir)
+        void FileSystemImpl::writeFileAtomically(const Path& path, const std::string& content, const Path& tempDir)
             const
         {
             return FileSystemImpl::writeFileAtomically(path, content, tempDir, 0);
@@ -454,7 +484,7 @@ namespace Common
             const std::string& ownerName,
             const std::string& groupName) const
         {
-            auto filePermissions =  Common::FileSystem::filePermissions();
+            auto filePermissions = Common::FileSystem::filePermissions();
             copyFile(src, dest);
             filePermissions->chown(dest, ownerName, groupName);
             filePermissions->chmod(dest, mode);
@@ -558,16 +588,23 @@ namespace Common
             return files;
         }
 
-        void FileSystemImpl::removeFile(const Path& path) const
+        void FileSystemImpl::removeFile(const Path& path, bool ignoreAbsent) const
         {
             if (::remove(path.c_str()) != 0)
             {
                 int error = errno;
+                if (ignoreAbsent && error == ENOENT)
+                {
+                    return;
+                }
+
                 std::string error_cause = StrError(error);
                 throw Common::FileSystem::IFileSystemException(
                     "Failed to delete file: " + path + ". Cause: " + error_cause);
             }
         }
+
+        void FileSystemImpl::removeFile(const Path& path) const { removeFile(path, false); }
 
         void FileSystemImpl::removeFileOrDirectory(const Path& dir) const
         {
@@ -687,39 +724,46 @@ namespace Common
                 return;
             }
             std::vector<Path> files = listFiles(path);
-            for(auto& file : files)
+            for (auto& file : files)
             {
                 LOGSUPPORT("Removed File: " << file);
                 removeFile(file);
             }
         }
-
-        std::string FileSystemImpl::readProcStyleFile(const Path &path) const
+        bool FileSystemImpl::waitForFile(const Path& path, unsigned int timeout) const
         {
-            std::array<char, 4096> buffer {};
+            bool fileExists = false;
+            unsigned int waited = 0;
+            unsigned int waitPeriod = 1000; // 1ms for use with usleep
+            unsigned int target = timeout * 1000;
+            while (!(fileExists = exists(path)) && waited < target)
+            {
+                usleep(waitPeriod);
+                waited += waitPeriod;
+            }
+            return fileExists;
+        }
+        std::optional<std::string> FileSystemImpl::readProcFile(int pid, const std::string& filename) const
+        {
+            // Do not put any logging in this function because
+            // this will be at least called from the comms component at a time when the logging has not been setup
+            std::array<char, 4096> buffer{};
+            std::string path = Common::FileSystem::join("/proc", std::to_string(pid), filename);
             int fd = ::open(path.c_str(), O_RDONLY);
             if (fd < 0)
             {
-                std::stringstream errorMsg;
-                errorMsg << "Could not open: " << path;
-                throw IFileSystemException(errorMsg.str());
+                return std::optional<std::string>{};
             }
             int nbytes = ::read(fd, buffer.data(), buffer.size());
             ::close(fd);
 
             if (nbytes == -1)
             {
-                std::stringstream errorMsg;
-                errorMsg << "Failed to read the content of: " << path;
-                throw IFileSystemException(errorMsg.str());
+                return std::optional<std::string>{};
             }
-            if(nbytes > static_cast<int>(buffer.size()))
-            {
-                std::stringstream errorMsg;
-                errorMsg << "contents of: " << path << ", is larger than buffer: " << buffer.size();
-                throw IFileSystemException(errorMsg.str());
-            }
-            return std::string { buffer.begin(), buffer.begin() + nbytes };        }
+            assert(nbytes <= static_cast<int>(buffer.size()));
+            return std::string{ buffer.begin(), buffer.begin() + nbytes };
+        }
 
         std::unique_ptr<Common::FileSystem::IFileSystem>& fileSystemStaticPointer()
         {

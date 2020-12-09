@@ -9,7 +9,7 @@ add_library(applicationconfigurationimplobject OBJECT
         )
 
 target_include_directories(applicationconfigurationimplobject PUBLIC ../ApplicationConfiguration ../../Common)
-add_library(applicationconfigurationimpl SHARED $<TARGET_OBJECTS:applicationconfigurationimplobject> )
+add_library(applicationconfigurationimpl SHARED $<TARGET_OBJECTS:applicationconfigurationimplobject>)
 
 install(TARGETS applicationconfigurationimpl
         LIBRARY DESTINATION files/base/lib64)

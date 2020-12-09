@@ -5,14 +5,13 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <sstream>
-#include <cstring>
-#include <string>
-#include <vector>
-#include <algorithm>
-
 #include <Common/FileSystem/IFileSystem.h>
 
+#include <algorithm>
+#include <cstring>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace Common
 {
@@ -95,12 +94,12 @@ namespace Common
             static std::vector<std::string> splitString(const std::string& originalstring, const std::string& separator)
             {
                 std::vector<std::string> result;
-                if( originalstring.empty())
+                if (originalstring.empty())
                 {
                     result.push_back(std::string{});
                     return result;
                 }
-                if( separator.empty())
+                if (separator.empty())
                 {
                     result.emplace_back(originalstring);
                     return result;
@@ -149,12 +148,12 @@ namespace Common
                 if (fs->isFile(filePath))
                 {
                     std::vector<std::string> contents = fs->readLines(filePath);
-                    for (auto const &line: contents)
+                    for (auto const& line : contents)
                     {
-                        if (startswith(line, key+" ="))
+                        if (startswith(line, key + " ="))
                         {
                             std::vector<std::string> list = splitString(line, "=");
-                            return list[1].erase(0,1);
+                            return list[1].erase(0, 1);
                         }
                     }
                     return "";
@@ -167,10 +166,11 @@ namespace Common
                 // we are using this to check if the new version is older than the current version
                 //  current version = 1.2   new/warehouse version = 1.3 -> false
                 //  current version = 1.2   new/warehouse version = 1 -> true
-                if (currentVersion.find_first_not_of("1234567890.") != std::string::npos  ||
-                     newVersion.find_first_not_of("1234567890.") != std::string::npos)
+                if (currentVersion.find_first_not_of("1234567890.") != std::string::npos ||
+                    newVersion.find_first_not_of("1234567890.") != std::string::npos)
                 {
-                    throw std::invalid_argument("Invalid version data provided version" + currentVersion + ":" + newVersion );
+                    throw std::invalid_argument(
+                        "Invalid version data provided version" + currentVersion + ":" + newVersion);
                 }
 
                 if (currentVersion == newVersion)
@@ -180,10 +180,10 @@ namespace Common
 
                 std::string space = "";
 
-                std::vector<std::string> version1 = splitString(currentVersion,".");
+                std::vector<std::string> version1 = splitString(currentVersion, ".");
                 version1.erase(std::remove(version1.begin(), version1.end(), space), version1.end());
 
-                std::vector<std::string> version2 = splitString(newVersion,".");
+                std::vector<std::string> version2 = splitString(newVersion, ".");
                 version2.erase(std::remove(version2.begin(), version2.end(), space), version2.end());
 
                 int maxIndex = std::min(version1.size(), version2.size());

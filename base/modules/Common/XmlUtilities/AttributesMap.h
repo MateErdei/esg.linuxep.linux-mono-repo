@@ -28,7 +28,8 @@ namespace Common::XmlUtilities
         explicit Attributes(AttributePairCollection attributes, std::string contents);
         explicit Attributes();
         [[nodiscard]] auto empty() const -> bool;
-        [[nodiscard]] auto value(const std::string& attributeName, const std::string& defaultValue = "") const -> std::string;
+        [[nodiscard]] auto value(const std::string& attributeName, const std::string& defaultValue = "") const
+            -> std::string;
         [[nodiscard]] auto contents() const -> std::string;
 
     private:
@@ -44,7 +45,8 @@ namespace Common::XmlUtilities
             std::vector<std::string> idOrderedFullName);
         auto lookup(const std::string& entityFullPath) const -> Attributes;
         auto entitiesThatContainPath(const std::string& entityPath) const -> std::vector<std::string>;
-        auto entitiesThatContainPath(const std::string& entityPath, bool includeChildren) const -> std::vector<std::string>;
+        auto entitiesThatContainPath(const std::string& entityPath, bool includeChildren) const
+            -> std::vector<std::string>;
 
         /**
          * Get all elements that start with the provided path.

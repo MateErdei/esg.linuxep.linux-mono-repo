@@ -9,9 +9,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-result"
-#include <boost/process/child.hpp>
-#include <boost/process/async_pipe.hpp>
 #include <boost/asio/io_service.hpp>
+#include <boost/process/async_pipe.hpp>
+#include <boost/process/child.hpp>
 
 #pragma GCC diagnostic pop
 
@@ -29,42 +29,42 @@ namespace Common
 
         struct BoostChildProcessDestructor
         {
-            void operator()(boost::process::child * p)
+            void operator()(boost::process::child* p)
             {
                 p->wait();
                 delete p;
             }
         };
 
-        class BoostProcessHolder: public  IProcessHolder
+        class BoostProcessHolder : public IProcessHolder
         {
         public:
             BoostProcessHolder(
-                    const std::string& path,
-                    const std::vector<std::string>& arguments,
-                    const std::vector<Process::EnvironmentPair>& extraEnvironment,
-                    uid_t uid,
-                    gid_t gid,
-                    Process::IProcess::functor callback,
-                    std::function<void(std::string)> notifyTrimmed,
-                    size_t outputLimit,
-                    bool flushOnNewLine);
+                const std::string& path,
+                const std::vector<std::string>& arguments,
+                const std::vector<Process::EnvironmentPair>& extraEnvironment,
+                uid_t uid,
+                gid_t gid,
+                Process::IProcess::functor callback,
+                std::function<void(std::string)> notifyTrimmed,
+                size_t outputLimit,
+                bool flushOnNewLine);
             ~BoostProcessHolder();
-             int pid() override;
+            int pid() override;
 
-             void wait() override;
+            void wait() override;
 
-             Process::ProcessStatus wait(std::chrono::milliseconds timeToWait) override;
+            Process::ProcessStatus wait(std::chrono::milliseconds timeToWait) override;
 
-             int exitCode() override;
+            int exitCode() override;
 
-             std::string output() override;
+            std::string output() override;
 
-             bool hasFinished() override;
+            bool hasFinished() override;
 
-             void sendTerminateSignal() override;
+            void sendTerminateSignal() override;
 
-             void kill() override;
+            void kill() override;
 
         private:
             void armAsyncReaderForChildStdOutput();
@@ -96,8 +96,6 @@ namespace Common
 
             ProcessResult m_cached;
             bool m_enableBufferFlushOnNewLine;
-
         };
-    }
-}
-
+    } // namespace ProcessImpl
+} // namespace Common

@@ -20,18 +20,18 @@ namespace
 {
     struct HoldBody
     {
-        std::string body; 
+        std::string body;
     };
 
-    size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp) //NOLINT
+    size_t write_data(void* buffer, size_t size, size_t nmemb, void* userp) // NOLINT
     {
-        HoldBody * resp = static_cast<HoldBody*>(userp); 
-        char* data = static_cast<char*>(buffer); 
-        resp->body += std::string{data, data + (size*nmemb)};
-        return nmemb; 
+        HoldBody* resp = static_cast<HoldBody*>(userp);
+        char* data = static_cast<char*>(buffer);
+        resp->body += std::string{ data, data + (size * nmemb) };
+        return nmemb;
     }
 
-}
+} // namespace
 
 namespace
 {
@@ -42,8 +42,7 @@ namespace
 
     public:
         CurlScopeGuard(CURL* curl, Common::HttpSender::ICurlWrapper& iCurlWrapper) :
-            m_iCurlWrapper(iCurlWrapper),
-            m_curl(curl)
+            m_iCurlWrapper(iCurlWrapper), m_curl(curl)
         {
         }
 
@@ -57,8 +56,7 @@ namespace
 
     public:
         SListScopeGuard(curl_slist* curl_slist, Common::HttpSender::ICurlWrapper& iCurlWrapper) :
-            m_iCurlWrapper(iCurlWrapper),
-            m_curl_slist(curl_slist)
+            m_iCurlWrapper(iCurlWrapper), m_curl_slist(curl_slist)
         {
         }
 
@@ -91,19 +89,26 @@ namespace Common::HttpSenderImpl
 
     int HttpSender::doHttpsRequest(const RequestConfig& requestConfig)
     {
-        long curlCode; 
-        ProxySettings emptyProxy; 
-        doFetchHttpRequest(requestConfig, emptyProxy, false, &curlCode); 
-        return static_cast<int>(curlCode);   
+        long curlCode;
+        ProxySettings emptyProxy;
+        doFetchHttpRequest(requestConfig, emptyProxy, false, &curlCode);
+        return static_cast<int>(curlCode);
     }
 
-    Common::HttpSender::HttpResponse HttpSender::fetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, bool captureBody, long * curlCode)
+    Common::HttpSender::HttpResponse HttpSender::fetchHttpRequest(
+        const Common::HttpSender::RequestConfig& requestConfig,
+        bool captureBody,
+        long* curlCode)
     {
-        ProxySettings emptyProxy; 
+        ProxySettings emptyProxy;
         return doFetchHttpRequest(requestConfig, emptyProxy, captureBody, curlCode);
     }
 
-    Common::HttpSender::HttpResponse HttpSender::fetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, const ProxySettings& proxySettings, bool captureBody, long * curlCode)
+    Common::HttpSender::HttpResponse HttpSender::fetchHttpRequest(
+        const Common::HttpSender::RequestConfig& requestConfig,
+        const ProxySettings& proxySettings,
+        bool captureBody,
+        long* curlCode)
     {
         if (proxySettings.proxy.empty())
         {
@@ -112,48 +117,54 @@ namespace Common::HttpSenderImpl
         else
         {
             auto response = doFetchHttpRequest(requestConfig, proxySettings, captureBody, curlCode);
-            switch( *curlCode )
+            switch (*curlCode)
             {
-                // there is no reason to re-try for all the possible errors as they 
-                // are not all caused by proxies... 
+                // there is no reason to re-try for all the possible errors as they
+                // are not all caused by proxies...
                 case CURLE_COULDNT_RESOLVE_PROXY:
                 case CURLE_COULDNT_RESOLVE_HOST:
                 case CURLE_COULDNT_CONNECT:
                 case CURLE_OPERATION_TIMEDOUT:
                 case CURLE_SEND_ERROR:
                 case CURLE_RECV_ERROR:
-                    {
-                        LOGINFO("Trying direct connection to resource"); 
-                        ProxySettings emptyProxy; 
-                        response = doFetchHttpRequest(requestConfig, emptyProxy, captureBody, curlCode);
-                    }
-                    break;
-                default:
+                {
+                    LOGINFO("Trying direct connection to resource");
+                    ProxySettings emptyProxy;
+                    response = doFetchHttpRequest(requestConfig, emptyProxy, captureBody, curlCode);
+                }
                 break;
-                    
+                default:
+                    break;
             }
-            response.exitCode = *curlCode; 
-            return response; 
+            response.exitCode = *curlCode;
+            return response;
         }
     }
 
-    Common::HttpSender::HttpResponse HttpSender::doFetchHttpRequest(const Common::HttpSender::RequestConfig& requestConfig, const ProxySettings& proxySettings, bool captureBody, long * curlCode)
+    Common::HttpSender::HttpResponse HttpSender::doFetchHttpRequest(
+        const Common::HttpSender::RequestConfig& requestConfig,
+        const ProxySettings& proxySettings,
+        bool captureBody,
+        long* curlCode)
     {
-        using HttResponse = Common::HttpSender::HttpResponse; 
-        auto onError=[this, curlCode](int errorCode) -> HttResponse{ *curlCode = errorCode; return HttpResponse{errorCode,  m_curlWrapper->curlEasyStrError(static_cast<CURLcode>(errorCode))}; }; 
+        using HttResponse = Common::HttpSender::HttpResponse;
+        auto onError = [this, curlCode](int errorCode) -> HttResponse {
+            *curlCode = errorCode;
+            return HttpResponse{ errorCode, m_curlWrapper->curlEasyStrError(static_cast<CURLcode>(errorCode)) };
+        };
         curl_slist* headers = nullptr;
 
-        std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>> > curlOptions;
+        std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>>> curlOptions;
 
         CURL* curl = m_curlWrapper->curlEasyInit();
 
         if (!curl)
         {
             LOGERROR("Failed to initialise curl");
-            *curlCode=CURLE_FAILED_INIT;             
-            return HttResponse{CURLE_FAILED_INIT};
+            *curlCode = CURLE_FAILED_INIT;
+            return HttResponse{ CURLE_FAILED_INIT };
         }
-        HoldBody holdBody; 
+        HoldBody holdBody;
         if (captureBody)
         {
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
@@ -213,7 +224,7 @@ namespace Common::HttpSenderImpl
 
         for (const auto& header : requestConfig.getAdditionalHeaders())
         {
-            LOGDEBUG("Append header: " << header );
+            LOGDEBUG("Append header: " << header);
             curl_slist* temp = nullptr;
             temp = m_curlWrapper->curlSlistAppend(headers, header);
             if (!temp)
@@ -221,7 +232,7 @@ namespace Common::HttpSenderImpl
                 m_curlWrapper->curlSlistFreeAll(headers);
                 LOGERROR("Failed to append header to request");
                 *curlCode = CURLE_FAILED_INIT;
-                return HttResponse{CURLE_FAILED_INIT};
+                return HttResponse{ CURLE_FAILED_INIT };
             }
             headers = temp;
         }
@@ -238,21 +249,22 @@ namespace Common::HttpSenderImpl
             curlOptions.emplace_back("Specify data to PUT to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
         }
 
-        // how to use proxy: 
+        // how to use proxy:
         // https://curl.haxx.se/libcurl/c/libcurl-tutorial.html
         // curl_easy_setopt(easyhandle, CURLOPT_PROXY, "proxy-host.com:8080");
-        //curl_easy_setopt(easyhandle, CURLOPT_PROXYUSERPWD, "user:password");
-        if ( !proxySettings.proxy.empty())
+        // curl_easy_setopt(easyhandle, CURLOPT_PROXYUSERPWD, "user:password");
+        if (!proxySettings.proxy.empty())
         {
-            LOGINFO("Setup proxy for the connection"); 
-            curlOptions.emplace_back("Configure the Proxy Option", CURLOPT_PROXY, proxySettings.proxy); 
-            if ( !proxySettings.credentials.empty())
+            LOGINFO("Setup proxy for the connection");
+            curlOptions.emplace_back("Configure the Proxy Option", CURLOPT_PROXY, proxySettings.proxy);
+            if (!proxySettings.credentials.empty())
             {
-                curlOptions.emplace_back("Configure proxy credentials", CURLOPT_PROXYUSERPWD, proxySettings.credentials);
+                curlOptions.emplace_back(
+                    "Configure proxy credentials", CURLOPT_PROXYUSERPWD, proxySettings.credentials);
                 long optionValue = CURLAUTH_ANY;
-                curlOptions.emplace_back("Set curl to allow any authentication available", CURLOPT_PROXYAUTH, optionValue);
+                curlOptions.emplace_back(
+                    "Set curl to allow any authentication available", CURLOPT_PROXYAUTH, optionValue);
             }
-
         }
 
         for (const auto& curlOption : curlOptions)
@@ -261,10 +273,8 @@ namespace Common::HttpSenderImpl
 
             if (result != CURLE_OK)
             {
-                HttpResponse resp = onError(result); 
-                LOGERROR(
-                    "Failed to: " << std::get<0>(curlOption)
-                                  << " with error: " << resp.description);
+                HttpResponse resp = onError(result);
+                LOGERROR("Failed to: " << std::get<0>(curlOption) << " with error: " << resp.description);
                 return resp;
             }
         }
@@ -275,7 +285,7 @@ namespace Common::HttpSenderImpl
 
             if (result != CURLE_OK)
             {
-                HttpResponse resp = onError(result); 
+                HttpResponse resp = onError(result);
                 LOGERROR("Failed to set headers with error: " << resp.description);
                 return resp;
             }
@@ -286,21 +296,21 @@ namespace Common::HttpSenderImpl
         LOGDEBUG("Performed easyPerform: " << result);
         if (result != CURLE_OK)
         {
-            HttpResponse resp = onError(result); 
+            HttpResponse resp = onError(result);
             LOGERROR("Failed to perform file transfer with error: " << resp.description);
             return resp;
         }
-        else{
+        else
+        {
             *curlCode = CURLE_OK;
             long response_code;
             if (m_curlWrapper->curlGetResponseCode(curl, &response_code) == CURLE_OK)
             {
-                HttpResponse httpResponse{static_cast<int>(response_code)};
-                httpResponse.bodyContent = std::move(holdBody.body); 
-                return httpResponse; 
-            }             
+                HttpResponse httpResponse{ static_cast<int>(response_code) };
+                httpResponse.bodyContent = std::move(holdBody.body);
+                return httpResponse;
+            }
         }
-        return HttpResponse{result};        
-
+        return HttpResponse{ result };
     }
 } // namespace Common::HttpSenderImpl

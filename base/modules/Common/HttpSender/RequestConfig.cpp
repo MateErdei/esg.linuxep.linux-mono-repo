@@ -64,9 +64,7 @@ namespace Common::HttpSender
     }
 
     void RequestConfig::setData(const std::string& data) { m_data = data; }
-    void RequestConfig::setRequestTypeFromString(const std::string & req){
-        m_requestType = stringToRequestType(req); 
-    }
+    void RequestConfig::setRequestTypeFromString(const std::string& req) { m_requestType = stringToRequestType(req); }
 
     void RequestConfig::setServer(const std::string& server) { m_server = server; }
     void RequestConfig::setPort(const int port) { m_port = port; }
@@ -74,7 +72,7 @@ namespace Common::HttpSender
     void RequestConfig::setCertPath(const std::string& certPath) { m_certPath = certPath; }
 
     void RequestConfig::setResourcePath(const std::string& resourcePath) { m_resourcePath = resourcePath; }
-    void RequestConfig::setAdditionalHeaders(std::vector<std::string> headers){ m_additionalHeaders = headers; }
+    void RequestConfig::setAdditionalHeaders(std::vector<std::string> headers) { m_additionalHeaders = headers; }
 
     RequestType RequestConfig::getRequestType() const { return m_requestType; }
 
@@ -91,4 +89,4 @@ namespace Common::HttpSender
     const std::string& RequestConfig::getResourcePath() const { return m_resourcePath; }
 
     int RequestConfig::getPort() const { return m_port; }
-} // namespace Common::HttpSenderImpl
+} // namespace Common::HttpSender

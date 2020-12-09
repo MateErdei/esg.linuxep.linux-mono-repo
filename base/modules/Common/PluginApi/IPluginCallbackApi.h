@@ -41,7 +41,7 @@ namespace Common
             virtual void applyNewPolicy(const std::string& policyXml) = 0;
             virtual void applyNewPolicyWithAppId(const std::string& appId, const std::string& policyXml)
             {
-                (void) appId;
+                (void)appId;
                 applyNewPolicy(policyXml);
             };
 
@@ -56,7 +56,7 @@ namespace Common
             virtual void queueAction(const std::string& actionXml) = 0;
             virtual void queueActionWithCorrelation(const std::string& content, const std::string& correlationId)
             {
-                (void) correlationId;
+                (void)correlationId;
                 queueAction(content);
             };
 

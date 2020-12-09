@@ -4,40 +4,43 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "BoostProcessHolder.h"
+
 #include "IProcessException.h"
 #include "Logger.h"
+
 #include "../UtilityImpl/StringUtils.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-result"
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <boost/asio/read.hpp>
 #include <boost/process/args.hpp>
 #include <boost/process/env.hpp>
+#include <boost/process/exe.hpp>
 #include <boost/process/extend.hpp>
 #include <boost/process/io.hpp>
 #include <boost/process/pipe.hpp>
 #include <boost/system/error_code.hpp>
-#include <boost/process/exe.hpp>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
 
 #pragma GCC diagnostic pop
 
-namespace {
+namespace
+{
     std::vector<int> getFileDescriptorsToCloseAfterFork(const std::vector<int>& preserve)
     {
         std::vector<int> fds;
-        struct  stat buf;
+        struct stat buf;
 #ifdef OPEN_MAX
         for (int fd = 3; fd < OPEN_MAX; fd++)
 #else
         for (int fd = 3; fd < 256; ++fd)
 #endif
         {
-            if ( ::fstat(fd, &buf) != -1)
+            if (::fstat(fd, &buf) != -1)
             {
-                if( std::find(preserve.begin(), preserve.end(), fd) == preserve.end() )
+                if (std::find(preserve.begin(), preserve.end(), fd) == preserve.end())
                 {
                     fds.push_back(fd);
                 }
@@ -49,21 +52,23 @@ namespace {
     class ScopedDeferExecution
     {
         std::function<void()> m_func;
+
     public:
-        ScopedDeferExecution(std::function<void()> func): m_func(std::move(func)){}
+        ScopedDeferExecution(std::function<void()> func) : m_func(std::move(func)) {}
         ~ScopedDeferExecution()
         {
-            try {
+            try
+            {
                 m_func();
-            }catch (std::exception& ex)
+            }
+            catch (std::exception& ex)
             {
                 LOGWARN("Exception on running deferred cleanup: " << ex.what());
             }
-
         }
     };
 
-}
+} // namespace
 
 namespace Common
 {
@@ -106,11 +111,11 @@ namespace Common
                 }
 
                 int previousErr = errno;
-                for(auto & fd: m_fds)
+                for (auto& fd : m_fds)
                 {
                     ::close(fd);
                 }
-                errno=previousErr;
+                errno = previousErr;
             }
         };
 
@@ -135,7 +140,7 @@ namespace Common
          */
         void BoostProcessHolder::handleMessage(const boost::system::error_code& ec, std::size_t size)
         {
-            std::lock_guard<std::mutex> lock{m_outputAccess};
+            std::lock_guard<std::mutex> lock{ m_outputAccess };
             if (ec)
             {
                 // end of file ( pipe closed) is a normal thing to happen, no error at all.
@@ -147,7 +152,8 @@ namespace Common
                 // buffer, hence, the output is just updated.
                 if (size > 0)
                 {
-                    m_output += std::string(this->m_bufferForIOService.begin(), this->m_bufferForIOService.begin() + size);
+                    m_output +=
+                        std::string(this->m_bufferForIOService.begin(), this->m_bufferForIOService.begin() + size);
                 }
             }
             else
@@ -158,7 +164,8 @@ namespace Common
                     // if m_outputLimit was set to 0 or not as it will require the execution of notified trimmed
                     if (m_outputLimit == 0)
                     {
-                        m_output += std::string(this->m_bufferForIOService.begin(), this->m_bufferForIOService.begin() + size);
+                        m_output +=
+                            std::string(this->m_bufferForIOService.begin(), this->m_bufferForIOService.begin() + size);
                     }
                     else
                     {
@@ -198,7 +205,7 @@ namespace Common
 
         ProcessResult BoostProcessHolder::waitChildProcessToFinish()
         {
-            ScopedDeferExecution setStatusToFinished([this](){this->m_status=Process::ProcessStatus::FINISHED;});
+            ScopedDeferExecution setStatusToFinished([this]() { this->m_status = Process::ProcessStatus::FINISHED; });
             try
             {
                 LOGDEBUG("Process main loop: Check output");
@@ -232,7 +239,7 @@ namespace Common
                 LOGDEBUG("Process main loop: Retrieve results");
                 ProcessResult result;
                 {
-                    std::lock_guard<std::mutex> lock{m_outputAccess};
+                    std::lock_guard<std::mutex> lock{ m_outputAccess };
                     result.output = m_output;
                 }
                 result.exitCode = m_child->exit_code();
@@ -245,9 +252,8 @@ namespace Common
                     LOGWARN("Exception on reporting process finished: " << ex.what());
                 }
                 return result;
-
             }
-            catch (std::exception & ex)
+            catch (std::exception& ex)
             {
                 LOGWARN(m_path << " Exception on the main loop for wait " << ex.what());
                 throw;
@@ -284,7 +290,6 @@ namespace Common
 
                 m_finished = true;
             }
-
         }
 
         std::size_t BoostProcessHolder::completionCondition(const boost::system::error_code& ec, std::size_t size)
@@ -294,19 +299,18 @@ namespace Common
                 return 0;
             }
 
-            if (size==0)
+            if (size == 0)
             {
                 return m_outputLimit == 0 ? m_bufferForIOService.size() : m_outputLimit;
             }
 
             if (shouldBufferBeFlushed(size))
             {
-                return  0;
+                return 0;
             }
 
             return m_outputLimit == 0 ? m_bufferForIOService.size() : m_outputLimit;
         }
-
 
         BoostProcessHolder::BoostProcessHolder(
             const std::string& path,
@@ -318,15 +322,15 @@ namespace Common
             std::function<void(std::string)> notifyTrimmed,
             size_t outputLimit,
             bool flushOnNewLine) :
-                m_callback(std::move(callback)),
-                m_notifyTrimmed(std::move(notifyTrimmed)),
-                m_path(path),
-                m_bufferForIOService(outputLimit == 0 ? 4096 : outputLimit),
-                asyncPipe(asioIOService),
-                m_status{Process::ProcessStatus::NOTSTARTED},
-                m_outputLimit(outputLimit),
-                m_finished(false),
-                m_enableBufferFlushOnNewLine(flushOnNewLine)
+            m_callback(std::move(callback)),
+            m_notifyTrimmed(std::move(notifyTrimmed)),
+            m_path(path),
+            m_bufferForIOService(outputLimit == 0 ? 4096 : outputLimit),
+            asyncPipe(asioIOService),
+            m_status{ Process::ProcessStatus::NOTSTARTED },
+            m_outputLimit(outputLimit),
+            m_finished(false),
+            m_enableBufferFlushOnNewLine(flushOnNewLine)
         {
             // the creation of child involves fork and must be serialized (no data race should occur at that time).
             // this is the reason for the static mutex around here.
@@ -345,9 +349,9 @@ namespace Common
             }
             int source = asyncPipe.native_source();
             int sink = asyncPipe.native_sink();
-            auto fds = getFileDescriptorsToCloseAfterFork({source, sink});
+            auto fds = getFileDescriptorsToCloseAfterFork({ source, sink });
             m_child = std::unique_ptr<boost::process::child, BoostChildProcessDestructor>(new boost::process::child(
-                boost::process::exe =  path,
+                boost::process::exe = path,
                 boost::process::args = arguments,
                 env_,
                 (boost::process::std_out & boost::process::std_err) > asyncPipe,
@@ -365,7 +369,7 @@ namespace Common
         {
             try
             {
-                if(m_child->valid())
+                if (m_child->valid())
                 {
                     m_child->terminate();
                 }
@@ -378,15 +382,9 @@ namespace Common
             }
         }
 
-        int BoostProcessHolder::pid()
-        {
-            return m_pid;
-        }
+        int BoostProcessHolder::pid() { return m_pid; }
 
-        void BoostProcessHolder::wait()
-        {
-            cacheResult();
-        }
+        void BoostProcessHolder::wait() { cacheResult(); }
 
         Process::ProcessStatus BoostProcessHolder::wait(std::chrono::milliseconds timeToWait)
         {
@@ -397,7 +395,7 @@ namespace Common
             else
             {
                 std::unique_lock<std::timed_mutex> lock{ m_onCacheResult, std::defer_lock };
-                 if (!lock.try_lock_for(timeToWait))
+                if (!lock.try_lock_for(timeToWait))
                 {
                     return Process::ProcessStatus::TIMEOUT;
                 }
@@ -422,14 +420,11 @@ namespace Common
             return m_cached.output;
         }
 
-        bool BoostProcessHolder::hasFinished()
-        {
-            return m_status == Process::ProcessStatus::FINISHED;
-        }
+        bool BoostProcessHolder::hasFinished() { return m_status == Process::ProcessStatus::FINISHED; }
 
         void BoostProcessHolder::sendTerminateSignal()
         {
-            if( hasFinished())
+            if (hasFinished())
             {
                 return;
             }
@@ -439,7 +434,7 @@ namespace Common
 
         void BoostProcessHolder::kill()
         {
-            if( hasFinished())
+            if (hasFinished())
             {
                 return;
             }
@@ -452,7 +447,8 @@ namespace Common
         {
             if (m_enableBufferFlushOnNewLine)
             {
-                return std::find(m_bufferForIOService.begin(), m_bufferForIOService.begin() + size, '\n') != m_bufferForIOService.end();
+                return std::find(m_bufferForIOService.begin(), m_bufferForIOService.begin() + size, '\n') !=
+                       m_bufferForIOService.end();
             }
             return false;
         }

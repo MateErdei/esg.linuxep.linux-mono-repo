@@ -17,5 +17,4 @@ namespace Common::Telemetry
      * Any nested structures or arrays are ignored and no warning is issued.
      */
     std::unordered_map<std::string, TelemetryValue> flatJsonToMap(const std::string& jsonString);
-}
-
+} // namespace Common::Telemetry

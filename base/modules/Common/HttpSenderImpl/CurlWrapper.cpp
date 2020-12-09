@@ -31,7 +31,7 @@ namespace Common::HttpSenderImpl
         return curl_slist_append(list, value.c_str());
     }
 
-    CURLcode CurlWrapper::curlGetResponseCode(CURL *handle, long* codep)
+    CURLcode CurlWrapper::curlGetResponseCode(CURL* handle, long* codep)
     {
         return curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, codep);
     }
