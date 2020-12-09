@@ -22,7 +22,6 @@ namespace fs = sophos_filesystem;
 
 using namespace ::testing;
 
-
 TEST_F(TestFileWalker, includeDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
@@ -1078,5 +1077,49 @@ TEST_F(TestFileWalker, withStayOnDevice) // NOLINT
 
     filewalker::FileWalker fw(*callbacks);
     fw.stayOnDevice();
+    fw.walk(startingPoint);
+}
+
+TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrows) // NOLINT
+{
+    fs::create_directories("sandbox/a/b");
+    fs::create_directories("sandbox/c/d");
+
+    fs::path startingPoint = fs::path("sandbox");
+
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_, _)).WillOnce(Return(false));
+
+    InSequence seq;
+
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillOnce(Return(true));
+    fs::filesystem_error ex ("fs error", std::error_code(0, std::system_category()));
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillOnce(Throw(ex));
+    EXPECT_CALL(*callbacks, includeDirectory(_)).Times(AtLeast(2)).WillRepeatedly(Return(true));
+
+    filewalker::FileWalker fw(*callbacks);
+    fw.walk(startingPoint);
+}
+
+TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrowsTwice) // NOLINT
+{
+    fs::create_directories("sandbox/a/b");
+    fs::create_directories("sandbox/c/d");
+
+    fs::path startingPoint = fs::path("sandbox");
+
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_, _)).WillOnce(Return(false));
+
+    // called three times: sandbox, b, d
+    EXPECT_CALL(*callbacks, includeDirectory(_)).Times(3).WillRepeatedly(Return(true));
+
+    fs::filesystem_error ex ("fs error", std::error_code(0, std::system_category()));
+    EXPECT_CALL(*callbacks, includeDirectory(fs::path("sandbox/a"))).WillOnce(Throw(ex));
+    EXPECT_CALL(*callbacks, includeDirectory(fs::path("sandbox/c"))).WillOnce(Throw(ex));
+
+    filewalker::FileWalker fw(*callbacks);
     fw.walk(startingPoint);
 }
