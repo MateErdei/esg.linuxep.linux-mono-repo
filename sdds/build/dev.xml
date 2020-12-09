@@ -3,15 +3,13 @@
   name="sspl-warehouse"
   version="1.0.0">
 
-    <!-- filer5 components are fetched directly by the warehouse generation scripts according to the specs in the
+  <!-- Components are fetched directly by the warehouse generation scripts according to the specs in the
          warehouse definition file. These inputs are the tools that are needed and a couple of oddball
          components.
     -->
 
     <inputs>
       <workingdir>.</workingdir>
-
-
       <build-asset project="winep" repo="liveterminal">
         <development-version branch="develop"/>
         <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
@@ -79,6 +77,11 @@
       <include glob="update/**"/>
       <include glob="content/**"/>
     </build-asset>
+    <build-asset artifact-path="develop/warehouse" source-dir="output\warehouse"/>
+    <build-asset artifact-path="develop/customer" source-dir="output\customer"/>
+    <build-asset artifact-path="develop/def" source-dir="output\def"/>
+    <build-asset artifact-path="develop/logs" source-dir="logs"/>
+
     <logs name="generate-warehouse" source-dir="logs"/>
 
   </publish>

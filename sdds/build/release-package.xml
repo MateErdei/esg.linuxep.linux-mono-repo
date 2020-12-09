@@ -3,16 +3,12 @@
   name="sspl-warehouse"
   version="1.0.0">
 
-  <versioning>
-        <workingdir>.</workingdir>
-  </versioning>
-
   <!-- Components are fetched directly by the warehouse generation scripts according to the specs in the
          warehouse definition file. These inputs are the tools that are needed and a couple of oddball
          components.
     -->
 
-  <inputs version="2">
+  <inputs>
     <workingdir>.</workingdir>
     <build-asset project="winep" repo="liveterminal">
       <development-version branch="develop"/>
@@ -69,7 +65,6 @@
       <args>warehouse_sign\patch_renderer_signing.py</args>
       <workingdir>src</workingdir>
     </command>
-    <!-- a dodgy fix for issue where cannot use same comp twice in a warehouse-->
     <command>
       <program>cmd.exe</program>
           <args>/c py -3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def.yaml</args>
@@ -83,7 +78,5 @@
     <build-asset artifact-path="develop/def" source-dir="output\def"/>
     <build-asset artifact-path="develop/logs" source-dir="logs"/>
   </publish>
-  <signingexclusions>
 
-  </signingexclusions>
 </package>
