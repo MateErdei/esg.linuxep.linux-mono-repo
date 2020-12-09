@@ -45,7 +45,9 @@ namespace Common
             void addListener(Common::ZeroMQWrapper::IReadable* readable, Reactor::ICallbackListener* callback) override;
             void armShutdownListener(Reactor::IShutdownListener* shutdownListener) override;
             void start() override;
+            // cppcheck-suppress virtualCallInConstructor
             void stop() override;
+            // cppcheck-suppress virtualCallInConstructor
             void join() override;
 
         private:

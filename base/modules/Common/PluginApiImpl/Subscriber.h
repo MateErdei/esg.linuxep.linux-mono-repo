@@ -34,6 +34,7 @@ namespace Common
 
             ~SensorDataSubscriber() noexcept override;
             void start() override;
+            // cppcheck-suppress virtualCallInConstructor
             void stop() override;
 
         private:

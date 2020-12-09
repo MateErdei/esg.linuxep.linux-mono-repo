@@ -63,6 +63,7 @@ int SocketImpl::fd()
 void SocketImpl::refresh()
 {
     assert(m_context.get() != nullptr);
+    // cppcheck-suppress assertWithSideEffect
     assert(m_context->ctx() != nullptr);
     m_socket.reset(m_context, m_appliedSettings.socketType);
     if (m_appliedSettings.timeout != -1)

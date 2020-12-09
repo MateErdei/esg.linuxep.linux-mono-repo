@@ -33,6 +33,7 @@ namespace Common
             /**
              * Stops the process if it is running.
              */
+            // cppcheck-suppress virtualCallInConstructor
             void stop() override;
             /**
              * If not started or process finished don't check process for 1 hour

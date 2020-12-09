@@ -98,6 +98,7 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
         if (exitCode != 0)
         {
             LOGERROR("Installation failed");
+            // cppcheck-suppress shiftNegative
             LOGSUPPORT("Installer exit code: " << exitCode);
             LOGDEBUG("Possible reason: " << Common::UtilityImpl::StrError(exitCode));
             if (exitCode == ENOEXEC)

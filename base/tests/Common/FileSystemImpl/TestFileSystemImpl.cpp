@@ -64,6 +64,7 @@ namespace
         }
     };
 
+    // cppcheck-suppress syntaxError
     TEST_F(FileSystemImplTest, basenameReturnsCorrectMatchingValue) // NOLINT
     {
         std::vector<std::pair<std::string, std::string>> values = { { "/tmp/tmpfile.txt", "tmpfile.txt" },

@@ -16,6 +16,7 @@ namespace
         return std::make_shared<Common::ZeroMQWrapperImpl::ContextHolder>();
     }
 
+    // cppcheck-suppress syntaxError
     TEST(TestSocketHolder, DefaultCreation) // NOLINT
     {
         Common::ZeroMQWrapperImpl::SocketHolder socket;

@@ -89,6 +89,7 @@ namespace
         return jsonString;
     }
 
+    // cppcheck-suppress syntaxError
     TEST_F(WatchdogTests, WatchdogCanReadSinglePluginConfig) // NOLINT
     {
         std::vector<std::string> files;

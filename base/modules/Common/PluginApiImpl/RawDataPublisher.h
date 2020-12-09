@@ -16,7 +16,7 @@ namespace Common
         class RawDataPublisher : public virtual Common::PluginApi::IRawDataPublisher
         {
         public:
-            RawDataPublisher(Common::ZeroMQWrapper::ISocketPublisherPtr socketPublisher);
+            explicit RawDataPublisher(Common::ZeroMQWrapper::ISocketPublisherPtr socketPublisher);
             void sendData(const std::string& rawDataCategory, const std::string& rawData) override;
             void sendPluginEvent(const Common::EventTypes::IEventType&) override;
 

@@ -245,6 +245,7 @@ namespace
         Common::Logging::ConsoleLoggingSetup m_loggerSetup;
     };
 
+    // cppcheck-suppress syntaxError
     TEST_F(ManagementAgentIntegrationTests, managementAgentWihoutAnyPluginShouldRunNormaly) // NOLINT
     {
         TestManagementAgent agent;

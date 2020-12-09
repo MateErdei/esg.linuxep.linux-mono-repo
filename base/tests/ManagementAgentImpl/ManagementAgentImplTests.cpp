@@ -92,6 +92,7 @@ namespace
         Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     };
 
+    // cppcheck-suppress syntaxError
     TEST_F(ManagementAgentImplTests, ManagementAgentMainConstructorWithValidDataDoesNotThrow) // NOLINT
     {
         EXPECT_NO_THROW(ManagementAgent::ManagementAgentImpl::ManagementAgentMain managementAgent); // NOLINT

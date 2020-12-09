@@ -15,6 +15,7 @@ namespace
         Common::ZMQWrapperApi::IContextSharedPtr context(new Common::ZMQWrapperApiImpl::ContextImpl());
     }
 
+    // cppcheck-suppress syntaxError
     TEST(TestContextImpl, Factory) // NOLINT
     {
         Common::ZMQWrapperApi::IContextSharedPtr context = Common::ZMQWrapperApi::createContext();

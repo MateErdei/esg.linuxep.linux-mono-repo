@@ -148,6 +148,7 @@ public:
             return *this;
         }
         std::swap(m_running, other.m_running);
+        m_pos = other.m_pos;
         return *this;
     }
 

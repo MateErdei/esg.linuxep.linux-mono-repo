@@ -44,6 +44,7 @@ namespace
         return symlink(target.c_str(), tempdir.absPath(dest).c_str());
     }
 
+    // cppcheck-suppress syntaxError
     TEST_F(TestVersionedCopy, FirstInstall) // NOLINT
     {
         Tests::TempDir tempdir("", "TestVersionedCopy_FirstInstall");

@@ -33,6 +33,7 @@ Common::ZeroMQWrapperImpl::ProxyImpl::ProxyImpl(
 Common::ZeroMQWrapperImpl::ProxyImpl::~ProxyImpl()
 {
     // Will stop the thread eventually
+    // cppcheck-suppress virtualCallInConstructor
     stop();
 }
 
@@ -40,6 +41,7 @@ void Common::ZeroMQWrapperImpl::ProxyImpl::start()
 {
     // Start thread
     assert(m_context.get() != nullptr);
+    // cppcheck-suppress assertWithSideEffect
     assert(m_context->ctx() != nullptr);
     std::unique_lock<std::mutex> lock(m_threadStarted);
     m_thread = std::thread(&ProxyImpl::run, this);

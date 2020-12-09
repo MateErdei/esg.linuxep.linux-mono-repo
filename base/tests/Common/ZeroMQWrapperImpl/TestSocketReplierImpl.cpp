@@ -27,6 +27,7 @@ namespace
         EXPECT_NE(socket.get(), nullptr);
     }
 
+    // cppcheck-suppress syntaxError
     TEST(SocketReplierImpl, listen) // NOLINT
     {
         auto context = Common::ZMQWrapperApi::createContext();

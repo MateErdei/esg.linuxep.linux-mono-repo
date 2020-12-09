@@ -100,6 +100,7 @@ namespace
 
     };
 
+    // cppcheck-suppress syntaxError
     TEST_F(PluginApiTests, pluginAPIcanSendEvent) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();

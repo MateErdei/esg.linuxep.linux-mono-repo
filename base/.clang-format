@@ -63,7 +63,7 @@ SpacesInParentheses: false
 SpacesInSquareBrackets: false
 SortIncludes: true
 SortUsingDeclarations: true
-Standard: Cpp11
+Standard: c++17
 TabWidth: 4
 UseTab: Never
 

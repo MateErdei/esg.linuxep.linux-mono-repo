@@ -37,6 +37,7 @@ namespace
 
     class TestProcImplAndPyP: public LogOffInitializedTests{};
 
+    // cppcheck-suppress syntaxError
     TEST_F(TestProcImplAndPyP, DISABLED_CrashShouldBeDetectedAndNotCrashProcess) // NOLINT
     {
         auto process = createProcess();

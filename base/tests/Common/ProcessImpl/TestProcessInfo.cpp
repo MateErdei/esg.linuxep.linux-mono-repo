@@ -16,6 +16,8 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 namespace Common::Process
 {
     class ProcessInfoTests: public LogOffInitializedTests{};
+
+    // cppcheck-suppress syntaxError
     TEST_F(ProcessInfoTests, processInfoSetExecutableUserAndGroupWithValidUserAndGroupStoresCorrectResults) // NOLINT
     {
         Common::ProcessImpl::ProcessInfo processInfo;

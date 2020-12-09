@@ -42,6 +42,7 @@ namespace
         PubSubReliabilityTests() : m_testContext() {}
     };
 
+    // cppcheck-suppress syntaxError
     TEST_F(PubSubReliabilityTests, SlowSubscribersMayLooseMessagesButWillStillReceiveMessagesFromThePublisher) // NOLINT
     {
         std::string serveraddress = m_testContext.serverAddress();

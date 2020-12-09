@@ -210,7 +210,9 @@ namespace Common
 
         ReactorImpl::~ReactorImpl()
         {
+            // cppcheck-suppress virtualCallInConstructor
             stop();
+            // cppcheck-suppress virtualCallInConstructor
             join();
         }
     } // namespace ReactorImpl

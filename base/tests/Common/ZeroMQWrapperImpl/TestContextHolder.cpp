@@ -15,6 +15,7 @@ namespace
         Common::ZeroMQWrapperImpl::ContextHolder holder;
     }
 
+    // cppcheck-suppress syntaxError
     TEST(TestContextHolder, ContainsPointer) // NOLINT
     {
         Common::ZeroMQWrapperImpl::ContextHolder holder;

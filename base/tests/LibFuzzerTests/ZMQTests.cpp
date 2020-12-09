@@ -108,7 +108,7 @@ namespace
 
     std::atomic<bool> GL_log{ false };
 
-    void log(const std::string& info)
+    void zmqTestLog(const std::string& info)
     {
         if (GL_log)
         {
@@ -158,7 +158,7 @@ public:
                     auto request = m_replier->read();
                     if (!request.empty())
                     {
-                        log("Replier: request -> " + request[0]);
+                        zmqTestLog("Replier: request -> " + request[0]);
                     }
                     m_replier->write(request);
                 }
@@ -188,7 +188,7 @@ public:
 bool send_data_to_socket(int socketfd, const std::string& payload)
 {
     std::string sendinfo = "Send data: " + std::to_string(payload.size()) + " bytes";
-    log(sendinfo);
+    zmqTestLog(sendinfo);
     if (payload.empty())
     {
         // nothing to send.
@@ -232,14 +232,14 @@ void receive_data_from_replier(int socketfd, const std::string& info)
     }
     std::string received = ".Received bytes: ";
     received += std::to_string(rc);
-    log(info + received);
+    zmqTestLog(info + received);
 }
 
 class AnounceFinished
 {
 public:
     AnounceFinished() = default;
-    ~AnounceFinished() { log("Main test finished"); }
+    ~AnounceFinished() { zmqTestLog("Main test finished"); }
 };
 
 void sendMessageToReplier(const ZMQPartsProto::ZMQStack& message, const std::string addr)
@@ -274,10 +274,10 @@ void sendMessageToReplier(const ZMQPartsProto::ZMQStack& message, const std::str
 
         abort();
     }
-    log("Sending data to Replier");
+    zmqTestLog("Sending data to Replier");
     if (!send_data_to_socket(socketFileDescriptor, message.greeting()))
     {
-        log("Give up at greeting stage");
+        zmqTestLog("Give up at greeting stage");
         // it is ok to fail to send this data.
         return;
     }
@@ -286,7 +286,7 @@ void sendMessageToReplier(const ZMQPartsProto::ZMQStack& message, const std::str
 
     if (!send_data_to_socket(socketFileDescriptor, message.handshake()))
     {
-        log("Give up at handshake stage");
+        zmqTestLog("Give up at handshake stage");
         return;
     }
 
@@ -294,17 +294,17 @@ void sendMessageToReplier(const ZMQPartsProto::ZMQStack& message, const std::str
 
     if (!send_data_to_socket(socketFileDescriptor, message.identity()))
     {
-        log("Give up at identity stage");
+        zmqTestLog("Give up at identity stage");
         return;
     }
 
     if (!send_data_to_socket(socketFileDescriptor, message.payload()))
     {
-        log("Give up at payload stage");
+        zmqTestLog("Give up at payload stage");
         return;
     }
     receive_data_from_replier(socketFileDescriptor, "Answer");
-    log("Success");
+    zmqTestLog("Success");
 }
 
 #ifdef HasLibFuzzer
@@ -345,7 +345,7 @@ int main(int argc, char* argv[])
         std::string ipcaddr = argv[2];
         if (ipcaddr.find(".ipc") != std::string::npos)
         {
-            log("Sending message to : " + ipcaddr);
+            zmqTestLog("Sending message to : " + ipcaddr);
             sendMessageToReplier(message, ipcaddr);
             return 0;
         }

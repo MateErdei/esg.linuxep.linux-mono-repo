@@ -123,7 +123,8 @@
         <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="coverage,release">
             <include glob="pluginapi.tar.gz"/>
         </build-asset>
-        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="coverage"/>
+
+        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="release"/>
 
         <!-- coverage(bullseye) -->
         <build-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
@@ -135,7 +136,7 @@
             <include glob="symbols"/>
         </build-asset>
 
-        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="analysis, coverage,release"/>
+        <build-asset artifact-path="sspl-base/build_log" source-dir="log" mode="coverage"/>
 
         <!-- Analysis -->
         <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>

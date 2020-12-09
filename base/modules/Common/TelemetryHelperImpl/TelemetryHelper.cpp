@@ -133,6 +133,8 @@ namespace Common::Telemetry
             }
             root = root.get().getObject(key);
         }
+        // This is ok because root is passed in with a reference wrapper.
+        // cppcheck-suppress returnReference
         return root;
     }
 

@@ -29,6 +29,7 @@ namespace
         ASSERT_FALSE(fileSystem->isExecutable(dirpath));
     }
 
+    // cppcheck-suppress syntaxError
     TEST(FilePermissionsImpl, checkSophosChmodWorks) // NOLINT
     {
         Tests::TempDir tempdir;

@@ -125,6 +125,7 @@ namespace
         Tests::ScopedReplaceFileSystem m_replacer; 
     };
 
+    // cppcheck-suppress syntaxError
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToStatus) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage =

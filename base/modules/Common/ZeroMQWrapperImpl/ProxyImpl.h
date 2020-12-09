@@ -29,6 +29,7 @@ namespace Common
 
             void start() override;
 
+            // cppcheck-suppress virtualCallInConstructor
             void stop() override;
 
             void run();

@@ -83,6 +83,7 @@ namespace Common
         {
             try
             {
+                // cppcheck-suppress virtualCallInConstructor
                 stop();
             }
             catch (const std::exception& ex)

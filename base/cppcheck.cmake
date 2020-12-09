@@ -21,13 +21,13 @@ endforeach ()
 add_custom_target(
         cppcheck
         COMMAND /usr/bin/cppcheck
+        --inline-suppr
         --enable=all
-        --std=c++11
+        --std=c++17
         --language=c++
         --template="[{severity}][{id}] {message} {callstack} \(On {file}:{line}\)"
         --verbose
-        -I ${BOOST_INCLUDE_DIR}
-        -I ${LOG4CPLUS_INCLUDE_DIR}
+        -i ${INPUT}
         --quiet
         --force
         --xml

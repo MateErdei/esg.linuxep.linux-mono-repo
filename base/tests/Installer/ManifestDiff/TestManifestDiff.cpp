@@ -26,6 +26,7 @@ namespace
     {
     };
 
+    // cppcheck-suppress syntaxError
     TEST_F(TestManifestDiff, calculateAddedWorksCorrectly) // NOLINT
     {
         Installer::ManifestDiff::Manifest old_manifest(manifestFromString(one_entry));

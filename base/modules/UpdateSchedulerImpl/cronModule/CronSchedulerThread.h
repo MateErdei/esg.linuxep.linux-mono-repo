@@ -34,6 +34,7 @@ namespace UpdateSchedulerImpl
 
             void start() override;
 
+            // cppcheck-suppress virtualCallInConstructor
             void requestStop() override;
 
             void reset() override;

@@ -35,6 +35,8 @@ namespace
     {};
     class ProcessImplLog : public LogInitializedTests
     {};
+
+    // cppcheck-suppress syntaxError
     TEST_F(ProcessImpl, SimpleEchoShouldReturnExpectedString) // NOLINT
     {
         auto process = createProcess();

@@ -123,6 +123,7 @@ namespace
         ReqRepReliabilityTests() = default;
     };
 
+    // cppcheck-suppress syntaxError
     TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWork) // NOLINT
     {
         testing::FLAGS_gtest_death_test_style="threadsafe";

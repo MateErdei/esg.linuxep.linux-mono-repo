@@ -28,6 +28,7 @@ namespace
         ASSERT_NE(poller.get(), nullptr);
     }
 
+    // cppcheck-suppress syntaxError
     TEST(TestPollerImpl, CanAddFd) // NOLINT
     {
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();

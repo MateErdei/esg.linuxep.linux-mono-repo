@@ -51,6 +51,7 @@ namespace UpdateSchedulerImpl
         {
             // destructor must ensure that the thread is not running anymore or
             // seg fault may occur.
+            // cppcheck-suppress virtualCallInConstructor
             requestStop();
             join();
         }
