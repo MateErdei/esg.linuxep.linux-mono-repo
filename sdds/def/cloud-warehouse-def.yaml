@@ -115,14 +115,3 @@ customer-files:
         output-dir: update
         split-warehouses:
             - warehouse: ssplav-wh
-
-    -   warehouse: cloud
-        user: cloud_user
-        password: password
-        output-dir: update
-        split-warehouses:
-            - warehouse: cloud
-            - warehouse: cloud-ng
-            - warehouse: cloud-hmp
-            - warehouse: encryption
-            - warehouse: cloud-mtr
