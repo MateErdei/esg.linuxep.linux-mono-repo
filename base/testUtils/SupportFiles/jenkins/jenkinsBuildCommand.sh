@@ -73,26 +73,29 @@ then
     sudo cp $WORKSPACE/testUtils/SupportFiles/jenkins/auditdConfig.txt /etc/audit/auditd.conf || fail "ERROR: failed to copy auditdConfig from $WORKSPACE/SupportFiles to /etc/audit/auditd.conf"
 fi
 
-export TEST_UTILS=$WORKSPACE/testUtils
-[[ -n $NO_GATHER ]] || source $WORKSPACE/testUtils/SupportFiles/jenkins/gatherTestInputs.sh                || fail "Error: failed to gather test inputs"
-source $WORKSPACE/testUtils/SupportFiles/jenkins/exportInputLocations.sh            || fail "Error: failed to export expected input locations"
-source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh     || fail "Error: failed to validate gathered inputs"
-
 #setup coverage inputs and exports
 COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
-if [[ -n "$BASE_COVERAGE" ]]; then
+if [[ -n "${BASE_COVERAGE:-}" ]]; then
   mv $COVERAGE_STAGING/sspl-base-unittest.cov $COVERAGE_STAGING/sspl-base-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-base-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-base-combined
   export COV_HTML_BASE=sspl-base-combined
   export BULLSEYE_UPLOAD=1
-elif [[ -n "$MDR_COVERAGE" ]]; then
+elif [[ -n "${MDR_COVERAGE:-}" ]]; then
   mv $COVERAGE_STAGING/sspl-mtr-unittest.cov $COVERAGE_STAGING/sspl-mtr-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-mtr-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-mtr-combined
   export COV_HTML_BASE=sspl-mtr-combined
   export BULLSEYE_UPLOAD=1
 fi
+export BASE_COVERAGE
+export MDR_COVERAGE
+
+export TEST_UTILS=$WORKSPACE/testUtils
+[[ -n $NO_GATHER ]] || source $WORKSPACE/testUtils/SupportFiles/jenkins/gatherTestInputs.sh                || fail "Error: failed to gather test inputs"
+source $WORKSPACE/testUtils/SupportFiles/jenkins/exportInputLocations.sh            || fail "Error: failed to export expected input locations"
+source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh     || fail "Error: failed to validate gathered inputs"
+
 
 bash ${JENKINS_DIR}/install_dependencies.sh
 
