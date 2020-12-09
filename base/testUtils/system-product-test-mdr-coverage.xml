@@ -2,25 +2,18 @@
 <package name="system-product-tests">
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
-<!--        <build-asset project="linuxep" repo="everest-base">-->
-<!--            <development-version branch="feature/LINUXDAR-1816-change-everest-base-mtr-coverage-jenkins-job-to-pull-bullseye"/>-->
-<!--            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>-->
-<!--            <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>-->
-<!--        </build-asset>-->
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="feature/LINUXDAR-1816-change-everest-base-mtr-coverage-jenkins-job-to-pull-bullseye"/>
-            <include artifact-path="sspl-base-coverage/SDDS-COMPONENT" dest-dir="sspl-base"/>
-            <include artifact-path="sspl-base-coverage/system_test" dest-dir="SystemProductTestOutput"/>
-            <include artifact-path='sspl-base-coverage/covfile' dest-dir="coverage"/>
+            <development-version branch="develop"/>
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
+            <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
             <development-version branch="develop"/>
             <include artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
-            <development-version branch="feature/LINUXDAR-1816-change-everest-base-mtr-coverage-jenkins-job-to-pull-bullseye"/>
-            <include artifact-path="mdr-coverage/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
-            <include artifact-path="mdr-coverage/covfile" dest-dir="coverage"/>
+            <development-version branch="develop"/>
+            <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
             <development-version branch="develop"/>
@@ -40,9 +33,9 @@
             <include src="." dest="sspl-thininstaller"/>
         </package>
 
-<!--        <package name="sspl-thininstaller" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output" dest="." buildtype="dev">-->
-<!--            <include src="."   dest="sspl-thininstaller" />-->
-<!--        </package>-->
+        <!--        <package name="sspl-thininstaller" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output" dest="." buildtype="dev">-->
+        <!--            <include src="."   dest="sspl-thininstaller" />-->
+        <!--        </package>-->
 
         <!--        <package name="sspl-thininstaller" version="sspl-thininstaller/1-0-6-5/220942/output" dest="." buildtype="prod">-->
         <!--            <include src="." dest="sspl-thininstaller"/>-->
@@ -79,12 +72,12 @@
         <package name="savlinux9-package" version="10-5-0/217084/savlinux-package" dest=".">
             <include src="sav-linux-x86-aggregated-10.5.0.0.25.tgz" dest="savlinux9-package"/>
         </package>
-<!--        <package name="liveterminal_linux" version="develop/%LASTGOODBUILD%/liveterminal_linux/1.2.0/output" dest="." buildtype="dev">-->
-<!--            <include src="SDDS-COMPONENT"   dest="liveterminal" />-->
-<!--        </package>-->
-<!--        <package name="liveterminal" version="develop/%LASTGOODBUILD%/liveterminal/1.1/websocket_server/" dest="." buildtype="dev">-->
-<!--            <include src="."   dest="websocket_server" />-->
-<!--        </package>-->
+        <!--        <package name="liveterminal_linux" version="develop/%LASTGOODBUILD%/liveterminal_linux/1.2.0/output" dest="." buildtype="dev">-->
+        <!--            <include src="SDDS-COMPONENT"   dest="liveterminal" />-->
+        <!--        </package>-->
+        <!--        <package name="liveterminal" version="develop/%LASTGOODBUILD%/liveterminal/1.1/websocket_server/" dest="." buildtype="dev">-->
+        <!--            <include src="."   dest="websocket_server" />-->
+        <!--        </package>-->
         <build-asset project="winep" repo="liveterminal">
             <development-version branch="develop" />
             <include artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
@@ -92,12 +85,12 @@
         </build-asset>
 
 
-<!--
-            local warehouses
-            when overriding a warehouse, do not change the customer dest-dir. only change the development-version and the
-            warehouse dest-dir to contain the override branch name with /s replaced by -s
-            The customer dest-dir matches up against constants set in WarehouseUtils.lib
--->
+        <!--
+                    local warehouses
+                    when overriding a warehouse, do not change the customer dest-dir. only change the development-version and the
+                    warehouse dest-dir to contain the override branch name with /s replaced by -s
+                    The customer dest-dir matches up against constants set in WarehouseUtils.lib
+        -->
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="develop" />
             <include artifact-path="develop/customer" dest-dir="local_warehouses/dev/sspl-warehouse/vut/warehouse/customer" />
