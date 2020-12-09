@@ -131,7 +131,7 @@ function bootstrap_susi_from_update_source()
 
 function is_already_installed()
 {
-    [[ -d "${PLUGIN_INSTALL}" ]]
+    [[ -f "${SOPHOS_INSTALL}/base/pluginRegistry/${PLUGIN_NAME}.json" ]]
 }
 
 function install_product()
