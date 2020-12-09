@@ -142,25 +142,18 @@
             <include glob="./*.cov"/>
         </build-asset>
 
-        <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>
-
         <!-- Analysis -->
         <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>
+        <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>
 
         <!-- Legacy -->
         <workingdir>.</workingdir>
         <destdir>sspl-base</destdir>
         <buildoutputs>
-            <!-- Release -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="release,oldci"/>
-            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl" mode="release,oldci"/>
-            <output name="build_log" srcfolder="log" mode="release,oldci"/>
-
-            <!-- coverage(bullseye) -->
-<!--            <output name="coverage" srcfolder="output" artifactpath="coverage" mode="coverage"></output>-->
-<!--            <output name="coverage_build_log" srcfolder="log" artifactpath="coverage/build_log"-->
-<!--                    mode="coverage"></output>-->
-
+            <!-- Release  oldci-->
+            <output name="output" srcfolder="output" artifactpath="output" mode="oldci"/>
+            <output name="openssl" srcfolder="redist/openssl" artifactpath="openssl" mode="oldci"/>
+            <output name="build_log" srcfolder="log" mode="oldci"/>
         </buildoutputs>
         <publishbranches>master,feature,release,develop,bugfix</publishbranches>
     </publish>

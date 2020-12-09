@@ -4,6 +4,9 @@ from tap._pipeline.tasks import ArtisanInput
 
 import requests
 
+
+SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Base-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
+
 COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-base-unittest.cov'
 COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-base-taptests.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
@@ -86,9 +89,7 @@ def coverage_task(machine: tap.Machine):
             if machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
                         environment={'COVFILE': COVFILE_TAPTESTS}, return_exit_code=True) ==0:
                 #start systemtest coverage in jenkins
-                #url = 'https://sspljenkins.eng.sophos/job/SSPL-Base-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
-                url = 'https://sspljenkins.eng.sophos/job/UserTestJobs/job/wellington-test/build?token=sspl-linuxdarwin-coverage-token'
-                run_sys = requests.get(url, verify=False)
+                run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
             
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
@@ -188,6 +189,10 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         task_func = robot_task
         if mode == COVERAGE_MODE:
             task_func = coverage_task
+            machines = (
+                ("centos77",
+                 tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
+            )
         for template_name, machine in machines:
             stage.task(task_name=template_name, func=task_func, machine=machine)
 
