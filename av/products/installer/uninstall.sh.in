@@ -44,7 +44,7 @@ done
 if (( DOWNGRADE == 1 ))
 then
     # save logs
-    SAVE_DIR=${SOPHOS_INSTALL}/logs/plugins/${PRODUCT_LINE_ID}
+    SAVE_DIR="${BASEDIR}/logs/plugins/${PRODUCT_LINE_ID}"
     mkdir -p ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/chroot/log/sophos_threat_detector.log*  ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/log/av.log*  ${SAVE_DIR}
