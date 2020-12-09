@@ -35,7 +35,7 @@ namespace avscanner::avscannerimpl
                 m_userDefinedExclusions = m_config.m_excludePaths;
 
                 // These should always be the same because we scan all mount points on a Named Scan, but not on a Command Line Scan
-                m_mountExclusions = move(mountExclusions);
+                m_mountExclusions = std::move(mountExclusions);
                 for (const auto& mountExclusion : m_mountExclusions)
                 {
                     m_currentExclusions.emplace_back(mountExclusion);
