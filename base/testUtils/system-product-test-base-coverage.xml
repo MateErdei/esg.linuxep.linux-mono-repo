@@ -13,7 +13,7 @@
             <include artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-1816-change-everest-base-mtr-coverage-jenkins-job-to-pull-bullseye"/>
             <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
