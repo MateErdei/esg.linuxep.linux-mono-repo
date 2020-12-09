@@ -133,7 +133,7 @@ int NamedScanRunner::run()
             continue;
         }
 
-        LOGINFO("Attempting to scan: " << mountpointToScan);
+        LOGINFO("Attempting to scan mount point: " << mountpointToScan);
         mountsScanned.insert(mountpointToScan);
 
         if (!walk(walker, mountpointToScan, mountpointToScan, scanCallbacks))
