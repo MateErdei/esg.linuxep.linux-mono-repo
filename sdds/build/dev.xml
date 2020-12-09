@@ -44,10 +44,8 @@
 
       <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite" mode="release-package-mdr-999,release-package-edr-mdr-999">
         <development-version branch="feature/mdr-component-999"/>
-        <include artifact-path="output/SDDS-SSPL-DBOS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT"/>
-        <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT"/>
-        <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE"/>
-        <include artifact-path="output/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"/>
+        <!-- Update once mdr-component-999 updated? -->
+        <include artifact-path="output" dest-dir="redist/sspl-plugin-mdr-componentsuite"/>
       </build-asset>
 
       <!-- Packages for edr-mdr-999 -->
