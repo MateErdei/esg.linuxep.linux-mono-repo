@@ -99,12 +99,14 @@ customer-files:
     - warehouse: sspl-wh
       user: base_user_vut
       password: password
+      output-dir: customer
       split-warehouses:
           - warehouse: sspl-wh
 
     - warehouse: sspl-wh
       user: mtr_user_vut
       password: password
+      output-dir: customer
       split-warehouses:
           - warehouse: sspl-wh
           - warehouse: ssplmdr-wh
@@ -112,6 +114,6 @@ customer-files:
     -   warehouse: ssplav-wh
         user: av_user_vut
         password: password
-        output-dir: update
+        output-dir: customer
         split-warehouses:
             - warehouse: ssplav-wh
