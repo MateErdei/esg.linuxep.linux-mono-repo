@@ -3,7 +3,7 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-1816-change-everest-base-mtr-coverage-jenkins-job-to-pull-bullseye"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
         </build-asset>
@@ -12,8 +12,9 @@
             <include artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
-            <development-version branch="develop"/>
-            <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
+            <development-version branch="feature/LINUXDAR-1816-change-everest-base-mtr-coverage-jenkins-job-to-pull-bullseye"/>
+            <include artifact-path="mdr-coverage/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
+            <include artifact-path="mdr-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
             <development-version branch="develop"/>
