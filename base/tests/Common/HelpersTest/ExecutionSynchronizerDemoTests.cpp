@@ -14,6 +14,7 @@ namespace
 {
     using namespace Tests;
 
+    // cppcheck-suppress syntaxError
     TEST(TestExecutionSynchronizer, synchronizes2threads) // NOLINT
     {
         ReentrantExecutionSynchronizer barrier;

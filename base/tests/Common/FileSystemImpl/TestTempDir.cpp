@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystemImpl/TempDir.h>
 #include <gtest/gtest.h>
 
+// cppcheck-suppress syntaxError
 TEST(TestTempDir, ConstructorCreatesTheTemporaryDirectory) // NOLINT
 {
     auto fileSystem = Common::FileSystem::fileSystem();

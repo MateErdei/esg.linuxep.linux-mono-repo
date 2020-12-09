@@ -85,26 +85,26 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     component = tap.Component(name='sspl-base', base_version='1.1.4')
 
-    RELEASE_MODE = 'release'
-    ANALYSIS_MODE = 'analysis'
+    release_mode = 'release'
+    analysis_mode = 'analysis'
 
     # export TAP_PARAMETER_MODE=release|analysis
-    mode = parameters.mode or RELEASE_MODE
+    mode = parameters.mode or release_mode
     base_build = None
     INCLUDE_BUILD_IN_PIPELINE = parameters.get('INCLUDE_BUILD_IN_PIPELINE', True)
     if INCLUDE_BUILD_IN_PIPELINE:
         with stage.parallel('build'):
-            if mode == RELEASE_MODE or mode == ANALYSIS_MODE:
-                base_build = stage.artisan_build(name=RELEASE_MODE,
+            if mode == release_mode or mode == analysis_mode:
+                base_build = stage.artisan_build(name=release_mode,
                                                  component=component,
                                                  image='JenkinsLinuxTemplate5',
-                                                 mode=RELEASE_MODE,
+                                                 mode=release_mode,
                                                  release_package='./build/release-package.xml')
 
-                analysis_build = stage.artisan_build(name=ANALYSIS_MODE,
+                analysis_build = stage.artisan_build(name=analysis_mode,
                                                      component=component,
                                                      image='JenkinsLinuxTemplate5',
-                                                     mode=ANALYSIS_MODE,
+                                                     mode=analysis_mode,
                                                      release_package='./build/release-package.xml')
             else:
                 base_build = stage.artisan_build(name=mode,

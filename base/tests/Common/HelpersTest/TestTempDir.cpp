@@ -12,6 +12,7 @@ namespace
 {
     using namespace Tests;
     using namespace Common::FileSystem;
+    // cppcheck-suppress syntaxError
     TEST(TestTempDir, ConstructorCreatesTheTemporaryDirectory) // NOLINT
     {
         auto fileSystem = Common::FileSystem::FileSystemImpl();

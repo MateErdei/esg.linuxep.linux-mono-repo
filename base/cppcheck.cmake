@@ -28,8 +28,9 @@ add_custom_target(
         --template="[{severity}][{id}] {message} {callstack} \(On {file}:{line}\)"
         --verbose
         -i ${INPUT}
+        -i ${CMAKE_SOURCE_DIR}/tests/googletest
         --quiet
         --force
         --xml
-        ${ALL_SOURCE_FILES}
+        ${CMAKE_SOURCE_DIR}
 )
