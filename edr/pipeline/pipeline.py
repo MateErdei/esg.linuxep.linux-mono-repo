@@ -166,7 +166,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
             edr_analysis_build = stage.artisan_build(name=analysis_mode, component=component, image='JenkinsLinuxTemplate5',
                                                      mode=analysis_mode, release_package='./build-files/release-package.xml')
 
-    if mode == 'analysis':
+    if mode == analysis_mode:
         return
 
     with stage.parallel('test'):
