@@ -132,7 +132,7 @@ fi
 
 #upload coverage results
 if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" ]]; then
-  bash -x $WORKSPACE/build/bullseye/uploadResults.sh || exit $?
+  bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
 fi
 
 if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]
