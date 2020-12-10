@@ -524,6 +524,7 @@ CLS Relative File Exclusion
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/naughty_realm/naughty_eicar_folder/eicar    ${EICAR_STRING}
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude naughty_eicar_folder/eicar
@@ -533,6 +534,7 @@ CLS Relative File Exclusion
 
     Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/clean_eicar
     Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
+    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/naughty_realm/naughty_eicar_folder/eicar
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
