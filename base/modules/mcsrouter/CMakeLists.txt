@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 
 file(GLOB_RECURSE python_SRC
-        RELATIVE ${PYTHON_INPUT}/install64/lib/python3.7
-        ${PYTHON_INPUT}/install64/lib/python3.7/*.py
+        RELATIVE ${PYTHON_INPUT}/install64/lib/python3.9
+        ${PYTHON_INPUT}/install64/lib/python3.9/*.py
         )
 
 file(GLOB_RECURSE python_full_path_SRC
-        ${PYTHON_INPUT}/install64/lib/python3.7/*.py
+        ${PYTHON_INPUT}/install64/lib/python3.9/*.py
         )
 
 
@@ -15,7 +15,7 @@ file(GLOB_RECURSE mcs_router_DEPS
 
 add_custom_target(mcsrouter
         DEPENDS ${CMAKE_BINARY_DIR}/mcsrouter.zip
-        ${CMAKE_BINARY_DIR}/python37.zip
+        ${CMAKE_BINARY_DIR}/python39.zip
         ${CMAKE_BINARY_DIR}/lib-dynload
         ${CMAKE_BINARY_DIR}/pathtools
         ${CMAKE_BINARY_DIR}/watchdog
@@ -44,15 +44,15 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/mcsrouter.zip
         DEPENDS ${mcs_router_DEPS}
         )
 
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/python37.zip
-        WORKING_DIRECTORY ${PYTHON_INPUT}/install64/lib/python3.7
-        COMMAND zip ${CMAKE_BINARY_DIR}/python37.zip ${python_SRC}
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/python39.zip
+        WORKING_DIRECTORY ${PYTHON_INPUT}/install64/lib/python3.9
+        COMMAND zip ${CMAKE_BINARY_DIR}/python39.zip ${python_SRC}
         DEPENDS ${python_full_path_SRC}
         )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/lib-dynload
         WORKING_DIRECTORY ${PYTHON_INPUT}
-        COMMAND cp -r ${PYTHON_INPUT}/install64/lib/python3.7/lib-dynload/ ${CMAKE_BINARY_DIR}
+        COMMAND cp -r ${PYTHON_INPUT}/install64/lib/python3.9/lib-dynload/ ${CMAKE_BINARY_DIR}
         )
 
 function(add_python_library INPUT_PATH  PACKAGE_NAME)
@@ -67,10 +67,10 @@ function(add_python_library INPUT_PATH  PACKAGE_NAME)
 
     if (IS_DIRECTORY ${CMAKE_BINARY_DIR}/${PACKAGE_NAME} )
         install(DIRECTORY ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}
-                DESTINATION files/base/lib/python3.7/site-packages)
+                DESTINATION files/base/lib/python3.9/site-packages)
     else()
         install(FILES ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}
-                DESTINATION files/base/lib/python3.7/site-packages)
+                DESTINATION files/base/lib/python3.9/site-packages)
     endif()
 
 endfunction(add_python_library)
@@ -86,7 +86,7 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Crypto
         )
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/Crypto
-            DESTINATION files/base/lib/python3.7/site-packages)
+            DESTINATION files/base/lib/python3.9/site-packages)
 
 foreach (PYTHON_PACKAGE_NAME  watchdog pathtools certifi chardet idna requests six.py sseclient.py urllib3)
     add_python_library(${INPUT}/${PYTHON_PACKAGE_NAME} ${PYTHON_PACKAGE_NAME})
@@ -108,11 +108,11 @@ endif()
 
 
 
-install(FILES ${CMAKE_BINARY_DIR}/python37.zip
+install(FILES ${CMAKE_BINARY_DIR}/python39.zip
         DESTINATION files/base/lib64)
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/lib-dynload
-        DESTINATION files/base/lib/python3.7/)
+        DESTINATION files/base/lib/python3.9/)
 
 install(FILES ${CMAKE_BINARY_DIR}/python3
         DESTINATION files/base/bin)
