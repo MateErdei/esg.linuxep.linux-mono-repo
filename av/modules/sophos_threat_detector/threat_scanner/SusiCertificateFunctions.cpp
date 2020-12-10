@@ -27,7 +27,7 @@ bool threat_scanner::isAllowlistedCert(void *token, const char *fileTopLevelCert
     (void)fileTopLevelCert;
     (void)size;
 
-    LOGWARN("Calling isWhitelistedCert with size=" << size);
+    LOGWARN("Calling isAllowlistedCert with size=" << size);
 
     return false;
 }

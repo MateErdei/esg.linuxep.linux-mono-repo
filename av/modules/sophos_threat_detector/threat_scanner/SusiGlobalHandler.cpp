@@ -23,7 +23,7 @@ static bool isAllowlistedFile(void *token, SusiHashAlg algorithm, const char *fi
     (void)fileChecksum;
     (void)size;
 
-    LOGDEBUG("isWhitelistedFile: size="<<size);
+    LOGDEBUG("isAllowlistedFile: size="<<size);
 
     return false;
 }
