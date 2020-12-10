@@ -23,9 +23,36 @@ Test Setup     ScanNow Test Setup
 Test Teardown  ScanNow Test Teardown
 
 *** Test Cases ***
+Scan Now Honours Exclusions
+    Create File    /filename_to_exclude    ${EICAR_STRING}
+    Register Cleanup    Remove File  /filename_to_exclude
+    Create File    /relative_filename_folder/relative_filename    ${EICAR_STRING}
+    Register Cleanup    Remove Directory  /relative_filename_folder/    recursive=True
+    Create File    /absolute_filename_folder/absolute_filename    ${EICAR_STRING}
+    Register Cleanup    Remove Directory  /absolute_filename_folder/    recursive=True
+    Create File    /eicar.star    ${EICAR_STRING}
+    Register Cleanup    Remove File  /eicar.star
+    Create File    /eicar.question_mark    ${EICAR_STRING}
+    Register Cleanup    Remove File  /eicar.question_mark
+
+    Run Scan Now Scan With All Types of Exclusions
+    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=10
+    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=20
+
+    Dump Log  ${SCANNOW_LOG_PATH}
+    ${scan_now_contents} =  Get File    ${SCANNOW_LOG_PATH}
+    Should Contain  ${scan_now_contents}  Excluding directory: /bin/
+    Should Contain  ${scan_now_contents}  Excluding directory: /boot/
+    Should Contain  ${scan_now_contents}  Excluding directory: /etc/
+    Should Contain  ${scan_now_contents}  Excluding directory: /dev/
+    Should Contain  ${scan_now_contents}  Excluding file: /absolute_filename_folder/absolute_filename
+    Should Contain  ${scan_now_contents}  Excluding file: /relative_filename_folder/relative_filename
+    Should Contain  ${scan_now_contents}  Excluding file: /filename_to_exclude
+    Should Contain  ${scan_now_contents}  Excluding file: /eicar.star
+    Should Contain  ${scan_now_contents}  Excluding file: /eicar.question_mark
+
 Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     [Timeout]  10min
-    Check AV Plugin Log exists
 
     ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 
@@ -75,6 +102,7 @@ ScanNow Suite TearDown
 ScanNow Test Setup
     Check Sophos Threat Detector Running
     register cleanup  Delete Eicars From Tmp
+    Check AV Plugin Log exists
 
 ScanNow Test Teardown
     Dump Log On Failure   ${AV_LOG_PATH}

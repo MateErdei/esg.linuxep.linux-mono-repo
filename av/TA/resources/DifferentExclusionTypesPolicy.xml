@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+    <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+    <onDemandScan>
+        <posixExclusions>
+            <filePathSet>
+                <!-- aboslute   directory      -->
+                <filePath>/bin/</filePath>
+                <!-- relative   directory      -->
+                <filePath>boot/</filePath>
+                <!-- wild card ? directory     -->
+                <filePath>/d?v/</filePath>
+                <!-- wild card * directory     -->
+                <filePath>/e*c/</filePath>
+                <!-- filename                  -->
+                <filePath>filename_to_exclude</filePath>
+                <!-- relative filename         -->
+                <filePath>relative_filename_folder/relative_filename</filePath>
+                <!-- absolute filename         -->
+                <filePath>/absolute_filename_folder/absolute_filename</filePath>
+                <!-- wildcard * filename       -->
+                <filePath>*.star</filePath>
+                <!-- wildcard ? filename       -->
+                <filePath>?????.question_mark</filePath>
+                <filePath>/tmp/</filePath>
+                <filePath>/tmp_test/</filePath>
+                <filePath>/home/</filePath>
+                <filePath>/lib32/</filePath>
+                <filePath>/lib64/</filePath>
+                <filePath>/lib/</filePath>
+                <filePath>/lost+found/</filePath>
+                <filePath>/media/</filePath>
+                <filePath>/mnt/</filePath>
+                <filePath>/oldTarFiles/</filePath>
+                <filePath>/opt/</filePath>
+                <filePath>/proc/</filePath>
+                <filePath>/redist/</filePath>
+                <filePath>/root/</filePath>
+                <filePath>/run/</filePath>
+                <filePath>/sbin/</filePath>
+                <filePath>/snap/</filePath>
+                <filePath>/srv/</filePath>
+                <filePath>/sys/</filePath>
+                <filePath>/usr/</filePath>
+                <filePath>/vagrant/</filePath>
+                <filePath>/var/</filePath>
+                <filePath>/SophosPackages/</filePath>
+            </filePathSet>
+        </posixExclusions>
+    </onDemandScan>
+</config>
