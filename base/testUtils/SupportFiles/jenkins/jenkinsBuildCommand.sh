@@ -132,7 +132,7 @@ if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
 fi
 
 #upload coverage results
-if [[ -n "${MDR_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" ]]; then
+if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" ]]; then
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || exit $?
 fi
 
