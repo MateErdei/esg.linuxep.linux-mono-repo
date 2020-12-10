@@ -483,10 +483,10 @@ Run IDE update
 
 Install IDE
     [Arguments]  ${ide_name}
+    Register cleanup  Uninstall IDE  ${ide_name}
     Add IDE to install set  ${ide_name}
     Run IDE update
     Check IDE present in installation  ${ide_name}
-    Register cleanup  Uninstall IDE  ${ide_name}
 
 Uninstall IDE
     [Arguments]  ${ide_name}
