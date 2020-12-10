@@ -28,7 +28,7 @@
         <package name="boostlinux11" version="1-74-0-5/221614/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
-        <package name="expatlinux11" version="2-2-9-9/219532/output" dest="input">
+        <package name="expatlinux11" version="2-2-10-4/221623/output" dest="input">
             <include src="expat.tar" dest="."/>
         </package>
         <package name="protobuflinux11" version="3-14-0-6/221619/output" dest="input">
