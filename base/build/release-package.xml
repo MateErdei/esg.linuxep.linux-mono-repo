@@ -31,7 +31,7 @@
         <package name="expatlinux11" version="2-2-9-9/219532/output" dest="input">
             <include src="expat.tar" dest="."/>
         </package>
-        <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
+        <package name="protobuflinux11" version="3-14-0-6/221619/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
         <package name="zeromqlinux11" version="4-3-2-27/219061/output" dest="input">
