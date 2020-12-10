@@ -73,6 +73,11 @@ Mark Sophos Threat Detector Log
     Set Test Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
 
+Mark Scan Now Log
+    ${count} =  Count File Log Lines  ${SCANNOW_LOG_PATH}
+    Set Test Variable   ${SCAN_NOW_LOG_MARK}  ${count}
+    Log  "SCAN NOW LOG MARK = ${SCAN_NOW_LOG_MARK}"
+
 Get File Contents From Offset
     [Arguments]  ${path}  ${offset}=0
     ${content} =  Get File   ${path}  encoding_errors=replace

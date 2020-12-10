@@ -65,8 +65,10 @@ AV plugin runs CLS while scan now is running
     Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
     Process Should Be Running   ${cls_handle}
     Wait for Process    ${cls_handle}
+    Mark Scan Now Log
     Wait Until AV Plugin Log Contains  Completed scan  timeout=180
     Wait Until AV Plugin Log Contains  Sending scan complete
+    File Log Contains With Offset  ${SCANNOW_LOG_PATH}  Attempting to scan mount point:  ${SCAN_NOW_LOG_MARK}
     Process Should Be Stopped   ${cls_handle}
 
 AV plugin runs scan now twice consecutively
