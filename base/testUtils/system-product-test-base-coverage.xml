@@ -3,7 +3,7 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="feature/LINUXDAR-1816-change-everest-base-mtr-coverage-jenkins-job-to-pull-bullseye"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base-coverage/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include artifact-path="sspl-base-coverage/system_test" dest-dir="SystemProductTestOutput"/>
             <include artifact-path='sspl-base-coverage/covfile' dest-dir="coverage"/>
