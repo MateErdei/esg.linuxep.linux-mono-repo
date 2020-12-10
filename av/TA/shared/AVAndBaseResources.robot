@@ -5,16 +5,6 @@ Resource    BaseResources.robot
 *** Keywords ***
 
 AV and Base Setup
-    Check AV Plugin Installed With Base
-
-    ${AV_LOG_SIZE}=  Get File Size   ${AV_LOG_PATH}
-    ${THREAT_DETECTOR_LOG_SIZE}=  Get File Size   ${THREAT_DETECTOR_LOG_PATH}
-    ${SUSI_DEBUG_LOG_SIZE}=  Get File Size   ${SUSI_DEBUG_LOG_PATH}
-    ${av_evaluation}=  Evaluate  ${AV_LOG_SIZE} / ${1000000} > ${9}
-    ${susi_evaluation}=  Evaluate  ${SUSI_DEBUG_LOG_SIZE} / ${1000000} > ${9}
-    ${threat_detector_evaluation}=  Evaluate  ${THREAT_DETECTOR_LOG_SIZE} / ${1000000} > ${9}
-
-    run keyword if  ${av_evaluation} or ${susi_evaluation} or ${threat_detector_evaluation}  Restart AV Plugin And Clear The Logs
     Remove Directory  /tmp/DiagnoseOutput  true
 
 Check avscanner in /usr/local/bin
@@ -31,17 +21,21 @@ Start AV Plugin
 Check avscanner not in /usr/local/bin
     File Should Not Exist  /usr/local/bin/avscanner
 
-User Should Not Exist
-    [Arguments]  ${user}
-    File Log Should Not Contain   /etc/passwd   ${user}
+Wait Until Logs Exist
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  File Should Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/log/av.log
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  File Should Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/chroot/log/sophos_threat_detector.log
 
 Check AV Plugin Not Installed
     Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}
     File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
-    User Should Not Exist  sophos-spl-av
 
 Check Logs Saved On Downgrade
-    File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
     Directory Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV
     File Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV/av.log
     File Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV/sophos_threat_detector.log
@@ -56,20 +50,8 @@ Configure and check scan now
     Configure scan now
     Check scan now
 
-Configure and check scan now with offset
-    Configure scan now
-    Check scan now with Offset
-
-Configure and check scan now with lookups disabled
-    Configure scan now with lookups disabled
-    Check scan now
-
 Configure scan now
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
-    Wait until scheduled scan updated
-
-Configure scan now with lookups disabled
-    Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
     Wait until scheduled scan updated
 
 Check scan now
@@ -77,13 +59,6 @@ Check scan now
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180  interval=10
     AV Plugin Log Contains  Evaluating Scan Now
     AV Plugin Log Contains  Starting scan Scan Now
-
-Check scan now with Offset
-    Mark AV Log
-    Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=10
-    AV Plugin Log Contains With Offset  Evaluating Scan Now
-    AV Plugin Log Contains With Offset  Starting scan Scan Now
 
 Validate latest Event
     [Arguments]  ${now}
