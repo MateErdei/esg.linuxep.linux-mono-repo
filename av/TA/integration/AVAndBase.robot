@@ -361,9 +361,10 @@ AV Plugin uninstalls
     [Teardown]   Install AV Directly from SDDS
 
 AV Plugin Saves Logs On Downgrade
-    Check avscanner in /usr/local/bin
+    Check AV Plugin Installed With Base
+    Wait Until AV Plugin Log exists
+    Wait Until AV Plugin Log Contains   av <> Starting threatDetector
     Run plugin uninstaller with downgrade flag
-    Check avscanner not in /usr/local/bin
     Check AV Plugin Not Installed
     Check Logs Saved On Downgrade
     [Teardown]   Install AV Directly from SDDS
