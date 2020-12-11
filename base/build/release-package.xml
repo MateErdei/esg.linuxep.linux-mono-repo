@@ -19,7 +19,7 @@
         <package name="versig" version="2-0-0-80/221233/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
-        <package name="curllinux11" version="7-71-1-2/220751/output" dest="input">
+        <package name="curllinux11" version="7-74-0-2/221622/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
         <package name="sullinux11" version="1-0-0-63/221291/output" dest="input">
@@ -34,7 +34,7 @@
         <package name="protobuflinux11" version="3-14-0-6/221619/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
-        <package name="zeromqlinux11" version="4-3-2-27/219061/output" dest="input">
+        <package name="zeromqlinux11" version="4-3-3-2/221624/output" dest="input">
             <include src="zeromq.tar" dest="."/>
         </package>
         <package name="log4cpluslinux11" version="2-0-5-19/220731/output" dest="input">
@@ -49,10 +49,10 @@
         <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
             <include src="capnproto.tar" dest="."/>
         </package>
-        <package name="pythonlinux11" version="3-7-7-28/219665/output" dest="input">
+        <package name="pythonlinux11" version="3-9-1-3/221630/output" dest="input">
             <include src="python.tar" dest="." />
         </package>
-        <package name="python-watchdog" version="0-10-2-2/218866/watchdog" dest="input">
+        <package name="python-watchdog" version="0-10-6-3/221633/watchdog" dest="input">
             <include src="python-watchdog.tar" dest="." />
         </package>
         <package name="python-pathtools" version="0-1-1-9/216281/pathtools" dest="input">
