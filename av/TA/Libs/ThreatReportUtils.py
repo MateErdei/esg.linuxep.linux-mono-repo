@@ -177,7 +177,6 @@ def check_multiple_different_threat_events(number_of_expected_events, event_type
         with open(os.path.join(GL_MCS_EVENTS_DIRECTORY, filename), "r") as file:
             contents = file.read()
             for line in contents.splitlines():
-                logger.info(">>> line: ".format(line))
                 for xml_part in expected_strings:
                     if xml_part in line:
                         expected_map[xml_part] += 1
