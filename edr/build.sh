@@ -287,7 +287,7 @@ function build()
         # sqlite build output currently has an awkward name so renaming here.
         unzip -o $(ls ${INPUT}/sqlite-*.zip) -d "$REDIST" || exitFailure 1 "No sqlite zip"
         rm -rf "${REDIST}/sqlite"
-        mv "${REDIST}/sqlite-amalgamation-3310100" "${REDIST}/sqlite"
+        mv "${REDIST}/sqlite-amalgamation-3340000" "${REDIST}/sqlite"
 
         mkdir -p "$REDIST"/osquery
         tar xzf ${INPUT}/osquery-4.5.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery

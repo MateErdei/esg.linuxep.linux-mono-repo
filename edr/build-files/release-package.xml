@@ -18,7 +18,7 @@
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
-        <package name="boostlinux11" version="1-72-0-24/218999//output" dest="input">
+        <package name="boostlinux11" version="1-74-0-5/221614/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
@@ -33,10 +33,10 @@
         <package name="osquery-linux" version="4-5-0/EES-19323" dest="input">
             <include src="osquery-4.5.0_1.linux_x86_64.tar.gz" dest="."/>
         </package>
-        <package name="openssllinux11" version="1-1-1g-6/219531/output" dest="input">
+        <package name="openssllinux11" version="1-1-1i-1/221620/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
-        <package name="protobuflinux11" version="3-9-1-22/219026/output" dest="input">
+        <package name="protobuflinux11" version="3-14-0-6/221619/output" dest="input">
             <include src="protobuf.tar" dest="."/>
         </package>
         <package name="gflagslinux11" version="2-2-2-10/218072/output" dest="input">
@@ -45,11 +45,11 @@
         <package name="gloglinux11" version="0-4-0-14/219062/output" dest="input">
             <include src="glog.tar" dest="."/>
         </package>
-        <package name="thriftlinux11" version="0-13-0-11/219558/output" dest="input">
+        <package name="thriftlinux11" version="0-13-0-15/221628/output" dest="input">
             <include src="thrift.tar" dest="."/>
         </package>
-        <package name="sqlite-amalgamation" version="3-31-1-1/218635/sqlite-amalgamation" dest="input">
-            <include src="sqlite-amalgamation-3310100.zip" dest="."/>
+        <package name="sqlite-amalgamation" version="3-34-0-11/221627/sqlite-amalgamation" dest="input">
+            <include src="sqlite-amalgamation-3340000.zip" dest="."/>
         </package>
         <package name="jsoncpplinux11" version="1-8-4-17/220379/output" dest="input">
             <include src="jsoncpp.tar" dest="."/>
