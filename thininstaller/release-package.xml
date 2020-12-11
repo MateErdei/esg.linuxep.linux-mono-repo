@@ -8,7 +8,7 @@
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>
-        <package name="openssllinux11" version="1-1-1g-6/219531/output" dest="input">
+        <package name="openssllinux11" version="1-1-1i-1/221620/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
@@ -17,16 +17,16 @@
         <package name="versig" version="2-0-0-80/221233/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
-        <package name="curllinux11" version="7-71-1-2/220751/output" dest="input">
+        <package name="curllinux11" version="7-74-0-2/221622/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
         <package name="sullinux11" version="1-0-0-59/220764/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
-        <package name="boostlinux11" version="1-72-0-24/218999/output" dest="input">
+        <package name="boostlinux11" version="1-74-0-5/221614/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
-        <package name="expatlinux11" version="2-2-9-9/219532/output" dest="input">
+        <package name="expatlinux11" version="2-2-10-4/221623/output" dest="input">
             <include src="expat.tar" dest="."/>
         </package>
         <package name="zliblinux11" version="1-2-11-4/219630/output" dest="input">
