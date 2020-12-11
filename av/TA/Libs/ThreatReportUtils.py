@@ -58,7 +58,7 @@ GL_EXPECTED_CONTENTS = {
         '''SJIS-FRENCH- ta sant ge-VIRUS''',
         '''.‌.''',
         '''bash" path="/tmp_test/encoded_eicars/..‌/..‌/bin/''',
-        '''SJIS-CHINESE-最場腔醴腔-VIRUS (SJIS)''',
+        '''SJIS-CHINESE-最場腔醴腔-VIRUS''',
         '''PairDoubleQuote-&quot;VIRUS.com&quot;''',
         '''LATIN1-JAPANESE--VIRUS''',
         '''PairSingleQuote-&apos;VIRUS.com''',
@@ -66,7 +66,7 @@ GL_EXPECTED_CONTENTS = {
         # r'''ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !&quot;#$%&amp;&apos;()*+,-.0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177''',
         '''eicar.com''',
         # r'''RANDOMGARBAGE-?Ñ8[Úm\025\1\2\a\t2\020\023 &quot;3DUfwª»ÌÝîÿ\tá¹©{êùx\2ÿþ6è\035²ÆÞeM#ö-VIRUS (Latin1)''',
-        '''LATIN1-FRENCH-à ta santé âge-VIRUS (Latin1)''',
+        '''LATIN1-FRENCH-à ta santé âge-VIRUS''',
         '''COM1" ''',
         '''COM2" ''',
         '''\[]:;|=.*?. "''',
@@ -82,11 +82,11 @@ GL_EXPECTED_CONTENTS = {
         '''COM4"''',
         '''EUC-JP-ENGLISH-For all good men-VIRUS''',
         '''SingleSingleQuote-&apos;-VIRUS.com''',
-        '''EUC-JP-FRENCH-à ta santé âge-VIRUS (EUC-JP)''',
+        '''EUC-JP-FRENCH-à ta santé âge-VIRUS''',
         '''SJIS-ENGLISH-For all good men-VIRUS''',
-        '''EUC-JP-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (EUC-JP)''',
+        '''EUC-JP-JAPANESE-ソフォスレイヤーアクセスる-VIRUS''',
         '''ES-NFC-Español''',
-        '''EUC-JP-CHINESE-涴最場腔醴腔-VIRUS (EUC-JP)''',
+        '''EUC-JP-CHINESE-涴最場腔醴腔-VIRUS''',
         '''eicar.com" path="/tmp_test/encoded_eicars/.‌/''',
         '''EUC-JP-KOREAN--VIRUS''',
         '''ES-NFD-Español''',
@@ -96,7 +96,7 @@ GL_EXPECTED_CONTENTS = {
         '''UTF-8-CHINESE-涴跺最唗郔場腔醴腔-VIRUS''',
         '''ES-Español''',
         # r'''0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\177" path="/tmp_test/encoded_eicars/FULL-ASCII-\1\2\3\4\5\6\a\b\t\n\v\f\r\016\017\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037 !&quot;#$%&amp;&apos;()*+,-./''',
-        '''SJIS-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (SJIS)''',
+        '''SJIS-JAPANESE-ソフォスレイヤーアクセスる-VIRUS''',
         '''UTF-8-ENGLISH-For all good men-VIRUS''',
         '''UTF-8-JAPANESE-ソフォスレイヤーアクセスる-VIRUS''',
         '''...''',
@@ -177,6 +177,7 @@ def check_multiple_different_threat_events(number_of_expected_events, event_type
         with open(os.path.join(GL_MCS_EVENTS_DIRECTORY, filename), "r") as file:
             contents = file.read()
             for line in contents.splitlines():
+                logger.info(">>> line: ".format(line))
                 for xml_part in expected_strings:
                     if xml_part in line:
                         expected_map[xml_part] += 1
