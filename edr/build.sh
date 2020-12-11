@@ -290,7 +290,7 @@ function build()
         mv "${REDIST}/sqlite-amalgamation-3340000" "${REDIST}/sqlite"
 
         mkdir -p "$REDIST"/osquery
-        tar xzf ${INPUT}/osquery-4.5.0_1.linux_x86_64.tar.gz -C "$REDIST"/osquery
+        cp  -r ${INPUT}/osquery/stuff/*  "$REDIST"/osquery
         cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
 
         # Fix up jsoncpp dual versioning scheme.
