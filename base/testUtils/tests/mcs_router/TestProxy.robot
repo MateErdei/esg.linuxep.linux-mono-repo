@@ -452,7 +452,8 @@ Status Sent After Message Relay Changed
     ...  Check Cloud Server Log For MCS Status   2
 
     ${MCS_Status} =  Check Cloud Server Log For MCS Status And Return It   2
-    Should Contain  ${MCS_Status}  messageRelay endpointId=&quot;${Proxy_Name_Two}&quot;
+    Should Contain  ${MCS_Status}  messageRelay
+    Should Contain  ${MCS_Status}  endpointId=&quot;${Proxy_Name_Two}&quot;
 
 
 Connection Timeout When Connecting Via A Proxy
