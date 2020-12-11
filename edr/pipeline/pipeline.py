@@ -154,6 +154,7 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str)
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     release_mode = 'release'
     analysis_mode = 'analysis'
+    coverage_mode = 'coverage'
     mode = parameters.mode or release_mode
     component = tap.Component(name='edr', base_version='1.1.0')
 
@@ -165,7 +166,11 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
                                             mode=release_mode, release_package='./build-files/release-package.xml')
             edr_analysis_build = stage.artisan_build(name=analysis_mode, component=component, image='JenkinsLinuxTemplate5',
                                                      mode=analysis_mode, release_package='./build-files/release-package.xml')
-
+        elif mode == coverage_mode:
+            edr_build = stage.artisan_build(name=coverage_mode, component=component, image='JenkinsLinuxTemplate5',
+                                            mode=coverage_mode, release_package='./build-files/release-package.xml')
+            release_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate5',
+                                                mode=release_mode, release_package='./build-files/release-package.xml')
     if mode == analysis_mode:
         return
 
