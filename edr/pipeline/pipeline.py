@@ -142,7 +142,7 @@ def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
             coverage=edr_build / 'coverage',
             coverage_unittest=edr_build / 'coverage/unittest',
             base_sdds=edr_build / 'base/base-sdds',
-            edr_sdds=edr_build / 'coverage/SDDS-COMPONENT',
+            edr_sdds=edr_build / 'edr/SDDS-COMPONENT',
             componenttests=edr_build / 'componenttests',
             qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds')
         )
