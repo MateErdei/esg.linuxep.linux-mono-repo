@@ -1,5 +1,5 @@
 import tap.v1 as tap
-
+from tap._pipeline.tasks import ArtisanInput
 import os
 import logging
 
@@ -125,7 +125,7 @@ def unified_artifact(context: tap.PipelineContext, component: str, branch: str, 
     return artifact
 
 
-def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
+def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str):
     test_inputs = None
     if mode == 'release':
         test_inputs = dict(
@@ -138,11 +138,11 @@ def get_inputs(context: tap.PipelineContext, edr_build, mode: str):
     if mode == 'coverage':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./TA'),
+            edr_sdds=edr_build / 'sspl-edr-coverage/SDDS-COMPONENT',
             bullseye_files=context.artifact.from_folder('./build/bullseye'),
-            coverage=edr_build / 'coverage',
-            coverage_unittest=edr_build / 'coverage/unittest',
+            coverage=edr_build / 'sspl-base-coverage/covfile',
+            coverage_unittest=edr_build / 'coverage/sspl-base-coverage/unittest-htmlreport',
             base_sdds=edr_build / 'base/base-sdds',
-            edr_sdds=edr_build / 'edr/SDDS-COMPONENT',
             componenttests=edr_build / 'componenttests',
             qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds')
         )
