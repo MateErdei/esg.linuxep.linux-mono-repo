@@ -140,8 +140,8 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str)
             test_scripts=context.artifact.from_folder('./TA'),
             edr_sdds=edr_build / 'sspl-edr-coverage/SDDS-COMPONENT',
             bullseye_files=context.artifact.from_folder('./build/bullseye'),
-            coverage=edr_build / 'sspl-base-coverage/covfile',
-            coverage_unittest=edr_build / 'coverage/sspl-base-coverage/unittest-htmlreport',
+            coverage=edr_build / 'sspl-edr-coverage/covfile',
+            coverage_unittest=edr_build / 'coverage/sspl-edr-coverage/unittest-htmlreport',
             base_sdds=edr_build / 'base/base-sdds',
             componenttests=edr_build / 'componenttests',
             qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds')
