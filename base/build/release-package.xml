@@ -16,13 +16,13 @@
                  version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
-        <package name="versig" version="2-0-0-80/221233/output" dest="input">
+        <package name="versig" version="2-0-0-84/221636/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
         <package name="curllinux11" version="7-74-0-2/221622/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-63/221291/output" dest="input">
+        <package name="sullinux11" version="1-0-0-66/221637/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
         <package name="boostlinux11" version="1-74-0-5/221614/output" dest="input">
@@ -58,7 +58,7 @@
         <package name="python-pathtools" version="0-1-1-9/216281/pathtools" dest="input">
             <include src="python-pathtools.tar" dest="." />
         </package>
-        <package name="pycryptodomelinux11" version="3-9-0-4/218828/pycryptodome" dest="input">
+        <package name="pycryptodomelinux11" version="3-9-8-3/221638/pycryptodome" dest="input">
             <include src="pycryptodome.tar" dest="." />
         </package>
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
