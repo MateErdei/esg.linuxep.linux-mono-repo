@@ -41,12 +41,15 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_cs
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_ctypes_test.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_ctypes.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_datetime.cpython-39-x86_64-linux-gnu.so
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_dbm.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_decimal.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_elementtree.cpython-39-x86_64-linux-gnu.so
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_gdbm.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_hashlib.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_heapq.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_json.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_lsprof.cpython-39-x86_64-linux-gnu.so
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_lzma.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_md5.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_multibytecodec.cpython-39-x86_64-linux-gnu.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_multiprocessing.cpython-39-x86_64-linux-gnu.so
