@@ -642,8 +642,7 @@ CLS Can Handle Relative Non-Canonical Exclusions
     Create File     ${test_dir}/eicar.nope    ${EICAR_STRING}
     Register Cleanup    Remove Directory      ${test_dir}     recursive=True
 
-    # Run And Return Rc And Output has a cwd of /opt/test/inputs/test_scripts while ${CURDIR} has a path of
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${CURDIR} --exclude "./product/exclusion_test_dir/"
+    ${rc}   ${output} =    Run And Return Rc And Output  cd ${CURDIR} && ${CLI_SCANNER_PATH} ${CURDIR} --exclude "./exclusion_test_dir/"
 
     Log   ${rc}
     Log   ${output}
