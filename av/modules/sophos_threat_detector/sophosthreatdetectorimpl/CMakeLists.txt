@@ -1,4 +1,10 @@
 
+SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
+SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
+SET (BOOST_ROOT ${BOOSTPATH}/boost)
+
+find_package( Boost REQUIRED COMPONENTS program_options)
+
 add_library(sophosthreatdetectorimpl SHARED
         ../../common/config.h
         SophosThreatDetectorMain.cpp
@@ -12,9 +18,10 @@ target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         datatypes
         cap
         libz.so.1
+        ${Boost_LIBRARIES}
         )
 
-target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${BOOSTPATH})
 
 install(TARGETS sophosthreatdetectorimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScannerInfo.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "pluginimpl/ObfuscationImpl/Base64.h"
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterClient.h"
 
@@ -94,20 +95,20 @@ SusiScanner::scan(
     {
         try
         {
-            LOGDEBUG("Scanning result details: " << scanResult->version << ", " << scanResult->scanResultJson);
-            std::string scanResultUTF8 = common::toUtf8(scanResult->scanResultJson, false);
-            LOGDEBUG("Converted to UTF8: " << scanResultUTF8);
-            response.setFullScanResult(scanResultUTF8);
+            std::string scanResultJson = scanResult->scanResultJson;
+            LOGDEBUG("Scanning result details: " << scanResult->version << ", " << scanResultJson);
+            response.setFullScanResult(scanResultJson);
 
-            json parsedScanResult = json::parse(scanResultUTF8);
+            json parsedScanResult = json::parse(scanResultJson);
             for (auto result : parsedScanResult["results"])
             {
-                std::string escapedPath(result["path"]);
+                std::string utf8Path(common::toUtf8(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), true));
+                std::string escapedPath = utf8Path;
                 common::escapeControlCharacters(escapedPath);
                 for (auto detection : result["detections"])
                 {
                     LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath);
-                    response.addDetection(result["path"], detection["threatName"]);
+                    response.addDetection(utf8Path, detection["threatName"]);
                 }
             }
         }

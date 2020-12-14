@@ -156,6 +156,11 @@ namespace common
                 LOGDEBUG("Could not convert from: " << encoding);
                 continue;
             }
+            catch(const boost::locale::conv::invalid_charset_error& e)
+            {
+                LOGDEBUG(e.what());
+                continue;
+            }
         }
 
         if(throws)

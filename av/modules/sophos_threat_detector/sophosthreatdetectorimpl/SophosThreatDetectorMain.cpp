@@ -19,6 +19,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
+#define BOOST_LOCALE_HIDE_AUTO_PTR
+#include <boost/locale.hpp>
+
 #include <fstream>
 #include <string>
 
@@ -250,6 +253,11 @@ static int inner_main()
 
     // ensure zlib library is loaded
     (void) zlibVersion();
+
+    // ensure all charsets are loaded from boost::locale before entering chroot
+    boost::locale::conv::to_utf<char>("", "EUC-JP");
+    boost::locale::conv::to_utf<char>("", "SJIS");
+    boost::locale::conv::to_utf<char>("", "Latin1");
 
     // Copy logger config from base
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
