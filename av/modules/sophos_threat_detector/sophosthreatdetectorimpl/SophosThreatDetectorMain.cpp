@@ -255,9 +255,15 @@ static int inner_main()
     (void) zlibVersion();
 
     // ensure all charsets are loaded from boost::locale before entering chroot
-    boost::locale::conv::to_utf<char>("", "EUC-JP");
-    boost::locale::conv::to_utf<char>("", "SJIS");
-    boost::locale::conv::to_utf<char>("", "Latin1");
+    boost::locale::generator gen;
+    std::locale localeEUC_JP = gen("EUC-JP");
+    boost::locale::conv::to_utf<char>("", localeEUC_JP);
+    std::locale localeShift_JIS = gen("Shift-JIS");
+    boost::locale::conv::to_utf<char>("", localeShift_JIS);
+    std::locale localeSJIS = gen("SJIS");
+    boost::locale::conv::to_utf<char>("", localeSJIS);
+    std::locale localeLatin1 = gen("Latin1");
+    boost::locale::conv::to_utf<char>("", localeLatin1);
 
     // Copy logger config from base
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");

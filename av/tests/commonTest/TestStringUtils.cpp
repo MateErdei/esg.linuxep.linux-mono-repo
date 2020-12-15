@@ -115,7 +115,7 @@ TEST_F(TestStringUtils, TestToUtf8FromSJIS) // NOLINT
     std::string utf8Path = toUtf8(threatPath, false);
     EXPECT_EQ(utf8Path, threatPathUtf8);
 
-    threatPathUtf8 += " (SJIS)";
+    threatPathUtf8 += " (Shift-JIS)";
     utf8Path = toUtf8(threatPath, true);
     EXPECT_EQ(utf8Path, threatPathUtf8);
 

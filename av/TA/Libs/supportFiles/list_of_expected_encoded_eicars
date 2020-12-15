@@ -10,7 +10,7 @@ LATIN1-KOREAN--VIRUS
 SJIS-FRENCH- ta sant ge-VIRUS
 .‌.
 bash" path="/tmp_test/encoded_eicars/..‌/..‌/bin/
-SJIS-CHINESE-最場腔醴腔-VIRUS (SJIS)
+SJIS-CHINESE-最場腔醴腔-VIRUS (Shift-JIS)
 PairDoubleQuote-&quot;VIRUS.com&quot;
 LATIN1-JAPANESE--VIRUS
 PairSingleQuote-&apos;VIRUS.com
@@ -45,7 +45,7 @@ UTF-8-KOREAN-디렉토리입다-VIRUS
 path="/tmp_test/encoded_eicars/"
 UTF-8-CHINESE-涴跺最唗郔場腔醴腔-VIRUS
 ES-Español
-SJIS-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (SJIS)
+SJIS-JAPANESE-ソフォスレイヤーアクセスる-VIRUS (Shift-JIS)
 UTF-8-ENGLISH-For all good men-VIRUS
 UTF-8-JAPANESE-ソフォスレイヤーアクセスる-VIRUS
 ...

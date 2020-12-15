@@ -133,7 +133,7 @@ namespace common
             LOGDEBUG("Could not convert from: " << "UTF-8");
         }
 
-        std::vector<std::string> encodings{"EUC-JP", "SJIS", "Latin1"};
+        std::vector<std::string> encodings{"EUC-JP", "Shift-JIS", "SJIS", "Latin1"};
         for (const auto& encoding : encodings)
         {
             try
