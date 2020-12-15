@@ -1,5 +1,5 @@
 pyzmq==19.0.1
-protobuf
+protobuf=3.14.0
 pytest-html
 psutil
 sseclient
