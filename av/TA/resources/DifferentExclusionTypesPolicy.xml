@@ -5,7 +5,7 @@
         <posixExclusions>
             <filePathSet>
                 <!-- aboslute   directory      -->
-                <filePath>/bin/</filePath>
+                <filePath>/opt/</filePath>
                 <!-- relative   directory      -->
                 <filePath>boot/</filePath>
                 <!-- wild card ? directory     -->
@@ -32,7 +32,7 @@
                 <filePath>/media/</filePath>
                 <filePath>/mnt/</filePath>
                 <filePath>/oldTarFiles/</filePath>
-                <filePath>/opt/</filePath>
+                <filePath>/bin/</filePath>
                 <filePath>/proc/</filePath>
                 <filePath>/redist/</filePath>
                 <filePath>/root/</filePath>

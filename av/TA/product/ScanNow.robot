@@ -41,7 +41,7 @@ Scan Now Honours Exclusions
 
     Dump Log  ${SCANNOW_LOG_PATH}
     ${scan_now_contents} =  Get File    ${SCANNOW_LOG_PATH}
-    Should Contain  ${scan_now_contents}  Excluding directory: /bin/
+    Should Contain  ${scan_now_contents}  Excluding directory: /opt/
     Should Contain  ${scan_now_contents}  Excluding directory: /boot/
     Should Contain  ${scan_now_contents}  Excluding directory: /etc/
     Should Contain  ${scan_now_contents}  Excluding directory: /dev/
