@@ -257,3 +257,33 @@ TEST(TestThrowIfNotOk, TestNotOk) // NOLINT
 {
     EXPECT_THROW(throwIfNotOk(SUSI_E_BAD_JSON, "Should throw"), std::runtime_error);
 }
+
+
+class ThreatScannerParameterizedTest
+    : public ::testing::TestWithParam<std::tuple<std::string, std::string>>
+{
+};
+
+INSTANTIATE_TEST_CASE_P(TestThreatScanner, ThreatScannerParameterizedTest, ::testing::Values(
+    std::make_tuple("encrypted", "Failed to scan test.file as it is password protected"),
+    std::make_tuple("corrupt", "Failed to scan test.file as it is corrupted"),
+    std::make_tuple("unsupported", "Failed to scan test.file as it is not a supported file type"),
+    std::make_tuple("couldn't open", "Failed to scan test.file as it could not be opened"),
+    std::make_tuple("recursion limit", "Failed to scan test.file as it is a Zip Bomb"),
+    std::make_tuple("scan failed", "Failed to scan test.file due to a sweep failure"),
+    std::make_tuple("unexpected (0x80040231)", "Failed to scan test.file [unexpected (0x80040231)]")
+)); // NOLINT
+
+TEST_P(ThreatScannerParameterizedTest, susiErrorToReadableError) // NOLINT
+{
+    setupFakeSophosThreatDetectorConfig();
+
+    auto susiWrapper = std::make_shared<MockSusiWrapper>("");
+    std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
+
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
+
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
+
+    EXPECT_EQ(susiScanner.susiErrorToReadableError("test.file", std::get<0>(GetParam())), std::get<1>(GetParam()));
+}

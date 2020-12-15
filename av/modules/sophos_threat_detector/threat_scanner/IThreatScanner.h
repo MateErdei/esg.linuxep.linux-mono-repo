@@ -24,6 +24,10 @@ namespace threat_scanner
                 int64_t scanType,
                 const std::string& userID) = 0;
             virtual ~IThreatScanner() = default;
+
+            virtual std::string susiErrorToReadableError(
+                const std::string& filePath,
+                const std::string& susiError) = 0;
     };
 
     using IThreatScannerPtr = std::unique_ptr<IThreatScanner>;

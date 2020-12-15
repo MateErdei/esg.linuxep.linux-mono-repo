@@ -36,6 +36,8 @@ namespace
     public:
         MOCK_METHOD4(scan, scan_messages::ScanResponse(datatypes::AutoFd&, const std::string&, int64_t,
             const std::string& userID));
+
+        MOCK_METHOD2(susiErrorToReadableError, std::string(const std::string& filePath, const std::string& susiError));
     };
     class MockScannerFactory : public threat_scanner::IThreatScannerFactory
     {

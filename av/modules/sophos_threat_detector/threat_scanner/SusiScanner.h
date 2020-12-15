@@ -27,6 +27,10 @@ namespace threat_scanner
             int64_t scanType,
             const std::string& userID) override;
 
+        std::string susiErrorToReadableError(
+            const std::string& filePath,
+            const std::string& susiError) override;
+
     private:
         void sendThreatReport(
             const std::string& threatPath,

@@ -41,6 +41,15 @@ namespace
             response.setFullScanResult(fullResult.str());
             return response;
         }
+
+        std::string susiErrorToReadableError(
+            const std::string& filePath,
+            const std::string& susiError) override
+        {
+            std::stringstream errorMsg;
+            errorMsg << "Failed to scan " << filePath << " [" << susiError << "]";
+            return errorMsg.str();
+        }
     };
     class FakeScannerFactory : public threat_scanner::IThreatScannerFactory
     {

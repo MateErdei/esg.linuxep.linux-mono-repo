@@ -144,15 +144,20 @@ CLS Can Scan Shallow Archive But not Deep Archive
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar2.zip --scan-archives
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    # TODO: Broken by CORE-2151 uncomment once fixed
-    #${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar30.zip --scan-archives
-    #Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar30.zip --scan-archives
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+    Log  ${output}
+    Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/archives/eicar30.zip
+    # TODO: Once CORE-2151 is fixed, check the output for "as it is a Zip Bomb"
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar15.tar --scan-archives
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar16.tar --scan-archives
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+    Log  ${output}
+    Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/archives/eicar16.tar
+    Should Contain  ${output}  as it is a Zip Bomb
 
     Remove Directory  ${NORMAL_DIRECTORY}/archives  recursive=True
 
@@ -283,6 +288,26 @@ CLS Abort Scanning of Zip Bomb
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
     Should Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/zipbomb.zip was aborted
+
+CLS Aborts Scanning of Password Protected File
+    Copy File  ${RESOURCES_PATH}/file_samples/password_protected.7z  ${NORMAL_DIRECTORY}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+    Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected
+
+CLS Aborts Scanning of Corrupted File
+    Copy File  ${RESOURCES_PATH}/file_samples/corrupt_tar.tar  ${NORMAL_DIRECTORY}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/corrupt_tar.tar --scan-archives
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+    Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/corrupt_tar.tar/my.file as it is corrupted
 
 AV Log Contains No Errors When Scanning File
     Mark AV Log

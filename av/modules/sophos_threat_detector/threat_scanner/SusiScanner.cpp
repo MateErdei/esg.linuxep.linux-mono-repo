@@ -72,6 +72,48 @@ void SusiScanner::sendThreatReport(
     threatReporterSocket.sendThreatDetection(threatDetected);
 }
 
+std::string SusiScanner::susiErrorToReadableError(const std::string& filePath, const std::string& susiError)
+{
+    std::stringstream errorMsg;
+    errorMsg << "Failed to scan " << filePath;
+
+    if (susiError == "encrypted")
+    {
+        // SOPHOS_SAVI_ERROR_FILE_ENCRYPTED
+        errorMsg << " as it is password protected";
+    }
+    else if (susiError == "corrupt")
+    {
+        // SOPHOS_SAVI_ERROR_CORRUPT
+        errorMsg << " as it is corrupted";
+    }
+    else if (susiError == "unsupported")
+    {
+        // SOPHOS_SAVI_ERROR_NOT_SUPPORTED
+        errorMsg << " as it is not a supported file type";
+    }
+    else if (susiError == "couldn't open")
+    {
+        // SOPHOS_SAVI_ERROR_COULD_NOT_OPEN
+        errorMsg << " as it could not be opened";
+    }
+    else if (susiError == "recursion limit")
+    {
+        // SOPHOS_SAVI_ERROR_RECURSION_LIMIT
+        errorMsg << " as it is a Zip Bomb";
+    }
+    else if (susiError == "scan failed")
+    {
+        // SOPHOS_SAVI_ERROR_SWEEPFAILURE
+        errorMsg << " due to a sweep failure";
+    }
+    else
+    {
+        errorMsg << " [" << susiError << "]";
+    }
+    return errorMsg.str();
+}
+
 scan_messages::ScanResponse
 SusiScanner::scan(
         datatypes::AutoFd& fd,
@@ -105,10 +147,19 @@ SusiScanner::scan(
                 std::string utf8Path(common::toUtf8(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), true));
                 std::string escapedPath = utf8Path;
                 common::escapeControlCharacters(escapedPath);
-                for (auto detection : result["detections"])
+                if (result.contains("detections"))
                 {
-                    LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath);
-                    response.addDetection(utf8Path, detection["threatName"]);
+                    for (auto detection : result["detections"])
+                    {
+                        LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath);
+                        response.addDetection(utf8Path, detection["threatName"]);
+                    }
+                }
+                if (result.contains("error"))
+                {
+                    std::string errorMsg = susiErrorToReadableError(utf8Path, result["error"]);
+                    LOGERROR(errorMsg);
+                    response.setErrorMsg(errorMsg);
                 }
             }
         }
@@ -138,7 +189,7 @@ SusiScanner::scan(
             }
         }
     }
-    else if (res == SUSI_E_SCANABORTED)
+    else if (res == SUSI_E_SCANABORTED && response.getErrorMsg().empty())
     {
         // Return codes that cover zip bombs, corrupted files and password-protected files
         std::stringstream errorMsg;
