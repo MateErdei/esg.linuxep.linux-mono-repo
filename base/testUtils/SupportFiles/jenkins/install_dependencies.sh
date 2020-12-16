@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -x
 
 function pip_install()
 {
@@ -15,7 +16,7 @@ function pip_install()
 python3 -m pip install pip --upgrade
 
 # install dependencies
-for python_package in sseclient aiohttp aiohttp_sse asyncio python-dateutil websockets packaging protobuf
+for python_package in sseclient aiohttp aiohttp_sse asyncio python-dateutil websockets packaging protobuf==3.14.0
 do
   pip_install ${python_package}
 done
