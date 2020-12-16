@@ -27,7 +27,7 @@
             <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="sspl-componentsuite"/>
         </build-asset>
         <build-asset project="winep" repo="liveterminal">
-            <development-version branch="develop" />
+            <development-version branch="bugfix/LINUXDAR-2371-liveterminal-functional-tests-fail-on-centos-for-coverage-builds" />
             <include artifact-path="sspl-liveterminal-coverage/sdds" dest-dir="liveterminal" />
             <include artifact-path="linux/bullseye" dest-dir="coverage" />
             <include artifact-path="websocket_server" dest-dir="websocket_server" />
