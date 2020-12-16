@@ -59,16 +59,17 @@ AV plugin runs CLS while scan now is running
 
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
 
+    Remove file   ${SCANNOW_LOG_PATH}
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp_test/three_hundred_eicars/
     Send Sav Action To Base  ScanNow_Action.xml
 
     Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
     Process Should Be Running   ${cls_handle}
     Wait for Process    ${cls_handle}
-    Mark Scan Now Log
     Wait Until AV Plugin Log Contains  Completed scan  timeout=180
     Wait Until AV Plugin Log Contains  Sending scan complete
-    File Log Contains With Offset  ${SCANNOW_LOG_PATH}  Attempting to scan mount point:  ${SCAN_NOW_LOG_MARK}
+    List Directory   ${AV_PLUGIN_PATH}/log/
+    File Log Contains  ${SCANNOW_LOG_PATH}  Attempting to scan mount point:
     Process Should Be Stopped   ${cls_handle}
 
 AV plugin runs scan now twice consecutively
