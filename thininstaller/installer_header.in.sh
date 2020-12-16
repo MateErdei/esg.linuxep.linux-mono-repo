@@ -17,6 +17,7 @@ then
     echo -e "--help [-h]\t\tDisplay this summary"
     echo -e "--version [-v]\t\tDisplay version of installer"
     echo -e "--force\t\t\tForce re-install"
+    echo -e "--group=<group>\t\tAdd this endpoint into the Sophos Central group specified"
     exit 0
 fi
 
@@ -400,7 +401,7 @@ fi
 INSTALL_OPTIONS_FILE="${SOPHOS_TEMP_DIRECTORY}/install_options"
 
 # File format expects the args to be either --option  or --option=value
-for arg in $args
+for arg in "$@"
 do
   echo $arg >> "${INSTALL_OPTIONS_FILE}"
 done
