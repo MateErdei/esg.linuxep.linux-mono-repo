@@ -93,7 +93,7 @@ elif [[ -n "${MDR_COVERAGE:-}" ]]; then
   export COV_HTML_BASE=sspl-mtr-combined
   export BULLSEYE_UPLOAD=1
 elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
-  mv $COVERAGE_STAGING/liveterminal_unittests.cov $COVERAGE_STAGING/sspl-liveresponse-combined.cov
+  mv $COVERAGE_STAGING/covfile/liveterminal_unittests.cov $COVERAGE_STAGING/sspl-liveresponse-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-liveresponse-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-liveresponse-combined
   export COV_HTML_BASE=sspl-liveresponse-combined
