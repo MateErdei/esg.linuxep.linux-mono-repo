@@ -17,12 +17,11 @@ def build_dev_warehouse(stage: tap.Root, name="release-package"):
 
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput) -> Dict[str, Input]:
     print(str(build))
-    supplement_branch = "released"
-    output = 'output'
 
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
-        warehouse=build / output,
+        warehouse=build / 'develop/warehouse',
+        customer=build / 'develop/customer',
         thin_installer=context.artifact.from_component('sspl-thininstaller', "develop", None) / 'output',
     )
     return test_inputs
