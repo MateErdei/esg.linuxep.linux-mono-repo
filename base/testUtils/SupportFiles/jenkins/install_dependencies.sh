@@ -12,7 +12,10 @@ function pip_install()
   fi
 }
 
+python3 -m pip install pip --upgrade
+
 # install dependencies
-for python_package in sseclient  aiohttp aiohttp_sse asyncio python-dateutil websockets packaging; do
+for python_package in sseclient aiohttp aiohttp_sse asyncio python-dateutil websockets packaging protobuf
+do
   pip_install ${python_package}
 done
