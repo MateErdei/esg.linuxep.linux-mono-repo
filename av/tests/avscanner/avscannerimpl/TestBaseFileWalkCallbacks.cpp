@@ -393,13 +393,14 @@ TEST_F(TestBaseFileWalkCallbacks, excludeStartingDirSymlink) // NOLINT
 {
     fs::path testdir = "testdir";
     fs::create_directory(testdir);
-    fs::path symlink = "symlink";
+    std::string symlinkString = "symlink";
+    fs::path symlink = symlinkString;
     fs::create_symlink(testdir, symlink);
 
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
     std::vector<Exclusion> currentExclusions {};
-    Exclusion exclusion(symlink / "");
+    Exclusion exclusion(symlinkString +"/");
     std::vector<Exclusion> userDefinedExclusions { exclusion };
 
     CallbackImpl callback(scanClient, mountExclusions, currentExclusions, userDefinedExclusions);
@@ -411,7 +412,8 @@ TEST_F(TestBaseFileWalkCallbacks, excludeStartingDirSymlink) // NOLINT
 
 TEST_F(TestBaseFileWalkCallbacks, DISABLED_excludeStartingDirSymlinkTarget) // NOLINT
 {
-    fs::path testdir = "testdir";
+    std::string testdirString = "testdir";
+    fs::path testdir = testdirString;
     fs::create_directory(testdir);
     fs::path symlink = "symlink";
     fs::create_symlink(testdir, symlink);
@@ -419,7 +421,7 @@ TEST_F(TestBaseFileWalkCallbacks, DISABLED_excludeStartingDirSymlinkTarget) // N
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
     std::vector<Exclusion> currentExclusions {};
-    Exclusion exclusion(testdir / "");
+    Exclusion exclusion(testdirString + "/");
     std::vector<Exclusion> userDefinedExclusions { exclusion };
 
     CallbackImpl callback(scanClient, mountExclusions, currentExclusions, userDefinedExclusions);
@@ -473,13 +475,14 @@ TEST_F(TestBaseFileWalkCallbacks, DISABLED_excludeDirSymlinkByUser) // NOLINT
 {
     fs::path testdir = "testdir";
     fs::create_directory(testdir);
-    fs::path symlink = "symlink";
+    std::string symlinkString = "symlink";
+    fs::path symlink = symlinkString;
     fs::create_symlink(testdir, symlink);
 
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
     std::vector<Exclusion> currentExclusions {};
-    Exclusion exclusion(symlink / "");
+    Exclusion exclusion(symlinkString + "/");
     std::vector<Exclusion> userDefinedExclusions { exclusion };
 
     CallbackImpl callback(scanClient, mountExclusions, currentExclusions, userDefinedExclusions);
@@ -491,7 +494,8 @@ TEST_F(TestBaseFileWalkCallbacks, DISABLED_excludeDirSymlinkByUser) // NOLINT
 
 TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByUser) // NOLINT
 {
-    fs::path testdir = "testdir";
+    std::string testdirString = "testdir";
+    fs::path testdir = testdirString;
     fs::create_directory(testdir);
     fs::path symlink = "symlink";
     fs::create_symlink(testdir, symlink);
@@ -499,7 +503,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByUser) // NOLINT
     auto scanClient = std::make_shared<StrictMock<MockScanClient>>();
     std::vector<fs::path> mountExclusions {};
     std::vector<Exclusion> currentExclusions {};
-    Exclusion exclusion(testdir / "");
+    Exclusion exclusion(testdirString + "/");
     std::vector<Exclusion> userDefinedExclusions { exclusion };
 
     CallbackImpl callback(scanClient, mountExclusions, currentExclusions, userDefinedExclusions);
