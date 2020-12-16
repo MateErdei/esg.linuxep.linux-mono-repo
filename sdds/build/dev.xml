@@ -6,6 +6,12 @@
   <!-- Components are fetched directly by the warehouse generation scripts according to the specs in the
          warehouse definition file. These inputs are the tools that are needed and a couple of oddball
          components.
+
+         All modes:
+          release-package
+          release-package-edr-999
+          release-package-mdr-999
+          release-package-edr-mdr-999
     -->
 
     <inputs>
@@ -33,11 +39,22 @@
         <include artifact-path="output/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"/>
       </build-asset>
 
+      <build-asset project="em" repo="esg" mode="release-package,release-package-mdr-999,release-package-edr-mdr-999">
+        <development-version branch="develop"/>
+        <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
+      </build-asset>
+
       <!-- Packages for edr-999 -->
 
       <build-asset project="linuxep" repo="sspl-plugin-edr-component" mode="release-package-edr-999,release-package-edr-mdr-999">
         <development-version branch="feature/EDR-999-build"/>
         <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component"/>
+      </build-asset>
+      <!-- Use a different branch to test that the query back is changed on upgrading the
+      query pack in develop should be different to the one in release branch chosen here-->
+      <build-asset project="em" repo="esg" mode="release-package-edr-999">
+        <development-version branch="release/2020.41-querypack"/>
+        <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
       </build-asset>
 
       <!-- Packages for mdr-999 -->
@@ -72,11 +89,6 @@
       <build-asset project="linuxep" repo="sspl-flags">
         <development-version branch="develop"/>
         <include artifact-path="sspl-flags/SDDS-SSPL-FLAGS" dest-dir="redist/flags2"/>
-      </build-asset>
-
-      <build-asset project="em" repo="esg">
-        <development-version branch="develop"/>
-        <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
       </build-asset>
 
     </inputs>
