@@ -68,7 +68,9 @@ Scanner works after upgrade
 IDE can be removed
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Install IDE  ${IDE_NAME}
+    File should exist  ${INSTALL_IDE_DIR}/${ide_name}.0
     Uninstall IDE  ${IDE_NAME}
+    File should not exist  ${INSTALL_IDE_DIR}/${ide_name}.0
     File Should Not Exist   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/libsusi.so
     Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
