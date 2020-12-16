@@ -14,6 +14,8 @@ if [[ -n ${BASE_COVERAGE:-} ]]; then
   TEST_PACKAGE_XML=system-product-test-base-coverage.xml
 elif [[ -n ${MDR_COVERAGE:-} ]]; then
   TEST_PACKAGE_XML=system-product-test-mdr-coverage.xml
+elif [[ -n ${LIVERESPONSE_COVERAGE:-} ]]; then
+  TEST_PACKAGE_XML=system-product-test-liveresponse-coverage.xml
 fi
 
 # Create venv
