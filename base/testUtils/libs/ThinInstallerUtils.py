@@ -63,6 +63,9 @@ class ThinInstallerUtils(object):
 
         self.default_credentials_file_location = os.path.join(self.installer_files, "credentials.txt")
 
+    def get_default_install_script_path(self):
+        return self.default_installsh_path
+
     def dump_log(self):
         filename = self.log_path
         if os.path.exists(filename):
@@ -230,7 +233,19 @@ class ThinInstallerUtils(object):
                 self.dump_log()
                 raise AssertionError("Thin Installer failed with exit code: " + str(rc) + " but was expecting: " + str(expected_return_code))
 
-    def run_thininstaller(self, command, expected_return_code=0, mcsurl=None, mcs_ca=None, proxy=None, override_location="https://localhost:1233", override_path=None, certs_dir=None, force_certs_dir=None, real=False):
+    def run_thininstaller(self,
+                          command,
+                          expected_return_code=0,
+                          mcsurl=None,
+                          mcs_ca=None,
+                          proxy=None,
+                          override_location="https://localhost:1233",
+                          override_path=None,
+                          certs_dir=None,
+                          force_certs_dir=None,
+                          real=False,
+                          cleanup=True,
+                          temp_dir_to_unpack_to=None):
         cwd = os.getcwd()
         if not certs_dir:
             sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
@@ -269,6 +284,10 @@ class ThinInstallerUtils(object):
             self.env["https_proxy"] = proxy
         if override_path is not None:
             self.env['PATH'] = override_path
+        if not cleanup:
+            self.env['OVERRIDE_INSTALLER_CLEANUP'] = "1"
+        if temp_dir_to_unpack_to:
+            self.env['SOPHOS_TEMP_DIRECTORY'] = temp_dir_to_unpack_to
 
         logger.info("env: {}".format(self.env))
         log = open(self.log_path, 'w+')
@@ -293,7 +312,8 @@ class ThinInstallerUtils(object):
                                   force_certs_dir=None,
                                   no_connection_address_override=False,
                                   proxy=None,
-                                  installsh_path=None):
+                                  installsh_path=None,
+                                  cleanup=True):
         if no_connection_address_override:
             override_location = None
         if not installsh_path:
@@ -304,7 +324,8 @@ class ThinInstallerUtils(object):
                                force_certs_dir=force_certs_dir,
                                override_location=override_location,
                                certs_dir=certs_dir,
-                               proxy=proxy)
+                               proxy=proxy,
+                               cleanup=cleanup)
 
     def run_default_thininstaller_with_different_name(self, new_filename, *args, **kwargs):
         new_filepath = os.path.join(os.path.dirname(self.default_installsh_path), new_filename)
@@ -362,6 +383,9 @@ class ThinInstallerUtils(object):
 
     def run_default_thininstaller_with_env_proxy(self, expectedReturnCode, proxy):
         self.run_thininstaller([self.default_installsh_path], expectedReturnCode, proxy=proxy)
+
+    def run_default_thininstaller_with_cleanup_disabled(self, expectedReturnCode):
+        self.run_thininstaller([self.default_installsh_path], expectedReturnCode, cleanup=False)
 
     def create_catalogue_directory(self):
         catalogue_path = os.path.join(self.installer_files, "bin", "warehouse", "catalogue")

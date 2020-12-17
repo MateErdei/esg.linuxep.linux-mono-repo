@@ -51,7 +51,9 @@ Teardown
     Cleanup Files
     Require Uninstalled
     Remove Environment Variable  SOPHOS_INSTALL
-    Remove Directory  ${CUSTOM_DIR_BASE}  recursive=$true
+    Remove Directory  ${CUSTOM_DIR_BASE}  recursive=True
+    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
+    Remove Environment Variable  INSTALL_OPTIONS_FILE
     Remove Fake Savscan In Tmp
     Cleanup Temporary Folders
 
@@ -100,6 +102,7 @@ Get System Path
 
 *** Variables ***
 ${CUSTOM_DIR_BASE} =  /CustomPath
+${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 
 *** Test Case ***
 Thin Installer can download test file from warehouse and execute it
@@ -287,3 +290,23 @@ Thin Installer Fails When No Path In Systemd File
     Check Thininstaller Log Contains  An existing installation of Sophos Linux Protection was found but could not find the installed path.
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
+
+Thin Installer Help Prints Correct Output
+    Run Default Thininstaller With Args  0  --help
+    Check Thininstaller Log Contains   Sophos Linux Protection Installer, help:
+    Check Thininstaller Log Contains   Usage: [options]
+    Check Thininstaller Log Contains   --help [-h]\t\tDisplay this summary
+    Check Thininstaller Log Contains   --version [-v]\t\tDisplay version of installer
+    Check Thininstaller Log Contains   --force\t\t\tForce re-install
+    Check Thininstaller Log Contains   --group=<group>\t\tAdd this endpoint into the Sophos Central group specified
+
+Thin Installer Creates Install Options File
+    ${install_location}=  get_default_install_script_path
+    ${thin_installer_cmd}=  Create List    ${install_location}   --group=group name  --some other arg with spaces
+    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
+    Run Thin Installer  ${thin_installer_cmd}   expected_return_code=3  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
+    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
+    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
+    ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
+    Should Contain  ${contents}  --group=group name
+    Should Contain  ${contents}  --some other arg with spaces

@@ -174,6 +174,11 @@ Successful Registration Sends Current Product Version 0 If Version Ini File Is M
     Register With Local Cloud Server
     Check Register Central Log Contains In Order  ${StartRegCentralStatus}  softwareVersion="0"  ${EndRegCentralStatus}
 
+Successful Register With Group Specified
+    Create File  ${ETC_DIR}/install_options   --group=A Group
+    Register With Local Cloud Server
+    Check Register Central Log Contains  <deviceGroup>A Group</deviceGroup>
+
 *** Keywords ***
 Backup Version Ini
     Copy File  ${SOPHOS_INSTALL}/base/VERSION.ini  /tmp/VERSION.ini.bk

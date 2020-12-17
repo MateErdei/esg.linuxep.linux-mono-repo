@@ -70,6 +70,8 @@ class ComputerCommonStatus:
         self.ipv4s = list(ip_address.get_non_local_ipv4())
         self.ipv6s = list(ip_address.get_non_local_ipv6())
         self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
+        # The group that was passed into the thin installer with --group=<group> during installation
+        self.install_time_central_group = get_installation_device_group()
 
         mac_addresses = []
         try:
@@ -120,6 +122,10 @@ class ComputerCommonStatus:
             "<fqdn>%s</fqdn>" % self.fqdn,
             "<processorArchitecture>%s</processorArchitecture>" % (self.arch)
         ]
+
+        if self.install_time_central_group:
+            result.append(f"<deviceGroup>{self.install_time_central_group}</deviceGroup>")
+
         if self.ipv4s or self.ipv6s:
             result.append("<ipAddresses>")
             for ip_addr in self.ipv4s:
@@ -156,6 +162,28 @@ def get_version():
     except PermissionError as e:
         LOGGER.error("Insufficient permissions to read VERSION.ini file: Reporting softwareVersion=0 to Central")
     return 0
+
+def get_installation_device_group():
+    """
+    get_installation_device_group
+    Extract the group to which the endpoint was installed to, if present, from the install_options file
+    """
+    try:
+        install_options_path = path_manager.install_options_file()
+        if os.path.isfile(install_options_path):
+            with open(install_options_path) as install_options_file:
+                for line in install_options_file.readlines():
+                    line = line.strip()
+                    if "--group" in line:
+                        group = line.split("--group=")[-1]
+                        if group != '':
+                            LOGGER.debug(f"Central installation group found: {group}")
+                            return group
+    except PermissionError:
+        LOGGER.error("Insufficient permissions to read install_options file, device group will not be set.")
+    except IndexError:
+        LOGGER.error("Malformed --group option in install_options file, device group will not be set.")
+    return None
 
 
 class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
@@ -256,8 +284,6 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         get_common_status_xml
         """
         self.__m_common_status = self.__get_common_status()
-
-
         return self.__m_common_status.to_status_xml()
 
     def get_platform_status(self):

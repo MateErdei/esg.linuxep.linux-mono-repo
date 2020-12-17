@@ -583,7 +583,7 @@ then
       BASE_INSTALL_OPTIONS_FILE="$SOPHOS_INSTALL/base/etc/install_options"
       cp "$INSTALL_OPTIONS_FILE" "$BASE_INSTALL_OPTIONS_FILE"
       chown "${USER_NAME}:${GROUP_NAME}" "$BASE_INSTALL_OPTIONS_FILE"
-      chmod 400 "$BASE_INSTALL_OPTIONS_FILE"
+      chmod 440 "$BASE_INSTALL_OPTIONS_FILE"
     fi
 
     if [[ -n "$MCS_CA" ]]

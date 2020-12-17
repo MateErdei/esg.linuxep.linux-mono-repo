@@ -189,6 +189,13 @@ def log_conf_file():
     """
     return os.path.join(etc_dir(), "logger.conf")
 
+
+def install_options_file():
+    """
+    install_options_file
+    """
+    return os.path.join(etc_dir(), "install_options")
+
 # etc/sophosspl
 
 

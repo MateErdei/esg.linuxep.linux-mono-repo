@@ -262,6 +262,16 @@ Installer Resets Bad Permissions On Current Proxy file
     Run Full Installer
     Check Current Proxy Is Created With Correct Content And Permissions  {}
 
+Installer Copies Install Options File
+    Ensure Uninstalled
+    Should Not Exist   ${SOPHOS_INSTALL}
+    Create File  /tmp/InstallOptionsTestFile  --thing
+    Set Environment Variable  INSTALL_OPTIONS_FILE  /tmp/InstallOptionsTestFile
+    Run Full Installer Expecting Code  0
+    Should Exist   ${SOPHOS_INSTALL}
+    Should Exist   ${ETC_DIR}/install_options
+    ${contents} =  Get File  ${ETC_DIR}/install_options
+    Should Contain  ${contents}  --thing
 
 *** Keywords ***
 
@@ -293,6 +303,7 @@ Install Tests Teardown
     Remove Environment Variable  https_proxy
     Run Keyword If Test Failed  Dump All Processes
     Ensure Uninstalled
+    Run Keyword And Ignore Error  Remove File  /tmp/InstallOptionsTestFile
 
 Install Tests Teardown With Installed File Replacement
     Run Keyword If Test Failed  Save Current InstalledFiles To Local Path
