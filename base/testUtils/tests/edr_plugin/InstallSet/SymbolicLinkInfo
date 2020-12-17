@@ -34,7 +34,7 @@ o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libcrypto.so.1.1
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libexpat.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libexpat.so.1
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libexpat.so.1.6
-o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libexpat.so.1.6.11
+o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libexpat.so.1.6.12
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libgcc_s.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libgcc_s.so.1
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libgen-cpp-linux.so
