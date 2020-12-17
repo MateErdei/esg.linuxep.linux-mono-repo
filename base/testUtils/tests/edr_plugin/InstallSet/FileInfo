@@ -4,6 +4,12 @@ o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.flags
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/plugin.conf
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf.0
 o600, root, root, /opt/sophos-spl/plugins/edr/extensions/extensions.load.0
+o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_chrono.so.1.74.0.0
+o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_context.so.1.74.0.0
+o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_date_time.so.1.74.0.0
+o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_filesystem.so.1.74.0.0
+o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_system.so.1.74.0.0
+o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_thread.so.1.74.0.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libcrypto.so.1.1.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libexpat.so.1.6.12.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libgcc_s.so.1.0
