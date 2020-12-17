@@ -1,4 +1,6 @@
 
+import os
+
 from typing import Dict
 
 import tap.v1 as tap
@@ -41,7 +43,9 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
     try:
         robot_exclusion_tags = []
 
-        machine.run('bash', machine.inputs.test_scripts / "bin/install_packages.sh")
+        machine.run('bash',
+                    machine.inputs.test_scripts / "bin/install_packages.sh",
+                    os.environ.get('TAP_PIP_INDEX_URL', ""))
         machine.run(python(machine),
                     machine.inputs.test_scripts / 'bin/RobotFramework.py',
                     *robot_exclusion_tags,
