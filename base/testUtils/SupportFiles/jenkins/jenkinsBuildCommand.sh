@@ -82,7 +82,7 @@ source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh 
 COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
 
 if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
-  cp "$COVERAGE_STAGING/covfile/liveterminal_unittests.cov" /mnt/filer6/linux/SSPL/coverage/
+  sudo cp "$COVERAGE_STAGING/covfile/liveterminal_unittests.cov" /mnt/filer6/linux/SSPL/coverage/
 fi
 
 if [[ -n "${BASE_COVERAGE:-}" ]]; then
@@ -148,7 +148,7 @@ fi
 # Don't upload the liveresponse coverage file, move it to the filer so that the bullseye machine with covhtml can
 # pull in this file on a seperate sspl jenkins job.
 if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
-  cp "$COVFILE" /mnt/filer6/linux/SSPL/coverage/
+  sudo cp "$COVFILE" /mnt/filer6/linux/SSPL/coverage/
 fi
 
 if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]
