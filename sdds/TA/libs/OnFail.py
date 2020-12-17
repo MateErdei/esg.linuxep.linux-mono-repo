@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (C) 2020 Sophos Plc, Oxford, England.
+# All rights reserved.
+
 from robot.libraries.BuiltIn import BuiltIn
 
 
