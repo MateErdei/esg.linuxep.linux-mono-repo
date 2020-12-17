@@ -12,8 +12,9 @@ Test Teardown   Teardown
 
 *** Variables ***
 ${CUSTOM_DIR_BASE} =  /CustomPath
-${CUSTOMER_DIRECTORY} =  /opt/test/inputs/customer
-${WAREHOUSE_DIRECTORY} =  /opt/test/inputs/warehouse
+${INPUT_DIRECTORY} =  /opt/test/inputs
+${CUSTOMER_DIRECTORY} =  ${INPUT_DIRECTORY}/customer
+${WAREHOUSE_DIRECTORY} =  ${INPUT_DIRECTORY}/warehouse
 
 *** Keywords ***
 Start Warehouse servers
