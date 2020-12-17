@@ -14,7 +14,7 @@ except:
 THIS_FILE_PATH = os.path.realpath(__file__)
 
 
-def are_basenames_in_directory(directory_to_check, basenames, callback_to_verify_paths=None):
+def __are_basenames_in_directory(directory_to_check, basenames, callback_to_verify_paths=None):
     """
 
     :param directory_to_check: directory to look for things in
@@ -35,14 +35,14 @@ def are_basenames_in_directory(directory_to_check, basenames, callback_to_verify
     return True
 
 
-def libs_supportfiles_and_tests_are_here(dir_path):
-    return are_basenames_in_directory(dir_path, ["libs", "SupportFiles", "tests"])
+def __libs_supportfiles_and_tests_are_here(dir_path):
+    return __are_basenames_in_directory(dir_path, ["libs", "SupportFiles", "tests"])
 
 
 def get_testUtils_dir():
     dir_path = os.path.dirname(THIS_FILE_PATH)
     # go up the directory structure until we have the right directory
-    while not libs_supportfiles_and_tests_are_here(dir_path):
+    while not __libs_supportfiles_and_tests_are_here(dir_path):
         dir_path = os.path.dirname(dir_path)
         if dir_path == "/":
             raise AssertionError("Failed to find testUtils dir, recursed till reached root")

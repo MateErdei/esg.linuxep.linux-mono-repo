@@ -78,3 +78,6 @@ class UpdateServer(object):
 
         subprocess.check_call(["make", "-C", HTTPS_FILES, "clean"], env=env, stdout=subprocess.PIPE)
         subprocess.check_call(["make", "-C", HTTPS_FILES, "all"], env=env, stdout=subprocess.PIPE)
+
+    def generate_local_ssl_certs_if_they_dont_exist(self):
+        self.generate_update_certs()
