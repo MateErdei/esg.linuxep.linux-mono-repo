@@ -82,7 +82,7 @@ source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh 
 COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
 
 if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
-  cp "$COVERAGE_STAGING/sspl-liveresponse-unittest.cov" /mnt/filer6/linux/SSPL/coverage/
+  cp "$COVERAGE_STAGING/covfile/sspl-liveresponse-unittest.cov" /mnt/filer6/linux/SSPL/coverage/
 fi
 
 if [[ -n "${BASE_COVERAGE:-}" ]]; then
