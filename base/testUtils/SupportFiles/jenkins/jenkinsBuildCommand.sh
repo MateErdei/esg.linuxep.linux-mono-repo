@@ -81,13 +81,16 @@ source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh 
 #setup coverage inputs and exports
 COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
 
+#if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
+#export COVFILE=$COVERAGE_STAGING/sspl-liveresponse-unittest.cov
+#export htmldir=$COVERAGE_STAGING/sspl-liveresponse-unittest
+#export COV_HTML_BASE=sspl-liveresponse-unittest
+#export BULLSEYE_UPLOAD=1
+##upload coverage results
+#bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
+#fi
 if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
-export COVFILE=$COVERAGE_STAGING/sspl-liveresponse-unittest.cov
-export htmldir=$COVERAGE_STAGING/sspl-liveresponse-unittest
-export COV_HTML_BASE=sspl-liveresponse-unittest
-export BULLSEYE_UPLOAD=1
-#upload coverage results
-bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
+  cp "$COVERAGE_STAGING/sspl-liveresponse-unittest.cov" /mnt/filer6/linux/SSPL/coverage/
 fi
 
 if [[ -n "${BASE_COVERAGE:-}" ]]; then
@@ -146,8 +149,14 @@ if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
 fi
 
 #upload coverage results
-if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" || -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
+if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" ]]; then
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
+fi
+
+# Don't upload the liveresponse coverage file, move it to the filer so that the bullseye machine with covhtml can
+# pull in this file on a seperate sspl jenkins job.
+if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
+  cp "$COVFILE" /mnt/filer6/linux/SSPL/coverage/
 fi
 
 if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]
