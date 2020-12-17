@@ -81,14 +81,6 @@ source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh 
 #setup coverage inputs and exports
 COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
 
-#if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
-#export COVFILE=$COVERAGE_STAGING/sspl-liveresponse-unittest.cov
-#export htmldir=$COVERAGE_STAGING/sspl-liveresponse-unittest
-#export COV_HTML_BASE=sspl-liveresponse-unittest
-#export BULLSEYE_UPLOAD=1
-##upload coverage results
-#bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
-#fi
 if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   cp "$COVERAGE_STAGING/sspl-liveresponse-unittest.cov" /mnt/filer6/linux/SSPL/coverage/
 fi
