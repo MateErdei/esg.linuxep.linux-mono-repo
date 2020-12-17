@@ -316,6 +316,11 @@ do
             ALLOW_OVERRIDE_MCS_CA=--allow-override-mcs-ca
             shift
         ;;
+        *)
+            # Save installer arguments that we don't directly use in the installer so we can write them to a file later
+            UNPROCESSED_ARGS=$UNPROCESSED_ARGS"\n$i"
+            shift
+        ;;
     esac
 done
 
@@ -397,15 +402,9 @@ then
     MESSAGE_RELAYS="--messagerelay $MESSAGE_RELAYS"
 fi
 
-# Save installer arguments to file for base and plugins to use.
-INSTALL_OPTIONS_FILE="${SOPHOS_TEMP_DIRECTORY}/install_options"
-
+# Save installer arguments to install_options file for base and plugins to use.
 # File format expects the args to be either --option  or --option=value
-for arg in "$@"
-do
-  echo $arg >> "${INSTALL_OPTIONS_FILE}"
-done
-
+echo -e "$UNPROCESSED_ARGS" > "${SOPHOS_TEMP_DIRECTORY}/install_options"
 
 # Read possible Update Caches from credentials file.
 UPDATE_CACHES=$(grep 'UPDATE_CACHES=' credentials.txt | sed 's/UPDATE_CACHES=//')
