@@ -36,3 +36,7 @@ def change_owner(path, user, group):
     uid = pwd.getpwnam(user)[2]
     gid = grp.getgrnam(group)[2]
     os.chown(path, uid, gid)
+
+
+def create_symlink(src, dst):
+    os.symlink(src, dst)
