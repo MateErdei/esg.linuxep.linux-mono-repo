@@ -2,6 +2,7 @@
 Documentation   Test using thin installer to install base
 
 Library     ../libs/OnFail.py
+Library     ../libs/OSUtils.py
 Library     ../libs/UpdateServer.py
 Library     Process
 Library     OperatingSystem
@@ -27,7 +28,21 @@ Start Warehouse servers
 Teardown
     Run Teardown Functions
 
+Install Local SSL Server Cert To System
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Register Cleanup  Cleanup System Ca Certs
+
+Setup Ostia Warehouse Environment
+    Generate Local Ssl Certs If They Dont Exist
+    Install Local SSL Server Cert To System
+
+Setup Warehouses
+    Start Warehouse servers
+    Setup Ostia Warehouse Environment
+
+
 *** Test Case ***
 Thin Installer can install Base
-    Start Warehouse servers
-#    Run Default Thininstaller    0    http://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Setup Warehouses
+#    Run Thininstaller    0    http://localhost:1233

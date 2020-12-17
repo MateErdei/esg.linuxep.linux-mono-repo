@@ -130,7 +130,11 @@ ca/root-ca.crt.pem : root-ca.crt.pem
 	@mkdir -p ca
 	cp $< $@
 
-ca : ca/root-ca.crt.pem
+ca/root-ca.crt : root-ca.crt.pem
+	@mkdir -p ca
+	cp $< $@
+
+ca : ca/root-ca.crt.pem ca/root-ca.crt
 	python c_rehash.py ca || c_rehash ca
 
 .PHONY : ca

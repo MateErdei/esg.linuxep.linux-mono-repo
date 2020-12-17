@@ -1,0 +1,6 @@
+*.txt*
+localhost.*
+*.pem
+serial
+serial.old
+ca/
