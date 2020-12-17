@@ -163,6 +163,18 @@ def get_version():
         LOGGER.error("Insufficient permissions to read VERSION.ini file: Reporting softwareVersion=0 to Central")
     return 0
 
+def is_device_group_valid(group: str):
+    # Empty is invalid
+    if group == '':
+        return False
+
+    # These characters are invalid and would break XML: <, &, >, ', "
+    invalid_chars = ['<', '&', '>', "'", '"']
+    for invalid_char in invalid_chars:
+        if invalid_char in group:
+            return False
+    return True
+
 def get_installation_device_group():
     """
     get_installation_device_group
@@ -176,13 +188,15 @@ def get_installation_device_group():
                     line = line.strip()
                     if "--group" in line:
                         group = line.split("--group=")[-1]
-                        if group != '':
+                        if is_device_group_valid(group):
                             LOGGER.debug(f"Central installation group found: {group}")
                             return group
+                        else:
+                            LOGGER.error("Malformed --group= option, device group will not be set.")
     except PermissionError:
         LOGGER.error("Insufficient permissions to read install_options file, device group will not be set.")
     except IndexError:
-        LOGGER.error("Malformed --group option in install_options file, device group will not be set.")
+        LOGGER.error("Malformed --group= option, device group will not be set.")
     return None
 
 
