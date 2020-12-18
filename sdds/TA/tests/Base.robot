@@ -18,13 +18,13 @@ ${INPUT_DIRECTORY} =  /opt/test/inputs
 ${CUSTOMER_DIRECTORY} =  ${INPUT_DIRECTORY}/customer
 ${WAREHOUSE_DIRECTORY} =  ${INPUT_DIRECTORY}/warehouse
 ${THIN_INSTALLER_DIRECTORY} =  ${INPUT_DIRECTORY}/thin_installer
-${UPDATE_CREDENTIALS} =  foobar
+${UPDATE_CREDENTIALS} =  7ca577258eb34a6b2a1b04b3e817b76a
 
 *** Keywords ***
 Start Warehouse servers
     [Arguments]    ${customer_file_protocol}=--tls1_2   ${warehouse_protocol}=--tls1_2
     Start Update Server    1233    ${CUSTOMER_DIRECTORY}/   ${customer_file_protocol}
-    Start Update Server    1234    ${WAREHOUSE_DIRECTORY}/   ${warehouse_protocol}
+    Start Update Server    443    ${WAREHOUSE_DIRECTORY}/   ${warehouse_protocol}
     Sleep  1
     Register Cleanup  Stop Update Servers
 
@@ -45,8 +45,7 @@ Setup Warehouses
     Setup Ostia Warehouse Environment
 
 
-Run ThinInstaller
-    [Arguments]  ${expected_return}  ${update_url}
+Create Thin Installer
     extract thin installer  ${THIN_INSTALLER_DIRECTORY}  /tmp/SophosInstallBase.sh
     create credentials file  /tmp/credentials.txt
     ...   b370c75f6dd86503c8cca4edbbd29b5b06162fa9b4e67f992066120ee22612d6
@@ -59,4 +58,5 @@ Run ThinInstaller
 *** Test Case ***
 Thin Installer can install Base
     Setup Warehouses
-    Run Thininstaller    0    http://localhost:1233
+    Create Thin Installer
+    Run Thin Installer   /tmp/SophosInstallCombined.sh    0    http://localhost:1233
