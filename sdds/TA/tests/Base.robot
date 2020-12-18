@@ -24,7 +24,7 @@ ${UPDATE_CREDENTIALS} =  7ca577258eb34a6b2a1b04b3e817b76a
 Start Warehouse servers
     [Arguments]    ${customer_file_protocol}=--tls1_2   ${warehouse_protocol}=--tls1_2
     Start Update Server    1233    ${CUSTOMER_DIRECTORY}/   ${customer_file_protocol}
-    Start Update Server    443    ${WAREHOUSE_DIRECTORY}/   ${warehouse_protocol}
+    Start Update Server    443    ${WAREHOUSE_DIRECTORY}/   ${warehouse_protocol}   --strip=/dev/sspl-warehouse/develop/warehouse/warehouse/
     Sleep  1
     Register Cleanup  Stop Update Servers
 
