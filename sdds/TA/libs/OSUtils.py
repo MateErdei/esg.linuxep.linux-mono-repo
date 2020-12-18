@@ -38,15 +38,15 @@ def install_system_ca_certs(*certificate_paths):
 
 def cleanup_system_ca_certs():
     support_files_path = PathManager.get_support_file_path()
-    script = os.path.join("bash", support_files_path, "https", "CleanupInstalledSystemCerts.sh")
-    logger.debug(script)
-    command = [script]
+    script = os.path.join(support_files_path, "https", "CleanupInstalledSystemCerts.sh")
+    command = ["bash", script]
+    logger.debug(command)
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = process.communicate()
     out = out.decode("UTF-8")
     if process.returncode != 0:
         logger.error("returncode: {}\noutput: {}".format(process.returncode, out))
-        raise OSError("Failed to cleanup system certs")
+        logger.error("Failed to cleanup system certs")
     else:
         logger.debug("returncode: {}\noutput: {}".format(process.returncode, out))
 
