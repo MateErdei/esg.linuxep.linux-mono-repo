@@ -66,13 +66,14 @@ Create Thin Installer
 
 *** Test Case ***
 Thin Installer can install Base to Dev Region
+    [Tags]  DEV_CENTRAL
     Setup Warehouses
     Create Thin Installer
     Run Thin Installer  /tmp/SophosInstallCombined.sh  ${0}  http://localhost:1233  ${SUPPORT_FILES}/certs/hmr-dev-sha1.pem
 
 Thin Installer can install Base to Local Fake Cloud
-    [Tags]  FAIL
-    Setup Warehouses
-    Create Thin Installer  https://localhost:9999/
+    [Tags]  FAIL  FAKE_CENTRAL
     Start Fake Cloud
-    Run Thin Installer  /tmp/SophosInstallCombined.sh  ${0}  http://localhost:1233  ${SUPPORT_FILES}/certs/hmr-dev-sha1.pem
+    Setup Warehouses
+    Create Thin Installer  https://localhost:4443/mcs
+    Run Thin Installer  /tmp/SophosInstallCombined.sh  ${0}  http://localhost:1233  ${SUPPORT_FILES}/https/ca/root-ca.crt.pem

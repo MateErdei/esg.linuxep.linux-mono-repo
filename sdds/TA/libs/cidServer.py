@@ -708,6 +708,8 @@ class CidServerThread(threading.Thread):
         self.__m_stop = False
         self.m_httpd = None
         self.__m_ppid = os.getppid()
+        self.__m_started = threading.Event()
+        self.__m_stopEvent = threading.Event()
 
     def set_options(self, options):
         self.__m_options = options
@@ -717,13 +719,14 @@ class CidServerThread(threading.Thread):
 
     def run(self):
         assert self.m_httpd is not None
+        self.__m_started.set()
         try:
             while not self.__m_stop:
                 if os.getppid() != self.__m_ppid:
                     print("Parent process went away, quitting!")
                     self.__m_stop = True
                     break
-                if self.__m_stop:
+                if self.__m_stop or self.__m_stopEvent.is_set():
                     print("Stop triggered")
                     break
                 self.m_httpd.handle_request()
@@ -737,12 +740,16 @@ class CidServerThread(threading.Thread):
             print(os.getcwd(), file=sys.stderr)
             raise
         self.__m_stop = False
+        self.__m_stopEvent.clear()
 
     def startAndWait(self):
         self.start()
+        self.__m_started.wait()
+        self.__m_started.clear()
 
     def stop(self):
         self.__m_stop = True
+        self.__m_stopEvent.set()
         if self.m_httpd is not None:
             self.m_httpd.server_close()
             self.m_httpd.socket.close()

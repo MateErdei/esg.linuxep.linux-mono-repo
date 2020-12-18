@@ -16,6 +16,7 @@ import socket
 import http.server
 import subprocess
 import time
+import threading
 import datetime
 import xml.dom.minidom
 import xml.sax.saxutils
@@ -52,9 +53,15 @@ try:
 except ImportError:
     pass
 
+
 def getCloudAutomationDirectory():
     return os.path.dirname(os.path.abspath(__file__))
-    ## os.environ.get('SUP', "supportFiles"), "CloudAutomation"
+
+
+def getHttpsCertDir():
+    support_file_dir = ArgParserUtils.get_support_file_path()
+    return os.path.join(support_file_dir, "https")
+
 
 def setupLogging():
     rootLogger = logging.getLogger()
@@ -87,6 +94,7 @@ def setupLogging():
     fileHandler.setLevel(logging.DEBUG)
     action_log.addHandler(fileHandler)
 
+
 def getText(node):
     text = []
     for n in node.childNodes:
@@ -98,6 +106,7 @@ ID = 1001
 TESTTMP = os.environ.get("TESTTMP", "tmp")
 TEST_ROOT = os.environ.get("TEST_ROOT", ".")
 os.environ['OPENSSL_CONF'] = '/dev/null'
+
 
 def openssl():
     p = os.path.join(TEST_ROOT, "bin", "openssl")
@@ -215,11 +224,14 @@ NULL_NEXT = False
 SERVER_500 = False
 
 
-def readCert(basename):
+def readCert(basename, optional=False):
     basedir = getCloudAutomationDirectory()
     path = os.path.join(basedir, basename)
     if os.path.isfile(path):
         return open(path).read()
+
+    if optional:
+        return None
 
     subprocess.call(["make", basename], cwd=basedir)
     assert os.path.isfile(path)
@@ -248,12 +260,16 @@ def generatePolicy(revID, endpointCertMap, caCertList, utmCertMap):
         policyNode.insertBefore(node, exclusionsNode)
 
     for cert in caCertList:
+        if cert is None:
+            continue
         node = policy.createElement("cacert")
         textNode = policy.createTextNode(cert)
         node.appendChild(textNode)
         policyNode.insertBefore(node, exclusionsNode)
 
     for utmid, cert in utmCertMap.items():
+        if cert is None:
+            continue
         node = policy.createElement("utmcert")
         node.setAttribute("utmid", utmid)
         textNode = policy.createTextNode(cert)
@@ -268,8 +284,8 @@ def generatePolicy(revID, endpointCertMap, caCertList, utmCertMap):
 class HeartbeatEndpointManager(object):
     def __init__(self):
         self.__m_policyID = "INITIAL_HBT_POLICY_ID"
-        self.__m_ca_cert = readCert(CA_CERT_FILENAME)
-        self.__m_utm_cert = readCert(UTM_CERT_FILENAME)
+        self.__m_ca_cert = readCert(CA_CERT_FILENAME, optional=True)
+        self.__m_utm_cert = readCert(UTM_CERT_FILENAME, optional=True)
         self.__m_signedClientCerts = {}
         self.__m_signedCertCounter = 0
         self.__m_client_pems = []
@@ -1631,15 +1647,14 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/api/customer/flags":
             return self.retJson({})
 
-        logger.warn("unknown do_POST: %s", self.path)
-        message = "<html><body>POST REQUEST</body></html>"
+        logger.warning("unknown do_POST: %s", self.path)
+        message = b"<html><body>POST REQUEST</body></html>"
         self.send_response(404, "POST Unknown")
         self.send_header("Content-Length", str(len(message)))
         self.sendAWSCookie()
         self.send_cookie()
         self.end_headers()
         self.wfile.write(message)
-        return
 
     def mcs_update_status(self):
         mo = re.match(r"/mcs/statuses/endpoint/([^/]+)", self.path)
@@ -1649,7 +1664,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         eid = mo.group(1)
         endpoint = GL_ENDPOINTS.getEndpointByID(eid)
         if endpoint is None:
-            ## Create endpoint?
+            # Create endpoint?
             return self.ret("Status for unknown endpoint", 400)
 
         body = self.getBody()
@@ -1749,7 +1764,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
 
 def getServerCert():
-    basedir = getCloudAutomationDirectory()
+    basedir = getHttpsCertDir()
+    assert os.path.isdir(basedir)
     path = os.path.join(basedir, "server-private.pem")
 
     if os.path.isfile(path):
@@ -1790,7 +1806,7 @@ def daemonise():
     return os.getppid()
 
 
-def runServer(options):
+def create_server(options):
     port = int(options.port) if options.port else 4443
     logger.info("localhost CloudServer pid={} on port {}".format(os.getpid(), port))
     MCSRequestHandler.options = options
@@ -1804,31 +1820,67 @@ def runServer(options):
         protocol = options.tls
     logger.info("SSL version: %s", options.tls)
     httpd.socket = ssl.wrap_socket(httpd.socket, certfile=certfile, server_side=True, ssl_version=protocol)
+    return httpd
+
+
+class CloudServer(object):
+    def __init__(self, options):
+        self.__m_options = options
+        self.__m_httpd = create_server(options)
+        global ORIGINAL_PPID
+        ORIGINAL_PPID = os.getppid()
+        self.__m_stop = threading.Event()
+
+    def run(self):
+        httpd = self.__m_httpd
+        options = self.__m_options
+        action_log.debug("START")
+        httpd.timeout = 0.5
+        try:
+            if options.pidfile is not None:
+                open(options.pidfile, 'wb').write(b"%d\n" % os.getpid())
+                while not self.__should_stop():
+                    print("Serving request", file=sys.stderr)
+                    httpd.handle_request()
+            else:
+                httpd.serve_forever()
+        finally:
+            action_log.debug("END")
+            deletePidFile(options)
+            self.__m_stop.clear()
+
+    def __should_stop(self):
+        global ORIGINAL_PPID
+        options = self.__m_options
+        if options.pidfile is not None and not os.path.isfile(options.pidfile):
+            return True
+        if os.getppid() != ORIGINAL_PPID:
+            return True
+        return self.__m_stop.is_set()
+
+    def stop(self):
+        httpd = self.__m_httpd
+        options = self.__m_options
+
+        self.__m_stop.set()
+        if httpd is not None:
+            if options.pidfile is None:
+                httpd.shutdown()
+            httpd.server_close()
+            httpd.socket.close()
+
+
+def runServer(options):
+    obj = CloudServer(options)
     if options.daemon:
         daemonise()
+    obj.run()
 
-    global ORIGINAL_PPID
-    ORIGINAL_PPID = os.getppid()
-
-    action_log.debug("START")
-    try:
-        if options.pidfile is not None:
-            file(options.pidfile, b'w').write(b"%d\n" % os.getpid())
-            httpd.timeout = 5
-            while os.path.isfile(options.pidfile) and os.getppid() == ORIGINAL_PPID:
-                httpd.handle_request()
-        else:
-            httpd.serve_forever()
-    finally:
-        action_log.debug("END")
-        deletePidFile(options)
-
-
-def parseArguments(parser=None):
+def parseArguments(args, parser=None):
     if not parser:
         parser = argparse.ArgumentParser(description='Cloud test server for SSPL Linux automation')
     ArgParserUtils.add_cloudserver_args(parser)
-    options, _ = parser.parse_known_args()
+    options, _ = parser.parse_known_args(args)
     setDefaultPolicies(options)
     print(str(options))
     return options
@@ -1866,11 +1918,12 @@ def setDefaultPolicies(options):
     with open(options.INITIAL_LIVEQUERY_POLICY) as livequery_file:
         INITIAL_LIVEQUERY_POLICY = livequery_file.read()
 
+
 def main(argv):
     try:
         setupLogging()
         logger.info("Starting cloud Server")
-        options = parseArguments()
+        options = parseArguments(argv[1:])
 
         global HEARTBEAT_ENABLED
         HEARTBEAT_ENABLED = options.heartbeat
