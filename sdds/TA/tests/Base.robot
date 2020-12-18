@@ -10,6 +10,7 @@ Library     OperatingSystem
 
 Force Tags  WAREHOUSE  BASE
 
+Test Setup      Base Test Setup
 Test Teardown   Teardown
 
 *** Variables ***
@@ -25,8 +26,13 @@ Start Warehouse servers
     [Arguments]    ${customer_file_protocol}=--tls1_2   ${warehouse_protocol}=--tls1_2
     Start Update Server    1233    ${CUSTOMER_DIRECTORY}/   ${customer_file_protocol}
     Start Update Server    443    ${WAREHOUSE_DIRECTORY}/   ${warehouse_protocol}   --strip=/dev/sspl-warehouse/develop/warehouse/warehouse/
-    Sleep  1
+    Sleep  0.1
     Register Cleanup  Stop Update Servers
+
+
+Base Test Setup
+    Uninstall SSPL if installed
+
 
 Teardown
     Run Teardown Functions
@@ -59,4 +65,4 @@ Create Thin Installer
 Thin Installer can install Base
     Setup Warehouses
     Create Thin Installer
-    Run Thin Installer   /tmp/SophosInstallCombined.sh    0    http://localhost:1233
+    Run Thin Installer  /tmp/SophosInstallCombined.sh  ${0}  http://localhost:1233  ${SUPPORT_FILES}/certs/hmr-dev-sha1.pem

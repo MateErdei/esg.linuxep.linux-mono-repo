@@ -63,11 +63,16 @@ def extract_thin_installer(basedir, destination):
         f.write(contents)
 
 
-def run_thin_installer(installer_path, expected_exit_code, override_location):
+def run_thin_installer(installer_path, expected_exit_code, override_location, mcs_ca=None):
+    expected_exit_code = int(expected_exit_code)
     env = os.environ.copy()
     env["OVERRIDE_SOPHOS_LOCATION"] = override_location
     env["DEBUG_THIN_INSTALLER"] = "1"
     command = ['bash', installer_path]
+
+    if mcs_ca:
+        command.append("--allow-override-mcs-ca")
+        env["MCS_CA"] = mcs_ca
 
     tmp_path = os.path.join(".", "tmp", "thin_installer")
     os.makedirs(tmp_path, exist_ok=True)
@@ -79,13 +84,21 @@ def run_thin_installer(installer_path, expected_exit_code, override_location):
     log.close()
     rc = install_process.wait()
     output = open(log_path).read()
-    logger.info("Thin Installer return code: {}".format(rc))
     if rc != expected_exit_code:
-        logger.error("Unexpected exit code: {}".format(rc))
+        logger.error("Thin Installer exit code: {}".format(repr(rc)))
+        logger.error("Expected exit code: {}".format(repr(expected_exit_code)))
         logger.error("Output: {}".format(output))
         raise AssertionError(
             "Thin Installer failed with exit code: {} but was expecting: {}".format(rc,
                                                                                     expected_exit_code))
     else:
+        logger.info("Thin Installer exit code: {}".format(rc))
         logger.debug("Output: {}".format(output))
 
+
+SOPHOS_INSTALL = "/opt/sophos-spl"
+
+
+def uninstall_SSPL_if_installed():
+    if os.path.isdir(SOPHOS_INSTALL):
+        subprocess.check_call(["bash", os.path.join(SOPHOS_INSTALL,"bin","uninstall.sh"), "--force"])
