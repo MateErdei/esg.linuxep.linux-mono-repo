@@ -402,9 +402,11 @@ then
     MESSAGE_RELAYS="--messagerelay $MESSAGE_RELAYS"
 fi
 
-# Save installer arguments to install_options file for base and plugins to use.
+# Save installer arguments to file for base and plugins to use.
+INSTALL_OPTIONS_FILE="${SOPHOS_TEMP_DIRECTORY}/install_options"
+
 # File format expects the args to be either --option  or --option=value
-echo -e "$UNPROCESSED_ARGS" > "${SOPHOS_TEMP_DIRECTORY}/install_options"
+echo -e "$UNPROCESSED_ARGS" > ${INSTALL_OPTIONS_FILE}
 
 # Read possible Update Caches from credentials file.
 UPDATE_CACHES=$(grep 'UPDATE_CACHES=' credentials.txt | sed 's/UPDATE_CACHES=//')
