@@ -8,6 +8,8 @@ Library     ../libs/UpdateServer.py
 Library     Process
 Library     OperatingSystem
 
+Resource  FakeCloud.robot
+
 Force Tags  WAREHOUSE  BASE
 
 Test Setup      Base Test Setup
@@ -52,17 +54,25 @@ Setup Warehouses
 
 
 Create Thin Installer
+    [Arguments]  ${MCS_URL}=https://dzr-mcs-amzn-eu-west-1-f9b7.upe.d.hmr.sophos.com/sophos/management/ep
     extract thin installer  ${THIN_INSTALLER_DIRECTORY}  /tmp/SophosInstallBase.sh
     create credentials file  /tmp/credentials.txt
     ...   b370c75f6dd86503c8cca4edbbd29b5b06162fa9b4e67f992066120ee22612d6
-    ...   https://dzr-mcs-amzn-eu-west-1-f9b7.upe.d.hmr.sophos.com/sophos/management/ep
+    ...   ${MCS_URL}
     ...   ${UPDATE_CREDENTIALS}
 
     build thininstaller from sections  /tmp/credentials.txt  /tmp/SophosInstallBase.sh  /tmp/SophosInstallCombined.sh
 
 
 *** Test Case ***
-Thin Installer can install Base
+Thin Installer can install Base to Dev Region
     Setup Warehouses
     Create Thin Installer
+    Run Thin Installer  /tmp/SophosInstallCombined.sh  ${0}  http://localhost:1233  ${SUPPORT_FILES}/certs/hmr-dev-sha1.pem
+
+Thin Installer can install Base to Local Fake Cloud
+    [Tags]  FAIL
+    Setup Warehouses
+    Create Thin Installer  https://localhost:9999/
+    Start Fake Cloud
     Run Thin Installer  /tmp/SophosInstallCombined.sh  ${0}  http://localhost:1233  ${SUPPORT_FILES}/certs/hmr-dev-sha1.pem

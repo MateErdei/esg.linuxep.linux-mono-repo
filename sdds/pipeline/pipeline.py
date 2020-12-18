@@ -41,7 +41,7 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
     if machine_name is None:
         machine_name = machine.template
     try:
-        robot_exclusion_tags = []
+        robot_exclusion_tags = ["MANUAL", "FAIL"]
 
         machine.run('bash',
                     machine.inputs.test_scripts / "bin/install_packages.sh",
