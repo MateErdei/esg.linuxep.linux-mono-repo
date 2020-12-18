@@ -24,7 +24,7 @@ def install_system_ca_cert(certificate_path):
 
 def install_system_ca_certs(*certificate_paths):
     script = os.path.join(PathManager.get_support_file_path(), "https", "InstallCertificateToSystem.sh")
-    command = [script, *certificate_paths]
+    command = ["bash", script, *certificate_paths]
     logger.debug(command)
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out, _ = process.communicate()
@@ -38,7 +38,7 @@ def install_system_ca_certs(*certificate_paths):
 
 def cleanup_system_ca_certs():
     support_files_path = PathManager.get_support_file_path()
-    script = os.path.join(support_files_path, "https", "CleanupInstalledSystemCerts.sh")
+    script = os.path.join("bash", support_files_path, "https", "CleanupInstalledSystemCerts.sh")
     logger.debug(script)
     command = [script]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
