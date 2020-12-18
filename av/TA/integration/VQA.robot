@@ -60,7 +60,7 @@ SUSI config can scan a media file
     Check File Clean  test.gif
     ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
     Log  ${contents}
-    Should Contain  ${contents}  Classifn: 0x93
+    Should Contain  ${contents}  Classifn: 0x93  #TFT Classification ID for grpClean/media
 
 
 SUSI config can scan a selfextractor file
@@ -68,7 +68,7 @@ SUSI config can scan a selfextractor file
     Check File Clean  Firefox.exe
     ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
     Log  ${contents}
-    Should Contain  ${contents}  Classifn: 0x58
+    Should Contain  ${contents}  Classifn: 0x58  #TFT Classification ID for grpselfExtractor/selfextractor
 
 
 *** Variables ***
