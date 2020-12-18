@@ -323,6 +323,7 @@ class PostRequestHandler(http.server.BaseHTTPRequestHandler):
 class PasswordHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     authHandler = None
     latency = 0
+    strip_prefix = None
 
     def log_message(self, format, *args):
         """Log an arbitrary message.
@@ -379,6 +380,10 @@ class PasswordHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             path = mo.group(1)
         else:
             path = origpath
+
+        if self.strip_prefix is not None:
+            if path.startswith(self.strip_prefix):
+                path = path[len(self.strip_prefix):]
 
         ret = http.server.SimpleHTTPRequestHandler.translate_path(self, path)
         print("translate:", origpath, path, ret, file=sys.stderr)
@@ -501,8 +506,8 @@ def addOptions(parser):
                       help="Delay before starting transfer in ms", default=0)
 
     parser.add_option("--loggingOn","--logging","--log",action="store_true", dest="loggingOn",
-                      help="Hang serving the first file",default=False)
-    parser.add_option("-P","--post","--put",action="store_true", dest="post",
+                      help="Log requests", default=False)
+    parser.add_option("-P","--post", "--put", action="store_true", dest="post",
                       help="Handle POST requests",default=False)
     parser.add_option("-S","--secure", action="store", dest="pem",
                       help="PEM file to enable HTTPS",default=None)
@@ -520,6 +525,9 @@ def addOptions(parser):
                       help="Force only good ciphers", default=False)
     parser.add_option("--all_ciphers", action="store_true", dest="all_ciphers",
                       help="Support all ciphers", default=False)
+
+    parser.add_option("--strip", action="store", dest="strip", default=None,
+                      help="A Prefix to strip from request paths")
 
 
 def getOptionsFromArgs(parser, args):
@@ -620,6 +628,8 @@ def create_server(options):
         auth = BasicAuthentication(pdb)
         PasswordHTTPRequestHandler.authHandler = auth
         logger.debug("\tBasic authentication user=%s, pass=%s"%(options.user,options.password), file=sys.stderr)
+
+    PasswordHTTPRequestHandler.strip_prefix = options.strip
 
     basedir = os.getcwd()
     if options.pem is not None and basedir is not None:
