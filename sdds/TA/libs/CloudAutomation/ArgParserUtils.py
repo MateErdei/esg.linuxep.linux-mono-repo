@@ -53,10 +53,16 @@ def tls_from_string(tls_string=""):
     else:
         return None
 
+
 class store_ssl_tls(argparse.Action):
     def __call__(self, parser, namespace, tls_version_string, option_string=None):
         tls_version = tls_from_string(tls_version_string)
         setattr(namespace, self.dest, tls_version)
+
+
+def get_support_file_path():
+    return PathManager.get_support_file_path()
+
 
 def add_cloudserver_args(parser):
     # 'Cloud test server for SSPL Linux automation'
@@ -73,13 +79,12 @@ def add_cloudserver_args(parser):
                         default=True,
                         help="Turn off heartbeat by default")
 
-    libs_dir = PathManager.get_libs_path()
-    support_file_dir = PathManager.get_support_file_path()
+    support_file_dir = get_support_file_path()
     parser.add_argument("--port", help="define the port the server will listen to", default=4443, dest="port")
     parser.add_argument("--initial-alc-policy", help="define the initial alc policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml"), dest="INITIAL_ALC_POLICY")
     parser.add_argument("--initial-mcs-policy", help="define the initial mcs policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MCS_policy.xml"), dest="INITIAL_MCS_POLICY")
     parser.add_argument("--initial-sav-policy", help="define the initial sav policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_SAV_policy.xml"), dest="INITIAL_SAV_POLICY")
     parser.add_argument("--initial-mdr-policy", help="define the initial mdr policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MDR_policy.xml"), dest="INITIAL_MDR_POLICY")
     parser.add_argument("--initial-livequery-policy", help="define the initial livequery policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_LiveQuery_policy.xml"), dest="INITIAL_LIVEQUERY_POLICY")
-    parser.add_argument("--tls", dest="tls", default=ssl.PROTOCOL_SSLv23, action=store_ssl_tls, help="Set tls option", \
+    parser.add_argument("--tls", dest="tls", default=ssl.PROTOCOL_TLSv1_2, action=store_ssl_tls, help="Set tls option",
                         choices=["tlsv1", "tlsv1_1", "tlsv1_2", "sslv2", "sslv3", "sslv23"])
