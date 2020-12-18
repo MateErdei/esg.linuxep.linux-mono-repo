@@ -104,7 +104,7 @@ class TestComputer(unittest.TestCase):
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
     @mock.patch("os.path.isfile", return_value=True)
-    @patch('builtins.open', new_callable=mock_open)
+    @mock.patch('builtins.open', new_callable=mock_open)
     def testGroupStatusWithXmlMultipleEntriesInInstallOptionsFile(self, mo, *mockarg):
         # These side affects to mock reading are only needed because we're using mock builtins.open
         # so all uses of open need to be accounted for.
@@ -123,7 +123,7 @@ class TestComputer(unittest.TestCase):
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
     @mock.patch("os.path.isfile", return_value=True)
-    @patch('builtins.open', new_callable=mock_open)
+    @mock.patch('builtins.open', new_callable=mock_open)
     def testGroupStatusXmlWithSingleEntryInInstallOptionsFile(self, mo, *mockarg):
         # These side affects to mock reading are only needed because we're using mock builtins.open
         # so all uses of open need to be accounted for.
@@ -142,7 +142,7 @@ class TestComputer(unittest.TestCase):
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
     @mock.patch("os.path.isfile", return_value=True)
-    @patch('builtins.open', new_callable=mock_open)
+    @mock.patch('builtins.open', new_callable=mock_open)
     def testGroupStatusXmlWithMalformedGroupOptionInInstallOptionsFile(self, mo, *mockarg):
         # These side affects to mock reading are only needed because we're using mock builtins.open
         # so all uses of open need to be accounted for.
@@ -161,7 +161,7 @@ class TestComputer(unittest.TestCase):
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
     @mock.patch("os.path.isfile", return_value=True)
-    @patch('builtins.open', new_callable=mock_open)
+    @mock.patch('builtins.open', new_callable=mock_open)
     def testGroupStatusXmlWithEmptyGroupOptionInInstallOptionsFile(self, mo, *mockarg):
         # These side affects to mock reading are only needed because we're using mock builtins.open
         # so all uses of open need to be accounted for.
