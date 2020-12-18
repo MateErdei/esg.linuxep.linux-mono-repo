@@ -65,9 +65,9 @@ namespace avscanner::avscannerimpl
     CommandLineScanRunner::CommandLineScanRunner(const Options& options) :
         m_paths(options.paths()),
         m_exclusions(options.exclusions()),
+        m_logger(options.logFile(), options.logLevel(), true),
         m_archiveScanning(options.archiveScanning()),
-        m_followSymlinks(options.followSymlinks()),
-        m_logger(options.logFile(), options.logLevel(), true)
+        m_followSymlinks(options.followSymlinks())
     {
     }
 

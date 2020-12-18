@@ -29,6 +29,8 @@ public:
     explicit Logger(const std::string& scanName, log4cplus::LogLevel logLevel=log4cplus::NOT_SET_LOG_LEVEL, bool isCommandLine=false);
 
     ~Logger();
+    Logger(const Logger&) = delete;
+    Logger& operator=(const Logger&) = delete;
 };
 
 

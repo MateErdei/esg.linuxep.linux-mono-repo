@@ -24,9 +24,9 @@ namespace avscanner::avscannerimpl
     private:
         std::vector<std::string> m_paths;
         std::vector<std::string> m_exclusions;
-        bool m_archiveScanning;
-        bool m_followSymlinks;
-
         Logger m_logger;
+
+        bool m_archiveScanning = false;
+        bool m_followSymlinks = false;
     };
 }
