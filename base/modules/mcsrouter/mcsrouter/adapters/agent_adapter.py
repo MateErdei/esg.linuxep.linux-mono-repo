@@ -178,10 +178,10 @@ def is_device_group_valid(group: str):
 def get_installation_device_group():
     """
     get_installation_device_group
-    Extract the group to which the endpoint was installed to, if present, from the install_options file
+    Extract the group to which the endpoint was installed, if present, from the install_options file
     """
+    install_options_path = path_manager.install_options_file()
     try:
-        install_options_path = path_manager.install_options_file()
         if os.path.isfile(install_options_path):
             with open(install_options_path) as install_options_file:
                 for line in install_options_file.readlines():
@@ -194,7 +194,7 @@ def get_installation_device_group():
                         else:
                             LOGGER.error("Malformed --group= option, device group will not be set.")
     except PermissionError:
-        LOGGER.error("Insufficient permissions to read install_options file, device group will not be set.")
+        LOGGER.error(f"Insufficient permissions to read {install_options_path} file, device group will not be set.")
     except IndexError:
         LOGGER.error("Malformed --group= option, device group will not be set.")
     return None
