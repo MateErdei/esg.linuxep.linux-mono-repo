@@ -99,7 +99,7 @@ namespace avscanner::avscannerimpl
         {
             if (mp->isSpecial())
             {
-                excludedMountPoints.emplace_back(mp->mountPoint());
+                excludedMountPoints.emplace_back(mp->mountPoint() + "/");
                 LOGINFO("Excluding mount point: " << mp->mountPoint());
             }
         }

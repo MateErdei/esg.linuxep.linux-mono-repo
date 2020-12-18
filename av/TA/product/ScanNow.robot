@@ -1,4 +1,5 @@
 *** Settings ***
+
 Documentation   Product tests for AVP
 Force Tags      PRODUCT  SCANNOW
 Library         Collections
@@ -23,6 +24,7 @@ Test Setup     ScanNow Test Setup
 Test Teardown  ScanNow Test Teardown
 
 *** Test Cases ***
+
 Scan Now Honours Exclusions
     Create File    /filename_to_exclude    ${EICAR_STRING}
     Register Cleanup    Remove File  /filename_to_exclude
@@ -54,6 +56,7 @@ Scan Now Honours Exclusions
     Should Contain  ${scan_now_contents}  Mount point /proc is system and will be excluded from the scan
     Should Contain  ${scan_now_contents}  Excluding mount point: /proc
     Should Contain  ${scan_now_contents}  Not recursing into "/proc" as it is excluded
+
 
 Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     [Timeout]  10min
@@ -90,6 +93,24 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     File Log Contains Once  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
 
     Dump Log  ${SCANNOW_LOG_PATH}
+
+
+Scan Now scans dir with name similar to excluded mount
+    Remove Directory  /process  recursive=True
+    # configure scan before creating test dir, so that it isn't excluded
+    Configure Scan Now Scan
+    Register Cleanup  Remove Directory  /process  recursive=True
+    Create Directory  /process
+    Create File  /process/eicar.com       ${EICAR_STRING}
+
+    Remove File   ${AV_PLUGIN_PATH}/log/Scan Now.log
+    Mark AV Log
+    Trigger Scan Now Scan
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240
+
+    AV Plugin Log Contains With Offset  /process/eicar.com
+    File Log Contains  ${AV_PLUGIN_PATH}/log/Scan Now.log  "/process/eicar.com" is infected
+
 
 *** Keywords ***
 

@@ -23,6 +23,14 @@ Run Scheduled Scan
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated
 
+Configure Scan Now Scan
+    ${policy_contents} =  Get Complete Sav Policy
+    Send Plugin Policy  av  sav  ${policy_contents}
+    Wait until scheduled scan updated
+
+Trigger Scan Now Scan
+    Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
+
 Run Scan Now Scan
     ${policy_contents} =  Get Complete Sav Policy
     Send Plugin Policy  av  sav  ${policy_contents}

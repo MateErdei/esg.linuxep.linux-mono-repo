@@ -94,11 +94,10 @@ namespace avscanner::avscannerimpl
         excludedMountPoints.reserve(allMountpoints.size());
         for (const auto& mp : allMountpoints)
         {
-            if (!mp->isSpecial())
+            if (mp->isSpecial())
             {
-                continue;
+                excludedMountPoints.emplace_back(mp->mountPoint() + "/");
             }
-            excludedMountPoints.emplace_back(mp->mountPoint());
         }
 
         std::vector<Exclusion> cmdExclusions;
