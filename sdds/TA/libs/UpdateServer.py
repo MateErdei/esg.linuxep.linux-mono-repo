@@ -44,7 +44,11 @@ class UpdateServer(object):
 
     def start_update_server(self, *options):
         self.generate_update_certs()
-        options = cidServer.parseOptions(list(options))
+
+        options = list(options)
+        options.append("--secure={}".format(self.private_pem))
+        options = cidServer.parseOptions(options)
+
         server = cidServer.CidServerThread()
         server.set_options(options)
         server.startAndWait()

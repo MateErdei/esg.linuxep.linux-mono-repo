@@ -5,6 +5,7 @@
 
 import json
 import os
+import subprocess
 import tarfile
 
 try:
@@ -61,4 +62,30 @@ def extract_thin_installer(basedir, destination):
     with open(destination, "wb") as f:
         f.write(contents)
 
+
+def run_thin_installer(installer_path, expected_exit_code, override_location):
+    env = os.environ.copy()
+    env["OVERRIDE_SOPHOS_LOCATION"] = override_location
+    env["DEBUG_THIN_INSTALLER"] = "1"
+    command = ['bash', installer_path]
+
+    tmp_path = os.path.join(".", "tmp", "thin_installer")
+    os.makedirs(tmp_path, exist_ok=True)
+    log_path = os.path.join(tmp_path, "ThinInstaller.log")
+    logger.debug("env: {}".format(env))
+    log = open(log_path, 'w')
+    logger.info("Running: " + str(command))
+    install_process = subprocess.Popen(command, env=env, stdout=log, stderr=subprocess.STDOUT)
+    log.close()
+    rc = install_process.wait()
+    output = open(log_path).read()
+    logger.info("Thin Installer return code: {}".format(rc))
+    if rc != expected_exit_code:
+        logger.error("Unexpected exit code: {}".format(rc))
+        logger.error("Output: {}".format(output))
+        raise AssertionError(
+            "Thin Installer failed with exit code: {} but was expecting: {}".format(rc,
+                                                                                    expected_exit_code))
+    else:
+        logger.debug("Output: {}".format(output))
 

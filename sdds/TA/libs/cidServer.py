@@ -507,22 +507,23 @@ def addOptions(parser):
     parser.add_option("-S","--secure", action="store", dest="pem",
                       help="PEM file to enable HTTPS",default=None)
     parser.add_option("--tls1_0", action="store_true", dest="tls1_0",
-                      help="Force TLS 1.0",default=False)
+                      help="Force TLS 1.0", default=False)
     parser.add_option("--tls1_1", action="store_true", dest="tls1_1",
-                      help="Force TLS 1.1",default=False)
+                      help="Force TLS 1.1", default=False)
     parser.add_option("--tls", action="store_true", dest="tls",
-                      help="Select 'SSL' and 'TLS'",default=False)
+                      help="Select 'SSL' and 'TLS'", default=False)
     parser.add_option("--tls1_2", action="store_true", dest="tls1_2",
-                      help="Force TLS 1.2",default=False)
-    parser.add_option("--bad_ciphers", "--ciphers_not_in_restricted_list",action="store_true", dest="bad_ciphers",
-                      help="Force only older ciphers",default=False)
-    parser.add_option("--good_ciphers",action="store_true", dest="good_ciphers",
-                      help="Force only good ciphers",default=False)
-    parser.add_option("--all_ciphers",action="store_true", dest="all_ciphers",
-                      help="Support all ciphers",default=False)
+                      help="Force TLS 1.2", default=False)
+    parser.add_option("--bad_ciphers", "--ciphers_not_in_restricted_list", action="store_true", dest="bad_ciphers",
+                      help="Force only older ciphers", default=False)
+    parser.add_option("--good_ciphers", action="store_true", dest="good_ciphers",
+                      help="Force only good ciphers", default=False)
+    parser.add_option("--all_ciphers", action="store_true", dest="all_ciphers",
+                      help="Support all ciphers", default=False)
 
 
 def getOptionsFromArgs(parser, args):
+    logger.debug("ARGS={}".format(args))
     (options, args) = parser.parse_args(args)
 
     if options.infinite_manifest:
@@ -541,7 +542,7 @@ def getOptionsFromArgs(parser, args):
             subprocess.call(["make", cert], cwd=https_dir)
             options.pem = os.path.join(https_dir, cert)
 
-        assert os.path.isfile(options.pem),"Failed to read PEM from %s" % options.pem
+        assert os.path.isfile(options.pem), "Failed to read PEM from %s" % options.pem
 
     if len(args) >= 1:
         if options.port is None:
@@ -610,15 +611,15 @@ def create_server(options):
         loggingOn = True
 
     if options.digest:
-        pdb = PasswordDatabase(options.user,options.password)
+        pdb = PasswordDatabase(options.user, options.password)
         auth = DigestAuthentication(pdb)
         PasswordHTTPRequestHandler.authHandler = auth
-        print("\tDigest authentication user=%s, pass=%s"%(options.user,options.password), file=sys.stderr)
+        logger.debug("\tDigest authentication user=%s, pass=%s"%(options.user,options.password), file=sys.stderr)
     elif options.basic:
-        pdb = PasswordDatabase(options.user,options.password)
+        pdb = PasswordDatabase(options.user, options.password)
         auth = BasicAuthentication(pdb)
         PasswordHTTPRequestHandler.authHandler = auth
-        print("\tBasic authentication user=%s, pass=%s"%(options.user,options.password), file=sys.stderr)
+        logger.debug("\tBasic authentication user=%s, pass=%s"%(options.user,options.password), file=sys.stderr)
 
     basedir = os.getcwd()
     if options.pem is not None and basedir is not None:
@@ -630,15 +631,15 @@ def create_server(options):
     if options.slow:
         if options.rate is not None:
             SlowHandler.RATE = options.rate
-            print("Setting rate to %d B/s"%options.rate, file=sys.stderr)
+            logger.debug("Setting rate to %d B/s"%options.rate, file=sys.stderr)
         handler_class = SlowHandler
-        print("Serving files slowly", file=sys.stderr)
+        logger.debug("Serving files slowly", file=sys.stderr)
     elif options.hang:
         handler_class = HangingHandler
-        print("Hanging while serving first file", file=sys.stderr)
+        logger.debug("Hanging while serving first file", file=sys.stderr)
     elif options.infinite:
         handler_class = InfiniteHandler
-        print("Infinite zeros for all files other than .inf .upd .dat", file=sys.stderr)
+        logger.debug("Infinite zeros for all files other than .inf .upd .dat", file=sys.stderr)
     elif options.post:
         handler_class = PostRequestHandler
     else:
@@ -653,6 +654,7 @@ def create_server(options):
     httpd.options = options
 
     if options.secure:
+        logger.debug("Starting HTTPS server")
         import ssl
         if options.tls1_0:
             protocol = ssl.PROTOCOL_TLSv1
@@ -680,6 +682,8 @@ def create_server(options):
             server_side=True,
             ssl_version=protocol,
             ciphers=ciphers)
+    else:
+        logger.debug("Starting HTTP server - no ssl")
 
     # don't do this, it breaks all of our UNIX systems
     # httpd.socket.settimeout(1)
@@ -693,18 +697,19 @@ class CidServerThread(threading.Thread):
         self.__m_options = None
         self.__m_stop = False
         self.m_httpd = None
+        self.__m_ppid = os.getppid()
 
     def set_options(self, options):
         self.__m_options = options
-
-    def run(self):
-        ppid = os.getppid()
-        assert ppid != 1
         self.m_httpd = create_server(self.__m_options)
         self.m_httpd.timeout = 0.5
+        assert self.__m_ppid != 1
+
+    def run(self):
+        assert self.m_httpd is not None
         try:
             while not self.__m_stop:
-                if os.getppid() != ppid:
+                if os.getppid() != self.__m_ppid:
                     print("Parent process went away, quitting!")
                     self.__m_stop = True
                     break
@@ -734,12 +739,14 @@ class CidServerThread(threading.Thread):
 
 
 def main(argv):
-
     ppid = os.getppid()
     assert ppid != 1
 
+    # configure logging
+    logging.basicConfig()
+
     options = parseOptions(argv[1:])
-    print("Webserver running on %d, with root %s"%(options.port, options.root), file=sys.stderr)
+    print("Webserver running on %d, with root %s" % (options.port, options.root), file=sys.stderr)
     print("args:", str(argv[1:]), file=sys.stderr)
 
     httpd = create_server(options)
@@ -751,16 +758,16 @@ def main(argv):
             httpd.handle_request()
         print("Parent process went away, quitting!")
     except OSError as e:
-        print("Serving failed with OSError:",e)
+        print("Serving failed with OSError:", e)
         print(os.getcwd(), file=sys.stderr)
         raise
     except Exception as e:
-        print(("Failed with exception",e))
+        print(("Failed with exception", e))
         print(os.getcwd(), file=sys.stderr)
         raise
 
     return 0
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     sys.exit(main(sys.argv))
