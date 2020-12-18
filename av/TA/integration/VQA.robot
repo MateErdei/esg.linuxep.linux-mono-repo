@@ -59,15 +59,16 @@ SUSI config can scan a media file
     Mark Sophos Threat Detector Log
     Check File Clean  test.gif
     ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
+    Log  ${contents}
     Should Contain  ${contents}  Classifn: 0x93
 
 
 SUSI config can scan a selfextractor file
     Mark Sophos Threat Detector Log
-    Add IDE To Installation  sfx.ide
     Check File Clean  Firefox.exe
-    ${contents}  Get File Contents From Offet   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
-    Should Contain  ${contents}  Classifn: 0x53
+    ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
+    Log  ${contents}
+    Should Contain  ${contents}  Classifn: 0x58
 
 
 *** Variables ***
