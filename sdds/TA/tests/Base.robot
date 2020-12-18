@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation   Test using thin installer to install base
 
-Library     ../libs/OnFail.py
+Library     ../libs/Cleanup.py
 Library     ../libs/OSUtils.py
 Library     ../libs/ThinInstallerUtils.py
 Library     ../libs/UpdateServer.py

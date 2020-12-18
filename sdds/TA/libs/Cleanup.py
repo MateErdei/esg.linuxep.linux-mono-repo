@@ -6,7 +6,7 @@
 from robot.libraries.BuiltIn import BuiltIn
 
 
-class OnFail(object):
+class Cleanup(object):
     def __init__(self):
         self.__m_fail_actions = []
         self.__m_cleanup_actions = []
