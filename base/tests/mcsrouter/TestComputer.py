@@ -104,15 +104,16 @@ class TestComputer(unittest.TestCase):
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
     @mock.patch("os.path.isfile", return_value=True)
-    @patch('builtins.open', new_callable=mock_open, read_data="a\nb\nc\n--group=groupname\nd")
+    @patch('builtins.open', new_callable=mock_open)
     def testGroupStatusWithXmlMultipleEntriesInInstallOptionsFile(self, mo, *mockarg):
         # These side affects to mock reading are only needed because we're using mock builtins.open
         # so all uses of open need to be accounted for.
         side_affects = (
             # some values for IPv6 functions to work, not of interest to this test.
-            mo.return_value,mock_open(read_data="00000000000000000000000000000001").return_value,
-            mo.return_value,mock_open(
+            mock_open(read_data="00000000000000000000000000000001").return_value,
+            mock_open(
                 read_data="00000000000000000000000000000001 01 80 10 80       lo    \nfe800000000000006c4e782bd302103d 02 40 20 80 enp0s31f6").return_value,
+            mock_open(read_data="a\nb\nc\n--group=groupname\nd").return_value,
         )
         mo.side_effect = side_affects
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
@@ -122,15 +123,16 @@ class TestComputer(unittest.TestCase):
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
     @mock.patch("os.path.isfile", return_value=True)
-    @patch('builtins.open', new_callable=mock_open, read_data="--group=groupname2")
+    @patch('builtins.open', new_callable=mock_open)
     def testGroupStatusXmlWithSingleEntryInInstallOptionsFile(self, mo, *mockarg):
         # These side affects to mock reading are only needed because we're using mock builtins.open
         # so all uses of open need to be accounted for.
         side_affects = (
             # some values for IPv6 functions to work, not of interest to this test.
-            mo.return_value,mock_open(read_data="00000000000000000000000000000001").return_value,
-            mo.return_value,mock_open(
+            mock_open(read_data="00000000000000000000000000000001").return_value,
+            mock_open(
                 read_data="00000000000000000000000000000001 01 80 10 80       lo    \nfe800000000000006c4e782bd302103d 02 40 20 80 enp0s31f6").return_value,
+            mock_open(read_data="--group=groupname2").return_value
         )
         mo.side_effect = side_affects
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
@@ -140,15 +142,16 @@ class TestComputer(unittest.TestCase):
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
     @mock.patch("os.path.isfile", return_value=True)
-    @patch('builtins.open', new_callable=mock_open, read_data="--group=bad<group'name")
+    @patch('builtins.open', new_callable=mock_open)
     def testGroupStatusXmlWithMalformedGroupOptionInInstallOptionsFile(self, mo, *mockarg):
         # These side affects to mock reading are only needed because we're using mock builtins.open
         # so all uses of open need to be accounted for.
         side_affects = (
             # some values for IPv6 functions to work, not of interest to this test.
-            mo.return_value,mock_open(read_data="00000000000000000000000000000001").return_value,
-            mo.return_value,mock_open(
+            mock_open(read_data="00000000000000000000000000000001").return_value,
+            mock_open(
                 read_data="00000000000000000000000000000001 01 80 10 80       lo    \nfe800000000000006c4e782bd302103d 02 40 20 80 enp0s31f6").return_value,
+            mock_open(read_data="--group=bad<group'name").return_value
         )
         mo.side_effect = side_affects
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
@@ -158,15 +161,16 @@ class TestComputer(unittest.TestCase):
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
     @mock.patch("os.path.isfile", return_value=True)
-    @patch('builtins.open', new_callable=mock_open, read_data="--group=")
+    @patch('builtins.open', new_callable=mock_open)
     def testGroupStatusXmlWithEmptyGroupOptionInInstallOptionsFile(self, mo, *mockarg):
         # These side affects to mock reading are only needed because we're using mock builtins.open
         # so all uses of open need to be accounted for.
         side_affects = (
             # some values for IPv6 functions to work, not of interest to this test.
-            mo.return_value,mock_open(read_data="00000000000000000000000000000001").return_value,
-            mo.return_value,mock_open(
+            mock_open(read_data="00000000000000000000000000000001").return_value,
+            mock_open(
                 read_data="00000000000000000000000000000001 01 80 10 80       lo    \nfe800000000000006c4e782bd302103d 02 40 20 80 enp0s31f6").return_value,
+            mock_open(read_data="--group=").return_value
         )
         mo.side_effect = side_affects
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
