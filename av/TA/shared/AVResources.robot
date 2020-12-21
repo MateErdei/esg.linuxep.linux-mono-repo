@@ -139,6 +139,10 @@ Threat Detector Does Not Log Contain
     [Arguments]  ${input}
     File Log Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  ${input}
 
+Wait Until Sophos Threat Detector Log Contains
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  Threat Detector Log Contains   ${input}   timeout=${timeout}
+
 Sophos Threat Detector Log Contains With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0

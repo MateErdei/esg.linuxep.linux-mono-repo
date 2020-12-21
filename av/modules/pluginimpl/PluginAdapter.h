@@ -27,7 +27,7 @@ namespace Plugin
         std::shared_ptr<PluginCallback> m_callback;
         manager::scheduler::ScanScheduler m_scanScheduler;
         unixsocket::ThreatReporterServerSocket m_threatReporterServer;
-        std::unique_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_sophosThreadDetector;
+        std::unique_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_threatDetector;
 
     public:
         PluginAdapter(

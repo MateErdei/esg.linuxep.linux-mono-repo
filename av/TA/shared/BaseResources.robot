@@ -58,6 +58,13 @@ Send Sav Policy To Base
     [Arguments]  ${policyFile}
     Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/SAV-2_policy.xml
 
+Send Alc Policy
+    Send Alc Policy To Base   ALC_Policy.xml
+
+Send Alc Policy To Base
+    [Arguments]  ${policyFile}
+    Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/ALC-1_policy.xml
+
 Send Sav Policy To Base With Exclusions Filled In
     [Arguments]  ${policyFile}
     ExclusionHelper.Fill In On Demand Posix Exclusions  ${RESOURCES_PATH}/${policyFile}  ${RESOURCES_PATH}/FilledIn.xml

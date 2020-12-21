@@ -62,7 +62,14 @@ class ManagementAgentPluginRequester(object):
     def policy(self, app_id, policy_xml):
         self.logger.info("Sending policy XML to {} via {}, XML:{}".format(self.name, self.__m_socket_path, policy_xml))
 
-        filename = "SAV_Policy.xml"
+        if app_id == "sav":
+            filename = "SAV-2_Policy.xml"
+        elif app_id == "alc":
+            filename = "ALC-1_Policy.xml"
+        else:
+            self.logger.fatal("Failed to determine policy type")
+            raise Exception("Failed to determine policy type")
+
         sophos_install = os.environ['SOPHOS_INSTALL']
         with open(os.path.join(sophos_install,"base/mcs/policy/"+filename), "w") as f:
             f.write(policy_xml)

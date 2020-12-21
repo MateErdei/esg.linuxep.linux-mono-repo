@@ -95,6 +95,7 @@ Setup Component For Testing
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/var
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}
     Create Directory  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log
+    Create Directory  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var
     Create Directory  ${COMPONENT_ROOT_PATH}/var
     Create Directory  ${COMPONENT_ROOT_PATH}/log
     Run Process   ln  -s  /  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}/chroot

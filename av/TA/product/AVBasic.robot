@@ -418,6 +418,97 @@ AV Plugin Scan two mounts same inode numbers
     ${result} =       Terminate Process  ${handle}
 
 
+AV Plugin Gets Customer ID
+    ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
+    ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
+    Remove Files   ${customerIdFile1}   ${customerIdFile2}
+
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${handle}
+    Check AV Plugin Installed
+
+    ${policyContent} =   Get ALC Policy   userpassword=A  username=B
+    Log   ${policyContent}
+    Send Plugin Policy  av  alc  ${policyContent}
+
+    ${expectedId} =   Set Variable   a1c0f318e58aad6bf90d07cabda54b7d
+
+    Wait Until Created   ${customerIdFile1}   timeout=5sec
+    ${customerId1} =   Get File   ${customerIdFile1}
+    Should Be Equal   ${customerId1}   ${expectedId}
+
+    Wait Until Created   ${customerIdFile2}   timeout=5sec
+    ${customerId2} =   Get File   ${customerIdFile2}
+    Should Be Equal   ${customerId2}   ${expectedId}
+
+
+AV Plugin requests policies at startup
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${handle}
+    Check AV Plugin Installed
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  FakeManagement Log Contains   Received policy request: APPID=SAV
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  FakeManagement Log Contains   Received policy request: APPID=ALC
+
+
+AV Plugin restarts threat detector on customer id change
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${handle}
+    Check AV Plugin Installed
+
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${id1} =   Generate Random String
+    ${policyContent} =   Get ALC Policy   revid=${id1}  userpassword=${id1}  username=${id1}
+    Log   ${policyContent}
+    Send Plugin Policy  av  alc  ${policyContent}
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+    Check Sophos Threat Detector has different PID   ${pid}
+
+    # change revid only, threat_detector should not restart
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${id2} =   Generate Random String
+    ${policyContent} =   Get ALC Policy   revid=${id2}  userpassword=${id1}  username=${id1}
+    Log   ${policyContent}
+    Send Plugin Policy  av  alc  ${policyContent}
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Run Keyword And Expect Error
+    ...   Keyword 'AV Plugin Log Contains With Offset' failed after retrying for 5 seconds.*
+    ...   Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=5
+    Check Sophos Threat Detector has same PID   ${pid}
+
+    # change credentials, threat_detector should restart
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${id3} =   Generate Random String
+    ${policyContent} =   Get ALC Policy   revid=${id3}  userpassword=${id3}  username=${id3}
+    Log   ${policyContent}
+    Send Plugin Policy  av  alc  ${policyContent}
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+    Check Sophos Threat Detector has different PID   ${pid}
+
+
 *** Keywords ***
 
 AVBasic Suite Setup
@@ -476,3 +567,18 @@ Test Remote Share
     File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR
 
     ${result} =   Terminate Process  ${handle}
+
+Get ALC Policy
+    [Arguments]  ${revid}=${EMPTY}  ${username}=B  ${userpassword}=A
+    ${policyContent} =  Catenate   SEPARATOR=${\n}
+    ...   <?xml version="1.0"?>
+    ...   <AUConfigurations xmlns:csc="com.sophos\\msys\\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+    ...     <csc:Comp RevID="${revid}" policyType="1"/>
+    ...     <AUConfig>
+    ...       <primary_location>
+    ...         <server UserPassword="${userpassword}" UserName="${username}"/>
+    ...       </primary_location>
+    ...     </AUConfig>
+    ...   </AUConfigurations>
+    ${policyContent} =   Replace Variables   ${policyContent}
+    [Return]   ${policyContent}

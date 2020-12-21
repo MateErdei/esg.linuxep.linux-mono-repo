@@ -16,45 +16,42 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 namespace fs = sophos_filesystem;
 
-using namespace Plugin;
-
-namespace
+namespace Plugin
 {
-    fs::path pluginInstall()
+    namespace
     {
-        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        return appConfig.getData("PLUGIN_INSTALL");
-    }
-
-    fs::path threat_reporter_socket()
-    {
-        return pluginInstall() / "chroot/var/threat_report_socket";
-    }
-
-    fs::path sophos_threat_detector_launcher()
-    {
-        return pluginInstall() /  "sbin/sophos_threat_detector_launcher";
-    }
-
-    class ThreatReportCallbacks : public IMessageCallback
-    {
-    public:
-        explicit ThreatReportCallbacks(PluginAdapter& adapter)
-                :m_adapter(adapter)
+        fs::path pluginInstall()
         {
-
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            return appConfig.getData("PLUGIN_INSTALL");
         }
 
-        void processMessage(const std::string& threatXML) override
+        fs::path threat_reporter_socket()
         {
-            m_adapter.processThreatReport(threatXML);
+            return pluginInstall() / "chroot/var/threat_report_socket";
         }
-    private:
-        PluginAdapter& m_adapter;
-    };
-}
 
-PluginAdapter::PluginAdapter(
+        fs::path sophos_threat_detector_launcher()
+        {
+            return pluginInstall() / "sbin/sophos_threat_detector_launcher";
+        }
+
+        class ThreatReportCallbacks : public IMessageCallback
+        {
+        public:
+            explicit ThreatReportCallbacks(PluginAdapter& adapter) : m_adapter(adapter) {}
+
+            void processMessage(const std::string& threatXML) override
+            {
+                m_adapter.processThreatReport(threatXML);
+            }
+
+        private:
+            PluginAdapter& m_adapter;
+        };
+    }
+
+    PluginAdapter::PluginAdapter(
         std::shared_ptr<QueueTask> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback) :
@@ -63,129 +60,146 @@ PluginAdapter::PluginAdapter(
         m_callback(std::move(callback)),
         m_scanScheduler(*this),
         m_threatReporterServer(threat_reporter_socket(), 0600, std::make_shared<ThreatReportCallbacks>(*this)),
-        m_sophosThreadDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
+        m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             sophos_threat_detector_launcher()))
-{
-}
-
-void PluginAdapter::mainLoop()
-{
-    LOGSUPPORT("Starting the main program loop");
-    try
     {
-        LOGSUPPORT("Requesting SAV Policy from base");
-        m_baseService->requestPolicies("SAV");
     }
-    catch (Common::PluginApi::ApiException& e)
-    {
-        LOGERROR("Failed to get SAV policy at startup (" << e.what() << ")");
-    }
-    ThreadRunner scheduler(m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
-    ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
-    ThreadRunner sophos_thread_detector(*m_sophosThreadDetector, "threatDetector");
-    innerLoop();
-}
 
-void PluginAdapter::innerLoop()
-{
-    while (true)
+    void PluginAdapter::mainLoop()
     {
-        Task task = m_queueTask->pop();
-        switch (task.taskType)
+        LOGSUPPORT("Starting the main program loop");
+        try
         {
-            case Task::TaskType::Stop:
-                return;
+            LOGSUPPORT("Requesting SAV Policy from base");
+            m_baseService->requestPolicies("SAV");
+        }
+        catch (Common::PluginApi::ApiException& e)
+        {
+            LOGERROR("Failed to get SAV policy at startup (" << e.what() << ")");
+        }
+        try
+        {
+            LOGSUPPORT("Requesting ALC Policy from base");
+            m_baseService->requestPolicies("ALC");
+        }
+        catch (Common::PluginApi::ApiException& e)
+        {
+            LOGERROR("Failed to get ALC policy at startup (" << e.what() << ")");
+        }
+        ThreadRunner scheduler(
+            m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
+        ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
+        ThreadRunner sophos_thread_detector(*m_threatDetector, "threatDetector");
+        innerLoop();
+    }
 
-            case Task::TaskType::Policy:
-                processPolicy(task.Content);
-                break;
+    void PluginAdapter::innerLoop()
+    {
+        while (true)
+        {
+            Task task = m_queueTask->pop();
+            switch (task.taskType)
+            {
+                case Task::TaskType::Stop:
+                    return;
 
-            case Task::TaskType::Action:
-                processAction(task.Content);
-                break;
+                case Task::TaskType::Policy:
+                    processPolicy(task.Content);
+                    break;
 
-            case Task::TaskType::ScanComplete:
-            case Task::TaskType::ThreatDetected:
-                m_baseService->sendEvent("SAV", task.Content);
-                break;
+                case Task::TaskType::Action:
+                    processAction(task.Content);
+                    break;
 
-            case Task::TaskType::SendStatus:
-                m_baseService->sendStatus("SAV", task.Content, task.Content);
-                break;
+                case Task::TaskType::ScanComplete:
+                case Task::TaskType::ThreatDetected:
+                    m_baseService->sendEvent("SAV", task.Content);
+                    break;
+
+                case Task::TaskType::SendStatus:
+                    m_baseService->sendStatus("SAV", task.Content, task.Content);
+                    break;
+            }
         }
     }
-}
 
-void PluginAdapter::processPolicy(const std::string& policyXml)
-{
-    LOGINFO("Received Policy");
-    LOGDEBUG("Processing policy: " << policyXml);
-
-    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-
-    // Work out whether it's ALC or SAV policy
-    auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
-    auto policyType = alc_comp.value("policyType", "unknown");
-    if (policyType == "1")
+    void PluginAdapter::processPolicy(const std::string& policyXml)
     {
-        // ALC policy
-        bool updated = m_updatePolicyProcessor.processAlcPolicy(attributeMap);
-        if (updated)
+        LOGINFO("Received Policy");
+        LOGDEBUG("Processing policy: " << policyXml);
+
+        auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+
+        // Work out whether it's ALC or SAV policy
+        auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
+        auto policyType = alc_comp.value("policyType", "unknown");
+        if (policyType != "unknown")
         {
-            m_sophosThreadDetector->configuration_changed();
+            if (policyType == "1")
+            {
+                // ALC policy
+                bool updated = m_updatePolicyProcessor.processAlcPolicy(attributeMap);
+                if (updated)
+                {
+                    m_threatDetector->configuration_changed();
+                }
+            }
+            else
+            {
+                LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
+            }
+            return;
         }
-        return;
+
+        // SAV policy
+        policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
+        if (policyType != "2")
+        {
+            LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
+            return;
+        }
+        m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+
+        std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
+        m_callback->sendStatus(revID);
     }
 
-    // SAV policy
-    policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
-    if ( policyType != "2")
+    void PluginAdapter::processAction(const std::string& actionXml)
     {
-        LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
-        return;
+        LOGDEBUG("Process action: " << actionXml);
+
+        auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
+
+        if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
+        {
+            m_scanScheduler.scanNow();
+        }
     }
-    m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
-    std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
-    m_callback->sendStatus(revID);
-}
-
-
-void PluginAdapter::processAction(const std::string& actionXml)
-{
-    LOGDEBUG("Process action: " << actionXml);
-
-    auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
-
-    if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
+    void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
     {
-        m_scanScheduler.scanNow();
+        LOGDEBUG("Sending scan complete notification to central: " << scanCompletedXml);
+
+        m_queueTask->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
     }
-}
 
-void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
-{
-    LOGDEBUG("Sending scan complete notification to central: " << scanCompletedXml);
-
-    m_queueTask->push(Task{.taskType=Task::TaskType::ScanComplete, .Content=scanCompletedXml});
-}
-
-void PluginAdapter::processThreatReport(const std::string& threatDetectedXML)
-{
-    LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
-    auto attributeMap = Common::XmlUtilities::parseXml(threatDetectedXML);
-    incrementTelemetryThreatCount(attributeMap.lookupMultiple("notification/threat")[0].value("name"));
-    m_queueTask->push(Task{.taskType=Task::TaskType::ThreatDetected, .Content=threatDetectedXML});
-}
-
-void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName)
-{
-    if(threatName == "EICAR-AV-Test")
+    void PluginAdapter::processThreatReport(const std::string& threatDetectedXML)
     {
-        Common::Telemetry::TelemetryHelper::getInstance().increment("threat-eicar-count", 1ul);
+        LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
+        auto attributeMap = Common::XmlUtilities::parseXml(threatDetectedXML);
+        incrementTelemetryThreatCount(attributeMap.lookupMultiple("notification/threat")[0].value("name"));
+        m_queueTask->push(Task { .taskType = Task::TaskType::ThreatDetected, .Content = threatDetectedXML });
     }
-    else
+
+    void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName)
     {
-        Common::Telemetry::TelemetryHelper::getInstance().increment("threat-count", 1ul);
+        if (threatName == "EICAR-AV-Test")
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().increment("threat-eicar-count", 1ul);
+        }
+        else
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().increment("threat-count", 1ul);
+        }
     }
 }

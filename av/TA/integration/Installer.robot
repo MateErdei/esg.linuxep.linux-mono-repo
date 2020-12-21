@@ -4,6 +4,7 @@ Force Tags       INTEGRATION  INSTALLER
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
+Resource    ../shared/BaseResources.robot
 
 Library         Collections
 Library         Process
@@ -41,7 +42,7 @@ Scanner works after upgrade
     Mark Sophos Threat Detector Log
 
     # modify the manifest to force the installer to perform a full product update
-    Append To File   /opt/sophos-spl/plugins/av/var/manifest.dat   "junk"
+    Modify manifest
     Run Installer From Install Set
 
     # Existing robot functions don't check marked logs, so we do our own log check instead
@@ -65,13 +66,59 @@ Scanner works after upgrade
     AV Plugin Log Contains With Offset   EICAR-AV-Test
 
 
+AV Plugin gets customer id after upgrade
+    ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
+    ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
+    Remove Files   ${customerIdFile1}   ${customerIdFile2}
+
+    Mark Sophos Threat Detector Log
+
+    Send Alc Policy
+
+    ${expectedId} =   Set Variable   a1c0f318e58aad6bf90d07cabda54b7d
+    Wait Until Created   ${customerIdFile1}   timeout=5sec
+    ${customerId1} =   Get File   ${customerIdFile1}
+    Should Be Equal   ${customerId1}   ${expectedId}
+
+    Wait Until Created   ${customerIdFile2}   timeout=5sec
+    ${customerId2} =   Get File   ${customerIdFile2}
+    Should Be Equal   ${customerId2}   ${expectedId}
+
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+
+    # force an upgrade, check that customer id is set
+    Mark Sophos Threat Detector Log
+
+    Remove Files   ${customerIdFile1}   ${customerIdFile2}
+
+    # modify the manifest to force the installer to perform a full product update
+    Modify manifest
+    Run Installer From Install Set
+
+    Wait Until Created   ${customerIdFile1}   timeout=5sec
+    ${customerId1} =   Get File   ${customerIdFile1}
+    Should Be Equal   ${customerId1}   ${expectedId}
+
+    Wait Until Created   ${customerIdFile2}   timeout=5sec
+    ${customerId2} =   Get File   ${customerIdFile2}
+    Should Be Equal   ${customerId2}   ${expectedId}
+
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+
+
 IDE can be removed
+    File should not exist  ${INSTALL_IDE_DIR}/${ide_name}
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+
     Install IDE  ${IDE_NAME}
+    File should exist  ${INSTALL_IDE_DIR}/${ide_name}
     File should exist  ${INSTALL_IDE_DIR}/${ide_name}.0
+
     Uninstall IDE  ${IDE_NAME}
+    File should not exist  ${INSTALL_IDE_DIR}/${ide_name}
     File should not exist  ${INSTALL_IDE_DIR}/${ide_name}.0
     File Should Not Exist   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/libsusi.so
+
     Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
 sophos_threat_detector can start after multiple IDE updates
@@ -127,7 +174,7 @@ Check permissions after upgrade
     ${before} =   Set Variable   ${output}
 
     # modify the manifest to force the installer to perform a full product update
-    append to file   /opt/sophos-spl/plugins/av/var/manifest.dat   "junk"
+    Modify manifest
     Run Installer From Install Set
 
     # check our files are still writable
@@ -203,3 +250,6 @@ Restart sophos_threat_detector
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket
     ...   timeout=40
+
+Modify manifest
+    Append To File   ${COMPONENT_ROOT_PATH}/var/manifest.dat   "junk"

@@ -16,82 +16,83 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/XmlUtilities/AttributesMap.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
 
-using namespace threat_scanner;
-using json = nlohmann::json;
-namespace fs = sophos_filesystem;
-
-std::shared_ptr<ISusiWrapper> SusiWrapperFactory::createSusiWrapper(const std::string& scannerConfig)
+namespace threat_scanner
 {
-    return std::make_shared<SusiWrapper>(m_globalHandler, scannerConfig);
-}
+    using json = nlohmann::json;
+    namespace fs = sophos_filesystem;
 
-static fs::path susi_library_path()
-{
-    return pluginInstall() / "chroot/susi/distribution_version";
-}
-
-static std::string getEndpointId()
-{
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    fs::path machineIdPath = appConfig.getData("SOPHOS_INSTALL") + "/base/etc/machine_id.txt";
-
-    std::ifstream fs(machineIdPath);
-
-    if (fs.good())
+    namespace
     {
-        try
+        fs::path susi_library_path()
         {
-            std::stringstream endpointIdContents;
-            endpointIdContents << fs.rdbuf();
-
-            return endpointIdContents.str();
+            return pluginInstall() / "chroot/susi/distribution_version";
         }
-        catch (const std::exception& e)
+
+        std::string getEndpointId()
         {
-            LOGERROR("Unexpected error when reading endpoint id for global rep setup: " << e.what());
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            fs::path machineIdPath = appConfig.getData("SOPHOS_INSTALL") + "/base/etc/machine_id.txt";
+
+            std::ifstream fs(machineIdPath);
+
+            if (fs.good())
+            {
+                try
+                {
+                    std::stringstream endpointIdContents;
+                    endpointIdContents << fs.rdbuf();
+
+                    return endpointIdContents.str();
+                }
+                catch (const std::exception& e)
+                {
+                    LOGERROR("Unexpected error when reading endpoint id for global rep setup: " << e.what());
+                }
+            }
+
+            LOGERROR("Failed to read machine ID - using default value");
+            return "66b8fd8b39754951b87269afdfcb285c";
         }
-    }
 
-    LOGERROR("Failed to read machine ID - using default value");
-    return "66b8fd8b39754951b87269afdfcb285c";
-}
-
-static std::string getCustomerId()
-{
-    auto customerIdPath = pluginInstall() / "var/customer_id.txt";
-
-    std::ifstream fs(customerIdPath, std::ifstream::in);
-
-    if (fs.good())
-    {
-        try
+        std::string getCustomerId()
         {
-            std::stringstream customerId;
-            customerId << fs.rdbuf();
+            auto customerIdPath = pluginInstall() / "var/customer_id.txt";
 
-            return customerId.str();
+            std::ifstream fs(customerIdPath, std::ifstream::in);
+
+            if (fs.good())
+            {
+                try
+                {
+                    std::stringstream customerId;
+                    customerId << fs.rdbuf();
+
+                    return customerId.str();
+                }
+                catch (const std::exception& e)
+                {
+                    LOGERROR("Unexpected error when reading customer id for global rep setup: " << e.what());
+                }
+            }
+
+            LOGERROR("Failed to read customerID - using default value");
+            return "c1cfcf69a42311a6084bcefe8af02c8a";
         }
-        catch (const std::exception& e)
+
+        std::string create_runtime_config(
+            const std::string& scannerInfo,
+            const std::string& endpointId,
+            const std::string& customerId)
         {
-            LOGERROR("Unexpected error when reading customer id for global rep setup: " << e.what());
-        }
-    }
+            fs::path libraryPath = susi_library_path();
+            auto versionNumber = common::getPluginVersion();
 
-    LOGERROR("Failed to read customerID - using default value");
-    return "c1cfcf69a42311a6084bcefe8af02c8a";
-}
-
-static std::string create_runtime_config(const std::string& scannerInfo, const std::string& endpointId, const std::string& customerId)
-{
-    fs::path libraryPath = susi_library_path();
-    auto versionNumber = common::getPluginVersion();
-
-    std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos({
+            std::string runtimeConfig = Common::UtilityImpl::StringUtils::orderedStringReplace(
+                R"sophos({
     "library": {
         "libraryPath": "@@LIBRARY_PATH@@",
         "tempPath": "/tmp",
@@ -108,24 +109,31 @@ static std::string create_runtime_config(const std::string& scannerInfo, const s
         }
     },
     @@SCANNER_CONFIG@@
-})sophos", {{"@@LIBRARY_PATH@@", libraryPath},
-            {"@@VERSION_NUMBER@@", versionNumber},
-            {"@@CUSTOMER_ID@@", customerId},
-            {"@@MACHINE_ID@@", endpointId},
-            {"@@SCANNER_CONFIG@@", scannerInfo}
-    });
-    return runtimeConfig;
-}
+})sophos",
+                { { "@@LIBRARY_PATH@@", libraryPath },
+                  { "@@VERSION_NUMBER@@", versionNumber },
+                  { "@@CUSTOMER_ID@@", customerId },
+                  { "@@MACHINE_ID@@", endpointId },
+                  { "@@SCANNER_CONFIG@@", scannerInfo } });
+            return runtimeConfig;
+        }
+    }
 
-//make a method that reads ALC-policy to get the Customer ID
-SusiWrapperFactory::SusiWrapperFactory()
-{
-    std::string scannerInfo = create_scanner_info(false);
-    std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId());
-    m_globalHandler = std::make_shared<SusiGlobalHandler>(runtimeConfig);
-}
+    std::shared_ptr<ISusiWrapper> SusiWrapperFactory::createSusiWrapper(const std::string& scannerConfig)
+    {
+        return std::make_shared<SusiWrapper>(m_globalHandler, scannerConfig);
+    }
 
-bool SusiWrapperFactory::update()
-{
-    return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source");
+    // make a method that reads ALC-policy to get the Customer ID
+    SusiWrapperFactory::SusiWrapperFactory()
+    {
+        std::string scannerInfo = create_scanner_info(false);
+        std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId());
+        m_globalHandler = std::make_shared<SusiGlobalHandler>(runtimeConfig);
+    }
+
+    bool SusiWrapperFactory::update()
+    {
+        return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source");
+    }
 }
