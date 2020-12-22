@@ -46,6 +46,10 @@ namespace
                     <daySet>
                         <day>sunday</day>
                     </daySet>)MULTILINE");
+
+        Common::XmlUtilities::AttributesMap m_days_empty = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
+                    <daySet />)MULTILINE");
     };
 }
 
@@ -91,4 +95,15 @@ TEST_F(TestDaySet, getNextScanTimeDeltaSundaytoSunday) // NOLINT
     //Sunday
     now_struct.tm_wday = 0;
     ASSERT_EQ(set.getNextScanTimeDelta(now_struct, true), 7);
+}
+
+TEST_F(TestDaySet, getNextScanTimeDeltaNoDays) // NOLINT
+{
+    DaySet set(m_days_empty, "daySet/day");
+    ASSERT_EQ(set.size(), 0);
+    time_t now = ::time(nullptr);
+    struct tm now_struct{};
+    ::localtime_r(&now, &now_struct);
+
+    EXPECT_THROW(set.getNextScanTimeDelta(now_struct, true), std::out_of_range);
 }

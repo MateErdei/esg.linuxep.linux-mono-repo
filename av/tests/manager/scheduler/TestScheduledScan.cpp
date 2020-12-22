@@ -120,3 +120,93 @@ TEST(ScheduledScan, DaySet) // NOLINT
     ASSERT_EQ(days.size(), 2);
 
 }
+
+TEST(ScheduledScan, DaySetEmpty) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+        R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <scanSet>
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <schedule>
+          <daySet>
+          </daySet>
+          <timeSet>
+            <time>00:00:00</time>
+          </timeSet>
+        </schedule>
+      </scan>
+    </scanSet>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto scanIds = attributeMap.entitiesThatContainPath("config/onDemandScan/scanSet/scan", false);
+    ASSERT_EQ(scanIds.size(), 1);
+    ASSERT_EQ(scanIds[0], "config/onDemandScan/scanSet/scan");
+
+    auto days_from_xml = attributeMap.lookupMultiple("config/onDemandScan/scanSet/scan/schedule/daySet/day");
+    ASSERT_EQ(days_from_xml.size(), 0);
+
+
+    // And with the real code
+    auto scan = ScheduledScan(attributeMap, scanIds[0]);
+    EXPECT_EQ(scan.name(), "Sophos Cloud Scheduled Scan");
+    const auto& days = scan.days();
+    ASSERT_EQ(days.size(), 0);
+
+    EXPECT_FALSE(scan.valid());
+    EXPECT_FALSE(scan.isScanNow());
+    EXPECT_EQ(scan.calculateNextTime(time_t(nullptr)), static_cast<time_t>(-1));
+
+    EXPECT_NO_THROW((void) scan.str());
+}
+
+
+TEST(ScheduledScan, TimeSetEmpty) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+        R"MULTILINE(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+    <scanSet>
+      <scan>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <schedule>
+          <daySet>
+            <day>saturday</day>
+            <day>thursday</day>
+          </daySet>
+          <timeSet>
+          </timeSet>
+        </schedule>
+      </scan>
+    </scanSet>
+  </onDemandScan>
+</config>
+)MULTILINE");
+
+    auto scanIds = attributeMap.entitiesThatContainPath("config/onDemandScan/scanSet/scan", false);
+    ASSERT_EQ(scanIds.size(), 1);
+    ASSERT_EQ(scanIds[0], "config/onDemandScan/scanSet/scan");
+
+    auto times_from_xml = attributeMap.lookupMultiple("config/onDemandScan/scanSet/scan/schedule/timeSet/time");
+    ASSERT_EQ(times_from_xml.size(), 0);
+
+
+    // And with the real code
+    auto scan = ScheduledScan(attributeMap, scanIds[0]);
+    EXPECT_EQ(scan.name(), "Sophos Cloud Scheduled Scan");
+    const auto& times = scan.times();
+    EXPECT_EQ(times.size(), 0);
+
+    EXPECT_FALSE(scan.valid());
+    EXPECT_FALSE(scan.isScanNow());
+    EXPECT_EQ(scan.calculateNextTime(time_t(nullptr)), static_cast<time_t>(-1));
+
+    EXPECT_NO_THROW((void) scan.str());
+}

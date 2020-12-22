@@ -251,6 +251,17 @@ AV Handles Scheduled Scan With Badly Configured Day
     Wait Until AV Plugin Log Contains  Days: INVALID
     Wait Until AV Plugin Log Contains  Times: 11:00:00
 
+AV Handles Scheduled Scan With No Configured Day
+    Check AV Plugin Installed With Base
+    Send Sav Policy With No Scan Day
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait until scheduled scan updated
+    Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans: 1
+    Wait Until AV Plugin Log Contains  Days: \n
+    Wait Until AV Plugin Log Contains  Times: 11:00:00
+    File Log Does Not Contain
+    ...   Check Watchdog Log Contains   av died
+
 AV Handles Scheduled Scan With Badly Configured Time
     Check AV Plugin Installed With Base
     Send Sav Policy With Invalid Scan Time
@@ -259,6 +270,17 @@ AV Handles Scheduled Scan With Badly Configured Time
     AV Plugin Log Contains  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains  Days: Monday
     Wait Until AV Plugin Log Contains  Times: 00:00:00
+
+AV Handles Scheduled Scan With No Configured Time
+    Check AV Plugin Installed With Base
+    Send Sav Policy With No Scan Time
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Wait until scheduled scan updated
+    AV Plugin Log Contains  Configured number of Scheduled Scans: 1
+    Wait Until AV Plugin Log Contains  Days: Monday
+    Wait Until AV Plugin Log Contains  Times: \n
+    File Log Does Not Contain
+    ...   Check Watchdog Log Contains   av died
 
 AV Reconfigures Scans Correctly
     Check AV Plugin Installed With Base

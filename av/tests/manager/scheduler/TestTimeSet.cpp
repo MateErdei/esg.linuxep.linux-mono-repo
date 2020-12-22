@@ -25,6 +25,11 @@ namespace
                             <time>22:00:00</time>
                             <time>23:00:00</time>
                         </timeSet>)MULTILINE");
+
+        Common::XmlUtilities::AttributesMap m_time_empty = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
+                        <timeSet />)MULTILINE");
+
     };
 }
 
@@ -32,6 +37,46 @@ TEST_F(TestTimeSet, construction) // NOLINT
 {
     TimeSet set(m_time, "timeSet/time");
     ASSERT_EQ(set.str(), "Times: 00:00:00 01:00:00 03:00:00 04:00:00 18:00:00 22:00:00 23:00:00 ");
+}
+
+TEST_F(TestTimeSet, getNextTimeIsToday) // NOLINT
+{
+    TimeSet set(m_time, "timeSet/time");
+
+    struct tm now {};
+    now.tm_hour = 2;
+    bool forceTomorrow = false;
+
+    auto next = set.getNextTime(now, forceTomorrow);
+
+    EXPECT_EQ(next.str(), "03:00:00");
+    EXPECT_EQ(forceTomorrow, false);
+}
+
+TEST_F(TestTimeSet, getNextTimeIsTomorrow) // NOLINT
+{
+    TimeSet set(m_time, "timeSet/time");
+
+    struct tm now {};
+    now.tm_hour = 23;
+    now.tm_min = 30;
+    bool forceTomorrow = false;
+
+    auto next = set.getNextTime(now, forceTomorrow);
+
+    EXPECT_EQ(next.str(), "00:00:00");
+    EXPECT_EQ(forceTomorrow, true);
+}
+
+TEST_F(TestTimeSet, getNextTimeWithNoTimes) // NOLINT
+{
+    TimeSet set(m_time_empty, "timeSet/time");
+    ASSERT_EQ(set.size(), 0);
+
+    struct tm now {};
+    bool forceTomorrow = false;
+
+    EXPECT_THROW(set.getNextTime(now, forceTomorrow), std::out_of_range);
 }
 
 TEST_F(TestTimeSet, lessOperatorEqualValues) // NOLINT

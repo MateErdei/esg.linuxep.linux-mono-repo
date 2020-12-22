@@ -249,6 +249,20 @@ TEST_F(TestScanScheduler, findNextTime) //NOLINT
     EXPECT_LE(spec.tv_sec, 3600);
 }
 
+TEST_F(TestScanScheduler, findNextTimeNoScanConfigured) //NOLINT
+{
+    FakeScanCompletion scanCompletion;
+    ScanScheduler scheduler{scanCompletion};
+
+    ScheduledScanConfiguration scheduledScanConfiguration(m_emptyPolicy);
+    scheduler.updateConfig(scheduledScanConfiguration);
+
+    struct timespec spec{};
+    ASSERT_NO_THROW(scheduler.findNextTime(spec));
+    EXPECT_EQ(spec.tv_nsec, 0);
+    EXPECT_EQ(spec.tv_sec, 3600);
+}
+
 TEST_F(TestScanScheduler, scanNow) //NOLINT
 {
     FakeScanCompletion scanCompletion;

@@ -97,7 +97,7 @@ class LogUtils(object):
         contents = _get_log_contents(pathToLog)
         if string_to_contain not in contents:
             self.dump_log(pathToLog)
-            raise AssertionError("{} Log at \"{}\" does not contain: {}".format(log_name, pathToLog, string_to_contain))
+            raise AssertionError("{} Log at \"{}\" does not contain '{}'".format(log_name, pathToLog, string_to_contain))
 
     def file_log_contains_once(self, path, expected):
         """
@@ -585,6 +585,10 @@ File Log Contains
     def check_mcsrouter_log_does_not_contain(self, string_to_not_contain):
         mcsrouter_log = self.mcs_router_log()
         self.check_log_does_not_contain(string_to_not_contain, mcsrouter_log, "MCS Router")
+
+    def check_watchdog_log_contains(self, string_to_contain):
+        watchdog_log = self.watchdog_log()
+        self.check_log_contains(string_to_contain, watchdog_log, "Watchdog")
 
     def check_watchdog_log_does_not_contain(self, string_to_not_contain):
         watchdog_log = self.watchdog_log()

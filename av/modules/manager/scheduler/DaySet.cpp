@@ -124,7 +124,7 @@ int DaySet::getNextScanTimeDelta(struct tm now, bool forceTomorrow) const
             return day - now.tm_wday;
         }
     }
-    return 7 + m_days[0] - now.tm_wday;
+    return 7 + m_days.at(0) - now.tm_wday;
 }
 
 std::string DaySet::str() const

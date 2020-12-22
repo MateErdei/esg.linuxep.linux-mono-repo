@@ -107,6 +107,10 @@ ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, con
       m_scanNetworkDrives(collectBool(savPolicy, id+"/settings/scanObjectSet/networkDrives")),
       m_scanRemovableDrives(collectBool(savPolicy, id+"/settings/scanObjectSet/removableDrives"))
 {
+    if (m_days.size() == 0 || m_times.size() == 0)
+    {
+        m_valid = false;
+    }
 }
 
 time_t ScheduledScan::calculateNextTime(time_t now) const
@@ -151,7 +155,7 @@ time_t ScheduledScan::calculateNextTime(time_t now) const
     now_struct.tm_mday += nextDayDelta;
     now_struct.tm_sec = 0;
 
-    return ::mktime(&now_struct);;
+    return ::mktime(&now_struct);
 }
 
 std::string ScheduledScan::str() const
