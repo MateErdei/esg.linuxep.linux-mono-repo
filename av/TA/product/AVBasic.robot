@@ -442,6 +442,34 @@ AV Plugin Gets Customer ID
     Should Be Equal   ${customerId2}   ${expectedId}
 
 
+AV Plugin Gets Customer ID from Obfuscated Creds
+    ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
+    ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
+    Remove Files   ${customerIdFile1}   ${customerIdFile2}
+
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${handle}
+    Check AV Plugin Installed
+
+    ${policyContent} =   Get ALC Policy
+    ...   algorithm=AES256
+    ...   userpassword=CCD8CFFX8bdCDFtU0+hv6MvL3FoxA0YeSNjJyZJWxz1b3uTsBu5p8GJqsfp3SAByOZw=
+    ...   username=ABC123
+    Log   ${policyContent}
+    Send Plugin Policy  av  alc  ${policyContent}
+
+    # md5(md5("ABC123:password"))
+    ${expectedId} =   Set Variable   f5c33e370714d94e1d967e53ac4f0437
+
+    Wait Until Created   ${customerIdFile1}   timeout=5sec
+    ${customerId1} =   Get File   ${customerIdFile1}
+    Should Be Equal   ${customerId1}   ${expectedId}
+
+    Wait Until Created   ${customerIdFile2}   timeout=5sec
+    ${customerId2} =   Get File   ${customerIdFile2}
+    Should Be Equal   ${customerId2}   ${expectedId}
+
+
 AV Plugin requests policies at startup
     ${handle} =   Start Process  ${AV_PLUGIN_BIN}
     Register Cleanup   Terminate Process  ${handle}
@@ -569,14 +597,14 @@ Test Remote Share
     ${result} =   Terminate Process  ${handle}
 
 Get ALC Policy
-    [Arguments]  ${revid}=${EMPTY}  ${username}=B  ${userpassword}=A
+    [Arguments]  ${revid}=${EMPTY}  ${algorithm}=Clear  ${username}=B  ${userpassword}=A
     ${policyContent} =  Catenate   SEPARATOR=${\n}
     ...   <?xml version="1.0"?>
     ...   <AUConfigurations xmlns:csc="com.sophos\\msys\\csc" xmlns="http://www.sophos.com/EE/AUConfig">
     ...     <csc:Comp RevID="${revid}" policyType="1"/>
     ...     <AUConfig>
     ...       <primary_location>
-    ...         <server UserPassword="${userpassword}" UserName="${username}"/>
+    ...         <server Algorithm="${algorithm}" UserPassword="${userpassword}" UserName="${username}"/>
     ...       </primary_location>
     ...     </AUConfig>
     ...   </AUConfigurations>
