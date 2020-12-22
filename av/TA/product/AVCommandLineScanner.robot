@@ -1093,3 +1093,12 @@ CLS Can Scan Clean And Error Files
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+
+CLS Can Scan PE Files without Crashing
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    ${rc}   ${output} =  Run And Return Rc And Output  ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/CertMgr.Exe
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
