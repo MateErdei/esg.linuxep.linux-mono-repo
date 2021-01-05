@@ -122,6 +122,7 @@ TEST_F(TestConfigurator, applyChildSecurityPolicyPurgesAllFilesUnderChroot) // N
 TEST_F(TestConfigurator, applyChildSecurityPolicyMountedPathsAreProtectedFromDeletion) // NOLINT
 {
     SKIPIFCOVERAGE;
+    MAYSKIP;
     //
     ::testing::FLAGS_gtest_death_test_style = "threadsafe";
     std::vector<std::pair<std::string,int>> output;

@@ -58,7 +58,7 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
 
     Stop MCSRouter
 
-    Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Dump Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Create Fake Suldownloader That Will Take A While To Finish
 

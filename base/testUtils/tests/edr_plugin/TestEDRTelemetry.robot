@@ -73,7 +73,7 @@ EDR Plugin Produces Telemetry For XDR scheduled queries
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
     Wait Until Keyword Succeeds
-    ...   20 secs
+    ...   45 secs
     ...   5 secs
     ...   Check EDR Log Contains  Error executing scheduled query bad-query:
 

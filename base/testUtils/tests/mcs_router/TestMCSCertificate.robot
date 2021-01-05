@@ -20,7 +20,10 @@ Setup
 MCS Router Stops If MCS Certificate Cannot Be Read By Sophos-spl-user
     Setup MCS CA With Incorrect Permissions  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
     Register With Local Cloud Server
-    Check Mcsrouter Log Contains   Unable to load CA certificates from '/tmp/tempcertdir/root-ca.crt.pem' as it isn't a file
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains   Unable to load CA certificates from '/tmp/tempcertdir/root-ca.crt.pem' as it isn't a file
 
     Wait Until Keyword Succeeds
     ...  15 secs

@@ -45,9 +45,10 @@ EDR Disables Auditd After Install With Auditd Running Default Behaviour
     ...   2 secs
     ...   Check EDR Osquery Executable Running
 
-    ${edr_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
-    ${result} =  Run Process   auditctl -s | grep pid | awk '{print $2}'  shell=True
-    Should be equal as strings  ${result.stdout}  ${edr_pid.stdout}
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   2 secs
+    ...   check edr has audit netlink
 
     ${contents}=  Get File  ${EDR_DIR}/etc/osquery.flags
     Should contain  ${contents}  --disable_audit=false
@@ -149,3 +150,9 @@ Thin Installer Creates Options File With Many Args
     Should Contain  ${options}  --a
     Should Contain  ${options}  --b
     Should Contain  ${options}  --c
+
+*** Keywords ***
+check edr has audit netlink
+    ${edr_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
+    ${result} =  Run Process   auditctl -s | grep pid | awk '{print $2}'  shell=True
+    Should be equal as strings  ${result.stdout}  ${edr_pid.stdout}
