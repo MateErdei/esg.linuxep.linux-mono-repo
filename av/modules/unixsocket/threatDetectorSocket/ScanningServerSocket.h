@@ -19,8 +19,12 @@ namespace unixsocket
     public:
         ScanningServerSocket(
                 const std::string& path, mode_t mode,
-                threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+                const threat_scanner::IThreatScannerFactorySharedPtr& scannerFactory
                 );
+        ScanningServerSocket(
+            const std::string& path, mode_t mode,
+            threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
+            IMonitorablePtr monitorable);
         ~ScanningServerSocket() override;
 
     protected:
