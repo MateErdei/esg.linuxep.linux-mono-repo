@@ -85,7 +85,7 @@ public:
 
 TEST_F(ProductUninstallerTest, defaultConstructorDoesNotThrow) // NOLINT
 {
-    EXPECT_NO_THROW(ProductUninstaller uninstallManager;); // NOLINT
+    EXPECT_NO_THROW(ProductUninstaller uninstallManager); // NOLINT
 }
 
 TEST_F( // NOLINT
