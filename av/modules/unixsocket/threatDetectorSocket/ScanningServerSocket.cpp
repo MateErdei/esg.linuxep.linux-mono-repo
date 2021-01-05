@@ -6,30 +6,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanningServerSocket.h"
 
+#include "Reloader.h"
 #include "SigUSR1Monitor.h"
 
 #include "../Logger.h"
-
-namespace
-{
-    class Reloader : public unixsocket::IReloadable
-    {
-    public:
-        explicit Reloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
-            : m_scannerFactory(std::move(scannerFactory))
-        {}
-        void reload() override
-        {
-            if (!m_scannerFactory->update())
-            {
-                throw std::runtime_error("Failed to update threat scanner");
-            }
-        }
-    private:
-        threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
-
-    };
-}
 
 unixsocket::ScanningServerSocket::ScanningServerSocket(
         const std::string& path,

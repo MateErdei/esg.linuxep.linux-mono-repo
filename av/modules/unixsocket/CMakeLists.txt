@@ -29,7 +29,7 @@ add_library(unixsocket SHARED
         threatReporterSocket/ThreatReporterServerConnectionThread.h
         threatReporterSocket/ThreatReporterClient.cpp
         threatReporterSocket/ThreatReporterClient.h
-        )
+        threatDetectorSocket/Reloader.cpp threatDetectorSocket/Reloader.h)
 
 target_link_libraries(unixsocket  PUBLIC
         datatypes
