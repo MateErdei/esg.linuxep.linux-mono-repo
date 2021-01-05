@@ -368,6 +368,12 @@ then
     chmod 660 "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse"
 fi
 
+if [[ -f "${SOPHOS_INSTALL}/base/etc/install_options" ]]
+then
+    chown "${SOPHOS_SPL_USER}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/install_options"
+    chmod 440 "${SOPHOS_INSTALL}/base/etc/install_options"
+fi
+
 makedir 711 "${SOPHOS_INSTALL}/base"
 
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
