@@ -21,7 +21,7 @@ public:
 TEST_F(TestEventConverterPortScanningEvent, testConstructorDoesNotThrow) // NOLINT
 {
     std::unique_ptr<Common::EventTypes::IEventConverter> p;
-    EXPECT_NO_THROW(p = Common::EventTypes::constructEventConverter();); // NOLINT
+    EXPECT_NO_THROW(p = Common::EventTypes::constructEventConverter()); // NOLINT
 }
 
 TEST_F( // NOLINT

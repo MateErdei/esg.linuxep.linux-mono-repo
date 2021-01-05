@@ -44,7 +44,7 @@ private:
 
 TEST_F(TestStatusCache, testConstruction) // NOLINT
 {
-    EXPECT_NO_THROW(ManagementAgent::StatusCacheImpl::StatusCache cache;); // NOLINT
+    EXPECT_NO_THROW(ManagementAgent::StatusCacheImpl::StatusCache cache); // NOLINT
 }
 
 TEST_F(TestStatusCache, canAddFirstStatus) // NOLINT
