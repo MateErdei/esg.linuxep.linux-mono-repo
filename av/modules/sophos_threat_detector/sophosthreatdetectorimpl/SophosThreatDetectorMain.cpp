@@ -310,6 +310,9 @@ static int inner_main()
 #else
         = std::make_shared<threat_scanner::FakeSusiScannerFactory>();
 #endif
+
+    scannerFactory->update(); // always force an update during start-up
+
     unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, scannerFactory);
     server.run();
 
