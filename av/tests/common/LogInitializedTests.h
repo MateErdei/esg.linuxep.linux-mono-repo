@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/LoggerConfig.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
+
 namespace test_common
 {
     void initialize_logging();

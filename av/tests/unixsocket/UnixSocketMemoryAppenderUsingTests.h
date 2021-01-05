@@ -6,15 +6,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "tests/common/MemoryAppender.h"
+#include "tests/common/TestSpecificDirectory.h"
 
 namespace
 {
-    class UnixSocketMemoryAppenderUsingTests : public MemoryAppenderUsingTests
+    class UnixSocketMemoryAppenderUsingTests : public TestSpecificDirectory
     {
     public:
         UnixSocketMemoryAppenderUsingTests()
-            : MemoryAppenderUsingTests("UnixSocket")
+            : TestSpecificDirectory("UnixSocket")
         {}
     };
 }
