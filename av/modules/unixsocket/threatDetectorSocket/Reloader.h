@@ -15,15 +15,17 @@ namespace unixsocket
     class Reloader : public unixsocket::IReloadable
     {
     public:
+        Reloader() = default;
+
         explicit Reloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
             : m_scannerFactory(std::move(scannerFactory))
         {}
-        void reload() override
+
+        void reload() override;
+        
+        void reset(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
         {
-            if (!m_scannerFactory->update())
-            {
-                throw std::runtime_error("Failed to update threat scanner");
-            }
+            m_scannerFactory = std::move(scannerFactory);
         }
     private:
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
