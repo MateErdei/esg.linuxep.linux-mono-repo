@@ -370,7 +370,7 @@ fi
 
 if [[ -f "${SOPHOS_INSTALL}/base/etc/install_options" ]]
 then
-    chown "${SOPHOS_SPL_USER}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/install_options"
+    chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/install_options"
     chmod 440 "${SOPHOS_INSTALL}/base/etc/install_options"
 fi
 
