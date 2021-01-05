@@ -21,9 +21,10 @@ class TestStatusReceiverImpl : public ::testing::Test
 TEST_F(TestStatusReceiverImpl, Construction) // NOLINT
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
-    // cppcheck-suppress unknownMacro
+
     EXPECT_NO_THROW // NOLINT
         (std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> statusCache =
+             // cppcheck-suppress unknownMacro
              std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
          ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(fakeQueue, statusCache));
 }
