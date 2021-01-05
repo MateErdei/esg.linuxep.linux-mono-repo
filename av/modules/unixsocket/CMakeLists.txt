@@ -13,6 +13,7 @@ add_library(unixsocket SHARED
         SocketUtilsImpl.h
         StringUtils.cpp
         StringUtils.h
+        threatDetectorSocket/IReloadable.h
         threatDetectorSocket/IScanningClientSocket.h
         threatDetectorSocket/ScanningClientSocket.cpp
         threatDetectorSocket/ScanningClientSocket.h
@@ -27,7 +28,8 @@ add_library(unixsocket SHARED
         threatReporterSocket/ThreatReporterServerConnectionThread.cpp
         threatReporterSocket/ThreatReporterServerConnectionThread.h
         threatReporterSocket/ThreatReporterClient.cpp
-        threatReporterSocket/ThreatReporterClient.h)
+        threatReporterSocket/ThreatReporterClient.h
+        )
 
 target_link_libraries(unixsocket  PUBLIC
         datatypes

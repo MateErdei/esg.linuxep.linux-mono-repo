@@ -6,20 +6,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "IReloadable.h"
+
 #include <unixsocket/IMonitorable.h>
 
 #include <Common/Threads/NotifyPipe.h>
 
 namespace unixsocket
 {
-    class IReloadable
-    {
-    public:
-        virtual void reload() = 0;
-        virtual ~IReloadable() = default;
-    };
-    using IReloadablePtr = std::shared_ptr<IReloadable>;
-
     class SigUSR1Monitor : public IMonitorable
     {
     public:
