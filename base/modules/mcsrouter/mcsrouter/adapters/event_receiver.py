@@ -10,6 +10,7 @@ event_receiver Module
 import logging
 import os
 import re
+import shutil
 
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper as xml_helper
@@ -39,5 +40,13 @@ def receive():
             yield (app_id, time, body)
         else:
             LOGGER.warning("Malformed event file: %s", event_file)
-
-        os.remove(file_path)
+        cache_path = os.join(path_manager.event_cache_dir(), os.path.basename(file_path))
+        for filename in os.listdir(path_manager.event_cache_dir()):
+            file_path = os.path.join(path_manager.event_cache_dir(), filename)
+            try:
+                if filename.startswith(app_id):
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+            except Exception as ex:
+                LOGGER.error('Failed to delete file {} due to error {}'.format(file_path, str(ex)))
+        shutil.move(file_path, cache_path)

@@ -13,6 +13,7 @@ import glob
 import logging
 import logging.handlers
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -173,7 +174,14 @@ def register(config, inst, logger):
                     break
         except mcs_exception.MCSException as exception:
             logger.fatal("Registration failed with %s (%s)", str(exception), repr(exception))
-
+        for filename in os.listdir(path_manager.event_cache_dir()):
+            file_path = os.path.join(path_manager.event_cache_dir(), filename)
+            try:
+                if filename.startswith('ALC'):
+                    if os.path.isfile(file_path):
+                        shutil.move(file_path,os.path.join(path_manager.event_dir(),filename))
+            except Exception as ex:
+                LOGGER.error('Failed to move old event file back {} due to error {}'.format(file_path, str(ex)))
     return ret
 
 

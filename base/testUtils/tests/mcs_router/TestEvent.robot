@@ -30,6 +30,34 @@ Update Succeeded Event Sent On Change
     ...  5 secs
     ...  Check Event Directory Empty
 
+ALC event Sent On reregister
+    Override LogConf File as Global Level  DEBUG
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter
+    Send Update Event    0
+    list files in directory  /opt/sophos-spl/base/mcs/event
+    fail
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Check Cloud Server Log For Update Event    0
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  5 secs
+    ...  Check Event Directory Empty
+    Send Cmd To Fake Cloud  controller/reregisterNext
+
+    Wait EndPoint Report It Has Re-registered
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Cloud Server Log Contains Pattern    .*Register with.*PolicyRegToken.*
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  15 secs
+    ...  Check Mcsrouter Log Contains    Endpoint re-registered
+    fail
 Update Failure Event Sent On Start Up
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
