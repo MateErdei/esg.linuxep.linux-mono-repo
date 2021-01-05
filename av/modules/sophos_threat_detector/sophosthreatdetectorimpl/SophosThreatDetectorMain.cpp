@@ -21,11 +21,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
+#include <linux/securebits.h>
+#include <unixsocket/threatDetectorSocket/Reloader.h>
+#include <unixsocket/threatDetectorSocket/SigUSR1Monitor.h>
 
 #include <fstream>
 #include <string>
 
-#include <linux/securebits.h>
 #include <netdb.h>
 #include <sys/capability.h>
 #include <sys/prctl.h>
@@ -313,7 +315,10 @@ static int inner_main()
 
     scannerFactory->update(); // always force an update during start-up
 
-    unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, scannerFactory);
+    auto usr1Monitor =  std::make_shared<unixsocket::SigUSR1Monitor>(
+        std::make_shared<unixsocket::Reloader>(scannerFactory));
+
+    unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, scannerFactory, usr1Monitor);
     server.run();
 
     return 0;

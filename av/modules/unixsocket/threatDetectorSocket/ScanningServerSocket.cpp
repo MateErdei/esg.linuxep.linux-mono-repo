@@ -25,12 +25,9 @@ unixsocket::ScanningServerSocket::ScanningServerSocket(
     }
 }
 
-unixsocket::ScanningServerSocket::ScanningServerSocket(
-        const std::string& path, const mode_t mode,
-        const threat_scanner::IThreatScannerFactorySharedPtr& scannerFactory)
-        : ScanningServerSocket(path, mode, scannerFactory,
-                         std::make_shared<SigUSR1Monitor>(std::make_shared<Reloader>(scannerFactory)))
+unixsocket::IMonitorablePtr unixsocket::makeUSR1Monitor(const threat_scanner::IThreatScannerFactorySharedPtr& scannerFactory)
 {
+    return std::make_shared<unixsocket::SigUSR1Monitor>(std::make_shared<unixsocket::Reloader>(scannerFactory));
 }
 
 unixsocket::ScanningServerSocket::~ScanningServerSocket()

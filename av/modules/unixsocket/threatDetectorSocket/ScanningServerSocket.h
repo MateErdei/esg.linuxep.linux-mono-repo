@@ -18,10 +18,6 @@ namespace unixsocket
     {
     public:
         ScanningServerSocket(
-                const std::string& path, mode_t mode,
-                const threat_scanner::IThreatScannerFactorySharedPtr& scannerFactory
-                );
-        ScanningServerSocket(
             const std::string& path, mode_t mode,
             threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
             IMonitorablePtr monitorable);
@@ -37,4 +33,7 @@ namespace unixsocket
     private:
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
     };
+
+
+    IMonitorablePtr makeUSR1Monitor(const threat_scanner::IThreatScannerFactorySharedPtr& scannerFactory);
 }
