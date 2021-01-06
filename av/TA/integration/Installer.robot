@@ -38,7 +38,7 @@ IDE update doesnt restart av processes
     # This test also proves that SUSI is configured to scan executables
     Check Threat Detected  peend.exe  PE/ENDTEST
 
-Restart and Update Sophos Threat Detector
+Restart then Update Sophos Threat Detector
     Kill sophos_threat_detector  TERM
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Install IDE without reload check  ${IDE_NAME}
@@ -54,6 +54,23 @@ Restart and Update Sophos Threat Detector
 
     # Extra log dump to check we have the right events happening
     dump log  ${THREAT_DETECTOR_LOG_PATH}
+
+
+Update then Restart Sophos Threat Detector
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    Install IDE without reload check  ${IDE_NAME}
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    Kill sophos_threat_detector  TERM
+
+    # Check we can detect PEEND following update
+    Wait Until Keyword Succeeds
+        ...    60 secs
+        ...    1 secs
+        ...    Check Threat Detected  peend.exe  PE/ENDTEST
+
+    # Extra log dump to check we have the right events happening
+    dump log  ${THREAT_DETECTOR_LOG_PATH}
+
 
 
 Scanner works after upgrade
