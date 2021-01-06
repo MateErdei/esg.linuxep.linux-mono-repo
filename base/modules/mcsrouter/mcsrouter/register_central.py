@@ -13,7 +13,6 @@ import glob
 import logging
 import logging.handlers
 import os
-import shutil
 import subprocess
 import sys
 import time
@@ -174,6 +173,7 @@ def register(config, inst, logger):
                     break
         except mcs_exception.MCSException as exception:
             logger.fatal("Registration failed with %s (%s)", str(exception), repr(exception))
+
     return ret
 
 
