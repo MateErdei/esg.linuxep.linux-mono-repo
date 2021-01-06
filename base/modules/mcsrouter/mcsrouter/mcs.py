@@ -14,6 +14,7 @@ import os
 import random
 import select
 import socket
+import shutil
 import time
 
 from . import computer
@@ -337,6 +338,18 @@ class MCS:
         config.set("MCSPassword", password)
         config.set("MCS_saved_token", token)
         config.save()
+        ## we want to resend the ALC update event on a re registration
+        self.resend_old_event()
+
+    def resend_old_event(self):
+        for filename in os.listdir(path_manager.event_cache_dir()):
+            file_path = os.path.join(path_manager.event_cache_dir(), filename)
+            try:
+                if filename.startswith('ALC'):
+                    if os.path.isfile(file_path):
+                        shutil.move(file_path, os.path.join(path_manager.event_dir(), filename))
+            except Exception as ex:
+                LOGGER.error('Failed to move old event file back {} due to error {}'.format(file_path, str(ex)))
 
     def _get_directory_watcher(self):
         try:

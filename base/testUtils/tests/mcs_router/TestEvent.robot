@@ -3,6 +3,7 @@ Library   OperatingSystem
 Library   Process
 
 Resource  McsRouterResources.robot
+Resource  ../mcs_router-nova/McsRouterNovaResources.robot
 
 Suite Setup       Run Keywords
 ...               Setup MCS Tests  AND
@@ -56,7 +57,10 @@ ALC event Sent On reregister
     ...  1 min
     ...  15 secs
     ...  Check Mcsrouter Log Contains    Endpoint re-registered
-    fail
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   2 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 Update Failure Event Sent On Start Up
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
