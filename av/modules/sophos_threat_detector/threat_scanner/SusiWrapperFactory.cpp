@@ -101,11 +101,13 @@ namespace threat_scanner
             "context": "File",
             "version": "@@VERSION_NUMBER@@"
         },
-        "globalReputation": {
+        "SXL4": {
+            "enableLookup": true,
+            "sendTelemetry": true,
             "customerID": "@@CUSTOMER_ID@@",
             "machineID":  "@@MACHINE_ID@@",
-            "timeout": 5,
-            "enableLookup": true
+            "url": "https://4.sophosxl.net/lookup",
+            "timeout": 10
         }
     },
     @@SCANNER_CONFIG@@
