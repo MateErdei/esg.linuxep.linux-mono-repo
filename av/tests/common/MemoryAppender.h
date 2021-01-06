@@ -14,12 +14,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <numeric>
 #include <thread>
 
-
 namespace
 {
     using namespace std::chrono_literals;
 
-    using EventVector = std::vector<std::string>;
+    // use std::list to avoid the cost
+    using EventCollection = std::vector<std::string>;
 
     class MemoryAppender : public log4cplus::Appender
     {
@@ -30,17 +30,15 @@ namespace
         int count(const std::string& expected) const;
         bool contains(const std::string& expected) const;
         bool contains(const std::string& expected, int count) const;
-        EventVector m_events;
         void close() override {}
-        EventVector::size_type size() const { return m_events.size(); }
+        EventCollection::size_type size() const;
+        void clear() noexcept;
 
-        void clear() noexcept
-        {
-            m_events.clear();
-        }
+        EventCollection m_events;
+        mutable std::mutex m_events_mutex;
+
     protected:
         void append(const log4cplus::spi::InternalLoggingEvent& event) override;
-
     };
 
     MemoryAppender::~MemoryAppender()
@@ -52,20 +50,23 @@ namespace
     {
         std::stringstream logOutput;
         layout->formatAndAppend(logOutput, event);
+        const std::lock_guard<std::mutex> lock(m_events_mutex);
         m_events.emplace_back(logOutput.str());
     }
+
     bool MemoryAppender::contains(const std::string& expected) const
     {
-        auto contains_expected = [&](const std::string& e){ return e.find(expected) != std::string::npos; };
+        const std::lock_guard<std::mutex> lock(m_events_mutex);
+        auto contains_expected = [&](const std::string& e) { return e.find(expected) != std::string::npos; };
         return std::any_of(m_events.begin(), m_events.end(), contains_expected);
     }
 
     int countSubstring(const std::string& str, const std::string& sub)
     {
-        if (sub.length() == 0) return 0;
+        if (sub.length() == 0)
+            return 0;
         int count = 0;
-        for (size_t offset = str.find(sub); offset != std::string::npos;
-             offset = str.find(sub, offset + sub.length()))
+        for (size_t offset = str.find(sub); offset != std::string::npos; offset = str.find(sub, offset + sub.length()))
         {
             ++count;
         }
@@ -74,7 +75,8 @@ namespace
 
     int MemoryAppender::count(const std::string& expected) const
     {
-        auto count_expected = [&](int c, const std::string& e){ return c + countSubstring(e, expected); };
+        const std::lock_guard<std::mutex> lock(m_events_mutex);
+        auto count_expected = [&](int c, const std::string& e) { return c + countSubstring(e, expected); };
         auto actualCount = std::accumulate(m_events.begin(), m_events.end(), 0, count_expected);
         return actualCount;
     }
@@ -82,6 +84,18 @@ namespace
     bool MemoryAppender::contains(const std::string& expected, int expectedCount) const
     {
         return expectedCount == count(expected);
+    }
+
+    EventCollection::size_type MemoryAppender::size() const
+    {
+        const std::lock_guard<std::mutex> lock(m_events_mutex);
+        return m_events.size();
+    }
+
+    void MemoryAppender::clear() noexcept
+    {
+        const std::lock_guard<std::mutex> lock(m_events_mutex);
+        m_events.clear();
     }
 
     class MemoryAppenderUsingTests : public LogInitializedTests
@@ -116,7 +130,7 @@ namespace
             return m_memoryAppender->contains(expected, expectedCount);
         }
 
-        [[nodiscard]] EventVector::size_type appenderSize() const
+        [[nodiscard]] EventCollection::size_type appenderSize() const
         {
             assert(m_memoryAppender != nullptr);
             return m_memoryAppender->size();
@@ -128,9 +142,10 @@ namespace
         [[maybe_unused]] bool waitForLog(const std::string& expected, clock::duration wait_time = 100ms) const; // NOLINT(modernize-use-nodiscard)
     };
 
-    MemoryAppenderUsingTests::MemoryAppenderUsingTests(std::string loggerInstanceName)
-        : m_loggerInstanceName(std::move(loggerInstanceName))
-    {}
+    MemoryAppenderUsingTests::MemoryAppenderUsingTests(std::string loggerInstanceName) :
+        m_loggerInstanceName(std::move(loggerInstanceName))
+    {
+    }
 
     void MemoryAppenderUsingTests::setupMemoryAppender()
     {
@@ -170,13 +185,16 @@ namespace
     {
         assert(m_memoryAppender != nullptr);
         PRINT("Memory appender contains " << appenderSize() << " items");
+
+        const std::lock_guard<std::mutex> lock(m_memoryAppender->m_events_mutex);
         for (const auto& item : m_memoryAppender->m_events)
         {
             PRINT("ITEM: " << item);
         }
     }
 
-    bool MemoryAppenderUsingTests::waitForLog(const std::string& expected, clock::duration wait_time) const // NOLINT(modernize-use-nodiscard)
+    bool MemoryAppenderUsingTests::waitForLog(const std::string& expected, clock::duration wait_time)
+        const // NOLINT(modernize-use-nodiscard)
     {
         assert(m_memoryAppender != nullptr);
         auto deadline = clock::now() + wait_time;
@@ -195,18 +213,16 @@ namespace
     class MemoryAppenderUsingTestsTemplate : public MemoryAppenderUsingTests
     {
     public:
-        MemoryAppenderUsingTestsTemplate()
-            : MemoryAppenderUsingTests(loggerInstanceName)
-        {}
+        MemoryAppenderUsingTestsTemplate() : MemoryAppenderUsingTests(loggerInstanceName) {}
     };
 
     class UsingMemoryAppender
     {
     private:
         MemoryAppenderUsingTests& m_testClass;
+
     public:
-        explicit UsingMemoryAppender(MemoryAppenderUsingTests& testClass)
-            : m_testClass(testClass)
+        explicit UsingMemoryAppender(MemoryAppenderUsingTests& testClass) : m_testClass(testClass)
         {
             m_testClass.setupMemoryAppender();
         }
@@ -215,4 +231,4 @@ namespace
             m_testClass.teardownMemoryAppender();
         }
     };
-}
+} // namespace
