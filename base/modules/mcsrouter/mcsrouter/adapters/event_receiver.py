@@ -49,5 +49,5 @@ def receive():
         else:
             LOGGER.warning("Malformed event file: %s", event_file)
         cache_path = os.path.join(path_manager.event_cache_dir(), os.path.basename(file_path))
-        LOGGER.warning(path_manager.event_cache_dir+" "+ os.path.basename(file_path))
+        LOGGER.warning(path_manager.event_cache_dir()+" "+ os.path.basename(file_path))
         shutil.move(file_path, cache_path)
