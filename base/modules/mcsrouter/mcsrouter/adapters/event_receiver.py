@@ -25,6 +25,8 @@ def receive():
 
     event_dir = os.path.join(path_manager.event_dir())
     for event_file in os.listdir(event_dir):
+        LOGGER.warning(event_file)
+
         match_object = re.match(r"([A-Z]*)_event-(.*).xml", event_file)
         file_path = os.path.join(event_dir, event_file)
         if match_object:
@@ -37,17 +39,29 @@ def receive():
             except xml_helper.XMLException as ex:
                 LOGGER.error("Failed verification of XML as it contains script tags. Error: {}".format(str(ex)))
                 continue
-            for filename in os.listdir(path_manager.event_cache_dir()):
-                old_file_path = os.path.join(path_manager.event_cache_dir(), filename)
-                try:
-                    if filename.startswith(app_id):
-                        if os.path.isfile(old_file_path) or os.path.islink(old_file_path):
-                            os.unlink(old_file_path)
-                except Exception as ex:
-                    LOGGER.error('Failed to delete file {} due to error {}'.format(old_file_path, str(ex)))
+            event_file = os.path.basename(file_path)
+            if event_file.startswith("ALC"):
+                handle_alc_event(file_path)
+            else:
+                os.remove(file_path)
+                LOGGER.debug("Got info from event")
             yield (app_id, time, body)
         else:
             LOGGER.warning("Malformed event file: %s", event_file)
-        cache_path = os.path.join(path_manager.event_cache_dir(), os.path.basename(file_path))
-        LOGGER.warning(path_manager.event_cache_dir()+" "+ os.path.basename(file_path))
-        shutil.move(file_path, cache_path)
+            os.remove(file_path)
+
+
+
+
+def handle_alc_event(file_path):
+    for filename in os.listdir(path_manager.event_cache_dir()):
+        old_file_path = os.path.join(path_manager.event_cache_dir(), filename)
+        try:
+            if os.path.isfile(old_file_path) or os.path.islink(old_file_path):
+                os.unlink(old_file_path)
+        except Exception as ex:
+            LOGGER.error('Failed to delete file {} due to error {}'.format(old_file_path, str(ex)))
+    cache_path = os.path.join(path_manager.event_cache_dir(), os.path.basename(file_path))
+    LOGGER.warning(path_manager.event_cache_dir()+" "+ os.path.basename(file_path))
+    shutil.move(file_path, cache_path)
+    LOGGER.debug("Moved file {} to {}".format(file_path, cache_path))

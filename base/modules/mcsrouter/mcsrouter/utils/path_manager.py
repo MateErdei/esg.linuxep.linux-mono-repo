@@ -90,7 +90,7 @@ def event_cache_dir():
     """
     event_dir
     """
-    return os.path.join(mcs_path(), 'event', 'cache')
+    return os.path.join(mcs_path(), 'eventcache')
 
 # base/mcs/policy
 
