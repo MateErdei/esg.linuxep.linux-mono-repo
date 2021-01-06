@@ -290,7 +290,7 @@ Uninstall and full reinstall
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}install.sh
     Run Process  chmod  +x  ${BASE_SDDS}install.sh
-    ${result} =   Run Process   ${BASE_SDDS}install.sh  timeout=600s    stderr=STDOUT
+    ${result} =   Run Process   bash  ${BASE_SDDS}install.sh  timeout=600s    stderr=STDOUT
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install base.\noutput: \n${result.stdout}"
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
@@ -490,6 +490,13 @@ Install IDE
     Register cleanup  Uninstall IDE  ${ide_name}
     Add IDE to install set  ${ide_name}
     Run IDE update
+    Check IDE present in installation  ${ide_name}
+
+Install IDE without reload check
+    [Arguments]  ${ide_name}
+    Register cleanup  Uninstall IDE  ${ide_name}
+    Add IDE to install set  ${ide_name}
+    Run installer from install set
     Check IDE present in installation  ${ide_name}
 
 Uninstall IDE

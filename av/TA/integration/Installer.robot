@@ -11,6 +11,7 @@ Library         Process
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
+Library         ../Libs/ProcessUtils.py
 
 Suite Setup     Installer Suite Setup
 Suite Teardown  Installer Suite TearDown
@@ -36,6 +37,23 @@ IDE update doesnt restart av processes
     # Check we can detect PEEND following update
     # This test also proves that SUSI is configured to scan executables
     Check Threat Detected  peend.exe  PE/ENDTEST
+
+Restart and Update Sophos Threat Detector
+    Kill sophos_threat_detector  TERM
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    Install IDE without reload check  ${IDE_NAME}
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+    # Check we can detect PEEND following update
+    Wait Until Keyword Succeeds
+        ...    60 secs
+        ...    1 secs
+        ...    Check Threat Detected  peend.exe  PE/ENDTEST
+
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+    # Extra log dump to check we have the right events happening
+    dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 
 Scanner works after upgrade
@@ -238,8 +256,9 @@ Force Sophos Threat Detector to restart
     Restart sophos_threat_detector
 
 Kill sophos_threat_detector
-   ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
-   Run Process   /bin/kill   -9   ${output}
+    [Arguments]  ${signal}=9
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+    Run Process   /bin/kill   -${signal}   ${output}
 
 Restart sophos_threat_detector
     Mark AV Log

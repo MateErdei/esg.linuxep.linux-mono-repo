@@ -245,6 +245,10 @@ static int lockCapabilities()
 
 static int inner_main()
 {
+    auto reloader = std::make_shared<unixsocket::Reloader>();
+    LOGINFO("Starting USR1 monitor");
+    auto usr1Monitor =  std::make_shared<unixsocket::SigUSR1Monitor>(reloader); // Create monitor before loading SUSI
+
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
     fs::path chrootPath = pluginInstall / "chroot";
@@ -306,9 +310,6 @@ static int inner_main()
     fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
 #endif
 
-    auto reloader = std::make_shared<unixsocket::Reloader>();
-    auto usr1Monitor =  std::make_shared<unixsocket::SigUSR1Monitor>(reloader); // Create monitor before loading SUSI
-
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
 #ifdef USE_SUSI
         = std::make_shared<threat_scanner::SusiScannerFactory>();
@@ -317,10 +318,12 @@ static int inner_main()
 #endif
 
     scannerFactory->update(); // always force an update during start-up
-    reloader->reset(scannerFactory); // Actually reset the scannerFactory
-    reloader.reset();
 
-    unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, scannerFactory, std::move(usr1Monitor));
+    reloader->reset(scannerFactory); // Actually use the scannerFactory for updates
+    reloader.reset(); // Don't need to keep a reference to the reloader any more
+
+    // Don't keep references to the scannerFactory or use1Monitor any longer than required
+    unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, std::move(scannerFactory), std::move(usr1Monitor));
     server.run();
 
     return 0;
