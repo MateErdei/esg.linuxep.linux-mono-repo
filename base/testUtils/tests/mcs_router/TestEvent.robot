@@ -37,7 +37,6 @@ ALC event Sent On reregister
     Start MCSRouter
     Send Update Event    0
     list files in directory  /opt/sophos-spl/base/mcs/event
-    fail
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs

@@ -37,16 +37,17 @@ def receive():
             except xml_helper.XMLException as ex:
                 LOGGER.error("Failed verification of XML as it contains script tags. Error: {}".format(str(ex)))
                 continue
+            for filename in os.listdir(path_manager.event_cache_dir()):
+                old_file_path = os.path.join(path_manager.event_cache_dir(), filename)
+                try:
+                    if filename.startswith(app_id):
+                        if os.path.isfile(old_file_path) or os.path.islink(old_file_path):
+                            os.unlink(old_file_path)
+                except Exception as ex:
+                    LOGGER.error('Failed to delete file {} due to error {}'.format(old_file_path, str(ex)))
             yield (app_id, time, body)
         else:
             LOGGER.warning("Malformed event file: %s", event_file)
-        cache_path = os.join(path_manager.event_cache_dir(), os.path.basename(file_path))
-        for filename in os.listdir(path_manager.event_cache_dir()):
-            file_path = os.path.join(path_manager.event_cache_dir(), filename)
-            try:
-                if filename.startswith(app_id):
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.unlink(file_path)
-            except Exception as ex:
-                LOGGER.error('Failed to delete file {} due to error {}'.format(file_path, str(ex)))
+        cache_path = os.path.join(path_manager.event_cache_dir(), os.path.basename(file_path))
+        LOGGER.warning(path_manager.event_cache_dir+" "+ os.path.basename(file_path))
         shutil.move(file_path, cache_path)
