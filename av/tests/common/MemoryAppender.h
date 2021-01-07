@@ -50,13 +50,13 @@ namespace
     {
         std::stringstream logOutput;
         layout->formatAndAppend(logOutput, event);
-        const std::lock_guard<std::mutex> lock(m_events_mutex);
+        const std::lock_guard lock(m_events_mutex);
         m_events.emplace_back(logOutput.str());
     }
 
     bool MemoryAppender::contains(const std::string& expected) const
     {
-        const std::lock_guard<std::mutex> lock(m_events_mutex);
+        const std::lock_guard lock(m_events_mutex);
         auto contains_expected = [&](const std::string& e) { return e.find(expected) != std::string::npos; };
         return std::any_of(m_events.begin(), m_events.end(), contains_expected);
     }
@@ -75,7 +75,7 @@ namespace
 
     int MemoryAppender::count(const std::string& expected) const
     {
-        const std::lock_guard<std::mutex> lock(m_events_mutex);
+        const std::lock_guard lock(m_events_mutex);
         auto count_expected = [&](int c, const std::string& e) { return c + countSubstring(e, expected); };
         auto actualCount = std::accumulate(m_events.begin(), m_events.end(), 0, count_expected);
         return actualCount;
@@ -88,13 +88,13 @@ namespace
 
     EventCollection::size_type MemoryAppender::size() const
     {
-        const std::lock_guard<std::mutex> lock(m_events_mutex);
+        const std::lock_guard lock(m_events_mutex);
         return m_events.size();
     }
 
     void MemoryAppender::clear() noexcept
     {
-        const std::lock_guard<std::mutex> lock(m_events_mutex);
+        const std::lock_guard lock(m_events_mutex);
         m_events.clear();
     }
 
@@ -186,15 +186,14 @@ namespace
         assert(m_memoryAppender != nullptr);
         PRINT("Memory appender contains " << appenderSize() << " items");
 
-        const std::lock_guard<std::mutex> lock(m_memoryAppender->m_events_mutex);
+        const std::lock_guard lock(m_memoryAppender->m_events_mutex);
         for (const auto& item : m_memoryAppender->m_events)
         {
             PRINT("ITEM: " << item);
         }
     }
 
-    bool MemoryAppenderUsingTests::waitForLog(const std::string& expected, clock::duration wait_time)
-        const // NOLINT(modernize-use-nodiscard)
+    bool MemoryAppenderUsingTests::waitForLog(const std::string& expected, clock::duration wait_time) const
     {
         assert(m_memoryAppender != nullptr);
         auto deadline = clock::now() + wait_time;
