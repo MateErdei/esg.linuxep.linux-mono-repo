@@ -544,13 +544,11 @@ CLS Handles Wild Card Eicars
     Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    cd ${NORMAL_DIRECTORY} && ${CLI_SCANNER_PATH} "*"
-
     Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/*
     Should Not Contain   ${output}  Scanning ${NORMAL_DIRECTORY}/eicar.com
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output   cd ${NORMAL_DIRECTORY} && ${CLI_SCANNER_PATH} *
-
     Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/*
     Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/eicar.com
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
@@ -579,6 +577,7 @@ CLS Handles Eicar With The Same Name As An Option
     ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} ./-x
     Should Contain       ${output}  Scanning /-x
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
     ${rc}   ${output} =    Run And Return Rc And Output  cd / && ${CLI_SCANNER_PATH} -- -x
     Should Contain       ${output}  Scanning /-x
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
@@ -594,7 +593,6 @@ CLS Exclusions Filename
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude eicar
-
     Log  return code is ${rc}
     Log  output is ${output}
 
@@ -611,7 +609,6 @@ CLS Relative File Exclusion
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude naughty_eicar_folder/eicar
-
     Log  return code is ${rc}
     Log  output is ${output}
 
@@ -627,7 +624,6 @@ CLS Absolute Folder Exclusion
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude ${NORMAL_DIRECTORY}/
-
     Log  return code is ${rc}
     Log  output is ${output}
 
@@ -644,7 +640,6 @@ CLS Relative Folder Exclusion
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude this/is/a/directory/for/scanning/
-
     Log  return code is ${rc}
     Log  output is ${output}
 
@@ -661,7 +656,6 @@ CLS Folder Name Exclusion
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude scanning/
-
     Log  return code is ${rc}
     Log  output is ${output}
 
@@ -680,7 +674,6 @@ CLS Absolute Folder Exclusion And Filename Exclusion
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude clean_eicar ${NORMAL_DIRECTORY}/clean_eicar_folder/
-
     Log  return code is ${rc}
     Log  output is ${output}
 
@@ -699,7 +692,6 @@ CLS Can Handle Wildcard Exclusions
     Create File     ${NORMAL_DIRECTORY}/eic.nope    ${EICAR_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude "*.com" "exe_eicar.*" "???.*"
-
     Log  return code is ${rc}
     Log  output is ${output}
 
@@ -727,10 +719,8 @@ CLS Can Handle Relative Non-Canonical Exclusions
     Register Cleanup    Remove Directory      ${test_dir}     recursive=True
 
     ${rc}   ${output} =    Run And Return Rc And Output  cd ${CURDIR} && ${CLI_SCANNER_PATH} ${CURDIR} --exclude "./exclusion_test_dir/"
-
     Log   ${rc}
     Log   ${output}
-
     Should Contain      ${output}  Exclusions: ${CURDIR}/exclusion_test_dir/
 
 
@@ -800,6 +790,7 @@ CLS Can Log To A File
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
     File Log Contains    ${LOG_FILE}    "${THREAT_FILE}" is infected with EICAR-AV-Test
+
 
 CLS Will Not Log To A Directory
     ${THREAT_FILE}   Set Variable   ${NORMAL_DIRECTORY}/eicar.com
@@ -888,48 +879,101 @@ CLS Skips The Scanning Of Symlink Targets On Special Mount Points
 
 
 CLS Can Exclude Scanning of Symlink To File
-    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    Create Symlink  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar -x eicar.com
+    ${targetDir1} =  Set Variable  ${NORMAL_DIRECTORY}/target_dir1
+    ${targetDir2} =  Set Variable  ${NORMAL_DIRECTORY}/target_dir2
+    ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/source_dir
+    Create Directory   ${targetDir1}
+    Create Directory   ${targetDir2}
+    Create Directory   ${sourceDir}
+    Create File     ${targetDir1}/eicar.com    ${EICAR_STRING}
+    Create File     ${targetDir2}/eicar.com    ${EICAR_STRING}
+    Create Symlink  ${targetDir1}/eicar.com  ${sourceDir}/absolute_link
+    Create Symlink  ../target_dir2/eicar.com  ${sourceDir}/relative_link
 
-    Log  return code is ${rc}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude fee/ fi ${NORMAL_DIRECTORY}/fo/ ${NORMAL_DIRECTORY}/fum
     Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain       ${output}  Detected "${sourceDir}/absolute_link" (symlinked to ${targetDir1}/eicar.com) is infected with EICAR-AV-Test
+    Should Contain       ${output}  Detected "${sourceDir}/relative_link" (symlinked to ${targetDir2}/eicar.com) is infected with EICAR-AV-Test
 
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Contain       ${output}  Skipping the scanning of symlink target ("${NORMAL_DIRECTORY}/eicar.com") which is excluded by user defined exclusion: /eicar.com
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar -x ${NORMAL_DIRECTORY}/eicar.com
-
-    Log  return code is ${rc}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude absolute_link relative_link
     Log  output is ${output}
-
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Contain       ${output}  Skipping the scanning of symlink target ("${NORMAL_DIRECTORY}/eicar.com") which is excluded by user defined exclusion: ${NORMAL_DIRECTORY}/eicar.com
+    Should Contain       ${output}  Excluding symlinked file: ${sourceDir}/absolute_link
+    Should Contain       ${output}  Excluding symlinked file: ${sourceDir}/relative_link
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude ${sourceDir}/absolute_link ${sourceDir}/relative_link
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Excluding symlinked file: ${sourceDir}/absolute_link
+    Should Contain       ${output}  Excluding symlinked file: ${sourceDir}/relative_link
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude eicar.com
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir1}/eicar.com") which is excluded by user defined exclusion: /eicar.com
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir2}/eicar.com") which is excluded by user defined exclusion: /eicar.com
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude ${targetDir1}/eicar.com ${targetDir2}/eicar.com
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir1}/eicar.com") which is excluded by user defined exclusion: ${targetDir1}/eicar.com
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir2}/eicar.com") which is excluded by user defined exclusion: ${targetDir2}/eicar.com
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude target_dir1/ target_dir2/
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir1}/eicar.com") which is excluded by user defined exclusion: /target_dir1/
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir2}/eicar.com") which is excluded by user defined exclusion: /target_dir2/
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude ${targetDir1}/ ${targetDir2}/
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir1}/eicar.com") which is excluded by user defined exclusion: ${targetDir1}/
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir2}/eicar.com") which is excluded by user defined exclusion: ${targetDir2}/
 
 
 CLS Can Exclude Scanning of Symlink To Folder
-    ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
-    ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
-    Create Directory   ${targetDir}
+    ${targetDir1} =  Set Variable  ${NORMAL_DIRECTORY}/target_dir1
+    ${targetDir2} =  Set Variable  ${NORMAL_DIRECTORY}/target_dir2
+    ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/source_dir
+    Create Directory   ${targetDir1}
+    Create Directory   ${targetDir2}
     Create Directory   ${sourceDir}
-    Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
-    Create Symlink  ${targetDir}  ${sourceDir}/directory_link
+    Create File     ${targetDir1}/eicar.com    ${EICAR_STRING}
+    Create File     ${targetDir2}/eicar.com    ${EICAR_STRING}
+    Create Symlink  ${targetDir1}  ${sourceDir}/absolute_link
+    Create Symlink  ../target_dir2  ${sourceDir}/relative_link
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/directory_link/ -x directory_link/
-
-    Log  return code is ${rc}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude fee/ fi ${NORMAL_DIRECTORY}/fo/ ${NORMAL_DIRECTORY}/fum
     Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain       ${output}  Detected "${sourceDir}/absolute_link/eicar.com" is infected with EICAR-AV-Test
+    Should Contain       ${output}  Detected "${sourceDir}/relative_link/eicar.com" is infected with EICAR-AV-Test
 
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir}") which is excluded by user defined exclusion: /directory_link/
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/directory_link -x ${targetDir}/
-
-    Log  return code is ${rc}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude absolute_link/ relative_link/
     Log  output is ${output}
-
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir}") which is excluded by user defined exclusion: ${targetDir}/
+    Should Contain       ${output}  Excluding directory: ${sourceDir}/absolute_link
+    Should Contain       ${output}  Excluding directory: ${sourceDir}/relative_link
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude ${sourceDir}/absolute_link/ ${sourceDir}/relative_link/
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Excluding directory: ${sourceDir}/absolute_link
+    Should Contain       ${output}  Excluding directory: ${sourceDir}/relative_link
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude target_dir1/ target_dir2/
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir1}") which is excluded by user defined exclusion: /target_dir1/
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir2}") which is excluded by user defined exclusion: /target_dir2/
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${sourceDir} --exclude ${targetDir1}/ ${targetDir2}/
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir1}") which is excluded by user defined exclusion: ${targetDir1}/
+    Should Contain       ${output}  Skipping the scanning of symlink target ("${targetDir2}") which is excluded by user defined exclusion: ${targetDir2}/
 
 
 CLS Reports Error Once When Using Custom Log File
@@ -1183,3 +1227,20 @@ CLS Can Scan Clean And Error Files
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+
+
+CLS Can Scan PE Files without Crashing
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    ${rc}   ${output} =  Run And Return Rc And Output  ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/CertMgr.Exe
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+
+CLS Skips scanning of special file
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /dev/null
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain   ${output}   Not scanning special file/device: "/dev/null"
