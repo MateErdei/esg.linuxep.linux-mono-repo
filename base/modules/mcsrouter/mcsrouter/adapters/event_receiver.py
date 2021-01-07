@@ -42,12 +42,12 @@ def receive():
             if event_file.startswith("ALC"):
                 handle_alc_event(file_path)
             else:
-                os.remove(file_path)
+                safe_remove_file(file_path)
 
             yield (app_id, time, body)
         else:
             LOGGER.warning("Malformed event file: %s", event_file)
-            os.remove(file_path)
+            safe_remove_file(file_path)
 
 
 def handle_alc_event(file_path):
@@ -56,11 +56,21 @@ def handle_alc_event(file_path):
         old_file_path = os.path.join(path_manager.event_cache_dir(), filename)
         try:
             if os.path.isfile(old_file_path) or os.path.islink(old_file_path):
-                os.unlink(old_file_path)
+                safe_remove_file(old_file_path)
         except Exception as ex:
             LOGGER.error('Failed to delete file {} due to error {}'.format(old_file_path, str(ex)))
 
     cache_path = os.path.join(path_manager.event_cache_dir(), os.path.basename(file_path))
-    shutil.move(file_path, cache_path)
+
+    try:
+        shutil.move(file_path, cache_path)
+    except Exception as ex:
+        LOGGER.error('Failed to move file from {} to {} due to error {}'.format(file_path, cache_path, str(ex)))
 
     LOGGER.debug("Moved file {} to {}".format(file_path, cache_path))
+
+def safe_remove_file(file_path):
+    try:
+        os.remove(file_path)
+    except Exception as ex:
+        LOGGER.error('Failed to delete file {} due to error {}'.format(file_path, str(ex)))
