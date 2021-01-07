@@ -170,17 +170,36 @@ CLS Summary is Correct
 
     FOR  ${i}  IN RANGE  1500
            Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/eicar_${i}    ${EICAR_STRING}
-           Exit For Loop If  ${i} == 1500
     END
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/EXTRA_FOLDER -a
 
-    log to console  ${output}
+    Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}  6 files scanned in
-    Should Contain   ${output}  5 files out of 6 were infected.
-    Should Contain   ${output}  6 EICAR-AV-Test infections discovered.
+    Should Contain   ${output}  1502 files scanned in  minute  seconds
+    Should Not Contain  ${output}  hours
+    Should Not Contain  ${output}  hour
+    Should Not Contain  ${output}  minutes
+    Should Not Contain  ${output}  less than a second
+    Should Contain   ${output}  1501 files out of 1502 were infected.
+    Should Contain   ${output}  1502 EICAR-AV-Test infections discovered.
 
+
+CLS Summary in Less Than a Second
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain   ${output}  1 file scanned in less than a second
+    Should Not Contain  ${output}  hours
+    Should Not Contain  ${output}  hour
+    Should Not Contain  ${output}  minutes
+    Should Not Contain  ${output}  minute
+    Should Not Contain  ${output}  seconds
+    Should Contain   ${output}  1 file out of 1 was infected.
+    Should Contain   ${output}  1 EICAR-AV-Test infection discovered.
 
 CLS Does not request TFTClassification from SUSI
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}

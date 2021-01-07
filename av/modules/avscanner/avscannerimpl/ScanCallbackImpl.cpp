@@ -82,9 +82,23 @@ void ScanCallbackImpl::logSummary()
     scanSummary << "End of Scan Summary:" << std::endl;
 
     scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfScannedFiles(), " file", " files") << " scanned in ";
-    scanSummary << hour << common::pluralize(hour, " hour, ", " hours, ") <<
-        min << common::pluralize(min, " minute, ", " minutes, ") <<
-        sec << common::pluralize(sec, " second.", " seconds. ") << std::endl;
+
+    if (hour > 0)
+    {
+        scanSummary << hour << common::pluralize(hour, " hour, ", " hours, ");
+    }
+    if (min > 0)
+    {
+        scanSummary << min << common::pluralize(min, " minute, ", " minutes, ");
+    }
+    if (sec == 0)
+    {
+        scanSummary << "less than a second" << std::endl;
+    }
+    else
+    {
+        scanSummary << sec << common::pluralize(sec, " second. ", " seconds. ") << std::endl;
+    }
 
     scanSummary << getNoOfInfectedFiles() << common::pluralize(getNoOfInfectedFiles(), " file", " files") << " out of ";
     scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfInfectedFiles(), " was", " were") << " infected." << std::endl;
