@@ -1,5 +1,6 @@
 *** Settings ***
 Library     ../libs/Cleanup.py
+Library     ../libs/HostsUtils.py
 Library     ../libs/OSUtils.py
 Library     ../libs/ThinInstallerUtils.py
 Library     ../libs/UpdateServer.py
@@ -38,13 +39,19 @@ Install Local SSL Server Cert To System
     Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
     Register Cleanup  Cleanup System Ca Certs
 
+Setup Hostsfile
+    Register Cleanup  revert hostfile
+    append host file  127.0.0.1  d1.sophosupd.com d1.sophosupd.net ostia.eng.sophos
+
 Setup Ostia Warehouse Environment
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
+    Setup Hostsfile
 
 Setup Warehouses
     Start Warehouse servers
     Setup Ostia Warehouse Environment
+
 
 
 Create Thin Installer
