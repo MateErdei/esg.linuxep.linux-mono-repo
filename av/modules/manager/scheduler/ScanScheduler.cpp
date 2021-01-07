@@ -40,8 +40,9 @@ ScanScheduler::ScanScheduler(IScanComplete& completionNotifier)
 void manager::scheduler::ScanScheduler::run()
 {
     announceThreadStarted();
-
     LOGSUPPORT("Starting scan scheduler");
+
+    updateConfigFromPending();
 
     int exitFD = m_notifyPipe.readFd();
     int configFD = m_updateConfigurationPipe.readFd();
@@ -77,6 +78,7 @@ void manager::scheduler::ScanScheduler::run()
             }
             if (fd_isset(configFD, &tempRead))
             {
+                updateConfigFromPending();
                 LOGINFO("Configured number of Scheduled Scans: " << m_config.scans().size());
                 for (const auto& scan : m_config.scans() )
                 {
@@ -90,6 +92,7 @@ void manager::scheduler::ScanScheduler::run()
                 {
                     // Clear updateConfigurationPipe
                 }
+
             }
             if (fd_isset(scanNowFD, &tempRead))
             {
@@ -130,13 +133,19 @@ void manager::scheduler::ScanScheduler::run()
 
 void ScanScheduler::runNextScan(const ScheduledScan& nextScan)
 {
+    std::string name = nextScan.name();
+
     if (!nextScan.valid())
     {
-        LOGERROR("Refusing to run invalid scan: " << nextScan.name());
+        LOGERROR("Refusing to run invalid scan: " << name);
+        return;
+    }
+    if (name.empty())
+    {
+        LOGERROR("Refusing to run scan with empty name!");
         return;
     }
 
-    std::string name = nextScan.name();
     bool already_running = false;
     auto it = m_runningScans.begin();
 
@@ -169,12 +178,6 @@ void ScanScheduler::runNextScan(const ScheduledScan& nextScan)
     assert(runner);
     runner->start();
     m_runningScans[name] = std::move(runner);
-}
-
-void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration config)
-{
-    m_config = std::move(config);
-    m_updateConfigurationPipe.notify();
 }
 
 void ScanScheduler::scanNow()
@@ -234,3 +237,27 @@ time_t ScanScheduler::get_current_time(bool)
 {
     return ::time(nullptr);
 }
+
+void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration config)
+{
+    assert(config.isValid());
+    {
+        const std::lock_guard lock(m_pendingConfigMutex);
+        m_pendingConfig = std::move(config);
+        assert(m_pendingConfig.isValid());
+        m_configIsPending = true;
+    }
+    m_updateConfigurationPipe.notify();
+}
+
+void ScanScheduler::updateConfigFromPending()
+{
+    const std::lock_guard lock(m_pendingConfigMutex);
+    if (m_configIsPending)
+    {
+        m_config = std::move(m_pendingConfig);
+        assert(m_config.isValid());
+        m_configIsPending = false;
+    }
+}
+

@@ -54,6 +54,11 @@ namespace manager::scheduler
         Common::Threads::NotifyPipe m_updateConfigurationPipe;
         Common::Threads::NotifyPipe m_scanNowPipe;
         ScheduledScanConfiguration m_config;
+
+        ScheduledScanConfiguration m_pendingConfig;
+        std::mutex m_pendingConfigMutex;
+        bool m_configIsPending = false;
+
         ScheduledScan m_nextScheduledScan;
         time_t m_nextScheduledScanTime;
         using ScanRunnerPtr = std::unique_ptr<ScanRunner>;
@@ -66,5 +71,7 @@ namespace manager::scheduler
         void runNextScan(const ScheduledScan& nextScan);
 
         std::string serialiseNextScan(const ScheduledScan& nextScan);
+
+        void updateConfigFromPending();
     };
 }

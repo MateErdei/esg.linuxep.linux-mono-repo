@@ -56,6 +56,12 @@ namespace manager::scheduler
         {
             return m_scanNowScan;
         }
+
+        [[nodiscard]] bool isValid() const
+        {
+            return !m_scanNowScan.name().empty();
+        }
+
     private:
         std::vector<std::string> m_exclusions;
         std::vector<std::string> m_sophosExtensionExclusions;
