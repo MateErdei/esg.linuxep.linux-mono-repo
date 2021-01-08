@@ -13,7 +13,8 @@ Test Teardown   Teardown
 
 *** Test Cases ***
 Thin Installer can install SSPLAV
-    [Tags]  FAKE_CENTRAL
+    [Tags]       FAKE_CENTRAL
+    [Timeout]    10 minutes
     Start Fake Cloud
     Setup Warehouses
     Create Thin Installer  https://localhost:4443/mcs
@@ -71,7 +72,7 @@ Run Update Now
 
 Wait For SSPLAV to be installed
     Wait Until Keyword Succeeds
-    ...  2 min
+    ...  10 min
     ...  10 secs
     ...  Check if SSPLAV is installed
 
