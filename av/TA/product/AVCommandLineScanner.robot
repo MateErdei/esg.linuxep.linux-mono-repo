@@ -927,12 +927,22 @@ CLS Can Scan Infected File Via Symlink To Directory Containing File
 
 
 CLS Skips The Scanning Of Symlink Targets On Special Mount Points
-    Create Symlink  /proc/uptime  ${NORMAL_DIRECTORY}/symlinkToProcUptime
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToProcUptime
+    File Should Exist        /proc/uptime
+    Create Symlink           /proc/uptime  ${NORMAL_DIRECTORY}/symlinkToProcFile
+    Directory Should Exist   /proc/tty
+    Create Symlink           /proc/tty  ${NORMAL_DIRECTORY}/symlinkToProcDir
 
-    Log  return code is ${rc}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${NORMAL_DIRECTORY}
     Log  output is ${output}
-    Should Contain       ${output.replace("\n", " ")}  Skipping the scanning of symlink target ("/proc/uptime") which is on excluded mount point: /proc
+
+    Should Not Contain   ${output}  Scanning ${NORMAL_DIRECTORY}/symlinkToProcFile
+    Should Not Contain   ${output}  Scanning /proc/uptime
+    Should Contain       ${output}  Skipping the scanning of symlink target ("/proc/uptime") which is on excluded mount point: /proc
+
+    Should Not Contain   ${output}  Scanning ${NORMAL_DIRECTORY}/symlinkToProcDir
+    Should Not Contain   ${output}  Scanning /proc/tty
+    Should Contain       ${output}  Skipping the scanning of symlink target ("/proc/tty") which is on excluded mount point: /proc
+
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
