@@ -56,7 +56,7 @@ Send ALC Policy With AV
 
 Wait For ALC Policy On Endpoint
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  20 secs
     ...  1 sec
     ...  Check ALC Policy On Endpoint  ${POLICY}
 
