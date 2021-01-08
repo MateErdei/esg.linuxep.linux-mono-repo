@@ -3,6 +3,8 @@
 # Copyright (C) 2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import http.client
+import ssl
 import threading
 
 try:
@@ -38,8 +40,11 @@ class CloudServerThread(threading.Thread):
 
 
 class LocalCloud(object):
+    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+
     def __init__(self):
         self.__m_thread = None
+        self.__m_ssl_unverified_context = ssl._create_unverified_context()
 
     def start_local_fake_cloud(self):
         cloudServerArgs = []
@@ -61,3 +66,29 @@ class LocalCloud(object):
             if self.__m_thread.is_alive():
                 logger.error("Failed to kill cloud server thread")
             self.__m_thread = None
+
+    def send_policy(self, policy_type, data):
+        headers = {"Content-type": "application/octet-stream", "Accept": "text/plain"}
+
+        # Open HTTPS connection to fake cloud at https://127.0.0.1:4443
+        conn = http.client.HTTPSConnection("127.0.0.1", 4443, context=self.__m_ssl_unverified_context)
+        conn.request("PUT", "/controller/{}/policy".format(policy_type), data.encode('utf-8'), headers)
+        conn.getresponse()
+        conn.close()
+
+    def send_policy_file(self, policy_type, policy_path):
+        f = open(policy_path, 'r')
+        self.send_policy(policy_type, f.read())
+
+    def send_cmd_to_fake_cloud(self, cmd, filename=None):
+        conn = http.client.HTTPSConnection("127.0.0.1", 4443, context=self.__m_ssl_unverified_context)
+        conn.request("GET", "/"+cmd)
+        r2 = conn.getresponse()
+        logger.info('Response ' + str(r2))
+        conn.close()
+        if filename is not None:
+            with open(filename, "wb") as f:
+                f.write(r2.read())
+
+    def trigger_update_now(self):
+        self.send_cmd_to_fake_cloud("action/updatenow")

@@ -16,3 +16,7 @@ Global Setup Tasks
     Set Global Variable  ${SOPHOS_INSTALL}  ${placeholder}
 
     Set Global Variable  ${BASE_LOGS_DIR}               ${SOPHOS_INSTALL}/logs/base
+    Set Global Variable  ${PLUGINS_DIR}                 ${SOPHOS_INSTALL}/plugins
+    Set Global Variable  ${MTR_DIR}                     ${PLUGINS_DIR}/mtr
+    Set Global Variable  ${EDR_DIR}                     ${PLUGINS_DIR}/edr
+    Set Global Variable  ${SSPLAV_DIR}                  ${PLUGINS_DIR}/av
