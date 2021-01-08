@@ -37,7 +37,6 @@ ALC event Sent On reregister
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
     Send Update Event    0
-    list files in directory  /opt/sophos-spl/base/mcs/event
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
