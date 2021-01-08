@@ -86,3 +86,99 @@ TEST_F(TestScanCallbackImpl, TestInfectedOverErrorReturnCode) // NOLINT
 
     EXPECT_EQ(scanCallback.returnCode(), E_VIRUS_FOUND);
 }
+
+TEST_F(TestScanCallbackImpl, TestLessThanSecond) // NOLINT
+{
+    ScanCallbackImpl scanCallback;
+    auto totalScanTime = 0;
+
+    ScanCallbackImpl::TimeDuration result = scanCallback.timeConversion(totalScanTime);
+
+    EXPECT_EQ(result.sec, 0);
+    EXPECT_EQ(result.min, 0);
+    EXPECT_EQ(result.hour, 0);
+}
+
+TEST_F(TestScanCallbackImpl, TestScanDurationMoreThanASecond) // NOLINT
+{
+    ScanCallbackImpl scanCallback;
+    auto totalScanTime = 4;
+
+    ScanCallbackImpl::TimeDuration result = scanCallback.timeConversion(totalScanTime);
+
+    EXPECT_EQ(result.sec, 4);
+    EXPECT_EQ(result.min, 0);
+    EXPECT_EQ(result.hour, 0);
+}
+
+TEST_F(TestScanCallbackImpl, TestScanDurationUnderAMinute) // NOLINT
+{
+    ScanCallbackImpl scanCallback;
+    auto totalScanTime = 59;
+
+    ScanCallbackImpl::TimeDuration result = scanCallback.timeConversion(totalScanTime);
+
+    EXPECT_EQ(result.sec, 59);
+    EXPECT_EQ(result.min, 0);
+    EXPECT_EQ(result.hour, 0);
+}
+
+TEST_F(TestScanCallbackImpl, TestScanDurationAMinute) // NOLINT
+{
+    ScanCallbackImpl scanCallback;
+    auto totalScanTime = 60;
+
+    ScanCallbackImpl::TimeDuration result = scanCallback.timeConversion(totalScanTime);
+
+    EXPECT_EQ(result.sec, 0);
+    EXPECT_EQ(result.min, 1);
+    EXPECT_EQ(result.hour, 0);
+}
+
+TEST_F(TestScanCallbackImpl, TestScanDurationMoreThanAMinute) // NOLINT
+{
+    ScanCallbackImpl scanCallback;
+    auto totalScanTime = 121;
+
+    ScanCallbackImpl::TimeDuration result = scanCallback.timeConversion(totalScanTime);
+
+    EXPECT_EQ(result.sec, 1);
+    EXPECT_EQ(result.min, 2);
+    EXPECT_EQ(result.hour, 0);
+}
+
+TEST_F(TestScanCallbackImpl, TestScanDurationUnderAnHour) // NOLINT
+{
+    ScanCallbackImpl scanCallback;
+    auto totalScanTime = 3599;
+
+    ScanCallbackImpl::TimeDuration result = scanCallback.timeConversion(totalScanTime);
+
+    EXPECT_EQ(result.sec, 59);
+    EXPECT_EQ(result.min, 59);
+    EXPECT_EQ(result.hour, 0);
+}
+
+TEST_F(TestScanCallbackImpl, TestScanDurationAnHour) // NOLINT
+{
+    ScanCallbackImpl scanCallback;
+    auto totalScanTime = 3600;
+
+    ScanCallbackImpl::TimeDuration result = scanCallback.timeConversion(totalScanTime);
+
+    EXPECT_EQ(result.sec, 0);
+    EXPECT_EQ(result.min, 0);
+    EXPECT_EQ(result.hour, 1);
+}
+
+TEST_F(TestScanCallbackImpl, TestScanDurationMoreThanAnHour) // NOLINT
+{
+    ScanCallbackImpl scanCallback;
+    auto totalScanTime = 12615;
+
+    ScanCallbackImpl::TimeDuration result = scanCallback.timeConversion(totalScanTime);
+
+    EXPECT_EQ(result.sec, 15);
+    EXPECT_EQ(result.min, 30);
+    EXPECT_EQ(result.hour, 3);
+}

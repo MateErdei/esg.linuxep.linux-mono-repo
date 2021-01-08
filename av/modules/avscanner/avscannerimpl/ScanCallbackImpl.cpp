@@ -65,17 +65,31 @@ common::E_ERROR_CODES ScanCallbackImpl::returnCode()
     }
 }
 
+ScanCallbackImpl::TimeDuration ScanCallbackImpl::timeConversion(const long totalScanTime)
+{
+    auto newScanTime = int(totalScanTime);
+
+    auto sec = newScanTime % 60;
+    newScanTime /= 60;
+    auto min = newScanTime % 60;
+    newScanTime /= 60;
+    auto hour = newScanTime % 24;
+
+    TimeDuration result = {sec,min,hour};
+
+    return result;
+}
+
 void ScanCallbackImpl::logSummary()
 {
     auto endTime = time(nullptr);
     auto totalScanTime = static_cast<double>(endTime - getStartTime());
 
-    auto timex = totalScanTime;
-    auto sec = int(timex) % 60;
-    timex /= 60;
-    auto min = int(timex) % 60;
-    timex /= 24;
-    auto hour = int(timex) % 24;
+    TimeDuration convertedTime = timeConversion(totalScanTime);
+
+    auto hour = convertedTime.hour;
+    auto min = convertedTime.min;
+    auto sec = convertedTime.sec;
 
     std::ostringstream scanSummary;
 
@@ -87,11 +101,11 @@ void ScanCallbackImpl::logSummary()
     {
         scanSummary << hour << common::pluralize(hour, " hour, ", " hours, ");
     }
-    if (min > 0)
+    if (hour > 0 && min > 0)
     {
         scanSummary << min << common::pluralize(min, " minute, ", " minutes, ");
     }
-    if (sec == 0)
+    if (hour == 0 && min == 0 && sec == 0)
     {
         scanSummary << "less than a second" << std::endl;
     }
