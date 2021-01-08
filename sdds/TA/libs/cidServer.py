@@ -277,7 +277,6 @@ class PostRequestHandler(http.server.BaseHTTPRequestHandler):
         every message.
 
         """
-
         sys.stderr.write("%s '%s\' - [%s] %s\n" %
                          ("localhost",
                           "",  # self.headers.get('User-Agent', "-"),
@@ -325,6 +324,12 @@ class PasswordHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     latency = 0
     strip_prefix = None
 
+    def user_agent(self):
+        try:
+            return self.headers.get('User-Agent', "-")
+        except AttributeError:
+            return "-"
+
     def log_message(self, format, *args):
         """Log an arbitrary message.
 
@@ -341,12 +346,7 @@ class PasswordHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         every message.
 
         """
-
-        try:
-            useragent = self.headers.get('User-Agent', "-")
-        except AttributeError:
-            useragent = "-"
-
+        useragent = self.user_agent()
         sys.stderr.write("%s '%s\' - [%s] %s\n" %
                          ("localhost",
                           useragent,
@@ -600,6 +600,12 @@ class cidServer(http.server.HTTPServer):
         # self.server_name = socket.getfqdn(host)
         # self.server_port = port
 
+    def log_message(self, *message):
+        print(*message)
+
+    def finish(self):
+        pass
+
 
 GOOD_CIPHERS = ":".join(
     (
@@ -711,6 +717,12 @@ class CidServerThread(threading.Thread):
         self.__m_started = threading.Event()
         self.__m_stopEvent = threading.Event()
 
+    def log_message(self, *message):
+        if self.m_httpd is None:
+            print(*message)
+        else:
+            self.m_httpd.log_message(*message)
+
     def set_options(self, options):
         self.__m_options = options
         self.m_httpd = create_server(self.__m_options)
@@ -723,24 +735,26 @@ class CidServerThread(threading.Thread):
         try:
             while not self.__m_stop:
                 if os.getppid() != self.__m_ppid:
-                    print("Parent process went away, quitting!")
+                    self.log_message("Parent process went away, quitting!")
                     self.__m_stop = True
                     break
                 if self.__m_stop or self.__m_stopEvent.is_set():
-                    print("Stop triggered")
+                    self.log_message("Stop triggered")
                     break
                 self.m_httpd.handle_request()
 
         except OSError as ex:
-            print("Serving failed with OSError:", ex)
+            print("Serving failed with OSError:", ex, file=sys.stderr)
             print(os.getcwd(), file=sys.stderr)
             raise
         except Exception as ex:
-            print("Failed with exception", ex)
+            print("Failed with exception", ex, file=sys.stderr)
             print(os.getcwd(), file=sys.stderr)
             raise
         self.__m_stop = False
         self.__m_stopEvent.clear()
+        self.m_httpd.finish()
+        self.m_httpd = None
 
     def startAndWait(self):
         self.start()
