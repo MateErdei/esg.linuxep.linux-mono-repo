@@ -6,6 +6,8 @@ def params = [
                      description: 'Build EDR-999 warehouses'),
     booleanParam(name: 'MDR_999', defaultValue: true,
                      description: 'Build MDR-999 warehouses'),
+    booleanParam(name: 'RUN_TESTS', defaultValue: true,
+                     description: 'Run TAP tests'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'warehouse'; buildParameters = params }
