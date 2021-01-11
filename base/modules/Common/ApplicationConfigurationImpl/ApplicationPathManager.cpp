@@ -312,6 +312,11 @@ namespace Common
             return path;
         }
 
+        std::string ApplicationPathManager::getFeaturesJsonPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler/installed_features.json");
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

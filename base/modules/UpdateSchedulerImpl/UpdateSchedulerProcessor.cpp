@@ -15,6 +15,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
@@ -31,6 +32,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include <chrono>
 #include <csignal>
+#include <json.hpp>
 #include <thread>
 
 using namespace std::chrono;
@@ -56,6 +58,54 @@ namespace
             return true;
         }
         return false;
+    }
+
+    /*
+     * Persists a list of feature codes to disk in JSON format. Used by Update Scheduler so that it can correctly
+     * generate ALC status feature code list on an update failure or when first started.
+     */
+    void writeInstalledFeaturesJsonFile(std::vector<std::string>& features)
+    {
+        try
+        {
+            nlohmann::json jsonFeatures(features);
+            auto fileSystem = Common::FileSystem::fileSystem();
+            fileSystem->writeFile(
+                Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(),
+                jsonFeatures.dump());
+        }
+        catch (nlohmann::json::parse_error& jsonException)
+        {
+            LOGERROR("The installed features list could not be serialised for persisting to disk: " << jsonException.what());
+        }
+        catch (Common::FileSystem::IFileSystemException& fileSystemException)
+        {
+            LOGERROR("The installed features list could not be written to disk: " << fileSystemException.what());
+        }
+    }
+
+    /*
+     * Returns the list of features that are currently installed, if there is no file or the file cannot be parsed
+     * then this returns an empty list.
+     */
+    std::vector<std::string> readInstalledFeaturesJsonFile()
+    {
+        try
+        {
+            auto fileSystem = Common::FileSystem::fileSystem();
+            std::string featureCodes = fileSystem->readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath());
+            nlohmann::json jsonFeatures(featureCodes);
+            return jsonFeatures.get<std::vector<std::string>>();
+        }
+        catch (Common::FileSystem::IFileSystemException& fileSystemException)
+        {
+            LOGERROR("The installed features list could not be read from disk: " << fileSystemException.what());
+        }
+        catch (nlohmann::json::parse_error& jsonException)
+        {
+            LOGERROR("The installed features list could not be deserialised for reading from disk: " << jsonException.what());
+        }
+        return {};
     }
 } // namespace
 
@@ -454,46 +504,18 @@ namespace UpdateSchedulerImpl
             m_baseService->sendEvent(ALC_API, eventXml);
         }
 
-
-//        std::vector<std::string> m_features;
-
-        // m_features  <- hold latest in policy (but not neccessarily what's installed)
-        // std::vector<std::string>  installedFeatures  <- hold latest in policy (but not neccessarily what's installed)
-
-        // std::vector<std::string>  installedFeatures ;
-
-        // if update succeeded then add features from config else don't update them
+        // If the update succeeded then persist the currently installed feature codes to disk, so that on a failure
+        // these features can be reported in the ALC status.
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
-//            LOGDEBUG("")
-            // installed features
-//            m_policyTranslator.
-            // store to disk
-
-//            installedFeatures = m_features
+            LOGDEBUG("Writing currently installed feature codes json to disk");
+            writeInstalledFeaturesJsonFile(m_features);
         }
         else
         {
-            // installedFeatures=   load old ones from disk
+            LOGDEBUG("Reading previously installed feature codes");
+            m_features = readInstalledFeaturesJsonFile();
         }
-
-        /*
-         * start up
-         * process policy - get told and remember which features codes are to be installed
-         * FC in mem - EDR, CORE
-         * update with core, EDR - set status
-         * update with MTR
-         * FC in mem - EDR, CORE, MTR
-         * FAILS - set status but don't add MTR feature code
-         *   what do we use to set the status?
-         * stop / shutdown (forget feature codes as they are in memory)
-         * start up
-         * process policy - get told and remember which features codes are to be installed
-         * read that the last update failed
-         * feature codes would be set to empty but the should core nad EDR still
-         * */
-
-
 
         std::string statusXML = SerializeUpdateStatus(
             reportAndFiles.reportCollectionResult.SchedulerStatus,

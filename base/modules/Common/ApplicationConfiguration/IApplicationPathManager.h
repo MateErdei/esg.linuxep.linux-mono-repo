@@ -47,6 +47,7 @@ namespace Common::ApplicationConfiguration
         virtual std::string getMcsConfigFolderPath() const = 0;
         virtual std::string getAlcStatusFilePath() const = 0;
         virtual std::string getAlcPolicyFilePath() const = 0;
+        virtual std::string getFeaturesJsonPath() const = 0;
 
         virtual std::string getManagementAgentStatusCacheFilePath() const = 0;
 
