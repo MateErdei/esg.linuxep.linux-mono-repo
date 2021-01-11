@@ -109,7 +109,15 @@ namespace Plugin
         if (!eventsMax.first.empty())
         {
             LOGINFO("Setting events_max to " << eventsMax.first << " as per value in " << Plugin::edrConfigFilePath());
-            eventsMaxValue = eventsMax.first;
+            if (eventsMax.first.find_first_not_of("1234567890") == std::string::npos)
+            {
+                eventsMaxValue = eventsMax.first;
+            }
+            else
+            {
+                LOGWARN("events_max value in '" << Plugin::edrConfigFilePath() << "' not a integer, defaulting to " << eventsMaxValue);
+            }
+
         }
         else
         {
