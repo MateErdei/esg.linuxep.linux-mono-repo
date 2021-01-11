@@ -20,7 +20,10 @@ namespace Common::ApplicationConfiguration
         virtual std::string getWatchdogSocketAddress() const = 0;
         virtual std::string sophosInstall() const = 0;
 
+        virtual std::string getRelativeLogConfFilePath() const = 0;
+        virtual std::string getRelativeLocalLogConfFilePath() const = 0;
         virtual std::string getLogConfFilePath() const = 0;
+        virtual std::string getLocalLogConfFilePath() const = 0;
         virtual std::string getTelemetryOutputFilePath() const = 0;
         virtual std::string getVersionIniFileForComponent(const std::string& component) const = 0;
 

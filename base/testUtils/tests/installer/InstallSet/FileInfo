@@ -21,6 +21,7 @@ o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/updateschedule
 o640, sophos-spl-group, root, /opt/sophos-spl/base/VERSION.ini.0
 o644, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs/mcs_rootca.crt.0
 o644, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/etc/logger.conf.0
+o644, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/etc/logger.conf.local
 o700, root, root, /opt/sophos-spl/base/bin/CommsComponent.0
 o700, root, root, /opt/sophos-spl/base/bin/manifestdiff.0
 o700, root, root, /opt/sophos-spl/base/bin/registerCentral.0

@@ -17,7 +17,11 @@ namespace Common::ApplicationConfigurationImpl
         std::string getManagementAgentSocketAddress() const override;
         std::string getWatchdogSocketAddress() const override;
         std::string sophosInstall() const override;
+        std::string getRelativeLogConfFilePath() const override;
+        std::string getRelativeLocalLogConfFilePath() const override;
         std::string getLogConfFilePath() const override;
+        std::string getLocalLogConfFilePath() const override;
+        std::string getTelemetryOutputFilePath() const override;
         std::string getPublisherDataChannelAddress() const override;
         std::string getSubscriberDataChannelAddress() const override;
         std::string getPluginRegistryPath() const override;
@@ -56,7 +60,7 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getSavedEnvironmentProxyFilePath() const override;
 
-        std::string getTelemetrySchedulerConfigFilePath() const override;
+        std::string getTelemetrySchedulerStatusFilePath() const override;
         std::string getTelemetrySupplementaryFilePath() const override;
         std::string getTelemetryExeConfigFilePath() const override;
         std::string getTelemetryExecutableFilePath() const override;

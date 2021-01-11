@@ -8,6 +8,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StrError.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <log4cplus/loggingmacros.h>
@@ -182,9 +183,13 @@ namespace Common
 
             bool hasSession(const std::string& session) const;
 
+            void mergeConfigTree(const LoggerConfigTree& treeToMerge);
+
+            pt::ptree getPTree() const;
+
         private:
-            static const std::string VERBOSITY;
             pt::ptree m_ptree;
+            static const std::string VERBOSITY;
         };
         const std::string LoggerSophosSettings::LoggerConfigTree::VERBOSITY{ "VERBOSITY" };
 
@@ -245,6 +250,21 @@ namespace Common
             return bool(session_tree);
         }
 
+        void LoggerSophosSettings::LoggerConfigTree::mergeConfigTree(const LoggerSophosSettings::LoggerConfigTree& treeToMerge)
+        {
+            pt::ptree ptreeToMerge = treeToMerge.getPTree();
+
+            for ( auto entry : ptreeToMerge)
+            {
+                m_ptree.erase(entry.first);
+                m_ptree.push_back(std::make_pair(entry.first, entry.second));
+            }
+        }
+
+        pt::ptree LoggerSophosSettings::LoggerConfigTree::getPTree() const {
+            return m_ptree;
+        }
+
         LoggerSophosSettings::LoggerSophosSettings()
         {
             if (LoggerSophosSettings::InTestMode)
@@ -257,6 +277,12 @@ namespace Common
             try
             {
                 m_configTree = std::unique_ptr<LoggerConfigTree>(new LoggerConfigTree(pathMan.getLogConfFilePath()));
+
+                if (FileSystem::fileSystem()->isFile((pathMan.getLocalLogConfFilePath())))
+                {
+                    LoggerConfigTree localConfigTree = LoggerConfigTree(pathMan.getLocalLogConfFilePath());
+                    m_configTree->mergeConfigTree(localConfigTree);
+                }
             }
             catch (std::exception& ex)
             {

@@ -19,7 +19,10 @@ public:
     MOCK_CONST_METHOD0(getManagementAgentSocketAddress, std::string(void));
     MOCK_CONST_METHOD0(getWatchdogSocketAddress, std::string(void));
     MOCK_CONST_METHOD0(sophosInstall, std::string(void));
+    MOCK_CONST_METHOD0(getRelativeLogConfFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getRelativeLocalLogConfFilePath, std::string(void));
     MOCK_CONST_METHOD0(getLogConfFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getLocalLogConfFilePath, std::string(void));
     MOCK_CONST_METHOD0(getTelemetryOutputFilePath, std::string(void));
     MOCK_CONST_METHOD0(getPublisherDataChannelAddress, std::string(void));
     MOCK_CONST_METHOD0(getSubscriberDataChannelAddress, std::string(void));

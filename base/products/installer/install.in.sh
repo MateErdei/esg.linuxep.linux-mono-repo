@@ -528,8 +528,19 @@ chmod o+r "${SOPHOS_INSTALL}/base/lib64/libcrypto.so"*
 
 chmod 700 "${SOPHOS_INSTALL}/bin/uninstall.sh."*
 chmod 700 "${SOPHOS_INSTALL}/bin/version"*
-chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf"
-chmod go+r "${SOPHOS_INSTALL}/base/etc/logger.conf"*
+
+if [ ! -f "${SOPHOS_INSTALL}/base/etc/logger.conf.local" ]
+then
+  touch "${SOPHOS_INSTALL}/base/etc/logger.conf.local"
+fi
+
+chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf" "${SOPHOS_INSTALL}/base/etc/logger.conf.local"
+chmod go+r "${SOPHOS_INSTALL}/base/etc/logger.conf"* "${SOPHOS_INSTALL}/base/etc/logger.conf.local"*
+
+
+chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf.local"
+chmod go+r "${SOPHOS_INSTALL}/base/etc/logger.conf.local"*
+
 
 chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/datafeed-config-scheduled_query.json"
 

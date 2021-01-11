@@ -189,6 +189,12 @@ def log_conf_file():
     """
     return os.path.join(etc_dir(), "logger.conf")
 
+def local_log_config_file():
+    """
+    log_conf_file
+    """
+    return os.path.join(etc_dir(), "logger.conf.local")
+
 
 def install_options_file():
     """

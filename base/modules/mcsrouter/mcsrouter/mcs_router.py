@@ -152,9 +152,15 @@ class SophosLogging:
         #pylint: disable=too-many-locals
         path_manager.INST = install_dir
         log_config = path_manager.log_conf_file()
+        local_log_config = path_manager.local_log_config_file()
 
         # Configure log level from config file if present
         readable, log_level_string = self._extract_log_level(log_config)
+        if os.path.isfile(local_log_config):
+            _, local_log_level_string = self._extract_log_level(local_log_config, reading_local_file=True)
+            if local_log_level_string is not None:
+                    log_level_string = local_log_level_string
+
         log_level = getattr(logging, log_level_string, logging.INFO)
         log_file = path_manager.mcs_router_log()
 
@@ -197,9 +203,13 @@ class SophosLogging:
         LOGGER.info("Logging to %s", log_file)
         sophos_https.LOGGER = logging.getLogger("sophos_https")
 
-    def _extract_log_level(self, log_config):
+    def _extract_log_level(self, log_config, reading_local_file=False):
         readable = False
-        log_level_string = LOG_LEVEL_DEFAULT
+        if not reading_local_file:
+            log_level_string = LOG_LEVEL_DEFAULT
+        else:
+            log_level_string = None
+
         try:
             if os.path.isfile(log_config):
                 config_parser = configparser.ConfigParser()

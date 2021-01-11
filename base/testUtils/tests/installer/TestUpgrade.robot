@@ -3,6 +3,7 @@ Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Resource  InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
+Resource  ../upgrade_product/UpgradeResources.robot
 
 Test Teardown  Upgrade Test Teardown
 Default Tags  INSTALLER  TAP_TESTS
@@ -65,8 +66,53 @@ Simple Downgrade Test
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
+
+Check Local Logger Config Settings Are Processed and Persist After Upgrade
+    ${expected_local_file_contents} =  Set Variable  [global]\nVERBOSITY = DEBUG\n
+
+    Require Fresh Install
+    Check Expected Base Processes Are Running
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Watchdog Log Contains  configured for level: INFO
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check mcsrouter Log Contains  Logging level: 20
+
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  content=${expected_local_file_contents}
+    Restart And Remove MCS And Watchdog Logs
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Watchdog Log Contains  configured for level: DEBUG
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check mcsrouter Log Contains  Logging level: 10
+
+    Run Full Installer
+
+    ${actual_local_file_contents} =  Get File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local
+    Should Be Equal As Strings  ${expected_local_file_contents}  ${actual_local_file_contents}
+
+
 *** Keywords ***
+
+Restart And Remove MCS And Watchdog Logs
+    Run Shell Process  systemctl stop sophos-spl    OnError=failed to restart sophos-spl
+    Remove File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
+    Run Shell Process  systemctl start sophos-spl   OnError=failed to restart sophos-spl
+
 Upgrade Test Teardown
+    LogUtils.Dump Log  ${SOPHOS_INSTALL}/base/etc/logger.conf
+    LogUtils.Dump Log  ${SOPHOS_INSTALL}/base/etc/logger.conf.local
     General Test Teardown
     Remove Directory  /opt/tmp/version2  true
     Require Uninstalled

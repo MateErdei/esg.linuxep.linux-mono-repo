@@ -220,12 +220,21 @@ namespace CommsComponent
             }
             std::stringstream logName;
 
-            Path loggerConfRelativePath = "base/etc/logger.conf";
-            auto loggerConfSrc = Common::FileSystem::join(oldSophosInstall, loggerConfRelativePath);
-            auto loggerConfDst = Common::FileSystem::join(m_chrootDir, loggerConfRelativePath);
+            auto loggerConfSrc = Common::FileSystem::join(oldSophosInstall, Common::ApplicationConfiguration::applicationPathManager().getRelativeLogConfFilePath());
+            auto loggerConfDst = Common::FileSystem::join(m_chrootDir, Common::ApplicationConfiguration::applicationPathManager().getRelativeLogConfFilePath());
             Common::FileSystem::fileSystem()->copyFileAndSetPermissions(loggerConfSrc, loggerConfDst, S_IRUSR| S_IRGRP,
                                                                         m_childUser.userName, m_childUser.userGroup);
 
+            auto localLoggerConfSrc = Common::FileSystem::join(oldSophosInstall, Common::ApplicationConfiguration::applicationPathManager().getRelativeLocalLogConfFilePath());
+
+            if (Common::FileSystem::fileSystem()->isFile(localLoggerConfSrc))
+            {
+                auto localLoggerConfDst =
+                    Common::FileSystem::join(m_chrootDir,
+                                             Common::ApplicationConfiguration::applicationPathManager().getRelativeLocalLogConfFilePath());
+                Common::FileSystem::fileSystem()->copyFileAndSetPermissions(localLoggerConfSrc, localLoggerConfDst, S_IRUSR| S_IRGRP,
+                                                                            m_childUser.userName, m_childUser.userGroup);
+            }
         }
         catch (const std::exception& ex)
         {

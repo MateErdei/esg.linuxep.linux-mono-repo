@@ -28,6 +28,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 struct TestInput
 {
     std::string logConfig{};
+    std::string localLogConfig{};
     int productContainLogs = 0;
     int productDoesNotContainLogs = 0;
     int moduleContainLogs = 0;
@@ -71,7 +72,6 @@ class TestLoggerConfigForDeathTest
 {
 public:
     TestLoggerConfigForDeathTest(std::string rootpath) :
-        m_logConfigPath("base/etc/logger.conf"),
         tempDir(rootpath, "testlog")
     {
         Common::ApplicationConfiguration::applicationConfiguration().setData(
@@ -79,6 +79,7 @@ public:
     }
 
     void setLogConfig(const std::string& content) { tempDir.createFile(m_logConfigPath, content); }
+    void setLocalLogConfig(const std::string& content) { tempDir.createFile(m_localLogConfigPath, content); }
 
     void runTest(const std::string& productName, const std::string& componentName)
     {
@@ -129,7 +130,8 @@ public:
         return content;
     }
 
-    std::string m_logConfigPath;
+    std::string m_logConfigPath = "base/etc/logger.conf";
+    std::string m_localLogConfigPath = "base/etc/logger.conf.local";
     Tests::TempDir tempDir;
     std::string m_logContent;
 
@@ -150,6 +152,7 @@ public:
         std::string productName{ "testlogging" };
         std::string module{ "module" };
         setLogConfig(testInput.logConfig);
+        setLocalLogConfig(testInput.localLogConfig);
         runTest(productName, module);
         m_logContent = getLogContent(productName);
 
@@ -242,6 +245,7 @@ TEST_F(TestLoggerConfig, GlobalSupportLogWrittenToFile) // NOLINT
 [global]
 VERBOSITY=SUPPORT
 )",
+                         .localLogConfig = "",
                          .productContainLogs =
                              LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN | LogLevels::SUPPORT,
                          .productDoesNotContainLogs = LogLevels::DEBUG,
@@ -260,6 +264,7 @@ TEST_F(TestLoggerConfig, GlobalInfoLogWrittenToFile) // NOLINT
 [global]
 VERBOSITY=INFO
 )",
+                         .localLogConfig = "",
                          .productContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN,
                          .productDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT,
                          .moduleContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN,
@@ -276,6 +281,7 @@ VERBOSITY=WARN
 [module]
 VERBOSITY=DEBUG
 )",
+                         .localLogConfig = "",
                          .productContainLogs = LogLevels::ERROR | LogLevels::WARN,
                          .productDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT,
                          .moduleContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN | LogLevels::DEBUG |
@@ -293,6 +299,7 @@ VERBOSITY=DEBUG
 [module]
 VERBOSITY=WARN
 )",
+                         .localLogConfig = "",
                          .productContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN | LogLevels::DEBUG |
                                                LogLevels::SUPPORT,
                          .productDoesNotContainLogs = 0,
@@ -316,11 +323,148 @@ VERBOSITY=INFO
 VERBOSITY = WARN
 ANOTHERENTRY = anything
 )",
+                         .localLogConfig = "",
                          .productContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN,
                          .productDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT,
                          .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN,
                          .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT | LogLevels::INFO,
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+}
+
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesWithEmptyLocalConfig) // NOLINT
+{
+    TestInput testInput{ .logConfig = R"(
+# this is the config file for sophos
+# valid options are VERBOSITY=WARN
+[testlogging]
+VERBOSITY=INFO
+
+# you can choose to target any module
+[module]
+
+VERBOSITY = WARN
+)",
+        .localLogConfig = R"()",
+        .productContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN,
+        .productDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT,
+        .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN,
+        .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT | LogLevels::INFO,
+        .rootPath = TestLoggerConfig::testRunPath->dirPath() };
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+
+}
+
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesOneValueDifferenceWithHigherLogLevel) // NOLINT
+{
+    TestInput testInput{ .logConfig = R"(
+# this is the config file for sophos
+# valid options are VERBOSITY=WARN
+[testlogging]
+VERBOSITY=INFO
+
+# you can choose to target any module
+[module]
+VERBOSITY = WARN
+)",
+        .localLogConfig = R"(
+[module]
+VERBOSITY = DEBUG
+)",
+        .productContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN,
+        .productDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT,
+        .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN | LogLevels::DEBUG | LogLevels::SUPPORT | LogLevels::INFO,
+        .moduleDoesNotContainLogs = 0,
+        .rootPath = TestLoggerConfig::testRunPath->dirPath() };
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+}
+
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesOneValueDifferenceWithLowerLogLevel) // NOLINT
+{
+    TestInput testInput{ .logConfig = R"(
+# this is the config file for sophos
+# valid options are VERBOSITY=WARN
+[testlogging]
+VERBOSITY=INFO
+
+# you can choose to target any module
+[module]
+VERBOSITY = DEBUG
+)",
+        .localLogConfig = R"(
+[module]
+VERBOSITY = WARN
+)",
+        .productContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN,
+        .productDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT,
+        .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN,
+        .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT  | LogLevels::INFO,
+        .rootPath = TestLoggerConfig::testRunPath->dirPath() };
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+}
+
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesAllValues) // NOLINT
+{
+    TestInput testInput{ .logConfig = R"(
+# this is the config file for sophos
+# valid options are VERBOSITY=WARN
+[testlogging]
+VERBOSITY=INFO
+
+# you can choose to target any module
+[module]
+VERBOSITY = DEBUG
+)",
+        .localLogConfig = R"(
+[testlogging]
+VERBOSITY = ERROR
+[module]
+VERBOSITY = INFO
+)",
+        .productContainLogs = LogLevels::ERROR ,
+        .productDoesNotContainLogs = LogLevels::INFO | LogLevels::DEBUG | LogLevels::SUPPORT | LogLevels::WARN,
+        .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN | LogLevels::INFO,
+        .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT ,
+        .rootPath = TestLoggerConfig::testRunPath->dirPath() };
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+}
+
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesNewValues) // NOLINT
+{
+    TestInput testInput{ .logConfig = R"(
+# this is the config file for sophos
+# valid options are VERBOSITY=WARN
+[testlogging]
+VERBOSITY = DEBUG
+)",
+        .localLogConfig = R"(
+[module]
+VERBOSITY = INFO
+)",
+        .productContainLogs = LogLevels::ERROR | LogLevels::INFO | LogLevels::DEBUG | LogLevels::SUPPORT | LogLevels::WARN,
+        .productDoesNotContainLogs = 0,
+        .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN | LogLevels::INFO,
+        .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT ,
+        .rootPath = TestLoggerConfig::testRunPath->dirPath() };
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+}
+
+TEST_F(TestLoggerConfig, testMergeConfigTreeMergesNewValuesWhenOriginalFileIsEmpty) // NOLINT
+{
+    TestInput testInput{ .logConfig = R"()",
+        .localLogConfig = R"(
+# this is the config file for sophos
+# valid options are VERBOSITY=WARN
+[testlogging]
+VERBOSITY = DEBUG
+[module]
+VERBOSITY = INFO
+)",
+        .productContainLogs = LogLevels::ERROR | LogLevels::INFO | LogLevels::DEBUG | LogLevels::SUPPORT | LogLevels::WARN,
+        .productDoesNotContainLogs = 0,
+        .moduleContainLogs = LogLevels::ERROR | LogLevels::WARN | LogLevels::INFO,
+        .moduleDoesNotContainLogs = LogLevels::DEBUG | LogLevels::SUPPORT ,
+        .rootPath = TestLoggerConfig::testRunPath->dirPath() };
     EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
 }
 

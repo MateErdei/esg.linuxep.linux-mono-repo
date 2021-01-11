@@ -204,7 +204,22 @@ namespace Common
 
         std::string ApplicationPathManager::getLogConfFilePath() const
         {
-            return Common::FileSystem::join(sophosInstall(), "base/etc/logger.conf");
+            return Common::FileSystem::join(sophosInstall(), getRelativeLogConfFilePath());
+        }
+
+        std::string ApplicationPathManager::getLocalLogConfFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), getRelativeLocalLogConfFilePath());
+        }
+
+        std::string ApplicationPathManager::getRelativeLogConfFilePath() const
+        {
+            return "base/etc/logger.conf";
+        }
+
+        std::string ApplicationPathManager::getRelativeLocalLogConfFilePath() const
+        {
+            return "base/etc/logger.conf.local";
         }
 
         std::string ApplicationPathManager::getTelemetryOutputFilePath() const
