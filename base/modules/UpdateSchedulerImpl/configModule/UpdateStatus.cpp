@@ -58,6 +58,15 @@ namespace
         }
     }
 
+    void addFeatures(const std::vector<std::string>& features, pt::ptree& featuresNode)
+    {
+        for (auto& feature : features)
+        {
+            pt::ptree subNode;
+            subNode.put("<xmlattr>.id", feature);
+            featuresNode.add_child("Feature", subNode);
+        }
+    }
     // static void dump(const boost::property_tree::ptree& t, const std::string& indent="")
     //{
     //    if (!t.data().empty())
@@ -84,7 +93,8 @@ namespace UpdateSchedulerImpl
             const std::string& revID,
             const std::string& versionId,
             const std::string& machineId,
-            const Common::UtilityImpl::IFormattedTime& iFormattedTime)
+            const Common::UtilityImpl::IFormattedTime& iFormattedTime,
+            const std::vector<std::string>& features)
         {
             static const std::string L_STATUS_TEMPLATE{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
@@ -96,6 +106,8 @@ namespace UpdateSchedulerImpl
     </subscriptions>
     <products><!-- @@productsElement@@ -->
     </products>
+    <Features>
+    </Features>
 </status>)sophos" };
 
             namespace pt = boost::property_tree;
@@ -114,7 +126,7 @@ namespace UpdateSchedulerImpl
 
             addSubscriptionElements(status.Subscriptions, statusNode.get_child("subscriptions"));
             addProductsElements(status.Products, statusNode.get_child("products"));
-
+            addFeatures(features,statusNode.get_child("Features"));
             return toString(tree);
         }
 

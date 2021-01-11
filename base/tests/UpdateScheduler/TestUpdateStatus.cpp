@@ -37,6 +37,8 @@ namespace
     <products>
         <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
     </products>
+    <Features>
+    </Features>
 </status>)sophos" };
 } // namespace
 
@@ -90,7 +92,42 @@ void TestSerializeStatus::runTest(const std::string& expectedXML, const UpdateSt
     pt::ptree expectedTree = parseString(expectedXML);
 
     std::string actualOutput =
-        SerializeUpdateStatus(status, "GivenRevId", "GivenVersion", "thisMachineID", *m_formattedTime);
+        SerializeUpdateStatus(status, "GivenRevId", "GivenVersion", "thisMachineID", *m_formattedTime, {});
+    pt::ptree actualTree = parseString(actualOutput);
+
+    if (actualTree != expectedTree)
+    {
+        std::cerr << "Incorrect actual XML: " << actualOutput << std::endl;
+    }
+
+    EXPECT_EQ(actualTree, expectedTree);
+}
+
+TEST_F(TestSerializeStatus, SuccessStatusWithFeatures) // NOLINT
+{
+    static const std::string normalStatusWithFeaturesXML{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
+<status xmlns="com.sophos\mansys\status" type="sau">
+    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
+    <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="GivenVersion">
+        <endpoint id="thisMachineID" />
+    </autoUpdate>
+    <subscriptions>
+        <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
+        <subscription rigidName="PluginRigidName" version="0.5.0" displayVersion="0.5.0" />
+    </subscriptions>
+    <products>
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
+    </products>
+    <Features>
+        <Feature id="FeatureA"/>
+    </Features>
+</status>)sophos" };
+
+    namespace pt = boost::property_tree;
+    pt::ptree expectedTree = parseString(normalStatusWithFeaturesXML);
+
+    std::string actualOutput =
+        SerializeUpdateStatus(getGoodStatus(), "GivenRevId", "GivenVersion", "thisMachineID", *m_formattedTime, {"FeatureA"});
     pt::ptree actualTree = parseString(actualOutput);
 
     if (actualTree != expectedTree)
@@ -125,6 +162,8 @@ TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
     <products>
         <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
     </products>
+    <Features>
+    </Features>
 </status>)sophos" };
     DownloadReportsAnalyser::DownloadReportVector singleReport{
         DownloadReportTestBuilder::goodReportWithSubscriptions()

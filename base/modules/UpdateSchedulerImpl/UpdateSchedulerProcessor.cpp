@@ -88,7 +88,8 @@ namespace UpdateSchedulerImpl
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderPreviousConfigFilePath()),
         m_formattedTime(),
         m_policyReceived(false),
-        m_pendingUpdate(false)
+        m_pendingUpdate(false),
+        m_features()
     {
         Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
         try
@@ -207,6 +208,10 @@ namespace UpdateSchedulerImpl
 
             writeConfigurationData(settingsHolder.configurationData);
             m_scheduledUpdateConfig = settingsHolder.weeklySchedule;
+            LOGINFO("m_features");
+            m_features = settingsHolder.configurationData.getFeatures();
+            LOGINFO("m_features: " << m_features.back());
+
             if (m_scheduledUpdateConfig.enabled)
             {
                 char buffer[20];
@@ -449,19 +454,61 @@ namespace UpdateSchedulerImpl
             m_baseService->sendEvent(ALC_API, eventXml);
         }
 
+
+//        std::vector<std::string> m_features;
+
+        // m_features  <- hold latest in policy (but not neccessarily what's installed)
+        // std::vector<std::string>  installedFeatures  <- hold latest in policy (but not neccessarily what's installed)
+
+        // std::vector<std::string>  installedFeatures ;
+
+        // if update succeeded then add features from config else don't update them
+        if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
+        {
+//            LOGDEBUG("")
+            // installed features
+//            m_policyTranslator.
+            // store to disk
+
+//            installedFeatures = m_features
+        }
+        else
+        {
+            // installedFeatures=   load old ones from disk
+        }
+
+        /*
+         * start up
+         * process policy - get told and remember which features codes are to be installed
+         * FC in mem - EDR, CORE
+         * update with core, EDR - set status
+         * update with MTR
+         * FC in mem - EDR, CORE, MTR
+         * FAILS - set status but don't add MTR feature code
+         *   what do we use to set the status?
+         * stop / shutdown (forget feature codes as they are in memory)
+         * start up
+         * process policy - get told and remember which features codes are to be installed
+         * read that the last update failed
+         * feature codes would be set to empty but the should core nad EDR still
+         * */
+
+
+
         std::string statusXML = SerializeUpdateStatus(
             reportAndFiles.reportCollectionResult.SchedulerStatus,
             m_policyTranslator.revID(),
             VERSIONID,
             m_machineID,
-            m_formattedTime);
+            m_formattedTime,
+            m_features);
 
         UpdateStatus copyStatus = reportAndFiles.reportCollectionResult.SchedulerStatus;
         // blank the timestamp that changes for every report.
         copyStatus.LastStartTime = "";
         copyStatus.LastFinishdTime = "";
         std::string statusWithoutTimeStamp = configModule::SerializeUpdateStatus(
-            copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime);
+            copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime, m_features);
         m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGINFO("Sending status to Central");

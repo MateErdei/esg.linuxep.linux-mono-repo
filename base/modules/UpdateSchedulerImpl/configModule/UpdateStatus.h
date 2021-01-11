@@ -50,7 +50,8 @@ namespace UpdateSchedulerImpl
             const std::string& revID,
             const std::string& versionId,
             const std::string& machineID,
-            const Common::UtilityImpl::IFormattedTime& iFormattedTime);
+            const Common::UtilityImpl::IFormattedTime& iFormattedTime,
+            const std::vector<std::string>& features);
 
     } // namespace configModule
 } // namespace UpdateSchedulerImpl
