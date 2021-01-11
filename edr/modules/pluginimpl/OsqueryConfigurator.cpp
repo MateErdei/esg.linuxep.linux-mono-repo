@@ -108,9 +108,10 @@ namespace Plugin
         std::pair<std::string,std::string> eventsMax = Common::UtilityImpl::FileUtils::extractValueFromFile(Plugin::edrConfigFilePath(), "events_max");
         if (!eventsMax.first.empty())
         {
-            LOGINFO("Setting events_max to " << eventsMax.first << " as per value in " << Plugin::edrConfigFilePath());
+
             if (eventsMax.first.find_first_not_of("1234567890") == std::string::npos)
             {
+                LOGINFO("Setting events_max to " << eventsMax.first << " as per value in " << Plugin::edrConfigFilePath());
                 eventsMaxValue = eventsMax.first;
             }
             else
