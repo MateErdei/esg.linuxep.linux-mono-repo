@@ -94,7 +94,7 @@ namespace
         {
             auto fileSystem = Common::FileSystem::fileSystem();
             std::string featureCodes = fileSystem->readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath());
-            nlohmann::json jsonFeatures(featureCodes);
+            nlohmann::json jsonFeatures = nlohmann::json::parse(featureCodes);
             return jsonFeatures.get<std::vector<std::string>>();
         }
         catch (Common::FileSystem::IFileSystemException& fileSystemException)
