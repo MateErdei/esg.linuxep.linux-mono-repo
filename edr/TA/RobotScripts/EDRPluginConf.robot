@@ -20,11 +20,17 @@ EDR plugins handles invalid value for events max in plugin conf
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf  events_max=invalid
     Install EDR Directly from SDDS
     Check EDR Plugin Installed With Base
-    EDR Plugin Log Contains  events_max value in '/opt/sophos-spl/plugin/edr/etc/plugin.conf' not a integer, defaulting to
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  events_max value in '/opt/sophos-spl/plugin/edr/etc/plugin.conf' not a integer, defaulting to
 
 
 EDR plugins handles valid value for events max in plugin conf
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf  events_max=4000
     Install EDR Directly from SDDS
     Check EDR Plugin Installed With Base
-    EDR Plugin Log Contains  Setting events_max to 4000 as per value in
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Setting events_max to 4000 as per value in
