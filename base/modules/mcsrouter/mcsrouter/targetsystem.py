@@ -126,10 +126,9 @@ class TargetSystem:
 
         ec2_dict = {'/sys/hypervisor/uuid': 'ec2',
                     "/sys/devices/virtual/dmi/id/bios_version": "amazon",
-                    "/sys/devices/virtual/dmi/id/product_uuid": "ec2",
-                    "/sys/devices/virtual/dmi/id/product_uuid": "EC2"}
+                    "/sys/devices/virtual/dmi/id/product_uuid": "ec2"}
         for key in ec2_dict:
-            if _find_string_in_file(key, ec2_dict[key]):
+            if _find_case_insensitive_string_in_file(key, ec2_dict[key]):
                 return True
 
         try:
@@ -152,7 +151,7 @@ class TargetSystem:
                     stderr=devnull))
                 results2 = to_utf8(subprocess.check_output(
                     args=["dmidecode", "-s", "bios-version"], stderr=devnull))
-                if results1.startswith("EC2") or "amazon" or "ec2" in results2:
+                if results1.lower().startswith("ec2") or "amazon" in results2:
                     return True
         except (subprocess.CalledProcessError, EnvironmentError):
             pass
@@ -282,10 +281,11 @@ def _collect_lsb_release():
 
     return description, distributor_id, release
 
-def _find_string_in_file(file_to_read, string_to_find):
+def _find_case_insensitive_string_in_file(file_to_read, string_to_find):
     try:
         with open(file_to_read) as file:
-            if string_to_find in file.read():
+            content = file.read()
+            if string_to_find.lower() in content.lower():
                 return True
     except EnvironmentError:
         pass

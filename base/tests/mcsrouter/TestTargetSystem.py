@@ -71,6 +71,70 @@ class TestTargetSystem(unittest.TestCase):
         target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
         self.assertEqual('amazon', target_system.vendor())
 
+    @mock.patch('os.path.isfile', return_value=True)
+    def test_detect_is_ec2_instance_is_true_if_amazon_file_exists(self, *mockargs):
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+
+        self.assertEqual(True, target_system._detect_is_ec2_instance())
+
+
+    @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
+    @mock.patch('builtins.open', new_callable=mock_open)
+    def test_detect_is_ec2_instance_is_true_if_uuid_file_contains_ec2(self, mo, *mockarg):
+
+        side_affects = (
+            mock_open(read_data="ec2").return_value,
+            mock_open(read_data="2").return_value,
+            mock_open(read_data="3").return_value,
+        )
+        mo.side_effect = side_affects
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+
+        self.assertEqual(True, target_system._detect_is_ec2_instance())
+
+    @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
+    @mock.patch('builtins.open', new_callable=mock_open)
+    def test_detect_is_ec2_instance_is_true_if_bios_version_file_contains_amazon(self, mo, *mockarg):
+
+        side_affects = (
+            mock_open(read_data="blah").return_value,
+            mock_open(read_data="amazon").return_value,
+            mock_open(read_data="3").return_value,
+        )
+        mo.side_effect = side_affects
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+
+        self.assertEqual(True, target_system._detect_is_ec2_instance())
+
+    @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
+    @mock.patch('builtins.open', new_callable=mock_open)
+    def test_detect_is_ec2_instance_is_true_if_product_uuid_file_contains_ec2(self, mo, *mockarg):
+
+        side_affects = (
+            mock_open(read_data="blah").return_value,
+            mock_open(read_data="stuff").return_value,
+            mock_open(read_data="ec2").return_value,
+        )
+        mo.side_effect = side_affects
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+
+        self.assertEqual(True, target_system._detect_is_ec2_instance())
+
+    @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
+    @mock.patch('builtins.open', new_callable=mock_open)
+    def test_detect_is_ec2_instance_is_true_if_product_uuid_file_contains_EC2(self, mo, *mockarg):
+
+        side_affects = (
+            mock_open(read_data="blah").return_value,
+            mock_open(read_data="stuff").return_value,
+            mock_open(read_data="EC2").return_value,
+        )
+        mo.side_effect = side_affects
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+
+        self.assertEqual(True, target_system._detect_is_ec2_instance())
+
+
     @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
     @mock.patch('builtins.open', new_callable=mock_open, read_data="Fedora release 27")
     def test_os_version_retrieves_unknown_vendor(self, *mockargs):
