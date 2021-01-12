@@ -24,7 +24,7 @@ EDR plugins handles invalid value for events max in plugin conf
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains  events_max value in '/opt/sophos-spl/plugins/edr/etc/plugin.conf' not an integer, defaulting to
+    ...  EDR Plugin Log Contains  events_max value in '/opt/sophos-spl/plugins/edr/etc/plugin.conf' not an integer, so using default of
 
 
 EDR plugins handles valid value for events max in plugin conf

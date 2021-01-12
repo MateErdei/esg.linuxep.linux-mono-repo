@@ -104,7 +104,7 @@ namespace Plugin
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false"};
 
-        std::string eventsMaxValue = "50000";
+        std::string eventsMaxValue = "100000";
         std::pair<std::string,std::string> eventsMax = Common::UtilityImpl::FileUtils::extractValueFromFile(Plugin::edrConfigFilePath(), "events_max");
         if (!eventsMax.first.empty())
         {
@@ -116,7 +116,7 @@ namespace Plugin
             }
             else
             {
-                LOGWARN("events_max value in '" << Plugin::edrConfigFilePath() << "' not an integer, defaulting to " << eventsMaxValue);
+                LOGWARN("events_max value in '" << Plugin::edrConfigFilePath() << "' not an integer, so using default of " << eventsMaxValue);
             }
 
         }
@@ -124,7 +124,7 @@ namespace Plugin
         {
             if (Common::UtilityImpl::StringUtils::startswith(eventsMax.second, "No such node"))
             {
-                LOGDEBUG("No events_max value specified in " << Plugin::edrConfigFilePath() << " so using default of 50000");
+                LOGDEBUG("No events_max value specified in " << Plugin::edrConfigFilePath() << " so using default of " << eventsMaxValue);
             }
             else
             {
