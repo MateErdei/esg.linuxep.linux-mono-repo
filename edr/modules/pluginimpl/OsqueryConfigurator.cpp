@@ -188,6 +188,15 @@ namespace Plugin
     void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch)
     {
         bool disableAuditD = disableSystemAuditDAndTakeOwnershipOfNetlink();
+        if (disableAuditD)
+        {
+            LOGINFO("plugins.conf configured to disable auditd if active");
+        }
+        else
+        {
+            LOGINFO("plugins.conf configured to not disable auditd if active");
+        }
+
         bool disableAuditDataGathering = enableAuditDataCollection();
 
         SystemConfigurator::setupOSForAudit(disableAuditD);
@@ -212,14 +221,14 @@ namespace Plugin
         std::string configpath = Plugin::edrConfigFilePath();
         if (fileSystem->isFile(configpath))
         {
-            std::pair<std::string,std::string> value = Common::UtilityImpl::FileUtils::extractValueFromFile(configpath, "disable_auditd");
-            if (value.first.empty() && !value.second.empty())
+            try
             {
-                LOGWARN("Failed to read disable_auditd configuration from config file using default value due to error " + value.second);
+                Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("disable_auditd");
             }
-            else
+            catch (std::runtime_error& ex)
             {
-                disableAuditD = (value.first == "1");
+                LOGWARN("Failed to read disable_auditd configuration from config file using default value due to error " << ex.what());
+                Plugin::PluginUtils::setGivenFlagFromSettingsFile("disable_auditd", disableAuditD);
             }
         }
         else
@@ -289,10 +298,8 @@ namespace Plugin
     {
         if (retrieveDisableAuditFlagFromSettingsFile())
         {
-            LOGINFO("plugins.conf configured to disable auditd if active");
             return true;
         }
-        LOGINFO("plugins.conf configured to not disable auditd if active");
         return false;
     }
 
