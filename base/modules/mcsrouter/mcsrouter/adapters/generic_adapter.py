@@ -133,6 +133,8 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             path_manager.status_dir(),
             "%s_status.xml" %
             self.__m_app_id)
+        if not os.path.isfile(status_path):
+            return None
         try:
             self.__m_last_status_time = os.path.getmtime(status_path)
         except OSError:
