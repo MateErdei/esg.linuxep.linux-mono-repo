@@ -293,8 +293,9 @@ namespace UpdateSchedulerImpl
             {
                 auto subscriptionDetails = attributesMap.lookup(cloudSubscription);
                 std::string rigidName = subscriptionDetails.value("RigidName");
+                std::string tag = subscriptionDetails.value("Tag");
                 std::string fixedVersion = subscriptionDetails.value(FixedVersion);
-                m_updatePolicy.addSubscription(rigidName, fixedVersion);
+                m_updatePolicy.addSubscription(rigidName, tag, fixedVersion);
                 if (rigidName != SulDownloader::suldownloaderdata::SSPLBaseName)
                 {
                     productsSubscription.emplace_back(SulDownloader::suldownloaderdata::ProductSubscription(
@@ -447,7 +448,9 @@ namespace UpdateSchedulerImpl
         for (auto& subscription : warehouseTelemetry.m_subscriptions)
         {
             auto telemetryObject = Common::Telemetry::TelemetryObject::fromVectorOfKeyValues(
-                { { "rigidname", subscription.first }, { "fixedversion", subscription.second } });
+                { { "rigidname", std::get<0>(subscription) },
+                  { "tag", std::get<1>(subscription) },
+                  { "fixedversion", std::get<2>(subscription) } });
             listSubscriptions.push_back(telemetryObject);
 
         }
@@ -463,9 +466,9 @@ namespace UpdateSchedulerImpl
         warehouseTelemetry.m_subscriptions.clear();
     }
 
-    void UpdatePolicyTelemetry::addSubscription(const std::string& rigidname, const std::string& fixedVersion)
+    void UpdatePolicyTelemetry::addSubscription(const std::string& rigidname, const std::string& tag, const std::string& fixedVersion)
     {
-        warehouseTelemetry.m_subscriptions.emplace_back(rigidname, fixedVersion);
+        warehouseTelemetry.m_subscriptions.emplace_back(rigidname, tag, fixedVersion);
     }
 
 

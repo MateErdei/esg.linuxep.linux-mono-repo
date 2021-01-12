@@ -136,7 +136,7 @@ Telemetry Executable Generates Update Scheduler Telemetry
     Log File   ${TELEMETRY_OUTPUT_JSON}
     Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0   sddsid=NotAUserName
 
-Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version Policy
+Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version And Tag In Policy
     # Make sure there are no left over update telemetry items.
     Cleanup Telemetry Server
     Require Fresh Install
@@ -150,7 +150,7 @@ Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version Pol
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log File   ${TELEMETRY_OUTPUT_JSON}
-    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}   0   fixed_version=1.0.2  sddsid=NotAUserName
+    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}   0  mtr_fixed_version=1.0.2  base_fixed_version=1.1.0  mtr_tag=BETA  sddsid=NotAUserName
 
 Telemetry Executable Log Has Correct Permissions
     [Documentation]    Telemetry Executable Log Has Correct Permissions

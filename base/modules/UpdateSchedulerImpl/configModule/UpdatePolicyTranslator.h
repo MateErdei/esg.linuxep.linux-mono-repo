@@ -19,13 +19,13 @@ namespace UpdateSchedulerImpl
     {
     public:
         void clearSubscriptions();
-        void addSubscription(const std::string & rigidname, const std::string & fixedVersion);
+        void addSubscription(const std::string& rigidname, const std::string& tag, const std::string& fixedVersion);
         void setSDDSid(const std::string & );
         void resetTelemetry(Common::Telemetry::TelemetryHelper& );
     private:
         struct WarehouseTelemetry
         {
-            std::vector<std::pair<std::string, std::string>> m_subscriptions;
+            std::vector<std::tuple<std::string, std::string, std::string>> m_subscriptions;
             std::string m_sddsid;
 
         };
