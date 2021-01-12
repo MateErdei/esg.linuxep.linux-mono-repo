@@ -57,20 +57,20 @@ def handle_alc_event(file_path):
         try:
             if os.path.isfile(old_file_path) or os.path.islink(old_file_path):
                 safe_remove_file(old_file_path)
-        except Exception as ex:
-            LOGGER.error('Failed to delete file {} due to error {}'.format(old_file_path, str(ex)))
+        except (FileNotFoundError, PermissionError) as exception:
+            LOGGER.error('Failed to delete file {} due to error {}'.format(old_file_path, str(exception)))
 
     cache_path = os.path.join(path_manager.event_cache_dir(), os.path.basename(file_path))
 
     try:
         shutil.move(file_path, cache_path)
-    except Exception as ex:
-        LOGGER.error('Failed to move file from {} to {} due to error {}'.format(file_path, cache_path, str(ex)))
+    except (FileNotFoundError, PermissionError) as exception:
+        LOGGER.error('Failed to move file from {} to {} due to error {}'.format(file_path, cache_path, str(exception)))
 
     LOGGER.debug("Moved file {} to {}".format(file_path, cache_path))
 
 def safe_remove_file(file_path):
     try:
         os.remove(file_path)
-    except Exception as ex:
-        LOGGER.error('Failed to delete file {} due to error {}'.format(file_path, str(ex)))
+    except (FileNotFoundError, PermissionError) as exception:
+        LOGGER.error('Failed to delete file {} due to error {}'.format(file_path, str(exception)))

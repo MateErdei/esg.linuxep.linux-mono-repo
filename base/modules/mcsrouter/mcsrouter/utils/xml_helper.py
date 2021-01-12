@@ -41,8 +41,8 @@ def get_escaped_non_ascii_content(file_path):
     try:
         with codecs.open( file_path, encoding='utf-8', mode='r', errors='replace') as file_handler:
             body = file_handler.read()
-    except Exception as ex:
-        LOGGER.error("Failed to open XML file {} due to Error: {}".format(file_path, str(ex)))
+    except (FileNotFoundError, ValueError, PermissionError) as exception:
+        LOGGER.error("Failed to open XML file {} due to Error: {}".format(file_path, str(exception)))
         return ""
     return body
 
