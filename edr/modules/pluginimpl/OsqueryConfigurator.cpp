@@ -116,7 +116,7 @@ namespace Plugin
             }
             else
             {
-                LOGWARN("events_max value in '" << Plugin::edrConfigFilePath() << "' not a integer, defaulting to " << eventsMaxValue);
+                LOGWARN("events_max value in '" << Plugin::edrConfigFilePath() << "' not an integer, defaulting to " << eventsMaxValue);
             }
 
         }
