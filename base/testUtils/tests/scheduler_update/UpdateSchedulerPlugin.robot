@@ -573,6 +573,8 @@ Configure Hosts File
     Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
     Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
 
+
+
 Check report was a product update
     [Arguments]  ${reportPath}
     ${contents} =    Get File  ${reportPath}
