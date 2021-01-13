@@ -31,7 +31,6 @@ namespace Plugin
 
     protected:
         bool MTRBoundEnabled() const;
-        bool disableSystemAuditDAndTakeOwnershipOfNetlink() const;
     private:
         // make it virtual to allow for not using it in tests as they require file access.
         virtual bool retrieveDisableAuditFlagFromSettingsFile() const;

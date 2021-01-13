@@ -30,10 +30,6 @@ public:
     {
         return OsqueryConfigurator::MTRBoundEnabled();
     }
-    bool disableSystemAuditDAndTakeOwnershipOfNetlink() const
-    {
-        return OsqueryConfigurator::disableSystemAuditDAndTakeOwnershipOfNetlink();
-    }
 
 private:
     bool retrieveDisableAuditFlagFromSettingsFile() const override
@@ -95,13 +91,11 @@ TEST_F(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenN
 TEST_F(TestOsqueryConfigurator, BeforeALCPolicyIsGivenOsQueryConfiguratorShouldConsideredToBeMTRBounded) // NOLINT
 {
     TestableOsqueryConfigurator disabledOption(false);
-    EXPECT_FALSE(disabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     // true because no alc policy was given
     EXPECT_TRUE(disabledOption.MTRBoundEnabled());
     EXPECT_FALSE(disabledOption.enableAuditDataCollection());
 
     TestableOsqueryConfigurator enabledOption(true);
-    EXPECT_TRUE(enabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     // true because no alc policy was given
     EXPECT_TRUE(enabledOption.MTRBoundEnabled());
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
@@ -112,7 +106,6 @@ TEST_F(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShoul
     TestableOsqueryConfigurator disabledOption(false);
     disabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
 
-    EXPECT_FALSE(disabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     // false as the alc policy does not refer to mtr feature
     EXPECT_FALSE(disabledOption.MTRBoundEnabled());
     // audit collection is not enabled because of disableSystemAuditDAndTakeOwnershipOfNetlink set to false means system
@@ -121,7 +114,6 @@ TEST_F(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShoul
 
     TestableOsqueryConfigurator enabledOption(true);
     enabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
-    EXPECT_TRUE(enabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     // false as the alc policy does not refer to mtr feature
     EXPECT_FALSE(enabledOption.MTRBoundEnabled());
     // audit collection is enabled because of it has permission to take ownership of audit link
@@ -133,13 +125,11 @@ TEST_F(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConf
     TestableOsqueryConfigurator disabledOption(false);
     disabledOption.loadALCPolicy(PolicyWithMTRFeature());
 
-    EXPECT_FALSE(disabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     EXPECT_TRUE(disabledOption.MTRBoundEnabled());
     EXPECT_FALSE(disabledOption.enableAuditDataCollection());
 
     TestableOsqueryConfigurator enabledOption(true);
     enabledOption.loadALCPolicy(PolicyWithMTRFeature());
-    EXPECT_TRUE(enabledOption.disableSystemAuditDAndTakeOwnershipOfNetlink());
     EXPECT_TRUE(enabledOption.MTRBoundEnabled());
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
 }

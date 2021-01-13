@@ -187,15 +187,7 @@ namespace Plugin
 
     void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch)
     {
-        bool disableAuditD = disableSystemAuditDAndTakeOwnershipOfNetlink();
-        if (disableAuditD)
-        {
-            LOGINFO("plugins.conf configured to disable auditd if active");
-        }
-        else
-        {
-            LOGINFO("plugins.conf configured to not disable auditd if active");
-        }
+        bool disableAuditD = retrieveDisableAuditFlagFromSettingsFile();
 
         bool disableAuditDataGathering = enableAuditDataCollection();
 
@@ -227,7 +219,7 @@ namespace Plugin
             }
             catch (std::runtime_error& ex)
             {
-                LOGWARN("Failed to read disable_auditd configuration from config file using default value due to error " << ex.what());
+                LOGINFO("Using default value for disable_audit flag");
                 Plugin::PluginUtils::setGivenFlagFromSettingsFile("disable_auditd", disableAuditD);
             }
         }
@@ -263,7 +255,7 @@ namespace Plugin
 
     bool OsqueryConfigurator::enableAuditDataCollection() const
     {
-        bool enableAuditDataCollection = disableSystemAuditDAndTakeOwnershipOfNetlink() && !MTRBoundEnabled();
+        bool enableAuditDataCollection = retrieveDisableAuditFlagFromSettingsFile() && !MTRBoundEnabled();
 
         if (enableAuditDataCollection)
         {
@@ -292,15 +284,6 @@ namespace Plugin
     bool OsqueryConfigurator::MTRBoundEnabled() const
     {
         return m_mtrboundEnabled;
-    }
-
-    bool OsqueryConfigurator::disableSystemAuditDAndTakeOwnershipOfNetlink() const
-    {
-        if (retrieveDisableAuditFlagFromSettingsFile())
-        {
-            return true;
-        }
-        return false;
     }
 
     void OsqueryConfigurator::addTlsServerCertsOsqueryFlag(std::vector<std::string>& flags)
