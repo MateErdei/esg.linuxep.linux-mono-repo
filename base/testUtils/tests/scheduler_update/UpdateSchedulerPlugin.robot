@@ -367,8 +367,6 @@ UpdateScheduler Performs Update After Receiving Policy For The First Time
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
 
-    log to console   sleeping
-    sleep  300
 
 UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     [Tags]  SLOW  UPDATE_SCHEDULER

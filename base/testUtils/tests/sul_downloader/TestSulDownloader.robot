@@ -258,8 +258,6 @@ Simple proxy
     log  ${tmpdir}
     should exist  /opt/sophos-spl/tmp
     should exist  /opt/sophos-spl/tmp/SDT
-#    log to console   sleeping before sul runs
-#    sleep  300
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${SOPHOS_INSTALL}
 
     Check SulDownloader Result   ${result}   ${SUCCESS}
