@@ -93,6 +93,10 @@ namespace
         try
         {
             auto fileSystem = Common::FileSystem::fileSystem();
+            if (!fileSystem->exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+            {
+                return {};
+            }
             std::string featureCodes = fileSystem->readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath());
             nlohmann::json jsonFeatures = nlohmann::json::parse(featureCodes);
             return jsonFeatures.get<std::vector<std::string>>();
@@ -139,7 +143,8 @@ namespace UpdateSchedulerImpl
         m_formattedTime(),
         m_policyReceived(false),
         m_pendingUpdate(false),
-        m_features()
+        m_featuresInPolicy(),
+        m_featuresCurrentlyInstalled(readInstalledFeaturesJsonFile())
     {
         Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
         try
@@ -258,9 +263,7 @@ namespace UpdateSchedulerImpl
 
             writeConfigurationData(settingsHolder.configurationData);
             m_scheduledUpdateConfig = settingsHolder.weeklySchedule;
-            LOGINFO("m_features");
-            m_features = settingsHolder.configurationData.getFeatures();
-            LOGINFO("m_features: " << m_features.back());
+            m_featuresInPolicy = settingsHolder.configurationData.getFeatures();
 
             if (m_scheduledUpdateConfig.enabled)
             {
@@ -508,14 +511,15 @@ namespace UpdateSchedulerImpl
         // these features can be reported in the ALC status.
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
+            m_featuresCurrentlyInstalled = m_featuresInPolicy;
             LOGDEBUG("Writing currently installed feature codes json to disk");
-            writeInstalledFeaturesJsonFile(m_features);
+            writeInstalledFeaturesJsonFile(m_featuresCurrentlyInstalled);
         }
-        else
-        {
-            LOGDEBUG("Reading previously installed feature codes");
-            m_features = readInstalledFeaturesJsonFile();
-        }
+//        else
+//        {
+//            LOGDEBUG("Reading previously installed feature codes");
+//            m_featuresCurrentlyInstalled = readInstalledFeaturesJsonFile();
+//        }
 
         std::string statusXML = SerializeUpdateStatus(
             reportAndFiles.reportCollectionResult.SchedulerStatus,
@@ -523,14 +527,14 @@ namespace UpdateSchedulerImpl
             VERSIONID,
             m_machineID,
             m_formattedTime,
-            m_features);
+            m_featuresCurrentlyInstalled);
 
         UpdateStatus copyStatus = reportAndFiles.reportCollectionResult.SchedulerStatus;
         // blank the timestamp that changes for every report.
         copyStatus.LastStartTime = "";
         copyStatus.LastFinishdTime = "";
         std::string statusWithoutTimeStamp = configModule::SerializeUpdateStatus(
-            copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime, m_features);
+            copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime, m_featuresCurrentlyInstalled);
         m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGINFO("Sending status to Central");

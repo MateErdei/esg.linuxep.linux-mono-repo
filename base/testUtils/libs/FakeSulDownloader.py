@@ -89,6 +89,9 @@ class FakeSulDownloader(object):
         self.sul_downloader_link = False
         pass
 
+    def setup_base_only_sync_and_uptodate(self, startTime=1, syncTime=1):
+        self.__base_only('UPTODATE', startTime=startTime, syncTime=syncTime )
+
     def setup_base_and_plugin_upgraded(self, startTime=1, syncTime=1):
         self.__base_and_plugin('UPGRADED', startTime=startTime, syncTime=syncTime)
 
@@ -105,6 +108,15 @@ class FakeSulDownloader(object):
         report['status'] = 'INSTALLFAILED'
         self.__setup_simulate_report(report)
 
+    def __base_only(self, productStatus, **kwargs):
+        report = self.__base_report(productStatus=productStatus, **kwargs)
+        self.__setup_simulate_report(report)
+
+    def __base_report(self, **kwargs):
+        report = downloadReportDict(**kwargs)
+        base = productDict(**kwargs)
+        addProduct(report, base)
+        return report
 
     def __base_and_plugin(self, productStatus, **kwargs):
         report = self.__base_and_plugin_report(productStatus=productStatus, **kwargs)

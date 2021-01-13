@@ -23,16 +23,21 @@ namespace ManagementAgent
         {
             auto search = m_statusCache.find(appid);
 
+            // If no status already present in cache for appid, then update status and fall out of if to return true.
             if (search == m_statusCache.end())
             {
                 updateStatus(appid, statusForComparison);
             }
             else if (search->second == statusForComparison)
             {
+                // If there is a status present in cache for appid and the status matches the one passed in for
+                // comparison then it hasn't changed
                 return false;
             }
             else
             {
+                // If there is a status present in cache for appid and the status does not match the one passed in for
+                // comparison then it has changed, update and then fall out of if and return true.
                 updateStatus(appid, statusForComparison);
             }
 

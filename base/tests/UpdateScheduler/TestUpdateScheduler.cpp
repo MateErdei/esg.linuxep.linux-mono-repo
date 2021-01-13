@@ -69,8 +69,13 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreReadFromJsonFile) /
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock,
+        exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(*filesystemMock,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillOnce(Return(R"(["featureA","featureB"])"));
+
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::vector<std::string> expectedFeatures = {"featureA", "featureB"};
     std::vector<std::string> actualFeatures = readInstalledFeaturesJsonFile();
@@ -81,8 +86,13 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreReadFromJsonFileWit
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock,
+                exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(*filesystemMock,
                 readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillOnce(Return("[]"));
+
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::vector<std::string> expectedFeatures = {};
     std::vector<std::string> actualFeatures = readInstalledFeaturesJsonFile();
@@ -92,6 +102,10 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreReadFromJsonFileWit
 TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreReadFromEmptyJsonFile) // NOLINT
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock,
+                exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        .WillOnce(Return(true));
+
     EXPECT_CALL(*filesystemMock,
                 readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillOnce(Return(""));
@@ -105,8 +119,26 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, noThrowWhenFeaturesAreReadFrom
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock,
+                exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(*filesystemMock,
                 readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillOnce(Return("this is not json..."));
+
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    std::vector<std::string> expectedFeatures = {};
+    std::vector<std::string> actualFeatures = readInstalledFeaturesJsonFile();
+    EXPECT_EQ(expectedFeatures, actualFeatures);
+}
+
+TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresDefaultToEmptyListWhenFileDoesNotExist) // NOLINT
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock,
+                exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        .WillOnce(Return(false));
+
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::vector<std::string> expectedFeatures = {};
     std::vector<std::string> actualFeatures = readInstalledFeaturesJsonFile();

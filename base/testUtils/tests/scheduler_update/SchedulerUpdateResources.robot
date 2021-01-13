@@ -138,6 +138,11 @@ Check Status Report Contain
     ${fileContent}  Get File  ${statusPath}
     Should Contain  ${fileContent}  ${expectedContent}  msg="${ErrorMessage}. Looked for: {${expectedContent}} inside Status xml."
 
+Check Status Report Does Not Contain
+    [Arguments]  ${shouldNotBeInStatus}  ${ErrorMessage}="Status contains unexpected content"
+    ${fileContent}  Get File  ${statusPath}
+    Should Not Contain  ${fileContent}  ${shouldNotBeInStatus}  msg="${ErrorMessage}. Checked for: {${shouldNotBeInStatus}} inside Status xml."
+
 Check CacheCertificates Is Created Correctly
     Wait Until Keyword Succeeds
     ...  20 secs

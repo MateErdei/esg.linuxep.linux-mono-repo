@@ -114,6 +114,119 @@ UpdateScheduler Report Failure to Update
     Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  1  False  sddsid=regruser
     Cleanup Telemetry Server
 
+Test Updatescheduler Adds Features That Get Installed On Subsequent Update
+    Setup Base And Plugin Sync And Uptodate
+    Simulate Update Now
+    ${eventPath} =  Check Status and Events Are Created
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="CORE"
+    Check Status Report Does Not Contain  Feature id="SENSORS"
+
+    Setup Base And Plugin Sync And Uptodate
+    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="SENSORS"
+
+
+Test Updatescheduler Does Not Add Features That Failed To Install
+    Setup Base And Plugin Sync And Uptodate
+    Simulate Update Now
+    ${eventPath} =  Check Status and Events Are Created
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="CORE"
+    Check Status Report Does Not Contain  Feature id="SENSORS"
+
+    Setup Plugin Install Failed
+    Remove File  ${statusPath}
+    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="CORE"
+    Check Status Report Does Not Contain  Feature id="SENSORS"
+
+
+Test Updatescheduler Features Codes Correct After Success Failure Success Restart
+    [Documentation]  Updatescheduler on success adds CORE to the feature codes in ALC status, the next update
+    ... that should install SENSORS fails and does not add SENSORS to the feature code list in ALC status. A third
+    ... update happens that does install SENSORS correctly and then that feature code is added to ALC status.
+    ... On a restart we prove that the feature codes that were saved to disk are being loaded in by forcing a
+    ... status to be generated from what is in updateschedulerprocessor memory.
+
+    Setup Base Only Sync And Uptodate
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="CORE"
+    Check Status Report Does Not Contain  Feature id="SENSORS"
+    Remove File  ${statusPath}
+    Setup Plugin Install Failed  startTime=2
+    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="CORE"
+    Check Status Report Does Not Contain  Feature id="SENSORS"
+
+    Remove File  ${statusPath}
+    Setup Base and Plugin Upgraded  startTime=3
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="CORE"
+    Check Status Report Contain  Feature id="SENSORS"
+
+    # Restart update scheduler and management, also delete old status to force a new one to be generated so we can
+    # check that the feature codes have been correctly read from disk after a restart.
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  updatescheduler
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  managementagent
+    remove file  ${statusPath}
+    remove file  ${MCS_DIR}/status/cache/ALC.xml
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  managementagent
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  updatescheduler
+
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="CORE"
+    Check Status Report Contain  Feature id="SENSORS"
+
+Test Status Is Sent On Consecutive Successful Updates With Policy Changes
+    Override LogConf File as Global Level  DEBUG
+    Setup Base And Plugin Sync And Uptodate
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="CORE"
+    Check Status Report Does Not Contain  Feature id="SENSORS"
+
+    Remove File  ${statusPath}
+    Setup Base And Plugin Sync And Uptodate
+    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="CORE"
+    Check Status Report Contain  Feature id="SENSORS"
+
+    Remove File  ${statusPath}
+    Setup Base And Plugin Sync And Uptodate
+    Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  Feature id="CORE"
+    Check Status Report Does Not Contain  Feature id="SENSORS"
+
 
 UpdateScheduler Report Failure to Update Multiple Times In Telemetry
     Setup Plugin Install Failed
@@ -254,6 +367,8 @@ UpdateScheduler Performs Update After Receiving Policy For The First Time
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
 
+    log to console   sleeping
+    sleep  300
 
 UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     [Tags]  SLOW  UPDATE_SCHEDULER
@@ -460,7 +575,8 @@ Configure Hosts File
     Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
     Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
 
-
+Restore Hosts File
+    Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
 
 Check report was a product update
     [Arguments]  ${reportPath}
@@ -488,6 +604,6 @@ Teardown For Test
     Log SystemCtl Update Status
     Run Keyword If Test Failed  Log File  /opt/sophos-spl/tmp/fakesul.log
     Run Keyword If Test Failed  Dump Mcs Router Dir Contents
-    Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
+    Restore Hosts File
     General Test Teardown
 
