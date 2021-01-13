@@ -515,11 +515,6 @@ namespace UpdateSchedulerImpl
             LOGDEBUG("Writing currently installed feature codes json to disk");
             writeInstalledFeaturesJsonFile(m_featuresCurrentlyInstalled);
         }
-//        else
-//        {
-//            LOGDEBUG("Reading previously installed feature codes");
-//            m_featuresCurrentlyInstalled = readInstalledFeaturesJsonFile();
-//        }
 
         std::string statusXML = SerializeUpdateStatus(
             reportAndFiles.reportCollectionResult.SchedulerStatus,
