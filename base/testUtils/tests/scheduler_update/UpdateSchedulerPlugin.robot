@@ -573,9 +573,6 @@ Configure Hosts File
     Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
     Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
 
-Restore Hosts File
-    Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
-
 Check report was a product update
     [Arguments]  ${reportPath}
     ${contents} =    Get File  ${reportPath}
@@ -602,6 +599,6 @@ Teardown For Test
     Log SystemCtl Update Status
     Run Keyword If Test Failed  Log File  /opt/sophos-spl/tmp/fakesul.log
     Run Keyword If Test Failed  Dump Mcs Router Dir Contents
-    Restore Hosts File
+    Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
     General Test Teardown
 
