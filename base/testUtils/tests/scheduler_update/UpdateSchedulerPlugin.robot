@@ -154,10 +154,10 @@ Test Updatescheduler Does Not Add Features That Failed To Install
 
 Test Updatescheduler Features Codes Correct After Success Failure Success Restart
     [Documentation]  Updatescheduler on success adds CORE to the feature codes in ALC status, the next update
-    ... that should install SENSORS fails and does not add SENSORS to the feature code list in ALC status. A third
-    ... update happens that does install SENSORS correctly and then that feature code is added to ALC status.
-    ... On a restart we prove that the feature codes that were saved to disk are being loaded in by forcing a
-    ... status to be generated from what is in updateschedulerprocessor memory.
+    ...  that should install SENSORS fails and does not add SENSORS to the feature code list in ALC status. A third
+    ...  update happens that does install SENSORS correctly and then that feature code is added to ALC status.
+    ...  On a restart we prove that the feature codes that were saved to disk are being loaded in by forcing a
+    ...  status to be generated from what is in updateschedulerprocessor memory.
 
     Setup Base Only Sync And Uptodate
     Simulate Update Now
