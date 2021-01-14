@@ -37,7 +37,7 @@ EDR plugins handles valid value for events max in plugin conf
     ...  1 secs
     ...  EDR Plugin Log Contains  Setting events_max to 4000 as per value in
 
-EDR plugins handles valid value for events max in plugin conf
+EDR plugin sets disable_audit flag in plugin.conf if not already set
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
     ...  15 secs
