@@ -643,7 +643,7 @@ def get_the_loggerconf_file_for(component_name, field, field_value, **kwargs):
 
 def get_logger_conf_path():
     install_dir = get_sophos_install()
-    logger_conf_pattern = os.path.join(install_dir, 'base/etc/logger.conf.')
+    logger_conf_pattern = os.path.join(install_dir, 'base/etc/logger.conf')
     files = glob.glob(logger_conf_pattern + '*')
     if files:
         return files[0]
