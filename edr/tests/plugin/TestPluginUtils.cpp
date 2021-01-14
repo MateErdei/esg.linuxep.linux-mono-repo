@@ -146,3 +146,13 @@ TEST_F(TestPluginUtils, setGivenFlagFromSettingsFileUpdatesFilefromXDRToEDR)
     Plugin::PluginUtils::setGivenFlagFromSettingsFile("running_mode", false);
     ASSERT_EQ("disable_auditd=0\nrunning_mode=1\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
 }
+
+TEST_F(TestPluginUtils, isInteger)
+{
+    ASSERT_EQ(true, Plugin::PluginUtils::isInteger("2"));
+    ASSERT_EQ(true, Plugin::PluginUtils::isInteger("23456323"));
+    ASSERT_EQ(false, Plugin::PluginUtils::isInteger("2 2"));
+    ASSERT_EQ(false, Plugin::PluginUtils::isInteger("2.0"));
+    ASSERT_EQ(true, Plugin::PluginUtils::isInteger("02"));
+    ASSERT_EQ(true, Plugin::PluginUtils::isInteger(""));
+}

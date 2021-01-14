@@ -25,7 +25,12 @@ namespace Plugin
         * @param flag
         */
         static bool retrieveGivenFlagFromSettingsFile(const std::string& flag);
-
+        /**
+        * checks if a string is an integer
+        * @return true if the given field is a number
+        * @param number, string to check
+        */
+        static bool isInteger(const std::string& number);
         /**
         * sets value of a given field in plugin.conf
         * @param flag

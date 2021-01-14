@@ -65,6 +65,14 @@ namespace Plugin
         throw std::runtime_error(flag + " not set in plugin setting file");
     }
 
+    bool PluginUtils::isInteger(const std::string& number)
+    {
+        if (number.find_first_not_of("1234567890") == std::string::npos)
+        {
+            return true;
+        }
+        return false;
+    }
     void PluginUtils::setGivenFlagFromSettingsFile(const std::string& flag, const bool& isXDR)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
