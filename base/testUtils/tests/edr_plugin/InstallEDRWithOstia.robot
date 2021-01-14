@@ -85,6 +85,7 @@ Install EDR and handle Live Query
     Run Shell Process   /opt/sophos-spl/bin/wdctl stop edr     OnError=Failed to stop edr
     Override LogConf File as Global Level  DEBUG
     Run Shell Process   /opt/sophos-spl/bin/wdctl start edr    OnError=Failed to start edr
+
     Send Query From Fake Cloud    Test Query Special   select name from processes   command_id=firstcommand
     Wait Until Keyword Succeeds
     ...  30 secs
