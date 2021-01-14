@@ -60,9 +60,10 @@ namespace
         return false;
     }
 
-    /*
+    /**
      * Persists a list of feature codes to disk in JSON format. Used by Update Scheduler so that it can correctly
      * generate ALC status feature code list on an update failure or when first started.
+     * @param Reference to std::vector<std::string> which holds list of feature codes, e.g. CORE
      */
     void writeInstalledFeaturesJsonFile(std::vector<std::string>& features)
     {
@@ -84,9 +85,10 @@ namespace
         }
     }
 
-    /*
+    /**
      * Returns the list of features that are currently installed, if there is no file or the file cannot be parsed
      * then this returns an empty list.
+     * @return std::vector<std::string> of feature codes, e.g. CORE
      */
     std::vector<std::string> readInstalledFeaturesJsonFile()
     {
