@@ -66,17 +66,25 @@ namespace
                     return;
                 }
 
-                if (m_valueType.second == OsquerySDK::ColumnType::BIGINT_TYPE)
+                try
                 {
-                    jsonArray.push_back(extractNonTextValues<long long>(value));
+                    if (m_valueType.second == OsquerySDK::ColumnType::BIGINT_TYPE)
+                    {
+                        jsonArray.push_back(extractNonTextValues<long long>(value));
+                    }
+                    else if (m_valueType.second == OsquerySDK::ColumnType::INTEGER_TYPE)
+                    {
+                        jsonArray.push_back(extractNonTextValues<long>(value));
+                    }
+                    else if (m_valueType.second == OsquerySDK::ColumnType::DOUBLE_TYPE)
+                    {
+                        jsonArray.push_back(extractNonTextValues<double>(value));
+                    }
                 }
-                else if (m_valueType.second == OsquerySDK::ColumnType::INTEGER_TYPE)
+                catch(std::runtime_error &)
                 {
-                    jsonArray.push_back(extractNonTextValues<long>(value));
-                }
-                else if (m_valueType.second == OsquerySDK::ColumnType::DOUBLE_TYPE)
-                {
-                    jsonArray.push_back(extractNonTextValues<double>(value));
+                    // if any failure to convert from string to integer based type default vaule to zero.
+                    jsonArray.push_back(0);
                 }
             }
         }

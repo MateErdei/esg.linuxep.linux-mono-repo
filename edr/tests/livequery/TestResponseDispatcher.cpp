@@ -230,7 +230,7 @@ TEST_F(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJso
 }
 
 
-TEST_F(TestResponseDispatcher, invalidNumbersWillProduceErrorUnexpectedError)
+TEST_F(TestResponseDispatcher, invalidNumbersWillResultInTheDataConvertedToZeroValue)
 {
     ResponseData::ColumnData columnData;
     ResponseData::RowData  rowData;
@@ -239,7 +239,7 @@ TEST_F(TestResponseDispatcher, invalidNumbersWillProduceErrorUnexpectedError)
     rowData["start_time"] = "50330";
     columnData.push_back(rowData);
 
-    // create a start_time that is not integer
+    // create a start_time that is not integer.
     rowData["start_time"] = "thisIsNotInteger";
     columnData.push_back(rowData);
     // third row
@@ -251,15 +251,16 @@ TEST_F(TestResponseDispatcher, invalidNumbersWillProduceErrorUnexpectedError)
                            ResponseMetaData()};
 
     std::string expected = R"({
-    "type": "sophos.mgt.response.RunLiveQuery",
-    "queryMetaData": {
-        "errorCode": 102,
-        "errorMessage": "Unexpected error running query"
-    }
+"type": "sophos.mgt.response.RunLiveQuery",
+"queryMetaData": {"errorCode":0,"errorMessage":"OK","rows":3,"sizeBytes":132},
+"columnMetaData": [{"name":"pathname","type":"TEXT"},{"name":"sophosPID","type":"TEXT"},{"name":"start_time","type":"BIGINT"}],
+"columnData": [["anyfile","17984:132164677472649892",50330],["anyfile","17984:132164677472649892",0],["anyfile","17984:132164677472649892",35980]]
 }
 )";
+
     ResponseDispatcher dispatcher;
-    EXPECT_THROW(dispatcher.serializeToJson(response), std::exception); // NOLINT
+    std::string calculated = dispatcher.serializeToJson(response);
+    EXPECT_TRUE(serializedJsonContentAreEquivalent(expected, calculated))<< "\nCalculated: "<< calculated;
 }
 
 TEST_F(TestResponseDispatcher, emptyNumberShouldBeSentAsNull)
@@ -468,35 +469,4 @@ TEST_F(ResposeDispatcherWithMockFileSystem, sendResponseShouldCreateFileAsExpect
     EXPECT_CALL(*mockFileSystem, moveFile(_,"/opt/sophos-spl/base/mcs/response/LiveQuery_correlation_response.json"));
     EXPECT_CALL(*mockFilePermissions, chown(_,"sophos-spl-user","sophos-spl-group"));
     dispatcher.sendResponse("correlation", response);
-}
-
-TEST_F(ResposeDispatcherWithMockFileSystem, invalidNumbersWillGetErrorResponseCode102WrittenToResponseFile)
-{
-    ResponseData::ColumnData columnData;
-    ResponseData::RowData  rowData;
-    rowData["pathname"] = "anyfile";
-    rowData["sophosPID"] = "17984:132164677472649892";
-    rowData["start_time"] = "50330";
-    columnData.push_back(rowData);
-
-    // create a start_time that is not integer
-    rowData["start_time"] = "thisIsNotInteger";
-    columnData.push_back(rowData);
-
-    QueryResponse response{ResponseStatus{ErrorCode::SUCCESS},
-                           ResponseData{headerExample(), columnData},
-                           ResponseMetaData()};
-
-    //this string can't have arbitrary spaces and new lines otherwise it will not match
-    std::string expected = R"({
-"type": "sophos.mgt.response.RunLiveQuery",
-"queryMetaData": {"errorCode":102,"errorMessage":"Unexpected error running query","sizeBytes":0}
-})";
-    ResponseDispatcher dispatcher;
-
-    EXPECT_CALL(*mockFileSystem, moveFile(_,"/opt/sophos-spl/base/mcs/response/LiveQuery_correlation_response.json"));
-    EXPECT_CALL(*mockFilePermissions, chown(_,"sophos-spl-user","sophos-spl-group"));
-    EXPECT_CALL(*mockFileSystem, writeFile(_, expected));
-    dispatcher.sendResponse("correlation", response);
-
 }
