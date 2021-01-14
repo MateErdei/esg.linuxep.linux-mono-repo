@@ -270,7 +270,7 @@ UpdateScheduler Start and Restart
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created
     Check Event Report Install Failed   ${eventPath}
-
+    log file  ${statusPath}
     Remove File  ${eventPath}
     Remove File  ${statusPath}
 
@@ -280,8 +280,10 @@ UpdateScheduler Start and Restart
     Simulate Update Now
     ${eventPath} =  Check Event File Generated  10
     Check Event Report Success  ${eventPath}
-    #All product information is the same so no new status generated
-    File Should Not Exist  ${statusPath}
+
+    # After first succesful update feature codes are added to the ALC status
+    File Should Exist  ${statusPath}
+    log file  ${statusPath}
 
 
 UpdateScheduler SulDownloader Report Sync With Warehouse Success Via Update Cache
