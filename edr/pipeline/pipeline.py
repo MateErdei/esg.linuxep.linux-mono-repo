@@ -155,6 +155,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
     release_mode = 'release'
     analysis_mode = 'analysis'
     coverage_mode = 'coverage'
+    nine_nine_nine_mode = '999'
     mode = parameters.mode or release_mode
     component = tap.Component(name='edr', base_version='1.1.0')
 
@@ -164,6 +165,8 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
         if mode == release_mode or mode == analysis_mode:
             edr_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate5',
                                             mode=release_mode, release_package='./build-files/release-package.xml')
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate5',
+                                                       mode=nine_nine_nine_mode, release_package='./build-files/release-package.xml')
             edr_analysis_build = stage.artisan_build(name=analysis_mode, component=component, image='JenkinsLinuxTemplate5',
                                                      mode=analysis_mode, release_package='./build-files/release-package.xml')
         elif mode == coverage_mode:
