@@ -16,6 +16,7 @@ class MockQueryContext : public virtual QueryContextInterface
 {
 public:
     MOCK_METHOD1(Matches, bool(TableRow&));
+    MOCK_METHOD2(Matches, bool(const std::string&,const std::string&));
     MOCK_METHOD1(IsColumnUsed, bool(const std::string&));
     MOCK_METHOD1(IsConstraintUsed, bool(const std::string&));
     MOCK_METHOD1(CountConstraints, size_t(const std::string&));
