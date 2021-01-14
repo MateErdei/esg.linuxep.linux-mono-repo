@@ -86,16 +86,18 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
         COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
 )
-
-execute_process(
-        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
-        OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process(
-        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} CIJenkinsfile
-        OUTPUT_VARIABLE PRODUCT_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
+if (DEFINED ENV{NINE_NINE_NINE_FULL_VERSION})
+    set(PRODUCT_VERSION "$ENV{NINE_NINE_NINE_FULL_VERSION}")
+else()
+    execute_process(
+            COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
+            OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(
+            COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} CIJenkinsfile
+            OUTPUT_VARIABLE PRODUCT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
 
 execute_process(
         COMMAND date +%Y-%m-%d

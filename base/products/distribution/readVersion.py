@@ -96,6 +96,10 @@ def readVersion(BASE=None):
     temp = os.environ.get("PRODUCT_VERSION", None)
     if temp is not None:
         return temp
+    temp = os.environ.get("NINE_NINE_NINE_FULL_VERSION",  None)
+    print(f"NINE_NINE_NINE_FULL_VERSION={temp}")
+    if temp is not None:
+        return temp
 
     if BASE is None:
         BASE = os.environ.get("BASE", None)

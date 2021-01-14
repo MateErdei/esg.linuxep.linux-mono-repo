@@ -155,6 +155,7 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     RELEASE_MODE = 'release'
     ANALYSIS_MODE = 'analysis'
     COVERAGE_MODE = 'coverage'
+    NINE_NINE_NINE_MODE = '999'
     # export TAP_PARAMETER_MODE=release|analysis
     mode = parameters.mode or RELEASE_MODE
     base_build = None
@@ -166,8 +167,10 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                                  mode=ANALYSIS_MODE, release_package='./build/release-package.xml')
                 base_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
                                                  mode=RELEASE_MODE, release_package='./build/release-package.xml')
+                nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                                           mode=NINE_NINE_NINE_MODE, release_package='./build/release-package.xml')
             elif mode == COVERAGE_MODE:
-                base_build = stage.artisan_build(name=COVERAGE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                coverage = stage.artisan_build(name=COVERAGE_MODE, component=component, image='JenkinsLinuxTemplate5',
                                              mode=COVERAGE_MODE, release_package='./build/release-package.xml')
                 release_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
                                                     mode=RELEASE_MODE, release_package='./build/release-package.xml')
