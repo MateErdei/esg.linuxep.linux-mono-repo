@@ -323,8 +323,9 @@ UpdateScheduler Periodically Run SulDownloader
 
     ${eventPath} =  Check Event File Generated   1800
     Check Event Report Success  ${eventPath}
-    #Products not changing so no new status generated
-    File Should Not Exist  ${statusPath}
+
+    # After first succesful update feature codes are added to the ALC status
+    File Should Exist  ${statusPath}
 
 UpdateScheduler Sends A Default Status If Its Status Is Requested Before An Update Completes
     ${ErrorMessage} =  Set Variable  Failed to get plugin status for: updatescheduler, with errorStatus not set yet.
