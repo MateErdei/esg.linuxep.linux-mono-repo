@@ -297,8 +297,9 @@ class FuzzerSupport( object):
 
     def ensure_alf_fuzzer_targets_built(self):
         error_message = "Failed to build AFLFuzzer Targets."
-        if self._check_is_alf_fuzz_target_present():
-            return
+        #TODO put this back removed this to make it easier to debug
+        # if self._check_is_alf_fuzz_target_present():
+        #     return
         fuzzer_path = os.path.join(self._everest_path, "tests/FuzzTests")
 
         logger.info("Running buildFuzzTests.sh from {}".format(fuzzer_path))
