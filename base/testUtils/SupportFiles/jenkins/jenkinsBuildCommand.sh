@@ -72,7 +72,7 @@ if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]
 then
     sudo cp $WORKSPACE/testUtils/SupportFiles/jenkins/auditdConfig.txt /etc/audit/auditd.conf || fail "ERROR: failed to copy auditdConfig from $WORKSPACE/SupportFiles to /etc/audit/auditd.conf"
 fi
-
+bash ${JENKINS_DIR}/install_dependencies.sh
 export TEST_UTILS=$WORKSPACE/testUtils
 [[ -n $NO_GATHER ]] || source $WORKSPACE/testUtils/SupportFiles/jenkins/gatherTestInputs.sh                || fail "Error: failed to gather test inputs"
 source $WORKSPACE/testUtils/SupportFiles/jenkins/exportInputLocations.sh            || fail "Error: failed to export expected input locations"
@@ -105,7 +105,7 @@ elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   export BULLSEYE_UPLOAD=1
 fi
 
-bash ${JENKINS_DIR}/install_dependencies.sh
+
 
 ROBOT_BASE_COMMAND="sudo -E python3 -m robot -x robot.xml --loglevel TRACE "
 RERUNFAILED=${RERUNFAILED:-false}
