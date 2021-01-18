@@ -289,7 +289,7 @@ class FuzzerSupport( object):
             logger.debug(output2)
         except subprocess.CalledProcessError as ex:
             logger.error("Failed to build target")
-            logger.warning(ex.output)
+            logger.warning(str(ex))
 
             raise AssertionError("Failed to setup for build")
 
