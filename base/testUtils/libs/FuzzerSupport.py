@@ -260,6 +260,12 @@ class FuzzerSupport( object):
                  "suldownloaderconfigtests",
                  "suldownloaderreporttests"]
         expected_fuzzer_path = os.path.join(self._everest_path, FuzzRelativePath)
+        output = subprocess.check_output(["ls -al", self._everest_path ],
+                                         cwd=self._everest_path)
+        logger.debug(output)
+        output = subprocess.check_output(["ls -al", os.path.join(self._everest_path, "cmake-afl-fuzz") ],
+                                         cwd=self._everest_path)
+        logger.debug(output)
         if not os.path.isdir(expected_fuzzer_path):
             logger.info("alc path does not exist: {}".format(expected_fuzzer_path))
             return False
