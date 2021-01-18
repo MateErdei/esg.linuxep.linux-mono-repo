@@ -278,14 +278,8 @@ class FuzzerSupport( object):
         logger.info("Setting up build")
 
         try:
-            my_env = os.environ.copy()
-            my_env["PATH"] = "/tmp/venv-for-ci/bin:" + my_env["PATH"]
-            my_env["VIRTUAL_ENV"] = "/tmp/venv-for-ci"
-            output = subprocess.check_output([sys.executable,
-                                              "-m",
-                                              "build_scripts.artisan_fetch",
-                                              "build/release-package.xml"],
-                                             cwd=self._everest_path, env=my_env)
+            output = subprocess.check_output(["testUtils/SupportFiles/jenkins/gatherBuildInputs.sh"],
+                                             cwd=self._everest_path)
             logger.debug(output)
 
             output2 = subprocess.check_output(["./build.sh", "--no-build"], cwd=self._everest_path)
