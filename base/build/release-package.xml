@@ -110,7 +110,7 @@
 
         <command mode="999">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --999 </args>
+            <args>./build.sh --clean --999 --no-unittest</args>
             <workingdir>.</workingdir>
         </command>
 
@@ -155,14 +155,6 @@
 
         <!-- 999 -->
         <release-asset artifact-path="sspl-base-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
-        <build-asset artifact-path="sspl-base-999/openssl" source-dir="redist/openssl" mode="999"/>
-        <build-asset artifact-path="sspl-base-999/pluginapi" source-dir="output" mode="999">
-            <include glob="pluginapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-999/system_test" source-dir="output" mode="999">
-            <include glob="SystemProductTestOutput.tar.gz"/>
-            <include glob="symbols"/>
-        </build-asset>
 
         <!-- Legacy -->
         <workingdir>.</workingdir>

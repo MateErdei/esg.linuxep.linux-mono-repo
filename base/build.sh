@@ -74,7 +74,6 @@ do
             export ENABLE_STRIP=0
             ;;
         --999)
-            echo building in 999 mode
             export NINE_NINE_NINE_FULL_VERSION=99.9.9.999
             ;;
         --release|--no-debug)
