@@ -2,6 +2,8 @@
 Documentation    Prove end-to-end management from Central
 
 Library         ../Libs/CloudClient/CloudClient.py
+Library         ../Libs/AVScanner.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         DateTime
 Library         OperatingSystem
@@ -9,16 +11,31 @@ Library         String
 
 Resource        ../shared/AVResources.robot
 
-Suite Setup     No Operation
-Suite Teardown  Global Teardown Tasks
+Suite Setup     DevCentral Suite Setup
+Suite Teardown  DevCentral Suite Teardown
 
 Test Setup      DevCentral Test Setup
 Test Teardown   DevCentral Test TearDown
 
+*** Variables ***
+
+${MCSROUTER_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
+
 *** Keywords ***
 
+DevCentral Suite Setup
+    alter etc hosts  /etc/hosts  127.0.0.1 dci.sophosupd.com dci.sophosupd.net
+
+DevCentral Suite Teardown
+    restore etc hosts
+
 DevCentral Test Setup
-    No Operation
+    register on fail  Dump Log   ${SCANNOW_LOG_PATH}
+    register on fail  Dump Log   ${THREAT_DETECTOR_LOG_PATH}
+    register on fail  Dump Log   ${AV_LOG_PATH}
+    register on fail  Dump Log   ${MCSROUTER_LOG_PATH}
+    register on fail  Dump Log   ${MANAGEMENT_AGENT_LOG_PATH}
+    register on fail  Dump Log   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 DevCentral Test TearDown
     Run Teardown Functions
@@ -69,6 +86,12 @@ Wait For Scan Now to complete
 Wait For Central Scheduled Scan to complete
     Wait Until AV Plugin Log Contains  Completed scan Sophos Cloud Scheduled Scan
 
+mcsrouter Log Contains
+    [Arguments]  ${input}
+    File Log Contains  ${MCSROUTER_LOG_PATH}   ${input}
+
+Wait for mcsrouter to be running
+    Wait Until File Log Contains  mcsrouter Log Contains    mcsrouter.computer <> Adding SAV adapter    timeout=15
 
 *** Test Cases ***
 
@@ -95,6 +118,7 @@ Scan now from Central and Verify Scan Completed and Eicar Detected
     Wait Until AV Plugin Log Contains  Starting scanScheduler
     Wait for computer to appear in Central
     Assign AntiVirus Product to Endpoint in Central
+    Wait for mcsrouter to be running
     Configure Exclude everything else in Central  /tmp_test/testeicar/
     Register Cleanup  Remove Directory  /tmp_test/testeicar   recursive=True
     Create Eicar  /tmp_test/testeicar/eicar.com
