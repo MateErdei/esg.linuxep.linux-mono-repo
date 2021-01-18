@@ -64,19 +64,24 @@ class CloudClient(object):
     def __install_certificate_for_region(self, SOPHOS_INSTALL):
         resources = PathManager.get_resources_path()
         certs_dir = os.path.join(resources, "certs")
-        cert = None
+        certs = []
         if self.__m_region == DEV:
-            cert = os.path.join(certs_dir, "hmr-dev-sha1.pem")
+            certs.append(os.path.join(certs_dir, "hmr-dev-sha1.pem"))
+            certs.append(os.path.join(certs_dir, "hmr-dev-sha256.pem"))
         elif self.__m_region == QA:
-            cert = os.path.join(certs_dir, "hmr-qa-sha1.pem")
+            certs.append(os.path.join(certs_dir, "hmr-qa-sha1.pem"))
+            certs.append(os.path.join(certs_dir, "hmr-qa-sha256.pem"))
         else:
             logger.debug("No override certificate required/available")
 
-        if cert is not None:
+        if len(certs) > 0:
             OVERRIDE_FLAG_FILE = os.path.join(SOPHOS_INSTALL, "base/mcs/certs/ca_env_override_flag")
             open(OVERRIDE_FLAG_FILE, "w").close()
             dest = os.path.join(SOPHOS_INSTALL, "test-mcs-ca.pem")
-            shutil.copy(cert, dest)
+            with open(dest, "wb") as out:
+                for cert in certs:
+                    with open(cert, "rb") as readin:
+                        out.write(readin.read())
             os.environ['MCS_CA'] = dest
 
     def register_in_central(self, token=None, url=None):
