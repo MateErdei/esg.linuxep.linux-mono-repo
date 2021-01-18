@@ -764,9 +764,10 @@ class CidServerThread(threading.Thread):
     def stop(self):
         self.__m_stop = True
         self.__m_stopEvent.set()
-        if self.m_httpd is not None:
-            self.m_httpd.server_close()
-            self.m_httpd.socket.close()
+        httpd = self.m_httpd
+        if httpd is not None:
+            httpd.server_close()
+            httpd.socket.close()
 
 
 def main(argv):
