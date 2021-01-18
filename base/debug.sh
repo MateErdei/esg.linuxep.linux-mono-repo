@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 ls -al
-ls -al cmake-alc-fuzz
+ls -al cmake-afl-fuzz
 find . -name parsealcpolicytests
