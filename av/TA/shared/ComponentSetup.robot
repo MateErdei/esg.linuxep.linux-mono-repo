@@ -1,6 +1,7 @@
 *** Settings ***
 Library         Process
 Library         OperatingSystem
+Library         String
 Library         ../Libs/BaseUtils.py
 
 Resource    GlobalSetup.robot
