@@ -24,7 +24,7 @@ ${MCSROUTER_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 *** Keywords ***
 
 DevCentral Suite Setup
-    alter etc hosts  /etc/hosts  127.0.0.1 dci.sophosupd.com dci.sophosupd.net
+    alter etc hosts  /etc/hosts  127.0.0.1 dci.sophosupd.com dci.sophosupd.net dlclssplavuc1
 
 DevCentral Suite Teardown
     restore etc hosts
