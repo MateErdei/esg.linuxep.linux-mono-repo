@@ -13,10 +13,6 @@ Suite Teardown  AVSophosThreatDetector Suite TearDown
 Test Setup      AVSophosThreatDetector Test Setup
 Test Teardown   AVSophosThreatDetector Test TearDown
 
-*** Variables ***
-${CLI_SCANNER_PATH}         ${COMPONENT_ROOT_PATH}/bin/avscanner
-${CHROOT_LOGGING_SYMLINK}   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
-
 *** Test Cases ***
 Test Global Rep works in chroot
     run on failure  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
@@ -34,6 +30,7 @@ Sophos Threat Detector Has No Unnecessary Capabilities
 
 Threat detector does not recreate logging symlink if present
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
+    Should Exist   ${CHROOT_LOGGING_SYMLINK}/sophos_threat_detector.log
     Restart sophos_threat_detector
     Threat Detector Does Not Log Contain   LogSetup <> Create symlink for logs at
     Threat Detector Does Not Log Contain   LogSetup <> Failed to create symlink for logs at
@@ -50,6 +47,11 @@ Threat detector recreates logging symlink if missing
     Threat Detector Log Contains   LogSetup <> Create symlink for logs at
     Threat Detector Does Not Log Contain   LogSetup <> Failed to create symlink for logs at
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
+    Should Exist   ${CHROOT_LOGGING_SYMLINK}/sophos_threat_detector.log
+
+    Should not exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
+    Create file   ${CHROOT_LOGGING_SYMLINK}/testfile
+    Should exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
 
 Threat detector aborts if logging symlink cannot be created
     register cleanup   Install With Base SDDS

@@ -31,6 +31,9 @@ AV plugin Can Start sophos_threat_detector
 
     Check Threat Detector Copied Files To Chroot
 
+    Should Exist   ${CHROOT_LOGGING_SYMLINK}
+    Should Exist   ${CHROOT_LOGGING_SYMLINK}/sophos_threat_detector.log
+
 AV plugin runs scan now
     Check AV Plugin Installed With Base
     Configure and check scan now

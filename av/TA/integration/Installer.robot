@@ -222,6 +222,20 @@ Check permissions after upgrade
 
     Remove Files   @{files}
 
+Check no dangling symlinks
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     find ${COMPONENT_ROOT_PATH} -xtype l
+    Should Be Equal As Integers  ${rc}  ${0}
+    Log    ${output}
+    ${count} =   Get Line Count   ${output}
+    Should Be Equal As Integers  ${count}  ${0}
+
+Check logging symlink
+    Remove File   ${AV_PLUGIN_PATH}/chroot/log/testfile
+    Should not exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
+    Create file   ${CHROOT_LOGGING_SYMLINK}/testfile
+    Should exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE2_NAME}        pemid.ide

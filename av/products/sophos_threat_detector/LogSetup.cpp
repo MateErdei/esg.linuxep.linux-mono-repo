@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <log4cplus/logger.h>
 
+#include <iterator>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -35,13 +36,13 @@ LogSetup::LogSetup()
     // PLUGIN_INSTALL="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
     // CHROOT="${PLUGIN_INSTALL}/chroot"
     // CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL}"
-    // ln -snf "/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector"
+    // BACKLINK="$(echo "${PLUGIN_INSTALL%/}" | sed -e "s:[^/]*:..:g;s:^/::")"
+    // ln -snf "${BACKLINK}/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector"
 
     auto pluginInstall = sophosInstall + "/plugins/av";
     auto chroot = pluginInstall + "/chroot";
     auto chrootLinkDir = chroot + pluginInstall;
     auto linkLocation = chrootLinkDir + "/log/sophos_threat_detector";
-    const auto* linkDestination = "/log";
 
     // check if link is present
     bool linkAlreadyPresent = false;
@@ -55,7 +56,12 @@ LogSetup::LogSetup()
     else
     {
         // Create the symlink
-        ret = ::symlink(linkDestination, linkLocation.c_str());
+        size_t depth = std::count(pluginInstall.begin(), pluginInstall.end(), '/');
+        std::ostringstream os;
+        std::fill_n(std::ostream_iterator<std::string>(os), depth, "../");
+        os << "../log";
+        auto linkDestination = os.str();
+        ret = ::symlink(linkDestination.c_str(), linkLocation.c_str());
         if (ret != 0)
         {
             linkCreatedErrno = errno;
