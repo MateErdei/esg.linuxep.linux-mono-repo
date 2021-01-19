@@ -101,7 +101,7 @@ Setup Component For Testing
     Create Directory  ${COMPONENT_ROOT_PATH}/log
     Run Process   ln  -s  /  ${COMPONENT_ROOT_PATH}/chroot${COMPONENT_ROOT_PATH}/chroot
     Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/chroot/log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
-    ${RELATIVE_PATH} =   Replace String Using Regexp   ${COMPONENT_ROOT_PATH}/log   [^/]*   ..
+    ${RELATIVE_PATH} =   Replace String Using Regexp   ${COMPONENT_ROOT_PATH}/log   [^/]+   ..
     ${RELATIVE_PATH} =   Strip String   ${RELATIVE_PATH}   characters=/
     Run Process   ln  -snf  ${RELATIVE_PATH}/log  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
