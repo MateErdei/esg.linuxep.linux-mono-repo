@@ -316,7 +316,7 @@ class WarehouseUtils(object):
 
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     ROBOT_LISTENER_API_VERSION = 2
-    os.environ['VUT_PREV']= "QA582009:CCAklvo6TSA8zCRGdrIJ1pWubr1KdJsenq3qQK8rq18PjDydX17+ipG223gs3gqQTcU=:c5e21a0be1895cec83f8b68388fde457"
+    os.environ['VUT_PREV']= "QA863651:CCCaMjop208GVlEz3NBd1ZXwNkVcCntfzhJjBA3o6bHbGaQ86wZKD0pIVi4EyNyktfo=:bc49bde616b100e8228d7f5045baa5de"
 
     template_configuration_values = {
         "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", PROD_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
