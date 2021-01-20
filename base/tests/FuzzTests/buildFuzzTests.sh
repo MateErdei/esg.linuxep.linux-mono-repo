@@ -8,8 +8,8 @@ FAILURE_BUILD_AFL=17
 FAILURE_BUILD_FUZZ=18
 FAILURE_BAD_ARGUMENT=53
 
-source /etc/profile
-#set -ex
+
+set -ex
 #set -o pipefail
 
 STARTINGDIR=$(pwd)
@@ -46,7 +46,7 @@ AFL_PATH="${SSPL_TOOLS_DIR}/${AFL_BASE_NAME}"
 
 # decompress the latest afl source to sspl-tools directory
 if [[ ! -d ${AFL_PATH} ]]; then
-    tar xzvf "${PATH_TO_AFL_LATEST_TAR_GZ}" -C "${SSPL_TOOLS_DIR}"
+    tar xzf "${PATH_TO_AFL_LATEST_TAR_GZ}" -C "${SSPL_TOOLS_DIR}"
 fi
 
 if [[ ! -f ${AFL_PATH}/afl-gcc.c ]]; then

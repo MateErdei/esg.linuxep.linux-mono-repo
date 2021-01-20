@@ -23,8 +23,6 @@ add_executable(parsealcpolicytests
         parsealcpolicytests.cpp
         ${ALCParseDir}/UpdatePolicyTranslator.cpp
         ${ALCParseDir}/UpdatePolicyTranslator.h
-        ${ALCParseDir}/../../UpdateScheduler/ScheduledUpdate.cpp
-        ${ALCParseDir}/../../UpdateScheduler/ScheduledUpdate.h
         ${ALCParseDir}/../Logger.cpp
         ${ALCParseDir}/../Logger.h
         $<TARGET_OBJECTS:utilityimplobject>
