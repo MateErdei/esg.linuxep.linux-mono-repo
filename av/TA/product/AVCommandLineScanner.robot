@@ -175,6 +175,17 @@ CLS Summary is Correct
     Should Contain   ${output}  3 EICAR-AV-Test infections discovered.
 
 
+CLS Summary is Printed When Avscanner Is Terminated Prematurely
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout
+    sleep  1s
+    Send Signal To Process  2
+    ${result} =  Wait For Process  timeout=10s
+    Process Should Be Stopped
+    Should Contain   ${result.stdout}  Received SIGINT
+    Should Contain   ${result.stdout}  0 files out of
+
+
 CLS Does not request TFTClassification from SUSI
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -19,6 +19,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <common/StringUtils.h>
 
+#include <csignal>
 #include <exception>
 #include <memory>
 #include <utility>
@@ -59,7 +60,18 @@ namespace avscanner::avscannerimpl
                     }
                 }
             }
+
+            static void abortScan()
+            {
+                m_abort_scan = true;
+            }
         };
+    }
+
+    void handle_sigInt(int)
+    {
+        LOGDEBUG("Received SIGINT");
+        CommandLineWalkerCallbackImpl::abortScan();
     }
 
     CommandLineScanRunner::CommandLineScanRunner(const Options& options) :
@@ -69,6 +81,13 @@ namespace avscanner::avscannerimpl
         m_archiveScanning(options.archiveScanning()),
         m_followSymlinks(options.followSymlinks())
     {
+        struct sigaction sigTermHandler{};
+
+        sigTermHandler.sa_handler = handle_sigInt;
+        sigemptyset(&sigTermHandler.sa_mask);
+        sigTermHandler.sa_flags = 0;
+
+        sigaction(SIGINT, &sigTermHandler, nullptr);
     }
 
     int CommandLineScanRunner::run()
@@ -137,14 +156,14 @@ namespace avscanner::avscannerimpl
             LOGINFO("Exclusions: " << oss.str());
         }
 
-        auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
+        m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
         auto scanner =
-            std::make_shared<ScanClient>(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
-        CommandLineWalkerCallbackImpl callbacks(scanner, excludedMountPoints, cmdExclusions);
-        filewalker::FileWalker fw(callbacks);
+            std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
+        CommandLineWalkerCallbackImpl commandLineWalkerCallbacks(scanner, excludedMountPoints, cmdExclusions);
+        filewalker::FileWalker fw(commandLineWalkerCallbacks);
         fw.followSymlinks(m_followSymlinks);
 
-        scanCallbacks->scanStarted();
+        m_scanCallbacks->scanStarted();
 
         // for each select included mount point call filewalker for that mount point
         for (auto& path : m_paths)
@@ -160,7 +179,7 @@ namespace avscanner::avscannerimpl
             }
 
             auto p = fs::absolute(path);
-            callbacks.setCurrentInclude(p);
+            commandLineWalkerCallbacks.setCurrentInclude(p);
 
             if (!walk(fw, p, path))
             {
@@ -170,13 +189,13 @@ namespace avscanner::avscannerimpl
         }
 
         // we want virus found to override any other return code
-        if (scanCallbacks->returnCode() != E_CLEAN)
+        if (m_scanCallbacks->returnCode() != E_CLEAN)
         {
-            m_returnCode = scanCallbacks->returnCode();
+            m_returnCode = m_scanCallbacks->returnCode();
         }
-        else if (callbacks.returnCode() != E_CLEAN)
+        else if (commandLineWalkerCallbacks.returnCode() != E_CLEAN)
         {
-            m_returnCode = callbacks.returnCode();
+            m_returnCode = commandLineWalkerCallbacks.returnCode();
         }
 
         if (m_returnCode != E_CLEAN && m_returnCode != E_VIRUS_FOUND)
@@ -184,7 +203,7 @@ namespace avscanner::avscannerimpl
             LOGERROR("Failed to scan one or more files due to an error");
         }
 
-        scanCallbacks->logSummary();
+        m_scanCallbacks->logSummary();
 
         return m_returnCode;
     }

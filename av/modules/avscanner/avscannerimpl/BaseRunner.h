@@ -1,12 +1,13 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #pragma once
 
 #include "IRunner.h"
+#include "ScanCallbackImpl.h"
 
 #include <filewalker/FileWalker.h>
 #include <unixsocket/threatDetectorSocket/IScanningClientSocket.h>
@@ -27,6 +28,7 @@ namespace avscanner::avscannerimpl
         int m_returnCode = 0;
         std::shared_ptr<unixsocket::IScanningClientSocket> m_socket;
         mountinfo::IMountInfoSharedPtr m_mountInfo;
+        std::shared_ptr<ScanCallbackImpl> m_scanCallbacks;
 
         /**
          * Get or create mount info.

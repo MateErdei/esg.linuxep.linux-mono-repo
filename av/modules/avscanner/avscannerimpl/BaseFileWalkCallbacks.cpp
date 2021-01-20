@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -13,10 +13,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 
-BaseFileWalkCallbacks::BaseFileWalkCallbacks(std::shared_ptr<IScanClient> scanner) : m_scanner(std::move(scanner)) {}
+bool BaseFileWalkCallbacks::m_abort_scan = false;
+
+BaseFileWalkCallbacks::BaseFileWalkCallbacks(std::shared_ptr<IScanClient> scanner) : m_scanner(std::move(scanner))
+{
+}
 
 bool BaseFileWalkCallbacks::excludeSymlink(const fs::path& path)
 {
+    checkIfScanAborted();
+
     fs::path targetPath = fs::canonical(path);
     const std::string targetPathWithSlash = common::PathUtils::appendForwardSlashToPath(targetPath);
     std::string escapedTarget = common::escapePathForLogging(targetPath);
@@ -55,6 +61,8 @@ bool BaseFileWalkCallbacks::excludeSymlink(const fs::path& path)
 
 void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget)
 {
+    checkIfScanAborted();
+
     std::string escapedPath(common::escapePathForLogging(path));
     if (symlinkTarget)
     {
@@ -89,6 +97,8 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
 
 bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path)
 {
+    checkIfScanAborted();
+
     const std::string pathWithSlash = common::PathUtils::appendForwardSlashToPath(path);
 
     for (const auto& exclusion : m_currentExclusions)
@@ -131,6 +141,8 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path
 
 bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::path& path, bool isSymlink)
 {
+    checkIfScanAborted();
+
     // N.B. doesn't check targetPath too, need to call this twice for symlinks (with and without isSymlink set)
     const std::string pathWithSlash = common::PathUtils::appendForwardSlashToPath(path);
 
@@ -163,4 +175,12 @@ void BaseFileWalkCallbacks::genericFailure(const std::exception& e, const std::s
     m_scanner->scanError(errorString);
     m_returnCode = E_GENERIC_FAILURE;
     throw AbortScanException(e.what());
+}
+
+void BaseFileWalkCallbacks::checkIfScanAborted()
+{
+    if (m_abort_scan)
+    {
+        throw AbortScanException("Scan manually aborted");
+    }
 }

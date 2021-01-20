@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "BaseRunner.h"
 #include "Logger.h"
 #include "Options.h"
+#include "ScanCallbackImpl.h"
 
 #include <string>
 #include <vector>

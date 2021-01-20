@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -10,10 +10,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "avscanner/mountinfoimpl/Mounts.h"
 #include "avscanner/mountinfoimpl/SystemPathsFactory.h"
+#include "common/AbortScanException.h"
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
-
-#include "common/AbortScanException.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
@@ -67,8 +66,7 @@ avscanner::mountinfo::IMountInfoSharedPtr BaseRunner::getMountInfo()
 
 bool BaseRunner::walk(filewalker::FileWalker& filewalker,
                       const sophos_filesystem::path& abspath,
-                      const std::string& reportpath,
-                      const std::shared_ptr<ScanCallbackImpl>& scanCallbacks)
+                      const std::string& reportpath)
 {
     try
     {
@@ -76,8 +74,8 @@ bool BaseRunner::walk(filewalker::FileWalker& filewalker,
     }
     catch (fs::filesystem_error& e)
     {
-        auto errorString = "Failed to completely scan " + reportpath + " due to an error: " + e.what();
-        scanCallbacks->scanError(errorString);
+        LOGERROR("Failed to completely scan " << reportpath << " due to an error: " << e.what());
+        m_scanCallbacks->logSummary();
         m_returnCode = e.code().value();
     }
     catch (const AbortScanException& e)

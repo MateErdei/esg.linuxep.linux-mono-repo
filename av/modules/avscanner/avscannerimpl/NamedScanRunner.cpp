@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -104,10 +104,10 @@ namespace avscanner::avscannerimpl
             }
         }
 
-        auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
+        auto m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
         auto scanner =
-            std::make_shared<ScanClient>(*getSocket(), scanCallbacks, m_config.m_scanArchives, E_SCAN_TYPE_SCHEDULED);
+            std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_config.m_scanArchives, E_SCAN_TYPE_SCHEDULED);
         NamedScanWalkerCallbackImpl callbacks(scanner, excludedMountPoints, m_config);
 
         filewalker::FileWalker walker(callbacks);
@@ -115,7 +115,7 @@ namespace avscanner::avscannerimpl
 
         std::set<std::string> mountsScanned;
 
-        scanCallbacks->scanStarted();
+        m_scanCallbacks->scanStarted();
 
         // for each select included mount point call filewalker for that mount point
         for (auto& mp : includedMountpoints)
@@ -138,7 +138,7 @@ namespace avscanner::avscannerimpl
             }
 
             // we want virus found to override any other return code
-            if (scanCallbacks->returnCode() == E_VIRUS_FOUND)
+            if (m_scanCallbacks->returnCode() == E_VIRUS_FOUND)
             {
                 m_returnCode = E_VIRUS_FOUND;
             }
@@ -149,7 +149,7 @@ namespace avscanner::avscannerimpl
             LOGERROR("Failed to scan one or more files due to an error");
         }
 
-        scanCallbacks->logSummary();
+        m_scanCallbacks->logSummary();
 
         return m_returnCode;
     }
