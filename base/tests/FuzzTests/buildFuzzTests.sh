@@ -9,7 +9,7 @@ FAILURE_BUILD_FUZZ=18
 FAILURE_BAD_ARGUMENT=53
 
 
-set -ex
+set -x
 #set -o pipefail
 
 STARTINGDIR=$(pwd)
