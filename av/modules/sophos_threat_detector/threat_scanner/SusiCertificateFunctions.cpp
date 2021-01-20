@@ -18,7 +18,7 @@ SusiCertTrustType threat_scanner::isTrustedCert(void *token, SusiHashAlg algorit
 
     LOGWARN("Calling isTrustedCert with size=" << size);
 
-    return SUSI_TRUSTED;
+    return SUSI_UNKNOWN;
 }
 
 bool threat_scanner::isAllowlistedCert(void *token, const char *fileTopLevelCert, size_t size)
