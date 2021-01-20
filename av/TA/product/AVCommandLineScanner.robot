@@ -201,6 +201,29 @@ CLS Summary in Less Than a Second
     Should Contain   ${output}  1 file out of 1 was infected.
     Should Contain   ${output}  1 EICAR-AV-Test infection discovered.
 
+#still needs work. Blocked by LINUXDAR-2634
+#run for a set amount of time, use ml python function to check the minimum is passed
+#check string formatting of duration only
+CLS Duration Summary is Displayed Correctly
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp_test/three_hundred_eicars/
+    ${result} =  Process Should Be Running   ${cls_handle}
+
+    #issue with this sleep
+    Sleep  65s
+
+    #Wait For Process  ${cls_handle}  timeout=30s  on_timeout=continue
+
+    Remove Directory  /tmp_test/three_hundred_eicars/  recursive=True
+
+    ${result} =  Terminate Process  ${cls_handle}
+
+    Log To Console  ${result.stdout}
+    Should Contain   ${result.stdout}  300 files scanned in
+    Should Contain   ${result.stdout}  300 files out of 300 were infected.
+    Should Contain   ${result.stdout}  300 EICAR-AV-Test infections discovered.
+
+
 CLS Does not request TFTClassification from SUSI
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
