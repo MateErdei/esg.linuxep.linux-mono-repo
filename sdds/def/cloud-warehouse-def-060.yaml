@@ -15,11 +15,11 @@ warehouses:
           -   base-version: ""
               tag: BETA
         subcomponents:
-          sspl-base-0-6-0-release:
+          sspl-base-component:
           sspl-liveterminal:
   ssplmdr-release-0-6-0-wh:
     components:
-      ssplmdr-suite-0-6-0-release:
+      ssplmdr-suite:
         import:
           description: "Sophos Server Protection for Linux MTR"
           version: "1.0.0"
@@ -31,9 +31,9 @@ warehouses:
           - base-version: ""
             tag: BETA
         subcomponents:
-          ssplmdr-control-component-0-6-0-release:
-          ssplmdr-dbos-component-0-6-0-release:
-          ssplmdr-osquery-component-0-6-0-release:
+          ssplmdr-control-component:
+          ssplmdr-dbos-component:
+          ssplmdr-osquery-component:
 customer-files:
   -   warehouse: sspl-release-0-6-0-wh
       user: base_user_0_6_0
