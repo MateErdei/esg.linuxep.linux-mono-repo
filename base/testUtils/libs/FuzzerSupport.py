@@ -260,9 +260,6 @@ class FuzzerSupport( object):
                  "suldownloaderconfigtests",
                  "suldownloaderreporttests"]
         expected_fuzzer_path = os.path.join(self._everest_path, FuzzRelativePath)
-        output = subprocess.check_output(["./debug.sh" ],
-                                         cwd=self._everest_path)
-        logger.debug(output)
         if not os.path.isdir(expected_fuzzer_path):
             logger.info("alc path does not exist: {}".format(expected_fuzzer_path))
             return False
@@ -297,9 +294,8 @@ class FuzzerSupport( object):
 
     def ensure_alf_fuzzer_targets_built(self):
         error_message = "Failed to build AFLFuzzer Targets."
-        #TODO put this back removed this to make it easier to debug
-        # if self._check_is_alf_fuzz_target_present():
-        #     return
+        if self._check_is_alf_fuzz_target_present():
+            return
         fuzzer_path = os.path.join(self._everest_path, "tests/FuzzTests")
 
         logger.info("Running buildFuzzTests.sh from {}".format(fuzzer_path))
