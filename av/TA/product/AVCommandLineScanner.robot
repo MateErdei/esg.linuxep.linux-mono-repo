@@ -409,6 +409,22 @@ CLS Will Not Scan Inside Restricted Folder
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
+CLS Cannot Open Permission Denied File
+    Create File     ${NORMAL_DIRECTORY}/eicar    ${CLEAN_STRING}
+
+    Run  chmod -o-r ${NORMAL_DIRECTORY}/eicar
+
+    ${command} =    Set Variable    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar
+    ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
+    ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Contain       ${output}  Failed to open as permission denied: /home/vagrant/this/is/a/directory/for/scanning/eicar
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+
 CLS Can Scan Zero Byte File
     Create File  ${NORMAL_DIRECTORY}/zero_bytes
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zero_bytes
