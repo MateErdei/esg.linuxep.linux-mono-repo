@@ -99,6 +99,8 @@
             <include artifact-path="edr-mdr-999/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/edr-mdr-999/warehouse/warehouse" />
             <include artifact-path="mdr-999/customer" dest-dir="local_warehouses/dev/sspl-warehouse/mdr-999/warehouse/customer" />
             <include artifact-path="mdr-999/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/mdr-999/warehouse/warehouse" />
+            <include artifact-path="0-6-0/customer" dest-dir="local_warehouses/dev/sspl-warehouse/0-6-0/warehouse/customer" />
+            <include artifact-path="0-6-0/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/0-6-0/warehouse/warehouse" />
         </build-asset>
         <build-asset project="linuxep" repo="sspl-warehouse">
             <development-version branch="feature/Base-EDR-Only-OldWarehouseStyle" />
@@ -119,11 +121,6 @@
             <development-version branch="feature-paused-updating" />
             <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/paused-updating/warehouse/customer" />
             <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-paused-updating/warehouse/warehouse" />
-        </build-asset>
-        <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="feature/version-0-6-0-warehouse" />
-            <include artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/0-6-0/warehouse/customer" />
-            <include artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-version-0-6-0-warehouse/warehouse/warehouse" />
         </build-asset>
     </inputs>
 
