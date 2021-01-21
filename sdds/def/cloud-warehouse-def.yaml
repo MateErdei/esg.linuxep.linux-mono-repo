@@ -16,8 +16,6 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                    - base-version: ""
-                      tag: BETA2
                 subcomponents:
                     sspl-base-component:
                         supplements:
@@ -34,8 +32,6 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                    - base-version: ""
-                      tag: BETA2
                 supplements:
                     - scheduled-query-pack-supp
 
@@ -52,8 +48,6 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                    - base-version: ""
-                      tag: BETA2
                 subcomponents:
                     ssplmdr-control-component:
                     ssplmdr-dbos-component:
@@ -73,8 +67,6 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                    - base-version: ""
-                      tag: BETA2
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
@@ -86,8 +78,6 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                    - base-version: ""
-                      tag: BETA2
 
             sspl-av:
                 import:
@@ -100,8 +90,6 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                    - base-version: ""
-                      tag: BETA2
                 supplements:
                     - vdl-data
                     - localrepdata-data

@@ -16,8 +16,6 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                    - base-version: ""
-                      tag: BETA2
                 subcomponents:
                     sspl-base-component:
                         supplements:
@@ -34,8 +32,6 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                    - base-version: ""
-                      tag: BETA2
     ssplmdr-wh:
         components:
             ssplmdr-suite:
@@ -49,8 +45,6 @@ warehouses:
                         tag: RECOMMENDED
                     -   base-version: ""
                         tag: BETA
-                    -   base-version: ""
-                        tag: BETA2
                 subcomponents:
                     ssplmdr-control-component:
                     ssplmdr-dbos-component:
