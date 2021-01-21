@@ -96,8 +96,8 @@ def readVersion(BASE=None):
     temp = os.environ.get("PRODUCT_VERSION", None)
     if temp is not None:
         return temp
-    temp = os.environ.get("NINE_NINE_NINE_FULL_VERSION",  None)
-    print(f"NINE_NINE_NINE_FULL_VERSION={temp}")
+    temp = os.environ.get("VERSION_OVERRIDE",  None)
+    print(f"VERSION_OVERRIDE={temp}")
     if temp is not None:
         return temp
 

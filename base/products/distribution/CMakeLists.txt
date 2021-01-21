@@ -86,8 +86,8 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
         COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
 )
-if (DEFINED ENV{NINE_NINE_NINE_FULL_VERSION})
-    set(PRODUCT_VERSION "$ENV{NINE_NINE_NINE_FULL_VERSION}")
+if (DEFINED ENV{VERSION_OVERRIDE})
+    set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
 else()
     execute_process(
             COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
