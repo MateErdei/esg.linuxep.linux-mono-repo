@@ -183,7 +183,7 @@ def get_installation_device_group():
     install_options_path = path_manager.install_options_file()
     try:
         if os.path.isfile(install_options_path):
-            with open(install_options_path) as install_options_file:
+            with open(install_options_path, 'r', encoding='utf-8') as install_options_file:
                 for line in install_options_file.readlines():
                     line = line.strip()
                     if "--group=" in line:

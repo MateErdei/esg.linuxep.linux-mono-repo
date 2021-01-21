@@ -179,6 +179,16 @@ Successful Register With Group Specified
     Register With Local Cloud Server
     Check Register Central Log Contains  <deviceGroup>A Group</deviceGroup>
 
+Registering With Wrong Group Command Does Not Add To Group
+    Create File  ${ETC_DIR}/install_options   --group
+    Register With Local Cloud Server
+    Check Register Central Log Does Not Contain  <deviceGroup>--group</deviceGroup>
+
+Registering With Unicode Group Adds To Group
+    Create File  ${ETC_DIR}/install_options   --group=ümlaut
+    Register With Local Cloud Server
+    Check Register Central Log Contains  <deviceGroup>ümlaut</deviceGroup>
+
 *** Keywords ***
 Backup Version Ini
     Copy File  ${SOPHOS_INSTALL}/base/VERSION.ini  /tmp/VERSION.ini.bk
