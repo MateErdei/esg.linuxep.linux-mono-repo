@@ -29,6 +29,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "google/protobuf/text_format.h"
 
 #include <future>
+#include <unistd.h>
 
 namespace livequery
 {
