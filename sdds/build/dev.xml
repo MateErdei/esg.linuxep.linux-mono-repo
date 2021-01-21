@@ -19,7 +19,7 @@
 
       <!-- Packages for normal release-package build -->
 
-      <build-asset project="winep" repo="liveterminal" mode="release-package,release-package-edr-999,release-package-mdr-999">
+      <build-asset project="winep" repo="liveterminal" mode="release-package,release-package-edr-999,release-package-mdr-999,release-package-060">
         <development-version branch="feature/LINUXDAR-2259-improve-working-with-999-builds"/>
         <include artifact-path="liveterminal-999/sdds" dest-dir="redist/liveterminal"/>
       </build-asset>
@@ -27,7 +27,7 @@
         <development-version branch="feature/LINUXDAR-2259-improve-working-with-999-builds"/>
         <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
       </build-asset>
-      <build-asset project="linuxep" repo="sspl-plugin-edr-component" mode="release-package,release-package-mdr-999">
+      <build-asset project="linuxep" repo="sspl-plugin-edr-component" mode="release-package,release-package-mdr-999,release-package-060">
         <development-version branch="feature/LINUXDAR-2259-improve-working-with-999-builds"/>
         <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component"/>
       </build-asset>
@@ -39,7 +39,7 @@
         <include artifact-path="output/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"/>
       </build-asset>
 
-      <build-asset project="em" repo="esg" mode="release-package,release-package-mdr-999,release-package-edr-mdr-999">
+      <build-asset project="em" repo="esg" mode="release-package,release-package-mdr-999,release-package-edr-mdr-999,release-package-060">
         <development-version branch="develop"/>
         <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
       </build-asset>
@@ -77,6 +77,21 @@
       <build-asset project="linuxep" repo="everest-base" mode="release-package-edr-mdr-999">
         <development-version branch="feature/LINUXDAR-2259-improve-working-with-999-builds"/>
         <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
+      </build-asset>
+
+      <!-- Packages for 060 -->
+
+      <build-asset project="linuxep" repo="everest-base" mode="release-package-060">
+        <development-version branch="feature/LINUXDAR-2259-improve-working-with-999-builds"/>
+        <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
+      </build-asset>
+      <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite" mode="release-package-060">
+        <development-version branch="feature/LINUXDAR-2259-improve-working-with-999-builds"/>
+        <!-- Update once mdr-component-999 updated? -->
+        <include artifact-path="output-060/SDDS-SSPL-DBOS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT"/>
+        <include artifact-path="output-060/SDDS-SSPL-MDR-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT"/>
+        <include artifact-path="output-060/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE"/>
+        <include artifact-path="output-060/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"/>
       </build-asset>
 
       <!-- Common Packages -->
@@ -132,6 +147,11 @@
         <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-edr-mdr-999.yaml</args>
         <workingdir>src</workingdir>
       </command>
+      <command mode="release-package-060">
+        <program>py.exe</program>
+        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-edr-mdr-999.yaml</args>
+        <workingdir>src</workingdir>
+      </command>
     </buildcommands>
 
   <publish>
@@ -158,6 +178,11 @@
     <build-asset artifact-path="mdr-999/customer" source-dir="output\warehouse\customer" mode="release-package-mdr-999"/>
     <build-asset artifact-path="mdr-999/def" source-dir="output\def" mode="release-package-mdr-999"/>
     <build-asset artifact-path="mdr-999/logs" source-dir="logs" mode="release-package-mdr-999"/>
+
+    <build-asset artifact-path="0-6-0/warehouse" source-dir="output\warehouse\content" mode="release-package-060"/>
+    <build-asset artifact-path="0-6-0/customer" source-dir="output\warehouse\customer" mode="release-package-060"/>
+    <build-asset artifact-path="0-6-0/def" source-dir="output\def" mode="release-package-060"/>
+    <build-asset artifact-path="0-6-0/logs" source-dir="logs" mode="release-package-060"/>
 
     <logs name="generate-warehouse" source-dir="logs" mode="release-package"/>
 

@@ -68,6 +68,7 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
 def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     mdr999 = parameters.mdr_999 != 'false'
     edr999 = parameters.edr_999 != 'false'
+    zero_six_zero = parameters.zero_six_zero != 'false'
     run_tests = parameters.run_tests != 'false'
 
     with stage.parallel('build'):
@@ -78,6 +79,8 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             build_dev_warehouse(stage=stage, name="release-package-mdr-999")
         if edr999 and mdr999:
             build_dev_warehouse(stage=stage, name="release-package-edr-mdr-999")
+        if zero_six_zero:
+            build_dev_warehouse(stage=stage, name="release-package-060")
 
     if build and run_tests:
         run_tap_tests(stage, context, parameters, build)

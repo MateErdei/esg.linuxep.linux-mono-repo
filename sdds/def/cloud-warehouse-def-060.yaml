@@ -1,0 +1,53 @@
+%YAML 1.1
+---
+warehouses:
+  sspl-release-0-6-0-wh:
+    components:
+      sspl-base:
+        import:
+          description: "Sophos Linux Base"
+          version: "1.0.0"
+        features: [CORE]
+        platforms: []
+        release-tags:
+          -   base-version: ""
+              tag: RECOMMENDED
+          -   base-version: ""
+              tag: BETA
+          -   base-version: ""
+              tag: BETA2
+        subcomponents:
+          sspl-base-0-6-0-release:
+          sspl-liveterminal:
+  ssplmdr-release-0-6-0-wh:
+    components:
+      ssplmdr-suite-0-6-0-release:
+        import:
+          description: "Sophos Server Protection for Linux MTR"
+          version: "1.0.0"
+        features: [MDR]
+        platforms: []
+        release-tags:
+          - base-version: ""
+            tag: RECOMMENDED
+          - base-version: ""
+            tag: BETA
+          - base-version: ""
+            tag: BETA2
+        subcomponents:
+          ssplmdr-control-component-0-6-0-release:
+          ssplmdr-dbos-component-0-6-0-release:
+          ssplmdr-osquery-component-0-6-0-release:
+customer-files:
+  -   warehouse: sspl-release-0-6-0-wh
+      user: base_user_0_6_0
+      password: password
+      split-warehouses:
+        - warehouse: sspl-release-0-6-0-wh
+
+  -   warehouse: sspl-release-0-6-0-wh
+      user: mtr_user_0_6_0
+      password: password
+      split-warehouses:
+        - warehouse: sspl-release-0-6-0-wh
+        - warehouse: ssplmdr-release-0-6-0-wh

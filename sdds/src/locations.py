@@ -15,6 +15,7 @@ branch = {
     "release-package-edr-999" : "edr-999",
     "release-package-mdr-999" : "mdr-999",
     "release-package-edr-mdr-999" : "edr-mdr-999",
+    "release-package-060" : "0-6-0",
 }.get(branch, branch)
 
 WAREHOUSE_READ = [
