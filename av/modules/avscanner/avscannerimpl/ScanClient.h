@@ -67,6 +67,7 @@ namespace avscanner::avscannerimpl
          */
         scan_messages::ScanResponse scan(const path& fileToScanPath, bool isSymlink) override;
         void scanError(const std::ostringstream& error) override { m_callbacks->scanError(error.str()); };
+        std::string failedToOpen(const int error);
 
     private:
         unixsocket::IScanningClientSocket& m_socket;
