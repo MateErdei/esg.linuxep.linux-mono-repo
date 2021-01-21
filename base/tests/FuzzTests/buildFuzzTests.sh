@@ -67,7 +67,7 @@ fi
 ZIP=$(which cmake)
 if [[ ! -x ${ZIP} ]]
 then
-    apt-get install zip
+    apt-get -y install zip
 fi
 
 # make sure afl is built
