@@ -75,7 +75,7 @@ namespace plugin
                 double difference = difftime(created,now);
                 if (difference < 86400)
                 {
-                    LOGDEBUG("Reading contents of " << file << "for overflow indicators");
+                    LOGDEBUG("Reading contents of " << file << " for overflow indicators");
                     std::vector<std::string> lines = fs->readLines(file);
                     for (auto& line:lines)
                     {
