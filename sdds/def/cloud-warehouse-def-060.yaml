@@ -14,8 +14,6 @@ warehouses:
               tag: RECOMMENDED
           -   base-version: ""
               tag: BETA
-          -   base-version: ""
-              tag: BETA2
         subcomponents:
           sspl-base-0-6-0-release:
           sspl-liveterminal:
@@ -32,8 +30,6 @@ warehouses:
             tag: RECOMMENDED
           - base-version: ""
             tag: BETA
-          - base-version: ""
-            tag: BETA2
         subcomponents:
           ssplmdr-control-component-0-6-0-release:
           ssplmdr-dbos-component-0-6-0-release:
