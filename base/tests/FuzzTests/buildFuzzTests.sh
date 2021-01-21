@@ -33,7 +33,8 @@ CMAKE_BUILD_DIR=cmake-afl-fuzz
 CMAKE_BUILD_FULL_PATH="${SOURCE_DIR}/${CMAKE_BUILD_DIR}"
 
 BASE=${SOURCE_DIR}
-
+REDIST=$BASE/redist
+INPUT=$BASE/input
 
 [[ -f "$BASE"/build/common.sh ]] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build/common.sh
@@ -53,31 +54,15 @@ if [[ ! -f ${AFL_PATH}/afl-gcc.c ]]; then
   exitFailure  ${FAILURE_INVALID_AFL_PATH} "Invalid afl path"
 fi
 
-# try to use the clion cmake tool
-CMAKE_CANDIDATES=("/home/pair/clion/bin/cmake" \
-                  "/home/pair/clion/bin/cmake/bin/cmake" \
-                  "/home/pair/clion/bin/cmake/linux/bin/cmake" \
-                  "/opt/clion-2018.2.3/bin/cmake/linux/bin/cmake"
-                  )
-
-for candidate in ${CMAKE_CANDIDATES[@]}
-do
-    if [[ -x ${candidate} ]] && [[ ! -d ${candidate} ]]
-    then
-        CMAKE=${candidate}
-        break
-    fi
-done
-
-if [[ ! -x ${CMAKE} ]]
+CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
+if [[ -f "$CMAKE_TAR" ]]
 then
-    echo "Warning: Could not find cmake executable. Using system cmake. \
-Please update this script with the correct cmake location for CLion"
+    tar xzf "$CMAKE_TAR" -C "$REDIST"
+    CMAKE=${REDIST}/cmake/bin/cmake
+else
+    echo "WARNING: using system cmake"
     CMAKE=$(which cmake)
-    sleep 5
 fi
-
-
 
 # make sure afl is built
 pushd  ${AFL_PATH}
