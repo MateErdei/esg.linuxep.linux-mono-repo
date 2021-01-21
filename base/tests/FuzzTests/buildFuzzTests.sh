@@ -64,7 +64,7 @@ else
     CMAKE=$(which cmake)
 fi
 
-ZIP=$(which cmake)
+ZIP=$(which zip)
 if [[ ! -x ${ZIP} ]]
 then
     apt-get -y install zip
