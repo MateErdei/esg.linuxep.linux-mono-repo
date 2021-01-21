@@ -23,6 +23,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 
 #include <thirdparty/nlohmann-json/json.hpp>
 #include "google/protobuf/text_format.h"
@@ -155,8 +156,8 @@ private:
         std::string destPath = getOsqueryPath();
         Common::FileSystem::fileSystem()->copyFile(sourcePath,destPath);
         Common::FileSystem::filePermissions()->chmod(destPath, 0700);
-
-        Plugin::OsqueryConfigurator::regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), true);
+        time_t epoch =  Common::UtilityImpl::TimeUtils::getCurrTime();
+        Plugin::OsqueryConfigurator::regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), true,false,epoch);
         Plugin::OsqueryConfigurator::regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
 
         std::string fileContents = Common::FileSystem::fileSystem()->readFile( Plugin::osqueryFlagsFilePath());
