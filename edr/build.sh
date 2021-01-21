@@ -145,7 +145,7 @@ do
             AFL=1
             ;;
         --999)
-            export NINE_NINE_NINE_FULL_VERSION=9.99.9.999
+            export VERSION_OVERRIDE=9.99.9.999
             ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
