@@ -104,7 +104,7 @@ namespace avscanner::avscannerimpl
             }
         }
 
-        auto m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
+        m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
         auto scanner =
             std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_config.m_scanArchives, E_SCAN_TYPE_SCHEDULED);
