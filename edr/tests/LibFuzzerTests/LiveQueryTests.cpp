@@ -26,14 +26,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <thirdparty/nlohmann-json/json.hpp>
 #include "google/protobuf/text_format.h"
-#include <osquery/flagalias.h>
 
 #include <future>
 
-namespace osquery
-{
-    FLAG(bool, decorations_top_level, false, "test");
-}
 namespace livequery
 {
     class DummyDispatcher : public livequery::ResponseDispatcher

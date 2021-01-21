@@ -23,10 +23,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <future>
 
-namespace osquery
-{
-    FLAG(bool, decorations_top_level, false, "test");
-}
 
 /* This replaces the osquery sdk and always return the same output
  * The substitution is done via the factory replacement.
