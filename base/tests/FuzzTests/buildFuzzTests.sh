@@ -64,6 +64,12 @@ else
     CMAKE=$(which cmake)
 fi
 
+ZIP=$(which cmake)
+if [[ ! -x ${ZIP} ]]
+then
+    apt-get install zip
+fi
+
 # make sure afl is built
 pushd  ${AFL_PATH}
   make || exitFailure ${FAILURE_BUILD_AFL} "Failed to build afl"
