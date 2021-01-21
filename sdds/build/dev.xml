@@ -21,7 +21,7 @@
 
       <build-asset project="winep" repo="liveterminal" mode="release-package,release-package-edr-999,release-package-mdr-999,release-package-060">
         <development-version branch="feature/LINUXDAR-2259-improve-working-with-999-builds"/>
-        <include artifact-path="liveterminal-999/sdds" dest-dir="redist/liveterminal"/>
+        <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
       </build-asset>
       <build-asset project="linuxep" repo="everest-base" mode="release-package,release-package-edr-999,release-package-mdr-999">
         <development-version branch="feature/LINUXDAR-2259-improve-working-with-999-builds"/>
