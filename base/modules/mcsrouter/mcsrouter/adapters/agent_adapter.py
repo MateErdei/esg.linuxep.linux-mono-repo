@@ -186,7 +186,7 @@ def get_installation_device_group():
             with open(install_options_path) as install_options_file:
                 for line in install_options_file.readlines():
                     line = line.strip()
-                    if "--group" in line:
+                    if "--group=" in line:
                         group = line.split("--group=")[-1]
                         if is_device_group_valid(group):
                             LOGGER.debug(f"Central installation group found: {group}")
