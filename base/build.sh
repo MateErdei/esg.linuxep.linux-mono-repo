@@ -76,6 +76,13 @@ do
         --999)
             export NINE_NINE_NINE_FULL_VERSION=99.9.9.999
             ;;
+        --060)
+            export NINE_NINE_NINE_FULL_VERSION=0.6.0.999
+            export O_SIX_O=1
+            touch also_a_fake_lib.so.5.86.999
+            touch fake_lib.so.1.66.999
+            touch faker_lib.so.2.23.999
+            ;;
         --release|--no-debug)
             CMAKE_BUILD_TYPE=RelWithDebInfo
             DEBUG=0

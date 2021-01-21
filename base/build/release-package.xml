@@ -155,6 +155,8 @@
 
         <!-- 999 -->
         <release-asset artifact-path="sspl-base-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
+        <!-- 060 -->
+        <release-asset artifact-path="sspl-base-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060"/>
 
         <!-- Legacy -->
         <workingdir>.</workingdir>
