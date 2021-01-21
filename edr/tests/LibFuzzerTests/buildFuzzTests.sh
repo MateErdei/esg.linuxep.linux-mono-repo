@@ -10,7 +10,7 @@ FUZZ_TESTCASE_ROOT_DIR="${FUZZ_TEST_DIR}/data/"
 CMAKE_BUILD_DIR=cmake-fuzz
 CMAKE_BUILD_FULL_PATH="${PROJECT_ROOT_SOURCE}/${CMAKE_BUILD_DIR}"
 
-
+set -x
 # check assumptions:
 if [[ "LibFuzzerTests" != "${FUZZ_TEST_DIR_NAME}" ]]; then
   echo "Not executed from LibFuzzerTests: ${FUZZ_TEST_DIR_NAME}"; exit 1;
