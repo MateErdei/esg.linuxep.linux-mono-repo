@@ -22,7 +22,7 @@ BASE=${PROJECT_ROOT_SOURCE}
 [[ -f "$BASE"/build-files/common.sh ]] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build-files/common.sh
 
-"$BASE"/tests/LibFuzzerTests/setup_inputs/gatherBuildInputs.sh
+
 REDIST=$BASE/redist
 INPUT=$BASE/input
 

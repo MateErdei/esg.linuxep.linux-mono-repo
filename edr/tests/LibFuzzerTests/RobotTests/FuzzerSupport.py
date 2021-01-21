@@ -215,10 +215,7 @@ class FuzzerSupport:
             logger.info("Not doing setup base build on vagrant as packages should be fetched on host machine")
             return
         try:
-            output = subprocess.check_output([sys.executable,
-                                              "-m",
-                                              "build_scripts.artisan_fetch",
-                                              "build-files/release-package.xml"],
+            output = subprocess.check_output(["tests/LibFuzzerTests/setup_inputs/gatherBuildInputs.sh"],
                                              cwd=self._edr_path)
             logger.debug(output)
 
