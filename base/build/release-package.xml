@@ -114,6 +114,12 @@
             <workingdir>.</workingdir>
         </command>
 
+        <command mode="060">
+            <program>/bin/bash</program>
+            <args>./build.sh --clean --060 --no-unittest</args>
+            <workingdir>.</workingdir>
+        </command>
+
         <!--<command buildtype="dev">
             <program>/bin/bash</program>
             <args>./build.sh - -clean - -debug</args> 'when put back remove space between hyphens'
