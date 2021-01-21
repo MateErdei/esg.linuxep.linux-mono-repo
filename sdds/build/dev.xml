@@ -149,7 +149,7 @@
       </command>
       <command mode="release-package-060">
         <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-edr-mdr-999.yaml</args>
+        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-060.yaml</args>
         <workingdir>src</workingdir>
       </command>
     </buildcommands>
