@@ -36,20 +36,20 @@ std::string ScanClient::failedToOpen(const int error)
 {
     switch (error)
     {
-//        case EACCES:
-//            return "Failed to open as permission denied: ";
-//        case ENAMETOOLONG:
-//            return "Failed to open as the path is too long: ";
-//        case ELOOP:
-//            return "Failed to open as couldn't follow the symlink further: ";
-//        case ENODEV:
-//            return "Failed to open as path is a device special file and no corresponding device exists: ";
-//        case ENOENT:
-//            return "Failed to open as path is a dangling symlink or a directory component is missing: ";
-//        case ENOMEM:
-//            return "Failed to open due to a lack of kernel memory: ";
-//        case EOVERFLOW:
-//            return "Failed to open as the file is too large: ";
+        case EACCES:
+            return "Failed to open as permission denied: ";
+        case ENAMETOOLONG:
+            return "Failed to open as the path is too long: ";
+        case ELOOP:
+            return "Failed to open as couldn't follow the symlink further: ";
+        case ENODEV:
+            return "Failed to open as path is a device special file and no corresponding device exists: ";
+        case ENOENT:
+            return "Failed to open as path is a dangling symlink or a directory component is missing: ";
+        case ENOMEM:
+            return "Failed to open due to a lack of kernel memory: ";
+        case EOVERFLOW:
+            return "Failed to open as the file is too large: ";
         default:
             return "Failed to open with error " + std::to_string(error) + ": ";
     }

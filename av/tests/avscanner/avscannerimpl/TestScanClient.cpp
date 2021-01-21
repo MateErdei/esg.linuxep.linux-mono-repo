@@ -158,3 +158,15 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
     EXPECT_FALSE(result.getDetections().empty());
     EXPECT_EQ(result.getDetections()[0].second, THREAT);
 }
+
+TEST(TestScanClient, TestFailedToOpenMessages) // NOLINT
+{
+    EXPECT_EQ(ScanClient::failedToOpen(EACCES), "Failed to open as permission denied: ");
+    EXPECT_EQ(ScanClient::failedToOpen(ENAMETOOLONG), "Failed to open as the path is too long: ");
+    EXPECT_EQ(ScanClient::failedToOpen(ELOOP), "Failed to open as couldn't follow the symlink further: ");
+    EXPECT_EQ(ScanClient::failedToOpen(ENODEV), "Failed to open as path is a device special file and no corresponding device exists: ");
+    EXPECT_EQ(ScanClient::failedToOpen(ENOENT), "Failed to open as path is a dangling symlink or a directory component is missing: ");
+    EXPECT_EQ(ScanClient::failedToOpen(ENOMEM), "Failed to open due to a lack of kernel memory: ");
+    EXPECT_EQ(ScanClient::failedToOpen(EOVERFLOW), "Failed to open as the file is too large: ");
+    EXPECT_EQ(ScanClient::failedToOpen(2021), "Failed to open with error 2021: ");
+}
