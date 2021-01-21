@@ -38,12 +38,14 @@ customer-files:
   -   warehouse: sspl-release-0-6-0-wh
       user: base_user_0_6_0
       password: password
+      output-dir: customer
       split-warehouses:
         - warehouse: sspl-release-0-6-0-wh
 
   -   warehouse: sspl-release-0-6-0-wh
       user: mtr_user_0_6_0
       password: password
+      output-dir: customer
       split-warehouses:
         - warehouse: sspl-release-0-6-0-wh
         - warehouse: ssplmdr-release-0-6-0-wh
