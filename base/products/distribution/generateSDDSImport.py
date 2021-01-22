@@ -204,7 +204,6 @@ def generate_sdds_import(dist, file_objects, BASE=None):
 
     productName = getProductName()
     fullVersion = readVersion.readVersion(BASE)
-    print(f"fullVersio={fullVersion}")
     rigidName = getRigidName()
     defaultHomeFolder = getVariable("DEFAULT_HOME_FOLDER", "DEFAULT_HOME_FOLDER", "defaultHomeFolder", "sspl-base")
     featureList = getFeatureList()
@@ -220,7 +219,6 @@ def generate_sdds_import(dist, file_objects, BASE=None):
             fullVersion = f.contents().strip()
         elif base == "rigidName":
             rigidName = f.contents().strip()
-    print(f"fullVersio={fullVersion}")
 
     featureListNode = doc.getElementsByTagName("Features")[0]
     for feature in featureList:
