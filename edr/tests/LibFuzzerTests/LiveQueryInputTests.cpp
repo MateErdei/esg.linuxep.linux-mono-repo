@@ -20,9 +20,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/osqueryclient/IOsqueryClient.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
 #include <thirdparty/nlohmann-json/json.hpp>
-
+#include <OsquerySDK/OsquerySDK.h>
 #include <future>
-
+#include <string>
+#include <sstream>
+#include <iostream>
 
 /* This replaces the osquery sdk and always return the same output
  * The substitution is done via the factory replacement.
@@ -33,14 +35,14 @@ public:
     void connect(const std::string&) override
     {
     }
-    osquery::Status query(const std::string&, osquery::QueryData&) override
+    OsquerySDK::Status query(const std::string&, OsquerySDK::QueryData&) override
     {
-        return osquery::Status::success();
+        return OsquerySDK::Status{0, ""};
     }
 
-    osquery::Status getQueryColumns(const std::string&, osquery::QueryData&) override
+    OsquerySDK::Status getQueryColumns(const std::string&, OsquerySDK::QueryColumns& qc) override
     {
-        return osquery::Status::success();
+        return OsquerySDK::Status{0, ""};
     }
 };
 
