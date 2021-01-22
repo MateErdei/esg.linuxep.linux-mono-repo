@@ -111,7 +111,9 @@ class FuzzerSupport:
             logger.info("copying file: {} to filer6".format(filepath))
             if not os.path.exists(fuzz_test_output_dir):
                 os.makedirs(fuzz_test_output_dir)
-            shutil.copy(filepath, fuzz_test_output_dir)
+            output2 = subprocess.check_output(["sudo", "cp", filepath, fuzz_test_output_dir])
+            logger.debug(output2)
+
 
     def _check_and_convict_input_file(self, input_file, fuzzer):
         failed, output = self._run_fuzzer(fuzzer, [input_file])
