@@ -83,7 +83,7 @@
 
       <build-asset project="linuxep" repo="everest-base" mode="release-package-060">
         <development-version branch="feature/LINUXDAR-2259-improve-working-with-999-builds"/>
-        <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
+        <include artifact-path="sspl-base-060/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
       </build-asset>
       <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite" mode="release-package-060">
         <development-version branch="feature/LINUXDAR-2259-improve-working-with-999-builds"/>
