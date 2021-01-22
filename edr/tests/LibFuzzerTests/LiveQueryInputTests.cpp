@@ -16,6 +16,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/Logging/LoggerConfig.h>
 #include <modules/livequery/IQueryProcessor.h>
 #include <modules/osqueryclient/IOsqueryClient.h>
 #include <modules/osqueryclient/OsqueryProcessor.h>
@@ -58,6 +59,7 @@ namespace livequery
     {
         std::string m_result;
         livequery::IResponseDispatcher::QueryResponseStatus m_responseStatus;
+        Common::Logging::ConsoleLoggingSetup m_consoleSetup{Common::Logging::LOGOFFFORTEST()};
 
     public:
         DummyDispatcher()
@@ -155,7 +157,7 @@ void mainTest(const LiveQueryInputProto::TestCase& itestCase)
 #ifndef HasLibFuzzer
 int main(int argc, char* argv[])
 {
-    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
+    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup{Common::Logging::LOGOFFFORTEST()};
     LiveQueryInputProto::TestCase testcase;
     if (argc < 2)
     {
