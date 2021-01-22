@@ -3,7 +3,7 @@
 # usage: ./buildFuzzTargets.sh
 
 source /etc/profile
-#set -ex
+set -x
 #set -o pipefail
 
 FUZZ_TEST_DIR=$(pwd)
@@ -29,29 +29,15 @@ BASE=${PROJECT_ROOT_SOURCE}
 ## These can't be exitFailure since it doesn't exist till the sourcing is done
 [[ -f "$BASE"/build/common.sh ]] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build/common.sh
-# try to use the clion cmake tool
-CMAKE_CANDIDATES=("/home/pair/clion/bin/cmake" \
-                  "/home/pair/clion/bin/cmake/bin/cmake" \
-                  "/home/pair/clion/bin/cmake/linux/bin/cmake" \
-                  "/opt/clion-2018.2.3/bin/cmake/linux/bin/cmake"
-                  )
-
-for candidate in ${CMAKE_CANDIDATES[@]}
-do
-    if [[ -x ${candidate} ]] && [[ ! -d ${candidate} ]]
-    then
-        CMAKE=${candidate}
-        break
-    fi
-done
-
-if [[ ! -x ${CMAKE} ]]
+CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
+if [[ -f "$CMAKE_TAR" ]]
 then
-    echo "Warning: Could not find cmake executable. Using system cmake. \
-Please update this script with the correct cmake location for CLion"
-    CMAKE=$(which cmake) || exit 1
+    tar xzf "$CMAKE_TAR" -C "$REDIST"
+    CMAKE=${REDIST}/cmake/bin/cmake
+else
+    echo "WARNING: using system cmake"
+    CMAKE=$(which cmake)
 fi
-
 
 # this initial step is necessary for libprotobuf-mutator to have it built and available.
 pushd ${PROJECT_ROOT_SOURCE}/thirdparty
