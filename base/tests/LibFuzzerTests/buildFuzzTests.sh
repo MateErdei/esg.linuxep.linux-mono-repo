@@ -25,6 +25,8 @@ fi
 
 
 BASE=${PROJECT_ROOT_SOURCE}
+REDIST=$BASE/redist
+INPUT=$BASE/input
 
 ## These can't be exitFailure since it doesn't exist till the sourcing is done
 [[ -f "$BASE"/build/common.sh ]] || { echo "Can't find common.sh" ; exit 11 ; }
