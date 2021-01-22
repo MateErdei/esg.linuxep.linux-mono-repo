@@ -110,7 +110,8 @@ class FuzzerSupport:
         for filepath in filepaths:
             logger.info("copying file: {} to filer6".format(filepath))
             if not os.path.exists(fuzz_test_output_dir):
-                os.makedirs(fuzz_test_output_dir)
+                output2 = subprocess.check_output(["sudo", "mkdir", fuzz_test_output_dir])
+                logger.debug(output2)
             output2 = subprocess.check_output(["sudo", "cp", filepath, fuzz_test_output_dir])
             logger.debug(output2)
 
