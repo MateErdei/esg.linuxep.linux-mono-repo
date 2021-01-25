@@ -57,6 +57,19 @@ const std::string EXAMPLE_QUERY_PACK =  R"({
     }
 })";
 
+const std::string EXAMPLE_MTR_QUERY_PACK =  R"({
+    "schedule": {
+            "osquery_rocksdb_size_linux": {
+                "query": "WITH files (\n  number_of_files,\n  total_size,\n  mb\n) AS (\n  SELECT count(*) AS number_of_files,\n  SUM(size) AS total_size,\n  SUM(size)/1024/1024 AS mb\n  FROM file\n  WHERE path LIKE '/opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM files\nWHERE mb > 50;",
+                "interval": 86400,
+                "removed": false,
+                "blacklist": false,
+                "platform": "linux",
+                "description": "Retrieves the size of Osquery RocksDB on Linux.",
+                "tag": "stream"
+            }
+    }
+})";
 
 class TestResultSender : public LogOffInitializedTests{};
 
@@ -98,7 +111,8 @@ TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
-    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_MTR_QUERY_PACK));
     ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH);
 
     auto actualQueries = resultsSender.getQueryTags();
@@ -106,18 +120,25 @@ TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
 
     std::vector<ScheduledQuery> expectedQueries;
     expectedQueries.push_back({"deb_packages", "deb_packages", "DataLake"});
+    expectedQueries.push_back({"osquery_rocksdb_size_linux", "osquery_rocksdb_size_linux", "stream"});
 
     std::map<std::string, std::pair<std::string, std::string>> tagMap;
     tagMap.insert(std::make_pair("deb_packages", std::make_pair("deb_packages", "DataLake")));
+    tagMap.insert(std::make_pair("osquery_rocksdb_size_linux", std::make_pair("osquery_rocksdb_size_linux", "stream")));
 
     ASSERT_EQ(actualQueries[0].queryNameWithPack, expectedQueries[0].queryNameWithPack);
     ASSERT_EQ(actualQueries[0].queryName, expectedQueries[0].queryName);
     ASSERT_EQ(actualQueries[0].tag, expectedQueries[0].tag);
 
+    ASSERT_EQ(actualQueries[1].queryNameWithPack, expectedQueries[1].queryNameWithPack);
+    ASSERT_EQ(actualQueries[1].queryName, expectedQueries[1].queryName);
+    ASSERT_EQ(actualQueries[1].tag, expectedQueries[1].tag);
+
     ASSERT_EQ(actualQueryTagMap["deb_packages"].first, tagMap["deb_packages"].first);
     ASSERT_EQ(actualQueryTagMap["deb_packages"].second, tagMap["deb_packages"].second);
 
-
+    ASSERT_EQ(actualQueryTagMap["osquery_rocksdb_size_linux"].first, tagMap["osquery_rocksdb_size_linux"].first);
+    ASSERT_EQ(actualQueryTagMap["osquery_rocksdb_size_linux"].second, tagMap["osquery_rocksdb_size_linux"].second);
 }
 
 

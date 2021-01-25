@@ -223,9 +223,9 @@ void ResultsSender::loadScheduledQueryTagsFromFile(std::vector<ScheduledQuery> &
     auto fs = Common::FileSystem::fileSystem();
     Json::Value confJsonRoot;
     std::string disabledQueryPackPath = queryPackFilePath + ".DISABLED";
-    if (fs->exists(m_osqueryXDRConfigFilePath))
+    if (fs->exists(queryPackFilePath))
     {
-        confJsonRoot = readJsonFile(m_osqueryXDRConfigFilePath);
+        confJsonRoot = readJsonFile(queryPackFilePath);
     }
     else if (fs->exists(disabledQueryPackPath))
     {
@@ -251,6 +251,7 @@ void ResultsSender::loadScheduledQueryTags()
 {
     std::vector<ScheduledQuery> scheduledQueries;
     loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryXDRConfigFilePath);
+    loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryMTRConfigFilePath);
 
     m_scheduledQueryTags = scheduledQueries;
 }
