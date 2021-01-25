@@ -18,6 +18,7 @@ using namespace ::testing;
 const std::string INTERMEDIARY_PATH = "intermediary";
 const std::string DATAFEED_PATH = "datafeed";
 const std::string QUERY_PACK_PATH = "querypack";
+const std::string MTR_QUERY_PACK_PATH = "querypack.mtr";
 const std::string EMPTY_QUERY_PACK = "{}";
 const std::string PLUGIN_VAR_DIR = "var";
 const unsigned int DATA_LIMIT = 10000000;
@@ -33,24 +34,6 @@ const std::string EXAMPLE_QUERY_PACK =  R"({
             "platform": "linux",
             "description": "Gets all the installed DEB packages in the target Linux system.",
             "tag": "DataLake"
-        }
-    },
-    "packs": {
-        "mtr": {
-            "queries": {
-                "osquery_rocksdb_size_linux": {
-                    "query": "WITH files (\n  number_of_files,\n  total_size,\n  mb\n) AS (\n  SELECT count(*) AS number_of_files,\n  SUM(size) AS total_size,\n  SUM(size)/1024/1024 AS mb\n  FROM file\n  WHERE path LIKE '/opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM files\nWHERE mb > 50;",
-                    "interval": 86400,
-                    "removed": false,
-                    "blacklist": false,
-                    "platform": "linux",
-                    "description": "Retrieves the size of Osquery RocksDB on Linux.",
-                    "tag": "stream"
-                }
-            },
-            "discovery": [
-                "SELECT\n    name\nFROM\n    osquery_extensions\nWHERE\n    name = 'sophosmdrextension'"
-            ]
         }
     },
     "decorators": {
@@ -82,8 +65,10 @@ class ResultSenderForUnitTests : public ResultsSender
 public:
     ResultSenderForUnitTests(const std::string& intermediaryPath,
                              const std::string& datafeedPath,
-                             const std::string& osqueryXDRConfigFilePath) :
-        ResultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath,PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS, []() { })
+                             const std::string& osqueryXDRConfigFilePath,
+                             const std::string& osqueryMTRConfigFilePath
+                             ) :
+        ResultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath,osqueryMTRConfigFilePath,PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS, []() { })
     {}
 
     std::vector<ScheduledQuery> getQueryTags()
@@ -113,32 +98,26 @@ TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
-    ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(false));
+    ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH);
 
     auto actualQueries = resultsSender.getQueryTags();
     auto actualQueryTagMap = resultsSender.getQueryTagMapOveridden();
 
     std::vector<ScheduledQuery> expectedQueries;
     expectedQueries.push_back({"deb_packages", "deb_packages", "DataLake"});
-    expectedQueries.push_back({"pack_mtr_osquery_rocksdb_size_linux", "osquery_rocksdb_size_linux", "stream"});
 
     std::map<std::string, std::pair<std::string, std::string>> tagMap;
     tagMap.insert(std::make_pair("deb_packages", std::make_pair("deb_packages", "DataLake")));
-    tagMap.insert(std::make_pair("pack_mtr_osquery_rocksdb_size_linux", std::make_pair("osquery_rocksdb_size_linux", "stream")));
 
     ASSERT_EQ(actualQueries[0].queryNameWithPack, expectedQueries[0].queryNameWithPack);
     ASSERT_EQ(actualQueries[0].queryName, expectedQueries[0].queryName);
     ASSERT_EQ(actualQueries[0].tag, expectedQueries[0].tag);
 
-    ASSERT_EQ(actualQueries[1].queryNameWithPack, expectedQueries[1].queryNameWithPack);
-    ASSERT_EQ(actualQueries[1].queryName, expectedQueries[1].queryName);
-    ASSERT_EQ(actualQueries[1].tag, expectedQueries[1].tag);
-
     ASSERT_EQ(actualQueryTagMap["deb_packages"].first, tagMap["deb_packages"].first);
     ASSERT_EQ(actualQueryTagMap["deb_packages"].second, tagMap["deb_packages"].second);
 
-    ASSERT_EQ(actualQueryTagMap["pack_mtr_osquery_rocksdb_size_linux"].first, tagMap["pack_mtr_osquery_rocksdb_size_linux"].first);
-    ASSERT_EQ(actualQueryTagMap["pack_mtr_osquery_rocksdb_size_linux"].second, tagMap["pack_mtr_osquery_rocksdb_size_linux"].second);
+
 }
 
 
@@ -157,7 +136,8 @@ TEST_F(TestResultSender, loadScheduledQueryTagsWithNoQueryPackDoesNotCrash) // N
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH+".DISABLED")).WillOnce(Return(false));
-    ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(false));
+    ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH);
     auto actualQueries = resultsSender.getQueryTags();
     auto actualQueryTagMap = resultsSender.getQueryTagMapOveridden();
     ASSERT_EQ(actualQueries.size(), 0);
@@ -190,6 +170,7 @@ TEST_F(TestResultSender, resetRemovesExistingBatchFile) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -221,6 +202,7 @@ TEST_F(TestResultSender, addWritesToFile) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -251,6 +233,7 @@ TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -284,6 +267,7 @@ TEST_F(TestResultSender, addingInvalidJsonLogsErrorButNoExceptionThrown) // NOLI
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -312,6 +296,7 @@ TEST_F(TestResultSender, addThrowsWhenAppendThrows) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -345,6 +330,7 @@ TEST_F(TestResultSender, getFileSizeQueriesFile) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -377,6 +363,7 @@ TEST_F(TestResultSender, getFileSizeZeroWhenFileDoesNotExist) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -404,6 +391,7 @@ TEST_F(TestResultSender, getFileSizePropagatesException) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -437,6 +425,7 @@ TEST_F(TestResultSender, sendMovesBatchFile) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -468,6 +457,7 @@ TEST_F(TestResultSender, SendDoesNotMoveNoBatchFileIfItDoesNotExist) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -502,6 +492,7 @@ TEST_F(TestResultSender, sendThrowsWhenFileMoveThrows) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -539,6 +530,7 @@ TEST_F(TestResultSender, sendIfFileExistsAtStart) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -571,6 +563,7 @@ TEST_F(TestResultSender, sendIfFileExistsAtShutdown) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -597,6 +590,7 @@ TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -610,27 +604,28 @@ TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
     resultsSender.Add(testJsonResult);
 }
 
-TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
-{
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
-    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds")).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
-    ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH);
-    std::string testResult = R"({"name":"pack_mtr_osquery_rocksdb_size_linux"})";
-    std::string correctedNameResult = "{\"name\":\"osquery_rocksdb_size_linux\",\"tag\":\"stream\"}";
-    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, correctedNameResult)).Times(1);
-    resultsSender.Add(testResult);
-}
+//TODO renable when we add pack names to scheduled querys in the query map
+//TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
+//{
+//    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+//    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+//    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
+//    EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
+//    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
+//    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
+//    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
+//    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
+//    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds")).WillOnce(Return(false));
+//    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+//    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+//    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+//    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+//    ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH);
+//    std::string testResult = R"({"name":"pack_mtr_osquery_rocksdb_size_linux"})";
+//    std::string correctedNameResult = "{\"name\":\"osquery_rocksdb_size_linux\",\"tag\":\"stream\"}";
+//    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, correctedNameResult)).Times(1);
+//    resultsSender.Add(testResult);
+//}
 
 TEST_F(TestResultSender, initialExistsThrowsExceptionContinuesConstructor)  // NOLINT
 {
@@ -654,6 +649,7 @@ TEST_F(TestResultSender, initialExistsThrowsExceptionContinuesConstructor)  // N
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
@@ -682,6 +678,7 @@ TEST_F(TestResultSender, dataLimitHitInSingleResultInvokesCallback)  // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         5,
         PERIOD_IN_SECONDS,
@@ -719,6 +716,7 @@ TEST_F(TestResultSender, dataLimitHitGraduallyInvokesCallback)  // NOLINT
         INTERMEDIARY_PATH,
         DATAFEED_PATH,
         QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
         PLUGIN_VAR_DIR,
         (timesToAddResult * testResult.length()) - 1,
         PERIOD_IN_SECONDS,
@@ -764,6 +762,7 @@ TEST_F(TestResultSender, fuzzSamples) // NOLINT
             INTERMEDIARY_PATH,
             DATAFEED_PATH,
             QUERY_PACK_PATH,
+            MTR_QUERY_PACK_PATH,
             PLUGIN_VAR_DIR,
             DATA_LIMIT,
             PERIOD_IN_SECONDS,

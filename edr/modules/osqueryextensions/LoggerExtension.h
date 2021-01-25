@@ -18,6 +18,7 @@ public:
             const std::string& intermediaryPath,
             const std::string& datafeedPath,
             const std::string& osqueryXDRConfigFilePath,
+            const std::string& osqueryMTRConfigFilePath,
             const std::string& pluginVarDir,
             unsigned int dataLimit,
             unsigned int periodInSeconds,

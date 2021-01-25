@@ -8,16 +8,21 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <json/json.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
+#include <modules/pluginimpl/TelemetryConsts.h>
 
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/UtilityImpl/StringUtils.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+
+#include <json/json.h>
 #include <iostream>
 
 ResultsSender::ResultsSender(
     const std::string& intermediaryPath,
     const std::string& datafeedPath,
     const std::string& osqueryXDRConfigFilePath,
+    const std::string& osqueryMTRConfigFilePath,
     const std::string& pluginVarDir,
     unsigned int dataLimit,
     unsigned int periodInSeconds,
@@ -25,6 +30,7 @@ ResultsSender::ResultsSender(
     m_intermediaryPath(intermediaryPath),
     m_datafeedPath(datafeedPath),
     m_osqueryXDRConfigFilePath(osqueryXDRConfigFilePath),
+    m_osqueryMTRConfigFilePath(osqueryMTRConfigFilePath),
     m_currentDataUsage(pluginVarDir, "xdrDataUsage", 0),
     m_periodStartTimestamp(
         pluginVarDir,
@@ -72,6 +78,8 @@ ResultsSender::~ResultsSender()
 void ResultsSender::Add(const std::string& result)
 {
     LOGDEBUG("Adding XDR results to intermediary file: " << result);
+    auto& telemetryHelper = Common::Telemetry::TelemetryHelper::getInstance();
+
 
     // Check if it has been longer than the data limit period, if it has then reset the data counter.
     checkDataPeriodElapsed();
@@ -113,6 +121,13 @@ void ResultsSender::Add(const std::string& result)
         LOGERROR("Invalid JSON log message. " << e.what());
         return;
     }
+
+    std::stringstream key;
+    key << plugin::telemetryScheduledQueries << "." << queryName;
+    std::string scheduledQueryKey = key.str();
+
+    telemetryHelper.appendStat(scheduledQueryKey + "." + plugin::telemetryRecordSize, result.length());
+    telemetryHelper.increment(scheduledQueryKey + "." + plugin::telemetryRecordsCount, 1L);
 
     std::stringstream ss;
     Json::StreamWriterBuilder writerBuilder;
@@ -203,12 +218,11 @@ Json::Value ResultsSender::readJsonFile(const std::string& path)
     return root;
 }
 
-void ResultsSender::loadScheduledQueryTags()
+void ResultsSender::loadScheduledQueryTagsFromFile(std::vector<ScheduledQuery> &scheduledQueries, Path queryPackFilePath)
 {
-    std::vector<ScheduledQuery> scheduledQueries;
     auto fs = Common::FileSystem::fileSystem();
     Json::Value confJsonRoot;
-    std::string disabledQueryPackPath = m_osqueryXDRConfigFilePath + ".DISABLED";
+    std::string disabledQueryPackPath = queryPackFilePath + ".DISABLED";
     if (fs->exists(m_osqueryXDRConfigFilePath))
     {
         confJsonRoot = readJsonFile(m_osqueryXDRConfigFilePath);
@@ -229,23 +243,14 @@ void ResultsSender::loadScheduledQueryTags()
     {
         auto query = *scheduledItr;
         scheduledQueries.push_back(
-            ScheduledQuery { scheduledItr.key().asString(), scheduledItr.key().asString(), query["tag"].asString() });
+                ScheduledQuery { scheduledItr.key().asString(), scheduledItr.key().asString(), query["tag"].asString() });
     }
-    auto otherQueryPacks = confJsonRoot["packs"];
-    for (Json::Value::const_iterator packItr = otherQueryPacks.begin(); packItr != otherQueryPacks.end(); packItr++)
-    {
-        auto packName = packItr.key().asString();
-        auto packNode = *packItr;
-        auto packQueries = packNode["queries"];
-        for (Json::Value::const_iterator packQueriesItr = packQueries.begin(); packQueriesItr != packQueries.end();
-             packQueriesItr++)
-        {
-            auto query = *packQueriesItr;
-            std::string packAppendedName = "pack_" + packName + "_" + packQueriesItr.key().asString();
-            scheduledQueries.push_back(
-                ScheduledQuery { packAppendedName, packQueriesItr.key().asString(), query["tag"].asString() });
-        }
-    }
+}
+
+void ResultsSender::loadScheduledQueryTags()
+{
+    std::vector<ScheduledQuery> scheduledQueries;
+    loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryXDRConfigFilePath);
 
     m_scheduledQueryTags = scheduledQueries;
 }
@@ -272,7 +277,7 @@ void ResultsSender::setDataPeriod(unsigned int periodSeconds)
 bool ResultsSender::checkDataPeriodElapsed()
 {
     unsigned int now =
-        std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     if (now - m_periodStartTimestamp.getValue() > m_periodInSeconds.getValue())
     {
         m_currentDataUsage.setValue(0);

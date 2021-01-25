@@ -25,6 +25,7 @@ public:
         const std::string& intermediaryPath,
         const std::string& datafeedPath,
         const std::string& osqueryXDRConfigFilePath,
+        const std::string& osqueryMTRConfigFilePath,
         const std::string& pluginVarDir,
         unsigned int dataLimit,
         unsigned int periodInSeconds
@@ -57,6 +58,7 @@ private:
     std::string m_intermediaryPath;
     std::string m_datafeedPath;
     std::string m_osqueryXDRConfigFilePath;
+    std::string m_osqueryMTRConfigFilePath;
     Common::PersistentValue<unsigned int> m_currentDataUsage;
     Common::PersistentValue<unsigned int> m_periodStartTimestamp;
     unsigned int m_dataLimit;
@@ -68,4 +70,5 @@ private:
 
     Json::Value readJsonFile(const std::string& path);
     void loadScheduledQueryTags();
+    void loadScheduledQueryTagsFromFile(std::vector<ScheduledQuery> &scheduledQueries, Path queryPackFilePath);
 };

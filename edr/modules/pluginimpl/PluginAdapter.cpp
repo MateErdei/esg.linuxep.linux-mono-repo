@@ -87,6 +87,7 @@ namespace Plugin
                             Plugin::osqueryXDRResultSenderIntermediaryFilePath(),
                             Plugin::osqueryXDROutputDatafeedFilePath(),
                             Plugin::osqueryXDRConfigFilePath(),
+                            Plugin::osqueryMTRConfigFilePath(),
                             Plugin::varDir(),
                             DEFAULT_XDR_DATA_LIMIT_BYTES,
                             DEFAULT_XDR_PERIOD_SECONDS,
