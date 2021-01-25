@@ -3,7 +3,7 @@ o777, root, root, /opt/sophos-spl/plugins/mtr/bin/uninstall.sh
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so.1
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so.1.6
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so.1.6.11
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so.1.6.12
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libgcc_s.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libgcc_s.so.1
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/liblog4cplus-2.0.so
@@ -14,9 +14,9 @@ o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libpluginapi.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libpluginimpl.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprocimpl.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.20
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.20.0
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.20.0.1
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.25
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.25.0
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.25.0.0
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libstdc++.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libstdc++.so.6
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libstdc++.so.6.0
@@ -24,7 +24,7 @@ o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libstdc++.so.6.0.25
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libzmq.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libzmq.so.5
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libzmq.so.5.2
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libzmq.so.5.2.2
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libzmq.so.5.2.3
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libz.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libz.so.1
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libz.so.1.2
