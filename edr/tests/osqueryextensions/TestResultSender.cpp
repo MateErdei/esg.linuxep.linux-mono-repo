@@ -158,6 +158,7 @@ TEST_F(TestResultSender, loadScheduledQueryTagsWithNoQueryPackDoesNotCrash) // N
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH+".DISABLED")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH+".DISABLED")).WillOnce(Return(false));
     ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH);
     auto actualQueries = resultsSender.getQueryTags();
     auto actualQueryTagMap = resultsSender.getQueryTagMapOveridden();
@@ -178,6 +179,8 @@ TEST_F(TestResultSender, resetRemovesExistingBatchFile) // NOLINT
         .WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -210,6 +213,8 @@ TEST_F(TestResultSender, addWritesToFile) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -241,6 +246,8 @@ TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -275,6 +282,8 @@ TEST_F(TestResultSender, addingInvalidJsonLogsErrorButNoExceptionThrown) // NOLI
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -304,6 +313,8 @@ TEST_F(TestResultSender, addThrowsWhenAppendThrows) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -338,6 +349,8 @@ TEST_F(TestResultSender, getFileSizeQueriesFile) // NOLINT
         .WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -371,6 +384,8 @@ TEST_F(TestResultSender, getFileSizeZeroWhenFileDoesNotExist) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -399,6 +414,8 @@ TEST_F(TestResultSender, getFileSizePropagatesException) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -433,6 +450,8 @@ TEST_F(TestResultSender, sendMovesBatchFile) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -465,6 +484,8 @@ TEST_F(TestResultSender, SendDoesNotMoveNoBatchFileIfItDoesNotExist) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -500,6 +521,8 @@ TEST_F(TestResultSender, sendThrowsWhenFileMoveThrows) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -536,6 +559,8 @@ TEST_F(TestResultSender, sendIfFileExistsAtStart) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
     EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query"))).Times(1);
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
@@ -569,6 +594,8 @@ TEST_F(TestResultSender, sendIfFileExistsAtShutdown) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
     EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query"))).Times(1);
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
@@ -598,6 +625,8 @@ TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -654,6 +683,8 @@ TEST_F(TestResultSender, initialExistsThrowsExceptionContinuesConstructor)  // N
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH))
         .WillOnce(Throw(std::runtime_error("TEST")))
         .WillOnce(Return(false));
@@ -683,6 +714,8 @@ TEST_F(TestResultSender, dataLimitHitInSingleResultInvokesCallback)  // NOLINT
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
@@ -716,6 +749,8 @@ TEST_F(TestResultSender, dataLimitHitGraduallyInvokesCallback)  // NOLINT
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
@@ -769,6 +804,8 @@ TEST_F(TestResultSender, fuzzSamples) // NOLINT
         EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
+        EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+        EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
         EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
