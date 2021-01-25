@@ -13,6 +13,7 @@ namespace Plugin
     std::string osqueryFlagsFilePath();
     std::string osqueryConfigFilePath();
     std::string osqueryXDRConfigFilePath();
+    std::string osqueryMTRConfigFilePath();
     std::string osqueryXDRResultSenderIntermediaryFilePath();
     std::string osqueryXDROutputDatafeedFilePath();
     std::string osquerySocket();
