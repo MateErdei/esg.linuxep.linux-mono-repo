@@ -45,6 +45,27 @@ def check_for_query_in_log(log_path, query_name: str):
     if query_name not in log_content_stripped:
         raise AssertionError("could not find query in log: " + query_name)
 
+def check_all_query_results_contain_correct_tag(results_directory: str, config_path1: str,  config_path2: str, expected_tag: str):
+    if os.path.exists(config_path1) and os.path.exists(config_path2):
+        with open(config_path1, 'r') as f:
+            config_json_string1 = f.read()
+        config1 = json.loads(config_json_string1)
+        with open(config_path2, 'r') as f:
+            config_json_string2 = f.read()
+        config2 = json.loads(config_json_string2)
+
+        config = {**config1["schedule"], **config2["schedule"]}
+
+        results_json = json.loads("[]")
+        for file in os.listdir(results_directory):
+            print(f"file: {file}")
+            with open(os.path.join(results_directory, file), 'r') as f:
+                results_json_string = f.read()
+            results_json += json.loads(results_json_string)
+        for result in results_json:
+            if config[result["name"]]["tag"] != result["tag"]:
+                raise AssertionError("tags do not match")
+
 def integer_is_within_range(integer, lower, upper):
     assert int(lower) <= int(integer) <= int(upper), f"expected {lower} <= {integer} <= {upper}"
 

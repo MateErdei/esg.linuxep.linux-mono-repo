@@ -236,7 +236,7 @@ void ResultsSender::loadScheduledQueryTagsFromFile(std::vector<ScheduledQuery> &
     }
     else
     {
-        LOGERROR("Failed to find query pack to extract scheduled query tags from");
+        LOGERROR("Failed to find query pack to extract scheduled query tags from: " << queryPackFilePath);
         return;
     }
 
