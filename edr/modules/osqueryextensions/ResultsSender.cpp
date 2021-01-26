@@ -220,16 +220,19 @@ Json::Value ResultsSender::readJsonFile(const std::string& path)
 
 void ResultsSender::loadScheduledQueryTagsFromFile(std::vector<ScheduledQuery> &scheduledQueries, Path queryPackFilePath)
 {
+    LOGSUPPORT("Attempting to read " << queryPackFilePath << " for query tags");
     auto fs = Common::FileSystem::fileSystem();
     Json::Value confJsonRoot;
     std::string disabledQueryPackPath = queryPackFilePath + ".DISABLED";
     if (fs->exists(queryPackFilePath))
     {
         confJsonRoot = readJsonFile(queryPackFilePath);
+        LOGDEBUG("Reading " << queryPackFilePath << " for query tags");
     }
     else if (fs->exists(disabledQueryPackPath))
     {
         confJsonRoot = readJsonFile(disabledQueryPackPath);
+        LOGDEBUG("Reading " << disabledQueryPackPath << " for query tags");
     }
     else
     {
@@ -260,6 +263,10 @@ std::map<std::string, std::pair<std::string, std::string>> ResultsSender::getQue
     std::map<std::string, std::pair<std::string, std::string>> queryTagMap;
     for (const auto& query : m_scheduledQueryTags)
     {
+        if (queryTagMap.find(query.queryNameWithPack) != queryTagMap.end())
+        {
+            LOGWARN(query.queryNameWithPack << " already in query map");
+        }
         queryTagMap.insert(std::make_pair(query.queryNameWithPack, std::make_pair(query.queryName, query.tag)));
     }
     return queryTagMap;
