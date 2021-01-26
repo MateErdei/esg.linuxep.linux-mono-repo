@@ -85,11 +85,13 @@ AV plugin attempts to run scan now twice simultaneously
     Check AV Plugin Installed With Base
     Mark AV Log
     Configure scan now
+
     Send Sav Action To Base  ScanNow_Action.xml
+    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
+
     Send Sav Action To Base  ScanNow_Action.xml
 
     ## Wait for 1 scan to happen
-    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=5
     Wait Until AV Plugin Log Contains  Completed scan  timeout=180
     Wait Until AV Plugin Log Contains  Sending scan complete
 

@@ -23,7 +23,7 @@ def Allow_Samba_To_Access_Share(directory):
     :return:
     """
     try:
-        p = subprocess.run(["semanage", "fcontext", "-at", "samba_share_t", directory+"(/.*)?"],
+        p = subprocess.run(["semanage", "fcontext", "--modify", "--type", "samba_share_t", directory+"(/.*)?"],
                            stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT)
     except FileNotFoundError as ex:
@@ -32,12 +32,12 @@ def Allow_Samba_To_Access_Share(directory):
     except Exception as ex:
         logger.error("Failed to run semanage: %s" % str(ex))
         return
-
     if p.returncode != 0:
         logger.error("semanage returned non-zero %d: %s" % (p.returncode, p.stdout))
         return
 
     subprocess.check_call(['restorecon', '-Rv', directory])
+
     p = subprocess.run(['sestatus'],
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT)
