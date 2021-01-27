@@ -8,12 +8,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SusiScanner.h"
 #include "SusiWrapperFactory.h"
+#include "ThreatReporter.h"
 
 using namespace threat_scanner;
 
 IThreatScannerPtr SusiScannerFactory::createScanner(bool scanArchives)
 {
-    return std::make_unique<SusiScanner>(m_wrapperFactory, scanArchives);
+    IThreatReporterSharedPtr reporter = std::make_shared<ThreatReporter>();
+    return std::make_unique<SusiScanner>(m_wrapperFactory, scanArchives, std::move(reporter));
 }
 
 SusiScannerFactory::SusiScannerFactory(ISusiWrapperFactorySharedPtr wrapperFactory)

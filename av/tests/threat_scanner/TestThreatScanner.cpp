@@ -99,6 +99,28 @@ public:
     MOCK_METHOD1(processMessage, void(const std::string& threatDetectedXML));
 };
 
+namespace
+{
+    class MockIThreatReporter : public threat_scanner::IThreatReporter
+    {
+    public:
+        /**
+         *
+        virtual void sendThreatReport(
+            const std::string& threatPath,
+            const std::string& threatName,
+            int64_t scanType,
+            const std::string& userID,
+            std::time_t detectionTimeStamp) = 0;
+         */
+        MOCK_METHOD5(sendThreatReport, void(const std::string& threatPath,
+            const std::string& threatName,
+            int64_t scanType,
+            const std::string& userID,
+            std::time_t detectionTimeStamp));
+    };
+}
+
 TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
 {
     setupFakeSophosThreatDetectorConfig();
@@ -137,7 +159,7 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, nullptr);
 }
 
 TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
@@ -179,7 +201,7 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, true);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, true, nullptr);
 }
 
 TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
@@ -198,7 +220,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(Return(susiResult));
     EXPECT_CALL(*susiWrapper, freeResult(scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, nullptr);
     datatypes::AutoFd fd(100);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
     static_cast<void>(fd.release()); // not a real file descriptor
@@ -212,20 +234,13 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
 
     WaitForEvent serverWaitGuard;
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
-    std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
-    std::shared_ptr<StrictMock<MockIThreatReportCallbacks> > mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+    auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
+    auto mock_reporter = std::make_shared<StrictMock<MockIThreatReporter>>();
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
-    EXPECT_CALL(*mock_callback, processMessage(_)).Times(1).WillOnce(
+    EXPECT_CALL(*mock_reporter, sendThreatReport(_, _ ,_ ,_, _)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
-
-    fs::path socket_path = pluginInstall() / "chroot/var/threat_report_socket";
-    unixsocket::ThreatReporterServerSocket threatReporterServer(
-        socket_path, 0600, mock_callback
-    );
-
-    threatReporterServer.start();
 
     SusiResult susiResult = SUSI_I_THREATPRESENT;
     SusiScanResult scanResult;
@@ -236,14 +251,12 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, mock_reporter);
     datatypes::AutoFd fd(101);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
     static_cast<void>(fd.release()); // Not a real file descriptor
 
     serverWaitGuard.wait();
-    threatReporterServer.requestStop();
-    threatReporterServer.join();
 
     EXPECT_EQ(response.allClean(), false);
 }
@@ -283,7 +296,7 @@ TEST_P(ThreatScannerParameterizedTest, susiErrorToReadableError) // NOLINT
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, nullptr);
 
     EXPECT_EQ(susiScanner.susiErrorToReadableError("test.file", std::get<0>(GetParam())), std::get<1>(GetParam()));
 }
