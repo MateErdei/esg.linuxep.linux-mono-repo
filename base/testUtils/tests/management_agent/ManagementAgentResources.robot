@@ -135,4 +135,8 @@ Check Status Cache File
 Require Watchdog Running
     ${systemctlResult} =  Run Process   systemctl start sophos-spl   shell=yes
     Should Be Equal As Integers    ${systemctlResult.rc}    0   ${systemctlResult.stderr}
-    Check Watchdog Running
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Watchdog Running

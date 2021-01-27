@@ -378,7 +378,7 @@ Connection is lost between endpoint and proxy
 
     Stop Proxy Server On Port  1235
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  20 secs
     ...  1 secs
     ...  Check Mcsrouter Log Contains   Push Server service reported: Push client lost connection to server
 
