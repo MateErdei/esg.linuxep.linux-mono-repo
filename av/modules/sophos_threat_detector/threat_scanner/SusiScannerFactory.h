@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IThreatScannerFactory.h"
 
+#include "IThreatReporter.h"
 #include "SusiWrapperFactory.h"
 
 namespace threat_scanner
@@ -15,12 +16,13 @@ namespace threat_scanner
     class SusiScannerFactory : public IThreatScannerFactory
     {
     public:
-        SusiScannerFactory();
-        explicit SusiScannerFactory(ISusiWrapperFactorySharedPtr wrapperFactory);
+        explicit SusiScannerFactory(IThreatReporterSharedPtr reporter);
+        SusiScannerFactory(ISusiWrapperFactorySharedPtr wrapperFactory, IThreatReporterSharedPtr reporter);
         IThreatScannerPtr createScanner(bool scanArchives) override;
 
         bool update() override;
     private:
         ISusiWrapperFactorySharedPtr m_wrapperFactory;
+        IThreatReporterSharedPtr m_reporter;
     };
 }

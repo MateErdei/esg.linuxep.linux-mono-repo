@@ -109,6 +109,24 @@ static void attempt_dns()
     freeaddrinfo(result);
 }
 
+namespace
+{
+    class FakeThreatReporter : public threat_scanner::IThreatReporter
+    {
+    public:
+
+        void sendThreatReport(
+            const std::string&,
+            const std::string&,
+            int64_t,
+            const std::string&,
+            std::time_t) override
+        {
+                PRINT("Reporting threat");
+        };
+    };
+}
+
 static int scan(const char* filename, const char* chroot)
 {
     PRINT("Scanning "<< filename);
@@ -147,8 +165,10 @@ static int scan(const char* filename, const char* chroot)
     fs::path pluginInstall = PLUGIN_INSTALL;
     fs::path chrootPath = pluginInstall / "chroot";
 
+    auto threatReporter = std::make_shared<FakeThreatReporter>();
+
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
-        = std::make_shared<threat_scanner::SusiScannerFactory>();
+        = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter);
 
     auto scanner = scannerFactory->createScanner(true);
 

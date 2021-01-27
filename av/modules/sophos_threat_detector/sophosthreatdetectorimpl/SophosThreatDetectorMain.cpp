@@ -22,6 +22,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
 #include <linux/securebits.h>
+#include <sophos_threat_detector/threat_scanner/ThreatReporter.h>
 #include <unixsocket/threatDetectorSocket/Reloader.h>
 #include <unixsocket/threatDetectorSocket/SigUSR1Monitor.h>
 
@@ -310,12 +311,10 @@ static int inner_main()
     fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
 #endif
 
+    threat_scanner::IThreatReporterSharedPtr threatReporter = std::make_shared<threat_scanner::ThreatReporter>();
+
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
-#ifdef USE_SUSI
-        = std::make_shared<threat_scanner::SusiScannerFactory>();
-#else
-        = std::make_shared<threat_scanner::FakeSusiScannerFactory>();
-#endif
+        = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter);
 
     scannerFactory->update(); // always force an update during start-up
 

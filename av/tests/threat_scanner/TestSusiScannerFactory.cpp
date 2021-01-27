@@ -19,7 +19,7 @@ TEST(TestSusiScannerFactory, testWithoutPLUGIN_INSTALL) // NOLINT
 {
     try
     {
-        SusiScannerFactory factory;
+        SusiScannerFactory factory(nullptr);
         FAIL() << "Able to construct SusiScannerFactory!";
     }
     catch (const std::exception& ex)
@@ -35,7 +35,7 @@ TEST(TestSusiScannerFactory, testConstruction) // NOLINT
 
     try
     {
-        SusiScannerFactory factory;
+        SusiScannerFactory factory(nullptr);
         FAIL() << "Able to construct SusiScannerFactory!";
     }
     catch (const std::exception& ex)
@@ -48,13 +48,13 @@ TEST(TestSusiScannerFactory, testConstruction) // NOLINT
 TEST(TestSusiScannerFactory, testConstructionWithMockSusiWrapper) // NOLINT
 {
     ISusiWrapperFactorySharedPtr wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    EXPECT_NO_THROW(SusiScannerFactory factory(wrapperFactory));
+    EXPECT_NO_THROW(SusiScannerFactory factory(wrapperFactory, nullptr));
 }
 
 TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesFalse) // NOLINT
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    SusiScannerFactory factory(wrapperFactory);
+    SusiScannerFactory factory(wrapperFactory, nullptr);
 
     const std::string scannerConfig = R"sophos({"scanner": {
         "signatureBased": {
@@ -90,7 +90,7 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesFalse) 
 TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue) // NOLINT
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    SusiScannerFactory factory(wrapperFactory);
+    SusiScannerFactory factory(wrapperFactory, nullptr);
 
     const std::string scannerConfig = R"sophos({"scanner": {
         "signatureBased": {

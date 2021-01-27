@@ -14,17 +14,18 @@ using namespace threat_scanner;
 
 IThreatScannerPtr SusiScannerFactory::createScanner(bool scanArchives)
 {
-    IThreatReporterSharedPtr reporter = std::make_shared<ThreatReporter>();
-    return std::make_unique<SusiScanner>(m_wrapperFactory, scanArchives, std::move(reporter));
+    return std::make_unique<SusiScanner>(m_wrapperFactory, scanArchives, m_reporter);
 }
 
-SusiScannerFactory::SusiScannerFactory(ISusiWrapperFactorySharedPtr wrapperFactory)
-    : m_wrapperFactory(std::move(wrapperFactory))
+SusiScannerFactory::SusiScannerFactory(
+    ISusiWrapperFactorySharedPtr wrapperFactory
+    , IThreatReporterSharedPtr reporter)
+    : m_wrapperFactory(std::move(wrapperFactory)), m_reporter(std::move(reporter))
 {
 }
 
-SusiScannerFactory::SusiScannerFactory()
-    : SusiScannerFactory(std::make_shared<SusiWrapperFactory>())
+SusiScannerFactory::SusiScannerFactory(IThreatReporterSharedPtr reporter)
+    : SusiScannerFactory(std::make_shared<SusiWrapperFactory>(), std::move(reporter))
 {
 }
 
