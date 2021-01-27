@@ -355,6 +355,8 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
 Install master of base and edr and mtr and upgrade to edr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  content=[edr]\nVERBOSITY = DEBUG\n
+
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
 
@@ -375,6 +377,12 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Running
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf for query tags
+    Check EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf for query tags
 
     Wait Until Keyword Succeeds
     ...   200 secs
