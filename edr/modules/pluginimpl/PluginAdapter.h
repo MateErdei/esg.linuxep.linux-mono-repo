@@ -7,6 +7,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IOsqueryProcess.h"
+#include "MtrMonitor.h"
 #include "OsqueryConfigurator.h"
 #include "OsqueryDataManager.h"
 #include "PluginCallback.h"
@@ -20,6 +21,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <queryrunner/ParallelQueryProcessor.h>
 
 #include <future>
+#include <list>
 
 namespace Plugin
 {
@@ -98,10 +100,10 @@ namespace Plugin
         OsqueryConfigurator& osqueryConfigurator();
 
         std::string m_liveQueryRevId = "";
-        unsigned int m_dataLimit = DEFAULT_XDR_DATA_LIMIT_BYTES;
+        unsigned int m_dataLimit;
         std::string m_liveQueryStatus = "NoRef";
 
-        LoggerExtension m_loggerExtension;
+        std::shared_ptr<LoggerExtension> m_loggerExtensionPtr;
 
         Common::PersistentValue<time_t> m_scheduleEpoch;
         // 6 Days in seconds
@@ -110,19 +112,14 @@ namespace Plugin
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
-        int QUEUE_TIMEOUT = 600;
+        int QUEUE_TIMEOUT = 5;
         bool m_isXDR = false;
         void sendLiveQueryStatus();
-        SophosExtension m_sophosExtension;
 
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
 
-        // XDR consts
-        static const int DEFAULT_MAX_BATCH_SIZE_BYTES = 2000000; // 2MB
-        static const int DEFAULT_MAX_BATCH_TIME_SECONDS = 15;
-        static const int DEFAULT_XDR_DATA_LIMIT_BYTES = 250000000; // 250MB
-        static const int DEFAULT_XDR_PERIOD_SECONDS = 86400; // 1 day
+
 
         void processQuery(const std::string& query, const std::string& correlationId);
         void processFlags(const std::string& flagsContent);
@@ -136,12 +133,15 @@ namespace Plugin
         static bool pluginMemoryAboveThreshold();
         void loadXdrFlags();
         void dataFeedExceededCallback();
+
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
-
         unsigned int m_timesOsqueryProcessFailedToStart;
         OsqueryConfigurator m_osqueryConfigurator;
         bool m_collectAuditEnabled = false;
         bool m_restartNoDelay = false;
+        std::optional<bool> m_mtrHasScheduledQueries;
+        MtrMonitor m_mtrQuerier;
+        std::list<std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>> m_extensionAndStateList;
     };
 } // namespace Plugin

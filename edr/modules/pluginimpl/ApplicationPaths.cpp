@@ -51,6 +51,23 @@ std::string Plugin::osqueryConfigFilePath()
     return fromRelative("etc/osquery.conf");
 }
 
+std::string Plugin::osqueryXDRConfigFilePath()
+{
+    return fromRelative("etc/osquery.conf.d/sophos-scheduled-query-pack.conf");
+}
+
+std::string Plugin::osqueryXDRResultSenderIntermediaryFilePath()
+{
+    return fromRelative("var/xdr_intermediary");
+}
+
+std::string Plugin::osqueryXDROutputDatafeedFilePath()
+{
+    return Common::FileSystem::join(
+        Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
+        "base/mcs/datafeed");
+}
+
 std::string Plugin::osqueryPidFile()
 {
     return fromRelative("var/osquery.pid");
@@ -58,7 +75,9 @@ std::string Plugin::osqueryPidFile()
 
 std::string Plugin::syslogPipe()
 {
-    return fromRelative("var/syslog_pipe");
+    return Common::FileSystem::join(
+        Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
+        "shared/syslog_pipe");
 }
 
 std::string Plugin::osQueryLogDirectoryPath()
@@ -122,3 +141,14 @@ std::string Plugin::etcDir()
     return fromRelative("etc");
 }
 
+std::string Plugin::varDir()
+{
+    return fromRelative("var");
+}
+
+std::string Plugin::mtrFlagsFile()
+{
+    return Common::FileSystem::join(
+        Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
+        "plugins/mtr/dbos/data/osquery.flags");
+}

@@ -12,6 +12,9 @@ namespace Plugin
     std::string osqueryPath();
     std::string osqueryFlagsFilePath();
     std::string osqueryConfigFilePath();
+    std::string osqueryXDRConfigFilePath();
+    std::string osqueryXDRResultSenderIntermediaryFilePath();
+    std::string osqueryXDROutputDatafeedFilePath();
     std::string osquerySocket();
     std::string lockFilePath();
     std::string osqueryPidFile();
@@ -29,4 +32,8 @@ namespace Plugin
     std::string osQueryLensesPath();
     std::string livequeryResponsePath();
     std::string etcDir();
+    std::string varDir();
+
+    // TODO shall we raise a ticket to remove this MTR work around code?
+    std::string mtrFlagsFile();
 } // namespace Plugin
