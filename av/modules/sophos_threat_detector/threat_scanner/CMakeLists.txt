@@ -3,6 +3,7 @@ add_library(threat_scanner SHARED
         Logger.cpp
         ISusiWrapper.h
         ISusiWrapperFactory.h
+        IThreatReporter.h
         IThreatScanner.h
         IThreatScannerFactory.h
         SusiCertificateFunctions.h
@@ -21,7 +22,7 @@ add_library(threat_scanner SHARED
         SusiWrapperFactory.cpp
         ScannerInfo.h
         ScannerInfo.cpp
-        ThrowIfNotOk.h IThreatReporter.h ThreatReporter.cpp ThreatReporter.h)
+        ThrowIfNotOk.h )
 
 find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
 

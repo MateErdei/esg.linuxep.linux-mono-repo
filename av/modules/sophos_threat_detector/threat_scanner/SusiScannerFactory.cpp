@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SusiScanner.h"
 #include "SusiWrapperFactory.h"
-#include "ThreatReporter.h"
 
 using namespace threat_scanner;
 

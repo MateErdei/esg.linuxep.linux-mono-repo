@@ -7,7 +7,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "ThreatReporter.h"
 
 #include "Logger.h"
-#include "ScannerInfo.h"
+
+#include "sophos_threat_detector/threat_scanner/ScannerInfo.h"
 
 #include "unixsocket/threatReporterSocket/ThreatReporterClient.h"
 
@@ -18,7 +19,7 @@ static fs::path threat_reporter_socket()
     return threat_scanner::pluginInstall() / "chroot/var/threat_report_socket";
 }
 
-void threat_scanner::ThreatReporter::sendThreatReport(
+void sspl::sophosthreatdetectorimpl::ThreatReporter::sendThreatReport(
     const std::string& threatPath,
     const std::string& threatName,
     int64_t scanType,

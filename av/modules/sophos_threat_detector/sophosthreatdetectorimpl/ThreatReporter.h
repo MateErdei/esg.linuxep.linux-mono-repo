@@ -6,11 +6,11 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IThreatReporter.h"
+#include "sophos_threat_detector/threat_scanner/IThreatReporter.h"
 
-namespace threat_scanner
+namespace sspl::sophosthreatdetectorimpl
 {
-    class ThreatReporter : public IThreatReporter
+    class ThreatReporter : public threat_scanner::IThreatReporter
     {
     public:
         void sendThreatReport(

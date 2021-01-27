@@ -10,7 +10,9 @@ add_library(sophosthreatdetectorimpl SHARED
         SophosThreatDetectorMain.cpp
         SophosThreatDetectorMain.h
         Logger.cpp
-        Logger.h)
+        Logger.h
+        ThreatReporter.cpp
+        ThreatReporter.h)
 
 target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         threat_scanner

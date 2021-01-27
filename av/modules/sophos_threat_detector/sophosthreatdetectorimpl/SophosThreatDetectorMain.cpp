@@ -22,7 +22,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
 #include <linux/securebits.h>
-#include <sophos_threat_detector/threat_scanner/ThreatReporter.h>
+#include <sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h>
 #include <unixsocket/threatDetectorSocket/Reloader.h>
 #include <unixsocket/threatDetectorSocket/SigUSR1Monitor.h>
 
@@ -311,7 +311,7 @@ static int inner_main()
     fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
 #endif
 
-    threat_scanner::IThreatReporterSharedPtr threatReporter = std::make_shared<threat_scanner::ThreatReporter>();
+    threat_scanner::IThreatReporterSharedPtr threatReporter = std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>();
 
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
         = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter);
