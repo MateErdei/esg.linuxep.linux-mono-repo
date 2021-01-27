@@ -14,7 +14,14 @@ add_executable(UpdateSchedulerTests
         TestUpdateScheduler.cpp
         MockAsyncDownloaderRunner.h
         MockCronSchedulerThread.h
-        TestWithMockTimerAbstract.h)
+        TestWithMockTimerAbstract.h
+        TestDownloadStateMachine.cpp
+        TimeStamp.h
+        TimeStamp.cpp GTestIncluder.h GTestMemoryLeak.h Macros.h
+        InstallStateMachineTests.cpp
+        EventStateMachineTests.cpp
+        TestStateMachineData.cpp
+        StateMachineDataBase.h)
 
 target_include_directories(UpdateSchedulerTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${LOG4CPLUS_INCLUDE_DIR} "${PROJECT_SOURCE_DIR}")
 target_link_libraries(UpdateSchedulerTests gtest gmock gtest_main updateschedulerimpl filesystemimpl testhelpers processimpl suldownloaderdata)

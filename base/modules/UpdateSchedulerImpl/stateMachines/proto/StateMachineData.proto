@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package StateMachineRawDataProto;
+
+message StateMachineRawData
+{
+   optional string DownloadFailedSinceTime = 1;
+   optional string DownloadState = 2;
+   optional string DownloadStateCredit = 3;
+   optional string EventStateLastError = 4;
+   optional string EventStateLastTime = 5;
+   optional string InstallFailedSinceTime = 6;
+   optional string InstallState = 7;
+   optional string InstallStateCredit = 8;
+   optional string LastGoodInstallTime = 9;
+}

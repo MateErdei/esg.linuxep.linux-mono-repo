@@ -4,10 +4,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <Common/FileSystem/IFileSystem.h>
-#include <SulDownloader/suldownloaderdata/DownloadReport.h>
-#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Logging/LoggerConfig.h>
+#include <SulDownloader/suldownloaderdata/DownloadReport.h>
+#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 
 #include <chrono>
 #include <fstream>
