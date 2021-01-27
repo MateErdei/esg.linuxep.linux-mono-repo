@@ -24,6 +24,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <fstream>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 // helper class that allow to schedule a task.
 // but it also has some capability of interrupting the scheduler at any point
@@ -575,8 +576,55 @@ namespace Plugin
     std::string PluginAdapter::getCustomQueries(const std::string& liveQueryPolicy)
     {
         Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
-        const std::string customQueries{"customQueries"};
-        Common::XmlUtilities::Attributes attributes = attributesMap.lookup(customQueries);
+        const std::string customQueries = "policy/configuration/scheduled/customQueries";
+        const std::string queryTag = "customQuery";
+        Common::XmlUtilities::Attributes stuff = attributesMap.lookup(customQueries);
+        Common::XmlUtilities::Attributes attributes = attributesMap.lookup(customQueries+"/"+queryTag);
+        if(attributes.empty())
+        {// remove config
+            LOGINFO("No custom query in policy, removing custom query config file");
+            return "";
+        }
+        nlohmann::json customQueryPack;
+
+        int i = 0;
+        while(true)
+        {
+            std::string suffix ="";
+            if (i != 0)
+            {
+                suffix = "_"+ std::to_string(i-1);
+            }
+            i++;
+            std::string key = customQueries+"/"+queryTag+suffix;
+            Common::XmlUtilities::Attributes customQuery = attributesMap.lookup(key);
+            if (customQuery.empty())
+            {
+                break;
+            }
+            std::string queryName = customQuery.value("queryName", "");
+            std::string query = attributesMap.lookup(key+"/query").value("TextId", "");
+            std::string interval = attributesMap.lookup(key+"/interval").value("TextId", "");
+
+            if (interval.empty() || query.empty() || queryName.empty())
+            {
+                LOGWARN("custom query is malformed missing fields");
+                continue;
+            }
+            std::string tag = attributesMap.lookup(key+"/").value("TextId", "");
+            std::string description = attributesMap.lookup(key+"/description").value("TextId", "");
+            std::string denylist = attributesMap.lookup(key+"/denylist").value("TextId", "");
+            std::string removed = attributesMap.lookup(key+"/removed").value("TextId", "");
+            customQueryPack["scheduled"][queryName]["query"] = query;
+            customQueryPack["scheduled"][queryName]["tag"] = tag;
+            customQueryPack["scheduled"][queryName]["interval"] = interval;
+            customQueryPack["scheduled"][queryName]["description"] = description;
+            customQueryPack["scheduled"][queryName]["denylist"] = denylist;
+            customQueryPack["scheduled"][queryName]["removed"] = removed;
+        }
+        //TODO create template decorator
+        customQueryPack["decorators"] = "";
+        return customQueryPack.dump();
 //        <customQueries>
 //        <customQuery queryName="{{queryName}}">
 //        <description>{{description}}</description>
@@ -599,7 +647,7 @@ namespace Plugin
 //            }
 //    }
 //})";
-        return "";
+
     }
 
     void PluginAdapter::processFlags(const std::string& flagsContent)

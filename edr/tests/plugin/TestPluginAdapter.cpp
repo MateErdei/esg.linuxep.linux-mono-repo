@@ -521,8 +521,8 @@ TEST_F(PluginAdapterWithMockFileSystem, testUpdateCustomQueries)
                                      "                      <query>SELECT * FROM stuff</query>\n"
                                      "                      <interval>10</interval>\n"
                                      "                      <tag>DataLake</tag>\n"
-                                     "                      <removed>{{removed}}</removed>\n"
-                                     "                      <denylist>{{denylist}}</denylist>\n"
+                                     "                      <removed></removed>\n"
+                                     "                      <denylist></denylist>\n"
                                      "                  </customQuery>\n"
                                      "                  <customQuery queryName=\"blah2\">\n"
                                      "                      <description>basic query</description>\n"
@@ -536,8 +536,8 @@ TEST_F(PluginAdapterWithMockFileSystem, testUpdateCustomQueries)
                                      "        </scheduled>\n"
                                      "    </configuration>\n"
                                      "</policy>";
-
-    EXPECT_EQ(pluginAdapter.getCustomQueries(liveQueryPolicy100), "");
+    std::string expected = R"({"decorators":"","scheduled":{"blah":{"denylist":"","description":"basic query","interval":"10","query":"SELECT * FROM stuff","removed":"","tag":""},"blah2":{"denylist":"{{denylist}}","description":"basic query","interval":"10","query":"SELECT * FROM stuff","removed":"{{removed}}","tag":""}}})";
+    EXPECT_EQ(pluginAdapter.getCustomQueries(liveQueryPolicy100), expected);
 }
 TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesValidStatusWithNoPolicy)
 {
