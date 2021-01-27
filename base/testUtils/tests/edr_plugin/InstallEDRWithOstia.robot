@@ -383,6 +383,8 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...  2 secs
     ...  Check EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf for query tags
     Check EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf for query tags
+    # Check for warning that there is a naming collision in the map of query tags
+    Check Edr Log Does Not Contain  already in query map
 
     Wait Until Keyword Succeeds
     ...   200 secs

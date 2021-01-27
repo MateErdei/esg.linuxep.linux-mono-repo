@@ -478,6 +478,10 @@ class LogUtils(object):
     def check_edr_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.edr_log, "EDR")
 
+    def check_edr_log_does_not_contain(self, string_to_not_contain):
+        log = self.edr_log
+        self.check_log_does_not_contain(string_to_not_contain, log, "EDR")
+
     def check_mdr_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.mdr_log, "MDR")
 
