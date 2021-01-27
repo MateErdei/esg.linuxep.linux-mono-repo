@@ -572,6 +572,35 @@ namespace Plugin
         }
         return revId;
     }
+    std::string PluginAdapter::getCustomQueries(const std::string& liveQueryPolicy)
+    {
+        Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
+        const std::string customQueries{"customQueries"};
+        Common::XmlUtilities::Attributes attributes = attributesMap.lookup(customQueries);
+//        <customQueries>
+//        <customQuery queryName="{{queryName}}">
+//        <description>{{description}}</description>
+//        <query>{{query}}</query>
+//        <interval>{{interval}}</interval>
+//        <tag>{{tag}}</tag>
+//         <removed>{{removed}}</removed>
+//        <denylist>{{denylist}}</denylist>
+//         </customQuery>
+//        const std::string EXAMPLE_MTR_QUERY_PACK =  R"({
+//    "schedule": {
+//            "osquery_rocksdb_size_linux": {
+//                "query": "WITH files (\n  number_of_files,\n  total_size,\n  mb\n) AS (\n  SELECT count(*) AS number_of_files,\n  SUM(size) AS total_size,\n  SUM(size)/1024/1024 AS mb\n  FROM file\n  WHERE path LIKE '/opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM files\nWHERE mb > 50;",
+//                "interval": 86400,
+//                "removed": false,
+//                "blacklist": false,
+//                "platform": "linux",
+//                "description": "Retrieves the size of Osquery RocksDB on Linux.",
+//                "tag": "stream"
+//            }
+//    }
+//})";
+        return "";
+    }
 
     void PluginAdapter::processFlags(const std::string& flagsContent)
     {

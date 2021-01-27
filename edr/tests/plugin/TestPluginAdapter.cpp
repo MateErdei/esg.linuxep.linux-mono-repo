@@ -502,7 +502,43 @@ TEST_F(PluginAdapterWithMockFileSystem, testGetRevID)
     EXPECT_THROW(pluginAdapter.getRevId(garbage), std::exception);
 }
 
+TEST_F(PluginAdapterWithMockFileSystem, testUpdateCustomQueries)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
 
+    std::string liveQueryPolicy100 = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "            <customQueries>\n"
+                                     "                  <customQuery queryName=\"blah\">\n"
+                                     "                      <description>basic query</description>\n"
+                                     "                      <query>SELECT * FROM stuff</query>\n"
+                                     "                      <interval>10</interval>\n"
+                                     "                      <tag>DataLake</tag>\n"
+                                     "                      <removed>{{removed}}</removed>\n"
+                                     "                      <denylist>{{denylist}}</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery queryName=\"blah2\">\n"
+                                     "                      <description>basic query</description>\n"
+                                     "                      <query>SELECT * FROM stuff</query>\n"
+                                     "                      <interval>10</interval>\n"
+                                     "                      <tag>DataLake</tag>\n"
+                                     "                      <removed>{{removed}}</removed>\n"
+                                     "                      <denylist>{{denylist}}</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "            </customQueries>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    EXPECT_EQ(pluginAdapter.getCustomQueries(liveQueryPolicy100), "");
+}
 TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesValidStatusWithNoPolicy)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
