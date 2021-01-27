@@ -2,7 +2,7 @@ include(GoogleTest)
 
 SophosAddTest(TestThreatReporter
         TestThreatReporter.cpp
-        PROJECTS unixsocket
+        PROJECTS sophosthreatdetectorimpl
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
         )

@@ -6,6 +6,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include "ThreatReporter.h"
 
+#include <utility>
+
 #include "Logger.h"
 
 #include "sophos_threat_detector/threat_scanner/ScannerInfo.h"
@@ -14,9 +16,10 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 namespace fs = sophos_filesystem;
 
-static fs::path threat_reporter_socket()
+sspl::sophosthreatdetectorimpl::ThreatReporter::ThreatReporter(
+    sspl::sophosthreatdetectorimpl::ThreatReporter::path  threatReporterSocketPath)
+    : m_threatReporterSocketPath(std::move(threatReporterSocketPath))
 {
-    return threat_scanner::pluginInstall() / "chroot/var/threat_report_socket";
 }
 
 void sspl::sophosthreatdetectorimpl::ThreatReporter::sendThreatReport(
@@ -31,7 +34,7 @@ void sspl::sophosthreatdetectorimpl::ThreatReporter::sendThreatReport(
         LOGERROR("Missing path while sending Threat Report: empty string");
     }
 
-    fs::path threatReporterSocketPath = threat_reporter_socket();
+    fs::path threatReporterSocketPath = m_threatReporterSocketPath;
     LOGDEBUG("Threat reporter path " << threatReporterSocketPath);
     unixsocket::ThreatReporterClientSocket threatReporterSocket(threatReporterSocketPath);
 

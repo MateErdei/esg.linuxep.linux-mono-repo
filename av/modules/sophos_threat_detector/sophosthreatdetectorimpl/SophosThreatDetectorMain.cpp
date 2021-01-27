@@ -244,6 +244,11 @@ static int lockCapabilities()
     return ret;
 }
 
+static fs::path threat_reporter_socket(const fs::path& pluginInstall)
+{
+    return pluginInstall / "chroot/var/threat_report_socket";
+}
+
 static int inner_main()
 {
     auto reloader = std::make_shared<unixsocket::Reloader>();
@@ -311,7 +316,8 @@ static int inner_main()
     fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
 #endif
 
-    threat_scanner::IThreatReporterSharedPtr threatReporter = std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>();
+    threat_scanner::IThreatReporterSharedPtr threatReporter =
+        std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>(threat_reporter_socket(pluginInstall));
 
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
         = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter);
