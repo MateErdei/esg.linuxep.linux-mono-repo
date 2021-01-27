@@ -654,28 +654,6 @@ TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
     resultsSender.Add(testJsonResult);
 }
 
-//TODO renable when we add pack names to scheduled querys in the query map
-//TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
-//{
-//    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-//    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-//    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
-//    EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
-//    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
-//    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
-//    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
-//    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
-//    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds")).WillOnce(Return(false));
-//    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
-//    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
-//    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-//    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
-//    ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH);
-//    std::string testResult = R"({"name":"pack_mtr_osquery_rocksdb_size_linux"})";
-//    std::string correctedNameResult = "{\"name\":\"osquery_rocksdb_size_linux\",\"tag\":\"stream\"}";
-//    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, correctedNameResult)).Times(1);
-//    resultsSender.Add(testResult);
-//}
 
 TEST_F(TestResultSender, initialExistsThrowsExceptionContinuesConstructor)  // NOLINT
 {
