@@ -29,10 +29,10 @@ find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
 get_filename_component(ABS_SUSI_LIB ${SUSI_LIB} REALPATH)
 
 target_link_libraries(threat_scanner PUBLIC
+        common
         datatypes
         obfuscationimpl
         scanmessages
-        unixsocket
         ${STD_FILESYSTEM_IF_REQUIRED}
         ${SUSI_LIB}
         )
