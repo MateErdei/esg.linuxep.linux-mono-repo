@@ -82,6 +82,28 @@ EDR Plugin Detects Data Limit From Policy And That A Status Is Sent On Start
     Expect New Datalimit  250000000
     Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
 
+EDR Plugin writes custom query file when it recieves a Live Query policy and removes it when there are no custom queries
+    [Setup]  No Operation
+    Install Base For Component Tests
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Install EDR Directly from SDDS
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  First LiveQuery policy received
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
+
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+
+    Wait Until Keyword Succeeds
+        ...  15 secs
+        ...  1 secs
+        ...  File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
+
 EDR Plugin Send LiveQuery Status On Period Rollover
     [Setup]  No Operation
     Install Base For Component Tests
