@@ -405,7 +405,7 @@ CLS Will Not Scan Inside Restricted Folder
     Log  return code is ${rc}
     Log  output is ${output}
 
-    Should Contain       ${output.replace("\n", " ")}  Failed to get the status of
+    Should Contain       ${output.replace("\n", " ")}  Failed to get the symlink status of
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
