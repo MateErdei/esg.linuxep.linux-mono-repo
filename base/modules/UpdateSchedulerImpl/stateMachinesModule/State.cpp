@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -9,7 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <fstream>
 
 State::State() :
-    //rebootStateMachine_{ RebootData::MachineState{} },
     downloadStateMachine_{ StateData::DownloadMachineState{}, std::chrono::system_clock::now() },
     installStateMachine_{ StateData::InstallMachineState{}, std::chrono::system_clock::now() },
     eventStateMachine_{ downloadStateMachine_, installStateMachine_, StateData::EventMachineState{} },

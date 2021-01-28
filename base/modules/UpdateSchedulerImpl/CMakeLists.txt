@@ -39,8 +39,6 @@ add_library(updateschedulerimpl SHARED
         UpdateSchedulerProcessor.cpp
         UpdateSchedulerBootstrap.h
         UpdateSchedulerBootstrap.cpp
-        ../UpdateScheduler/ICacheEvaluator.h
-        ../UpdateScheduler/IHealthEventManager.h
         ../UpdateScheduler/IState.h
         ../UpdateScheduler/IVersionPersister.h
         stateMachinesModule/DownloadStateMachine.h

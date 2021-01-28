@@ -1,8 +1,9 @@
 /******************************************************************************************************
 
-Copyright 2019-2020, Sophos Limited.  All rights reserved.
+Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
 #pragma once
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
