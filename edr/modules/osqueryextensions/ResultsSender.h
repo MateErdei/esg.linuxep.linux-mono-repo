@@ -26,6 +26,7 @@ public:
         const std::string& datafeedPath,
         const std::string& osqueryXDRConfigFilePath,
         const std::string& osqueryMTRConfigFilePath,
+        const std::string& osqueryCustomConfigFilePath,
         const std::string& pluginVarDir,
         unsigned int dataLimit,
         unsigned int periodInSeconds
@@ -36,6 +37,7 @@ public:
     // cppcheck-suppress virtualCallInConstructor
     void Send() override;
     void Reset() override;
+    void resetTags();
     void setDataLimit(unsigned int limitBytes);
     bool getDataLimitReached();
     void setDataPeriod(unsigned int periodSeconds);
@@ -59,6 +61,7 @@ private:
     std::string m_datafeedPath;
     std::string m_osqueryXDRConfigFilePath;
     std::string m_osqueryMTRConfigFilePath;
+    std::string m_osqueryCustomConfigFilePath;
     Common::PersistentValue<unsigned int> m_currentDataUsage;
     Common::PersistentValue<unsigned int> m_periodStartTimestamp;
     unsigned int m_dataLimit;

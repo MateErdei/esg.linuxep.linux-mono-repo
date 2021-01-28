@@ -23,6 +23,7 @@ ResultsSender::ResultsSender(
     const std::string& datafeedPath,
     const std::string& osqueryXDRConfigFilePath,
     const std::string& osqueryMTRConfigFilePath,
+    const std::string& osqueryCustomConfigFilePath,
     const std::string& pluginVarDir,
     unsigned int dataLimit,
     unsigned int periodInSeconds,
@@ -31,6 +32,7 @@ ResultsSender::ResultsSender(
     m_datafeedPath(datafeedPath),
     m_osqueryXDRConfigFilePath(osqueryXDRConfigFilePath),
     m_osqueryMTRConfigFilePath(osqueryMTRConfigFilePath),
+    m_osqueryCustomConfigFilePath(osqueryCustomConfigFilePath),
     m_currentDataUsage(pluginVarDir, "xdrDataUsage", 0),
     m_periodStartTimestamp(
         pluginVarDir,
@@ -185,7 +187,10 @@ void ResultsSender::Reset()
     filesystem->appendFile(m_intermediaryPath, "[");
     m_firstEntry = true;
 }
-
+void ResultsSender::resetTags()
+{
+    loadScheduledQueryTags();
+}
 uintmax_t ResultsSender::GetFileSize()
 {
     uintmax_t size = 0;
@@ -255,6 +260,7 @@ void ResultsSender::loadScheduledQueryTags()
     std::vector<ScheduledQuery> scheduledQueries;
     loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryXDRConfigFilePath);
     loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryMTRConfigFilePath);
+    loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryCustomConfigFilePath);
 
     m_scheduledQueryTags = scheduledQueries;
 }

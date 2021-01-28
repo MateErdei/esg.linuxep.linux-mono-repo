@@ -90,6 +90,7 @@ namespace Plugin
                             Plugin::osqueryXDROutputDatafeedFilePath(),
                             Plugin::osqueryXDRConfigFilePath(),
                             Plugin::osqueryMTRConfigFilePath(),
+                            Plugin::osqueryCustomConfigFilePath(),
                             Plugin::varDir(),
                             DEFAULT_XDR_DATA_LIMIT_BYTES,
                             DEFAULT_XDR_PERIOD_SECONDS,
@@ -456,7 +457,7 @@ namespace Plugin
             m_restartNoDelay = true;
             return;
         }
-
+        m_loggerExtensionPtr->reloadTags();
         for( auto extensionAndRunningStatus :   m_extensionAndStateList)
         {
             auto extension = extensionAndRunningStatus.first;

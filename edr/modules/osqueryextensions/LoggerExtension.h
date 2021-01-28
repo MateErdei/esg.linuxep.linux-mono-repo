@@ -19,6 +19,7 @@ public:
             const std::string& datafeedPath,
             const std::string& osqueryXDRConfigFilePath,
             const std::string& osqueryMTRConfigFilePath,
+            const std::string& osqueryCustomConfigFilePath,
             const std::string& pluginVarDir,
             unsigned int dataLimit,
             unsigned int periodInSeconds,
@@ -33,6 +34,7 @@ public:
     void setDataPeriod(unsigned int periodSeconds);
     bool checkDataPeriodHasElapsed();
     bool getDataLimitReached();
+    void reloadTags();
 
 private:
     void Run(std::shared_ptr<std::atomic_bool> extensionFinished);

@@ -17,6 +17,7 @@ LoggerExtension::LoggerExtension(
         const std::string& datafeedPath,
         const std::string& osqueryXDRConfigFilePath,
         const std::string& osqueryMTRConfigFilePath,
+        const std::string& osqueryCustomConfigFilePath,
         const std::string& pluginVarDir,
         unsigned int dataLimit,
         unsigned int periodInSeconds,
@@ -28,6 +29,7 @@ LoggerExtension::LoggerExtension(
         datafeedPath,
         osqueryXDRConfigFilePath,
         osqueryMTRConfigFilePath,
+        osqueryCustomConfigFilePath,
         pluginVarDir,
         dataLimit,
         periodInSeconds,
@@ -81,7 +83,10 @@ void LoggerExtension::Stop()
         LOGINFO("LoggerExtension::Stopped");
     }
 }
-
+void LoggerExtension::reloadTags()
+{
+    m_resultsSender.resetTags();
+}
 void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
 {
     LOGDEBUG("LoggerExtension running");
