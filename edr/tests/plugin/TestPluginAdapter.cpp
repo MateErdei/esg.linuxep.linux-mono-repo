@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/TempDir.h>
+#include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/PluginAdapter.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
@@ -578,6 +579,93 @@ TEST_F(PluginAdapterWithMockFileSystem, testUpdateCustomQueries)
                            "}";
     EXPECT_EQ(pluginAdapter.getCustomQueries(liveQueryPolicy100), expected);
 }
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryCustomQueries)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string liveQueryPolicy100 = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "            <customQueries>\n"
+                                     "                  <customQuery queryName=\"blah\">\n"
+                                     "                      <description>basic query</description>\n"
+                                     "                      <query>SELECT * FROM stuff</query>\n"
+                                     "                      <interval>10</interval>\n"
+                                     "                      <tag>DataLake</tag>\n"
+                                     "                      <removed>false</removed>\n"
+                                     "                      <denylist>false</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery queryName=\"blah2\">\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query>SELECT * FROM otherstuff</query>\n"
+                                     "                      <interval>5</interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "            </customQueries>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    std::string expected = "{"
+                           "\"decorators\":{"
+                           "\"interval\":{"
+                           "\"3600\":["
+                           "\"SELECT endpoint_id AS eid from sophos_endpoint_info\","
+                           "\"SELECT\\n    interface_details.mac AS mac_address,\\n    interface_addresses.mask AS ip_mask,\\n    interface_addresses.address AS ip_address\\nFROM\\n    interface_addresses\\n    JOIN interface_details ON interface_addresses.interface = interface_details.interface\\nWHERE\\n    ip_address NOT LIKE '127.%'\\n    AND ip_address NOT LIKE '%:%'\\n    AND ip_address NOT LIKE '169.254.%'\\n    AND ip_address NOT LIKE '%.1'\\nORDER BY\\n    interface_details.last_change\\nLIMIT\\n    1\","
+                           "\"SELECT\\n    user AS username\\nFROM\\n    logged_in_users\\nWHERE\\n    (\\n        type = 'user'\\n        OR type = 'active'\\n    )\\nORDER BY\\n    time DESC\\nLIMIT\\n    1\""
+                           "]"
+                           "},"
+                           "\"load\":["
+                           "\"SELECT (unix_time - (select total_seconds from uptime)) AS boot_time FROM time\","
+                           "\"SELECT\\n    CASE\\n        WHEN computer_name == '' THEN hostname\\n        ELSE computer_name\\n    END AS hostname\\nFROM\\n    system_info\","
+                           "\"SELECT\\n    name AS os_name,\\n    version AS os_version,\\n    platform AS os_platform\\nFROM\\n    os_version\\nLIMIT\\n    1\","
+                           "\"SELECT\\n    CASE \\n        WHEN upper(platform) == 'WINDOWS' AND upper(name) LIKE '%SERVER%' THEN 'server' \\n        WHEN upper(platform) == 'WINDOWS' AND upper(name) NOT LIKE '%SERVER%' THEN 'client' \\n        WHEN upper(platform) == 'DARWIN' THEN 'client' \\n        WHEN (SELECT count(*) FROM system_info WHERE cpu_brand LIKE '%Xeon%') == 1 THEN 'server' \\n        WHEN (SELECT count(*) FROM system_info WHERE hardware_vendor LIKE '%VMWare%') == 1 THEN 'server' \\n        WHEN (SELECT count(*) FROM system_info WHERE hardware_vendor LIKE '%QEMU%') == 1 THEN 'server' \\n        WHEN (\\n            (SELECT obytes FROM interface_details ORDER by obytes DESC LIMIT 1) > (SELECT ibytes FROM interface_details ORDER by ibytes DESC LIMIT 1)\\n            ) == 1 THEN 'server'\\n        ELSE 'client'\\n    END AS 'os_type'\\nFROM 'os_version';\","
+                           "\"SELECT endpoint_id AS eid from sophos_endpoint_info\","
+                           "\"SELECT\\n    interface_details.mac AS mac_address,\\n    interface_addresses.mask AS ip_mask,\\n    interface_addresses.address AS ip_address\\nFROM\\n    interface_addresses\\n    JOIN interface_details ON interface_addresses.interface = interface_details.interface\\nWHERE\\n    ip_address NOT LIKE '127.%'\\n    AND ip_address NOT LIKE '%:%'\\n    AND ip_address NOT LIKE '169.254.%'\\n    AND ip_address NOT LIKE '%.1'\\nORDER BY\\n    interface_details.last_change\\nLIMIT\\n    1\","
+                           "\"SELECT\\n    user AS username\\nFROM\\n    logged_in_users\\nWHERE\\n    (\\n        type = 'user'\\n        OR type = 'active'\\n    )\\nORDER BY\\n    time DESC\\nLIMIT\\n    1\","
+                           "\"SELECT '1.1.19' query_pack_version\""
+                           "]"
+                           "},"
+                           "\"scheduled\":{"
+                           "\"blah\":{"
+                           "\"denylist\":\"false\","
+                           "\"description\":\"basic query\","
+                           "\"interval\":\"10\","
+                           "\"query\":\"SELECT * FROM stuff\","
+                           "\"removed\":\"false\","
+                           "\"tag\":\"DataLake\""
+                           "},"
+                           "\"blah2\":{"
+                           "\"denylist\":\"true\","
+                           "\"description\":\"a different basic query\","
+                           "\"interval\":\"5\","
+                           "\"query\":\"SELECT * FROM otherstuff\","
+                           "\"removed\":\"true\","
+                           "\"tag\":\"stream\""
+                           "}"
+                           "}"
+                           "}";
+
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::osqueryCustomConfigFilePath(),_));
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
+
+}
+
 TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesValidStatusWithNoPolicy)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
@@ -638,7 +726,9 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithValidPolic
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
-
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/xdr_intermediary")).Times(1);
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).WillOnce(Return(false));
     std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
                                      "<policy type=\"LiveQuery\" RevID=\"987654321\" policyType=\"56\">\n"
                                      "    <configuration>\n"

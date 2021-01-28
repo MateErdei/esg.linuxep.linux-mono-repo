@@ -66,6 +66,11 @@ std::string Plugin::osqueryXDRResultSenderIntermediaryFilePath()
     return fromRelative("var/xdr_intermediary");
 }
 
+std::string Plugin::osqueryCustomConfigFilePath()
+{
+    return fromRelative("etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf");
+}
+
 std::string Plugin::osqueryXDROutputDatafeedFilePath()
 {
     return Common::FileSystem::join(

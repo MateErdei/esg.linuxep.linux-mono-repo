@@ -574,30 +574,30 @@ namespace Plugin
         }
         return revId;
     }
-    std::string PluginAdapter::getCustomQueries(const std::string& liveQueryPolicy)
+    std::optional<std::string> PluginAdapter::getCustomQueries(const std::string& liveQueryPolicy)
     {
         Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
         const std::string customQueries = "policy/configuration/scheduled/customQueries";
         const std::string queryTag = "customQuery";
-        Common::XmlUtilities::Attributes stuff = attributesMap.lookup(customQueries);
         Common::XmlUtilities::Attributes attributes = attributesMap.lookup(customQueries+"/"+queryTag);
         if(attributes.empty())
-        {// remove config
-            LOGINFO("No custom query in policy, removing custom query config file");
-            return "";
+        {
+            LOGINFO("No custom querys in LiveQuery policy");
+            return std::optional<std::string>();
         }
         nlohmann::json customQueryPack;
 
         int i = 0;
-        while(true)
+        bool queryAdded = false;
+        while (true)
         {
-            std::string suffix ="";
+            std::string suffix = "";
             if (i != 0)
             {
-                suffix = "_"+ std::to_string(i-1);
+                suffix = "_" + std::to_string(i - 1);
             }
             i++;
-            std::string key = customQueries+"/"+queryTag+suffix;
+            std::string key = customQueries + "/" + queryTag + suffix;
             Common::XmlUtilities::Attributes customQuery = attributesMap.lookup(key);
             if (customQuery.empty())
             {
@@ -622,32 +622,17 @@ namespace Plugin
             customQueryPack["scheduled"][queryName]["description"] = description;
             customQueryPack["scheduled"][queryName]["denylist"] = denylist;
             customQueryPack["scheduled"][queryName]["removed"] = removed;
+            queryAdded = true;
         }
+
+        if (!queryAdded)
+        {
+            LOGWARN("No valid queries found in LiveQuery Policy");
+            return std::optional<std::string>();
+        }
+
         customQueryPack["decorators"] = nlohmann::json::parse(DecoratorTemplate::decorators);
         return customQueryPack.dump();
-//        <customQueries>
-//        <customQuery queryName="{{queryName}}">
-//        <description>{{description}}</description>
-//        <query>{{query}}</query>
-//        <interval>{{interval}}</interval>
-//        <tag>{{tag}}</tag>
-//         <removed>{{removed}}</removed>
-//        <denylist>{{denylist}}</denylist>
-//         </customQuery>
-//        const std::string EXAMPLE_MTR_QUERY_PACK =  R"({
-//    "schedule": {
-//            "osquery_rocksdb_size_linux": {
-//                "query": "WITH files (\n  number_of_files,\n  total_size,\n  mb\n) AS (\n  SELECT count(*) AS number_of_files,\n  SUM(size) AS total_size,\n  SUM(size)/1024/1024 AS mb\n  FROM file\n  WHERE path LIKE '/opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM files\nWHERE mb > 50;",
-//                "interval": 86400,
-//                "removed": false,
-//                "blacklist": false,
-//                "platform": "linux",
-//                "description": "Retrieves the size of Osquery RocksDB on Linux.",
-//                "tag": "stream"
-//            }
-//    }
-//})";
-
     }
 
     void PluginAdapter::processFlags(const std::string& flagsContent)
@@ -850,19 +835,41 @@ namespace Plugin
     {
         if (!liveQueryPolicy.empty())
         {
+            std::optional<std::string> customQueries;
             try
             {
                 m_dataLimit = getDataLimit(liveQueryPolicy);
                 m_loggerExtensionPtr->setDataLimit(m_dataLimit);
                 m_liveQueryRevId = getRevId(liveQueryPolicy);
+                customQueries = getCustomQueries(liveQueryPolicy);
                 m_liveQueryStatus = "Same";
-                return;
+
             }
             catch (std::exception& e)
             {
                 LOGERROR("Failed to read LiveQuery Policy: " << e.what());
                 m_liveQueryStatus = "Failure";
             }
+
+            try
+            {
+                auto fs = Common::FileSystem::fileSystem();
+                if (fs->exists(osqueryCustomConfigFilePath()))
+                {
+                    fs->removeFileOrDirectory(osqueryCustomConfigFilePath());
+                }
+                if (customQueries.has_value())
+                {
+                    fs->writeFile(osqueryCustomConfigFilePath(), customQueries.value());
+                }
+            }
+            catch (Common::FileSystem::IFileSystemException &e)
+            {
+                LOGWARN(e.what());
+            }
+
+            return;
+
         }
         else
         {

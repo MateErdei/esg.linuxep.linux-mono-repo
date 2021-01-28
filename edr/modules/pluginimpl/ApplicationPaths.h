@@ -16,6 +16,7 @@ namespace Plugin
     std::string osqueryMTRConfigFilePath();
     std::string osqueryXDRResultSenderIntermediaryFilePath();
     std::string osqueryXDROutputDatafeedFilePath();
+    std::string osqueryCustomConfigFilePath();
     std::string osquerySocket();
     std::string lockFilePath();
     std::string osqueryPidFile();
