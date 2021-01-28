@@ -5,6 +5,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginAdapter.h"
+#include "DecoratorTemplate.h"
 
 #include "ApplicationPaths.h"
 #include "IOsqueryProcess.h"
@@ -611,7 +612,7 @@ namespace Plugin
                 LOGWARN("custom query is malformed missing fields");
                 continue;
             }
-            std::string tag = attributesMap.lookup(key+"/").value("TextId", "");
+            std::string tag = attributesMap.lookup(key+"/tag").value("TextId", "");
             std::string description = attributesMap.lookup(key+"/description").value("TextId", "");
             std::string denylist = attributesMap.lookup(key+"/denylist").value("TextId", "");
             std::string removed = attributesMap.lookup(key+"/removed").value("TextId", "");
@@ -622,8 +623,7 @@ namespace Plugin
             customQueryPack["scheduled"][queryName]["denylist"] = denylist;
             customQueryPack["scheduled"][queryName]["removed"] = removed;
         }
-        //TODO create template decorator
-        customQueryPack["decorators"] = "";
+        customQueryPack["decorators"] = nlohmann::json::parse(DecoratorTemplate::decorators);
         return customQueryPack.dump();
 //        <customQueries>
 //        <customQuery queryName="{{queryName}}">

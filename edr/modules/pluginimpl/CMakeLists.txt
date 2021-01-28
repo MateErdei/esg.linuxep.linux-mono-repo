@@ -5,8 +5,6 @@ sophos_add_library(pluginimpl SHARED
         QueueTask.h
         Logger.h
         Logger.cpp
-        MtrMonitor.h
-        MtrMonitor.cpp
         OsqueryDataManager.cpp
         OsqueryDataManager.h
         PluginAdapter.cpp
@@ -33,7 +31,8 @@ sophos_add_library(pluginimpl SHARED
         SystemConfigurator.cpp
         OsqueryLogIngest.h
         OsqueryLogIngest.cpp
-        EXTRA_PROJECTS queryrunnerimpl procimpl OsqueryExtensions osqueryclient
+        DecoratorTemplate.h
+        EXTRA_PROJECTS queryrunnerimpl procimpl OsqueryExtensions
         EXTRA_INCLUDES ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${BOOST_INCLUDE_DIR} ${OSQUERYSDK}/include
         EXTRA_LIBS ${zmqlib}
             ${log4cpluslib}
