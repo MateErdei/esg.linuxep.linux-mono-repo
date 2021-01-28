@@ -16,7 +16,7 @@ SusiCertTrustType threat_scanner::isTrustedCert(void *token, SusiHashAlg algorit
     (void)pkcs7;
     (void)size;
 
-    LOGWARN("Calling isTrustedCert with size=" << size);
+    LOGDEBUG("Calling isTrustedCert with size=" << size);
 
     return SUSI_UNKNOWN;
 }
@@ -27,7 +27,7 @@ bool threat_scanner::isAllowlistedCert(void *token, const char *fileTopLevelCert
     (void)fileTopLevelCert;
     (void)size;
 
-    LOGWARN("Calling isAllowlistedCert with size=" << size);
+    LOGDEBUG("Calling isAllowlistedCert with size=" << size);
 
     return false;
 }
