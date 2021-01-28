@@ -1123,3 +1123,27 @@ TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrowsTwice) // NOLINT
     filewalker::FileWalker fw(*callbacks);
     fw.walk(startingPoint);
 }
+
+TEST_F(TestFileWalker, symlinkNoPermission) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("target");
+    ASSERT_FALSE(fs::exists("link"));
+    fs::create_directories("link");
+    std::ofstream("target/file");
+    ASSERT_FALSE(fs::exists("link/symlink"));
+    fs::create_symlink("../target/file", "link/symlink");
+    fs::permissions("target/file", fs::perms::none);
+    fs::permissions("target", fs::perms::none);
+
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+    EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_,_)).WillOnce(Return(false));
+
+    filewalker::FileWalker fw(*callbacks);
+    auto startingPoint = fs::path("link");
+    fw.walk(startingPoint);
+
+    EXPECT_FALSE(appenderContains("Failed to get the status of"));
+}
