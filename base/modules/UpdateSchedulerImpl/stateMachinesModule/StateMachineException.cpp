@@ -1,12 +1,12 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "StateMachineException.h"
 
-using namespace UpdateScheduler::StateData;
+using namespace UpdateSchedulerImpl::StateData;
 
 StateMachineException::StateMachineException(std::string message) : m_message(std::move(message)) {}
 

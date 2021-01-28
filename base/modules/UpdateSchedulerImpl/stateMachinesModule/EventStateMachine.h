@@ -1,4 +1,8 @@
-// Copyright 2020 Sophos Limited.
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
@@ -7,7 +11,7 @@
 
 #include <optional>
 
-namespace StateLib
+namespace stateMachinesModule
 {
     class EventStateMachine
     {
@@ -26,4 +30,4 @@ namespace StateLib
 
         StateData::EventMachineState CurrentState() const;
     };
-} // namespace StateLib
+} // namespace stateMachinesModule

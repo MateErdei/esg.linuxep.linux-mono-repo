@@ -1,33 +1,24 @@
 /******************************************************************************************************
 
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
+Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-//#include "DownloadedProduct.h"
-//#include "IWarehouseRepository.h"
 #include "StateMachineData.h"
 
 #include "Logger.h"
 #include "StateMachineException.h"
-//#include "TimeTracker.h"
 
-#include <Common/FileSystem/IFileSystem.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+
 #include <google/protobuf/util/json_util.h>
 #include <StateMachineData.pb.h>
 #include <sstream>
 
-namespace UpdateScheduler
+namespace UpdateSchedulerImpl
 {
     namespace StateData
     {
-        using namespace Common::UtilityImpl;
-
-
-
         const std::string& StateMachineData::getDownloadFailedSinceTime() const
         {
             return m_downloadFailedSinceTime;
@@ -128,7 +119,7 @@ namespace UpdateScheduler
                     throw StateMachineException("Failed to process json message");
                 }
 
-                UpdateScheduler::StateData::StateMachineData stateMachineData;
+                UpdateSchedulerImpl::StateData::StateMachineData stateMachineData;
                 stateMachineData.m_downloadFailedSinceTime = protoStateMachine.downloadfailedsincetime();
                 stateMachineData.m_downloadState = protoStateMachine.downloadstate();
                 stateMachineData.m_downloadStateCredit = protoStateMachine.downloadstatecredit();
@@ -142,12 +133,5 @@ namespace UpdateScheduler
                 return stateMachineData;
             }
 
-        //    std::tuple<int, std::string> DownloadReport::CodeAndSerialize(const DownloadReport& report)
-        //    {
-        //        std::string json = DownloadReport::fromReport(report);
-        //        return std::tuple<int, std::string>(report.getExitCode(), json);
-        //    }
-
-
     } // namespace StateData
-} // namespace SulDownloader
+} // namespace UpdateSchedulerImpl

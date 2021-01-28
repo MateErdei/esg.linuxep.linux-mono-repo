@@ -1,4 +1,4 @@
-include(stateMachines/proto/CMakeLists.txt)
+include(stateMachinesModule/proto/CMakeLists.txt)
 
 add_library(updateschedulerimpl SHARED
         ${STATE_MACHINE_DATA_PROTO_SRC}
@@ -40,38 +40,25 @@ add_library(updateschedulerimpl SHARED
         UpdateSchedulerBootstrap.h
         UpdateSchedulerBootstrap.cpp
         ../UpdateScheduler/ICacheEvaluator.h
-        ../UpdateScheduler/IEnvironment.h
         ../UpdateScheduler/IHealthEventManager.h
         ../UpdateScheduler/IState.h
         ../UpdateScheduler/IVersionPersister.h
-        #stateMachines/ComponentState.h
-        #stateMachines/ComponentState.cpp
-        stateMachines/DownloadStateMachine.h
-        stateMachines/DownloadStateMachine.cpp
-        stateMachines/EventStateMachine.h
-        stateMachines/EventStateMachine.cpp
-        #stateMachines/InstallComponentState.h
-        #stateMachines/InstallComponentState.cpp
-        stateMachines/InstallStateMachine.h
-        stateMachines/InstallStateMachine.cpp
-        #stateMachines/RebootData.h
-        #stateMachines/RebootStateMachine.h
-        #stateMachines/RebootStateMachine.cpp
-        stateMachines/State.h
-        stateMachines/State.cpp
-        #stateMachines/WindowsOnWindows.h
-        #stateMachines/Thumbprint.h
-        #stateMachines/Thumbprint.cpp
-        stateMachines/StringConversions.h
-        #stateMachines/BoostIgnoreWarnings.h
-        stateMachines/TieWithCheck.h
-        stateMachines/SEUErrors.h
-        stateMachines/Logger.h
-        stateMachines/Logger.cpp
-        stateMachines/StateMachineException.h
-        stateMachines/StateMachineException.cpp
-        stateMachines/StateMachineData.h
-        stateMachines/StateMachineData.cpp
+        stateMachinesModule/DownloadStateMachine.h
+        stateMachinesModule/DownloadStateMachine.cpp
+        stateMachinesModule/EventStateMachine.h
+        stateMachinesModule/EventStateMachine.cpp
+        stateMachinesModule/InstallStateMachine.h
+        stateMachinesModule/InstallStateMachine.cpp
+        stateMachinesModule/State.h
+        stateMachinesModule/State.cpp
+        stateMachinesModule/TieWithCheck.h
+        stateMachinesModule/SEUErrors.h
+        stateMachinesModule/Logger.h
+        stateMachinesModule/Logger.cpp
+        stateMachinesModule/StateMachineException.h
+        stateMachinesModule/StateMachineException.cpp
+        stateMachinesModule/StateMachineData.h
+        stateMachinesModule/StateMachineData.cpp
         )
 
 target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})

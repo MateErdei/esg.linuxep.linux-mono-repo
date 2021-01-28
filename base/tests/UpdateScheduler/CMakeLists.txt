@@ -17,7 +17,8 @@ add_executable(UpdateSchedulerTests
         TestWithMockTimerAbstract.h
         TestDownloadStateMachine.cpp
         TimeStamp.h
-        TimeStamp.cpp GTestIncluder.h GTestMemoryLeak.h Macros.h
+        TimeStamp.cpp
+        Macros.h
         InstallStateMachineTests.cpp
         EventStateMachineTests.cpp
         TestStateMachineData.cpp

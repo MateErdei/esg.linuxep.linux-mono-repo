@@ -1,10 +1,14 @@
-// Copyright 2020 Sophos Limited.
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "DownloadStateMachine.h"
 
 #include <algorithm>
 
-namespace StateLib
+namespace stateMachinesModule
 {
     void DownloadStateMachine::HandleFailure(const std::chrono::system_clock::time_point& now, int decrement)
     {
@@ -56,4 +60,4 @@ namespace StateLib
     {
         return state_;
     }
-} // namespace StateLib
+} // namespace stateMachinesModule

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <exception>
 #include <string>
-namespace UpdateScheduler
+namespace UpdateSchedulerImpl
 {
     namespace StateData
     {
@@ -23,5 +23,5 @@ namespace UpdateScheduler
             std::string m_message;
         };
 
-    } // namespace suldownloaderdata
-} // namespace SulDownloader
+    } // namespace StateData
+} // namespace UpdateSchedulerImpl

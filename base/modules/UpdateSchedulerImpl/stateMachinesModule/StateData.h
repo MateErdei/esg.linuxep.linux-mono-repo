@@ -1,4 +1,8 @@
-// Copyright 2020 Sophos Limited.
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
@@ -101,4 +105,4 @@ namespace StateData
         return CppCommon::TieWithCheck<EventMachineState>(o.lastError, o.lastTime);
     }
     MAKE_STRICT_TOTAL_ORDER(EventMachineState);
-} // namespace RebootData
+} // namespace StateData

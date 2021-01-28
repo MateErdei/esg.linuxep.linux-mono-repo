@@ -10,13 +10,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <UpdateSchedulerImpl/stateMachines/StateMachineData.h>
-#include <UpdateSchedulerImpl/stateMachines/StateMachineException.h>
+#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
+#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineException.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 
-using namespace UpdateScheduler;
-using namespace UpdateScheduler::StateData;
+using namespace UpdateSchedulerImpl;
+using namespace UpdateSchedulerImpl::StateData;
 
 class StateMachineDataTest : public StateMachineDataBase
 {

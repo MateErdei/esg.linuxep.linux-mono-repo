@@ -1,13 +1,16 @@
-// Copyright 2020 Sophos Limited.
+/******************************************************************************************************
 
-#include <UpdateSchedulerImpl/stateMachines/InstallStateMachine.h>
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include <UpdateSchedulerImpl/stateMachinesModule/InstallStateMachine.h>
 
 #include "TimeStamp.h"
 
-//#include <CppCommon/GTestIncluder.h>
 #include <gtest/gtest.h>
 
-using namespace StateLib;
+using namespace stateMachinesModule;
 using namespace std::chrono_literals;
 
 namespace
@@ -16,15 +19,6 @@ namespace
     {
     };
 
-//    std::ostream& operator<<(std::ostream& os, const StateData::InstallMachineState& state)
-//    {
-//        os
-//            << "{credit=" << state.credit
-//            << ",lastGood=" << Utilities::MessageTimeStamp(state.lastGood)
-//            << ",failedSince=" << Utilities::MessageTimeStamp(state.failedSince)
-//            << "}";
-//        return os;
-//    }
 } // namespace
 
 TEST_F(InstallStateMachineTests, NoFailures)

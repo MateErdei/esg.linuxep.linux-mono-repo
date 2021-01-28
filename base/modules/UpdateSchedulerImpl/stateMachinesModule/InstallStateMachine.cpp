@@ -1,8 +1,12 @@
-// Copyright 2020 Sophos Limited.
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "InstallStateMachine.h"
 
-namespace StateLib
+namespace stateMachinesModule
 {
     InstallStateMachine::InstallStateMachine(const StateData::InstallMachineState& state, const std::chrono::system_clock::time_point& now) :
         state_{ state }
@@ -51,4 +55,4 @@ namespace StateLib
     {
         return state_;
     }
-} // namespace StateLib
+} // namespace stateMachinesModule

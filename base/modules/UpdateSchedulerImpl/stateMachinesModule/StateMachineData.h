@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
+Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
@@ -9,7 +9,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace UpdateScheduler
+namespace UpdateSchedulerImpl
 {
     namespace StateData
     {
@@ -18,8 +18,6 @@ namespace UpdateScheduler
 
         public:
             StateMachineData() = default;
-
-//            static std::tuple<int, std::string> CodeAndSerialize(const DownloadReport& report);
 
             static std::string toJsonStateMachineData(const StateMachineData& state);
 
@@ -61,8 +59,6 @@ namespace UpdateScheduler
 
             void setLastGoodInstallTime( const std::string& lastGoodInstallTime);
 
-//
-
         private:
             std::string m_downloadFailedSinceTime;
             std::string m_downloadState;
@@ -75,5 +71,5 @@ namespace UpdateScheduler
             std::string m_lastGoodInstallTime;
 
         };
-    } // namespace StateMachineData
-} // namespace UpdateScheduler
+    } // namespace StateData
+} // namespace UpdateSchedulerImpl

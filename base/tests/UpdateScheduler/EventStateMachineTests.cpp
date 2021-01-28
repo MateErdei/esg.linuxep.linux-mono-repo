@@ -1,14 +1,17 @@
-// Copyright 2020 Sophos Limited.
+/******************************************************************************************************
 
-#include <UpdateSchedulerImpl/stateMachines/EventStateMachine.h>
+Copyright 2020, Sophos Limited.  All rights reserved.
 
-#include <UpdateSchedulerImpl/stateMachines/SEUErrors.h>
+******************************************************************************************************/
+
+#include <UpdateSchedulerImpl/stateMachinesModule/EventStateMachine.h>
+
+#include <UpdateSchedulerImpl/stateMachinesModule/SEUErrors.h>
 #include "TimeStamp.h"
 
-//#include <CppCommon/GTestIncluder.h>
 #include <gtest/gtest.h>
 
-using namespace StateLib;
+using namespace stateMachinesModule;
 using namespace std::chrono_literals;
 
 namespace
@@ -17,14 +20,6 @@ namespace
     {
     };
 
-//    std::ostream& operator<<(std::ostream& os, const StateData::EventMachineState& state)
-//    {
-//        os
-//            << "{lastError=" << state.lastError
-//            << ",lastTime=" << Utilities::MessageTimeStamp(state.lastTime)
-//            << "}";
-//        return os;
-//    }
 } // namespace
 
 TEST_F(EventStateMachineTests, NoFailuresThrottlesSuccessEvents)

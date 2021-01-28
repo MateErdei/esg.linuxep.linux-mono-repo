@@ -1,10 +1,14 @@
-// Copyright 2020 Sophos Limited.
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "EventStateMachine.h"
 
 #include "SEUErrors.h"
 
-namespace StateLib
+namespace stateMachinesModule
 {
     bool EventStateMachine::DiscardTemporaryError(int updateError) const
     {
@@ -62,4 +66,4 @@ namespace StateLib
     {
         return state_;
     }
-} // namespace StateLib
+} // namespace stateMachinesModule

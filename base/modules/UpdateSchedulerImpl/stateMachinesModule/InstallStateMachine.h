@@ -1,11 +1,14 @@
-// Copyright 2020 Sophos Limited.
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
-//#include "UpdateScheduler/IEnvironment.h"
-#include "StateData.h"   //move in interface directory?
+#include "StateData.h"
 
-namespace StateLib
+namespace stateMachinesModule
 {
     class InstallStateMachine
     {
@@ -20,4 +23,4 @@ namespace StateLib
 
         StateData::InstallMachineState CurrentState() const;
     };
-} // namespace StateLib
+} // namespace stateMachinesModule

@@ -1,10 +1,14 @@
-// Copyright 2020 Sophos Limited.
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
 #include "StateData.h"
 
-namespace StateLib
+namespace stateMachinesModule
 {
     class DownloadStateMachine
     {
@@ -21,4 +25,4 @@ namespace StateLib
 
         StateData::DownloadMachineState CurrentState() const;
     };
-} // namespace StateLib
+} // namespace stateMachinesModule

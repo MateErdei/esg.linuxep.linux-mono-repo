@@ -1,8 +1,8 @@
-/* Copyright 2012 Sophos Limited. All rights reserved.
- * Sophos and Sophos Anti-Virus are registered trademarks of Sophos Limited.
- * All other product and company names mentioned are trademarks or registered
- * trademarks of their respective owners.
- */
+/******************************************************************************************************
+
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 

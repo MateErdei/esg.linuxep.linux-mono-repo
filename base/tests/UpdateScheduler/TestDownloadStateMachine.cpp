@@ -1,16 +1,18 @@
-// Copyright 2020 Sophos Limited.
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "TimeStamp.h"
 
-#include <UpdateSchedulerImpl/stateMachines/DownloadStateMachine.h>
+#include <UpdateSchedulerImpl/stateMachinesModule/DownloadStateMachine.h>
 
 #include <ostream>
-
-//#include <CppCommon/GTestIncluder.h>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 
-using namespace StateLib;
+using namespace stateMachinesModule;
 using namespace std::chrono_literals;
 
 namespace
@@ -19,14 +21,6 @@ namespace
     {
     };
 
-//    std::ostream& operator<<(std::ostream& os, const StateData::DownloadMachineState& state)
-//    {
-//        os
-//            << "{credit=" << state.credit
-//            << ",failedSince=" << Utilities::MessageTimeStamp(state.failedSince)
-//            << "}";
-//        return os;
-//    }
 } // namespace
 
 TEST_F(DownloadStateMachineTests, MachineStateDefaultsToSuccess)
