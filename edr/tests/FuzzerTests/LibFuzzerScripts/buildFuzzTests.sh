@@ -12,8 +12,8 @@ CMAKE_BUILD_FULL_PATH="${PROJECT_ROOT_SOURCE}/${CMAKE_BUILD_DIR}"
 
 set -x
 # check assumptions:
-if [[ "FuzzerTests" != "${FUZZ_TEST_DIR_NAME}" ]]; then
-  echo "Not executed from LibFuzzerTests: ${FUZZ_TEST_DIR_NAME}"; exit 1;
+if [[ "LibFuzzerScripts" != "${FUZZ_TEST_DIR_NAME}" ]]; then
+  echo "Not executed from LibFuzzerScripts: ${FUZZ_TEST_DIR_NAME}"; exit 1;
 fi
 
 BASE=${PROJECT_ROOT_SOURCE}
