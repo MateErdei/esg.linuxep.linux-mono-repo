@@ -62,7 +62,7 @@ class FuzzerSupport:
         error_message = "Failed to build libFuzzer Targets."
         if self._check_is_fuzz_target_present():
             return
-        fuzzer_path = os.path.join(self._edr_path, "tests/FuzzerTests")
+        fuzzer_path = os.path.join(self._edr_path, "tests/FuzzerTests/LibFuzzerScripts")
         logger.info("Running buildFuzzTests.sh from {}".format(fuzzer_path))
         try:
             output = subprocess.check_output(["./buildFuzzTests.sh"], shell=True, cwd=fuzzer_path)
