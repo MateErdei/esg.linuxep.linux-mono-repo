@@ -68,8 +68,10 @@ namespace
         return {false, linkCreatedErrno};
     }
 
-    void setupFileLoggingWithPath(const std::string& logfilepath)
+    void setupFileLoggingWithPath(const std::string& logdirectory)
     {
+        auto logfilepath = logdirectory + "/sophos_threat_detector.log";
+
         log4cplus::initialize();
 
         log4cplus::tstring datePattern;
@@ -81,6 +83,12 @@ namespace
             new log4cplus::RollingFileAppender(logfilepath, maxFileSize, maxBackupIndex, immediateFlush, createDirs));
         Common::Logging::LoggingSetup::applyDefaultPattern(appender);
         log4cplus::Logger::getRoot().addAppender(appender);
+
+        auto susiDetailLog = logdirectory + "/susi_debug.log";
+        log4cplus::SharedAppenderPtr susiAppender(
+            new log4cplus::RollingFileAppender(susiDetailLog, maxFileSize, maxBackupIndex, immediateFlush, createDirs));
+        Common::Logging::LoggingSetup::applyDefaultPattern(appender);
+
 
         // Log error messages to stderr
         log4cplus::SharedAppenderPtr stderr_appender(new log4cplus::ConsoleAppender(true));
@@ -114,9 +122,9 @@ LogSetup::LogSetup()
     auto linkAlreadyPresent = std::get<0>(linkCreatedResult);
     auto linkCreatedErrno = std::get<1>(linkCreatedResult);
 
-    auto logfilepath = pluginInstall + "/log/sophos_threat_detector/sophos_threat_detector.log";
+    auto logdirectory = pluginInstall + "/log/sophos_threat_detector";
 
-    setupFileLoggingWithPath(logfilepath);
+    setupFileLoggingWithPath(logdirectory);
     applyGeneralConfig(PLUGIN_NAME); // Sets the threshold for the root logger
 
     // Log after the logging has been setup
