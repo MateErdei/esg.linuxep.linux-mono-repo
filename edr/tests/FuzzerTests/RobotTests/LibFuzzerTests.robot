@@ -7,7 +7,7 @@ Library    FuzzerSupport.py
 Library    OperatingSystem
 
 Test Setup   Run Keywords
-...          Fuzzer Set Paths  tests/LibFuzzerTests/data/   AND
+...          Fuzzer Set Paths  tests/FuzzerTests/data/   AND
 ...          Ensure Fuzzer Targets Built
 
 Suite Setup   Fuzzer Tests Global Setup
@@ -22,7 +22,7 @@ Test LiveQueryInput
 
 *** Keywords ***
 Fuzzer Tests Global Setup
-        Fuzzer Set Paths  tests/LibFuzzerTests/data/
+        Fuzzer Set Paths  tests/FuzzerTests/data/
         Setup Base Build
 
 Fuzzer Tests Global TearDown
