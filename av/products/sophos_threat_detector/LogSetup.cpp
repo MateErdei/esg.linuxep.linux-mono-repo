@@ -88,7 +88,9 @@ namespace
         log4cplus::SharedAppenderPtr susiAppender(
             new log4cplus::RollingFileAppender(susiDetailLog, maxFileSize, maxBackupIndex, immediateFlush, createDirs));
         Common::Logging::LoggingSetup::applyDefaultPattern(appender);
-
+        auto susiDebug = Common::Logging::getInstance("SUSI_DEBUG");
+        susiDebug.addAppender(susiAppender);
+        susiDebug.setAdditivity(false);
 
         // Log error messages to stderr
         log4cplus::SharedAppenderPtr stderr_appender(new log4cplus::ConsoleAppender(true));

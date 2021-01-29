@@ -110,7 +110,9 @@ SusiScanner::scan(
     })";
 
     SusiScanResult* scanResult = nullptr;
+    LOG_SUSI_INFO("Starting scan of " << file_path);
     SusiResult res = m_susi->scanFile(metaDataJson.c_str(), file_path.c_str(), fd, &scanResult);
+    LOG_SUSI_INFO("Finished scanning " << file_path << " result: " << std::hex << res << std::dec);
 
     LOGTRACE("Scanning " << file_path.c_str() << " result: " << std::hex << res << std::dec);
     if (scanResult != nullptr)

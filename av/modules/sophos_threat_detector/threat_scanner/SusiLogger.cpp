@@ -32,20 +32,23 @@ void threat_scanner::susiLogCallback(void* token, SusiLogLevel level, const char
         switch (level)
         {
             case SUSI_LOG_LEVEL_DETAIL:
-                LOGDEBUG(m);
+                LOG_SUSI_DEBUG(m); // Not putting debug in normal log
                 break;
             case SUSI_LOG_LEVEL_INFO:
                 // SUSI is too verbose at info-level, downgrade to support-level
-                LOGSUPPORT(m);
+                LOG_SUSI_INFO(m); // Not putting info in normal log
                 break;
             case SUSI_LOG_LEVEL_WARNING:
                 LOGWARN(m);
+                LOG_SUSI_WARN(m);
                 break;
             case SUSI_LOG_LEVEL_ERROR:
                 LOGERROR(m);
+                LOG_SUSI_ERROR(m);
                 break;
             default:
                 LOGERROR(level << ": " << m);
+                LOG_SUSI_ERROR(level << ": " << m);
                 break;
         }
     }
