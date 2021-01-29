@@ -87,6 +87,7 @@ void LoggerExtension::reloadTags()
 {
     m_resultsSender.resetTags();
 }
+
 void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
 {
     LOGDEBUG("LoggerExtension running");

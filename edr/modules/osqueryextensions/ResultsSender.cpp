@@ -191,6 +191,7 @@ void ResultsSender::resetTags()
 {
     loadScheduledQueryTags();
 }
+
 uintmax_t ResultsSender::GetFileSize()
 {
     uintmax_t size = 0;
@@ -268,6 +269,7 @@ void ResultsSender::loadScheduledQueryTags()
 
     m_scheduledQueryTags = scheduledQueries;
 }
+
 std::map<std::string, std::pair<std::string, std::string>> ResultsSender::getQueryTagMap()
 {
     std::map<std::string, std::pair<std::string, std::string>> queryTagMap;

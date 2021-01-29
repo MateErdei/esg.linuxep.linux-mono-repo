@@ -577,46 +577,55 @@ namespace Plugin
     }
     std::optional<std::string> PluginAdapter::getCustomQueries(const std::string& liveQueryPolicy)
     {
-        Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
         const std::string customQueries = "policy/configuration/scheduled/customQueries";
         const std::string queryTag = "customQuery";
-        Common::XmlUtilities::Attributes attributes = attributesMap.lookup(customQueries+"/"+queryTag);
-        if(attributes.empty())
+
+        Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
+        Common::XmlUtilities::Attributes attributes = attributesMap.lookup(customQueries + "/" + queryTag);
+
+        if (attributes.empty())
         {
-            LOGINFO("No custom querys in LiveQuery policy");
+            LOGINFO("No custom queries in LiveQuery policy");
             return std::optional<std::string>();
         }
-        nlohmann::json customQueryPack;
 
+        nlohmann::json customQueryPack;
         int i = 0;
         bool queryAdded = false;
+
         while (true)
         {
             std::string suffix = "";
+
             if (i != 0)
             {
                 suffix = "_" + std::to_string(i - 1);
             }
+
             i++;
             std::string key = customQueries + "/" + queryTag + suffix;
             Common::XmlUtilities::Attributes customQuery = attributesMap.lookup(key);
+
             if (customQuery.empty())
             {
                 break;
             }
+
             std::string queryName = customQuery.value("queryName", "");
             std::string query = attributesMap.lookup(key+"/query").value("TextId", "");
             std::string interval = attributesMap.lookup(key+"/interval").value("TextId", "");
 
             if (interval.empty() || query.empty() || queryName.empty())
             {
-                LOGWARN("custom query is malformed missing fields");
+                LOGWARN("Custom query is missing mandatory fields");
                 continue;
             }
+
             std::string tag = attributesMap.lookup(key+"/tag").value("TextId", "");
             std::string description = attributesMap.lookup(key+"/description").value("TextId", "");
             std::string denylist = attributesMap.lookup(key+"/denylist").value("TextId", "");
             std::string removed = attributesMap.lookup(key+"/removed").value("TextId", "");
+
             customQueryPack["schedule"][queryName]["query"] = query;
             customQueryPack["schedule"][queryName]["tag"] = tag;
             customQueryPack["schedule"][queryName]["interval"] = interval;
