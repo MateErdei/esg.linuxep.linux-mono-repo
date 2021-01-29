@@ -65,3 +65,8 @@ then
 else
     echo "Not registering with Central as no token/url specified"
 fi
+
+if [[ -n ${CONFIGURE_DEBUG} ]]
+then
+    sed -i -e's/VERBOSITY = INFO/VERBOSITY = DEBUG/' ${SOPHOS_INSTALL}/base/etc/logger.conf
+fi

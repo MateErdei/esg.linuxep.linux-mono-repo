@@ -68,14 +68,14 @@ namespace
         return {false, linkCreatedErrno};
     }
 
-    void setupFileLoggingWithPath(const std::string& logdirectory)
+    void setupFileLoggingWithPath(const std::string& logdirectory, const std::string& logbase)
     {
         auto logfilepath = logdirectory + "/sophos_threat_detector.log";
 
         log4cplus::initialize();
 
         log4cplus::tstring datePattern;
-        const long maxFileSize = 10 * 1024 * 1024;
+        constexpr long maxFileSize = 10 * 1024 * 1024;
         const int maxBackupIndex = 10;
         const bool immediateFlush = true;
         const bool createDirs = true;
@@ -87,7 +87,9 @@ namespace
         auto susiDetailLog = logdirectory + "/susi_debug.log";
         log4cplus::SharedAppenderPtr susiAppender(
             new log4cplus::RollingFileAppender(susiDetailLog, maxFileSize, maxBackupIndex, immediateFlush, createDirs));
-        Common::Logging::LoggingSetup::applyDefaultPattern(appender);
+        const std::string susiLogPattern = "%m%n"; // Avoid duplicating the timestamp - just output the message from SUSI
+        std::unique_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout(susiLogPattern)); // NOLINT
+        susiAppender->setLayout(std::move(layout));
         auto susiDebug = Common::Logging::getInstance("SUSI_DEBUG");
         susiDebug.addAppender(susiAppender);
         susiDebug.setAdditivity(false);
@@ -97,11 +99,20 @@ namespace
         stderr_appender->setThreshold(log4cplus::ERROR_LOG_LEVEL);
         Common::Logging::LoggingSetup::applyPattern(stderr_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
         log4cplus::Logger::getRoot().addAppender(stderr_appender);
-    }
 
-    void applyGeneralConfig(const std::string& logbase)
-    {
-        Common::Logging::applyGeneralConfig(logbase);
+
+        Common::Logging::applyGeneralConfig(logbase); // Sets the threshold for the root logger
+
+        if (log4cplus::Logger::getRoot().getLogLevel() <= Common::Logging::SUPPORT)
+        {
+            // Create a separate INFO log file
+            auto infoLog = logdirectory + "/sophos_threat_detector.info.log";
+            log4cplus::SharedAppenderPtr infoAppender(
+                new log4cplus::RollingFileAppender(infoLog, maxFileSize, 5, immediateFlush, createDirs));
+            infoAppender->setThreshold(log4cplus::INFO_LOG_LEVEL);
+            Common::Logging::LoggingSetup::applyDefaultPattern(infoAppender);
+            log4cplus::Logger::getRoot().addAppender(infoAppender);
+        }
     }
 }
 
@@ -126,8 +137,7 @@ LogSetup::LogSetup()
 
     auto logdirectory = pluginInstall + "/log/sophos_threat_detector";
 
-    setupFileLoggingWithPath(logdirectory);
-    applyGeneralConfig(PLUGIN_NAME); // Sets the threshold for the root logger
+    setupFileLoggingWithPath(logdirectory, PLUGIN_NAME);
 
     // Log after the logging has been setup
     if (!linkAlreadyPresent)
