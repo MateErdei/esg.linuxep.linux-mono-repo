@@ -13,7 +13,7 @@ import base64
 import shutil
 import pathlib
 
-FuzzerRelativePath = "cmake-fuzz/tests/LibFuzzerTests"
+FuzzerRelativePath = "cmake-fuzz/tests/FuzzerTests"
 
 TIMEOUTMINUTES=1
 
@@ -30,7 +30,7 @@ class FuzzerSupport:
         if not os.path.isdir(self._edr_path):
             raise AssertionError("Invalid path to edr source Code: {}".format(self._edr_path))
         if not os.path.isdir(self._input_root_dir):
-            raise AssertionError("Invalid path to fuzz input (hint tests/LibFuzzerTests/data/) directory: {}".format(self._input_root_dir))
+            raise AssertionError("Invalid path to fuzz input (hint tests/FuzzerTests/data/) directory: {}".format(self._input_root_dir))
 
     def _clean_tmp_dir(self):
         if self._tmp_dir:
@@ -41,10 +41,10 @@ class FuzzerSupport:
     def fuzzer_set_paths(self, tests_path):
         location_of_current_file = str(pathlib.Path(__file__).parent.absolute())
 
-        if location_of_current_file.endswith("tests/LibFuzzerTests/RobotTests"):
+        if location_of_current_file.endswith("tests/FuzzerTests/RobotTests"):
             self._edr_path = location_of_current_file[:-32]
         else:
-            raise AssertionError("expected script to be in tests/LibFuzzerTests/RobotTests, it was in {}".format(location_of_current_file))
+            raise AssertionError("expected script to be in tests/FuzzerTests/RobotTests, it was in {}".format(location_of_current_file))
 
         self._input_root_dir = os.path.join(self._edr_path, tests_path)
         self._verify_paths()
@@ -62,7 +62,7 @@ class FuzzerSupport:
         error_message = "Failed to build libFuzzer Targets."
         if self._check_is_fuzz_target_present():
             return
-        fuzzer_path = os.path.join(self._edr_path, "tests/LibFuzzerTests")
+        fuzzer_path = os.path.join(self._edr_path, "tests/FuzzerTests")
         logger.info("Running buildFuzzTests.sh from {}".format(fuzzer_path))
         try:
             output = subprocess.check_output(["./buildFuzzTests.sh"], shell=True, cwd=fuzzer_path)
@@ -200,7 +200,7 @@ class FuzzerSupport:
                 expected_fuzzer_input,
                 '-max_total_time=' + str(max_time),
                 '-print_final_stats=1']
-        dict_file_path = os.path.join(self._edr_path, 'tests/LibFuzzerTests/',target_name + '.dict')
+        dict_file_path = os.path.join(self._edr_path, 'tests/FuzzerTests/',target_name + '.dict')
         if os.path.exists(dict_file_path):
             args.append('-dict={}'.format(dict_file_path))
 
@@ -218,7 +218,7 @@ class FuzzerSupport:
             logger.info("Not doing setup base build on vagrant as packages should be fetched on host machine")
             return
         try:
-            output = subprocess.check_output(["tests/LibFuzzerTests/setup_inputs/gatherBuildInputs.sh"],
+            output = subprocess.check_output(["tests/FuzzerTests/setup_inputs/gatherBuildInputs.sh"],
                                              cwd=self._edr_path)
             logger.debug(output)
 

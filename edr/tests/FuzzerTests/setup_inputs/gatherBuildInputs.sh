@@ -2,8 +2,8 @@
 set -x
 python3 -m venv /tmp/venv-for-ci
 source /tmp/venv-for-ci/bin/activate
-  $WORKSPACE/tests/LibFuzzerTests/setup_inputs/SetupCIBuildScripts.sh
-  export BUILD_JWT=$(cat $WORKSPACE/tests/LibFuzzerTests/setup_inputs/jwt_token.txt)
+  $WORKSPACE/tests/FuzzerTests/setup_inputs/SetupCIBuildScripts.sh
+  export BUILD_JWT=$(cat $WORKSPACE/tests/FuzzerTests/setup_inputs/jwt_token.txt)
   #fix for detached head
   git branch temp
   git checkout temp
