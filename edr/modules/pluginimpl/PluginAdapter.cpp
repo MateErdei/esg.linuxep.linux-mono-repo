@@ -617,12 +617,12 @@ namespace Plugin
             std::string description = attributesMap.lookup(key+"/description").value("TextId", "");
             std::string denylist = attributesMap.lookup(key+"/denylist").value("TextId", "");
             std::string removed = attributesMap.lookup(key+"/removed").value("TextId", "");
-            customQueryPack["scheduled"][queryName]["query"] = query;
-            customQueryPack["scheduled"][queryName]["tag"] = tag;
-            customQueryPack["scheduled"][queryName]["interval"] = interval;
-            customQueryPack["scheduled"][queryName]["description"] = description;
-            customQueryPack["scheduled"][queryName]["denylist"] = denylist;
-            customQueryPack["scheduled"][queryName]["removed"] = removed;
+            customQueryPack["schedule"][queryName]["query"] = query;
+            customQueryPack["schedule"][queryName]["tag"] = tag;
+            customQueryPack["schedule"][queryName]["interval"] = interval;
+            customQueryPack["schedule"][queryName]["description"] = description;
+            customQueryPack["schedule"][queryName]["denylist"] = denylist;
+            customQueryPack["schedule"][queryName]["removed"] = removed;
             queryAdded = true;
         }
 

@@ -40,21 +40,28 @@ EDR Plugin Runs All Scheduled Queries
     Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  5
     Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  5
     Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED  5
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Enable XDR
 
     #restart edr so that the altered queries are read in and debug mode applied
     Restart EDR
 
     Wait Until Keyword Succeeds
-    ...  200 secs
+    ...  50 secs
     ...  10 secs
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
     Wait Until Keyword Succeeds
-    ...  200 secs
     ...  10 secs
+    ...  2 secs
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
 
+    Log file  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    Log file  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  5 secs

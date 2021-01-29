@@ -2,7 +2,7 @@
 <policy type="LiveQuery" RevID="revId" policyType="56">
     <configuration>
         <scheduled>
-            <dailyDataLimit>10000</dailyDataLimit>
+            <dailyDataLimit>10000000</dailyDataLimit>
             <queryPacks>
                 <queryPack id="queryPackId" />
             </queryPacks>
@@ -11,7 +11,7 @@
                       <description>basic query</description>
                       <query>SELECT * FROM stuff</query>
                       <interval>10</interval>
-                      <tag>DataLake</tag>
+                      <tag>stream</tag>
                       <removed>false</removed>
                       <denylist>false</denylist>
                   </customQuery>
