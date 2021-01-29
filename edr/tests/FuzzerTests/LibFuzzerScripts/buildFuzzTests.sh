@@ -2,9 +2,9 @@
 
 FUZZ_TEST_DIR=$(pwd)
 FUZZ_TEST_DIR_NAME=$(basename ${FUZZ_TEST_DIR})
-PROJECT_ROOT_SOURCE=$(realpath ${FUZZ_TEST_DIR}/../../)
+PROJECT_ROOT_SOURCE=$(realpath ${FUZZ_TEST_DIR}/../../../)
 PROJECT=$(basename ${PROJECT_ROOT_SOURCE})
-SSPL_TOOLS_DIR=$(realpath ${PROJECT_ROOT_SOURCE}/../)
+SSPL_TOOLS_DIR=$(realpath ${PROJECT_ROOT_SOURCE}/../../)
 FUZZ_TESTCASE_ROOT_DIR="${FUZZ_TEST_DIR}/data/"
 
 CMAKE_BUILD_DIR=cmake-fuzz
@@ -83,7 +83,7 @@ ${CMAKE} .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_
 
 make ${TARGETS}
 for TARGET in ${TARGETS}; do
-ScriptDir=${CMAKE_BUILD_FULL_PATH}/tests/${FUZZ_TEST_DIR_NAME}
+ScriptDir=${CMAKE_BUILD_FULL_PATH}/tests/FuzzerTests/${FUZZ_TEST_DIR_NAME}
 ScriptName=runFuzzer${TARGET}.sh
 ScriptPath=${ScriptDir}/${ScriptName}
 EXTRA_ARGS=""
