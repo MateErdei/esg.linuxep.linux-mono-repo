@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,6 +8,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "BaseFileWalkCallbacks.h"
 #include "Options.h"
+#include "ScanCallbackImpl.h"
 #include "ScanClient.h"
 
 #include "avscanner/mountinfoimpl/Mounts.h"
@@ -15,9 +16,9 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "common/AbortScanException.h"
 #include "common/PathUtils.h"
+
 #include <common/StringUtils.h>
 
-#include <csignal>
 #include <exception>
 #include <memory>
 #include <utility>
@@ -33,11 +34,9 @@ namespace avscanner::avscannerimpl
         public:
             explicit CommandLineWalkerCallbackImpl(
                 std::shared_ptr<IScanClient> scanner,
-                std::shared_ptr<SigIntMonitor> sigIntMonitor,
                 std::vector<fs::path> mountExclusions,
                 std::vector<Exclusion> cmdExclusions) :
-                BaseFileWalkCallbacks(std::move(scanner)),
-                m_sigIntMonitor(std::move(sigIntMonitor))
+                BaseFileWalkCallbacks(std::move(scanner))
             {
                 m_mountExclusions = std::move(mountExclusions);
                 m_currentExclusions.reserve(m_mountExclusions.size());
@@ -60,19 +59,6 @@ namespace avscanner::avscannerimpl
                     }
                 }
             }
-
-            void checkIfScanAborted() override
-            {
-                if (m_sigIntMonitor->triggered())
-                {
-                    LOGDEBUG("Received SIGINT");
-                    throw AbortScanException("Scan manually aborted");
-                }
-            }
-
-        protected:
-            std::shared_ptr<SigIntMonitor> m_sigIntMonitor;
-
         };
     }
 
@@ -83,7 +69,6 @@ namespace avscanner::avscannerimpl
         m_archiveScanning(options.archiveScanning()),
         m_followSymlinks(options.followSymlinks())
     {
-        m_sigIntMonitor = std::make_shared<SigIntMonitor>();
     }
 
     int CommandLineScanRunner::run()
@@ -92,7 +77,7 @@ namespace avscanner::avscannerimpl
         {
             LOGWARN("Missing a file path from the command line arguments.");
             LOGWARN(Options::getHelp());
-            return common::E_GENERIC_FAILURE;
+            return E_GENERIC_FAILURE;
         }
 
         std::string printArchiveScanning = m_archiveScanning ? "yes" : "no";
@@ -152,14 +137,14 @@ namespace avscanner::avscannerimpl
             LOGINFO("Exclusions: " << oss.str());
         }
 
-        m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
+        auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
         auto scanner =
-            std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
-        CommandLineWalkerCallbackImpl commandLineWalkerCallbacks(scanner, m_sigIntMonitor, excludedMountPoints, cmdExclusions);
-        filewalker::FileWalker fw(commandLineWalkerCallbacks);
+            std::make_shared<ScanClient>(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
+        CommandLineWalkerCallbackImpl callbacks(scanner, excludedMountPoints, cmdExclusions);
+        filewalker::FileWalker fw(callbacks);
         fw.followSymlinks(m_followSymlinks);
 
-        m_scanCallbacks->scanStarted();
+        scanCallbacks->scanStarted();
 
         // for each select included mount point call filewalker for that mount point
         for (auto& path : m_paths)
@@ -169,13 +154,15 @@ namespace avscanner::avscannerimpl
                 LOGERROR("Refusing to scan empty path");
                 continue;
             }
-            if ((path.at(0) == '.' or path.find("/.") != std::string::npos) and fs::exists(path))
+
+            auto p = fs::absolute(path).string();
+
+            if (p.find("/.") != std::string::npos and fs::exists(p))
             {
-                path = common::PathUtils::lexicallyNormal(path);
+                p = common::PathUtils::lexicallyNormal(p);
             }
 
-            auto p = fs::absolute(path);
-            commandLineWalkerCallbacks.setCurrentInclude(p);
+            callbacks.setCurrentInclude(p);
 
             if (!walk(fw, p, path))
             {
@@ -184,25 +171,22 @@ namespace avscanner::avscannerimpl
             }
         }
 
-        // Override E_CLEAN with E_GENERIC_FAILURE but don't override if a different error code has already been set
-        if (m_returnCode == common::E_CLEAN)
+        // we want virus found to override any other return code
+        if (scanCallbacks->returnCode() != E_CLEAN)
         {
-            // returnCode() is either E_CLEAN or E_GENERIC_FAILURE
-            m_returnCode = commandLineWalkerCallbacks.returnCode();
+            m_returnCode = scanCallbacks->returnCode();
+        }
+        else if (callbacks.returnCode() != E_CLEAN)
+        {
+            m_returnCode = callbacks.returnCode();
         }
 
-        // We want virus found to override any other return code
-        if (m_scanCallbacks->returnCode() == common::E_VIRUS_FOUND)
-        {
-            m_returnCode = common::E_VIRUS_FOUND;
-        }
-
-        if (m_returnCode != common::E_CLEAN && m_returnCode != common::E_VIRUS_FOUND)
+        if (m_returnCode != E_CLEAN && m_returnCode != E_VIRUS_FOUND)
         {
             LOGERROR("Failed to scan one or more files due to an error");
         }
 
-        m_scanCallbacks->logSummary();
+        scanCallbacks->logSummary();
 
         return m_returnCode;
     }

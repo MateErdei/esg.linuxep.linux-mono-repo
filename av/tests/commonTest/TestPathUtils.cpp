@@ -37,3 +37,18 @@ TEST(TestPathUtils, TestAppendForwardSlashToPathExtendedUnicodeCharacters) // NO
     EXPECT_EQ(PathUtils::appendForwardSlashToPath(pathWithNoSlash), pathWithNoSlash.string() + "/");
     EXPECT_EQ(PathUtils::appendForwardSlashToPath(pathWithSlash), pathWithSlash.string());
 }
+
+TEST(TestPathUtils, TestLexicalNormalisation) // NOLINT
+{
+    EXPECT_EQ(PathUtils::lexicallyNormal("/a/b/../b/./c"), "/a/b/c");
+    EXPECT_EQ(PathUtils::lexicallyNormal("/a/b/../b/c"), "/a/b/c");
+    EXPECT_EQ(PathUtils::lexicallyNormal("/a/b/./c"), "/a/b/c");
+    EXPECT_EQ(PathUtils::lexicallyNormal("a/b/../b/./c/"), "a/b/c/");
+    EXPECT_EQ(PathUtils::lexicallyNormal("/a/b/../b/./c/ "), "/a/b/c/");
+}
+
+TEST(TestPathUtils, TestRemovingTrailingDotFromPath) // NOLINT
+{
+    EXPECT_EQ(PathUtils::removeTrailingDotFromPath("/a/b/c/"), "/a/b/c/");
+    EXPECT_EQ(PathUtils::removeTrailingDotFromPath("/a/b/c/."), "/a/b/c/");
+}
