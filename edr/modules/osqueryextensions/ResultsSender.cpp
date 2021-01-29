@@ -260,7 +260,11 @@ void ResultsSender::loadScheduledQueryTags()
     std::vector<ScheduledQuery> scheduledQueries;
     loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryXDRConfigFilePath);
     loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryMTRConfigFilePath);
-    loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryCustomConfigFilePath);
+    auto fs = Common::FileSystem::fileSystem();
+    if (fs->exists(m_osqueryCustomConfigFilePath))
+    {
+        loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryCustomConfigFilePath);
+    }
 
     m_scheduledQueryTags = scheduledQueries;
 }
