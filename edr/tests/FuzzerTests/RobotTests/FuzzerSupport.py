@@ -42,7 +42,7 @@ class FuzzerSupport:
         location_of_current_file = str(pathlib.Path(__file__).parent.absolute())
 
         if location_of_current_file.endswith("tests/FuzzerTests/RobotTests"):
-            self._edr_path = location_of_current_file[:-32]
+            self._edr_path = location_of_current_file[:-29]
         else:
             raise AssertionError("expected script to be in tests/FuzzerTests/RobotTests, it was in {}".format(location_of_current_file))
 
