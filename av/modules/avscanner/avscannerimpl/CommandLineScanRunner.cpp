@@ -171,7 +171,7 @@ namespace avscanner::avscannerimpl
             }
             if ((path.at(0) == '.' or path.find("/.") != std::string::npos) and fs::exists(path))
             {
-                path = fs::canonical(path);
+                path = common::PathUtils::lexicallyNormal(path);
             }
 
             auto p = fs::absolute(path);

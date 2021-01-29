@@ -188,7 +188,7 @@ TEST_F(TestCommandLineScanRunner, scanNonCanonicalPath) // NOLINT
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("./sandbox/a"));
-    paths.emplace_back(fs::absolute( "sandbox/b/../b/"));
+    paths.emplace_back(fs::absolute( "sandbox/b/../b"));
     paths.emplace_back(fs::absolute( "sandbox/d/.."));
     std::vector<std::string> exclusions;
     Options options(false, paths, exclusions, false, false);
@@ -879,6 +879,65 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeDirectExclus
     EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::canonical(startingPoint).string()));
     EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: /symlink_to_sandbox_directory/"));
     ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, scanRelativeSymlinkedDirectoryWithAbsoluteTargetExclusion) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("a/b");
+    fs::create_directories("symlink_sandbox");
+    std::ofstream("symlink_sandbox/file1.txt");
+
+    fs::create_symlink(fs::absolute("symlink_sandbox"), fs::absolute("a/b/symlink_to_sandbox_dir"));
+
+    fs::path startingPoint = fs::path("a/b/../b/symlink_to_sandbox_dir");
+    fs::path startingPoint2 = fs::path("a/b/./symlink_to_sandbox_dir");
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute(startingPoint));
+    paths.emplace_back(fs::absolute(startingPoint2));
+    std::vector<std::string> exclusions;
+    exclusions.emplace_back(fs::absolute("a/b/symlink_to_sandbox_dir/"));
+    Options options(false, paths, exclusions, true, false);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute("symlink_sandbox").string()));
+    EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute("symlink_sandbox").string()));
+    EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: " + fs::absolute("a/b/symlink_to_sandbox_dir/").string()));
+    ASSERT_EQ(socket->m_paths.size(), 0);
+}
+
+TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithFileExclusion) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories("a/b");
+    fs::create_directories("symlink_sandbox");
+    std::ofstream("symlink_sandbox/file1.txt");
+
+    fs::path startingPoint = fs::path("a/b/symlink_to_sandbox_dir");
+    fs::create_symlink(fs::absolute("symlink_sandbox"), fs::absolute(startingPoint));
+
+    std::vector<std::string> paths;
+    paths.emplace_back(fs::absolute("a/b/symlink_to_sandbox_dir"));
+    std::vector<std::string> exclusions;
+    // File exclusion shouldn't block this scan
+    exclusions.emplace_back(fs::absolute("a/b/symlink_to_sandbox_dir"));
+    Options options(false, paths, exclusions, true, false);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_FALSE(appenderContains("Skipping the scanning of symlink target (\"" + fs::absolute("symlink_sandbox").string()));
+    EXPECT_FALSE(appenderContains("which is excluded by user defined exclusion: " + fs::absolute("a/b/symlink_to_sandbox_dir").string()));
+    ASSERT_EQ(socket->m_paths.size(), 1);
 }
 
 TEST_F(TestCommandLineScanRunner, noSymlinkIsScannedWhenNotExplicitlyCalled) // NOLINT

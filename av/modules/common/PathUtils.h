@@ -62,6 +62,9 @@ namespace common
             }
             return p.string();
         }
+
+        static std::string lexicallyNormal(const sophos_filesystem::path& p);
+
     };
 }
 

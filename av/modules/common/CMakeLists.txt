@@ -14,7 +14,7 @@ SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
 SET (BOOST_ROOT ${BOOSTPATH}/boost)
 
-find_package( Boost REQUIRED COMPONENTS locale system)
+find_package( Boost REQUIRED COMPONENTS filesystem locale system)
 
 target_link_libraries(common  PUBLIC
         scanmessages
@@ -25,8 +25,18 @@ target_link_libraries(common  PUBLIC
         ${Boost_LIBRARIES}
         )
 
-target_include_directories(common PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${OPENSSL_INCLUDE_DIR})
-target_include_directories(common SYSTEM PRIVATE ${BOOSTPATH})
+target_include_directories(common
+        SYSTEM
+        PRIVATE
+        ${BOOST_INCLUDEDIR}
+        )
+
+target_include_directories(common
+        PUBLIC
+        ${pluginapiinclude}
+        ${CMAKE_SOURCE_DIR}/modules
+        ${OPENSSL_INCLUDE_DIR}
+        )
 
 install(TARGETS common
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
