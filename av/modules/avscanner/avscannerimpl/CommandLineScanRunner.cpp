@@ -155,12 +155,14 @@ namespace avscanner::avscannerimpl
                 continue;
             }
 
-            auto p = fs::absolute(path).string();
+            auto pathString = fs::absolute(path).string();
 
-            if (p.find("/.") != std::string::npos and fs::exists(p))
+            if (pathString.find("/.") != std::string::npos and fs::exists(pathString))
             {
-                p = common::PathUtils::lexicallyNormal(p);
+                pathString = common::PathUtils::lexicallyNormal(pathString);
             }
+
+            auto p = fs::path(pathString);
 
             callbacks.setCurrentInclude(p);
 
