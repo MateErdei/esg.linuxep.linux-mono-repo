@@ -14,7 +14,7 @@ import shutil
 import pathlib
 
 FuzzerRelativePath = "cmake-fuzz/tests/FuzzerTests/LibFuzzerScripts"
-FuzzRelativePath = "cmake-afl-fuzz/tests/FuzzerTests/AflFuzzerScripts"
+FuzzRelativePath = "cmake-afl-fuzz/tests/FuzzTests/AflFuzzerScripts"
 TIMEOUTMINUTES=1
 
 class FuzzerSupport:
@@ -40,9 +40,10 @@ class FuzzerSupport:
 
     def fuzzer_set_paths(self, tests_path):
         location_of_current_file = str(pathlib.Path(__file__).parent.absolute())
-
+        logger.info("Setting paths")
         if location_of_current_file.endswith("tests/FuzzerTests/RobotTests"):
             self._edr_path = location_of_current_file[:-29]
+            logger.info("edrpath: "+self._edr_path)
         else:
             raise AssertionError("expected script to be in tests/FuzzerTests/RobotTests, it was in {}".format(location_of_current_file))
 
