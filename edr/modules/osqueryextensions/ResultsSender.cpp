@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -12,7 +12,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/pluginimpl/TelemetryConsts.h>
 
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 #include <json/json.h>
@@ -186,10 +185,6 @@ void ResultsSender::Reset()
     }
     filesystem->appendFile(m_intermediaryPath, "[");
     m_firstEntry = true;
-}
-void ResultsSender::resetTags()
-{
-    loadScheduledQueryTags();
 }
 
 uintmax_t ResultsSender::GetFileSize()

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -37,7 +37,7 @@ public:
     // cppcheck-suppress virtualCallInConstructor
     void Send() override;
     void Reset() override;
-    void resetTags();
+    void loadScheduledQueryTags();
     void setDataLimit(unsigned int limitBytes);
     bool getDataLimitReached();
     void setDataPeriod(unsigned int periodSeconds);
@@ -72,6 +72,6 @@ private:
     Common::PersistentValue<bool> m_hitLimitThisPeriod;
 
     Json::Value readJsonFile(const std::string& path);
-    void loadScheduledQueryTags();
+
     void loadScheduledQueryTagsFromFile(std::vector<ScheduledQuery> &scheduledQueries, Path queryPackFilePath);
 };

@@ -1,16 +1,17 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "LoggerExtension.h"
-
 #include "Logger.h"
 
+#include <Common/FileSystem/IFileSystemException.h>
+#include <SophosLoggerPlugin.h>
 #include <functional>
 
-#include <SophosLoggerPlugin.h>
+
 
 LoggerExtension::LoggerExtension(
         const std::string& intermediaryPath,
@@ -85,7 +86,14 @@ void LoggerExtension::Stop()
 }
 void LoggerExtension::reloadTags()
 {
-    m_resultsSender.resetTags();
+    try
+    {
+        m_resultsSender.loadScheduledQueryTags();
+    }
+    catch (Common::FileSystem::IFileSystemException& e)
+    {
+        LOGWARN("Failed to load scheduled query tags on start up of Logger extension. Error: " << e.what());
+    }
 }
 
 void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
