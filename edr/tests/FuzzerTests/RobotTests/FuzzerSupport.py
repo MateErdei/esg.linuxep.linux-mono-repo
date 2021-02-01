@@ -43,7 +43,6 @@ class FuzzerSupport:
         logger.info("Setting paths")
         if location_of_current_file.endswith("tests/FuzzerTests/RobotTests"):
             self._edr_path = location_of_current_file[:-29]
-            logger.info("edrpath: "+self._edr_path)
         else:
             raise AssertionError("expected script to be in tests/FuzzerTests/RobotTests, it was in {}".format(location_of_current_file))
 
@@ -256,7 +255,6 @@ class FuzzerSupport:
         afl_exec_path = os.path.join(self._edr_path, "..", "afl-2.52b/afl-fuzz")
         fuzzer_input = os.path.join(self._input_root_dir, target_name)
         cmake_fuzz_dir = os.path.join(self._edr_path, FuzzRelativePath)
-        #fuzzer_base_lib_path= os.path.join(self._edr_path, "libs")
         finding_dir = os.path.join(self._edr_path, FuzzRelativePath, "findings_" + target_name)
 
         required_dir_to_run = "/tmp/base/etc"
@@ -277,14 +275,9 @@ class FuzzerSupport:
 
         logger.info("timeout set to: {}".format(timeout))
 
-        # ensure the core_pattern is set to core as required by afl.
-        # with open('/proc/sys/kernel/core_pattern', 'w') as core_pattern:
-        #     core_pattern.write('core\n')
-
         try:
             environment = os.environ.copy()
             environment['AFL_SKIP_CPUFREQ'] = '1'
-            #environment['LD_LIBRARY_PATH'] = fuzzer_base_lib_path
 
             fuzz_log = open(os.path.join("/tmp", "fuzz.log"), 'w+')
             logger.info("Running from current dir: {}".format(cmake_fuzz_dir))
