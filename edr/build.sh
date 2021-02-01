@@ -296,6 +296,7 @@ function build()
         cp  -r ${INPUT}/osquery/stuff/*  "$REDIST"/osquery
         cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
 
+        cp -r ${INPUT}/linux-x64-extension  "$REDIST"/linux-x64-extension
         # Fix up jsoncpp dual versioning scheme.
         if [[ -f $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  ]]
         then

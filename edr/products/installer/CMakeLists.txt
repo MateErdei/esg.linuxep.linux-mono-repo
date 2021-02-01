@@ -39,6 +39,11 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/extensions.load
         DESTINATION files/plugins/${PLUGIN_NAME}/extensions/
         PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ)
 
+install(FILES ${MTREXTENSION}
+        DESTINATION files/plugins/${PLUGIN_NAME}/extensions/
+        RENAME MTR.ext
+        PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ)
+
 install ( DIRECTORY ${GCC_INPUT}/lib64
         DESTINATION files/plugins/${PLUGIN_NAME}
         CONFIGURATIONS Debug
