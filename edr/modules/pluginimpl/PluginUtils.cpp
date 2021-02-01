@@ -56,7 +56,7 @@ namespace Plugin
                 throw std::runtime_error(flag + " not set in plugin setting file");
             }
 
-            return (value.first == "0");;
+            return (value.first == "1");;
         }
         else
         {
@@ -73,17 +73,17 @@ namespace Plugin
         }
         return false;
     }
-    void PluginUtils::setGivenFlagFromSettingsFile(const std::string& flag, const bool& isXDR)
+    void PluginUtils::setGivenFlagFromSettingsFile(const std::string& flag, const bool& flagValue)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         std::string mode;
-        if (isXDR)
+        if (flagValue)
         {
-            mode = flag + "=0";
+            mode = flag + "=1";
         }
         else
         {
-            mode = flag + "=1";
+            mode = flag + "=0";
         }
 
         try

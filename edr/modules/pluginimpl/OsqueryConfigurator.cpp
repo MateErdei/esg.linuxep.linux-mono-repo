@@ -220,7 +220,7 @@ namespace Plugin
         {
             try
             {
-                disableAuditD = !Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("disable_auditd");
+                disableAuditD = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("disable_auditd");
             }
             catch (std::runtime_error& ex)
             {
