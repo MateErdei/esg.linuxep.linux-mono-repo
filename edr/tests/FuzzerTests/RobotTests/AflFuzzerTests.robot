@@ -7,7 +7,9 @@ Library           OperatingSystem
 Library    FuzzerSupport.py
 
 
-Test Setup   Ensure Alf Fuzzer Targets Built
+Test Setup   Run Keywords
+...          Fuzzer Set Paths  tests/FuzzerTests/AflFuzzScripts/data/    AND
+...          Ensure Alf Fuzzer Targets Built
 
 Test Teardown  Run Keywords
 ...            Log File   /tmp/fuzz.log   AND
@@ -23,7 +25,6 @@ Test Process LiveQuery Policy
 
 *** Keywords ***
 Fuzzer Tests Global Setup
-
         Fuzzer Set Paths  tests/FuzzerTests/AflFuzzScripts/data/
         Setup Base Build
 
