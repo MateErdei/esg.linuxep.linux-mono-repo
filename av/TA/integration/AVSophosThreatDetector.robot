@@ -15,7 +15,8 @@ Test Teardown   AVSophosThreatDetector Test TearDown
 
 *** Test Cases ***
 Test Global Rep works in chroot
-    run on failure  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
+    run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
+    run on failure  dump log   ${THREAT_DETECTOR_LOG_PATH}
     set sophos_threat_detector log level
     Restart sophos_threat_detector
     scan GR test file

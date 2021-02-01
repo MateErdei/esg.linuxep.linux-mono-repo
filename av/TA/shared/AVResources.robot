@@ -76,6 +76,11 @@ Mark Sophos Threat Detector Log
     Set Test Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
 
+Mark Susi Debug Log
+    ${count} =  Count File Log Lines  ${SUSI_DEBUG_LOG_PATH}
+    Set Test Variable   ${SUSI_DEBUG_LOG_MARK}  ${count}
+    Log  "SUSI_DEBUG LOG MARK = ${SUSI_DEBUG_LOG_MARK}"
+
 Mark Scan Now Log
     ${count} =  Count File Log Lines  ${SCANNOW_LOG_PATH}
     Set Test Variable   ${SCAN_NOW_LOG_MARK}  ${count}

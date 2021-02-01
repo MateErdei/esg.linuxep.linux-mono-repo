@@ -185,8 +185,9 @@ CLS Does not request TFTClassification from SUSI
 
 
 CLS Can Evaluate High Ml Score As A Threat
+    run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
     Copy File  ${RESOURCES_PATH}/file_samples/MLengHighScore.exe  ${NORMAL_DIRECTORY}
-    Mark Sophos Threat Detector Log
+    Mark Susi Debug Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
     Log  return code is ${rc}
@@ -195,11 +196,10 @@ CLS Can Evaluate High Ml Score As A Threat
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A
 
-    ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
+    ${contents}  Get File Contents From Offset   ${SUSI_DEBUG_LOG_PATH}   ${SUSI_DEBUG_LOG_MARK}
     ${primary_score} =  Find Score  Primary score:  ${contents}
     ${secondary_score} =  Find Score  Secondary score:  ${contents}
-    ${value} =  Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${20}
-    Should Be Equal As Integers  ${value}  ${1}
+    Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${20}
 
 
 CLS Can Evaluate Low Ml Score As A Clean File

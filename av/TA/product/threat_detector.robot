@@ -80,8 +80,10 @@ Threat Detector Log Rotates
 
 Threat Detector Log Rotates while in chroot
     Register Cleanup   Empty Directory   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
-    Register On Fail   dump log  ${AV_LOG_PATH}
     Register On Fail   Stop AV
+    Register On Fail   dump log  ${AV_LOG_PATH}
+    Register On Fail   dump log  ${THREAT_DETECTOR_LOG_PATH}
+    Register On Fail   dump log  ${SUSI_DEBUG_LOG_PATH}
 
     # Ensure the log is created
     Start AV

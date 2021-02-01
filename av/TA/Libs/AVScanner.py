@@ -139,7 +139,14 @@ def find_score(word, file_contents):
 
 
 def check_ml_scores_are_above_threshold(actual_primary, actual_secondary, threshold_primary, threshold_secondary):
-    return int(actual_primary) > threshold_primary and int(actual_secondary) > threshold_secondary
+    if int(actual_primary) > threshold_primary and int(actual_secondary) > threshold_secondary:
+        return
+    raise AssertionError("ML scores are not above threshold: Primary {} < {} or Secondary {} < {}".format(
+        actual_primary,
+        threshold_primary,
+        actual_secondary,
+        threshold_secondary
+    ))
 
 
 def check_ml_primary_score_is_below_threshold(actual_primary, threshold_primary):
