@@ -91,7 +91,7 @@ scan GR test file
     BuiltIn.Should Be Equal As Integers  ${rc}  ${0}  Failed to scan gui.exe
 
 check sophos_threat_dector log for successful global rep lookup
-    Threat Detector Log Contains  =GR= Connection \#0 to host 4.sophosxl.net left intact
+    Susi Debug Log Contains  =GR= Connection \#0 to host 4.sophosxl.net left intact
 
 AVSophosThreatDetector Suite Setup
     Log  AVSophosThreatDetector Suite Setup

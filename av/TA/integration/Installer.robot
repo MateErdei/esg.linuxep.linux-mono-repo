@@ -157,7 +157,7 @@ IDE can be removed
     Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
 sophos_threat_detector can start after multiple IDE updates
-    Register On Fail  dump log   ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector/susi_debug.log
+    Register On Fail  dump log   ${SUSI_DEBUG_LOG_PATH}
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Install IDE  ${IDE_NAME}
     Install IDE  ${IDE2_NAME}
