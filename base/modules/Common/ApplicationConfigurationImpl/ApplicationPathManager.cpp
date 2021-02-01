@@ -182,6 +182,11 @@ namespace Common
             return Common::FileSystem::join(getSulDownloaderReportPath(), "update_config.json");
         }
 
+        std::string ApplicationPathManager::getStateMachineRawDataPath() const
+        {
+            return Common::FileSystem::join(getSulDownloaderReportPath(), "state_machine_raw_data.json");
+        }
+
         std::string ApplicationPathManager::getSulDownloaderReportGeneratedFilePath() const
         {
             return Common::FileSystem::join(getSulDownloaderReportPath(), "update_report.json");

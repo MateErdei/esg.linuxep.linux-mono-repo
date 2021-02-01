@@ -57,6 +57,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getSulDownloaderReportGeneratedFilePath() const override;
         std::string getSulDownloaderLockFilePath() const override;
         [[nodiscard]] std::string getSulDownloaderLatestProductUpdateMarkerPath() const override;
+        std::string getStateMachineRawDataPath() const override;
 
         std::string getSavedEnvironmentProxyFilePath() const override;
 

@@ -11,11 +11,11 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "configModule/DownloadReportsAnalyser.h"
 #include "configModule/UpdateActionParser.h"
 #include "configModule/UpdatePolicyTranslator.h"
+#include "stateMachinesModule/DownloadStateMachine.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
@@ -28,7 +28,9 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/UpdateSupplementDecider.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 #include <UpdateSchedulerImpl/runnerModule/AsyncSulDownloaderRunner.h>
-#include <UpdateSchedulerImpl/runnerModule/SulDownloaderRunner.h>
+#include <UpdateSchedulerImpl/stateMachinesModule/EventStateMachine.h>
+#include <UpdateSchedulerImpl/stateMachinesModule/InstallStateMachine.h>
+#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
 
 #include <chrono>
 #include <csignal>
@@ -517,6 +519,9 @@ namespace UpdateSchedulerImpl
             LOGDEBUG("Writing currently installed feature codes json to disk");
             writeInstalledFeaturesJsonFile(m_featuresCurrentlyInstalled);
         }
+
+        stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+        stateMachineProcessor.updateStateMachines(reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult);
 
         std::string statusXML = SerializeUpdateStatus(
             reportAndFiles.reportCollectionResult.SchedulerStatus,

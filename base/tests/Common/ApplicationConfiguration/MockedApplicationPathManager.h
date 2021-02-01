@@ -79,4 +79,5 @@ public:
     MOCK_CONST_METHOD0(getCommsResponseDirPath, std::string (void));
     MOCK_CONST_METHOD1(getVersionIniFileForComponent, std::string (const std::string& component));
     MOCK_CONST_METHOD0(getFeaturesJsonPath, std::string (void));
+    MOCK_CONST_METHOD0(getStateMachineRawDataPath, std::string (void));
 };

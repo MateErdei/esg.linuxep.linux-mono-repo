@@ -74,7 +74,7 @@ namespace Common::ApplicationConfiguration
         virtual std::string getSulDownloaderReportGeneratedFilePath() const = 0;
         virtual std::string getSulDownloaderLockFilePath() const = 0;
         virtual std::string getSulDownloaderLatestProductUpdateMarkerPath() const = 0;
-
+        virtual std::string getStateMachineRawDataPath() const = 0;
         virtual std::string getSavedEnvironmentProxyFilePath() const = 0;
 
         virtual std::string getTelemetrySchedulerStatusFilePath() const = 0;
