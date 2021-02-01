@@ -4,18 +4,14 @@ Documentation    Suite description
 Default Tags  FUZZ
 
 Library           OperatingSystem
-Library    ${LIBS_DIRECTORY}/FuzzerSupport.py
-Resource  ../GeneralTeardownResource.robot
-Resource  FuzzTestsResources.robot
+Library    FuzzerSupport.py
 
 
 Test Setup   Ensure Alf Fuzzer Targets Built
 
 Test Teardown  Run Keywords
 ...            Log File   /tmp/fuzz.log   AND
-...            Remove file  /tmp/fuzz.log  AND
-...            General Test Teardown
-
+...            Remove file  /tmp/fuzz.log
 *** Test Cases ***
 
 Test Process LiveQuery Policy
