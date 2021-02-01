@@ -59,6 +59,8 @@ Bootstrap SUSI From Update Source
     Append To File  ${SUSI_V1DIR}/package_manifest.txt   model 1\n
     Append To File  ${SUSI_V1DIR}/package_manifest.txt   reputation 1\n
 
+    Copy File   ${SUSI_V1DIR}/package_manifest.txt  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/package_manifest.txt
+
     Copy Files  ${SUSI_UPDATE_SRC}/version_manifest.txt*  ${SUSI_DIST_VERS}
 
     Copy Files  ${SUSI_UPDATE_SRC}/libglobalrep/*   ${SUSI_V1DIR}

@@ -88,7 +88,7 @@ Threat Detector Log Rotates while in chroot
     # Ensure the log is created
     Start AV
     Stop AV
-    Increase Threat Detector Log To Max Size   remaining=4096
+    Increase Threat Detector Log To Max Size   remaining=1024
     Start AV
     Wait Until Created   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1   timeout=10s
     Wait Until File Log Contains
