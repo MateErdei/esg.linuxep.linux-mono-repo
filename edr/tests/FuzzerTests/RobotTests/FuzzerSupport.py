@@ -14,7 +14,7 @@ import shutil
 import pathlib
 
 FuzzerRelativePath = "cmake-fuzz/tests/FuzzerTests/LibFuzzerScripts"
-
+FuzzRelativePath = "cmake-afl-fuzz/tests/FuzzerTests/AflFuzzerScripts"
 TIMEOUTMINUTES=1
 
 class FuzzerSupport:
@@ -232,3 +232,172 @@ class FuzzerSupport:
 
         logger.info("setup for build completed")
 
+    def ensure_alf_fuzzer_targets_built(self):
+        error_message = "Failed to build AFLFuzzer Targets."
+        if self._check_is_alf_fuzz_target_present():
+            return
+        fuzzer_path = os.path.join(self._edr_path, "tests/FuzzTests")
+
+        logger.info("Running buildFuzzTests.sh from {}".format(fuzzer_path))
+        try:
+            output = subprocess.check_output(["./buildFuzzTests.sh"], shell=True, cwd=fuzzer_path)
+            logger.debug(output)
+            if not self._check_is_alf_fuzz_target_present():
+                raise AssertionError(error_message)
+        except subprocess.CalledProcessError as ex:
+            logger.error("Failed to build target")
+            logger.warning(ex.output)
+            raise AssertionError(error_message)
+
+    def run_alf_fuzzer_by_name(self, target_name):
+        self._verify_paths()
+        fuzzer_path = os.path.join(self._edr_path, FuzzRelativePath, target_name)
+        afl_exec_path = os.path.join(self._edr_path, "..", "afl-2.52b/afl-fuzz")
+        fuzzer_input = os.path.join(self._input_root_dir, target_name)
+        cmake_fuzz_dir = os.path.join(self._edr_path, FuzzRelativePath)
+        #fuzzer_base_lib_path= os.path.join(self._edr_path, "libs")
+        finding_dir = os.path.join(self._edr_path, FuzzRelativePath, "findings_" + target_name)
+
+        required_dir_to_run = "/tmp/base/etc"
+
+        if not os.path.isdir(fuzzer_input):
+            raise AssertionError("Input CORPUS not present. {}".format(fuzzer_input))
+        if not os.path.exists(fuzzer_path):
+            raise AssertionError( "Failed to find fuzzer target. Expected: {}".format(fuzzer_path))
+        if not os.path.exists(finding_dir):
+            os.makedirs(finding_dir)
+        if not os.path.exists(required_dir_to_run):
+            os.makedirs(required_dir_to_run)
+
+        logger.info("Running: {}".format(fuzzer_path))
+
+        default_timeout = str(8*60*60)
+        timeout = os.environ.get('AFL_FUZZ_TIMEOUT', default_timeout)
+
+        logger.info("timeout set to: {}".format(timeout))
+
+        # ensure the core_pattern is set to core as required by afl.
+        with open('/proc/sys/kernel/core_pattern', 'w') as core_pattern:
+            core_pattern.write('core\n')
+
+        try:
+            environment = os.environ.copy()
+            environment['AFL_SKIP_CPUFREQ'] = '1'
+            #environment['LD_LIBRARY_PATH'] = fuzzer_base_lib_path
+
+            fuzz_log = open(os.path.join("/tmp", "fuzz.log"), 'w+')
+            logger.info("Running from current dir: {}".format(cmake_fuzz_dir))
+
+            args = ['timeout', timeout, afl_exec_path, '-i',
+                    fuzzer_input, "-o", finding_dir, "-m", "400", fuzzer_path]
+            logger.info("Command executed: {}".format(args))
+            popen = subprocess.Popen(args, stdout=fuzz_log, stderr=subprocess.PIPE, env=environment, cwd=cmake_fuzz_dir)
+            output, stderror = popen.communicate()
+            returncode = popen.returncode
+            if output:
+                logger.info("output: {}".format(output.decode()[:500]))
+            if stderror:
+                logger.info("afl run stderror:{}".format(stderror.decode()))
+
+            failures = self.check_fuzz_results(target_name)
+            if failures:
+                self._copy_to_filer6(failures, target_name)
+                raise AssertionError("Fuzzer found error and reported the following files: {}".format(failures))
+
+            if returncode != 124:
+                return returncode
+            return 0
+
+        except Exception as ex:
+            logger.warning("Fuzzer reported error {}".format(str(ex)))
+            return 2
+
+    def _check_is_alf_fuzz_target_present(self):
+        files = ["fuzzRunparsealcpolicytestsInVagrant.sh",
+                 "fuzzRunparsealcpolicytests.sh"]
+        expected_fuzzer_path = os.path.join(self._edr_path, FuzzRelativePath)
+        if not os.path.isdir(expected_fuzzer_path):
+            logger.info("alc path does not exist: {}".format(expected_fuzzer_path))
+            return False
+        full_paths = [os.path.join(expected_fuzzer_path, filename) for filename in files]
+        file_exist_list = [os.path.exists(filepath) for filepath in full_paths]
+        if all(file_exist_list):
+            return True
+        else:
+            files_present = [filepath for filepath in full_paths if os.path.exists(filepath)]
+            logger.info("Files present in alc fuzzer path: {}".format(files_present))
+            files_not_present = [filepath for filepath in full_paths if not os.path.exists(filepath)]
+            logger.info("Files that were not present: {}".format(files_not_present))
+            return False
+
+    def check_fuzz_results(self, target_name):
+        logger.info("Fuzzer finished. Checking results of {}".format(target_name))
+        finding_dir = os.path.join(self._edr_path, FuzzRelativePath, "findings_" + target_name)
+        fuzzer_path = os.path.join(self._edr_path, FuzzRelativePath, target_name)
+        crash_dir = os.path.join(finding_dir,"crashes")
+        hangs_dir = os.path.join(finding_dir,"hangs")
+        if not os.path.exists(crash_dir) and not os.path.exists(hangs_dir) and os.path.exists(finding_dir):
+            logger.warning("Neither crash nor hangs folder was created. Check if alf has really executed. ")
+            return[]
+
+        failures = []
+        atleastOne = False
+
+        for filename in os.listdir(crash_dir):
+            logger.info("Checking file: {}".format(filename))
+            atleastOne = True
+            full_path = os.path.join(crash_dir, filename)
+            self._log_binary_file(full_path)
+
+            if not self._check_and_convict_afl_input_file(full_path, fuzzer_path):
+                logger.warning("Confirmed file failed: {}".format(filename))
+                failures.append(full_path)
+
+        for filename in os.listdir(hangs_dir):
+
+            atleastOne = True
+            full_path = os.path.join(hangs_dir, filename)
+            self._log_binary_file(full_path)
+
+            if not self._check_and_convict_afl_input_file(full_path, fuzzer_path):
+                logger.warning("Confirmed file failed: {}".format(filename))
+                failures.append(full_path)
+
+        if not atleastOne:
+            logger.info("No file created after the execution of Fuzzer. All good!")
+
+        return failures
+
+    def _check_and_convict_afl_input_file(self, input_file, fuzzer):
+        failed = False
+        try:
+
+            ps = subprocess.Popen(("cat", input_file), stdout=subprocess.PIPE)
+            popen = subprocess.Popen(fuzzer, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                     stdin=ps.stdout, shell=True)
+            popen.wait()
+
+            returncode = popen.returncode
+            output, stderr = popen.communicate()
+
+            if output:
+                out = "convict output:{}".format(output)
+                logger.info(out)
+            # fuzzer happens to use the stderr to print its output.
+            if stderr:
+                err = "convict stderror:{}".format(stderr)
+                logger.info(err)
+            if returncode != 0 and returncode != 2:
+                failed = True
+                logger.info("returncode of convict attempt: %s"%(returncode))
+
+        except Exception as ex:
+            failed = True
+            logger.warning("Fuzzer reported error {}".format(str(ex)))
+            output = str(ex)
+            logger.debug(output)
+
+        if failed:
+            self._log_binary_file(input_file)
+            return False
+        return True

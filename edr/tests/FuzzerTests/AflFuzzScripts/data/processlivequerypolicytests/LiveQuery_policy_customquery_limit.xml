@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<policy type="LiveQuery" RevID="revId" policyType="56">
+    <configuration>
+        <scheduled>
+            <dailyDataLimit>10000000</dailyDataLimit>
+            <queryPacks>
+                <queryPack id="queryPackId" />
+            </queryPacks>
+            <customQueries>
+                  <customQuery queryName="blah">
+                      <description>basic query</description>
+                      <query>SELECT * FROM stuff</query>
+                      <interval>10</interval>
+                      <tag>stream</tag>
+                      <removed>false</removed>
+                      <denylist>false</denylist>
+                  </customQuery>
+                  <customQuery queryName="blah2">
+                      <description>a different basic query</description>
+                      <query>SELECT * FROM otherstuff</query>
+                      <interval>5</interval>
+                      <tag>stream</tag>
+                      <removed>true</removed>
+                      <denylist>true</denylist>
+                  </customQuery>
+            </customQueries>
+        </scheduled>
+    </configuration>
+</policy>
