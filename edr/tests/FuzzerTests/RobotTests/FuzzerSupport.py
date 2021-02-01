@@ -14,7 +14,7 @@ import shutil
 import pathlib
 
 FuzzerRelativePath = "cmake-fuzz/tests/FuzzerTests/LibFuzzerScripts"
-FuzzRelativePath = "cmake-afl-fuzz/tests/FuzzTests/AflFuzzerScripts"
+FuzzRelativePath = "cmake-afl-fuzz/tests/FuzzerTests/AflFuzzScripts"
 TIMEOUTMINUTES=1
 
 class FuzzerSupport:
