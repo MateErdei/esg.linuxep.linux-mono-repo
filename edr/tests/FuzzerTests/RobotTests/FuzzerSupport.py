@@ -236,7 +236,7 @@ class FuzzerSupport:
         error_message = "Failed to build AFLFuzzer Targets."
         if self._check_is_alf_fuzz_target_present():
             return
-        fuzzer_path = os.path.join(self._edr_path, "tests/FuzzTests")
+        fuzzer_path = os.path.join(self._edr_path, "tests/FuzzerTests/AflFuzzScripts")
 
         logger.info("Running buildFuzzTests.sh from {}".format(fuzzer_path))
         try:
