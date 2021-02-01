@@ -8,9 +8,7 @@ FAILURE_BUILD_AFL=17
 FAILURE_BUILD_FUZZ=18
 FAILURE_BAD_ARGUMENT=53
 
-source /etc/profile
-#set -ex
-#set -o pipefail
+set -x
 
 STARTINGDIR=$(pwd)
 

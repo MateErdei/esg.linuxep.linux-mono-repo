@@ -12,6 +12,9 @@ Test Setup   Ensure Alf Fuzzer Targets Built
 Test Teardown  Run Keywords
 ...            Log File   /tmp/fuzz.log   AND
 ...            Remove file  /tmp/fuzz.log
+
+Suite Setup   Fuzzer Tests Global Setup
+Suite Teardown   Fuzzer Tests Global TearDown
 *** Test Cases ***
 
 Test Process LiveQuery Policy
@@ -20,6 +23,7 @@ Test Process LiveQuery Policy
 
 *** Keywords ***
 Fuzzer Tests Global Setup
+
         Fuzzer Set Paths  tests/FuzzerTests/AflFuzzScripts/data/
         Setup Base Build
 

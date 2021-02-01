@@ -313,8 +313,8 @@ class FuzzerSupport:
             return 2
 
     def _check_is_alf_fuzz_target_present(self):
-        files = ["fuzzRunparsealcpolicytestsInVagrant.sh",
-                 "fuzzRunparsealcpolicytests.sh"]
+        files = ["fuzzRunprocesslivequerypolicytests.sh",
+                 "fuzzRunprocesslivequerypolicytestsInVagrant.sh"]
         expected_fuzzer_path = os.path.join(self._edr_path, FuzzRelativePath)
         if not os.path.isdir(expected_fuzzer_path):
             logger.info("alc path does not exist: {}".format(expected_fuzzer_path))
