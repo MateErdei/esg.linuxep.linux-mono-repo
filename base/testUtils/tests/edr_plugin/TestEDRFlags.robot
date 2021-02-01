@@ -41,7 +41,7 @@ Flags Are Only Sent To EDR and Not MTR
     ...  1
     ...  Check EDR Log Contains  Flags running mode is EDR
     ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Should Contain  ${contents}   running_mode=1
+    Should Contain  ${contents}   running_mode=0
 
 EDR changes running mode when XDR enabled flags are sent
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
@@ -62,8 +62,8 @@ EDR changes running mode when XDR enabled flags are sent
     ...  Check EDR Log Contains  Flags running mode in policy is XDR
     Check EDR Log Contains  Updating XDR flag settings
     ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Should Contain  ${contents}   running_mode=0
-    Should Not Contain  ${contents}   running_mode=1
+    Should Contain  ${contents}   running_mode=1
+    Should Not Contain  ${contents}   running_mode=0
 
     Wait Until Keyword Succeeds
     ...  10
@@ -113,8 +113,8 @@ EDR disables curl tables when network available flag becomes false
     ...  1
     ...  Check EDR Log Contains  Updating XDR flag settings
     ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Should Contain  ${contents}   network_tables=0
-    Should Not Contain  ${contents}   network_tables=1
+    Should Contain  ${contents}   network_tables=1
+    Should Not Contain  ${contents}   network_tables=0
 
     Wait Until Keyword Succeeds
     ...  10
@@ -139,7 +139,7 @@ EDR disables curl tables when network available flag becomes false
     Should Contain  ${contents}   --disable_tables=curl,curl_certificate
 
     ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Should Contain  ${contents}   network_tables=1
+    Should Contain  ${contents}   network_tables=0
 
 *** Keywords ***
 EDR Test Setup
