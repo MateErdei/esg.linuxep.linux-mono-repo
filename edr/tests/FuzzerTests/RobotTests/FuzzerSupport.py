@@ -278,8 +278,8 @@ class FuzzerSupport:
         logger.info("timeout set to: {}".format(timeout))
 
         # ensure the core_pattern is set to core as required by afl.
-        with open('/proc/sys/kernel/core_pattern', 'w') as core_pattern:
-            core_pattern.write('core\n')
+        # with open('/proc/sys/kernel/core_pattern', 'w') as core_pattern:
+        #     core_pattern.write('core\n')
 
         try:
             environment = os.environ.copy()

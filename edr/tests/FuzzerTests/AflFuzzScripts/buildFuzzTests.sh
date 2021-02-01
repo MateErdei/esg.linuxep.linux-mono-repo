@@ -105,6 +105,11 @@ for target in ${TARGETS}; do
 
 echo configuring ${target} script
 cat > fuzzRun${target}.sh << EOF
+CORE_PATTERN=\$(cat /proc/sys/kernel/core_pattern)
+if [[ \${CORE_PATTERN} != "core" ]]; then
+  echo \${CORE_PATTERN} > backup_core_pattern_option
+  echo 'core' | sudo tee -a /proc/sys/kernel/core_pattern
+fi
 mkdir -p /tmp/base/etc/
 AFL_SKIP_CPUFREQ=1   ${AFL_PATH}/afl-fuzz -i "${MachineFuzzTestCase}/${target}/" -o findings_${target} -m 400 "${MachineExecPath}/${target}"
 EOF
