@@ -157,7 +157,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     file_id id = std::make_tuple(statBuf.st_dev, statBuf.st_ino);
     if (m_seen_directories.find(id) != m_seen_directories.end())
     {
-        LOGDEBUG("Directory already scanned: " << common::escapePathForLogging(current_dir) << " [" << statBuf.st_dev << ", " << statBuf.st_ino << "]");
+        LOGDEBUG("Directory already scanned: \"" << common::escapePathForLogging(current_dir) << "\" [" << statBuf.st_dev << ", " << statBuf.st_ino << "]");
         return;
     }
     else
