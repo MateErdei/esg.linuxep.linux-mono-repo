@@ -44,7 +44,7 @@ TEST(TestPathUtils, TestLexicalNormalisation) // NOLINT
     EXPECT_EQ(PathUtils::lexicallyNormal("/a/b/../b/c"), "/a/b/c");
     EXPECT_EQ(PathUtils::lexicallyNormal("/a/b/./c"), "/a/b/c");
     EXPECT_EQ(PathUtils::lexicallyNormal("a/b/../b/./c/"), "a/b/c/");
-    EXPECT_EQ(PathUtils::lexicallyNormal("/a/b/../b/./c/ "), "/a/b/c/");
+    EXPECT_EQ(PathUtils::lexicallyNormal("/a/b/../b/./c/"), "/a/b/c/");
 }
 
 TEST(TestPathUtils, TestRemovingTrailingDotFromPath) // NOLINT
