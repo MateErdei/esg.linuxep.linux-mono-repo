@@ -265,7 +265,7 @@ Is XDR Enabled in Plugin Conf
     ...  5 secs
     ...  EDR Plugin Log Contains   Flags running mode is XDR
     ${EDR_CONFIG_CONTENT}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=0
+    Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=1
 
 Add Uptime Query to Scheduled Queries
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf

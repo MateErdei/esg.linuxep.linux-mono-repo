@@ -121,7 +121,7 @@ fi
 
 if ! grep -q "running_mode" "${CONFIG_FILE}"
   then
-    echo "running_mode=1" >> "${CONFIG_FILE}"
+    echo "running_mode=0" >> "${CONFIG_FILE}"
 fi
 
 if ! grep -q "network_tables" "${CONFIG_FILE}"
