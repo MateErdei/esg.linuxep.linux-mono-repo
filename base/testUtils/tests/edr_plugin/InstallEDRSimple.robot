@@ -83,6 +83,7 @@ EDR Does Not Trigger Query On Update Now Action
     Should Be Equal  ${edr_length_1}  ${edr_length_2}
 
 EDR Osquery restarts mtr extension when killed
+    [Tags]  EDR_PLUGIN
     Run Full Installer
     Override LogConf File as Global Level  DEBUG
     Install EDR Directly
