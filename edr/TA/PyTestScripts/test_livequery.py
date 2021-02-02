@@ -155,184 +155,184 @@ def test_edr_plugin_expected_responses_to_livequery(sspl_mock, edr_plugin_instan
     # demonstrate that after a 'osquery crash' it is still possible to get normal and good answers
     send_and_receive_query_and_verify(top_2_processes_query, sspl_mock.management, edr_plugin_instance, top_2_processes_response)
 
-#
-# @detect_failure
-# def test_edr_plugin_responses_to_queued_livequeries(sspl_mock, edr_plugin_instance):
-#     edr_plugin_instance.start_edr()
-#
-#     query_dict = {"top 2 processes": top_2_processes_query, "crash query": crash_query, "no columns": no_column_query}
-#     expected_response_dict = {"top 2 processes": top_2_processes_response, "crash query": crash_query_response, "no columns": no_column_response}
-#
-#     response_paths = dict()
-#     #queue queries
-#     for key, query in query_dict.items():
-#         response_file = send_query(query, sspl_mock.management)
-#         response_paths[key] = response_file
-#
-#     #verify responses
-#     for key, response in expected_response_dict.items():
-#         actual_response = get_query_response(response_paths[key], edr_plugin_instance, response_timeout=150)
-#         check_responses_are_equivalent(actual_response, response)
-#
-#
-# @detect_failure
-# def test_edr_plugin_correct_report_for_queries_exceeding_10mb(sspl_mock, edr_plugin_instance):
-#     edr_plugin_instance.start_edr()
-#     large_query = """with recursive
-# cnt(x) as (values(1) union all select x+1 from cnt where x<550)
-# select * from osquery_flags cross join (select x from cnt);"""
-#
-#     query_dict = {'type':"sophos.mgt.action.RunLiveQuery", 'name':"", 'query': large_query}
-#     exceed_10mb_query = json.dumps(query_dict)
-#     exceed_10mb_query_response = """ {
-#             "type": "sophos.mgt.response.RunLiveQuery",
-#             "queryMetaData": {"errorCode":100,"errorMessage":"Response data exceeded 10MB"},
-#             "columnMetaData": [{"name":"name","type":"TEXT"},
-#                                 {"name":"type","type":"TEXT"},
-#                                 {"name":"description","type":"TEXT"},
-#                                 {"name":"default_value","type":"TEXT"},
-#                                 {"name":"value","type":"TEXT"},
-#                                 {"name":"shell_only","type":"INTEGER"},
-#                                 {"name":"x","type":"TEXT"}]
-#             }
-# """
-#     send_and_receive_query_and_verify(exceed_10mb_query, sspl_mock.management,
-#                                       edr_plugin_instance, exceed_10mb_query_response,
-#                                       response_timeout=15)
-#
-# @detect_failure
-# def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin_instance):
-#     edr_plugin_instance.start_edr()
-#     query = """{
-#     "type": "sophos.mgt.action.RunLiveQuery",
-#     "name": "Top 2 Processes",
-#     "query": "SELECT name, path FROM processes limit 2"
-# }
-#     """
-#
-#     file_content = send_and_receive_query(query, sspl_mock.management, edr_plugin_instance)
-#
-#     typePos = file_content.find('type')
-#     metaDataPos = file_content.find("queryMetaData")
-#     columnMetaDataPos = file_content.find("columnMetaData")
-#     columnDataPos = file_content.find("columnData")
-#     # demonstrate expected order of the main key values
-#     try:
-#         assert -1 < typePos < metaDataPos < columnMetaDataPos < columnDataPos
-#     except:
-#         logger.info("Test live query failed.")
-#         logger.info(file_content)
-#         raise
-#
-# @detect_failure
-# def test_edr_plugin_receives_binary_data_livequery_and_produces_answer(sspl_mock, edr_plugin_instance):
-#     edr_plugin_instance.start_edr()
-#     binary_data_name = 'BinaryDataTable'
-#     extensions_path = os.path.join(sspl_mock.sspl, 'plugins/edr/extensions')
-#     binary_table_exec = os.path.join(extensions_path, binary_data_name)
-#     sock_path = os.path.join(sspl_mock.sspl, 'plugins/edr/var/osquery.sock')
-#     # it needs to wait for the osquery to be really launched.
-#     edr_plugin_instance.wait_log_contains("osquery initialized", 10)
-#     popen = subprocess.Popen([binary_table_exec, '--socket', sock_path])
-#     #give a small time for the extension to be launched and communicate with osquery
-#     time.sleep(5)
-#     try:
-#         file_content = send_and_receive_query(get_binary_data, sspl_mock.management, edr_plugin_instance)
-#     finally:
-#         popen.kill()
-#         output, error = popen.communicate()
-#         logger.info(output)
-#         logger.info(error)
-#     typePos = file_content.find('type')
-#     metaDataPos = file_content.find("queryMetaData")
-#     columnMetaDataPos = file_content.find("columnMetaData")
-#     columnDataPos = file_content.find("columnData")
-#     # demonstrate expected order of the main key values
-#     try:
-#         assert -1 < typePos < metaDataPos < columnMetaDataPos < columnDataPos
-#     except:
-#         logger.info("Test live query failed.")
-#         logger.info(file_content)
-#         raise
-#
-# @detect_failure
-# def test_successful_query_that_gives_column_data_gives_column_meta_data_also(sspl_mock, edr_plugin_instance):
-#     edr_plugin_instance.start_edr()
-#     large_query = """DROP TABLE system_info"""
-#
-#     query_dict = {'type':"sophos.mgt.action.RunLiveQuery", 'name':"", 'query': large_query}
-#     query_json = json.dumps(query_dict)
-#     response = """ {
-#     "type": "sophos.mgt.response.RunLiveQuery",
-#     "queryMetaData": {
-#         "errorCode": 0,
-#         "errorMessage": "OK",
-#         "sizeBytes" : 0
-#     },
-#     "columnMetaData":[],
-#     "columnData":[]
-#     }
-# """
-#     send_and_receive_query_and_verify(query_json, sspl_mock.management,
-#                                       edr_plugin_instance, response,
-#                                       response_timeout=15)
-#
-# @detect_failure
-# def test_edr_plugin_run_tests_in_parallel(sspl_mock, edr_plugin_instance):
-#     def response_file(id):
-#         return os.path.join(sspl_mock.sspl, "base/mcs/response/LiveQuery_{}_response.json".format(id))
-#     def retrieve_result_for_id(id):
-#         file_path = response_file(id)
-#         with open(file_path) as fp:
-#             entries = json.load(fp)
-#         return entries['columnData'][0]
-#
-#     edr_plugin_instance.start_edr()
-#     delay_controlled_name = 'DelayControlledTable'
-#     extensions_path = os.path.join(sspl_mock.sspl, 'plugins/edr/extensions')
-#     delay_table_exec = os.path.join(extensions_path, delay_controlled_name)
-#     sock_path = os.path.join(sspl_mock.sspl, 'plugins/edr/var/osquery.sock')
-#     # it needs to wait for the osquery to be really launched.
-#     edr_plugin_instance.wait_log_contains("osquery initialized", 10)
-#     popen = subprocess.Popen([delay_table_exec, '--socket', sock_path])
-#     #give a small time for the extension to be launched and communicate with osquery
-#     time.sleep(1)
-#     try:
-#         for i in range(10, 0, -1):
-#             delay = controlled_delay.replace('DELAYTIME', str(i))
-#             sspl_mock.management.send_plugin_action('edr', 'LiveQuery', str(i), delay)
-#             time.sleep(0.1)
-#
-#         # wait till the expected last response
-#         response_filepath = response_file(10)
-#         for i in range(20):
-#             if os.path.exists(response_filepath):
-#                 break
-#             time.sleep(1)
-#         if not os.path.exists(response_filepath):
-#             response_dir=os.path.join(sspl_mock.sspl, "base/mcs/response/*")
-#             files = ", ".join(glob.glob(response_dir))
-#             raise AssertionError("No response found for the scheduled query: {} ".format(files))
-#
-#         results = [retrieve_result_for_id(i) for i in range(1, 11)]
-#
-#         start_time = [e[0] for e in results]
-#         stop_time = [e[1] for e in results]
-#         delay_time = [e[2] for e in results]
-#
-#         assert delay_time == list(range(1, 11))
-#         # the first one triggered was delay=10, the last delay=1, hence, the start time is start_time[9] < start_time[0]
-#         for before, after in zip(range(1, 9), range(2, 10)):
-#             assert start_time[before] >= start_time[after]
-#
-#         # because they were executed in parallel, and the delay is correspondent to the number,
-#         # the stop time is reversed
-#         for before, after in zip(range(1, 9), range(2, 10)):
-#             assert stop_time[before] <= stop_time[after]
-#
-#     finally:
-#         popen.kill()
-#         output, error = popen.communicate()
-#         logger.info(output)
-#         logger.info(error)
-#
+
+@detect_failure
+def test_edr_plugin_responses_to_queued_livequeries(sspl_mock, edr_plugin_instance):
+    edr_plugin_instance.start_edr()
+
+    query_dict = {"top 2 processes": top_2_processes_query, "crash query": crash_query, "no columns": no_column_query}
+    expected_response_dict = {"top 2 processes": top_2_processes_response, "crash query": crash_query_response, "no columns": no_column_response}
+
+    response_paths = dict()
+    #queue queries
+    for key, query in query_dict.items():
+        response_file = send_query(query, sspl_mock.management)
+        response_paths[key] = response_file
+
+    #verify responses
+    for key, response in expected_response_dict.items():
+        actual_response = get_query_response(response_paths[key], edr_plugin_instance, response_timeout=150)
+        check_responses_are_equivalent(actual_response, response)
+
+
+@detect_failure
+def test_edr_plugin_correct_report_for_queries_exceeding_10mb(sspl_mock, edr_plugin_instance):
+    edr_plugin_instance.start_edr()
+    large_query = """with recursive
+cnt(x) as (values(1) union all select x+1 from cnt where x<550)
+select * from osquery_flags cross join (select x from cnt);"""
+
+    query_dict = {'type':"sophos.mgt.action.RunLiveQuery", 'name':"", 'query': large_query}
+    exceed_10mb_query = json.dumps(query_dict)
+    exceed_10mb_query_response = """ {
+            "type": "sophos.mgt.response.RunLiveQuery",
+            "queryMetaData": {"errorCode":100,"errorMessage":"Response data exceeded 10MB"},
+            "columnMetaData": [{"name":"name","type":"TEXT"},
+                                {"name":"type","type":"TEXT"},
+                                {"name":"description","type":"TEXT"},
+                                {"name":"default_value","type":"TEXT"},
+                                {"name":"value","type":"TEXT"},
+                                {"name":"shell_only","type":"INTEGER"},
+                                {"name":"x","type":"TEXT"}]
+            }
+"""
+    send_and_receive_query_and_verify(exceed_10mb_query, sspl_mock.management,
+                                      edr_plugin_instance, exceed_10mb_query_response,
+                                      response_timeout=15)
+
+@detect_failure
+def test_edr_plugin_receives_livequery_and_produces_answer(sspl_mock, edr_plugin_instance):
+    edr_plugin_instance.start_edr()
+    query = """{
+    "type": "sophos.mgt.action.RunLiveQuery",
+    "name": "Top 2 Processes",
+    "query": "SELECT name, path FROM processes limit 2"
+}
+    """
+
+    file_content = send_and_receive_query(query, sspl_mock.management, edr_plugin_instance)
+
+    typePos = file_content.find('type')
+    metaDataPos = file_content.find("queryMetaData")
+    columnMetaDataPos = file_content.find("columnMetaData")
+    columnDataPos = file_content.find("columnData")
+    # demonstrate expected order of the main key values
+    try:
+        assert -1 < typePos < metaDataPos < columnMetaDataPos < columnDataPos
+    except:
+        logger.info("Test live query failed.")
+        logger.info(file_content)
+        raise
+
+@detect_failure
+def test_edr_plugin_receives_binary_data_livequery_and_produces_answer(sspl_mock, edr_plugin_instance):
+    edr_plugin_instance.start_edr()
+    binary_data_name = 'BinaryDataTable'
+    extensions_path = os.path.join(sspl_mock.sspl, 'plugins/edr/extensions')
+    binary_table_exec = os.path.join(extensions_path, binary_data_name)
+    sock_path = os.path.join(sspl_mock.sspl, 'plugins/edr/var/osquery.sock')
+    # it needs to wait for the osquery to be really launched.
+    edr_plugin_instance.wait_log_contains("osquery initialized", 10)
+    popen = subprocess.Popen([binary_table_exec, '--socket', sock_path])
+    #give a small time for the extension to be launched and communicate with osquery
+    time.sleep(5)
+    try:
+        file_content = send_and_receive_query(get_binary_data, sspl_mock.management, edr_plugin_instance)
+    finally:
+        popen.kill()
+        output, error = popen.communicate()
+        logger.info(output)
+        logger.info(error)
+    typePos = file_content.find('type')
+    metaDataPos = file_content.find("queryMetaData")
+    columnMetaDataPos = file_content.find("columnMetaData")
+    columnDataPos = file_content.find("columnData")
+    # demonstrate expected order of the main key values
+    try:
+        assert -1 < typePos < metaDataPos < columnMetaDataPos < columnDataPos
+    except:
+        logger.info("Test live query failed.")
+        logger.info(file_content)
+        raise
+
+@detect_failure
+def test_successful_query_that_gives_column_data_gives_column_meta_data_also(sspl_mock, edr_plugin_instance):
+    edr_plugin_instance.start_edr()
+    large_query = """DROP TABLE system_info"""
+
+    query_dict = {'type':"sophos.mgt.action.RunLiveQuery", 'name':"", 'query': large_query}
+    query_json = json.dumps(query_dict)
+    response = """ {
+    "type": "sophos.mgt.response.RunLiveQuery",
+    "queryMetaData": {
+        "errorCode": 0,
+        "errorMessage": "OK",
+        "sizeBytes" : 0
+    },
+    "columnMetaData":[],
+    "columnData":[]
+    }
+"""
+    send_and_receive_query_and_verify(query_json, sspl_mock.management,
+                                      edr_plugin_instance, response,
+                                      response_timeout=15)
+
+@detect_failure
+def test_edr_plugin_run_tests_in_parallel(sspl_mock, edr_plugin_instance):
+    def response_file(id):
+        return os.path.join(sspl_mock.sspl, "base/mcs/response/LiveQuery_{}_response.json".format(id))
+    def retrieve_result_for_id(id):
+        file_path = response_file(id)
+        with open(file_path) as fp:
+            entries = json.load(fp)
+        return entries['columnData'][0]
+
+    edr_plugin_instance.start_edr()
+    delay_controlled_name = 'DelayControlledTable'
+    extensions_path = os.path.join(sspl_mock.sspl, 'plugins/edr/extensions')
+    delay_table_exec = os.path.join(extensions_path, delay_controlled_name)
+    sock_path = os.path.join(sspl_mock.sspl, 'plugins/edr/var/osquery.sock')
+    # it needs to wait for the osquery to be really launched.
+    edr_plugin_instance.wait_log_contains("osquery initialized", 10)
+    popen = subprocess.Popen([delay_table_exec, '--socket', sock_path])
+    #give a small time for the extension to be launched and communicate with osquery
+    time.sleep(1)
+    try:
+        for i in range(10, 0, -1):
+            delay = controlled_delay.replace('DELAYTIME', str(i))
+            sspl_mock.management.send_plugin_action('edr', 'LiveQuery', str(i), delay)
+            time.sleep(0.1)
+
+        # wait till the expected last response
+        response_filepath = response_file(10)
+        for i in range(20):
+            if os.path.exists(response_filepath):
+                break
+            time.sleep(1)
+        if not os.path.exists(response_filepath):
+            response_dir=os.path.join(sspl_mock.sspl, "base/mcs/response/*")
+            files = ", ".join(glob.glob(response_dir))
+            raise AssertionError("No response found for the scheduled query: {} ".format(files))
+
+        results = [retrieve_result_for_id(i) for i in range(1, 11)]
+
+        start_time = [e[0] for e in results]
+        stop_time = [e[1] for e in results]
+        delay_time = [e[2] for e in results]
+
+        assert delay_time == list(range(1, 11))
+        # the first one triggered was delay=10, the last delay=1, hence, the start time is start_time[9] < start_time[0]
+        for before, after in zip(range(1, 9), range(2, 10)):
+            assert start_time[before] >= start_time[after]
+
+        # because they were executed in parallel, and the delay is correspondent to the number,
+        # the stop time is reversed
+        for before, after in zip(range(1, 9), range(2, 10)):
+            assert stop_time[before] <= stop_time[after]
+
+    finally:
+        popen.kill()
+        output, error = popen.communicate()
+        logger.info(output)
+        logger.info(error)
+
