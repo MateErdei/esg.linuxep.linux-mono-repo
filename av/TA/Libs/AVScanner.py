@@ -150,11 +150,16 @@ def check_ml_scores_are_above_threshold(actual_primary, actual_secondary, thresh
 
 
 def check_ml_primary_score_is_below_threshold(actual_primary, threshold_primary):
-    return int(actual_primary) < threshold_primary
+    if int(actual_primary) < threshold_primary:
+        return
+    raise AssertionError("Primary ML score is not below threshold: Primary {} >= {}".format(
+        actual_primary,
+        threshold_primary
+    ))
 
 
 def create_tar(path, file, tar_name):
-    #not moving the cwd was archiving the full folder tree to the file we wanted to archive
+    # not moving the cwd was archiving the full folder tree to the file we wanted to archive
     starting_wd = os.getcwd()
     os.chdir(path)
     with tarfile.open(tar_name, "w") as tar_archive:
@@ -163,7 +168,7 @@ def create_tar(path, file, tar_name):
 
 
 def create_zip(path, file, zip_name):
-    #not moving the cwd was archiving the full folder tree to the file we wanted to archive
+    # not moving the cwd was archiving the full folder tree to the file we wanted to archive
     starting_wd = os.getcwd()
     os.chdir(path)
     with zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED) as zip_archive:

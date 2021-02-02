@@ -214,8 +214,7 @@ CLS Can Evaluate Low Ml Score As A Clean File
 
     ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
     ${primary_score} =  Find Score  Primary score:  ${contents}
-    ${value} =  Check Ml Primary Score Is Below Threshold  ${primary_score}  ${30}
-    Should Be Equal As Integers  ${value}  ${1}
+    Check Ml Primary Score Is Below Threshold  ${primary_score}  ${30}
 
 
 CLS Can Scan Archive File
