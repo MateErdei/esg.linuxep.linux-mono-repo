@@ -8,9 +8,9 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 #include "Logger.h"
-#include "DecoratorTemplate.h"
 
-namespace Plugin {
+namespace Plugin
+{
     std::optional<std::string> getCustomQueries(const std::string &liveQueryPolicy) {
         const std::string customQueries = "policy/configuration/scheduled/customQueries";
         const std::string queryTag = "customQuery";
@@ -71,7 +71,6 @@ namespace Plugin {
             return std::nullopt;
         }
 
-        customQueryPack["decorators"] = nlohmann::json::parse(DecoratorTemplate::decorators);
         return customQueryPack.dump();
     }
 }

@@ -31,7 +31,6 @@ sophos_add_library(pluginimpl SHARED
         SystemConfigurator.cpp
         OsqueryLogIngest.h
         OsqueryLogIngest.cpp
-        DecoratorTemplate.h
         LiveQueryPolicyParser.cpp
         LiveQueryPolicyParser.h
         EXTRA_PROJECTS queryrunnerimpl procimpl OsqueryExtensions

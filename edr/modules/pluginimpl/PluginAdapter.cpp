@@ -5,7 +5,6 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginAdapter.h"
-#include "DecoratorTemplate.h"
 
 #include "ApplicationPaths.h"
 #include "IOsqueryProcess.h"
