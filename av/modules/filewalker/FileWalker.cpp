@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <common/AbortScanException.h>
 #include <common/PathUtils.h>
+#include <common/StringUtils.h>
 
 #include <cstring>
 
@@ -40,7 +41,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     catch (const fs::filesystem_error& e)
     {
         std::ostringstream oss;
-        oss << "Failed to scan " << starting_point << ": " << e.code().message();
+        oss << "Failed to scan \"" << common::escapePathForLogging(starting_point) << "\": " << e.code().message();
         LOGERROR(oss.str());
         throw fs::filesystem_error(oss.str(), e.code());        // Backtrack protection for symlinks
 
@@ -49,7 +50,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     if (!fs::exists(itemStatus))
     {
         std::ostringstream oss;
-        oss << "Failed to scan " << starting_point << ": file/folder does not exist";
+        oss << "Failed to scan \"" << common::escapePathForLogging(starting_point) << "\": file/folder does not exist";
         LOGERROR(oss.str());
         std::error_code ec (ENOENT, std::system_category());
         throw fs::filesystem_error(oss.str(), ec);
@@ -71,7 +72,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         catch (const std::runtime_error& ex)
         {
-            LOGERROR("Failed to process: " << starting_point.string());
+            LOGERROR("Failed to process: " << common::escapePathForLogging(starting_point));
         }
         return;
     }
@@ -85,7 +86,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     }
     else
     {
-        LOGINFO("Not scanning special file/device: " << starting_point);
+        LOGINFO("Not scanning special file/device: \"" << common::escapePathForLogging(starting_point) << "\"");
         return;
     }
 
@@ -104,7 +105,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         {
             int error_number = errno;
             std::ostringstream oss;
-            oss << "Failed to stat " << starting_point << ": " << std::strerror(error_number);
+            oss << "Failed to stat \"" << common::escapePathForLogging(starting_point) << "\": " << std::strerror(error_number);
             LOGERROR(oss.str());
             std::error_code ec(error_number, std::system_category());
             throw fs::filesystem_error(oss.str(), ec);
@@ -122,7 +123,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     {
         if (!m_callback.includeDirectory(current_dir))
         {
-            LOGDEBUG("Not recursing into " << current_dir << " as it is excluded");
+            LOGDEBUG("Not recursing into \"" << common::escapePathForLogging(current_dir) << "\" as it is excluded");
             return;
         }
     }
@@ -130,7 +131,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     {
         if(!m_loggedExclusionCheckFailed)
         {
-            LOGERROR("Failed to check exclusions against: " << current_dir.string() << " due to an error: " << e.what());
+            LOGERROR("Failed to check exclusions against: " << common::escapePathForLogging(current_dir) << " due to an error: " << e.what());
             m_loggedExclusionCheckFailed = true;
         }
     }
@@ -139,7 +140,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     int ret = ::stat(current_dir.c_str(), &statBuf);
     if (ret != 0)
     {
-        LOGERROR("Failed to stat " << current_dir << "(" << errno << ")");
+        LOGERROR("Failed to stat " << common::escapePathForLogging(current_dir) << "(" << errno << ")");
         return;
     }
 
@@ -147,7 +148,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     {
         if (statBuf.st_dev != m_starting_dev)
         {
-            LOGDEBUG("Not recursing into " << current_dir << " as it is on a different mount");
+            LOGDEBUG("Not recursing into " << common::escapePathForLogging(current_dir) << " as it is on a different mount");
             return;
         }
     }
@@ -156,7 +157,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     file_id id = std::make_tuple(statBuf.st_dev, statBuf.st_ino);
     if (m_seen_directories.find(id) != m_seen_directories.end())
     {
-        LOGDEBUG("Directory already scanned: " << current_dir << " [" << statBuf.st_dev << ", " << statBuf.st_ino << "]");
+        LOGDEBUG("Directory already scanned: \"" << common::escapePathForLogging(current_dir) << "\" [" << statBuf.st_dev << ", " << statBuf.st_ino << "]");
         return;
     }
     else
@@ -178,7 +179,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
         }
         catch (const fs::filesystem_error& e)
         {
-            LOGERROR("Failed to get the symlink status of: " << p << " [" << e.code().message() << "]");
+            LOGERROR("Failed to get the symlink status of: " << common::escapePathForLogging(p.path()) << " [" << e.code().message() << "]");
             continue;
         }
 
@@ -186,7 +187,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
         {
             if (!m_follow_symlinks)
             {
-                LOGDEBUG("Not following symlink: " << p);
+                LOGDEBUG("Not following symlink: " << common::escapePathForLogging(p.path()));
                 continue;
             }
         }
