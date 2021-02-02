@@ -101,7 +101,7 @@ Test Edr Plugin downgrades properly with plugin conf
     Should Exist      ${SOPHOS_INSTALL}/plugins/edr
     Should Not Exist  ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
     ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Should Contain  ${contents}   running_mode=1
+    Should Contain  ${contents}   running_mode=0
 
 Test Mtr Plugin uninstalls cleanly
     [Tags]  MDR_PLUGIN  UNINSTALL
