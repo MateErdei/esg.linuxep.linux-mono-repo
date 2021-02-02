@@ -16,6 +16,13 @@ top_2_processes_query = """{
     "query": "SELECT name, value FROM osquery_flags where name=='logger_stderr'"
     }"""
 
+top_2_processes_response = """{
+        "type": "sophos.mgt.response.RunLiveQuery",
+        "queryMetaData": {"errorCode":0,"errorMessage":"OK","rows":1},
+        "columnMetaData": [{"name":"name","type":"TEXT"},{"name":"value","type":"TEXT"}],
+        "columnData": [["logger_stderr","false"]]
+    }"""
+
 controlled_delay = """{
     "type": "sophos.mgt.action.RunLiveQuery",
     "name": "Managed delay",
@@ -28,12 +35,32 @@ get_binary_data = """{
     "query": "select data from binary_data where size==100"
 }"""
 
-top_2_processes_response = """{
+hex_to_int_query = """{
+    "type": "sophos.mgt.action.RunLiveQuery",
+    "name": "convert hex to int",
+    "query": "SELECT * FROM hex_to_int WHERE hex_string='0xf'"
+}"""
+
+hex_to_int_response = """{
         "type": "sophos.mgt.response.RunLiveQuery",
         "queryMetaData": {"errorCode":0,"errorMessage":"OK","rows":1},
-        "columnMetaData": [{"name":"name","type":"TEXT"},{"name":"value","type":"TEXT"}],
-        "columnData": [["logger_stderr","false"]]
+        "columnMetaData": [{"name":"name","type":"TEXT"},{"name":"value","type":"INTEGER"}],
+        "columnData": [["int",15]]
     }"""
+
+grep_query = """{
+    "type": "sophos.mgt.action.RunLiveQuery",
+    "name": "grep file",
+    "query": "SELECT pattern FROM grep WHERE path = '/opt/sophos-spl/plugins/edr/VERSION.ini' AND pattern = 'VERSION'"
+}"""
+
+grep_response = """{
+        "type": "sophos.mgt.response.RunLiveQuery",
+        "queryMetaData": {"errorCode":0,"errorMessage":"OK","rows":1},
+        "columnMetaData": [{"name":"pattern","type":"TEXT"}],
+        "columnData": [["VERSION"]]
+    }"""
+
 
 no_column_query = """{
     "type": "sophos.mgt.action.RunLiveQuery",
@@ -105,6 +132,8 @@ def send_and_receive_query_and_verify(query_to_send, mock_management_agent, edr_
 def test_edr_plugin_expected_responses_to_livequery(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
     send_and_receive_query_and_verify(top_2_processes_query, sspl_mock.management, edr_plugin_instance, top_2_processes_response)
+    send_and_receive_query_and_verify(hex_to_int_query, sspl_mock.management, edr_plugin_instance, hex_to_int_response)
+    send_and_receive_query_and_verify(grep_query, sspl_mock.management, edr_plugin_instance, grep_response)
     send_and_receive_query_and_verify(no_column_query, sspl_mock.management, edr_plugin_instance, no_column_response)
 
     # check that empty name is also acceptable (Central sends empty name for user new queries)
