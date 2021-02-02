@@ -41,7 +41,7 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/extensions.load
 
 install(FILES ${MTREXTENSION}
         DESTINATION files/plugins/${PLUGIN_NAME}/extensions/
-        RENAME MTR.ext
+        RENAME SophosMTR.ext
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 
 install ( DIRECTORY ${GCC_INPUT}/lib64
