@@ -83,7 +83,6 @@ namespace Plugin
 
         unsigned int getDataLimit(const std::string &liveQueryPolicy);
         std::string getRevId(const std::string &liveQueryPolicy);
-        std::optional<std::string> getCustomQueries(const std::string& liveQueryPolicy);
 
         bool hasScheduleEpochEnded(time_t now);
 

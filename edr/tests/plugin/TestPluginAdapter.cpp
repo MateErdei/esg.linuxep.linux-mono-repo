@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/TempDir.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/PluginAdapter.h>
+#include <modules/pluginimpl/LiveQueryPolicyParser.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 #include <gtest/gtest.h>
@@ -100,7 +101,7 @@ TEST_F(TestPluginAdapterWithLogger, processALCPolicyShouldInstructRestartOnChang
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(_)).Times(13);
+    EXPECT_CALL(*mockFileSystem, exists(_)).Times(12);
     EXPECT_CALL(*mockFileSystem, isFile(_)).Times(8);
     EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(5);
 
@@ -577,7 +578,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testUpdateCustomQueries)
                                    "}"
                                "}"
                            "}";
-    EXPECT_EQ(pluginAdapter.getCustomQueries(liveQueryPolicy100), expected);
+    EXPECT_EQ(Plugin::getCustomQueries(liveQueryPolicy100), expected);
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testUpdateCustomQueriesdoesNotIncludeMalformedQueriesInJson)
@@ -670,7 +671,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testUpdateCustomQueriesdoesNotIncludeMal
                            "}"
                            "}"
                            "}";
-    EXPECT_EQ(pluginAdapter.getCustomQueries(liveQueryPolicy100).value(), expected);
+    EXPECT_EQ(Plugin::getCustomQueries(liveQueryPolicy100).value(), expected);
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryCustomQueries)
@@ -757,6 +758,24 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryCustomQueries)
     EXPECT_CALL(*mockFileSystem, writeFile(Plugin::osqueryCustomConfigFilePath(),_));
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
 
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryConfigIsNotRemovedWhenWeFailToReadLiveQueryPolicy)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string liveQueryPolicy100 = "garbage";
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/xdr_intermediary")).Times(1);
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath())).Times(0);
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesValidStatusWithNoPolicy)

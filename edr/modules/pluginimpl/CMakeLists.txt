@@ -32,6 +32,8 @@ sophos_add_library(pluginimpl SHARED
         OsqueryLogIngest.h
         OsqueryLogIngest.cpp
         DecoratorTemplate.h
+        LiveQueryPolicyParser.cpp
+        LiveQueryPolicyParser.h
         EXTRA_PROJECTS queryrunnerimpl procimpl OsqueryExtensions
         EXTRA_INCLUDES ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${BOOST_INCLUDE_DIR} ${OSQUERYSDK}/include
         EXTRA_LIBS ${zmqlib}
