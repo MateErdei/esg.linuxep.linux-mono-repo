@@ -4,7 +4,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-//#include <modules/osqueryclient/IOsqueryClient.h>
 #include <modules/osqueryclient/OsqueryClientImpl.h>
 class MtrMonitor
 {
