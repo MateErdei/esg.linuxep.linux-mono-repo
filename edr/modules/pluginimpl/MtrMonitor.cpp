@@ -5,28 +5,35 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "MtrMonitor.h"
 
 #include "ApplicationPaths.h"
+#include "Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
-MtrMonitor::MtrMonitor() : m_currentMtrSocket(findMtrSocketPath())
+MtrMonitor::MtrMonitor(std::unique_ptr<osqueryclient::IOsqueryClient> osqueryClient) :
+    m_osqueryClient(std::move(osqueryClient)), m_currentMtrSocket()
 {
-    connectToMtr();
 }
 
 bool MtrMonitor::hasScheduledQueriesConfigured()
 {
-    // to do query MTR
-    //m_osqueryClient.query()
-    std::string scheduledQueryCountSql = "SELECT count(*) FROM osquery_schedule;";
+    std::string scheduledQueryCountSql = "SELECT count(name) as query_count FROM osquery_schedule;";
     auto data = queryMtr(scheduledQueryCountSql);
-    if (data.has_value())
+    if (data.has_value() && data->size() == 1)
     {
-        // loop through data for the key we want.
-        // then return value
+        auto row = data->back();
+        if (row.find("query_count") != row.end())
+        {
+            LOGDEBUG("Number of MTR scheduled queries: " << row["query_count"]);
+            return row["query_count"] != "0";
+        }
     }
-
-    return false;
+    else
+    {
+        LOGWARN("Cannot detect whether MTR is running scheduled queries. Defaulting to assume it is.");
+    }
+    // Unless we can prove MTR is not running scheduled queries then we assume it is
+    return true;
 }
 std::optional<std::string> MtrMonitor::findMtrSocketPath()
 {
@@ -42,21 +49,24 @@ std::optional<std::string> MtrMonitor::findMtrSocketPath()
     }
     catch (std::exception& ex)
     {
-        // handle error reading file...
+        LOGERROR("Failed to read MTR flags file: " << ex.what());
     }
     return std::nullopt;
 }
 
-std::optional<std::string> MtrMonitor::processFlagList(const std::vector<std::string>& flags, const std::string& flagToFind)
+std::optional<std::string> MtrMonitor::processFlagList(
+    const std::vector<std::string>& flags,
+    const std::string& flagToFind)
 {
     // e.g. convert extensions_socket to --extensions_socket=
-    std::string fullFlagLhs = "--" + flagToFind + "=";
+    std::string fullFlagField = "--" + flagToFind + "=";
     for (const auto& flag : flags)
     {
-        if (Common::UtilityImpl::StringUtils::startswith(flag, fullFlagLhs))
+        size_t pos = flag.find_first_not_of(' ');
+        std::string trimmedFlag = (pos == std::string::npos) ? "" : flag.substr(pos);
+        if (Common::UtilityImpl::StringUtils::startswith(trimmedFlag, fullFlagField))
         {
-            // then we found the flag
-            return Common::UtilityImpl::StringUtils::splitString(flag, "=").back();
+            return trimmedFlag.substr(trimmedFlag.find(fullFlagField) + fullFlagField.length());
         }
     }
     return std::nullopt;
@@ -64,47 +74,48 @@ std::optional<std::string> MtrMonitor::processFlagList(const std::vector<std::st
 
 std::optional<OsquerySDK::QueryData> MtrMonitor::queryMtr(const std::string& query)
 {
+    if (!m_clientAlive)
+    {
+        m_clientAlive = connectToMtr();
+    }
+
+    if (m_clientAlive)
+    {
+        OsquerySDK::QueryData queryData;
+        auto status = m_osqueryClient->query(query, queryData);
+        LOGDEBUG("MTR Monitor returned query status: " << status.code);
+        if (status.code == QUERY_SUCCESS)
+        {
+            return queryData;
+        }
+        else
+        {
+            LOGWARN("Failed to query MTR OSQuery: " << status.code << " " << status.message);
+            m_clientAlive = false;
+        }
+    }
+    return std::nullopt;
+}
+bool MtrMonitor::connectToMtr()
+{
+    LOGDEBUG("Connecting MTR Monitor to MTR OSQuery");
     if (!m_currentMtrSocket.has_value())
     {
-        // Try to find socket here if we can.
         m_currentMtrSocket = findMtrSocketPath();
     }
 
     if (m_currentMtrSocket.has_value())
     {
-        OsquerySDK::QueryData queryData;
-        auto status = m_osqueryClient.query(query, queryData);
-        if (status.code == QUERY_SUCCESS)
+        try
         {
-            return queryData;
+
+            m_osqueryClient->connect(m_currentMtrSocket.value());
+            return true;
+        }
+        catch (const std::exception& exception)
+        {
+            LOGERROR("Failed to connect to MTR OSQuery: " << exception.what());
         }
     }
-    // if query failed then return unset optional
-    return std::nullopt;
-}
-void MtrMonitor::connectToMtr()
-{
-
-    // todo this bit is dupe code, tidy
-    if (!m_currentMtrSocket.has_value())
-    {
-        // Try to find socket here if we can.
-        m_currentMtrSocket = findMtrSocketPath();
-    }
-    /////////
-
-
-    if (!m_currentMtrSocket.has_value())
-    {
-        return;
-    }
-
-    try
-    {
-        m_osqueryClient.connect(m_currentMtrSocket.value());
-    }
-    catch (const std::exception& exception)
-    {
-        // TODO handle error
-    }
+    return false;
 }

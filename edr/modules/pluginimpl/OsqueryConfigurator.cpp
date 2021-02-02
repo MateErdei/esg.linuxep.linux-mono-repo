@@ -21,6 +21,11 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
+    OsqueryConfigurator::OsqueryConfigurator()
+        : m_mtrMonitor(MtrMonitor(std::make_unique<osqueryclient::OsqueryClientImpl>()))
+    {
+    }
+
     void OsqueryConfigurator::regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath)
     {
         LOGINFO("Creating osquery root scheduled pack");
@@ -65,7 +70,8 @@ namespace Plugin
     }
 
     void OsqueryConfigurator::regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath,
-                                                         bool enableAuditEventCollection, bool xdrEnabled,
+                                                         bool enableAuditEventCollection,
+                                                         bool xdrEnabled,
                                                          time_t scheduleEpoch)
     {
         LOGINFO("Creating osquery flags file");
@@ -187,11 +193,10 @@ namespace Plugin
 
     void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch)
     {
-        bool disableAuditD = retrieveDisableAuditFlagFromSettingsFile();
-
+        m_disableAuditDInPluginConfig = retrieveDisableAuditDFlagFromSettingsFile();
         bool disableAuditDataGathering = enableAuditDataCollection();
 
-        SystemConfigurator::setupOSForAudit(disableAuditD);
+        SystemConfigurator::setupOSForAudit(m_disableAuditDInPluginConfig);
 
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditDataGathering, xdrEnabled, scheduleEpoch);
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
@@ -206,7 +211,7 @@ namespace Plugin
         }
     }
 
-    bool OsqueryConfigurator::retrieveDisableAuditFlagFromSettingsFile() const
+    bool OsqueryConfigurator::retrieveDisableAuditDFlagFromSettingsFile() const
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         bool disableAuditD = true;
@@ -255,23 +260,26 @@ namespace Plugin
 
     bool OsqueryConfigurator::enableAuditDataCollection() const
     {
-        bool enableAuditDataCollection = retrieveDisableAuditFlagFromSettingsFile() && !MTRBoundEnabled();
+        bool enableAuditDataCollection = enableAuditDataCollectionInternal(
+            m_disableAuditDInPluginConfig,
+            m_mtrInAlcPolicy,
+            m_mtrHasScheduledQueries);
 
         if (enableAuditDataCollection)
         {
-            LOGINFO("Plugin configured to gather data from auditd netlink");
+            LOGINFO("Plugin configured to gather data from audit subsystem netlink");
         }
         else
         {
-            LOGINFO("Plugin configured not to gather data from auditd netlink");
+            LOGINFO("Plugin configured not to gather data from audit subsystem netlink");
         }
         return enableAuditDataCollection;
     }
 
     void OsqueryConfigurator::loadALCPolicy(const std::string& alcPolicy)
     {
-        m_mtrboundEnabled = ALCContainsMTRFeature(alcPolicy);
-        if (m_mtrboundEnabled)
+        m_mtrInAlcPolicy = ALCContainsMTRFeature(alcPolicy);
+        if (m_mtrInAlcPolicy)
         {
             LOGINFO("Detected MTR is enabled");
         }
@@ -281,9 +289,9 @@ namespace Plugin
         }
     }
 
-    bool OsqueryConfigurator::MTRBoundEnabled() const
+    bool OsqueryConfigurator::getPresenceOfMtrInAlcPolicy() const
     {
-        return m_mtrboundEnabled;
+        return m_mtrInAlcPolicy;
     }
 
     void OsqueryConfigurator::addTlsServerCertsOsqueryFlag(std::vector<std::string>& flags)
@@ -334,6 +342,60 @@ namespace Plugin
                 LOGERROR("Failed to disable query pack conf file: " << ex.what());
             }
         }
+    }
+
+    bool OsqueryConfigurator::checkIfReconfigurationRequired()
+    {
+        if (m_mtrInAlcPolicy)
+        {
+            bool mtrHasScheduledQueries = m_mtrMonitor.hasScheduledQueriesConfigured();
+            if (m_mtrHasScheduledQueries.has_value())
+            {
+                if (m_mtrHasScheduledQueries.value() != mtrHasScheduledQueries)
+                {
+                    LOGINFO("Triggering reconfiguration of OSQuery due to a change in MTR");
+                    m_mtrHasScheduledQueries = mtrHasScheduledQueries;
+                    return true;
+                }
+            }
+            else
+            {
+                m_mtrHasScheduledQueries = mtrHasScheduledQueries;
+                if (!mtrHasScheduledQueries)
+                {
+                    LOGINFO("Triggering reconfiguration of OSQuery due to a change in MTR");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    bool OsqueryConfigurator::enableAuditDataCollectionInternal(bool disableAuditDInPluginConfig, bool mtrInAlcPolicy, std::optional<bool> mtrHasScheduledQueries)
+    {
+        // If EDR configured not to disable AuditD then we don't want the netlink
+        if (!disableAuditDInPluginConfig)
+        {
+            return false;
+        }
+
+        // If MTR in ALC Policy and MTR has not yet been queried by EDR
+        if (mtrInAlcPolicy && !mtrHasScheduledQueries.has_value())
+        {
+            return false;
+        }
+        // If MTR in ALC Policy and MTR running queries
+        if (mtrInAlcPolicy && mtrHasScheduledQueries.has_value() && mtrHasScheduledQueries.value())
+        {
+            return false;
+        }
+        // If MTR in ALC Policy and MTR not running queries
+        if (mtrInAlcPolicy && mtrHasScheduledQueries.has_value() && !mtrHasScheduledQueries.value())
+        {
+            return true;
+        }
+        return true;
+
     }
 
 } // namespace Plugin

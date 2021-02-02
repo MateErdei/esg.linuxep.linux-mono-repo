@@ -1,5 +1,6 @@
 
 SophosAddTest(TestPlugin
+        TestMtrMonitor.cpp
         TestQueueTask.cpp
         TestOsqueryDataManager.cpp
         TestOsqueryConfigurator.cpp

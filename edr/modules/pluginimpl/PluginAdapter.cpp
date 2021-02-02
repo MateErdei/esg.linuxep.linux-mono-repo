@@ -227,7 +227,11 @@ namespace Plugin
                 // only attempt MTR config query every 1 min
                 if (timeNow > (lastTimeQueriedMtr + mtrConfigQueryPeriod))
                 {
-                    m_mtrHasScheduledQueries = m_mtrQuerier.hasScheduledQueriesConfigured();
+                    lastTimeQueriedMtr = timeNow;
+                    if (m_osqueryConfigurator.checkIfReconfigurationRequired())
+                    {
+                        stopOsquery();
+                    }
                 }
 
                 // only attempt cleanup after the 10 minute period has elapsed
@@ -408,7 +412,6 @@ namespace Plugin
             try
             {
                 osqueryProcess->keepOsqueryRunning(osqueryStarted);
-
             }
             catch (Plugin::IOsqueryCrashed&)
             {
@@ -520,17 +523,17 @@ namespace Plugin
     {
         LOGSUPPORT("Processing ALC Policy");
         m_osqueryConfigurator.loadALCPolicy(policy);
-        bool current_enabled = m_osqueryConfigurator.enableAuditDataCollection();
+        bool enableAuditDataCollection = m_osqueryConfigurator.enableAuditDataCollection();
         if (firstTime)
         {
-            m_collectAuditEnabled = current_enabled;
+            m_collectAuditEnabled = enableAuditDataCollection;
             return;
         }
 
-        std::string option{current_enabled?"true":"false"};
-        if (current_enabled != m_collectAuditEnabled)
+        std::string option{ enableAuditDataCollection ?"true":"false"};
+        if (enableAuditDataCollection != m_collectAuditEnabled)
         {
-            m_collectAuditEnabled = current_enabled;
+            m_collectAuditEnabled = enableAuditDataCollection;
             LOGINFO(
                 "Option to enable audit collection changed to " << option << ". Scheduling osquery STOP");
             stopOsquery();

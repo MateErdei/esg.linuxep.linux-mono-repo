@@ -7,12 +7,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/TempDir.h>
+#include <Common/Helpers/MockFileSystem.h>
 #include <modules/pluginimpl/OsqueryConfigurator.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
+#include <tests/osqueryclient/MockOsqueryClient.h>
 
 #include <gtest/gtest.h>
 
@@ -22,17 +21,33 @@ class TestableOsqueryConfigurator : public OsqueryConfigurator
     bool m_disableSystemAuditDAndTakeOwnershipOfNetlink;
 
 public:
-    TestableOsqueryConfigurator(bool disableSystemAuditDAndTakeOwnershipOfNetlink) : OsqueryConfigurator()
+    TestableOsqueryConfigurator(
+        bool disableSystemAuditDAndTakeOwnershipOfNetlink,
+        bool mtrInAlcPolicy = true,
+        std::optional<bool> mtrHasScheduledQueries = std::nullopt) : OsqueryConfigurator()
     {
         m_disableSystemAuditDAndTakeOwnershipOfNetlink = disableSystemAuditDAndTakeOwnershipOfNetlink;
+        m_mtrInAlcPolicy = mtrInAlcPolicy;
+        m_mtrHasScheduledQueries = mtrHasScheduledQueries;
     }
-    bool MTRBoundEnabled() const
+
+    bool getPresenceOfMtrInAlcPolicy() const
     {
-        return OsqueryConfigurator::MTRBoundEnabled();
+        return OsqueryConfigurator::getPresenceOfMtrInAlcPolicy();
+    }
+
+    [[nodiscard]] static bool enableAuditDataCollectionInternal(bool disableAuditDInPluginConfig, bool mtrInAlcPolicy, std::optional<bool> mtrHasScheduledQueries)
+    {
+        return OsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries);
+    }
+
+    void replaceMtrMonitor(MtrMonitor mtrMonitor)
+    {
+        m_mtrMonitor = MtrMonitor(std::move(mtrMonitor));
     }
 
 private:
-    bool retrieveDisableAuditFlagFromSettingsFile() const override
+    bool retrieveDisableAuditDFlagFromSettingsFile() const override
     {
         return m_disableSystemAuditDAndTakeOwnershipOfNetlink;
     }
@@ -92,30 +107,21 @@ TEST_F(TestOsqueryConfigurator, BeforeALCPolicyIsGivenOsQueryConfiguratorShouldC
 {
     TestableOsqueryConfigurator disabledOption(false);
     // true because no alc policy was given
-    EXPECT_TRUE(disabledOption.MTRBoundEnabled());
+    EXPECT_TRUE(disabledOption.getPresenceOfMtrInAlcPolicy());
     EXPECT_FALSE(disabledOption.enableAuditDataCollection());
 
     TestableOsqueryConfigurator enabledOption(true);
     // true because no alc policy was given
-    EXPECT_TRUE(enabledOption.MTRBoundEnabled());
+    EXPECT_TRUE(enabledOption.getPresenceOfMtrInAlcPolicy());
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
 }
 
 TEST_F(TestOsqueryConfigurator, ForALCNotContainingMTRFeatureCustomerChoiceShouldControlAuditConfiguration) // NOLINT
 {
-    TestableOsqueryConfigurator disabledOption(false);
-    disabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
-
-    // false as the alc policy does not refer to mtr feature
-    EXPECT_FALSE(disabledOption.MTRBoundEnabled());
-    // audit collection is not enabled because of disableSystemAuditDAndTakeOwnershipOfNetlink set to false means system
-    // auditd should be enabled.
-    EXPECT_FALSE(disabledOption.enableAuditDataCollection());
-
     TestableOsqueryConfigurator enabledOption(true);
     enabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
     // false as the alc policy does not refer to mtr feature
-    EXPECT_FALSE(enabledOption.MTRBoundEnabled());
+    EXPECT_FALSE(enabledOption.getPresenceOfMtrInAlcPolicy());
     // audit collection is enabled because of it has permission to take ownership of audit link
     EXPECT_TRUE(enabledOption.enableAuditDataCollection());
 }
@@ -125,12 +131,12 @@ TEST_F(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConf
     TestableOsqueryConfigurator disabledOption(false);
     disabledOption.loadALCPolicy(PolicyWithMTRFeature());
 
-    EXPECT_TRUE(disabledOption.MTRBoundEnabled());
+    EXPECT_TRUE(disabledOption.getPresenceOfMtrInAlcPolicy());
     EXPECT_FALSE(disabledOption.enableAuditDataCollection());
 
     TestableOsqueryConfigurator enabledOption(true);
     enabledOption.loadALCPolicy(PolicyWithMTRFeature());
-    EXPECT_TRUE(enabledOption.MTRBoundEnabled());
+    EXPECT_TRUE(enabledOption.getPresenceOfMtrInAlcPolicy());
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
 }
 
@@ -142,9 +148,301 @@ TEST_F(TestOsqueryConfigurator, enableAnddisableQueryPackRenamesQueryPack) // NO
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     EXPECT_CALL(*mockFileSystem, exists(_)).Times(2).WillRepeatedly(Return(true));
-    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPathDisabled,queryPackPath));
-    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPath,queryPackPathDisabled));
+    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPathDisabled, queryPackPath));
+    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPath, queryPackPathDisabled));
     TestableOsqueryConfigurator::enableQueryPack(queryPackPath);
     TestableOsqueryConfigurator::disableQueryPack(queryPackPath);
+}
 
+TEST_F(TestOsqueryConfigurator, enableAuditDataCollectionInternalReturnsExpectedValueGivenSetOfInputs) // NOLINT
+{
+    bool disableAuditDInPluginConfig = false;
+    bool mtrInAlcPolicy = false;
+    std::optional<bool> mtrHasScheduledQueries = false;
+    ASSERT_FALSE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    disableAuditDInPluginConfig = true;
+    mtrInAlcPolicy = false;
+    mtrHasScheduledQueries = false;
+    ASSERT_TRUE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    disableAuditDInPluginConfig = false;
+    mtrInAlcPolicy = true;
+    mtrHasScheduledQueries = false;
+    ASSERT_FALSE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    disableAuditDInPluginConfig = true;
+    mtrInAlcPolicy = true;
+    mtrHasScheduledQueries = false;
+    ASSERT_TRUE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    disableAuditDInPluginConfig = false;
+    mtrInAlcPolicy = false;
+    mtrHasScheduledQueries = true;
+    ASSERT_FALSE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    // invalid state (but should always take netlink if mtr not in policy and auditd disabled)
+    disableAuditDInPluginConfig = true;
+    mtrInAlcPolicy = false;
+    mtrHasScheduledQueries = true;
+    ASSERT_TRUE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    disableAuditDInPluginConfig = false;
+    mtrInAlcPolicy = true;
+    mtrHasScheduledQueries = true;
+    ASSERT_FALSE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    disableAuditDInPluginConfig = true;
+    mtrInAlcPolicy = true;
+    mtrHasScheduledQueries = true;
+    ASSERT_FALSE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    disableAuditDInPluginConfig = false;
+    mtrInAlcPolicy = false;
+    mtrHasScheduledQueries = std::nullopt;
+    ASSERT_FALSE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    disableAuditDInPluginConfig = true;
+    mtrInAlcPolicy = false;
+    mtrHasScheduledQueries = std::nullopt;
+    ASSERT_TRUE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    disableAuditDInPluginConfig = false;
+    mtrInAlcPolicy = true;
+    mtrHasScheduledQueries = std::nullopt;
+    ASSERT_FALSE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+
+    disableAuditDInPluginConfig = true;
+    mtrInAlcPolicy = true;
+    mtrHasScheduledQueries = std::nullopt;
+    ASSERT_FALSE(TestableOsqueryConfigurator::enableAuditDataCollectionInternal(disableAuditDInPluginConfig, mtrInAlcPolicy, mtrHasScheduledQueries));
+}
+
+TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsFalseIfEdrHasNetlinkAndMtrIsNeverRunningQueries) // NOLINT
+{
+    // start up configurator with EDR not having netlink
+    TestableOsqueryConfigurator osqueryConfigurator(true, true, false);
+
+    // setup mocks to make MTR appear to be not running queries so hasScheduledQueriesConfigured returns false.
+    // Filesystem mock
+    std::string socket = "/socket/path/socket.sock";
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    // Mock flag file existing to get MTR osquery socket path from
+    EXPECT_CALL(*mockFileSystem,
+                exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+
+    // Mock reading the flag file
+    std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
+    EXPECT_CALL(*mockFileSystem,
+                readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+
+    // Setup osquery client mock
+    std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
+    EXPECT_CALL(*mockOsqueryClient, connect(socket)).Times(1);
+
+    OsquerySDK::TableRow row;
+    row["query_count"] = "0";
+    OsquerySDK::QueryData data;
+    data.push_back(row);
+    EXPECT_CALL(*mockOsqueryClient, query(_,_)).WillOnce(
+        DoAll(SetArgReferee<1>(data), Return(OsquerySDK::Status{0,"some message"})));
+
+
+    // Inject mock osquery client into a mtrMonitor instance
+    MtrMonitor mtrMonitor(std::move(mockOsqueryClient));
+
+    // Swap out mtrMonitor instance in osqueryConfigurator to the one which we have setup the mock with.
+    osqueryConfigurator.replaceMtrMonitor(std::move(mtrMonitor));
+
+    bool reconfigurationRequired = osqueryConfigurator.checkIfReconfigurationRequired();
+    EXPECT_FALSE(reconfigurationRequired);
+}
+
+TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsTrueIfEdrDoesNotHaveNetlinkAndThenMtrIsNotRunningQueries) // NOLINT
+{
+    // start up configurator with EDR having netlink
+    TestableOsqueryConfigurator osqueryConfigurator(true, true, true);
+
+    // setup mocks to make MTR appear to be not running queries so hasScheduledQueriesConfigured returns false.
+    // Filesystem mock
+    std::string socket = "/socket/path/socket.sock";
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    // Mock flag file existing to get MTR osquery socket path from
+    EXPECT_CALL(*mockFileSystem,
+                exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+
+    // Mock reading the flag file
+    std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
+    EXPECT_CALL(*mockFileSystem,
+                readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+
+    // Setup osquery client mock
+    std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
+    EXPECT_CALL(*mockOsqueryClient, connect(socket)).Times(1);
+
+    OsquerySDK::TableRow row;
+    row["query_count"] = "0";
+    OsquerySDK::QueryData data;
+    data.push_back(row);
+    EXPECT_CALL(*mockOsqueryClient, query(_,_)).WillOnce(
+        DoAll(SetArgReferee<1>(data), Return(OsquerySDK::Status{0,"some message"})));
+
+    // Inject mock osquery client into a mtrMonitor instance
+    MtrMonitor mtrMonitor(std::move(mockOsqueryClient));
+
+    // Swap out mtrMonitor instance in osqueryConfigurator to the one which we have setup the mock with.
+    osqueryConfigurator.replaceMtrMonitor(std::move(mtrMonitor));
+
+    bool reconfigurationRequired = osqueryConfigurator.checkIfReconfigurationRequired();
+    EXPECT_TRUE(reconfigurationRequired);
+}
+
+TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsTrueIfEdrDoesNotHaveNetlinkAndMtrIsQueriedForTheFirstTimeAndIsNotRunningQueries) // NOLINT
+{
+    // start up configurator with EDR having netlink
+    TestableOsqueryConfigurator osqueryConfigurator(true, true);
+
+    // setup mocks to make MTR appear to be not running queries so hasScheduledQueriesConfigured returns false.
+    // Filesystem mock
+    std::string socket = "/socket/path/socket.sock";
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    // Mock flag file existing to get MTR osquery socket path from
+    EXPECT_CALL(*mockFileSystem, exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+
+    // Mock reading the flag file
+    std::vector<std::string> flags = { "some text", "--extensions_socket=" + socket, "--flag=value" };
+    EXPECT_CALL(*mockFileSystem, readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags"))
+        .WillOnce(Return(flags));
+
+    // Setup osquery client mock
+    std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
+    EXPECT_CALL(*mockOsqueryClient, connect(socket)).Times(1);
+
+    OsquerySDK::TableRow row;
+    row["query_count"] = "0";
+    OsquerySDK::QueryData data;
+    data.push_back(row);
+    EXPECT_CALL(*mockOsqueryClient, query(_, _))
+        .WillOnce(DoAll(SetArgReferee<1>(data), Return(OsquerySDK::Status { 0, "some message" })));
+
+    // Inject mock osquery client into a mtrMonitor instance
+    MtrMonitor mtrMonitor(std::move(mockOsqueryClient));
+
+    // Swap out mtrMonitor instance in osqueryConfigurator to the one which we have setup the mock with.
+    osqueryConfigurator.replaceMtrMonitor(std::move(mtrMonitor));
+
+    bool reconfigurationRequired = osqueryConfigurator.checkIfReconfigurationRequired();
+    EXPECT_TRUE(reconfigurationRequired);
+}
+
+TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsFalseIfEdrDoesNotHaveNetlinkAndMtrIsQueriedForTheFirstTimeAndIsRunningQueries) // NOLINT
+{
+    // start up configurator with EDR having netlink
+    TestableOsqueryConfigurator osqueryConfigurator(true, true);
+
+    // setup mocks to make MTR appear to be not running queries so hasScheduledQueriesConfigured returns false.
+    // Filesystem mock
+    std::string socket = "/socket/path/socket.sock";
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    // Mock flag file existing to get MTR osquery socket path from
+    EXPECT_CALL(*mockFileSystem,
+                exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+
+    // Mock reading the flag file
+    std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
+    EXPECT_CALL(*mockFileSystem,
+                readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+
+    // Setup osquery client mock
+    std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
+    EXPECT_CALL(*mockOsqueryClient, connect(socket)).Times(1);
+
+    OsquerySDK::TableRow row;
+    row["query_count"] = "12";
+    OsquerySDK::QueryData data;
+    data.push_back(row);
+    EXPECT_CALL(*mockOsqueryClient, query(_,_)).WillOnce(
+        DoAll(SetArgReferee<1>(data), Return(OsquerySDK::Status{0,"some message"})));
+
+    // Inject mock osquery client into a mtrMonitor instance
+    MtrMonitor mtrMonitor(std::move(mockOsqueryClient));
+
+    // Swap out mtrMonitor instance in osqueryConfigurator to the one which we have setup the mock with.
+    osqueryConfigurator.replaceMtrMonitor(std::move(mtrMonitor));
+
+    bool reconfigurationRequired = osqueryConfigurator.checkIfReconfigurationRequired();
+    EXPECT_FALSE(reconfigurationRequired);
+}
+
+TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsTrueIfEdrHasNetlinkAndMtrStartsRunningQueries) // NOLINT
+{
+    // start up configurator with EDR having netlink
+    TestableOsqueryConfigurator osqueryConfigurator(true, true, false);
+
+    // setup mocks to make MTR appear to be not running queries so hasScheduledQueriesConfigured returns false.
+    // Filesystem mock
+    std::string socket = "/socket/path/socket.sock";
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    // Mock flag file existing to get MTR osquery socket path from
+    EXPECT_CALL(*mockFileSystem,
+                exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+
+    // Mock reading the flag file
+    std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
+    EXPECT_CALL(*mockFileSystem,
+                readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+
+    // Setup osquery client mock
+    std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
+    EXPECT_CALL(*mockOsqueryClient, connect(socket)).Times(1);
+
+    OsquerySDK::TableRow row;
+    row["query_count"] = "12";
+    OsquerySDK::QueryData data;
+    data.push_back(row);
+    EXPECT_CALL(*mockOsqueryClient, query(_,_)).WillOnce(
+        DoAll(SetArgReferee<1>(data), Return(OsquerySDK::Status{0,"some message"})));
+
+    // Inject mock osquery client into a mtrMonitor instance
+    MtrMonitor mtrMonitor(std::move(mockOsqueryClient));
+
+    // Swap out mtrMonitor instance in osqueryConfigurator to the one which we have setup the mock with.
+    osqueryConfigurator.replaceMtrMonitor(std::move(mtrMonitor));
+
+    bool reconfigurationRequired = osqueryConfigurator.checkIfReconfigurationRequired();
+    EXPECT_TRUE(reconfigurationRequired);
+}
+
+TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsFalseIfMtrNotInPolicy) // NOLINT
+{
+    TestableOsqueryConfigurator osqueryConfigurator(true, false);
+
+    // setup mocks to make MTR appear to be not running queries so hasScheduledQueriesConfigured returns false.
+    // Filesystem mock
+    std::string socket = "/socket/path/socket.sock";
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    // Mock flag file existing to get MTR osquery socket path from
+    EXPECT_CALL(*mockFileSystem,
+                exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+
+    // Mock reading the flag file
+    std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
+    EXPECT_CALL(*mockFileSystem,
+                readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+
+    auto mockOsqueryClient = new ::testing::StrictMock<MockIOsqueryClient>();
+
+    MtrMonitor mtrMonitor(static_cast<std::unique_ptr<osqueryclient::IOsqueryClient>>(mockOsqueryClient));
+
+    // Swap out mtrMonitor instance in osqueryConfigurator to the one which we have setup the mock with.
+    osqueryConfigurator.replaceMtrMonitor(std::move(mtrMonitor));
+
+    bool reconfigurationRequired = osqueryConfigurator.checkIfReconfigurationRequired();
+    EXPECT_FALSE(reconfigurationRequired);
 }

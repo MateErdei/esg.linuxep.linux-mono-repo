@@ -99,7 +99,7 @@ TEST_F(TestPluginAdapterWithLogger, processALCPolicyShouldInstructRestartOnChang
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(_)).Times(9);
+    EXPECT_CALL(*mockFileSystem, exists(_)).Times(11);
     EXPECT_CALL(*mockFileSystem, isFile(_)).Times(8);
     EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(5);
 

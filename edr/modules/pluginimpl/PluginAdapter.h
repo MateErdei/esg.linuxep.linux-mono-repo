@@ -140,8 +140,7 @@ namespace Plugin
         OsqueryConfigurator m_osqueryConfigurator;
         bool m_collectAuditEnabled = false;
         bool m_restartNoDelay = false;
-        std::optional<bool> m_mtrHasScheduledQueries;
-        MtrMonitor m_mtrQuerier;
+
         std::list<std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>> m_extensionAndStateList;
     };
 } // namespace Plugin
