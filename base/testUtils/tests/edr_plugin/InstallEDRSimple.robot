@@ -6,6 +6,7 @@ Test Teardown    EDR Test Teardown
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
 Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../GeneralTeardownResource.robot
@@ -81,6 +82,27 @@ EDR Does Not Trigger Query On Update Now Action
     # Edr Should Not Have logged anything
     Should Be Equal  ${edr_length_1}  ${edr_length_2}
 
+EDR Osquery restarts mtr extension when killed
+    Run Full Installer
+    Override LogConf File as Global Level  DEBUG
+    Install EDR Directly
+    Wait Until OSQuery Running
+    Run Live Query  ${GREP}   simple
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query  1
+
+    ${result} =  Run Process  pgrep MTR.ext | xargs kill -9  shell=true
+    Wait Until Keyword Succeeds
+    ...  70 secs
+    ...  10 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Created and monitoring extension child  2
+    Run Live Query  ${GREP}   simple
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query  2
 *** Keywords ***
 EDR Tests Teardown With Installed File Replacement
     Run Keyword If Test Failed  Save Current EDR InstalledFiles To Local Path
