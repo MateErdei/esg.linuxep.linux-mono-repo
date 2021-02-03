@@ -337,8 +337,8 @@ MDR Test Teardown
     # prevent issues from current run to have knock on effect on others
     Kill MDR Plugin
     # the check mdr plugin uninstalled may failed and logs of base may be necessary.
-#    Run Keyword If Test Failed    Dump All Logs
-#    Run Keyword If Test Failed    Require Fresh Install
+    Run Keyword If Test Failed    Dump All Logs
+    Run Keyword If Test Failed    Require Fresh Install
 
 
 Report on Pid
