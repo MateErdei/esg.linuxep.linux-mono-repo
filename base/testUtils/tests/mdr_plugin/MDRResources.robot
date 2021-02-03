@@ -140,11 +140,11 @@ Wait Until EDR Running
     ...  Check EDR Executable Running
 
 Check SophosMTR Executable Running
-    ${result} =    Run Process  pgrep  SophosMTR | grep plugins/mtr | wc -l  shell=true
+    ${result} =    Run Process  pgrep -a SophosMTR | grep plugins/mtr   shell=true
     Should Be Equal As Integers    ${result.rc}    0       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check SophosMTR Executable Not Running
-    ${result} =    Run Process  pgrep  SophosMTR | grep plugins/mtr | wc -l  shell=true
+    ${result} =    Run Process  pgrep -a SophosMTR | grep plugins/mtr   shell=true
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
@@ -337,8 +337,8 @@ MDR Test Teardown
     # prevent issues from current run to have knock on effect on others
     Kill MDR Plugin
     # the check mdr plugin uninstalled may failed and logs of base may be necessary.
-    Run Keyword If Test Failed    Dump All Logs
-    Run Keyword If Test Failed    Require Fresh Install
+#    Run Keyword If Test Failed    Dump All Logs
+#    Run Keyword If Test Failed    Require Fresh Install
 
 
 Report on Pid
