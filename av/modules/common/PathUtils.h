@@ -63,13 +63,14 @@ namespace common
             return p.string();
         }
 
-        static std::string removeTrailingDotFromPath(const sophos_filesystem::path& p)
+        static std::string removeTrailingDotsFromPath(const sophos_filesystem::path& p)
         {
-            if (p.string().back() == '.')
+            std::string path = p.string();
+            while(path.back() == '.')
             {
-                return p.string().substr(0, p.string().size()-1);
+                 path.pop_back();
             }
-            return p.string();
+            return path;
         }
 
         static std::string lexicallyNormal(const sophos_filesystem::path& p);
