@@ -85,6 +85,7 @@ namespace Plugin
         std::string getRevId(const std::string &liveQueryPolicy);
 
         bool hasScheduleEpochEnded(time_t now);
+        static bool haveCustomQueriesChanged(const std::optional<std::string>& customQueries);
 
     protected:
         /*
@@ -94,7 +95,6 @@ namespace Plugin
          * be started, hence, it will not update the queue with a require restart.
          * But, on arrival of policies, (firstTime=false) it may also push to the queue a RestartRequired.
          */
-        bool haveCustomQueriesChanged(const std::optional<std::string> customQueries);
         void processALCPolicy(const std::string&, bool firstTime);
         void processLiveQueryPolicy(const std::string&);
         void ensureMCSCanReadOldResponses();

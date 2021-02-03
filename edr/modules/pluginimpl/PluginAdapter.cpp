@@ -773,7 +773,7 @@ namespace Plugin
         return status.str();
     }
 
-    bool PluginAdapter::haveCustomQueriesChanged(const std::optional<std::string> customQueries)
+    bool PluginAdapter::haveCustomQueriesChanged(const std::optional<std::string>& customQueries)
     {
         auto fs = Common::FileSystem::fileSystem();
         std::optional<std::string> oldCustomQueries;

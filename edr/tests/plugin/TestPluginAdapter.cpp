@@ -671,45 +671,26 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryCustomQueries)
                                      "    </configuration>\n"
                                      "</policy>";
 
-    std::string expected = "{"
-                           "\"decorators\":{"
-                           "\"interval\":{"
-                           "\"3600\":["
-                           "\"SELECT endpoint_id AS eid from sophos_endpoint_info\","
-                           "\"SELECT\\n    interface_details.mac AS mac_address,\\n    interface_addresses.mask AS ip_mask,\\n    interface_addresses.address AS ip_address\\nFROM\\n    interface_addresses\\n    JOIN interface_details ON interface_addresses.interface = interface_details.interface\\nWHERE\\n    ip_address NOT LIKE '127.%'\\n    AND ip_address NOT LIKE '%:%'\\n    AND ip_address NOT LIKE '169.254.%'\\n    AND ip_address NOT LIKE '%.1'\\nORDER BY\\n    interface_details.last_change\\nLIMIT\\n    1\","
-                           "\"SELECT\\n    user AS username\\nFROM\\n    logged_in_users\\nWHERE\\n    (\\n        type = 'user'\\n        OR type = 'active'\\n    )\\nORDER BY\\n    time DESC\\nLIMIT\\n    1\""
-                           "]"
-                           "},"
-                           "\"load\":["
-                           "\"SELECT (unix_time - (select total_seconds from uptime)) AS boot_time FROM time\","
-                           "\"SELECT\\n    CASE\\n        WHEN computer_name == '' THEN hostname\\n        ELSE computer_name\\n    END AS hostname\\nFROM\\n    system_info\","
-                           "\"SELECT\\n    name AS os_name,\\n    version AS os_version,\\n    platform AS os_platform\\nFROM\\n    os_version\\nLIMIT\\n    1\","
-                           "\"SELECT\\n    CASE \\n        WHEN upper(platform) == 'WINDOWS' AND upper(name) LIKE '%SERVER%' THEN 'server' \\n        WHEN upper(platform) == 'WINDOWS' AND upper(name) NOT LIKE '%SERVER%' THEN 'client' \\n        WHEN upper(platform) == 'DARWIN' THEN 'client' \\n        WHEN (SELECT count(*) FROM system_info WHERE cpu_brand LIKE '%Xeon%') == 1 THEN 'server' \\n        WHEN (SELECT count(*) FROM system_info WHERE hardware_vendor LIKE '%VMWare%') == 1 THEN 'server' \\n        WHEN (SELECT count(*) FROM system_info WHERE hardware_vendor LIKE '%QEMU%') == 1 THEN 'server' \\n        WHEN (\\n            (SELECT obytes FROM interface_details ORDER by obytes DESC LIMIT 1) > (SELECT ibytes FROM interface_details ORDER by ibytes DESC LIMIT 1)\\n            ) == 1 THEN 'server'\\n        ELSE 'client'\\n    END AS 'os_type'\\nFROM 'os_version';\","
-                           "\"SELECT endpoint_id AS eid from sophos_endpoint_info\","
-                           "\"SELECT\\n    interface_details.mac AS mac_address,\\n    interface_addresses.mask AS ip_mask,\\n    interface_addresses.address AS ip_address\\nFROM\\n    interface_addresses\\n    JOIN interface_details ON interface_addresses.interface = interface_details.interface\\nWHERE\\n    ip_address NOT LIKE '127.%'\\n    AND ip_address NOT LIKE '%:%'\\n    AND ip_address NOT LIKE '169.254.%'\\n    AND ip_address NOT LIKE '%.1'\\nORDER BY\\n    interface_details.last_change\\nLIMIT\\n    1\","
-                           "\"SELECT\\n    user AS username\\nFROM\\n    logged_in_users\\nWHERE\\n    (\\n        type = 'user'\\n        OR type = 'active'\\n    )\\nORDER BY\\n    time DESC\\nLIMIT\\n    1\","
-                           "\"SELECT '1.1.19' query_pack_version\""
-                           "]"
-                           "},"
-                           "\"schedule\":{"
-                           "\"blah\":{"
-                           "\"denylist\":\"false\","
-                           "\"description\":\"basic query\","
-                           "\"interval\":\"10\","
-                           "\"query\":\"SELECT * FROM stuff\","
-                           "\"removed\":\"false\","
-                           "\"tag\":\"DataLake\""
-                           "},"
-                           "\"blah2\":{"
-                           "\"denylist\":\"true\","
-                           "\"description\":\"a different basic query\","
-                           "\"interval\":\"5\","
-                           "\"query\":\"SELECT * FROM otherstuff\","
-                           "\"removed\":\"true\","
-                           "\"tag\":\"stream\""
-                           "}"
-                           "}"
-                           "}";
+    std::string expected =  "{"
+                                "\"schedule\":{"
+                                    "\"blah\":{"
+                                        "\"denylist\":\"false\","
+                                        "\"description\":\"basic query\","
+                                        "\"interval\":\"10\","
+                                        "\"query\":\"SELECT * FROM stuff\","
+                                        "\"removed\":\"false\","
+                                        "\"tag\":\"DataLake\""
+                                    "},"
+                                    "\"blah2\":{"
+                                       "\"denylist\":\"true\","
+                                       "\"description\":\"a different basic query\","
+                                       "\"interval\":\"5\","
+                                       "\"query\":\"SELECT * FROM otherstuff\","
+                                       "\"removed\":\"true\","
+                                       "\"tag\":\"stream\""
+                                    "}"
+                                "}"
+                            "}";
 
     const std::string PLUGIN_VAR_DIR = Plugin::varDir();
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
@@ -717,7 +698,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryCustomQueries)
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::osqueryCustomConfigFilePath(),_));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::osqueryCustomConfigFilePath(),expected));
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
 
 }
@@ -735,7 +716,6 @@ TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryConfigIsNotRemovedWhenWeF
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
-    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath())).Times(0);
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
 }
@@ -847,4 +827,56 @@ TEST_F(PluginAdapterWithMockFileSystem, testHasScheduleEpochEnded)
     EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+scheduleEpochDuration));
     EXPECT_TRUE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+scheduleEpochDuration+1));
     EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+scheduleEpochDuration-1));
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testHaveCustomQueriesChanged)
+{
+    std::optional<std::string> value1 = "1";
+    std::optional<std::string> value2 = "2";
+    std::optional<std::string> emptyOptionalString;
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(value2.value()));
+    // file exists, different value
+    EXPECT_TRUE(Plugin::PluginAdapter::haveCustomQueriesChanged(value1));
+    // file exists, same value
+    EXPECT_FALSE(Plugin::PluginAdapter::haveCustomQueriesChanged(value2));
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(false));
+    // file doesn't exist, new custom pack has value
+    EXPECT_TRUE(Plugin::PluginAdapter::haveCustomQueriesChanged(value1));
+    // file doesn't exist, new custom pack has no value
+    EXPECT_FALSE(Plugin::PluginAdapter::haveCustomQueriesChanged(emptyOptionalString));
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryPackIsRemovedWhenNoQueriesInPolicy)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/xdr_intermediary")).Times(1);
+    std::string liveQueryPolicy100 = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryCustomConfigFilePath())).WillOnce(Return("a value"));
+    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath())).Times(1);
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
+
 }
