@@ -140,7 +140,7 @@ Wait Until EDR Running
     ...  Check EDR Executable Running
 
 Check SophosMTR Executable Running
-    ${result} =    Run Process  pgrep  SophosMTR  | grep plugins/mtr | wc -l  shell=true
+    ${result} =    Run Process  pgrep  SophosMTR | grep plugins/mtr | wc -l  shell=true
     Should Be Equal As Integers    ${result.rc}    0       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check SophosMTR Executable Not Running
