@@ -25,7 +25,13 @@ class ComputerThatSkipsDirectCommand (mcsrouter.computer.Computer):
     def direct_command(self, command):
         logger.info("Skipping execution of command: {}".format(command))
 
+def throwUnicodeDecodeError(*args, **kwargs):
+    raise UnicodeDecodeError("latin1", b"", 0, 0, "We mocked this error")
 
+def our_mock_open(read_data=""):
+    x = mock.mock_open(read_data=read_data)
+    x.return_value.readlines.side_effect = throwUnicodeDecodeError
+    return x
 
 class TestcomputerCommonStatus(unittest.TestCase):
     @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
@@ -135,6 +141,17 @@ class TestComputer(unittest.TestCase):
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
         status_xml = adapter.get_common_status_xml()
         self.assertTrue("<deviceGroup>" not in status_xml)
+
+    @mock.patch("subprocess.Popen", return_value=FakePopen())
+    @mock.patch("subprocess.check_output", return_value=b'some-hostname')
+    @mock.patch("os.path.isfile", return_value=True)
+    @mock.patch("mcsrouter.ip_address.get_non_local_ipv6", return_value=[])
+    @mock.patch("mcsrouter.ip_address.get_non_local_ipv4", return_value=[])
+    @mock.patch('builtins.open', new_callable=our_mock_open, read_data="--group=blah")
+    def testGroupStatusXmlWithUndecodeableGroupOptionInInstallOptionsFile(self, mo, *mockarg):
+        adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
+        status_xml = adapter.get_common_status_xml()
+        self.assertFalse("<deviceGroup>" in status_xml)
 
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')

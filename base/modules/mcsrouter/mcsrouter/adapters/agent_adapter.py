@@ -183,16 +183,21 @@ def get_installation_device_group():
     install_options_path = path_manager.install_options_file()
     try:
         if os.path.isfile(install_options_path):
-            with open(install_options_path, 'r', encoding='utf-8') as install_options_file:
-                for line in install_options_file.readlines():
-                    line = line.strip()
-                    if "--group=" in line:
-                        group = line.split("--group=")[-1]
-                        if is_device_group_valid(group):
-                            LOGGER.debug(f"Central installation group found: {group}")
-                            return group
-                        else:
-                            LOGGER.error("Malformed --group= option, device group will not be set.")
+            try:
+                with open(install_options_path) as install_options_file:
+                    for line in install_options_file.readlines():
+                        line = line.strip()
+                        if "--group=" in line:
+                            group = line.split("--group=")[-1]
+                            if is_device_group_valid(group):
+                                LOGGER.debug(f"Central installation group found: {group}")
+                                return group
+                            else:
+                                LOGGER.error("Malformed --group= option, device group will not be set.")
+            except UnicodeDecodeError:
+                LOGGER.error("Group cannot be decoded please run installer from an UTF-8 locale")
+            except FileNotFoundError:
+                LOGGER.error("Failed to find install_options file")
     except PermissionError:
         LOGGER.error(f"Insufficient permissions to read {install_options_path} file, device group will not be set.")
     except IndexError:
