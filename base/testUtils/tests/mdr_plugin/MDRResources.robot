@@ -140,11 +140,11 @@ Wait Until EDR Running
     ...  Check EDR Executable Running
 
 Check SophosMTR Executable Running
-    ${result} =    Run Process  pgrep  -f  dbos/SophosMTR
+    ${result} =    Run Process  pgrep  SophosMTR  | grep plugins/mtr | wc -l  shell=true
     Should Be Equal As Integers    ${result.rc}    0       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check SophosMTR Executable Not Running
-    ${result} =    Run Process  pgrep  -f  dbos/SophosMTR
+    ${result} =    Run Process  pgrep  SophosMTR | grep plugins/mtr | wc -l  shell=true
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
@@ -164,7 +164,7 @@ Check MTR Osquery Executable Running
     Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check MTR Osquery Executable Not Running
-    ${result} =    Run Process  pgrep  -a  osquery | grep plugins/mtr  shell=true
+    ${result} =    Run Process  pgrep  -a  osquery | grep plugins/mtr
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
@@ -365,11 +365,6 @@ Insert MTR Policy
     Create File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${MDRPolicy}
     Move File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy
 
-Insert Functional MTR Policy
-    ${MDRPolicy} =  Get File  ${SUPPORT_FILES}/CentralXml/MDR_policy_with_correct_url.xml
-    Create File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${MDRPolicy}
-    Move File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy
-
 Trigger Osquery Database Purge
     ${result} =  Run Process  dd if\=/dev/urandom bs\=1024 count\=200 | split -a 4 -b 1k - /opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/mtrtelemetrytest_file.  shell=true
     Log  ${result.stdout}
@@ -386,6 +381,7 @@ Osquery Has Not Purged Database
     Osquery Watcher Log Should Not Contain  ${OSqueryPurgeMsg}
 
 Install MTR From Fake Component Suite
+
     Block Connection Between EndPoint And FleetManager
     Install Directly From Component Suite
 
@@ -404,23 +400,3 @@ Install MTR From Fake Component Suite
     ...  35 secs
     ...  1 secs
     ...  Check Osquery Executable Running
-
-Install Functional MTR From Fake Component Suite
-    Block Connection Between EndPoint And FleetManager
-    Install Directly From Component Suite
-
-    Check MDR Component Suite Installed Correctly
-    Insert Functional MTR Policy
-
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
-    Component Suite Version Ini File Contains Proper Format   ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/var/policy/mtr.xml
-    Wait Until SophosMTR Executable Running  20
-    Wait Until Keyword Succeeds
-    ...  35 secs
-    ...  1 secs
-    ...  Check MTR Osquery Executable Running
