@@ -61,7 +61,18 @@ grep_response = """{
         "columnData": [["UUID"]]
     }"""
 
+public_ip_query = """{
+    "type": "sophos.mgt.action.RunLiveQuery",
+    "name": "get public_id",
+    "query": "SELECT * FROM public_ip"
+}"""
 
+public_ip_response = """{
+        "type": "sophos.mgt.response.RunLiveQuery",
+        "queryMetaData": {"errorCode":0,"errorMessage":"OK","rows":1,"sizeBytes":18},
+        "columnMetaData":  [{"name":"public_ip","type":"TEXT"}],
+        "columnData": [["UUID"]]
+    }"""
 no_column_query = """{
     "type": "sophos.mgt.action.RunLiveQuery",
     "name": "No column",
@@ -84,7 +95,7 @@ crash_query_response = """{
     """
 
 
-def check_responses_are_equivalent(actual_response, expected_response):
+def check_responses_are_equivalent(actual_response, expected_response, ignore_column_data=False):
     try:
         logger.info("Size of actual response: {}".format(len(actual_response)))
         response_dict = json.loads(actual_response)
@@ -93,8 +104,9 @@ def check_responses_are_equivalent(actual_response, expected_response):
         assert expected_response_dict['type'] == response_dict['type']
         if "columnMetaData" in expected_response:
             assert expected_response_dict['columnMetaData'] == response_dict['columnMetaData']
-        if 'columnData' in expected_response:
-            assert expected_response_dict['columnData'] == response_dict['columnData']
+        if not ignore_column_data:
+            if 'columnData' in expected_response:
+                assert expected_response_dict['columnData'] == response_dict['columnData']
         if 'rows' in expected_response_dict['queryMetaData']:
             assert expected_response_dict['queryMetaData']["rows"] == response_dict['queryMetaData']["rows"]
 
@@ -122,9 +134,9 @@ def send_and_receive_query(query_to_send, mock_management_agent, edr_plugin, res
     response_filepath = send_query(query_to_send, mock_management_agent)
     return get_query_response(response_filepath, edr_plugin, response_timeout)
 
-def send_and_receive_query_and_verify(query_to_send, mock_management_agent, edr_plugin, expected_answer, response_timeout=10):
+def send_and_receive_query_and_verify(query_to_send, mock_management_agent, edr_plugin, expected_answer,ignore_column_data=False, response_timeout=10):
     file_content = send_and_receive_query(query_to_send, mock_management_agent, edr_plugin, response_timeout)
-    check_responses_are_equivalent(file_content, expected_answer)
+    check_responses_are_equivalent(file_content, expected_answer,ignore_column_data)
 
 
 
@@ -134,6 +146,7 @@ def test_edr_plugin_expected_responses_to_livequery(sspl_mock, edr_plugin_instan
     send_and_receive_query_and_verify(top_2_processes_query, sspl_mock.management, edr_plugin_instance, top_2_processes_response)
     send_and_receive_query_and_verify(hex_to_int_query, sspl_mock.management, edr_plugin_instance, hex_to_int_response)
     send_and_receive_query_and_verify(grep_query, sspl_mock.management, edr_plugin_instance, grep_response)
+    send_and_receive_query_and_verify(public_ip_query, sspl_mock.management, edr_plugin_instance, public_ip_response, True)
     send_and_receive_query_and_verify(no_column_query, sspl_mock.management, edr_plugin_instance, no_column_response)
 
     # check that empty name is also acceptable (Central sends empty name for user new queries)
