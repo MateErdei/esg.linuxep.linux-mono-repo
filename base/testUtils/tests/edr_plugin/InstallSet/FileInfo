@@ -4,7 +4,6 @@ o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-schedule
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/osquery.flags
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/plugin.conf
 o600, root, root, /opt/sophos-spl/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf.0
-o600, root, root, /opt/sophos-spl/plugins/edr/extensions/extensions.load.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_chrono.so.1.74.0.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_context.so.1.74.0.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_date_time.so.1.74.0.0
@@ -37,6 +36,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libthrift.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libzmq.so.5.2.3.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libz.so.1.2.11.0
 o600, root, root, /opt/sophos-spl/plugins/edr/log/edr.log
+o600, root, root, /opt/sophos-spl/plugins/edr/log/SophosMTRExtension.log
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/access.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/activemq_conf.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/activemq_xml.aug.0
@@ -256,6 +256,8 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/yaml.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/yum.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/VERSION.ini.0
 o644, root, root, /opt/sophos-spl/plugins/edr/var/osquery.pid
+o700, root, root, /opt/sophos-spl/plugins/edr/extensions/extensions.load.0
+o700, root, root, /opt/sophos-spl/plugins/edr/extensions/SophosMTR.ext.0
 o750, root, root, /opt/sophos-spl/plugins/edr/bin/edr.0
 o750, root, root, /opt/sophos-spl/plugins/edr/bin/osqueryd.0
 o750, root, root, /opt/sophos-spl/plugins/edr/bin/sophos_livequery.0
