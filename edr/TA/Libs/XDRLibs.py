@@ -26,15 +26,18 @@ def change_all_scheduled_queries_interval(config_path, interval):
             f.write(new_config_json_string)
 
 
-def check_all_queries_run(log_path: str, config_path: str):
+def check_all_queries_run(log_path: str, config_path: str, custom_pack=False):
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
             config_json_string = f.read()
         config = json.loads(config_json_string)
         for query_name in config["schedule"]:
-            if "platform" in config["schedule"][query_name] and config["schedule"][query_name]["platform"] == "linux":
+            print(f"checking for {query_name}")
+            if ("platform" in config["schedule"][query_name] and config["schedule"][query_name]["platform"] == "linux" or custom_pack) or custom_pack:
                 check_for_query_in_log(log_path,  query_name)
                 print("Found: " + query_name)
+    else:
+        raise AssertionError("Failed to read config")
 
 
 def check_for_query_in_log(log_path, query_name: str):

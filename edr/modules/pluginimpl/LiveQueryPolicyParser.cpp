@@ -20,7 +20,7 @@ namespace Plugin
 
         if (attributes.empty()) {
             LOGINFO("No custom queries in LiveQuery policy");
-            return std::optional<std::string>();
+            return std::nullopt;
         }
 
         nlohmann::json customQueryPack;

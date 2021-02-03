@@ -26,6 +26,7 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
+#include <redist/boost/functional/hash.hpp>
 
 // helper class that allow to schedule a task.
 // but it also has some capability of interrupting the scheduler at any point
@@ -772,6 +773,19 @@ namespace Plugin
         return status.str();
     }
 
+    bool PluginAdapter::haveCustomQueriesChanged(const std::optional<std::string> customQueries)
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        std::optional<std::string> oldCustomQueries;
+
+        if (fs->exists(osqueryCustomConfigFilePath()))
+        {
+            oldCustomQueries = fs->readFile(osqueryCustomConfigFilePath());
+        }
+
+        return customQueries != oldCustomQueries;
+    }
+
     void PluginAdapter::processLiveQueryPolicy(const std::string& liveQueryPolicy)
     {
         if (!liveQueryPolicy.empty())
@@ -784,7 +798,6 @@ namespace Plugin
                 m_liveQueryRevId = getRevId(liveQueryPolicy);
                 customQueries = getCustomQueries(liveQueryPolicy);
                 m_liveQueryStatus = "Same";
-
             }
             catch (std::exception& e)
             {
@@ -794,14 +807,20 @@ namespace Plugin
 
             try
             {
-                auto fs = Common::FileSystem::fileSystem();
-                if (fs->exists(osqueryCustomConfigFilePath()) && m_liveQueryStatus != "Failure")
+                if (m_liveQueryStatus != "Failure" && haveCustomQueriesChanged(customQueries))
                 {
-                    fs->removeFileOrDirectory(osqueryCustomConfigFilePath());
-                }
-                if (customQueries.has_value())
-                {
-                    fs->writeFile(osqueryCustomConfigFilePath(), customQueries.value());
+                    auto fs = Common::FileSystem::fileSystem();
+
+                    if (fs->exists(osqueryCustomConfigFilePath()))
+                    {
+                        fs->removeFileOrDirectory(osqueryCustomConfigFilePath());
+                    }
+                    if (customQueries.has_value())
+                    {
+                        fs->writeFile(osqueryCustomConfigFilePath(), customQueries.value());
+                    }
+                    stopOsquery();
+                    m_restartNoDelay = true;
                 }
             }
             catch (Common::FileSystem::IFileSystemException &e)
