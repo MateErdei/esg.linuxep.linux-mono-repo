@@ -35,10 +35,12 @@ namespace avscanner::avscannerimpl
         public:
             explicit CommandLineWalkerCallbackImpl(
                 std::shared_ptr<IScanClient> scanner,
+                std::shared_ptr<SigIntMonitor> sigIntMonitor,
                 std::vector<fs::path> mountExclusions,
                 std::vector<Exclusion> cmdExclusions) :
                 BaseFileWalkCallbacks(std::move(scanner))
             {
+                m_sigIntMonitor = std::move(sigIntMonitor);
                 m_mountExclusions = std::move(mountExclusions);
                 m_currentExclusions.reserve(m_mountExclusions.size());
                 m_userDefinedExclusions = std::move(cmdExclusions);
@@ -61,17 +63,18 @@ namespace avscanner::avscannerimpl
                 }
             }
 
-            static void abortScan()
+            void checkIfScanAborted() override
             {
-                m_abort_scan = true;
+                if (m_sigIntMonitor->triggered())
+                {
+                    throw AbortScanException("Scan manually aborted");
+                }
             }
-        };
-    }
 
-    void handle_sigInt(int)
-    {
-        LOGDEBUG("Received SIGINT");
-        CommandLineWalkerCallbackImpl::abortScan();
+        protected:
+            std::shared_ptr<SigIntMonitor> m_sigIntMonitor;
+
+        };
     }
 
     CommandLineScanRunner::CommandLineScanRunner(const Options& options) :
@@ -81,13 +84,7 @@ namespace avscanner::avscannerimpl
         m_archiveScanning(options.archiveScanning()),
         m_followSymlinks(options.followSymlinks())
     {
-        struct sigaction sigTermHandler{};
-
-        sigTermHandler.sa_handler = handle_sigInt;
-        sigemptyset(&sigTermHandler.sa_mask);
-        sigTermHandler.sa_flags = 0;
-
-        sigaction(SIGINT, &sigTermHandler, nullptr);
+        m_sigIntMonitor = std::make_shared<SigIntMonitor>();
     }
 
     int CommandLineScanRunner::run()
@@ -159,7 +156,7 @@ namespace avscanner::avscannerimpl
         m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
         auto scanner =
             std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
-        CommandLineWalkerCallbackImpl commandLineWalkerCallbacks(scanner, excludedMountPoints, cmdExclusions);
+        CommandLineWalkerCallbackImpl commandLineWalkerCallbacks(scanner, m_sigIntMonitor, excludedMountPoints, cmdExclusions);
         filewalker::FileWalker fw(commandLineWalkerCallbacks);
         fw.followSymlinks(m_followSymlinks);
 

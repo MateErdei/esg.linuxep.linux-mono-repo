@@ -8,6 +8,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "Exclusion.h"
 #include "IScanClient.h"
+#include "SigIntMonitor.h"
 
 #include "common/PathUtils.h"
 
@@ -29,7 +30,7 @@ namespace avscanner::avscannerimpl
         virtual void logScanningLine(std::string escapedPath) = 0;
         void genericFailure(const std::exception& e, const std::string& escapedPath);
         bool excludeSymlink(const fs::path& path);
-        static void checkIfScanAborted();
+        virtual void checkIfScanAborted() {};
 
         std::shared_ptr<IScanClient> m_scanner;
         std::vector<fs::path> m_mountExclusions;
@@ -37,7 +38,6 @@ namespace avscanner::avscannerimpl
         std::vector<Exclusion> m_currentExclusions;
         std::vector<Exclusion> m_userDefinedExclusions;
         int m_returnCode = E_CLEAN;
-        static bool m_abort_scan;
 
     public:
 

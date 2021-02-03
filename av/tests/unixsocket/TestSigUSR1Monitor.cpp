@@ -18,9 +18,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/select.h>
 
 /* According to earlier standards */
+#include <common/FDUtils.h>
+
 #include <sys/time.h>
 #include <unistd.h>
-
 
 namespace
 {
@@ -62,7 +63,7 @@ TEST_F(TestSigUSR1Monitor, testSignal) // NOLINT
     int ret = ::select(readFd+1, &readfds, nullptr, nullptr, &zero_time);
 
     EXPECT_EQ(ret, 1);
-    EXPECT_TRUE(FD_ISSET(readFd, &readfds)); // NOLINT
+    EXPECT_TRUE(FDUtils::fd_isset(readFd, &readfds)); // NOLINT
 }
 
 

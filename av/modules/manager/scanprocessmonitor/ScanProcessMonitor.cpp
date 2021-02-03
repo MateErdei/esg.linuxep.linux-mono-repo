@@ -5,10 +5,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanProcessMonitor.h"
+
 #include "Logger.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Process/IProcess.h"
+
+#include <modules/common/FDUtils.h>
 
 #include <cstring>
 
@@ -37,24 +40,6 @@ plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(soph
     {
         throw std::runtime_error("SCANNER_PATH doesn't refer to a file");
     }
-}
-
-static inline bool fd_isset(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static inline void internal_fd_set(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static int addFD(fd_set* fds, int fd, int currentMax)
-{
-    internal_fd_set(fd, fds);
-    return std::max(fd, currentMax);
 }
 
 static void clearPipe(Common::Threads::NotifyPipe& pipe)
@@ -87,9 +72,9 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     fd_set readfds;
     FD_ZERO(&readfds);
     int max_fd = -1;
-    max_fd = addFD(&readfds, m_notifyPipe.readFd(), max_fd);
-    max_fd = addFD(&readfds, m_subprocess_terminated.readFd(), max_fd);
-    max_fd = addFD(&readfds, m_config_changed.readFd(), max_fd);
+    max_fd = FDUtils::addFD(&readfds, m_notifyPipe.readFd(), max_fd);
+    max_fd = FDUtils::addFD(&readfds, m_subprocess_terminated.readFd(), max_fd);
+    max_fd = FDUtils::addFD(&readfds, m_config_changed.readFd(), max_fd);
 
     m_config_monitor.start();
 
@@ -128,12 +113,12 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 
         bool expectingProcessExit = false;
 
-        if (fd_isset(m_subprocess_terminated.readFd(), &tempReadfds))
+        if (FDUtils::fd_isset(m_subprocess_terminated.readFd(), &tempReadfds))
         {
             clearPipe(m_subprocess_terminated);
         }
 
-        if (fd_isset(m_config_changed.readFd(), &tempReadfds))
+        if (FDUtils::fd_isset(m_config_changed.readFd(), &tempReadfds))
         {
             clearPipe(m_config_changed);
             LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");

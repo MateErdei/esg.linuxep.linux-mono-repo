@@ -5,32 +5,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanScheduler.h"
+
 #include "Logger.h"
 #include "ScanRunner.h"
 #include "ScanSerialiser.h"
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <modules/common/FDUtils.h>
 using namespace manager::scheduler;
 
 const time_t INVALID_TIME = static_cast<time_t>(-1);
-
-static inline bool fd_isset(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static inline void internal_fd_set(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static int addFD(fd_set* fds, int fd, int currentMax)
-{
-    internal_fd_set(fd, fds);
-    return std::max(fd, currentMax);
-}
 
 ScanScheduler::ScanScheduler(IScanComplete& completionNotifier)
         : m_completionNotifier(completionNotifier), m_nextScheduledScanTime(-1)
@@ -51,9 +35,9 @@ void manager::scheduler::ScanScheduler::run()
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
-    max = addFD(&readFDs, exitFD, max);
-    max = addFD(&readFDs, configFD, max);
-    max = addFD(&readFDs, scanNowFD, max);
+    max = FDUtils::addFD(&readFDs, exitFD, max);
+    max = FDUtils::addFD(&readFDs, configFD, max);
+    max = FDUtils::addFD(&readFDs, scanNowFD, max);
 
     while (true)
     {
@@ -71,12 +55,12 @@ void manager::scheduler::ScanScheduler::run()
         }
         else if (ret > 0)
         {
-            if (fd_isset(exitFD, &tempRead))
+            if (FDUtils::fd_isset(exitFD, &tempRead))
             {
                 LOGSUPPORT("Exiting from scan scheduler");
                 break;
             }
-            if (fd_isset(configFD, &tempRead))
+            if (FDUtils::fd_isset(configFD, &tempRead))
             {
                 updateConfigFromPending();
                 LOGINFO("Configured number of Scheduled Scans: " << m_config.scans().size());
@@ -94,7 +78,7 @@ void manager::scheduler::ScanScheduler::run()
                 }
 
             }
-            if (fd_isset(scanNowFD, &tempRead))
+            if (FDUtils::fd_isset(scanNowFD, &tempRead))
             {
                 LOGINFO("Evaluating Scan Now");
                 while (m_scanNowPipe.notified())

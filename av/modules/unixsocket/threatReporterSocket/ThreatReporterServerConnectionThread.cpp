@@ -6,22 +6,22 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ThreatReporterServerConnectionThread.h"
 
-#include "unixsocket/Logger.h"
+#include "ThreatDetected.capnp.h"
 
+#include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/StringUtils.h"
 
-#include "ThreatDetected.capnp.h"
-
 #include <capnp/serialize.h>
+#include <common/FDUtils.h>
+#include <scan_messages/ServerThreatDetected.h>
 
-#include <stdexcept>
 #include <cassert>
+#include <stdexcept>
 #include <utility>
 
 #include <sys/socket.h>
 #include <unistd.h>
-#include <scan_messages/ServerThreatDetected.h>
 
 using namespace unixsocket;
 
@@ -39,24 +39,6 @@ ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(datat
     {
         throw std::runtime_error("Attempting to construct ThreatReporterServerConnectionThread with null callback");
     }
-}
-
-static inline bool fd_isset(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static inline void internal_fd_set(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static int addFD(fd_set* fds, int fd, int currentMax)
-{
-    internal_fd_set(fd, fds);
-    return std::max(fd, currentMax);
 }
 
 //
@@ -142,8 +124,8 @@ void ThreatReporterServerConnectionThread::inner_run()
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
-    max = addFD(&readFDs, exitFD, max);
-    max = addFD(&readFDs, socket_fd, max);
+    max = FDUtils::addFD(&readFDs, exitFD, max);
+    max = FDUtils::addFD(&readFDs, socket_fd, max);
     bool loggedLengthOfZero = false;
 
     while (true)
@@ -159,18 +141,18 @@ void ThreatReporterServerConnectionThread::inner_run()
             break;
         }
 
-        if (fd_isset(exitFD, &tempRead))
+        if (FDUtils::fd_isset(exitFD, &tempRead))
         {
             LOGSUPPORT("Closing scanning socket thread");
             break;
         }
         else
-        // if (fd_isset(socket_fd, &tempRead))
+        // if (FDUtils::fd_isset(socket_fd, &tempRead))
         {
             // If shouldn't be required - we have no timeout, and only 2 FDs in the pselect.
             // exitFD will cause break
             // therefore "else" must be fd_isset(socket_fd, &tempRead)
-            assert(fd_isset(socket_fd, &tempRead));
+            assert(FDUtils::fd_isset(socket_fd, &tempRead));
 
             // read length
             int32_t length = unixsocket::readLength(socket_fd);

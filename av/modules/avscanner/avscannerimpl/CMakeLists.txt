@@ -20,6 +20,8 @@ add_library(avscannerimpl SHARED
         ScanCallbackImpl.h
         ScanClient.cpp
         ScanClient.h
+        SigIntMonitor.cpp
+        SigIntMonitor.h
         )
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)

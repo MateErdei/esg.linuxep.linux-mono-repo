@@ -4,23 +4,25 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
+#include "datatypes/Print.h"
+#include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
-#include "datatypes/sophos_filesystem.h"
-#include "datatypes/Print.h"
 
-#include <string>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <fstream>
-#include <fcntl.h>
-#include <cassert>
+#include <common/FDUtils.h>
 #include <unixsocket/SocketUtils.h>
 
+#include <cassert>
+#include <fstream>
+#include <string>
+
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
@@ -65,24 +67,6 @@ namespace
     };
 }
 
-static inline bool fd_isset(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static inline void internal_fd_set(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static int addFD(fd_set* fds, int fd, int currentMax)
-{
-    internal_fd_set(fd, fds);
-    return std::max(fd, currentMax);
-}
-
 static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 {
     // create a socket pair
@@ -113,7 +97,7 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
-    max = addFD(&readFDs, clientFd, max);
+    max = FDUtils::addFD(&readFDs, clientFd, max);
     fd_set tempRead = readFDs;
     const struct timespec timeout = { .tv_sec = 0, .tv_nsec = 10'000'000 }; // 0.010s
     int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
@@ -125,7 +109,7 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
     }
     else if(activity != 0)
     {
-        if (fd_isset(clientFd, &tempRead))
+        if (FDUtils::fd_isset(clientFd, &tempRead))
         {
             // receive the response
             int length = unixsocket::readLength(clientFd);

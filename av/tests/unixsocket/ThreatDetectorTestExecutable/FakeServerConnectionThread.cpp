@@ -5,32 +5,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "FakeServerConnectionThread.h"
+
 #include "ScanRequest.capnp.h"
 
 #include "unixsocket/SocketUtils.h"
 
+#include <common/FDUtils.h>
+
 #include <cassert>
 #include <utility>
+
 #include <sys/socket.h>
 #include <unistd.h>
-
-static inline bool fd_isset(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static inline void internal_fd_set(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static int addFD(fd_set* fds, int fd, int currentMax)
-{
-    internal_fd_set(fd, fds);
-    return std::max(fd, currentMax);
-}
 
 FakeDetectionServer::FakeServerConnectionThread::FakeServerConnectionThread(
     datatypes::AutoFd socketFd,
@@ -51,8 +37,8 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
-    max = addFD(&readFDs, exitFD, max);
-    max = addFD(&readFDs, socket_fd.get(), max);
+    max = FDUtils::addFD(&readFDs, exitFD, max);
+    max = FDUtils::addFD(&readFDs, socket_fd.get(), max);
 
     while (true)
     {
@@ -67,13 +53,13 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
 
         assert(activity != 0);
 
-        if (fd_isset(exitFD, &tempRead))
+        if (FDUtils::fd_isset(exitFD, &tempRead))
         {
             break;
         }
         else
         {
-            assert(fd_isset(socket_fd.get(), &tempRead));
+            assert(FDUtils::fd_isset(socket_fd.get(), &tempRead));
 
             int32_t length = unixsocket::readLength(socket_fd.get());
             if (length == -2)

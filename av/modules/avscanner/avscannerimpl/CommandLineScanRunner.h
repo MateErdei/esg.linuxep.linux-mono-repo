@@ -10,6 +10,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "Options.h"
 #include "ScanCallbackImpl.h"
+#include "SigIntMonitor.h"
 
 #include <string>
 #include <vector>
@@ -26,6 +27,7 @@ namespace avscanner::avscannerimpl
         std::vector<std::string> m_paths;
         std::vector<std::string> m_exclusions;
         Logger m_logger;
+        std::shared_ptr<SigIntMonitor> m_sigIntMonitor;
 
         bool m_archiveScanning = false;
         bool m_followSymlinks = false;

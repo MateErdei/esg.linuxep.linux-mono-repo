@@ -10,13 +10,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "datatypes/AutoFd.h"
 
+#include <modules/common/FDUtils.h>
+
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cerrno>
 
-#include <sys/types.h>
 #include <sys/inotify.h>
+#include <sys/types.h>
 
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
@@ -27,24 +29,6 @@ ConfigMonitor::ConfigMonitor(Common::Threads::NotifyPipe& pipe,
                              std::string base)
     : m_configChangedPipe(pipe), m_base(std::move(base))
 {
-}
-
-static inline bool fd_isset(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static inline void internal_fd_set(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static int addFD(fd_set* fds, int fd, int currentMax)
-{
-    internal_fd_set(fd, fds);
-    return std::max(fd, currentMax);
 }
 
 static inline bool isInteresting(const std::string& basename)
@@ -87,8 +71,8 @@ void ConfigMonitor::run()
     fd_set readfds;
     FD_ZERO(&readfds);
     int max_fd = -1;
-    max_fd = addFD(&readfds, m_notifyPipe.readFd(), max_fd);
-    max_fd = addFD(&readfds, inotifyFD.fd(), max_fd);
+    max_fd = FDUtils::addFD(&readfds, m_notifyPipe.readFd(), max_fd);
+    max_fd = FDUtils::addFD(&readfds, inotifyFD.fd(), max_fd);
 
     while(true)
     {
@@ -106,7 +90,7 @@ void ConfigMonitor::run()
             break;
         }
 
-        if (fd_isset(inotifyFD.fd(), &temp_readfds))
+        if (FDUtils::fd_isset(inotifyFD.fd(), &temp_readfds))
         {
 //            LOGDEBUG("inotified");
             // Something changed under m_base (/etc)

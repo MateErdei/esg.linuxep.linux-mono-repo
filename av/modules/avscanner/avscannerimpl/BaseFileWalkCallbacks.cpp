@@ -13,8 +13,6 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 
-bool BaseFileWalkCallbacks::m_abort_scan = false;
-
 BaseFileWalkCallbacks::BaseFileWalkCallbacks(std::shared_ptr<IScanClient> scanner) : m_scanner(std::move(scanner))
 {
 }
@@ -175,12 +173,4 @@ void BaseFileWalkCallbacks::genericFailure(const std::exception& e, const std::s
     m_scanner->scanError(errorString);
     m_returnCode = E_GENERIC_FAILURE;
     throw AbortScanException(e.what());
-}
-
-void BaseFileWalkCallbacks::checkIfScanAborted()
-{
-    if (m_abort_scan)
-    {
-        throw AbortScanException("Scan manually aborted");
-    }
 }

@@ -5,16 +5,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "BaseServerSocket.h"
-#include "unixsocket/threatDetectorSocket/ScanningServerConnectionThread.h"
+
 #include "Logger.h"
 
-#include <stdexcept>
+#include <common/FDUtils.h>
+
 #include <cassert>
+#include <stdexcept>
 
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/un.h>
 #include <unistd.h>
-#include <sys/stat.h>
 
 static void throwOnError(int ret, const std::string& message)
 {
@@ -33,24 +35,6 @@ static void throwIfBadFd(int fd, const std::string& message)
         return;
     }
     throw std::runtime_error(message);
-}
-
-static inline bool fd_isset(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static inline void internal_fd_set(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static int addFD(fd_set* fds, int fd, int currentMax)
-{
-    internal_fd_set(fd, fds);
-    return std::max(fd, currentMax);
 }
 
 unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, const mode_t mode, IMonitorablePtr monitorable)
@@ -85,11 +69,11 @@ void unixsocket::BaseServerSocket::run()
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
-    max = addFD(&readFDs, exitFD, max);
-    max = addFD(&readFDs, m_socket_fd, max);
+    max = FDUtils::addFD(&readFDs, exitFD, max);
+    max = FDUtils::addFD(&readFDs, m_socket_fd, max);
     if (m_monitorable)
     {
-        max = addFD(&readFDs, m_monitorable->monitorFd(), max);
+        max = FDUtils::addFD(&readFDs, m_monitorable->monitorFd(), max);
     }
 
     int ret = ::listen(m_socket_fd, 2);
@@ -124,13 +108,13 @@ void unixsocket::BaseServerSocket::run()
             break;
         }
 
-        if (fd_isset(exitFD, &tempRead))
+        if (FDUtils::fd_isset(exitFD, &tempRead))
         {
             LOGDEBUG("Closing socket");
             break;
         }
 
-        if(fd_isset(m_socket_fd, &tempRead))
+        if(FDUtils::fd_isset(m_socket_fd, &tempRead))
         {
             datatypes::AutoFd client_socket(
                 ::accept(m_socket_fd, nullptr, nullptr)
@@ -147,7 +131,7 @@ void unixsocket::BaseServerSocket::run()
             }
         }
 
-        if (m_monitorable && fd_isset(m_monitorable->monitorFd(), &tempRead))
+        if (m_monitorable && FDUtils::fd_isset(m_monitorable->monitorFd(), &tempRead))
         {
             m_monitorable->triggered(); // Responsible for clearing monitorFd...
         }
