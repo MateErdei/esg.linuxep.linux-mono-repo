@@ -195,9 +195,7 @@ def get_installation_device_group():
                             else:
                                 LOGGER.error("Malformed --group= option, device group will not be set.")
             except UnicodeDecodeError:
-                LOGGER.error("Group cannot be decoded please run installer from an UTF-8 locale")
-            except FileNotFoundError:
-                LOGGER.error("Failed to find install_options file")
+                LOGGER.error("Group cannot be decoded please run installer from a UTF-8 locale")
     except PermissionError:
         LOGGER.error(f"Insufficient permissions to read {install_options_path} file, device group will not be set.")
     except IndexError:
