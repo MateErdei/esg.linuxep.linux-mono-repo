@@ -8,6 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sys/sysinfo.h>
 
 #include <cassert>
+#include <iomanip>
+#include <chrono>
 
 namespace
 {
@@ -85,6 +87,16 @@ namespace Common
         std::string TimeUtils::fromTime(std::tm time_tm) { return fromTime(time_tm, "%Y%m%d %H%M%S"); }
 
         std::time_t TimeUtils::toTime(const std::string& str) { return toTime(str, "%Y%m%d %H%M%S"); }
+
+        std::string TimeUtils::toEpochTime(const std::string& dateTime)
+        {
+            std::tm tm = {};
+            std::stringstream ss(dateTime);
+            ss >> std::get_time(&tm, "%Y%m%d %H%M%S");
+            auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+
+            return std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch()).count());
+        }
 
         std::string FormattedTime::currentTime() const
         {

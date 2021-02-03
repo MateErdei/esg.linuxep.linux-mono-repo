@@ -58,7 +58,9 @@ add_library(updateschedulerimpl SHARED
         stateMachinesModule/StateMachineData.h
         stateMachinesModule/StateMachineData.cpp
         stateMachinesModule/StateMachineProcessor.cpp
-        stateMachinesModule/StateMachineProcessor.h)
+        stateMachinesModule/StateMachineProcessor.h
+        stateMachinesModule/TimeStamp.h
+        stateMachinesModule/TimeStamp.cpp)
 
 target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 

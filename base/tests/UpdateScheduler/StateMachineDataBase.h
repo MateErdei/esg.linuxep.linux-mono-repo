@@ -45,4 +45,18 @@ public:
 
         return jsonString;
     }
+
+    std::string updateJsonString(std::string jsonString, const std::string& oldPartString, const std::string& newPartString)
+    {
+        if (!oldPartString.empty())
+        {
+            size_t pos = jsonString.find(oldPartString);
+
+            EXPECT_TRUE(pos != std::string::npos);
+
+            jsonString.replace(pos, oldPartString.size(), newPartString);
+        }
+
+        return jsonString;
+    }
 };

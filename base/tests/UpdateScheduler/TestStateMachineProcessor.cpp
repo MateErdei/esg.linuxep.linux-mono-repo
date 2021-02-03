@@ -110,15 +110,11 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
 
     StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
-
-    EXPECT_NE(expectedStateMachineData.getLastGoodInstallTime(), stateMachineProcessor.getStateMachineData().getLastGoodInstallTime());
-    // update expected time stamps to match actual for the times that are expected to change.
-    expectedStateMachineData.setLastGoodInstallTime(stateMachineProcessor.getStateMachineData().getLastGoodInstallTime());
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 
@@ -126,19 +122,18 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsInstallFailed) // NOLINT
 {
-    std::string rawJsonStateMachineData = createJsonString("", "");
+    std::string rawJsonStateMachineData = createJsonString( R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
 
-    std::string oldString = R"("InstallStateCredit": "3")";
-    std::string newString = R"("InstallStateCredit": "2")";
-
-    StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString(oldString, newString));
+    StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
+    expectedStateMachineData.setInstallStateCredit("0");
+    expectedStateMachineData.setInstallState("1");
 
     EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(), stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
     // update expected time stamps to match actual for the times that are expected to change.
@@ -148,22 +143,41 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 }
 
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateResultIsInstallFailed) // NOLINT
+{
+    std::string rawJsonStateMachineData = createJsonString( "", "");
+
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
+
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+
+    stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
+
+    StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
+    expectedStateMachineData.setInstallStateCredit("2");
+    expectedStateMachineData.setInstallState("0");
+
+    EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
+
+}
+
+
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsInstallFailedThenSucceeded) // NOLINT
 {
     // Test when next update fails
-    std::string rawJsonStateMachineData = createJsonString("", "");
+    std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor1;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor1("1610465945674");
 
     stateMachineProcessor1.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
 
-    std::string oldString = R"("InstallStateCredit": "3")";
-    std::string newString = R"("InstallStateCredit": "2")";
-
-    StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString(oldString, newString));
+    StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
+    expectedStateMachineData.setInstallStateCredit("0");
+    expectedStateMachineData.setInstallState("1");
 
     EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(),
         stateMachineProcessor1.getStateMachineData().getInstallFailedSinceTime());
@@ -176,18 +190,15 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     // Test when next update is successful
 
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(expectedStateMachineData.toJsonStateMachineData(expectedStateMachineData)));
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor2; //File will be loaded
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945674"); //File will be loaded
     stateMachineProcessor2.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
 
     EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(),stateMachineProcessor2.getStateMachineData().getInstallFailedSinceTime());
 
-    EXPECT_NE(expectedStateMachineData.getLastGoodInstallTime(), stateMachineProcessor2.getStateMachineData().getLastGoodInstallTime());
-
-    expectedStateMachineData.setLastGoodInstallTime(stateMachineProcessor2.getStateMachineData().getLastGoodInstallTime());
-
     // update expected time stamps to match actual for the times that are expected to change.
     expectedStateMachineData.setInstallFailedSinceTime(stateMachineProcessor2.getStateMachineData().getInstallFailedSinceTime());
     expectedStateMachineData.setInstallStateCredit("3");
+    expectedStateMachineData.setInstallState("0");
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor2.getStateMachineData());
 
@@ -198,19 +209,22 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsUpdateSourceMissing) // NOLINT
 {
-    std::string rawJsonStateMachineData = createJsonString("", "");
+    std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
+    rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "18")");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::UPDATESOURCEMISSING);
 
     StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
 
-    expectedStateMachineData.setDownloadStateCredit("54");
-    expectedStateMachineData.setInstallStateCredit("2");
+    expectedStateMachineData.setDownloadStateCredit("0");
+    expectedStateMachineData.setInstallStateCredit("0");
+    expectedStateMachineData.setDownloadState("1");
+    expectedStateMachineData.setInstallState("1");
 
     EXPECT_NE(expectedStateMachineData.getDownloadFailedSinceTime(), stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
     EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(), stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
@@ -223,25 +237,26 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIstSinglePackageMissing) // NOLINT
 {
-    std::string rawJsonStateMachineData = createJsonString("", "");
+    std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
+    rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "18")");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::SINGLEPACKAGEMISSING);
 
     StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
 
-    expectedStateMachineData.setDownloadStateCredit("54");
-    expectedStateMachineData.setInstallStateCredit("2");
+    expectedStateMachineData.setDownloadStateCredit("0");
+    expectedStateMachineData.setInstallStateCredit("1");
+    expectedStateMachineData.setDownloadState("1");
+    expectedStateMachineData.setInstallState("0");
 
     EXPECT_NE(expectedStateMachineData.getDownloadFailedSinceTime(), stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(), stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
     // update expected time stamps to match actual for the times that are expected to change.
     expectedStateMachineData.setDownloadFailedSinceTime(stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    expectedStateMachineData.setInstallFailedSinceTime(stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 
@@ -249,25 +264,26 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateIsMultiplePackageMissing) // NOLINT
 {
-    std::string rawJsonStateMachineData = createJsonString("", "");
+    std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
+    rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "18")");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::MULTIPLEPACKAGEMISSING);
 
     StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
 
-    expectedStateMachineData.setDownloadStateCredit("54");
-    expectedStateMachineData.setInstallStateCredit("2");
+    expectedStateMachineData.setDownloadStateCredit("0");
+    expectedStateMachineData.setInstallStateCredit("1");
+    expectedStateMachineData.setDownloadState("1");
+    expectedStateMachineData.setInstallState("0");
 
     EXPECT_NE(expectedStateMachineData.getDownloadFailedSinceTime(), stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(), stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
     // update expected time stamps to match actual for the times that are expected to change.
     expectedStateMachineData.setDownloadFailedSinceTime(stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    expectedStateMachineData.setInstallFailedSinceTime(stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 
@@ -275,25 +291,48 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateIsMulti
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsDownloadFailed) // NOLINT
 {
+    std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
+    rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "18")");
+
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
+
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+
+    stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::DOWNLOADFAILED);
+
+    StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
+
+    expectedStateMachineData.setDownloadStateCredit("0");
+    expectedStateMachineData.setInstallStateCredit("1");
+    expectedStateMachineData.setDownloadState("1");
+    expectedStateMachineData.setInstallState("0");
+
+    EXPECT_NE(expectedStateMachineData.getDownloadFailedSinceTime(), stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
+    // update expected time stamps to match actual for the times that are expected to change.
+    expectedStateMachineData.setDownloadFailedSinceTime(stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
+
+    EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
+
+}
+
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateResultIsDownloadFailed) // NOLINT
+{
     std::string rawJsonStateMachineData = createJsonString("", "");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::DOWNLOADFAILED);
 
     StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
 
     expectedStateMachineData.setDownloadStateCredit("54");
-    expectedStateMachineData.setInstallStateCredit("2");
-
-    EXPECT_NE(expectedStateMachineData.getDownloadFailedSinceTime(), stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(), stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
-    // update expected time stamps to match actual for the times that are expected to change.
-    expectedStateMachineData.setDownloadFailedSinceTime(stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    expectedStateMachineData.setInstallFailedSinceTime(stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
+    expectedStateMachineData.setInstallStateCredit("3");
+    expectedStateMachineData.setDownloadState("0");
+    expectedStateMachineData.setInstallState("0");
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 
@@ -301,31 +340,29 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsDownloadFailedThenSuccess) // NOLINT
 {
-    std::string rawJsonStateMachineData = createJsonString("", "");
+    std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
+    rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "18")");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::DOWNLOADFAILED);
 
     StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
 
-    expectedStateMachineData.setDownloadStateCredit("54");
-    expectedStateMachineData.setInstallStateCredit("2");
+    expectedStateMachineData.setDownloadStateCredit("0");
+    expectedStateMachineData.setInstallStateCredit("1");
+    expectedStateMachineData.setDownloadState("1");
+    expectedStateMachineData.setInstallState("0");
 
     EXPECT_NE(
         expectedStateMachineData.getDownloadFailedSinceTime(),
         stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    EXPECT_NE(
-        expectedStateMachineData.getInstallFailedSinceTime(),
-        stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
     // update expected time stamps to match actual for the times that are expected to change.
     expectedStateMachineData.setDownloadFailedSinceTime(
         stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    expectedStateMachineData.setInstallFailedSinceTime(
-        stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
 
     EXPECT_PRED_FORMAT2(
         stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
@@ -334,21 +371,12 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
     EXPECT_CALL(fileSystemMock, readFile(_))
         .WillOnce(Return(expectedStateMachineData.toJsonStateMachineData(expectedStateMachineData)));
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor2; // File will be loaded
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945674"); // File will be loaded
     stateMachineProcessor2.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
 
-    EXPECT_NE(
-        expectedStateMachineData.getInstallFailedSinceTime(),
-        stateMachineProcessor2.getStateMachineData().getInstallFailedSinceTime());
-
-    EXPECT_NE(
-        expectedStateMachineData.getLastGoodInstallTime(),
-        stateMachineProcessor2.getStateMachineData().getLastGoodInstallTime());
-
-    expectedStateMachineData.setLastGoodInstallTime(
-        stateMachineProcessor2.getStateMachineData().getLastGoodInstallTime());
     expectedStateMachineData.setDownloadFailedSinceTime("0");
     expectedStateMachineData.setDownloadStateCredit("72");
+    expectedStateMachineData.setDownloadState("0");
 
     // update expected time stamps to match actual for the times that are expected to change.
     expectedStateMachineData.setInstallFailedSinceTime(
@@ -361,25 +389,26 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsConnectionError) // NOLINT
 {
-    std::string rawJsonStateMachineData = createJsonString("", "");
+    std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
+    rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "1")");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::CONNECTIONERROR);
 
     StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
 
-    expectedStateMachineData.setDownloadStateCredit("71");
-    expectedStateMachineData.setInstallStateCredit("2");
+    expectedStateMachineData.setDownloadStateCredit("0");
+    expectedStateMachineData.setInstallStateCredit("1");
+    expectedStateMachineData.setDownloadState("1");
+    expectedStateMachineData.setInstallState("0");
 
     EXPECT_NE(expectedStateMachineData.getDownloadFailedSinceTime(), stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(), stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
     // update expected time stamps to match actual for the times that are expected to change.
     expectedStateMachineData.setDownloadFailedSinceTime(stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    expectedStateMachineData.setInstallFailedSinceTime(stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 
@@ -387,25 +416,26 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsConnectionErrorThenSuccess) // NOLINT
 {
-    std::string rawJsonStateMachineData = createJsonString("", "");
+    std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
+    rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "1")");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::CONNECTIONERROR);
 
     StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
 
-    expectedStateMachineData.setDownloadStateCredit("71");
-    expectedStateMachineData.setInstallStateCredit("2");
+    expectedStateMachineData.setDownloadStateCredit("0");
+    expectedStateMachineData.setInstallStateCredit("1");
+    expectedStateMachineData.setDownloadState("1");
+    expectedStateMachineData.setInstallState("0");
 
     EXPECT_NE(expectedStateMachineData.getDownloadFailedSinceTime(), stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(), stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
     // update expected time stamps to match actual for the times that are expected to change.
     expectedStateMachineData.setDownloadFailedSinceTime(stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
-    expectedStateMachineData.setInstallFailedSinceTime(stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 
@@ -413,28 +443,50 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
     EXPECT_CALL(fileSystemMock, readFile(_))
         .WillOnce(Return(expectedStateMachineData.toJsonStateMachineData(expectedStateMachineData)));
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor2; // File will be loaded
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945674"); // File will be loaded
     stateMachineProcessor2.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
 
-    EXPECT_NE(
-        expectedStateMachineData.getInstallFailedSinceTime(),
-        stateMachineProcessor2.getStateMachineData().getInstallFailedSinceTime());
-
-    EXPECT_NE(
-        expectedStateMachineData.getLastGoodInstallTime(),
-        stateMachineProcessor2.getStateMachineData().getLastGoodInstallTime());
-
-    expectedStateMachineData.setLastGoodInstallTime(
-        stateMachineProcessor2.getStateMachineData().getLastGoodInstallTime());
     expectedStateMachineData.setDownloadFailedSinceTime("0");
     expectedStateMachineData.setDownloadStateCredit("72");
+    expectedStateMachineData.setDownloadState("0");
 
     // update expected time stamps to match actual for the times that are expected to change.
-    expectedStateMachineData.setInstallFailedSinceTime(
-        stateMachineProcessor2.getStateMachineData().getInstallFailedSinceTime());
     expectedStateMachineData.setInstallStateCredit("3");
 
     EXPECT_PRED_FORMAT2(
         stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor2.getStateMachineData());
 
+}
+
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsInstallFailedAndThenFailsAgain) // NOLINT
+{
+    std::string rawJsonStateMachineData = createJsonString( R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
+
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
+
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+
+    stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
+
+    StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
+    expectedStateMachineData.setInstallStateCredit("0");
+    expectedStateMachineData.setInstallState("1");
+
+    EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(), stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
+    // update expected time stamps to match actual for the times that are expected to change.
+    expectedStateMachineData.setInstallFailedSinceTime(stateMachineProcessor.getStateMachineData().getInstallFailedSinceTime());
+
+    EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
+
+    // Fail update again
+
+    EXPECT_CALL(fileSystemMock, readFile(_))
+            .WillOnce(Return(expectedStateMachineData.toJsonStateMachineData(expectedStateMachineData)));
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945674"); // File will be loaded
+    stateMachineProcessor2.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
+
+    // last failed time should not have changed.
+    EXPECT_PRED_FORMAT2(
+            stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor2.getStateMachineData());
 }

@@ -24,11 +24,49 @@ using namespace ::testing;
 namespace
 {
     // Status expected to be the same on success and fail
-    static const std::string normalStatusXML{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
+    static const std::string goodStatusXML{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
     <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
     <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="GivenVersion">
         <endpoint id="thisMachineID" />
+    <rebootState>
+            <required>no</required>
+    </rebootState>
+    <downloadState>
+            <state>good</state>
+    </downloadState>
+    <installState>
+            <state>good</state>
+            <lastGood>1970-01-01T03:25:45.000Z</lastGood>
+    </installState>
+    </autoUpdate>
+    <subscriptions>
+        <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
+        <subscription rigidName="PluginRigidName" version="0.5.0" displayVersion="0.5.0" />
+    </subscriptions>
+    <products>
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
+    </products>
+    <Features>
+    </Features>
+</status>)sophos" };
+
+    static const std::string badStatusXML{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
+<status xmlns="com.sophos\mansys\status" type="sau">
+    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
+    <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="GivenVersion">
+        <endpoint id="thisMachineID" />
+    <rebootState>
+            <required>no</required>
+    </rebootState>
+    <downloadState>
+            <state>bad</state>
+            <failedSince>1970-01-01T03:25:45.000Z</failedSince>
+    </downloadState>
+    <installState>
+            <state>bad</state>
+            <failedSince>1970-01-01T03:25:45.000Z</failedSince>
+    </installState>
     </autoUpdate>
     <subscriptions>
         <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
@@ -51,11 +89,13 @@ public:
     std::unique_ptr<MockFormattedTime> formattedTime()
     {
         std::unique_ptr<MockFormattedTime> mockFormattedTime(new ::testing::StrictMock<MockFormattedTime>());
-        EXPECT_CALL(*mockFormattedTime, bootTime()).WillOnce(Return("20180810 100000"));
+        EXPECT_CALL(*mockFormattedTime, bootTime()).WillRepeatedly(Return("20180810 100000"));
         return std::move(mockFormattedTime);
     }
 
-    void runTest(const std::string& expectedXML, const UpdateStatus& status);
+    void runTest(const std::string& expectedXML,
+                const UpdateStatus& status,
+                const UpdateSchedulerImpl::StateData::StateMachineData& stateMachineData);
 
     std::unique_ptr<MockFormattedTime> m_formattedTime;
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
@@ -86,13 +126,15 @@ static boost::property_tree::ptree parseString(const std::string& input)
     return tree;
 }
 
-void TestSerializeStatus::runTest(const std::string& expectedXML, const UpdateStatus& status)
+void TestSerializeStatus::runTest(const std::string& expectedXML,
+        const UpdateStatus& status,
+        const UpdateSchedulerImpl::StateData::StateMachineData& stateMachineData)
 {
     namespace pt = boost::property_tree;
     pt::ptree expectedTree = parseString(expectedXML);
 
     std::string actualOutput =
-        SerializeUpdateStatus(status, "GivenRevId", "GivenVersion", "thisMachineID", *m_formattedTime, {});
+        SerializeUpdateStatus(status, "GivenRevId", "GivenVersion", "thisMachineID", *m_formattedTime, {}, stateMachineData);
     pt::ptree actualTree = parseString(actualOutput);
 
     if (actualTree != expectedTree)
@@ -110,6 +152,16 @@ TEST_F(TestSerializeStatus, SuccessStatusWithFeatures) // NOLINT
     <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
     <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="GivenVersion">
         <endpoint id="thisMachineID" />
+    <rebootState>
+            <required>no</required>
+    </rebootState>
+    <downloadState>
+            <state>good</state>
+    </downloadState>
+    <installState>
+            <state>good</state>
+            <lastGood>1970-01-01T03:25:45.000Z</lastGood>
+    </installState>
     </autoUpdate>
     <subscriptions>
         <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
@@ -126,8 +178,15 @@ TEST_F(TestSerializeStatus, SuccessStatusWithFeatures) // NOLINT
     namespace pt = boost::property_tree;
     pt::ptree expectedTree = parseString(normalStatusWithFeaturesXML);
 
+    UpdateSchedulerImpl::StateData::StateMachineData stateMachineData;
+    stateMachineData.setDownloadState("0");
+    stateMachineData.setDownloadFailedSinceTime("0");
+    stateMachineData.setInstallState("0");
+    stateMachineData.setLastGoodInstallTime("12345"); // will be converted to '1970-01-01T03:25:45.000Z'
+    stateMachineData.setInstallFailedSinceTime("0");
+
     std::string actualOutput =
-        SerializeUpdateStatus(getGoodStatus(), "GivenRevId", "GivenVersion", "thisMachineID", *m_formattedTime, {"FeatureA"});
+        SerializeUpdateStatus(getGoodStatus(), "GivenRevId", "GivenVersion", "thisMachineID", *m_formattedTime, {"FeatureA"}, stateMachineData);
     pt::ptree actualTree = parseString(actualOutput);
 
     if (actualTree != expectedTree)
@@ -140,12 +199,26 @@ TEST_F(TestSerializeStatus, SuccessStatusWithFeatures) // NOLINT
 
 TEST_F(TestSerializeStatus, SuccessStatus) // NOLINT
 {
-    runTest(normalStatusXML, getGoodStatus());
+    UpdateSchedulerImpl::StateData::StateMachineData stateMachineData;
+    stateMachineData.setDownloadState("0");
+    stateMachineData.setDownloadFailedSinceTime("0");
+    stateMachineData.setInstallState("0");
+    stateMachineData.setLastGoodInstallTime("12345"); // will be converted to '1970-01-01T03:25:45.000Z'
+    stateMachineData.setInstallFailedSinceTime("0");
+
+    runTest(goodStatusXML, getGoodStatus(), stateMachineData);
 }
 
 TEST_F(TestSerializeStatus, FailedStatus) // NOLINT
 {
-    runTest(normalStatusXML, getErrorStatus());
+    UpdateSchedulerImpl::StateData::StateMachineData stateMachineData;
+    stateMachineData.setDownloadState("1");
+    stateMachineData.setDownloadFailedSinceTime("12345");
+    stateMachineData.setInstallState("1");
+    stateMachineData.setLastGoodInstallTime("0"); // will be converted to '1970-01-01T03:25:45.000Z'
+    stateMachineData.setInstallFailedSinceTime("12345");
+
+    runTest(badStatusXML, getErrorStatus(), stateMachineData);
 }
 
 TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
@@ -155,6 +228,16 @@ TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
     <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
     <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="GivenVersion">
         <endpoint id="thisMachineID" />
+        <rebootState>
+            <required>no</required>
+        </rebootState>
+        <downloadState>
+            <state>good</state>
+        </downloadState>
+        <installState>
+            <state>good</state>
+            <lastGood>1970-01-01T03:25:45.000Z</lastGood>
+        </installState>
     </autoUpdate>
     <subscriptions>
         <subscription rigidName="ComponentSuite" version="v1" displayVersion="v1" />
@@ -170,5 +253,14 @@ TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
     };
     ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(singleReport);
 
-    runTest(normalStatusWithDefinedSubscription, collectionResult.SchedulerStatus);
+    UpdateSchedulerImpl::StateData::StateMachineData stateMachineData;
+    stateMachineData.setDownloadState("0");
+    stateMachineData.setDownloadFailedSinceTime("0");
+    stateMachineData.setInstallState("0");
+    stateMachineData.setLastGoodInstallTime("12345"); // will be converted to '1970-01-01T03:25:45.000Z'
+    stateMachineData.setInstallFailedSinceTime("0");
+
+    runTest(goodStatusXML, getGoodStatus(), stateMachineData);
+
+    runTest(normalStatusWithDefinedSubscription, collectionResult.SchedulerStatus, stateMachineData);
 }

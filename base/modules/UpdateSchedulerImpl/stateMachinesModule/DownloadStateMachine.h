@@ -24,5 +24,8 @@ namespace stateMachinesModule
             const std::chrono::system_clock::time_point& now);
 
         StateData::DownloadMachineState CurrentState() const;
+
+        int getOverallState() const;
+
     };
 } // namespace stateMachinesModule

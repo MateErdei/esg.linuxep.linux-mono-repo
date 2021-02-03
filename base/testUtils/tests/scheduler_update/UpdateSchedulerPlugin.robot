@@ -151,6 +151,88 @@ Test Updatescheduler Does Not Add Features That Failed To Install
     ...  Check Status Report Contain  Feature id="CORE"
     Check Status Report Does Not Contain  Feature id="SENSORS"
 
+Test Updatescheduler State Machine Results Show In Status Xml Message Correctly
+    Setup Base Only Sync And Uptodate
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  downloadState
+
+    Log File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+
+    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
+    Should Contain  ${StatusContent}  <installState><state>good</state><lastGood>
+    # not checking actual value of lastGood because this is a time stamp that will change.
+    Should Contain  ${StatusContent}   </lastGood></installState>
+    Should Contain  ${StatusContent}   <rebootState><required>no</required></rebootState>
+    Log File  /opt/sophos-spl/base/update/var/updatescheduler/state_machine_raw_data.json
+
+Test Updatescheduler State Machine Results Show In Status Xml Message Correctly With Success Failure Success Restart
+    #Success state
+    Setup Base Only Sync And Uptodate
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  downloadState
+
+    Log File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+
+    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
+    Should Contain  ${StatusContent}  <installState><state>good</state><lastGood>
+    # not checking actual value of lastGood because this is a time stamp that will change.
+    Should Contain  ${StatusContent}   </lastGood></installState>
+    Should Contain  ${StatusContent}   <rebootState><required>no</required></rebootState>
+    Log File  /opt/sophos-spl/base/update/var/updatescheduler/state_machine_raw_data.json
+
+    #Needs to fail 3 times to report Failed state
+    Fail Update Install And Check Status Shows Good Install State
+    Fail Update Install And Check Status Not ReGenerated
+    Fail Update Install And Check Status Shows Bad Install State
+
+    Remove File  ${statusPath}
+    #Success state
+    Setup Base and Plugin Upgraded  startTime=3
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  downloadState
+
+    Log File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+
+    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
+    Should Contain  ${StatusContent}  <installState><state>good</state><lastGood>
+    # not checking actual value of lastGood because this is a time stamp that will change.
+    Should Contain  ${StatusContent}   </lastGood></installState>
+    Should Contain  ${StatusContent}   <rebootState><required>no</required></rebootState>
+
+    # Restart update scheduler and management, also delete old status to force a new one to be generated so we can
+    # check that the state machines have been correctly read from disk after a restart.
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  updatescheduler
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  managementagent
+    Remove file  ${statusPath}
+    Remove file  ${MCS_DIR}/status/cache/ALC.xml
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  managementagent
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  updatescheduler
+
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  downloadState
+
+    Log File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+
+    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
+    Should Contain  ${StatusContent}  <installState><state>good</state><lastGood>
+    # not checking actual value of lastGood because this is a time stamp that will change.
+    Should Contain  ${StatusContent}   </lastGood></installState>
+    Should Contain  ${StatusContent}   <rebootState><required>no</required></rebootState>
 
 Test Updatescheduler Features Codes Correct After Success Failure Success Restart
     [Documentation]  Updatescheduler on success adds CORE to the feature codes in ALC status, the next update
@@ -591,6 +673,48 @@ Check report was supplement-only update
 Check Sul Downloader log contains
     [Arguments]  ${contents}
     Check Log Contains   ${contents}    ${SULDOWNLOADER_LOG_PATH}   ${SULDOWNLOADER_LOG_PATH}
+
+Fail Update Install And Check Status Shows Good Install State
+    Setup Plugin Install Failed  startTime=2
+    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  2092-04-28T00:44:42.107Z
+
+    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
+    Should Contain  ${StatusContent}  <installState><state>good</state><lastGood>
+    Should Contain  ${StatusContent}  </lastGood></installState>
+    Should Not Contain  ${StatusContent}  <installState><state>bad</state><failedSince>
+
+Fail Update Install And Check Status Not ReGenerated
+    Remove File    ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Setup Plugin Install Failed  startTime=2
+    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Simulate Update Now
+    Sleep  5
+    Should Not Exist   ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+
+Fail Update Install And Check Status Shows Bad Install State
+    Setup Plugin Install Failed  startTime=2
+    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Contains Bad State
+
+
+Check Status Contains Bad State
+    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
+    Should Not Contain  ${StatusContent}  <installState><state>good</state><lastGood>
+    Should Contain  ${StatusContent}  <installState><state>bad</state><failedSince>
+    # not checking actual value of lastGood because this is a time stamp that will change.
+    Should Contain  ${StatusContent}   </failedSince></installState>
+
 
 Convert report to success
     [Arguments]  ${reportPath}

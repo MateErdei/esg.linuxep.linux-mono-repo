@@ -17,7 +17,7 @@ namespace UpdateSchedulerImpl
         {
 
         public:
-            StateMachineData() = default;
+            StateMachineData() ;
 
             static std::string toJsonStateMachineData(const StateMachineData& state);
 

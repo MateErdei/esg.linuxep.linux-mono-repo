@@ -60,4 +60,19 @@ namespace stateMachinesModule
     {
         return state_;
     }
+
+    int DownloadStateMachine::getOverallState() const
+    {
+        // (credit == 0) => bad
+        // ((credit > 0) && (credit < defaultCredit)) => good (assuming temporary failure)
+        // (credit == defaultCredit) => good
+        if (state_.credit == 0)
+        {
+            return 1; // bad
+        }
+        else
+        {
+            return 0; // good
+        }
+    }
 } // namespace stateMachinesModule

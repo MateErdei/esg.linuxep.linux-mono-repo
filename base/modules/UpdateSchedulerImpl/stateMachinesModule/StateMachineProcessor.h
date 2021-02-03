@@ -15,17 +15,20 @@ namespace UpdateSchedulerImpl::stateMachinesModule
     class StateMachineProcessor
     {
     public:
-        StateMachineProcessor();
+        StateMachineProcessor(const std::string& lastInstallTime);
 
-        void updateStateMachines(int updateResult);
+        void updateStateMachines(const int updateResult);
         StateData::StateMachineData getStateMachineData() const;
 
     private:
         void populateStateMachines();
         void updateStateMachineData();
         void loadStateMachineRawData();
-        void writeStataMachineRawData();
+        void writeStateMachineRawData();
 
+        int m_currentDownloadStateResult;
+        int m_currentInstallStateResult;
+        std::string m_lastInstallTime;
         StateData::StateMachineData m_stateMachineData;
         ::StateData::DownloadMachineState m_downloadMachineState{};
         ::StateData::InstallMachineState m_installMachineState{};

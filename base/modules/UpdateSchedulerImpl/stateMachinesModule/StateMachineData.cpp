@@ -19,6 +19,19 @@ namespace UpdateSchedulerImpl
 {
     namespace StateData
     {
+        StateMachineData::StateMachineData()
+        : m_downloadFailedSinceTime("0")
+         , m_downloadState("0")
+         , m_downloadStateCredit("0")
+         , m_eventStateLastError("0")
+         , m_eventStateLastTime("0")
+         , m_installFailedSinceTime("0")
+         , m_installState("0")
+         , m_installStateCredit("0")
+         , m_lastGoodInstallTime("0")
+        {
+
+        }
         const std::string& StateMachineData::getDownloadFailedSinceTime() const
         {
             return m_downloadFailedSinceTime;

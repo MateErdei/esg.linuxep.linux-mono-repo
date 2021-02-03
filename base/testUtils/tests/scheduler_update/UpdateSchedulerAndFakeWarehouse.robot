@@ -143,6 +143,7 @@ UpdateScheduler Report Failure On Versig Error
     Regenerate Warehouse For Update Scheduler
 
     Replace Sophos URLS to Localhost
+    Log File  /opt/sophos-spl/base/mcs/status/cache/ALC.xml
     Simulate Update Now
 
     Wait Until Keyword Succeeds
@@ -152,7 +153,10 @@ UpdateScheduler Report Failure On Versig Error
 
     ${eventPath} =  Check Event File Generated  120
     Check Event Report Success  ${eventPath}
-    File Should Not Exist  ${statusPath}
+
+    # Download report will show we have installed files, therefore the Last Install time will be updated
+    # in the status xml file, resulting in a new status being sent.
+    File Should Exist  ${statusPath}
 
 Update Scheduler Ignores Non Report Files When Processing Reports
 

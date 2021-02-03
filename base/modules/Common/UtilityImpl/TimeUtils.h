@@ -69,6 +69,7 @@ namespace Common
 
             static std::time_t toTime(const std::string&);
             static std::time_t toTime(const std::string&, const char* format);
+            static std::string toEpochTime(const std::string& dateTime);
         };
 
         class FormattedTime : public virtual IFormattedTime

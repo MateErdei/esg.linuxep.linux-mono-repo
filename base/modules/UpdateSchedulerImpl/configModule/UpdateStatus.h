@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 #include <vector>
+#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -51,7 +52,8 @@ namespace UpdateSchedulerImpl
             const std::string& versionId,
             const std::string& machineID,
             const Common::UtilityImpl::IFormattedTime& iFormattedTime,
-            const std::vector<std::string>& features);
+            const std::vector<std::string>& features,
+            const StateData::StateMachineData& stateMachineData);
 
     } // namespace configModule
 } // namespace UpdateSchedulerImpl

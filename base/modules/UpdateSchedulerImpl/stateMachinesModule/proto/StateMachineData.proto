@@ -4,13 +4,13 @@ package StateMachineRawDataProto;
 
 message StateMachineRawData
 {
-   optional string DownloadFailedSinceTime = 1;
-   optional string DownloadState = 2;
-   optional string DownloadStateCredit = 3;
-   optional string EventStateLastError = 4;
-   optional string EventStateLastTime = 5;
-   optional string InstallFailedSinceTime = 6;
-   optional string InstallState = 7;
-   optional string InstallStateCredit = 8;
-   optional string LastGoodInstallTime = 9;
+   optional string DownloadFailedSinceTime = 1 [default="0"];
+   optional string DownloadState = 2 [default="0"];
+   optional string DownloadStateCredit = 3 [default="0"];
+   optional string EventStateLastError = 4 [default="0"];
+   optional string EventStateLastTime = 5 [default="0"];
+   optional string InstallFailedSinceTime = 6 [default="0"];
+   optional string InstallState = 7 [default="0"];
+   optional string InstallStateCredit = 8 [default="0"];
+   optional string LastGoodInstallTime = 9 [default="0"];
 }

@@ -12,6 +12,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "configModule/UpdateActionParser.h"
 #include "configModule/UpdatePolicyTranslator.h"
 #include "stateMachinesModule/DownloadStateMachine.h"
+#include "../../tests/Common/Helpers/FakeTimeUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -36,6 +37,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <csignal>
 #include <json.hpp>
 #include <thread>
+#include <iomanip>
 
 using namespace std::chrono;
 
@@ -520,7 +522,18 @@ namespace UpdateSchedulerImpl
             writeInstalledFeaturesJsonFile(m_featuresCurrentlyInstalled);
         }
 
-        stateMachinesModule::StateMachineProcessor stateMachineProcessor;
+        std::string lastInstallTime(reportAndFiles.reportCollectionResult.SchedulerStatus.LastInstallStartedTime);
+
+        if(lastInstallTime.empty())
+        {
+            // last install time come from the start time in the update report if an upgrade has happened.
+            // only need to set to LastStartTime if cannot get LastInstallStartedTime
+            lastInstallTime = reportAndFiles.reportCollectionResult.SchedulerStatus.LastStartTime;
+        }
+
+        lastInstallTime = Common::UtilityImpl::TimeUtils::toEpochTime(lastInstallTime);
+
+        stateMachinesModule::StateMachineProcessor stateMachineProcessor(lastInstallTime);
         stateMachineProcessor.updateStateMachines(reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult);
 
         std::string statusXML = SerializeUpdateStatus(
@@ -529,14 +542,15 @@ namespace UpdateSchedulerImpl
             VERSIONID,
             m_machineID,
             m_formattedTime,
-            m_featuresCurrentlyInstalled);
+            m_featuresCurrentlyInstalled,
+            stateMachineProcessor.getStateMachineData());
 
         UpdateStatus copyStatus = reportAndFiles.reportCollectionResult.SchedulerStatus;
         // blank the timestamp that changes for every report.
         copyStatus.LastStartTime = "";
         copyStatus.LastFinishdTime = "";
         std::string statusWithoutTimeStamp = configModule::SerializeUpdateStatus(
-            copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime, m_featuresCurrentlyInstalled);
+            copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime, m_featuresCurrentlyInstalled, stateMachineProcessor.getStateMachineData());
         m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGINFO("Sending status to Central");

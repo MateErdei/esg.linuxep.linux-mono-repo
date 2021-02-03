@@ -10,6 +10,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "../Logger.h"
 
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <UpdateSchedulerImpl/stateMachinesModule/TimeStamp.h>
+
 #include <boost/foreach.hpp>
 
 namespace
@@ -67,6 +69,54 @@ namespace
             featuresNode.add_child("Feature", subNode);
         }
     }
+
+    void addStates(pt::ptree& autoUpdate, const UpdateSchedulerImpl::StateData::StateMachineData& stateMachineData )
+    {
+        // Adding Download State Machine Data
+        std::string downloadStateStatusValue("bad");
+
+        if (stateMachineData.getDownloadState() == "0")
+        {
+            downloadStateStatusValue = "good";
+        }
+        std::string convertedtimeStamp;
+        autoUpdate.put("downloadState.state", downloadStateStatusValue);
+
+        if (stateMachineData.getDownloadState() != "0")
+        {
+            long epoch = stateMachineData.getDownloadFailedSinceTime().empty() ? 0 : std::stol(stateMachineData.getDownloadFailedSinceTime());
+            std::chrono::system_clock::time_point tpdownloadFailed((std::chrono::seconds(epoch)));
+            convertedtimeStamp  = UpdateSchedulerImpl::stateMachinesModule::MessageTimeStamp(tpdownloadFailed);
+            autoUpdate.add("downloadState.failedSince", convertedtimeStamp);
+        }
+
+        // Adding Install State Machine Data
+
+        std::string installStateStatusValue("bad");
+
+        if (stateMachineData.getInstallState() == "0")
+        {
+            installStateStatusValue = "good";
+        }
+
+        autoUpdate.put("installState.state", installStateStatusValue);
+
+        if(stateMachineData.getInstallState() == "0")
+        {
+            long epoch = stateMachineData.getLastGoodInstallTime().empty() ? 0 : std::stol(stateMachineData.getLastGoodInstallTime());
+            std::chrono::system_clock::time_point tpLastGoodInstall((std::chrono::seconds(epoch)));
+            convertedtimeStamp  = UpdateSchedulerImpl::stateMachinesModule::MessageTimeStamp(tpLastGoodInstall);
+            autoUpdate.add("installState.lastGood", convertedtimeStamp);
+        }
+        else
+        {
+            long epoch = stateMachineData.getInstallFailedSinceTime().empty() ? 0 : std::stol(stateMachineData.getInstallFailedSinceTime());
+            std::chrono::system_clock::time_point tpInstallFailed((std::chrono::seconds(epoch)));
+            convertedtimeStamp  = UpdateSchedulerImpl::stateMachinesModule::MessageTimeStamp(tpInstallFailed);
+            autoUpdate.add("installState.failedSince", convertedtimeStamp);
+        }
+    }
+
     // static void dump(const boost::property_tree::ptree& t, const std::string& indent="")
     //{
     //    if (!t.data().empty())
@@ -94,13 +144,26 @@ namespace UpdateSchedulerImpl
             const std::string& versionId,
             const std::string& machineId,
             const Common::UtilityImpl::IFormattedTime& iFormattedTime,
-            const std::vector<std::string>& features)
+            const std::vector<std::string>& features,
+            const StateData::StateMachineData& stateMachineData)
         {
             static const std::string L_STATUS_TEMPLATE{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
     <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="@@revid@@" policyType="1" />
     <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="@@version@@">
         <endpoint id="@@endpointid@@" />
+    <rebootState>
+            <required>no</required>
+    </rebootState>
+    <downloadState>
+            <state>@@downloadStateValue@@</state>
+            <!-- <failedSince>@@downloadFailedSinceTime@@</failedSince> -->
+    </downloadState>
+    <installState>
+            <state>@@installStateValue@@</state>
+            <!-- <lastGood>@@lastGoodInstallTime@@</lastGood>
+            <failedSince>@@installFailedSinceTime@@</failedSince> -->
+    </installState>
     </autoUpdate>
     <subscriptions><!-- @@subscriptionsElement@@ -->
     </subscriptions>
@@ -123,6 +186,8 @@ namespace UpdateSchedulerImpl
 
             autoUpdate.put("<xmlattr>.version", versionId);
             autoUpdate.put("endpoint.<xmlattr>.id", machineId);
+
+            addStates(autoUpdate, stateMachineData);
 
             addSubscriptionElements(status.Subscriptions, statusNode.get_child("subscriptions"));
             addProductsElements(status.Products, statusNode.get_child("products"));

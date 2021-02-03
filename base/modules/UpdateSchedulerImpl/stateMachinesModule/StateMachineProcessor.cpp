@@ -19,47 +19,78 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl::stateMachinesModule
 {
-    StateMachineProcessor::StateMachineProcessor()
+    StateMachineProcessor::StateMachineProcessor(const std::string& lastInstallTime)
+    : m_currentDownloadStateResult(0)
+    , m_currentInstallStateResult(0)
+    , m_lastInstallTime(lastInstallTime)
     {
         loadStateMachineRawData();
     }
 
     void StateMachineProcessor::populateStateMachines()
     {
-        m_downloadMachineState.credit = std::stoi(m_stateMachineData.getDownloadStateCredit());
-        long downloadFailedSince = std::stol(m_stateMachineData.getDownloadFailedSinceTime());
+        m_downloadMachineState.credit =  m_stateMachineData.getDownloadStateCredit().empty() ? 0 : std::stoi(m_stateMachineData.getDownloadStateCredit());
+        long downloadFailedSince = m_stateMachineData.getDownloadFailedSinceTime().empty() ? 0 : std::stol(m_stateMachineData.getDownloadFailedSinceTime());
         m_downloadMachineState.failedSince =
             std::chrono::system_clock::time_point{ std::chrono::milliseconds{ downloadFailedSince } };
 
-        m_installMachineState.credit = std::stoi(m_stateMachineData.getInstallStateCredit());
-        long installFailedSince = std::stol(m_stateMachineData.getInstallFailedSinceTime());
+        m_installMachineState.credit = m_stateMachineData.getInstallStateCredit().empty() ? 0 : std::stoi(m_stateMachineData.getInstallStateCredit());
+        long installFailedSince = m_stateMachineData.getInstallFailedSinceTime().empty() ? 0 : std::stol(m_stateMachineData.getInstallFailedSinceTime());
         m_installMachineState.failedSince =
             std::chrono::system_clock::time_point{ std::chrono::milliseconds{ installFailedSince } };
-        long installLassGood = std::stol(m_stateMachineData.getLastGoodInstallTime());
+        long installLastGood = m_stateMachineData.getLastGoodInstallTime().empty() ? 0 : std::stol(m_stateMachineData.getLastGoodInstallTime());
         m_installMachineState.lastGood =
-            std::chrono::system_clock::time_point{ std::chrono::milliseconds{ installLassGood } };
+            std::chrono::system_clock::time_point{ std::chrono::milliseconds{ installLastGood } };
 
-        long eventLastTime = std::stol(m_stateMachineData.getEventStateLastTime());
+        long eventLastTime = m_stateMachineData.getEventStateLastTime().empty() ? 0 : std::stol(m_stateMachineData.getEventStateLastTime());
         m_eventMachineState.lastTime =
             std::chrono::system_clock::time_point{ std::chrono::milliseconds{ eventLastTime } };
-        m_eventMachineState.lastError = std::stoi(m_stateMachineData.getEventStateLastError());
+        m_eventMachineState.lastError = m_stateMachineData.getEventStateLastError().empty() ? 0 : std::stoi(m_stateMachineData.getEventStateLastError());
     }
 
     void  StateMachineProcessor::updateStateMachineData()
     {
+        // take a copy of the stateMachineData for comparing transition of state below.
+        StateData::StateMachineData currentStateMachineData = m_stateMachineData;
+
+        m_stateMachineData.setDownloadState(std::to_string(m_currentDownloadStateResult));
+        m_stateMachineData.setInstallState(std::to_string(m_currentInstallStateResult));
         m_stateMachineData.setDownloadStateCredit(std::to_string(m_downloadMachineState.credit));
-        m_stateMachineData.setDownloadFailedSinceTime(std::to_string(
-            std::chrono::duration_cast<std::chrono::milliseconds>(m_downloadMachineState.failedSince.time_since_epoch())
-                .count()));
+
+        if (currentStateMachineData.getDownloadState() == "0" &&  m_stateMachineData.getDownloadState() == "1")
+        {
+            // if transitioning from good to bad download state update failed time.
+            m_stateMachineData.setDownloadFailedSinceTime(std::to_string(
+                    std::chrono::duration_cast<std::chrono::milliseconds>(m_downloadMachineState.failedSince.time_since_epoch())
+                            .count()));
+        }
+        else if (m_stateMachineData.getDownloadState() == "0")
+        {
+            m_stateMachineData.setDownloadFailedSinceTime("0");
+        }
+        else
+        {
+            m_stateMachineData.setDownloadFailedSinceTime(currentStateMachineData.getDownloadFailedSinceTime());
+        }
 
         m_stateMachineData.setInstallStateCredit(std::to_string(m_installMachineState.credit));
-        m_stateMachineData.setInstallFailedSinceTime(std::to_string(
-            std::chrono::duration_cast<std::chrono::milliseconds>(m_installMachineState.failedSince.time_since_epoch())
-                .count()));
 
-        m_stateMachineData.setLastGoodInstallTime(std::to_string(
-            std::chrono::duration_cast<std::chrono::milliseconds>(m_installMachineState.lastGood.time_since_epoch())
-                .count()));
+        if (currentStateMachineData.getInstallState() == "0" &&  m_stateMachineData.getInstallState() == "1")
+        {
+            m_stateMachineData.setInstallFailedSinceTime(std::to_string(
+                std::chrono::duration_cast<std::chrono::milliseconds>(m_installMachineState.failedSince.time_since_epoch())
+                    .count()));
+        }
+        else if (m_stateMachineData.getInstallState() == "0")
+        {
+            m_stateMachineData.setInstallFailedSinceTime("0");
+        }
+        else
+        {
+            m_stateMachineData.setInstallFailedSinceTime(currentStateMachineData.getInstallFailedSinceTime());
+        }
+
+        m_stateMachineData.setLastGoodInstallTime(m_lastInstallTime);
 
         m_stateMachineData.setEventStateLastTime(std::to_string(
             std::chrono::duration_cast<std::chrono::milliseconds>(m_eventMachineState.lastTime.time_since_epoch())
@@ -94,7 +125,7 @@ namespace UpdateSchedulerImpl::stateMachinesModule
         }
     }
 
-    void StateMachineProcessor::writeStataMachineRawData()
+    void StateMachineProcessor::writeStateMachineRawData()
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         std::string stateMachineDataPath =
@@ -117,7 +148,7 @@ namespace UpdateSchedulerImpl::stateMachinesModule
         }
     }
 
-    void StateMachineProcessor::updateStateMachines(int updateResult)
+    void StateMachineProcessor::updateStateMachines(const int updateResult)
     {
         auto currentTime = std::chrono::system_clock::now();
 
@@ -135,7 +166,6 @@ namespace UpdateSchedulerImpl::stateMachinesModule
                  || (updateResult == configModule::EventMessageNumber::SINGLEPACKAGEMISSING))
         {
             downloadStateMachine.SignalDownloadResult(::StateData::DownloadResultEnum::bad, currentTime);
-            installStateMachine.SignalInstallResult(::StateData::StatusEnum::bad, currentTime);
         }
         else if( (updateResult == configModule::EventMessageNumber::INSTALLCAUGHTERROR)
                  || (updateResult == configModule::EventMessageNumber::INSTALLFAILED))
@@ -146,7 +176,6 @@ namespace UpdateSchedulerImpl::stateMachinesModule
         else if( updateResult == configModule::EventMessageNumber::CONNECTIONERROR)
         {
             downloadStateMachine.SignalDownloadResult(::StateData::DownloadResultEnum::noNetwork, currentTime);
-            installStateMachine.SignalInstallResult(::StateData::StatusEnum::bad, currentTime);
         }
         else
         {
@@ -154,11 +183,14 @@ namespace UpdateSchedulerImpl::stateMachinesModule
             installStateMachine.SignalInstallResult(::StateData::StatusEnum::bad, currentTime);
         }
 
+        m_currentDownloadStateResult = downloadStateMachine.getOverallState();
+        m_currentInstallStateResult = installStateMachine.getOverallState();
+
         m_downloadMachineState = downloadStateMachine.CurrentState();
         m_installMachineState = installStateMachine.CurrentState();
         m_eventMachineState = eventStateMachine.CurrentState();
 
-        writeStataMachineRawData();
+        writeStateMachineRawData();
     }
 
     StateData::StateMachineData StateMachineProcessor::getStateMachineData() const
