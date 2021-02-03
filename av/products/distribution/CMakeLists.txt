@@ -32,7 +32,7 @@ function(add_boost_library LIB LIBRARY_PATH)
     set(third_party_libs ${third_party_libs} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
 endfunction(add_boost_library)
 
-foreach (LIB boost_locale boost_system boost_program_options)
+foreach (LIB boost_locale boost_system boost_program_options boost_filesystem)
     add_boost_library(${LIB} ${BOOSTPATH}/boost/lib64)
 endforeach(LIB)
 

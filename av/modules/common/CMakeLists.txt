@@ -27,15 +27,11 @@ target_link_libraries(common  PUBLIC
 
 target_include_directories(common
         SYSTEM
-        PRIVATE
-        ${BOOST_INCLUDEDIR}
-        )
-
-target_include_directories(common
         PUBLIC
         ${pluginapiinclude}
         ${CMAKE_SOURCE_DIR}/modules
         ${OPENSSL_INCLUDE_DIR}
+        ${BOOSTPATH}
         )
 
 install(TARGETS common
