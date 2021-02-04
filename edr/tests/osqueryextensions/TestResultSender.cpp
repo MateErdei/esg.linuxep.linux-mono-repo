@@ -126,7 +126,6 @@ TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
 
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
@@ -166,7 +165,6 @@ TEST_F(TestResultSender, loadScheduledQueryTagsWithNoQueryPackDoesNotCrash) // N
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH,CUSTOM_QUERY_PACK_PATH);
     auto actualQueries = resultsSender.getQueryTags();
@@ -182,10 +180,7 @@ TEST_F(TestResultSender, resetRemovesExistingBatchFile) // NOLINT
 
     // Force false here so that when send is called in the constructor we skip sending, but then to check the reset
     // is working we expect true so that the file can be removed
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH))
-        .WillOnce(Return(false))
-        .WillOnce(Return(true))
-        .WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -210,7 +205,6 @@ TEST_F(TestResultSender, addWritesToFile) // NOLINT
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     std::string testResult = R"({"name":"","test":"value"})";
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -227,14 +221,12 @@ TEST_F(TestResultSender, addWritesToFile) // NOLINT
 
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, testResult)).Times(1);
     resultsSender.Add(testResult);
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
 }
 
 TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -254,14 +246,12 @@ TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "," + testResultString2)).Times(1);
     resultsSender.Add(testResultString1);
     resultsSender.Add(testResultString2);
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
 }
 
 TEST_F(TestResultSender, addingInvalidJsonLogsErrorButNoExceptionThrown) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -283,7 +273,6 @@ TEST_F(TestResultSender, addThrowsWhenAppendThrows) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -307,10 +296,7 @@ TEST_F(TestResultSender, getFileSizeQueriesFile) // NOLINT
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     // First false to skip send in constructor, then true so that size is calculated (returns 0 if no file) and lastly false again so that the send in the destructor is skipped too.
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH))
-        .WillOnce(Return(false))
-        .WillOnce(Return(true))
-        .WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -336,7 +322,7 @@ TEST_F(TestResultSender, getFileSizeZeroWhenFileDoesNotExist) // NOLINT
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     // First false to skip send in constructor, then false so that size is not calculated (returns 0 if no file) and lastly false again so that the send in the destructor is skipped too.
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -357,7 +343,7 @@ TEST_F(TestResultSender, getFileSizePropagatesException) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -384,7 +370,7 @@ TEST_F(TestResultSender, sendMovesBatchFile) // NOLINT
     Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
     EXPECT_CALL(*mockFilePermissions, chown(INTERMEDIARY_PATH, "sophos-spl-local", "sophos-spl-group"));
 
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -409,7 +395,7 @@ TEST_F(TestResultSender, SendDoesNotMoveNoBatchFileIfItDoesNotExist) // NOLINT
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -437,7 +423,7 @@ TEST_F(TestResultSender, sendThrowsWhenFileMoveThrows) // NOLINT
     Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
     EXPECT_CALL(*mockFilePermissions, chown(INTERMEDIARY_PATH, "sophos-spl-local", "sophos-spl-group"));
 
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -458,63 +444,10 @@ TEST_F(TestResultSender, sendThrowsWhenFileMoveThrows) // NOLINT
     EXPECT_THROW(resultsSender.Send(), std::runtime_error);
 }
 
-TEST_F(TestResultSender, sendIfFileExistsAtStart) // NOLINT
-{
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-
-    auto mockFilePermissions = new ::testing::NiceMock<MockFilePermissions>();
-    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
-    EXPECT_CALL(*mockFilePermissions, chown(INTERMEDIARY_PATH, "sophos-spl-local", "sophos-spl-group"));
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true)).WillOnce(Return(false));
-    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
-    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
-    EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query"))).Times(1);
-    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
-    bool callbackCalled = false;
-    ResultsSender resultsSender(
-        INTERMEDIARY_PATH,
-        DATAFEED_PATH,
-        QUERY_PACK_PATH,
-        MTR_QUERY_PACK_PATH,
-        CUSTOM_QUERY_PACK_PATH,
-        PLUGIN_VAR_DIR,
-        DATA_LIMIT,
-        PERIOD_IN_SECONDS,
-        [&callbackCalled]()mutable{callbackCalled = true;});
-
-}
-
-TEST_F(TestResultSender, sendIfFileExistsAtShutdown) // NOLINT
-{
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    auto mockFilePermissions = new ::testing::NiceMock<MockFilePermissions>();
-    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
-    EXPECT_CALL(*mockFilePermissions, chown(INTERMEDIARY_PATH, "sophos-spl-local", "sophos-spl-group"));
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(true));
-    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
-    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
-    EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query"))).Times(1);
-    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
-    bool callbackCalled = false;
-    ResultsSender resultsSender(
-        INTERMEDIARY_PATH,
-        DATAFEED_PATH,
-        QUERY_PACK_PATH,
-        MTR_QUERY_PACK_PATH,
-        CUSTOM_QUERY_PACK_PATH,
-        PLUGIN_VAR_DIR,
-        DATA_LIMIT,
-        PERIOD_IN_SECONDS,
-        [&callbackCalled]()mutable{callbackCalled = true;});
-}
-
 TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     bool callbackCalled = false;
@@ -537,35 +470,11 @@ TEST_F(TestResultSender, FirstAddFailureDoesNotAddCommaNext) // NOLINT
     resultsSender.Add(testJsonResult);
 }
 
-
-TEST_F(TestResultSender, initialExistsThrowsExceptionContinuesConstructor)  // NOLINT
-{
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH))
-        .WillOnce(Throw(std::runtime_error("TEST")))
-        .WillOnce(Return(false));
-    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
-    bool callbackCalled = false;
-    ResultsSender resultsSender(
-        INTERMEDIARY_PATH,
-        DATAFEED_PATH,
-        QUERY_PACK_PATH,
-        MTR_QUERY_PACK_PATH,
-        CUSTOM_QUERY_PACK_PATH,
-        PLUGIN_VAR_DIR,
-        DATA_LIMIT,
-        PERIOD_IN_SECONDS,
-        [&callbackCalled]()mutable{callbackCalled = true;});
-}
-
 TEST_F(TestResultSender, dataLimitHitInSingleResultInvokesCallback)  // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "{\"name\":\"\",\"test\":\"value\"}")).Times(1);
     std::string testResult = R"({"name":"","test":"value"})";
@@ -590,7 +499,6 @@ TEST_F(TestResultSender, dataLimitHitGraduallyInvokesCallback)  // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
 
@@ -635,15 +543,11 @@ TEST_F(TestResultSender, fuzzSamples) // NOLINT
 
     for (auto& sample : samples)
     {
-        EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
         EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
-        EXPECT_CALL(*mockFileSystem, exists(CUSTOM_QUERY_PACK_PATH)).WillOnce(Return(true));
-        EXPECT_CALL(*mockFileSystem, readFile(CUSTOM_QUERY_PACK_PATH)).WillOnce(Return(EMPTY_QUERY_PACK));
         EXPECT_CALL(*mockFileSystem, exists(CUSTOM_QUERY_PACK_PATH)).WillOnce(Return(false));
-        EXPECT_CALL(*mockFileSystem, exists(CUSTOM_QUERY_PACK_PATH+".DISABLED")).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrDataUsage")).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp")).WillOnce(Return(false));
         EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/persist-xdrLimitHit")).WillOnce(Return(false));
@@ -666,6 +570,5 @@ TEST_F(TestResultSender, fuzzSamples) // NOLINT
             [&callbackCalled]()mutable{callbackCalled = true;});
 
         EXPECT_NO_THROW(resultsSender.Add(sample));
-        EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
     }
 }

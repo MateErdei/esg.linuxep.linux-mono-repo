@@ -32,7 +32,6 @@ public:
         unsigned int periodInSeconds
         ,std::function<void(void)> dataExceededCallback
         );
-    ~ResultsSender();
     void Add(const std::string& result) override;
     // cppcheck-suppress virtualCallInConstructor
     void Send() override;
@@ -41,6 +40,8 @@ public:
     void setDataLimit(unsigned int limitBytes);
     bool getDataLimitReached();
     void setDataPeriod(unsigned int periodSeconds);
+    Json::Value PrepareBatchResults() override;
+    void SaveBatchResults(const Json::Value& results) override;
 
     // This needs to be called periodically so that the result sender re-enables itself once the period has elapsed.
     // Returns true if the period has elapsed so that any calling method knows, e.g. plugin adapter

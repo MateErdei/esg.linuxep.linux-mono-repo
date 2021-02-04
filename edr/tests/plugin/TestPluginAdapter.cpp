@@ -101,7 +101,7 @@ TEST_F(TestPluginAdapterWithLogger, processALCPolicyShouldInstructRestartOnChang
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(_)).Times(12);
+    EXPECT_CALL(*mockFileSystem, exists(_)).Times(10);
     EXPECT_CALL(*mockFileSystem, isFile(_)).Times(8);
     EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(5);
 
@@ -710,7 +710,6 @@ TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryConfigIsNotRemovedWhenWeF
 
     std::string liveQueryPolicy100 = "garbage";
     const std::string PLUGIN_VAR_DIR = Plugin::varDir();
-    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/xdr_intermediary")).Times(1);
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
@@ -781,7 +780,6 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithValidPolic
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
     const std::string PLUGIN_VAR_DIR = Plugin::varDir();
-    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/xdr_intermediary")).Times(1);
     EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).WillOnce(Return(false));
     std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
                                      "<policy type=\"LiveQuery\" RevID=\"987654321\" policyType=\"56\">\n"

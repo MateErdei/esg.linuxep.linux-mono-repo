@@ -45,6 +45,8 @@ private:
     std::unique_ptr<OsquerySDK::ExtensionInterface> m_extension;
     uintmax_t m_maxBatchBytes = 10000000;
     unsigned int m_maxBatchSeconds = 15;
+    // TODO LINUXDAR-2623 for now this is empty which means no folding will be done, populate this with rules in 2623
+    std::vector<Json::Value> m_foldingRules;
 
 
 };

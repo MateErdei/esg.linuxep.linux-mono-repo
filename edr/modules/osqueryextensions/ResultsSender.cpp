@@ -45,16 +45,6 @@ ResultsSender::ResultsSender(
     LOGDEBUG("Created results sender");
     try
     {
-        // cppcheck-suppress virtualCallInConstructor
-        Send();
-    }
-    catch (const std::exception& e)
-    {
-        LOGERROR("Failed to send previous batched scheduled results on start up. " << e.what());
-    }
-
-    try
-    {
         loadScheduledQueryTags();
     }
     catch (const std::exception& e)
@@ -63,18 +53,7 @@ ResultsSender::ResultsSender(
     }
 }
 
-ResultsSender::~ResultsSender()
-{
-    try
-    {
-        // cppcheck-suppress virtualCallInConstructor
-        Send();
-    }
-    catch (const std::exception& e)
-    {
-        LOGERROR("Failed to send batched scheduled results on shutdown. " << e.what());
-    }
-}
+
 
 void ResultsSender::Add(const std::string& result)
 {
@@ -307,4 +286,16 @@ bool ResultsSender::checkDataPeriodElapsed()
 bool ResultsSender::getDataLimitReached()
 {
     return m_hitLimitThisPeriod.getValue();
+}
+
+void ResultsSender::SaveBatchResults(const Json::Value& results)
+{
+    // TODO LINUXDAR-2623
+    LOGDEBUG("Size of batch to save" << results.empty());
+}
+
+Json::Value ResultsSender::PrepareBatchResults()
+{
+    Json::Value value;
+    return value;
 }

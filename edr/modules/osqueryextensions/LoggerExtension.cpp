@@ -60,7 +60,7 @@ void LoggerExtension::Start(
         m_flags.verbose = verbose;
         m_extension = OsquerySDK::CreateExtension(m_flags, "SophosLoggerPlugin", "1.1.0.1");
         m_extension->AddLoggerPlugin(
-            std::make_unique<SophosLoggerPlugin>(m_resultsSender, m_maxBatchBytes, m_maxBatchSeconds));
+            std::make_unique<SophosLoggerPlugin>(m_resultsSender, m_foldingRules, m_maxBatchBytes, m_maxBatchSeconds));
         LOGDEBUG("Logger Plugin Added");
         m_extension->Start();
         m_stopped = false;
