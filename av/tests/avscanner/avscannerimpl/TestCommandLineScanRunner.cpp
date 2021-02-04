@@ -15,7 +15,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 
 #include <fstream>
+
 namespace fs = sophos_filesystem;
+
 using namespace avscanner::avscannerimpl;
 using namespace common;
 
