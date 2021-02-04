@@ -26,7 +26,7 @@ def change_all_scheduled_queries_interval(config_path, interval):
             f.write(new_config_json_string)
 
 
-def check_all_queries_run(log_path: str, config_path: str, custom_pack=False):
+def check_all_queries_run(log_path: str, config_path: str):
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
             config_json_string = f.read()

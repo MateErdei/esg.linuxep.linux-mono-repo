@@ -26,7 +26,6 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
-#include <redist/boost/functional/hash.hpp>
 
 // helper class that allow to schedule a task.
 // but it also has some capability of interrupting the scheduler at any point

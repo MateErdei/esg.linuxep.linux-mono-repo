@@ -33,9 +33,9 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to stop edr
-    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
     Enable XDR
+    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
     Wait Until Keyword Succeeds
