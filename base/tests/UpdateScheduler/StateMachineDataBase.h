@@ -27,11 +27,11 @@ public:
  "DownloadState": "0",
  "DownloadStateCredit": "72",
  "EventStateLastError": "0",
- "EventStateLastTime": "1610440731518",
+ "EventStateLastTime": "1610440731",
  "InstallFailedSinceTime": "0",
  "InstallState": "0",
  "InstallStateCredit": "3",
- "LastGoodInstallTime": "1610465945674"
+ "LastGoodInstallTime": "1610465945"
 })";
 
         if (!oldPartString.empty())

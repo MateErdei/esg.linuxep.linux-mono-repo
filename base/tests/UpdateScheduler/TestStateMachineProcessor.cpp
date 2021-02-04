@@ -110,7 +110,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
 
@@ -127,7 +127,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
 
@@ -150,7 +150,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateRe
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
 
@@ -171,7 +171,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor1("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor1("1610465945");
 
     stateMachineProcessor1.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
 
@@ -190,7 +190,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     // Test when next update is successful
 
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(expectedStateMachineData.toJsonStateMachineData(expectedStateMachineData)));
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945674"); //File will be loaded
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945"); //File will be loaded
     stateMachineProcessor2.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
 
     EXPECT_NE(expectedStateMachineData.getInstallFailedSinceTime(),stateMachineProcessor2.getStateMachineData().getInstallFailedSinceTime());
@@ -215,7 +215,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::UPDATESOURCEMISSING);
 
@@ -243,7 +243,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::SINGLEPACKAGEMISSING);
 
@@ -270,7 +270,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateIsMulti
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::MULTIPLEPACKAGEMISSING);
 
@@ -297,7 +297,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::DOWNLOADFAILED);
 
@@ -323,7 +323,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateRe
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::DOWNLOADFAILED);
 
@@ -346,7 +346,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::DOWNLOADFAILED);
 
@@ -371,7 +371,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
     EXPECT_CALL(fileSystemMock, readFile(_))
         .WillOnce(Return(expectedStateMachineData.toJsonStateMachineData(expectedStateMachineData)));
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945674"); // File will be loaded
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945"); // File will be loaded
     stateMachineProcessor2.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
 
     expectedStateMachineData.setDownloadFailedSinceTime("0");
@@ -395,7 +395,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::CONNECTIONERROR);
 
@@ -422,7 +422,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::CONNECTIONERROR);
 
@@ -443,7 +443,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
     EXPECT_CALL(fileSystemMock, readFile(_))
         .WillOnce(Return(expectedStateMachineData.toJsonStateMachineData(expectedStateMachineData)));
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945674"); // File will be loaded
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945"); // File will be loaded
     stateMachineProcessor2.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
 
     expectedStateMachineData.setDownloadFailedSinceTime("0");
@@ -465,7 +465,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
 
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945674");
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
     stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
 
@@ -483,7 +483,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
     EXPECT_CALL(fileSystemMock, readFile(_))
             .WillOnce(Return(expectedStateMachineData.toJsonStateMachineData(expectedStateMachineData)));
-    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945674"); // File will be loaded
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945"); // File will be loaded
     stateMachineProcessor2.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
 
     // last failed time should not have changed.
