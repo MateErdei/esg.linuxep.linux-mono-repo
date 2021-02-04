@@ -36,9 +36,9 @@ namespace avscanner::avscannerimpl
                 std::shared_ptr<SigIntMonitor> sigIntMonitor,
                 std::vector<fs::path> mountExclusions,
                 std::vector<Exclusion> cmdExclusions) :
-                BaseFileWalkCallbacks(std::move(scanner))
+                BaseFileWalkCallbacks(std::move(scanner)),
+                m_sigIntMonitor(std::move(sigIntMonitor))
             {
-                m_sigIntMonitor = std::move(sigIntMonitor);
                 m_mountExclusions = std::move(mountExclusions);
                 m_currentExclusions.reserve(m_mountExclusions.size());
                 m_userDefinedExclusions = std::move(cmdExclusions);
