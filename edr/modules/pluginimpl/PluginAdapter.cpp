@@ -231,6 +231,7 @@ namespace Plugin
                     lastTimeQueriedMtr = timeNow;
                     if (m_osqueryConfigurator.checkIfReconfigurationRequired())
                     {
+                        m_restartNoDelay = true;
                         stopOsquery();
                     }
                 }
