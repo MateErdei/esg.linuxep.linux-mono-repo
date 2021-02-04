@@ -25,7 +25,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     if(starting_point.string().size() > 4096)
     {
         std::string errorMsg = "Failed to start scan: Starting Path too long";
-        LOGERROR(errorMsg);
         std::error_code ec (ENAMETOOLONG, std::system_category());
         throw fs::filesystem_error(errorMsg, ec);
     }
@@ -42,7 +41,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     {
         std::ostringstream oss;
         oss << "Failed to scan \"" << common::escapePathForLogging(starting_point) << "\": " << e.code().message();
-        LOGERROR(oss.str());
         throw fs::filesystem_error(oss.str(), e.code());        // Backtrack protection for symlinks
 
     }
@@ -51,7 +49,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     {
         std::ostringstream oss;
         oss << "Failed to scan \"" << common::escapePathForLogging(starting_point) << "\": file/folder does not exist";
-        LOGERROR(oss.str());
         std::error_code ec (ENOENT, std::system_category());
         throw fs::filesystem_error(oss.str(), ec);
     }
@@ -72,9 +69,9 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         catch (const std::runtime_error& ex)
         {
-            std::ostringstream stringError;
-            stringError << "Failed to process: " << common::escapePathForLogging(starting_point);
-            m_callback.registerError(stringError);
+            std::ostringstream oss;
+            oss << "Failed to process: " << common::escapePathForLogging(starting_point);
+            m_callback.registerError(oss);
         }
         return;
     }
@@ -108,7 +105,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
             int error_number = errno;
             std::ostringstream oss;
             oss << "Failed to stat \"" << common::escapePathForLogging(starting_point) << "\": " << std::strerror(error_number);
-            LOGERROR(oss.str());
             std::error_code ec(error_number, std::system_category());
             throw fs::filesystem_error(oss.str(), ec);
         }
@@ -133,9 +129,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     {
         if(!m_loggedExclusionCheckFailed)
         {
-            std::ostringstream stringError;
-            stringError << "Failed to check exclusions against: " << common::escapePathForLogging(current_dir) << " due to an error: " << e.what();
-            m_callback.registerError(stringError);
+            std::ostringstream oss;
+            oss << "Failed to check exclusions against: " << common::escapePathForLogging(current_dir) << " due to an error: " << e.what();
+            m_callback.registerError(oss);
             m_loggedExclusionCheckFailed = true;
         }
     }
@@ -144,9 +140,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     int ret = ::stat(current_dir.c_str(), &statBuf);
     if (ret != 0)
     {
-        std::ostringstream stringError;
-        stringError << "Failed to stat " << common::escapePathForLogging(current_dir) << "(" << errno << ")";
-        m_callback.registerError(stringError);
+        std::ostringstream oss;
+        oss << "Failed to stat " << common::escapePathForLogging(current_dir) << "(" << errno << ")";
+        m_callback.registerError(oss);
         return;
     }
 
@@ -185,9 +181,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
         }
         catch (const fs::filesystem_error& e)
         {
-            std::ostringstream stringError;
-            stringError << "Failed to get the symlink status of: " << common::escapePathForLogging(p.path()) << " [" << e.code().message() << "]";
-            m_callback.registerError(stringError);
+            std::ostringstream oss;
+            oss << "Failed to get the symlink status of: " << common::escapePathForLogging(p.path()) << " [" << e.code().message() << "]";
+            m_callback.registerError(oss);
             continue;
         }
 
@@ -195,9 +191,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
         {
             if (!m_follow_symlinks)
             {
-                std::ostringstream stringError;
-                stringError << "Not following symlink: " << common::escapePathForLogging(p.path());
-                m_callback.registerError(stringError);
+                LOGDEBUG("Not following symlink: " << common::escapePathForLogging(p.path()));
                 continue;
             }
         }
@@ -209,9 +203,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
         }
         catch (const fs::filesystem_error& e)
         {
-            std::ostringstream stringError;
-            stringError << "Failed to get the status of: " << p << " [" << e.code().message() << "]";
-            m_callback.registerError(stringError);
+            std::ostringstream oss;
+            oss << "Failed to get the status of: " << p << " [" << e.code().message() << "]";
+            m_callback.registerError(oss);
             continue;
         }
 
@@ -227,9 +221,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
             }
             catch (const std::runtime_error& ex)
             {
-                std::ostringstream stringError;
-                stringError << "Failed to process: " << p.path().string();
-                m_callback.registerError(stringError);
+                std::ostringstream oss;
+                oss << "Failed to process: " << p.path().string();
+                m_callback.registerError(oss);
                 continue;
             }
         }
@@ -244,9 +238,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     }
     if (ec)
     {
-        std::ostringstream stringError;
-        stringError << "Failed to iterate: " << current_dir << ": " << ec.message();
-        m_callback.registerError(stringError);
+        std::ostringstream oss;
+        oss << "Failed to iterate: " << current_dir << ": " << ec.message();
+        m_callback.registerError(oss);
         return;
     }
 }

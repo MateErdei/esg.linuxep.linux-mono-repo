@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,7 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "BaseFileWalkCallbacks.h"
 #include "Options.h"
-#include "ScanCallbackImpl.h"
 #include "ScanClient.h"
 
 #include "avscanner/mountinfoimpl/Mounts.h"
@@ -18,174 +17,193 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "common/PathUtils.h"
 #include <common/StringUtils.h>
 
+#include <csignal>
 #include <exception>
 #include <memory>
 #include <utility>
 
-using namespace avscanner::avscannerimpl;
-namespace fs = sophos_filesystem;
-
-namespace
+namespace avscanner::avscannerimpl
 {
-    class CallbackImpl : public BaseFileWalkCallbacks
+    namespace fs = sophos_filesystem;
+
+    namespace
     {
-    public:
-        explicit CallbackImpl(
-                ScanClient scanner,
+        class CommandLineWalkerCallbackImpl : public BaseFileWalkCallbacks
+        {
+        public:
+            explicit CommandLineWalkerCallbackImpl(
+                std::shared_ptr<IScanClient> scanner,
+                std::shared_ptr<SigIntMonitor> sigIntMonitor,
                 std::vector<fs::path> mountExclusions,
-                std::vector<Exclusion> cmdExclusions
-        )
-                : BaseFileWalkCallbacks(std::move(scanner))
-        {
-            m_mountExclusions = std::move(mountExclusions);
-            m_currentExclusions.reserve(m_mountExclusions.size());
-            m_userDefinedExclusions = std::move(cmdExclusions);
-        }
-
-        void logScanningLine(std::string escapedPath) override
-        {
-            LOGINFO("Scanning " << escapedPath);
-        }
-
-        void setCurrentInclude(const fs::path& inclusionPath)
-        {
-            m_currentExclusions.clear();
-            for (const auto& e : m_mountExclusions)
+                std::vector<Exclusion> cmdExclusions) :
+                BaseFileWalkCallbacks(std::move(scanner))
             {
-                if (common::PathUtils::longer(e, inclusionPath) &&
-                    common::PathUtils::startswith(e, inclusionPath))
+                m_sigIntMonitor = std::move(sigIntMonitor);
+                m_mountExclusions = std::move(mountExclusions);
+                m_currentExclusions.reserve(m_mountExclusions.size());
+                m_userDefinedExclusions = std::move(cmdExclusions);
+            }
+
+            void logScanningLine(std::string escapedPath) override
+            {
+                LOGINFO("Scanning " << escapedPath);
+            }
+
+            void setCurrentInclude(const fs::path& inclusionPath)
+            {
+                m_currentExclusions.clear();
+                for (const auto& e : m_mountExclusions)
                 {
-                    m_currentExclusions.emplace_back(e);
+                    if (common::PathUtils::longer(e, inclusionPath) && common::PathUtils::startswith(e, inclusionPath))
+                    {
+                        m_currentExclusions.emplace_back(e);
+                    }
                 }
             }
-        }
-    };
-}
 
-CommandLineScanRunner::CommandLineScanRunner(const Options& options)
-        : m_paths(options.paths())
-        , m_exclusions(options.exclusions())
-        , m_archiveScanning(options.archiveScanning())
-        , m_followSymlinks(options.followSymlinks())
-        , m_logger(options.logFile(), options.logLevel(), true)
-{
-}
-
-int CommandLineScanRunner::run()
-{
-    if (m_paths.empty())
-    {
-        LOGWARN("Missing a file path from the command line arguments.");
-        LOGWARN(Options::getHelp());
-        return common::E_GENERIC_FAILURE;
-    }
-
-    std::string printArchiveScanning = m_archiveScanning?"yes":"no";
-    LOGINFO("Archive scanning enabled: " << printArchiveScanning);
-
-    std::string printFollowSymlink = m_followSymlinks?"yes":"no";
-    LOGINFO("Following symlinks: " << printFollowSymlink);
-
-    // evaluate mount information
-    auto mountInfo = getMountInfo();
-    auto allMountpoints = mountInfo->mountPoints();
-
-    std::vector<fs::path> excludedMountPoints;
-    excludedMountPoints.reserve(allMountpoints.size());
-    for (const auto& mp : allMountpoints)
-    {
-        if (!mp->isSpecial())
-        {
-            continue;
-        }
-        excludedMountPoints.emplace_back(mp->mountPoint());
-    }
-
-    std::vector<Exclusion> cmdExclusions;
-    cmdExclusions.reserve(m_exclusions.size());
-
-    std::ostringstream oss;
-
-    for (auto& exclusion : m_exclusions)
-    {
-        if (exclusion.empty())
-        {
-            LOGERROR("Refusing to exclude empty path");
-            continue;
-        }
-        if( exclusion.at(0) == '.'
-            or exclusion.find("/.") != std::string::npos)
-        {
-            if (fs::exists(exclusion))
+            void checkIfScanAborted() override
             {
-                exclusion = fs::canonical(exclusion);
-                if(fs::is_directory(exclusion) && exclusion != "/")
+                if (m_sigIntMonitor->triggered())
                 {
-                    exclusion.append("/");
+                    LOGDEBUG("Received SIGINT");
+                    throw AbortScanException("Scan manually aborted");
                 }
             }
-            else
+
+        protected:
+            std::shared_ptr<SigIntMonitor> m_sigIntMonitor;
+
+        };
+    }
+
+    CommandLineScanRunner::CommandLineScanRunner(const Options& options) :
+        m_paths(options.paths()),
+        m_exclusions(options.exclusions()),
+        m_logger(options.logFile(), options.logLevel(), true),
+        m_archiveScanning(options.archiveScanning()),
+        m_followSymlinks(options.followSymlinks())
+    {
+        m_sigIntMonitor = std::make_shared<SigIntMonitor>();
+    }
+
+    int CommandLineScanRunner::run()
+    {
+        if (m_paths.empty())
+        {
+            LOGWARN("Missing a file path from the command line arguments.");
+            LOGWARN(Options::getHelp());
+            return common::E_GENERIC_FAILURE;
+        }
+
+        std::string printArchiveScanning = m_archiveScanning ? "yes" : "no";
+        LOGINFO("Archive scanning enabled: " << printArchiveScanning);
+
+        std::string printFollowSymlink = m_followSymlinks ? "yes" : "no";
+        LOGINFO("Following symlinks: " << printFollowSymlink);
+
+        // evaluate mount information
+        auto mountInfo = getMountInfo();
+        auto allMountpoints = mountInfo->mountPoints();
+
+        std::vector<fs::path> excludedMountPoints;
+        excludedMountPoints.reserve(allMountpoints.size());
+        for (const auto& mp : allMountpoints)
+        {
+            if (mp->isSpecial())
             {
-                LOGERROR("Cannot canonicalize: " << exclusion);
+                excludedMountPoints.emplace_back(mp->mountPoint() + "/");
             }
         }
 
-        oss << exclusion << ", ";
-        cmdExclusions.emplace_back(exclusion);
-    }
+        std::vector<Exclusion> cmdExclusions;
+        cmdExclusions.reserve(m_exclusions.size());
 
-    if (!m_exclusions.empty())
-    {
-        LOGINFO("Exclusions: " << oss.str());
-    }
+        std::ostringstream oss;
 
-    auto scanCallbacks = std::make_shared<ScanCallbackImpl>();
-    ScanClient scanner(*getSocket(), scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
-    CallbackImpl callbacks(std::move(scanner), excludedMountPoints, cmdExclusions);
-    filewalker::FileWalker fw(callbacks);
-    fw.followSymlinks(m_followSymlinks);
-
-    scanCallbacks->scanStarted();
-
-    // for each select included mount point call filewalker for that mount point
-    for (auto& path : m_paths)
-    {
-        if (path.empty())
+        for (auto& exclusion : m_exclusions)
         {
-            LOGERROR("Refusing to scan empty path");
-            continue;
+            if (exclusion.empty())
+            {
+                LOGERROR("Refusing to exclude empty path");
+                continue;
+            }
+            if (exclusion.at(0) == '.' or exclusion.find("/.") != std::string::npos)
+            {
+                if (fs::exists(exclusion))
+                {
+                    exclusion = fs::canonical(exclusion);
+                    if (fs::is_directory(exclusion) && exclusion != "/")
+                    {
+                        exclusion.append("/");
+                    }
+                }
+                else
+                {
+                    LOGERROR("Cannot canonicalize: " << exclusion);
+                }
+            }
+
+            oss << exclusion << ", ";
+            cmdExclusions.emplace_back(exclusion);
         }
-        if ((path.at(0) == '.' or path.find("/.") != std::string::npos) and fs::exists(path))
+
+        if (!m_exclusions.empty())
         {
-            path = fs::canonical(path);
+            LOGINFO("Exclusions: " << oss.str());
         }
 
-        auto p = fs::absolute(path);
-        callbacks.setCurrentInclude(p);
+        m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
+        auto scanner =
+            std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
+        CommandLineWalkerCallbackImpl commandLineWalkerCallbacks(scanner, m_sigIntMonitor, excludedMountPoints, cmdExclusions);
+        filewalker::FileWalker fw(commandLineWalkerCallbacks);
+        fw.followSymlinks(m_followSymlinks);
 
-        if (!walk(fw, p, path))
+        m_scanCallbacks->scanStarted();
+
+        // for each select included mount point call filewalker for that mount point
+        for (auto& path : m_paths)
         {
-            // Abort scan
-            break;
+            if (path.empty())
+            {
+                LOGERROR("Refusing to scan empty path");
+                continue;
+            }
+            if ((path.at(0) == '.' or path.find("/.") != std::string::npos) and fs::exists(path))
+            {
+                path = fs::canonical(path);
+            }
+
+            auto p = fs::absolute(path);
+            commandLineWalkerCallbacks.setCurrentInclude(p);
+
+            if (!walk(fw, p, path))
+            {
+                // Abort scan
+                break;
+            }
         }
-    }
 
-    // we want virus found to override any other return code
-    if (scanCallbacks->returnCode() != common::E_CLEAN)
-    {
-        m_returnCode = scanCallbacks->returnCode();
-    }
-    else if (callbacks.returnCode() != common::E_CLEAN)
-    {
-        m_returnCode = callbacks.returnCode();
-    }
+        // Override E_CLEAN with E_GENERIC_FAILURE but don't override if a different error code has already been set
+        if (commandLineWalkerCallbacks.returnCode() != common::E_CLEAN && m_returnCode == common::E_CLEAN)
+        {
+            // returnCode() is either E_CLEAN or E_GENERIC_FAILURE
+            m_returnCode = commandLineWalkerCallbacks.returnCode();
+        }
 
-    if (m_returnCode != common::E_CLEAN && m_returnCode != common::E_VIRUS_FOUND)
-    {
-        LOGERROR("Failed to scan one or more files due to an error");
+        // We want virus found to override any other return code
+        if (m_scanCallbacks->returnCode() == common::E_VIRUS_FOUND)
+        {
+            m_returnCode = common::E_VIRUS_FOUND;
+        }
+
+        if (m_returnCode != common::E_CLEAN && m_returnCode != common::E_VIRUS_FOUND)
+        {
+            LOGERROR("Failed to scan one or more files due to an error");
+        }
+
+        m_scanCallbacks->logSummary();
+
+        return m_returnCode;
     }
-
-    scanCallbacks->logSummary();
-
-    return m_returnCode;
 }

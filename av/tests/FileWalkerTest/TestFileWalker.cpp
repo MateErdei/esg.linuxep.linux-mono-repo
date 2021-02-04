@@ -416,29 +416,23 @@ TEST_F(TestFileWalker, deleteDirNotYetScannedWhileWalking) // NOLINT
 
 TEST_F(TestFileWalker, handlesExceptionFromProcessFile) // NOLINT
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
     fs::create_directories("sandbox");
     std::ofstream("sandbox/file1.txt").close();
 
     fs::path startingPoint = fs::absolute("sandbox/file1.txt");
-    std::string expected = "Failed to process: " + startingPoint.string();
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
     std::error_code ec (ENOENT, std::system_category());
     fs::filesystem_error fileDoesNotExist("File does not exist", ec);
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Throw(fileDoesNotExist));
+    EXPECT_CALL(*callbacks, registerError(_)).Times(1);
 
     filewalker::FileWalker fw(*callbacks);
     EXPECT_NO_THROW(fw.walk(startingPoint));
-
-    EXPECT_TRUE(appenderContains(expected));
 }
 
 TEST_F(TestFileWalker, handlesExceptionFromProcessFileInWalk) // NOLINT
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
     std::vector<fs::path> files = {
         "sandbox/file1.txt", "sandbox/file2.txt", "sandbox/file3.txt", "sandbox/file4.txt"
     };
@@ -450,7 +444,6 @@ TEST_F(TestFileWalker, handlesExceptionFromProcessFileInWalk) // NOLINT
     }
 
     fs::path startingPoint = fs::absolute("sandbox");
-    std::string expected = "Failed to process: " + startingPoint.string();
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
     EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
@@ -461,11 +454,10 @@ TEST_F(TestFileWalker, handlesExceptionFromProcessFileInWalk) // NOLINT
 
     fs::filesystem_error fileDoesNotExist("File does not exist", ec);
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Throw(fileDoesNotExist)).RetiresOnSaturation();
+    EXPECT_CALL(*callbacks, registerError(_)).Times(1);
 
     filewalker::FileWalker fw(*callbacks);
     EXPECT_NO_THROW(fw.walk(startingPoint));
-
-    EXPECT_TRUE(appenderContains(expected));
 }
 
 
@@ -1096,7 +1088,9 @@ TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrows) // NOLINT
     EXPECT_CALL(*callbacks, includeDirectory(_)).WillOnce(Return(true));
     fs::filesystem_error ex ("fs error", std::error_code(0, std::system_category()));
     EXPECT_CALL(*callbacks, includeDirectory(_)).WillOnce(Throw(ex));
+    EXPECT_CALL(*callbacks, registerError(_)).Times(1);
     EXPECT_CALL(*callbacks, includeDirectory(_)).Times(AtLeast(2)).WillRepeatedly(Return(true));
+
 
     filewalker::FileWalker fw(*callbacks);
     fw.walk(startingPoint);
@@ -1119,6 +1113,7 @@ TEST_F(TestFileWalker, scanContinuesAfterIncludeDirectoryThrowsTwice) // NOLINT
     fs::filesystem_error ex ("fs error", std::error_code(0, std::system_category()));
     EXPECT_CALL(*callbacks, includeDirectory(fs::path("sandbox/a"))).WillOnce(Throw(ex));
     EXPECT_CALL(*callbacks, includeDirectory(fs::path("sandbox/c"))).WillOnce(Throw(ex));
+    EXPECT_CALL(*callbacks, registerError(_)).Times(1);
 
     filewalker::FileWalker fw(*callbacks);
     fw.walk(startingPoint);
