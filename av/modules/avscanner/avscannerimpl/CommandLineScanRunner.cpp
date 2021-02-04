@@ -67,6 +67,7 @@ namespace avscanner::avscannerimpl
             {
                 if (m_sigIntMonitor->triggered())
                 {
+                    LOGDEBUG("Received SIGINT");
                     throw AbortScanException("Scan manually aborted");
                 }
             }
