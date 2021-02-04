@@ -101,7 +101,7 @@ void ScanCallbackImpl::logSummary()
     {
         scanSummary << hour << common::pluralize(hour, " hour, ", " hours, ");
     }
-    if (hour > 0 && min > 0)
+    if (min > 0)
     {
         scanSummary << min << common::pluralize(min, " minute, ", " minutes, ");
     }

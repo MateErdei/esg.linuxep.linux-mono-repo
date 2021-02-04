@@ -4,6 +4,7 @@ Force Tags      PRODUCT  AVSCANNER
 Library         Process
 Library         Collections
 Library         OperatingSystem
+Library         DateTime
 Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/AVScanner.py
@@ -186,42 +187,32 @@ CLS Summary is Correct
 
 
 CLS Summary in Less Than a Second
-    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file -x ${NORMAL_DIRECTORY}/clean_file
 
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}  1 file scanned in less than a second
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Contain   ${output}  0 files scanned in less than a second
     Should Not Contain  ${output}  hours
     Should Not Contain  ${output}  hour
     Should Not Contain  ${output}  minutes
     Should Not Contain  ${output}  minute
     Should Not Contain  ${output}  seconds
-    Should Contain   ${output}  1 file out of 1 was infected.
-    Should Contain   ${output}  1 EICAR-AV-Test infection discovered.
+    Should Contain   ${output}  0 files out of 0 were infected.
 
-#still needs work. Blocked by LINUXDAR-2634
-#run for a set amount of time, use ml python function to check the minimum is passed
-#check string formatting of duration only
+
 CLS Duration Summary is Displayed Correctly
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
-    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp_test/three_hundred_eicars/
-    ${result} =  Process Should Be Running   ${cls_handle}
+    Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout
 
-    #issue with this sleep
     Sleep  65s
+    Send Signal To Process  2
+    ${result} =  Wait For Process  timeout=10s
+    Process Should Be Stopped
 
-    #Wait For Process  ${cls_handle}  timeout=30s  on_timeout=continue
-
-    Remove Directory  /tmp_test/three_hundred_eicars/  recursive=True
-
-    ${result} =  Terminate Process  ${cls_handle}
-
-    Log To Console  ${result.stdout}
-    Should Contain   ${result.stdout}  300 files scanned in
-    Should Contain   ${result.stdout}  300 files out of 300 were infected.
-    Should Contain   ${result.stdout}  300 EICAR-AV-Test infections discovered.
+    Should Contain   ${result.stdout}  files scanned in 1 minute
+    ${seconds} =  Find Value After Phrase  minute,  ${result.stdout}
+    ${value} =  Check Is Greater Than  ${seconds}  ${4}
+    Should Be Equal As Integers  ${value}  ${1}
 
 
 CLS Does not request TFTClassification from SUSI
@@ -245,8 +236,8 @@ CLS Can Evaluate High Ml Score As A Threat
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A
 
     ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
-    ${primary_score} =  Find Score  Primary score:  ${contents}
-    ${secondary_score} =  Find Score  Secondary score:  ${contents}
+    ${primary_score} =  Find Value After Phrase  Primary score:  ${contents}
+    ${secondary_score} =  Find Value After Phrase  Secondary score:  ${contents}
     ${value} =  Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${20}
     Should Be Equal As Integers  ${value}  ${1}
 
@@ -262,7 +253,7 @@ CLS Can Evaluate Low Ml Score As A Clean File
     Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengLowScore.exe"
 
     ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
-    ${primary_score} =  Find Score  Primary score:  ${contents}
+    ${primary_score} =  Find Value After Phrase  Primary score:  ${contents}
     ${value} =  Check Ml Primary Score Is Below Threshold  ${primary_score}  ${30}
     Should Be Equal As Integers  ${value}  ${1}
 

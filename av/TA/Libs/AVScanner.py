@@ -125,17 +125,23 @@ def count_eicars_in_directory(d):
     return count
 
 
-def find_score(word, file_contents):
-    score = []
+def find_value_after_phrase(phrase, file_contents):
+    split_line = []
     split_file = file_contents.split('\n')
     for line in split_file:
-        if word in line:
-            score = line.split(" ")
+        if phrase in line:
+            split_line = line.split(" ")
+            break
 
-    if len(score) == 0:
+    if len(split_line) == 0:
         return 0
 
-    return score[len(score) - 1]
+    # This assumes we only have one instance of the last word in the phrase
+    last_word_in_phrase = phrase.split(" ")
+    last_word = last_word_in_phrase[len(last_word_in_phrase) - 1]
+    digit_index = split_line.index(last_word) + 1
+
+    return split_line[digit_index]
 
 
 def check_ml_scores_are_above_threshold(actual_primary, actual_secondary, threshold_primary, threshold_secondary):
@@ -156,6 +162,10 @@ def check_ml_primary_score_is_below_threshold(actual_primary, threshold_primary)
         actual_primary,
         threshold_primary
     ))
+
+
+def check_is_greater_than(actual_value, threshold_value):
+    return int(actual_value) > threshold_value
 
 
 def create_tar(path, file, tar_name):
