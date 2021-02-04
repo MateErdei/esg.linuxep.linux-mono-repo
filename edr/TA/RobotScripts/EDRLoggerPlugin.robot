@@ -26,6 +26,29 @@ EDR Plugin outputs XDR results and Its Answer is available to MCSRouter
     ...  5 secs
     ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
+EDR Plugin Restarts Osquery When Custom Queries Have Changed
+    [Setup]  Install With Base SDDS
+    Check EDR Plugin Installed With Base
+    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to stop edr
+    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+
+    Enable XDR
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
+    Log File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
+
 EDR Plugin Runs All Scheduled Queries
     [Setup]  Install With Base SDDS
     Check EDR Plugin Installed With Base
