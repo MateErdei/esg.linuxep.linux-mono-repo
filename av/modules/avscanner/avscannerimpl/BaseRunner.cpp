@@ -10,9 +10,10 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "avscanner/mountinfoimpl/Mounts.h"
 #include "avscanner/mountinfoimpl/SystemPathsFactory.h"
-#include "common/AbortScanException.h"
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
+
+#include "common/AbortScanException.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
@@ -74,8 +75,8 @@ bool BaseRunner::walk(filewalker::FileWalker& filewalker,
     }
     catch (fs::filesystem_error& e)
     {
-        LOGERROR("Failed to completely scan " << reportpath << " due to an error: " << e.what());
-        m_scanCallbacks->logSummary();
+        auto errorString = "Failed to completely scan " + reportpath + " due to an error: " + e.what();
+        m_scanCallbacks->scanError(errorString);
         m_returnCode = e.code().value();
     }
     catch (const AbortScanException& e)

@@ -40,6 +40,7 @@ namespace
     public:
         MOCK_METHOD2(processFile, void(const sophos_filesystem::path& filepath, bool symlinkTarget));
         MOCK_METHOD1(includeDirectory, bool(const sophos_filesystem::path& filepath));
-        MOCK_METHOD1(userDefinedExclusionCheck, bool(const sophos_filesystem::path& filepath));
+        MOCK_METHOD2(userDefinedExclusionCheck, bool(const sophos_filesystem::path& filepath, bool isSymlink));
+        MOCK_METHOD1(registerError, void(const std::ostringstream& errorString));
     };
 }

@@ -72,7 +72,9 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         catch (const std::runtime_error& ex)
         {
-            LOGERROR("Failed to process: " << common::escapePathForLogging(starting_point));
+            std::ostringstream stringError;
+            stringError << "Failed to process: " << common::escapePathForLogging(starting_point);
+            m_callback.registerError(stringError);
         }
         return;
     }
@@ -131,7 +133,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     {
         if(!m_loggedExclusionCheckFailed)
         {
-            LOGERROR("Failed to check exclusions against: " << common::escapePathForLogging(current_dir) << " due to an error: " << e.what());
+            std::ostringstream stringError;
+            stringError << "Failed to check exclusions against: " << common::escapePathForLogging(current_dir) << " due to an error: " << e.what();
+            m_callback.registerError(stringError);
             m_loggedExclusionCheckFailed = true;
         }
     }
@@ -140,7 +144,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     int ret = ::stat(current_dir.c_str(), &statBuf);
     if (ret != 0)
     {
-        LOGERROR("Failed to stat " << common::escapePathForLogging(current_dir) << "(" << errno << ")");
+        std::ostringstream stringError;
+        stringError << "Failed to stat " << common::escapePathForLogging(current_dir) << "(" << errno << ")";
+        m_callback.registerError(stringError);
         return;
     }
 
@@ -179,7 +185,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
         }
         catch (const fs::filesystem_error& e)
         {
-            LOGERROR("Failed to get the symlink status of: " << common::escapePathForLogging(p.path()) << " [" << e.code().message() << "]");
+            std::ostringstream stringError;
+            stringError << "Failed to get the symlink status of: " << common::escapePathForLogging(p.path()) << " [" << e.code().message() << "]";
+            m_callback.registerError(stringError);
             continue;
         }
 
@@ -187,7 +195,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
         {
             if (!m_follow_symlinks)
             {
-                LOGDEBUG("Not following symlink: " << common::escapePathForLogging(p.path()));
+                std::ostringstream stringError;
+                stringError << "Not following symlink: " << common::escapePathForLogging(p.path());
+                m_callback.registerError(stringError);
                 continue;
             }
         }
@@ -199,7 +209,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
         }
         catch (const fs::filesystem_error& e)
         {
-            LOGERROR("Failed to get the status of: " << p << " [" << e.code().message() << "]");
+            std::ostringstream stringError;
+            stringError << "Failed to get the status of: " << p << " [" << e.code().message() << "]";
+            m_callback.registerError(stringError);
             continue;
         }
 
@@ -215,7 +227,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
             }
             catch (const std::runtime_error& ex)
             {
-                LOGERROR("Failed to process: " << p.path().string());
+                std::ostringstream stringError;
+                stringError << "Failed to process: " << p.path().string();
+                m_callback.registerError(stringError);
                 continue;
             }
         }
@@ -230,7 +244,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
     }
     if (ec)
     {
-        LOGERROR("Failed to iterate: " << current_dir << ": " << ec.message());
+        std::ostringstream stringError;
+        stringError << "Failed to iterate: " << current_dir << ": " << ec.message();
+        m_callback.registerError(stringError);
         return;
     }
 }

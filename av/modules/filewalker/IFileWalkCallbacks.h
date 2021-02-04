@@ -54,6 +54,13 @@ namespace filewalker
          */
         virtual bool userDefinedExclusionCheck(const sophos_filesystem::path& filepath, bool isSymlink) = 0;
 
+        /**
+         * Callback for registering errors for the Scan Summary
+         *
+         * @param errorString
+         */
+        virtual void registerError(const std::ostringstream &errorString) = 0;
+
     protected:
         IFileWalkCallbacks() = default;
     };

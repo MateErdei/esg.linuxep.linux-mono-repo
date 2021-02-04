@@ -43,6 +43,10 @@ namespace
             std::cout << "DIR:" << p << '\n';
             return false;
         }
+        void registerError(const std::ostringstream &errorString) override
+        {
+            std::cout << errorString.str() << '\n';
+        }
         void clear()
         {
             m_walkedPaths.clear();

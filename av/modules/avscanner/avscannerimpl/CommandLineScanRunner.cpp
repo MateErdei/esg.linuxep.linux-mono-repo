@@ -8,7 +8,6 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "BaseFileWalkCallbacks.h"
 #include "Options.h"
-#include "ScanCallbackImpl.h"
 #include "ScanClient.h"
 
 #include "avscanner/mountinfoimpl/Mounts.h"
@@ -179,12 +178,12 @@ namespace avscanner::avscannerimpl
             auto p = fs::absolute(path);
             commandLineWalkerCallbacks.setCurrentInclude(p);
 
-            if (!walk(fw, p, path))
-            {
-                // Abort scan
-                break;
-            }
+        if (!walk(fw, p, path))
+        {
+            // Abort scan
+            break;
         }
+    }
 
         // we want virus found to override any other return code
         if (m_scanCallbacks->returnCode() != E_CLEAN)

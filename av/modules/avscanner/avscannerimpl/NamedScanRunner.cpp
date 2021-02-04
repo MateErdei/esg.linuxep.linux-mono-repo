@@ -128,14 +128,14 @@ namespace avscanner::avscannerimpl
                 continue;
             }
 
-            LOGINFO("Attempting to scan: " << mountpointToScan);
+            LOGINFO("Attempting to scan mount point: " << mountpointToScan);
             mountsScanned.insert(mountpointToScan);
 
-            if (!walk(walker, mountpointToScan, mountpointToScan))
-            {
-                // Abort scan
-                break;
-            }
+        if (!walk(walker, mountpointToScan, mountpointToScan))
+        {
+            // Abort scan
+            break;
+        }
 
             // we want virus found to override any other return code
             if (m_scanCallbacks->returnCode() == E_VIRUS_FOUND)
