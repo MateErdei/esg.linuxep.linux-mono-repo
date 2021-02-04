@@ -134,11 +134,11 @@ TEST_F( // NOLINT
     expectedStateMachineData.setDownloadFailedSinceTime("0");
     expectedStateMachineData.setDownloadStateCredit("72");
     expectedStateMachineData.setEventStateLastError("0");
-    expectedStateMachineData.setEventStateLastTime("1610440731518");
+    expectedStateMachineData.setEventStateLastTime("1610440731");
     expectedStateMachineData.setInstallFailedSinceTime("0");
     expectedStateMachineData.setInstallState("0");
     expectedStateMachineData.setInstallStateCredit("3");
-    expectedStateMachineData.setLastGoodInstallTime("1610465945674");
+    expectedStateMachineData.setLastGoodInstallTime("1610465945");
 
     StateMachineData actualStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
 
@@ -154,11 +154,11 @@ TEST_F( // NOLINT
     expectedStateMachineData.setDownloadFailedSinceTime("0");
     expectedStateMachineData.setDownloadStateCredit("72");
     expectedStateMachineData.setEventStateLastError("45");
-    expectedStateMachineData.setEventStateLastTime("1610440731518");
+    expectedStateMachineData.setEventStateLastTime("1610440731");
     expectedStateMachineData.setInstallFailedSinceTime("0");
     expectedStateMachineData.setInstallState("0");
     expectedStateMachineData.setInstallStateCredit("3");
-    expectedStateMachineData.setLastGoodInstallTime("1610465945674");
+    expectedStateMachineData.setLastGoodInstallTime("1610465945");
 
     std::string oldString = R"("EventStateLastError": "0")";
     std::string newString = R"("EventStateLastError": "45")";
@@ -204,11 +204,11 @@ TEST_F( // NOLINT
     expectedStateMachineData.setDownloadFailedSinceTime("0");
     expectedStateMachineData.setDownloadStateCredit("72");
     expectedStateMachineData.setEventStateLastError("45");
-    expectedStateMachineData.setEventStateLastTime("1610440731518");
+    expectedStateMachineData.setEventStateLastTime("1610440731");
     expectedStateMachineData.setInstallFailedSinceTime("0");
     expectedStateMachineData.setInstallState("0");
     expectedStateMachineData.setInstallStateCredit("3");
-    expectedStateMachineData.setLastGoodInstallTime("1610465945674");
+    expectedStateMachineData.setLastGoodInstallTime("1610465945");
 
     std::string oldString = R"("EventStateLastError": "0")";
     std::string newString = R"("EventStateLastError": "45", "UnknownKey": "ignore")";
