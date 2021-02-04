@@ -19,6 +19,7 @@ namespace fs = sophos_filesystem;
 
 using namespace ::testing;
 using namespace avscanner::avscannerimpl;
+using namespace common;
 
 namespace
 {
@@ -602,7 +603,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountSubdir) // NOLIN
 
     EXPECT_FALSE(callback.includeDirectory(fs::absolute(symlink)));
 
-    EXPECT_EQ(callback.returnCode(), E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountNotPrefix) // NOLINT
@@ -644,7 +645,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkByUser) // NOLINT
 
     EXPECT_FALSE(callback.includeDirectory(fs::path(".") / symlink));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByUser) // NOLINT
