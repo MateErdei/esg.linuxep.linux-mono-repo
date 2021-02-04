@@ -5,6 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include <chrono>
 #include <ctime>
 #include <memory>
 #include <string>
@@ -47,10 +48,25 @@ namespace Common
             ScopedReplaceITime& operator=(const ScopedReplaceITime) = delete;
             // not necessary to state the move operators as the constructor will not create them anyway.
         };
+        enum class Granularity
+        {
+            milliseconds,
+            seconds
+        };
 
         class TimeUtils
         {
         public:
+            /**
+             *
+             * A time stamp for use in messages (e.g. entries in a log file).
+             * The format is ISO 8601 compliant and includes millisecond resolution.
+             * No exceptions are thrown since a likely use is for logging where handling an exception would be awkward.
+             * The time stamp is composed of ASCII characters so may be used in UTF-8 files.
+             */
+
+            static std::string MessageTimeStamp(const std::chrono::system_clock::time_point& time_point, Common::UtilityImpl::Granularity granularity = Granularity::milliseconds) noexcept;
+
             static std::time_t getCurrTime();
             static std::string getBootTime();
             static std::time_t getBootTimeAsTimet();

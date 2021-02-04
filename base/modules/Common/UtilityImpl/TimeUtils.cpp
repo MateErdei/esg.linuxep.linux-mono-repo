@@ -30,6 +30,24 @@ namespace Common
 {
     namespace UtilityImpl
     {
+        std::string TimeUtils::MessageTimeStamp(const std::chrono::system_clock::time_point& time_point, Common::UtilityImpl::Granularity granularity) noexcept
+        {
+            auto tt{ std::chrono::system_clock::to_time_t(time_point) };
+            std::tm gmtime{};
+            gmtime_r(&tt, &gmtime);
+            std::ostringstream oss{};
+            oss << std::put_time(&gmtime, "%FT%T");
+
+            if (Granularity::milliseconds == granularity)
+            {
+                const auto tse = time_point.time_since_epoch();
+                const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(tse).count() % 1000;
+                oss << "." << std::setfill('0') << std::setw(3) << milliseconds;
+            }
+            oss << "Z";
+            return oss.str();
+        }
+
         std::string TimeUtils::fromTime(std::time_t time_, const char* format)
         {
             if (time_ == -1)

@@ -10,6 +10,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "StateMachineData.h"
 
 #include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
+
 namespace UpdateSchedulerImpl::stateMachinesModule
 {
     class StateMachineProcessor

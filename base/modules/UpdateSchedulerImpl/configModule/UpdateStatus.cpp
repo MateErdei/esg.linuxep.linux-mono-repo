@@ -7,12 +7,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "PropertyTreeHelper.h"
 
-#include "../Logger.h"
-
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/TimeStamp.h>
 
-#include <boost/foreach.hpp>
 
 namespace
 {
@@ -86,7 +82,7 @@ namespace
         {
             long epoch = stateMachineData.getDownloadFailedSinceTime().empty() ? 0 : std::stol(stateMachineData.getDownloadFailedSinceTime());
             std::chrono::system_clock::time_point tpdownloadFailed((std::chrono::seconds(epoch)));
-            convertedtimeStamp  = UpdateSchedulerImpl::stateMachinesModule::MessageTimeStamp(tpdownloadFailed);
+            convertedtimeStamp  = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tpdownloadFailed);
             autoUpdate.add("downloadState.failedSince", convertedtimeStamp);
         }
 
@@ -105,14 +101,14 @@ namespace
         {
             long epoch = stateMachineData.getLastGoodInstallTime().empty() ? 0 : std::stol(stateMachineData.getLastGoodInstallTime());
             std::chrono::system_clock::time_point tpLastGoodInstall((std::chrono::seconds(epoch)));
-            convertedtimeStamp  = UpdateSchedulerImpl::stateMachinesModule::MessageTimeStamp(tpLastGoodInstall);
+            convertedtimeStamp  = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tpLastGoodInstall);
             autoUpdate.add("installState.lastGood", convertedtimeStamp);
         }
         else
         {
             long epoch = stateMachineData.getInstallFailedSinceTime().empty() ? 0 : std::stol(stateMachineData.getInstallFailedSinceTime());
             std::chrono::system_clock::time_point tpInstallFailed((std::chrono::seconds(epoch)));
-            convertedtimeStamp  = UpdateSchedulerImpl::stateMachinesModule::MessageTimeStamp(tpInstallFailed);
+            convertedtimeStamp  = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tpInstallFailed);
             autoUpdate.add("installState.failedSince", convertedtimeStamp);
         }
     }
