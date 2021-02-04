@@ -237,6 +237,29 @@ Check logging symlink
     Create file   ${CHROOT_LOGGING_SYMLINK}/testfile
     Should exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
 
+Check no duplicate virus data files
+    ${vdlInUse} =   Set Variable  ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/version1/vdb
+    ${vdlUpdate} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
+
+    # Check there are no symlinks from a versioned copy
+    Check no symlinks in directory  ${vdlInUse}
+    Check no symlinks in directory  ${vdlUpdate}
+
+    # Check there are no .0 duplicate files
+    Check no duplicate files in directory  ${vdlInUse}
+    Check no duplicate files in directory  ${vdlUpdate}
+
+    Install IDE  ${IDE_NAME}
+
+    # Check there are still no symlinks from a versioned copy
+    Check no symlinks in directory  ${vdlInUse}
+    Check no symlinks in directory  ${vdlUpdate}
+
+    # Check there are still no .0 duplicate files
+    Check no duplicate files in directory  ${vdlInUse}
+    Check no duplicate files in directory  ${vdlUpdate}
+
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE2_NAME}        pemid.ide
@@ -304,3 +327,21 @@ Restart sophos_threat_detector
 
 Modify manifest
     Append To File   ${COMPONENT_ROOT_PATH}/var/manifest.dat   "junk"
+
+Check no symlinks in directory
+    [Arguments]  ${dirToCheck}
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     find ${dirToCheck} -type l
+    Should Be Equal As Integers  ${rc}  ${0}
+    Log    ${output}
+    ${count} =   Get Line Count   ${output}
+    Should Be Equal As Integers  ${count}  ${0}
+
+Check no duplicate files in directory
+    [Arguments]  ${dirToCheck}
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     find ${dirToCheck} -type f -name "*.0"
+    Should Be Equal As Integers  ${rc}  ${0}
+    Log    ${output}
+    ${count} =   Get Line Count   ${output}
+    Should Be Equal As Integers  ${count}  ${0}
