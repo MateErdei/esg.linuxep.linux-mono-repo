@@ -113,7 +113,7 @@ namespace Common
             ss >> std::get_time(&tm, "%Y%m%d %H%M%S");
             auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
 
-            return std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch()).count());
+            return std::to_string(std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count());
         }
 
         std::string FormattedTime::currentTime() const

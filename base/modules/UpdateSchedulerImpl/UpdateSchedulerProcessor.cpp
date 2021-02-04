@@ -11,8 +11,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "configModule/DownloadReportsAnalyser.h"
 #include "configModule/UpdateActionParser.h"
 #include "configModule/UpdatePolicyTranslator.h"
-#include "stateMachinesModule/DownloadStateMachine.h"
-#include "../../tests/Common/Helpers/FakeTimeUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -30,7 +28,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 #include <UpdateSchedulerImpl/runnerModule/AsyncSulDownloaderRunner.h>
 #include <UpdateSchedulerImpl/stateMachinesModule/EventStateMachine.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/InstallStateMachine.h>
+
 #include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
 
 #include <chrono>

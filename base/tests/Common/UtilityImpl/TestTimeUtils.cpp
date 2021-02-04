@@ -59,3 +59,19 @@ TEST(TimeUtils, toTimeInvertible) // NOLINT
 
     EXPECT_EQ(currentTime, actualTime);
 }
+
+TEST(TimeUtils, MessageTimeStampShouldReturnSensibleResult) // NOLINT
+{
+    long epoch_time = 1600000000; //2020 09 13 12:26:40
+    std::chrono::system_clock::time_point tp((std::chrono::seconds(epoch_time)));
+    std::string convertedTime = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tp);
+    EXPECT_EQ(convertedTime, "2020-09-13T12:26:40.000Z");
+}
+
+TEST(TimeUtils, toEpochTimeShouldReturnSensibleResult) // NOLINT
+{
+    std::string convertedTime = Common::UtilityImpl::TimeUtils::toEpochTime("20200913 122640");
+
+    EXPECT_EQ(convertedTime, "1600000000");
+}
+
