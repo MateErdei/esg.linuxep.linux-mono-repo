@@ -10,8 +10,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "tests/common/LogInitializedTests.h"
 #include <gtest/gtest.h>
 
-
 using namespace avscanner::avscannerimpl;
+using namespace common;
 
 class TestScanCallbackImpl : public LogInitializedTests
 {
@@ -21,7 +21,7 @@ TEST_F(TestScanCallbackImpl, TestErrorReturnCode) // NOLINT
 {
     ScanCallbackImpl scanCallback;
     scanCallback.scanError("An error occurred.");
-    EXPECT_EQ(scanCallback.returnCode(), common::E_GENERIC_FAILURE);
+    EXPECT_EQ(scanCallback.returnCode(), E_GENERIC_FAILURE);
 }
 
 TEST_F(TestScanCallbackImpl, TestInfectedReturnCode) // NOLINT
@@ -30,14 +30,14 @@ TEST_F(TestScanCallbackImpl, TestInfectedReturnCode) // NOLINT
     std::map<path, std::string> detections;
 
     scanCallback.infectedFile(detections, "", false);
-    EXPECT_EQ(scanCallback.returnCode(), common::E_VIRUS_FOUND);
+    EXPECT_EQ(scanCallback.returnCode(), E_VIRUS_FOUND);
 }
 
 TEST_F(TestScanCallbackImpl, TestCleanReturnCode) // NOLINT
 {
     ScanCallbackImpl scanCallback;
     scanCallback.cleanFile("");
-    EXPECT_EQ(scanCallback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(scanCallback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestScanCallbackImpl, TestInfectedOverCleanReturnCode) // NOLINT
@@ -53,7 +53,7 @@ TEST_F(TestScanCallbackImpl, TestInfectedOverCleanReturnCode) // NOLINT
 
     scanCallback.cleanFile("");
 
-    EXPECT_EQ(scanCallback.returnCode(), common::E_VIRUS_FOUND);
+    EXPECT_EQ(scanCallback.returnCode(), E_VIRUS_FOUND);
 }
 
 TEST_F(TestScanCallbackImpl, TestErrorOverCleanReturnCode) // NOLINT
@@ -68,7 +68,7 @@ TEST_F(TestScanCallbackImpl, TestErrorOverCleanReturnCode) // NOLINT
 
     scanCallback.cleanFile("");
 
-    EXPECT_EQ(scanCallback.returnCode(), common::E_GENERIC_FAILURE);
+    EXPECT_EQ(scanCallback.returnCode(), E_GENERIC_FAILURE);
 }
 
 TEST_F(TestScanCallbackImpl, TestInfectedOverErrorReturnCode) // NOLINT
@@ -84,5 +84,5 @@ TEST_F(TestScanCallbackImpl, TestInfectedOverErrorReturnCode) // NOLINT
 
     scanCallback.scanError("An error occurred.");
 
-    EXPECT_EQ(scanCallback.returnCode(), common::E_VIRUS_FOUND);
+    EXPECT_EQ(scanCallback.returnCode(), E_VIRUS_FOUND);
 }

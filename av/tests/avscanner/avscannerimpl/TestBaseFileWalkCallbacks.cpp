@@ -83,7 +83,7 @@ TEST_F(TestBaseFileWalkCallbacks, noActions) // NOLINT
     std::vector<Exclusion> userDefinedExclusions {};
 
     CallbackImpl callback(scanClient, mountExclusions, currentExclusions, userDefinedExclusions);
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, scansFile) // NOLINT
@@ -102,7 +102,7 @@ TEST_F(TestBaseFileWalkCallbacks, scansFile) // NOLINT
 
     callback.processFile(testfile, false);
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, scanThrows) // NOLINT
@@ -130,7 +130,7 @@ TEST_F(TestBaseFileWalkCallbacks, scanThrows) // NOLINT
         EXPECT_STREQ(abortScanException.what(), ex.what());
     }
 
-    EXPECT_EQ(callback.returnCode(), common::E_GENERIC_FAILURE);
+    EXPECT_EQ(callback.returnCode(), E_GENERIC_FAILURE);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeFile) // NOLINT
@@ -151,7 +151,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeFile) // NOLINT
     callback.processFile(fs::path("/testfile"), false);
 
     EXPECT_TRUE(appenderContains("Excluding file: /testfile"));
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, includeDirectory) // NOLINT
@@ -165,7 +165,7 @@ TEST_F(TestBaseFileWalkCallbacks, includeDirectory) // NOLINT
 
     EXPECT_TRUE(callback.includeDirectory(fs::path("/testdir")));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByMount) // NOLINT
@@ -180,7 +180,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByMount) // NOLINT
 
     EXPECT_FALSE(callback.includeDirectory(fs::path("/testdir")));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeSubdirectoryByMount) // NOLINT
@@ -231,7 +231,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirectoryByUser) // NOLINT
 
     EXPECT_FALSE(callback.includeDirectory(fs::path("/testdir")));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, includeStartingDir) // NOLINT
@@ -245,7 +245,7 @@ TEST_F(TestBaseFileWalkCallbacks, includeStartingDir) // NOLINT
 
     EXPECT_FALSE(callback.userDefinedExclusionCheck(fs::path("/testdir"), false));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeStartingDir) // NOLINT
@@ -260,7 +260,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeStartingDir) // NOLINT
 
     EXPECT_TRUE(callback.userDefinedExclusionCheck(fs::path("/testdir"), false));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, scansSymlinkToFile) // NOLINT
@@ -283,7 +283,7 @@ TEST_F(TestBaseFileWalkCallbacks, scansSymlinkToFile) // NOLINT
 
     callback.processFile(symlink, true);
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByUser) // NOLINT
@@ -310,7 +310,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByUser) // NOLINT
 
     EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target"));
     EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: /testfile"));
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByMount) // NOLINT
@@ -336,7 +336,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByMount) // NOLINT
 
     EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target"));
     EXPECT_TRUE(appenderContains("which is on excluded mount point: "));
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByMountNotPrefix) // NOLINT
@@ -390,7 +390,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkByUser) // NOLINT
     callback.processFile(fs::path(".") / symlink, true);
 
     EXPECT_TRUE(appenderContains("Excluding symlinked file: ./symlink"));
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, includeFileSymlinkWithUserExclusions) // NOLINT
@@ -455,7 +455,7 @@ TEST_F(TestBaseFileWalkCallbacks, scansMissingFileAsSymlink) // NOLINT
 
     EXPECT_THROW(callback.processFile(testfile, true), std::exception);
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, scanBrokenSymlink) // NOLINT
@@ -473,7 +473,7 @@ TEST_F(TestBaseFileWalkCallbacks, scanBrokenSymlink) // NOLINT
 
     EXPECT_THROW(callback.processFile(symlink, true), std::exception);
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, scansFileViaSymlinkDir) // NOLINT
@@ -499,7 +499,7 @@ TEST_F(TestBaseFileWalkCallbacks, scansFileViaSymlinkDir) // NOLINT
 
     callback.processFile(indirectFile, true);
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeStartingDirSymlink) // NOLINT
@@ -520,7 +520,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeStartingDirSymlink) // NOLINT
 
     EXPECT_TRUE(callback.userDefinedExclusionCheck(fs::path(".") / symlink, true));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, DISABLED_excludeStartingDirSymlinkTarget) // NOLINT
@@ -541,7 +541,7 @@ TEST_F(TestBaseFileWalkCallbacks, DISABLED_excludeStartingDirSymlinkTarget) // N
 
     EXPECT_TRUE(callback.userDefinedExclusionCheck(fs::path(".") / symlink, true));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkByMount) // NOLINT
@@ -561,7 +561,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkByMount) // NOLINT
 
     EXPECT_FALSE(callback.includeDirectory(fs::absolute(symlink)));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMount) // NOLINT
@@ -581,7 +581,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMount) // NOLINT
 
     EXPECT_FALSE(callback.includeDirectory(fs::absolute(symlink)));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountSubdir) // NOLINT
@@ -603,7 +603,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountSubdir) // NOLIN
 
     EXPECT_FALSE(callback.includeDirectory(fs::absolute(symlink)));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByMountNotPrefix) // NOLINT
@@ -666,7 +666,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeDirSymlinkTargetByUser) // NOLINT
 
     EXPECT_FALSE(callback.includeDirectory(fs::path(".") / symlink));
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 
 // Simulate the situation where a symlink disappears during scanning.
@@ -686,5 +686,5 @@ TEST_F(TestBaseFileWalkCallbacks, brokenDirectorySymlink) // NOLINT
 
     EXPECT_THROW(callback.includeDirectory(fs::path(".") / symlink), std::exception);
 
-    EXPECT_EQ(callback.returnCode(), common::E_CLEAN);
+    EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
