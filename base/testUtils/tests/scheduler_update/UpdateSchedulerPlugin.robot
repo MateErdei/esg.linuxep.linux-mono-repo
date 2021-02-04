@@ -675,13 +675,14 @@ Check Sul Downloader log contains
     Check Log Contains   ${contents}    ${SULDOWNLOADER_LOG_PATH}   ${SULDOWNLOADER_LOG_PATH}
 
 Fail Update Install And Check Status Shows Good Install State
+    Remove File    ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
     Setup Plugin Install Failed  startTime=2
     Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
-    ...  Check Status Report Contain  2092-04-28T00:44:42.107Z
+    ...  Should Exist  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
     ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
     Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
