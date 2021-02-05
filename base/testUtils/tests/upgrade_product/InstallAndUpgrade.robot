@@ -394,6 +394,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
     Check Files Have Not Been Removed  ${SOPHOS_INSTALL}  ${base_removed_files_manifest}  plugins/mtr  ${mtr_files_to_delete}
     Check Files Have Not Been Removed  ${SOPHOS_INSTALL}  ${mtr_removed_files_manifest}  base   ${base_files_to_delete}
+    fail
 
 
 Version Copy Versions All Changed Files When Upgrading

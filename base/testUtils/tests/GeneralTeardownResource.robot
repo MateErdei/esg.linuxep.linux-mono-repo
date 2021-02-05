@@ -97,6 +97,7 @@ General Test Teardown
     Run Keyword If Test Passed    Check Journalctl
     Run Keyword If Test Failed    Log Status Of Sophos Spl
     Run Keyword If Test Failed    Display All SSPL Files Installed
+    Run Keyword If Test Failed    Display All SSPL Plugins Files Installed
     Run Keyword If Test Failed    Dump All Sophos Processes
     Force Teardown Logging If Env Set
     Combine Coverage If Present
