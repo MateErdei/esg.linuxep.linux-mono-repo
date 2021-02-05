@@ -140,11 +140,11 @@ Wait Until EDR Running
     ...  Check EDR Executable Running
 
 Check SophosMTR Executable Running
-    ${result} =    Run Process  pgrep  SophosMTR
+    ${result} =    Run Process  pgrep  -f  dbos/SophosMTR
     Should Be Equal As Integers    ${result.rc}    0       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check SophosMTR Executable Not Running
-    ${result} =    Run Process  pgrep  SophosMTR
+    ${result} =    Run Process  pgrep  -f  dbos/SophosMTR
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
@@ -241,13 +241,6 @@ Wait for MDR Executable To Be Running
     ...  20 secs
     ...  1 secs
     ...  Check SophosMTR Executable Running
-
-Stop Only MDR Plugin
-    ${result} =    Run Process   ${SOPHOS_INSTALL}/bin/wdctl  stop  mtr
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check MDR Plugin Not Running
 
 Stop MDR Plugin
     ${result} =    Run Process   ${SOPHOS_INSTALL}/bin/wdctl  stop  mtr

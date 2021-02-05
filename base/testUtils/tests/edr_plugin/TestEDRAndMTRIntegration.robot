@@ -65,14 +65,14 @@ Test Teardown
     General Test Teardown
 
 Swap Dbos Config and Restart MTR Plugin
-    Stop Only MDR Plugin
+    Stop MDR Plugin
     Move File  /tmp/test/mock_darkbytes/config.json  /tmp/test/mock_darkbytes/config.json.original
     Copy File  ${SUPPORT_FILES}/mock_darkbytes/configNoScheduledQueries.json  /tmp/test/mock_darkbytes/config.json
     Start MDR Plugin
     Wait Until SophosMTR Executable Running
 
 Swap Dbos Config Back and Restart MTR Plugin
-    Stop Only MDR Plugin
+    Stop MDR Plugin
     Move File  /tmp/test/mock_darkbytes/config.json.original  /tmp/test/mock_darkbytes/config.json
     Start MDR Plugin
     Wait Until SophosMTR Executable Running
