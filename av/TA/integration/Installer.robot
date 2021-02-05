@@ -250,12 +250,8 @@ Check no duplicate virus data files
 
     Install IDE  ${IDE_NAME}
 
-    # Check there are still no symlinks from a versioned copy
-    Check no symlinks in directory  ${vdlInUse}
+    # Check there are still no symlinks or .0 duplicate files
     Check no symlinks in directory  ${vdlUpdate}
-
-    # Check there are still no .0 duplicate files
-    Check no duplicate files in directory  ${vdlInUse}
     Check no duplicate files in directory  ${vdlUpdate}
 
 
