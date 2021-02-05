@@ -53,7 +53,6 @@ public:
     void RawSetEventState(const StateData::EventMachineState& machineState) override;
 
 private:
-	void SetProductTypeFromRegistry();
 
 	LineVersionMap_t m_lineVersions;
 	SEUError lastError_;

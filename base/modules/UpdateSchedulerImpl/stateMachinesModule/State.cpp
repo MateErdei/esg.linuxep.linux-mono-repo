@@ -14,13 +14,7 @@ State::State() :
     eventStateMachine_{ downloadStateMachine_, installStateMachine_, StateData::EventMachineState{} },
     forceReboot_(false), rebootSetThisUpdate_(false), isDelayedProductUpdate_(false), isFallbackUpdate_(false)
 {
-	// Set the product type as early as possible.
-	// This does not depend on anything else, and is not expected
-	// to change during execution.
-	// Further, changing it any later (say during Sync, just before it's read)
-	// could have unexpected side effects in unit tests, depending on what
-	// the stubbed 'SetProductTypeFromRegistry' actually does.
-	SetProductTypeFromRegistry();
+
 }
 
 int State::ExitCode()
@@ -162,9 +156,4 @@ bool State::IsFallbackUpdate() const
 void State::SetFallbackUpdate(bool isFallbackUpdate)
 {
     isFallbackUpdate_ = isFallbackUpdate;
-}
-
-void State::SetProductTypeFromRegistry()
-{
-    // TODO LINUX-DAR 2590  May need to add implementation or remove.
 }
