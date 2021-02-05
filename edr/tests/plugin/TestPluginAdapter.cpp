@@ -853,7 +853,6 @@ TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryPackIsRemovedWhenNoQuerie
     TestablePluginAdapter pluginAdapter(queueTask);
 
     const std::string PLUGIN_VAR_DIR = Plugin::varDir();
-    EXPECT_CALL(*mockFileSystem, exists(PLUGIN_VAR_DIR + "/xdr_intermediary")).Times(1);
     std::string liveQueryPolicy100 = "<?xml version=\"1.0\"?>\n"
                                      "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
                                      "    <configuration>\n"
