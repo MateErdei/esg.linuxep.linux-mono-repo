@@ -19,7 +19,7 @@
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <build-asset project="winep" repo="dbos">
-            <development-version branch="feature/WINEP-31457"/>
+            <development-version branch="develop"/>
             <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
         </build-asset>
         <package name="boostlinux11" version="1-74-0-5/221614/output" dest="input">
