@@ -267,11 +267,11 @@ namespace Plugin
 
         if (enableAuditDataCollection)
         {
-            LOGINFO("Plugin configured to gather data from audit subsystem netlink");
+            LOGDEBUG("Plugin should gather data from audit subsystem netlink");
         }
         else
         {
-            LOGINFO("Plugin configured not to gather data from audit subsystem netlink");
+            LOGDEBUG("Plugin should not to gather data from audit subsystem netlink");
         }
         return enableAuditDataCollection;
     }
