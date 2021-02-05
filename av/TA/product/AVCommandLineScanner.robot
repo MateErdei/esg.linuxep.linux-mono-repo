@@ -327,9 +327,7 @@ CLS Can Scan Multiple Archive Files
     Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
 
-CLS Abort Scanning of Zip Bomb
-    # Broken by CORE-2151 removed MANUAL Tag once fixed
-    [Tags]  MANUAL
+CLS Reports Reason for Scan Error on Zip Bomb
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zipbomb.zip --scan-archives
@@ -337,7 +335,9 @@ CLS Abort Scanning of Zip Bomb
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
-    Should Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/zipbomb.zip was aborted
+    Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/zipbomb.zip
+    Should Contain  ${output}  [archive bomb]
+
 
 
 CLS Aborts Scanning of Password Protected File

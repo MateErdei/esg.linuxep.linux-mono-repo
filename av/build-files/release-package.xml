@@ -10,7 +10,7 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2021-10" build-id="20210226102408-fca12ba3248a4fd7125bbcff53a8a6e76749300b-0MH79t" />
+            <release-version branch="release/Version_1_1_4" build-id="20201201191134-cbd512ac393474af381ebba8a06da8db37046ac3-IqBhmI" />
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
@@ -38,17 +38,17 @@
 
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
-            <release-version branch="release/3.81.0-CORE-2026" build-id="20201105220741-963f9976a7ba2659cbdb8786f4a00cb7edbb6ba1-ILs2ye"/>
+            <release-version branch="release--3.80.5" build-id="20200917132546-06a514a114bba47e82ad8ef70a3d5bd6284a49f2-5DyK5f/"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
         </build-asset>
 
         <build-asset project="core" repo="engine">
-            <release-version branch="release/sophtainer-1.1.1" build-id="20210218060855-3061d225f712961b8d95f485ae70ab883b454f44-F8JM2R"/>
+            <release-version branch="release/3.80.5-CORE-2186" build-id="20201208191108-03d225957ed6db60d5cc2ab1e8c7ac74fde84ea9-OlHYFe"/>
             <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
         <build-asset project="ec" repo="liblocalrep">
-            <release-version branch="release/2.1" build-id="20210301101017-60a36e2833987642eec49d48837d30a9cd0e28bd-xUPUun"/>
+            <release-version branch="release/2.0_for_susi" build-id="20201211151513-b24a492bfd29f3e00cd192629579e51b97c801c8-qRPDnc"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
@@ -57,7 +57,7 @@
         </package>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="release/1.2" build-id="20210302074219-81fd472580f019cdd6cbe3c23e95bead5e9117f2-41jFyh"/>
+            <release-version branch="develop" build-id="20210204113507-1555b43f97df74ccd82c8b6077dde9f10b9d9287-EcThAf"/>
             <include artifact-path="release/centos7/libsusi" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/updater" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/interface" dest-dir="input/susi_input/susi/include" />
@@ -65,7 +65,7 @@
         </build-asset>
 
         <build-asset project="core" repo="httpsrequester">
-            <release-version branch="release/1.2" build-id="20210224162322-ffb88bba84d861e9f683249a72e08a397cb4bbb4-36lvY3"/>
+            <release-version branch="release/1.1" build-id="20210107110116-87c803d63eeac9db5105e28c14f33267839b2335-OfquvT"/>
             <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 
