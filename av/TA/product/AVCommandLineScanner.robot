@@ -211,8 +211,7 @@ CLS Duration Summary is Displayed Correctly
 
     Should Contain   ${result.stdout}  files scanned in 1 minute
     ${seconds} =  Find Value After Phrase  minute,  ${result.stdout}
-    ${value} =  Check Is Greater Than  ${seconds}  ${4}
-    Should Be Equal As Integers  ${value}  ${1}
+    Check Is Greater Than  ${seconds}  ${4}
 
 
 CLS Does not request TFTClassification from SUSI
