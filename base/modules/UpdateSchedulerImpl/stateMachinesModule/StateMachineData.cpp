@@ -29,6 +29,7 @@ namespace UpdateSchedulerImpl
          , m_installState("0")
          , m_installStateCredit("0")
          , m_lastGoodInstallTime("0")
+         , m_canSendEvent(true)
         {
 
         }
@@ -97,6 +98,15 @@ namespace UpdateSchedulerImpl
         {
             m_lastGoodInstallTime = lastGoodInstallTime;
         }
+        void StateMachineData::setCanSendEvent(bool canSendEvent)
+        {
+            m_canSendEvent = canSendEvent;
+        }
+
+        bool StateMachineData::canSendEvent() const
+        {
+            return m_canSendEvent;
+        }
 
         // add one return the json content directly.
             std::string StateMachineData::toJsonStateMachineData(const StateMachineData& stateMachineData)
@@ -111,6 +121,7 @@ namespace UpdateSchedulerImpl
                 protoStateMachine.set_installstate(stateMachineData.getInstallState());
                 protoStateMachine.set_installstatecredit(stateMachineData.getInstallStateCredit());
                 protoStateMachine.set_lastgoodinstalltime(stateMachineData.getLastGoodInstallTime());
+                protoStateMachine.set_cansendevent(stateMachineData.canSendEvent());
 
                 return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoStateMachine);
             }
@@ -142,6 +153,7 @@ namespace UpdateSchedulerImpl
                 stateMachineData.m_installState = protoStateMachine.installstate();
                 stateMachineData.m_installStateCredit = protoStateMachine.installstatecredit();
                 stateMachineData.m_lastGoodInstallTime = protoStateMachine.lastgoodinstalltime();
+                stateMachineData.m_canSendEvent = protoStateMachine.cansendevent();
 
                 return stateMachineData;
             }

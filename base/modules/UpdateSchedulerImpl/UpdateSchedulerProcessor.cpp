@@ -501,8 +501,24 @@ namespace UpdateSchedulerImpl
             }
         }
 
-        // only send events if the event is relevant and has not been sent yet.
-        if (reportAndFiles.reportCollectionResult.SchedulerEvent.IsRelevantToSend && remainingReportToProcess)
+        std::string lastInstallTime(reportAndFiles.reportCollectionResult.SchedulerStatus.LastInstallStartedTime);
+
+        if(lastInstallTime.empty())
+        {
+            // last install time come from the start time in the update report if an upgrade has happened.
+            // only need to set to LastStartTime if cannot get LastInstallStartedTime
+            lastInstallTime = reportAndFiles.reportCollectionResult.SchedulerStatus.LastStartTime;
+        }
+
+        lastInstallTime = Common::UtilityImpl::TimeUtils::toEpochTime(lastInstallTime);
+        int lastUpdateResult = reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult;
+        stateMachinesModule::StateMachineProcessor stateMachineProcessor(lastInstallTime);
+        stateMachineProcessor.updateStateMachines(lastUpdateResult);
+
+        // only send events if the event a was successful and is relevant and has not been sent yet.
+        // or if the state machine says we can send.
+        if ( (lastUpdateResult == 0 && reportAndFiles.reportCollectionResult.SchedulerEvent.IsRelevantToSend && remainingReportToProcess)
+            || stateMachineProcessor.getStateMachineData().canSendEvent())
         {
             std::string eventXml = serializeUpdateEvent(
                 reportAndFiles.reportCollectionResult.SchedulerEvent, m_policyTranslator, m_formattedTime);
@@ -519,20 +535,6 @@ namespace UpdateSchedulerImpl
             LOGDEBUG("Writing currently installed feature codes json to disk");
             writeInstalledFeaturesJsonFile(m_featuresCurrentlyInstalled);
         }
-
-        std::string lastInstallTime(reportAndFiles.reportCollectionResult.SchedulerStatus.LastInstallStartedTime);
-
-        if(lastInstallTime.empty())
-        {
-            // last install time come from the start time in the update report if an upgrade has happened.
-            // only need to set to LastStartTime if cannot get LastInstallStartedTime
-            lastInstallTime = reportAndFiles.reportCollectionResult.SchedulerStatus.LastStartTime;
-        }
-
-        lastInstallTime = Common::UtilityImpl::TimeUtils::toEpochTime(lastInstallTime);
-
-        stateMachinesModule::StateMachineProcessor stateMachineProcessor(lastInstallTime);
-        stateMachineProcessor.updateStateMachines(reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult);
 
         std::string statusXML = SerializeUpdateStatus(
             reportAndFiles.reportCollectionResult.SchedulerStatus,

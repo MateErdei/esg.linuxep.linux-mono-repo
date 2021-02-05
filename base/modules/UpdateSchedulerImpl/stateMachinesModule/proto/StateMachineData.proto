@@ -13,4 +13,5 @@ message StateMachineRawData
    optional string InstallState = 7 [default="0"];
    optional string InstallStateCredit = 8 [default="0"];
    optional string LastGoodInstallTime = 9 [default="0"];
+   optional bool canSendEvent = 10 [default=true];
 }

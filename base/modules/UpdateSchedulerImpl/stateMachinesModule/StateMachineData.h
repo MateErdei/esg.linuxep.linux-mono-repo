@@ -59,6 +59,10 @@ namespace UpdateSchedulerImpl
 
             void setLastGoodInstallTime( const std::string& lastGoodInstallTime);
 
+            void setCanSendEvent(bool canSendEvent);
+
+            bool canSendEvent() const;
+
         private:
             std::string m_downloadFailedSinceTime;
             std::string m_downloadState;
@@ -69,6 +73,7 @@ namespace UpdateSchedulerImpl
             std::string m_installState;
             std::string m_installStateCredit;
             std::string m_lastGoodInstallTime;
+            bool m_canSendEvent;
 
         };
     } // namespace StateData

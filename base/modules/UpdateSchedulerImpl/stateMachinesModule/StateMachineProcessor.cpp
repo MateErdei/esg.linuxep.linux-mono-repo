@@ -32,19 +32,19 @@ namespace UpdateSchedulerImpl::stateMachinesModule
         m_downloadMachineState.credit =  m_stateMachineData.getDownloadStateCredit().empty() ? 0 : std::stoi(m_stateMachineData.getDownloadStateCredit());
         long downloadFailedSince = m_stateMachineData.getDownloadFailedSinceTime().empty() ? 0 : std::stol(m_stateMachineData.getDownloadFailedSinceTime());
         m_downloadMachineState.failedSince =
-            std::chrono::system_clock::time_point{ std::chrono::milliseconds{ downloadFailedSince } };
+            std::chrono::system_clock::time_point{ std::chrono::seconds{ downloadFailedSince } };
 
         m_installMachineState.credit = m_stateMachineData.getInstallStateCredit().empty() ? 0 : std::stoi(m_stateMachineData.getInstallStateCredit());
         long installFailedSince = m_stateMachineData.getInstallFailedSinceTime().empty() ? 0 : std::stol(m_stateMachineData.getInstallFailedSinceTime());
         m_installMachineState.failedSince =
-            std::chrono::system_clock::time_point{ std::chrono::milliseconds{ installFailedSince } };
+            std::chrono::system_clock::time_point{ std::chrono::seconds{ installFailedSince } };
         long installLastGood = m_stateMachineData.getLastGoodInstallTime().empty() ? 0 : std::stol(m_stateMachineData.getLastGoodInstallTime());
         m_installMachineState.lastGood =
-            std::chrono::system_clock::time_point{ std::chrono::milliseconds{ installLastGood } };
+            std::chrono::system_clock::time_point{ std::chrono::seconds{ installLastGood } };
 
         long eventLastTime = m_stateMachineData.getEventStateLastTime().empty() ? 0 : std::stol(m_stateMachineData.getEventStateLastTime());
         m_eventMachineState.lastTime =
-            std::chrono::system_clock::time_point{ std::chrono::milliseconds{ eventLastTime } };
+            std::chrono::system_clock::time_point{ std::chrono::seconds{ eventLastTime } };
         m_eventMachineState.lastError = m_stateMachineData.getEventStateLastError().empty() ? 0 : std::stoi(m_stateMachineData.getEventStateLastError());
     }
 
@@ -61,7 +61,7 @@ namespace UpdateSchedulerImpl::stateMachinesModule
         {
             // if transitioning from good to bad download state update failed time.
             m_stateMachineData.setDownloadFailedSinceTime(std::to_string(
-                    std::chrono::duration_cast<std::chrono::milliseconds>(m_downloadMachineState.failedSince.time_since_epoch())
+                    std::chrono::duration_cast<std::chrono::seconds>(m_downloadMachineState.failedSince.time_since_epoch())
                             .count()));
         }
         else if (m_stateMachineData.getDownloadState() == "0")
@@ -78,7 +78,7 @@ namespace UpdateSchedulerImpl::stateMachinesModule
         if (currentStateMachineData.getInstallState() == "0" &&  m_stateMachineData.getInstallState() == "1")
         {
             m_stateMachineData.setInstallFailedSinceTime(std::to_string(
-                std::chrono::duration_cast<std::chrono::milliseconds>(m_installMachineState.failedSince.time_since_epoch())
+                std::chrono::duration_cast<std::chrono::seconds>(m_installMachineState.failedSince.time_since_epoch())
                     .count()));
         }
         else if (m_stateMachineData.getInstallState() == "0")
@@ -93,10 +93,11 @@ namespace UpdateSchedulerImpl::stateMachinesModule
         m_stateMachineData.setLastGoodInstallTime(m_lastInstallTime);
 
         m_stateMachineData.setEventStateLastTime(std::to_string(
-            std::chrono::duration_cast<std::chrono::milliseconds>(m_eventMachineState.lastTime.time_since_epoch())
+            std::chrono::duration_cast<std::chrono::seconds>(m_eventMachineState.lastTime.time_since_epoch())
                 .count()));
 
         m_stateMachineData.setEventStateLastError(std::to_string(m_eventMachineState.lastError));
+
     }
 
     void StateMachineProcessor::loadStateMachineRawData()
@@ -154,7 +155,6 @@ namespace UpdateSchedulerImpl::stateMachinesModule
 
         ::stateMachinesModule::DownloadStateMachine downloadStateMachine(m_downloadMachineState, currentTime);
         ::stateMachinesModule::InstallStateMachine  installStateMachine(m_installMachineState, currentTime);
-        ::stateMachinesModule::EventStateMachine eventStateMachine(downloadStateMachine, installStateMachine, m_eventMachineState);
 
         if (updateResult == configModule::EventMessageNumber::SUCCESS)
         {
@@ -185,6 +185,12 @@ namespace UpdateSchedulerImpl::stateMachinesModule
 
         m_currentDownloadStateResult = downloadStateMachine.getOverallState();
         m_currentInstallStateResult = installStateMachine.getOverallState();
+
+        ::stateMachinesModule::EventStateMachine eventStateMachine(downloadStateMachine, installStateMachine, m_eventMachineState);
+
+        int val = configModule::EventMessageNumber::MULTIPLEPACKAGEMISSING;
+        LOGINFO(val);
+        m_stateMachineData.setCanSendEvent(!eventStateMachine.Discard(updateResult, currentTime));
 
         m_downloadMachineState = downloadStateMachine.CurrentState();
         m_installMachineState = installStateMachine.CurrentState();

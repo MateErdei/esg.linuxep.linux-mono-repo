@@ -31,7 +31,8 @@ public:
  "InstallFailedSinceTime": "0",
  "InstallState": "0",
  "InstallStateCredit": "3",
- "LastGoodInstallTime": "1610465945"
+ "LastGoodInstallTime": "1610465945",
+ "canSendEvent": true
 })";
 
         if (!oldPartString.empty())
