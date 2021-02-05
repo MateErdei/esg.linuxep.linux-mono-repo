@@ -7,17 +7,17 @@ class FilesystemWatcher(object):
     def __init__(self):
         self.ignore_patterns = []
 
-    def setup_filesystem_watcher(self, path, log_file_path="FilesystemWatcher.log", match_patterns="*", ignore_patterns=None, ignore_directories=True):
+    def setup_filesystem_watcher(self, path, log_file_path="FilesystemWatcher.log", ignore_patterns=None, ignore_directories=True):
         self.log_file_path = log_file_path
         self.clear_filesystem_watcher_log()
-        self.patterns = match_patterns
+        self.patterns = None
         if ignore_patterns is not None:
             self.ignore_patterns = ignore_patterns
 
         self.ignore_patterns.append("*{}".format(self.log_file_path))
         self.ignore_directories = ignore_directories
         self.case_sensitive = True
-        self.event_handler = PatternMatchingEventHandler(self.patterns, self.ignore_patterns, self.ignore_directories, self.case_sensitive)
+        self.event_handler = PatternMatchingEventHandler(None, self.ignore_patterns, self.ignore_directories, self.case_sensitive)
 
         self.event_handler.on_created = self.on_created
         self.event_handler.on_deleted = self.on_deleted

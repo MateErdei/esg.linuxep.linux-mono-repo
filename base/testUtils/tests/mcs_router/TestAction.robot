@@ -57,7 +57,7 @@ Action Applied After Policies
     Check Default Policies Exist
 
     ${FileSystemWatcherLog}=  Set Variable  /tmp/fsw.log
-    Setup Filesystem Watcher  ${SOPHOS_INSTALL}   match_patterns=["*.xml"]  log_file_path=${FileSystemWatcherLog}
+    Setup Filesystem Watcher  ${SOPHOS_INSTALL}  log_file_path=${FileSystemWatcherLog}
     Start Filesystem Watcher
 
     Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
