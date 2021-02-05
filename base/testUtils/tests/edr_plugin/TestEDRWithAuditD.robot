@@ -110,7 +110,7 @@ EDR Does Disable Auditd After Manual Change To Config
 EDR Does Disable Auditd When Installed with MTR
     [Tags]   THIN_INSTALLER  OSTIA  EDR_PLUGIN  FAKE_CLOUD  MDR_PLUGIN
     Check AuditD Executable Running
-
+    Override LogConf File as Global Level  DEBUG
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
