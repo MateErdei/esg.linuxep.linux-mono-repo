@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -42,7 +42,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         std::ostringstream oss;
         oss << "Failed to scan \"" << common::escapePathForLogging(starting_point) << "\": " << e.code().message();
         throw fs::filesystem_error(oss.str(), e.code());        // Backtrack protection for symlinks
-
     }
 
     if (!fs::exists(itemStatus))

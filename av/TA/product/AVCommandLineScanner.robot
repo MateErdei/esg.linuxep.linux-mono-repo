@@ -167,13 +167,13 @@ CLS Summary is Correct
     Run Process     tar  -cf  ${NORMAL_DIRECTORY}/multiple_eicar.tar  ${NORMAL_DIRECTORY}/naughty_eicar  ${NORMAL_DIRECTORY}/naughty_eicar_2
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar ${NORMAL_DIRECTORY}/clean_file ${NORMAL_DIRECTORY}/multiple_eicar.tar -a
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar ${NORMAL_DIRECTORY}/clean_file ${NORMAL_DIRECTORY}/multiple_eicar.tar /this/file/does/not/exist -a
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}  3 files scanned in
     Should Contain   ${output}  2 files out of 3 were infected.
     Should Contain   ${output}  3 EICAR-AV-Test infections discovered.
-
+    Should Contain   ${output}  1 scan error encountered
 
 CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
@@ -381,6 +381,7 @@ CLS Will Not Scan Non-Existent File
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${FILE_NOT_FOUND_RESULT}
+    Should contain  ${output}  1 scan error encountered
 
 
 CLS Will Not Scan Restricted File
@@ -459,9 +460,10 @@ CLS Cannot Scan Huge Path
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  clean_file
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${long_path}/clean_file
 
-    Log   return code is ${rc}
-    Log   output is ${output}
+    Log  return code is ${rc}
+    Log  output is ${output}
     Should Be Equal As Integers  ${rc}  36
+    Should contain  ${output}  1 scan error encountered
 
 
 # Huge Path is over 4064 characters long

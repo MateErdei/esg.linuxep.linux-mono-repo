@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -74,10 +74,9 @@ bool BaseRunner::walk(filewalker::FileWalker& filewalker,
     }
     catch (fs::filesystem_error& e)
     {
-        auto ex = e.code();
         auto errorString = "Failed to completely scan " + reportpath + " due to an error: " + e.what();
         m_scanCallbacks->scanError(errorString);
-        m_returnCode = ex.value();
+        m_returnCode = e.code().value();
     }
     catch (const AbortScanException& e)
     {
