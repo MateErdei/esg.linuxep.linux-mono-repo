@@ -128,7 +128,7 @@ EDR Does Disable Auditd When Installed with MTR
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  2 secs
-    ...  Check EDR Log Contains   Plugin configured not to gather data from auditd netlink
+    ...  Check EDR Log Contains   Plugin should not to gather data from audit subsystem netlink
 
     Check AuditD Executable Not Running
     Wait Until Keyword Succeeds
