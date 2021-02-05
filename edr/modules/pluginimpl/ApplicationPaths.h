@@ -35,7 +35,5 @@ namespace Plugin
     std::string livequeryResponsePath();
     std::string etcDir();
     std::string varDir();
-
-    // TODO shall we raise a ticket to remove this MTR work around code?
     std::string mtrFlagsFile();
 } // namespace Plugin
