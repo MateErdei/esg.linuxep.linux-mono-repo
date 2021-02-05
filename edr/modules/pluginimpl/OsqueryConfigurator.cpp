@@ -271,7 +271,7 @@ namespace Plugin
         }
         else
         {
-            LOGDEBUG("Plugin should not to gather data from audit subsystem netlink");
+            LOGDEBUG("Plugin should not gather data from audit subsystem netlink");
         }
         return enableAuditDataCollection;
     }
