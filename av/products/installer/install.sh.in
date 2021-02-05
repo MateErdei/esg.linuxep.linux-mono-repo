@@ -141,11 +141,11 @@ function install_product()
     rm -f ${TEMP_REG_FILE}
 
     #Install files using versioned copy (apart from SUSI)
-    find "$DIST/files/plugins" -type f -not -path "$DIST/files/plugins/av/chroot/*" -print0 \
+    find "$DIST/files/plugins" -type f -not -path "$DIST/files/plugins/av/chroot/susi/*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
     #Install SUSI
-    rsync -avz "$DIST/files/plugins/av/chroot" "$SOPHOS_INSTALL/plugins/av/" --delete || failure ${EXIT_FAIL_RSYNC} "Failed to copy SUSI files to installation"
+    rsync -avz "$DIST/files/plugins/av/chroot/susi" "$SOPHOS_INSTALL/plugins/av/chroot" --delete || failure ${EXIT_FAIL_RSYNC} "Failed to copy SUSI files to installation"
     #Install SUSI libraries (with version copy)
     find "$DIST/files/plugins/av/chroot/susi" -type f -name "*.so.*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"

@@ -147,7 +147,6 @@ IDE can be removed
 
     Install IDE  ${IDE_NAME}
     File should exist  ${INSTALL_IDE_DIR}/${ide_name}
-    File should exist  ${INSTALL_IDE_DIR}/${ide_name}.0
 
     Uninstall IDE  ${IDE_NAME}
     File should not exist  ${INSTALL_IDE_DIR}/${ide_name}
@@ -205,8 +204,8 @@ Check permissions after upgrade
     # store current permissions for our files
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${files_as_args}
-    Should Be Equal As Integers  ${rc}  0
     Log   ${output}
+    Should Be Equal As Integers  ${rc}  0
     ${before} =   Set Variable   ${output}
 
     # modify the manifest to force the installer to perform a full product update
@@ -216,8 +215,8 @@ Check permissions after upgrade
     # check our files are still writable
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${files_as_args}
-    Should Be Equal As Integers  ${rc}  0
     Log   ${output}
+    Should Be Equal As Integers  ${rc}  0
     ${after} =   Set Variable   ${output}
     Should Be Equal   ${before}   ${after}
 
