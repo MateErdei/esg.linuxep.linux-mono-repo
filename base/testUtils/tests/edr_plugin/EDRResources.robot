@@ -154,9 +154,12 @@ Report Audit Link Ownership
     Log  ${result.stdout}
     Log  ${result.stderr}
     ${result} =  Run Process   auditctl -s | grep pid | awk '{print $2}'  shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
     ${owner}=  Run Process  ps -ef | grep ${result.stdout}  shell=True
     log  ${owner.stdout}
     log  ${owner.stderr}
+    [Return]  ${owner.stdout}
 
 
 EDR Test Teardown

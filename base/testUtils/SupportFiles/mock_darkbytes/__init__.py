@@ -32,7 +32,7 @@ EMPTY_DISTRIBUTED = {
 }
 
 FAILED_ENROLL_RESPONSE = {"node_invalid": True}
-NO_ERROR_RESPONSE = {"node_invalid":False}
+NO_ERROR_RESPONSE = {"node_invalid": False}
 
 ENROLL_RESPONSE = {
     "node_key": "",  # Optionally blank
@@ -129,11 +129,11 @@ class RealSimpleHandler(BaseHTTPRequestHandler):
             '/api/distributed/read': self.distributed_read,
             '/api/distributed/write': self.distributed_write,
             '/respond/get': self.get_pending_action,
-            '/respond/result':self.respond_provided,
+            '/respond/result': self.respond_provided,
             '/': self.process_log_data,            
         }
         
-        if path_dispatcher.get(self.path,None) is not None:
+        if path_dispatcher.get(self.path, None):
             path_dispatcher[self.path](request)
         else:
             logger.warning("Unknown post request path: {}, content: {}".format(self.path, self.request))
