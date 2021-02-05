@@ -55,7 +55,6 @@ Scan Now Honours Exclusions
 
     Should Contain  ${scan_now_contents}  Mount point /proc is system and will be excluded from the scan
     Should Contain  ${scan_now_contents}  Excluding mount point: /proc
-    Should Contain  ${scan_now_contents}  Not recursing into "/proc" as it is excluded
 
 
 Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
