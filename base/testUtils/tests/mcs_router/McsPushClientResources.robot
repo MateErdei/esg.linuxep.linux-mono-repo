@@ -52,3 +52,4 @@ Push Client Test Teardown
     Push Server Teardown with MCS Fake Server
     Stop Proxy Servers
     Stop Mcsrouter If Running
+    Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
