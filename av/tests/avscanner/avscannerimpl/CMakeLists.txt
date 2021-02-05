@@ -9,6 +9,7 @@ SophosAddTest(TestAVScannerImpl
         TestOptions.cpp
         TestScanCallbackImpl.cpp
         TestScanClient.cpp
+        TestTimeDuration.cpp
         TestLogger.cpp
         TestBaseFileWalkCallbacks.cpp
         PROJECTS avscannerimpl

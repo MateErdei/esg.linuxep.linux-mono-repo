@@ -5,6 +5,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ScanCallbackImpl.h"
+#include "TimeDuration.h"
 
 #include "Logger.h"
 
@@ -65,31 +66,12 @@ common::E_ERROR_CODES ScanCallbackImpl::returnCode()
     }
 }
 
-ScanCallbackImpl::TimeDuration ScanCallbackImpl::timeConversion(const long totalScanTime)
-{
-    auto newScanTime = int(totalScanTime);
-
-    auto sec = newScanTime % 60;
-    newScanTime /= 60;
-    auto min = newScanTime % 60;
-    newScanTime /= 60;
-    auto hour = newScanTime % 24;
-
-    TimeDuration result = {sec,min,hour};
-
-    return result;
-}
-
 void ScanCallbackImpl::logSummary()
 {
-    auto endTime = time(nullptr);
-    auto totalScanTime = static_cast<double>(endTime - getStartTime());
+  //  auto endTime = time(nullptr);
+  //  auto totalScanTime = static_cast<double>(endTime - getStartTime());
 
-    TimeDuration convertedTime = timeConversion(totalScanTime);
-
-    auto hour = convertedTime.hour;
-    auto min = convertedTime.min;
-    auto sec = convertedTime.sec;
+//   TimeDuration convertedTime = timeConversion(totalScanTime);
 
     std::ostringstream scanSummary;
 
@@ -97,22 +79,7 @@ void ScanCallbackImpl::logSummary()
 
     scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfScannedFiles(), " file", " files") << " scanned in ";
 
-    if (hour > 0)
-    {
-        scanSummary << hour << common::pluralize(hour, " hour, ", " hours, ");
-    }
-    if (min > 0)
-    {
-        scanSummary << min << common::pluralize(min, " minute, ", " minutes, ");
-    }
-    if (hour == 0 && min == 0 && sec == 0)
-    {
-        scanSummary << "less than a second" << std::endl;
-    }
-    else
-    {
-        scanSummary << sec << common::pluralize(sec, " second. ", " seconds. ") << std::endl;
-    }
+// scanSummary << convertedTime.toString(convertedTime) << std::endl;
 
     scanSummary << getNoOfInfectedFiles() << common::pluralize(getNoOfInfectedFiles(), " file", " files") << " out of ";
     scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfInfectedFiles(), " was", " were") << " infected." << std::endl;

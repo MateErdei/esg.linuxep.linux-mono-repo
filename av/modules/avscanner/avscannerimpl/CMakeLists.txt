@@ -22,6 +22,8 @@ add_library(avscannerimpl SHARED
         ScanClient.h
         SigIntMonitor.cpp
         SigIntMonitor.h
+        TimeDuration.cpp
+        TimeDuration.h
         )
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)

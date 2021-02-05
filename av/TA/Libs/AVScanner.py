@@ -137,8 +137,8 @@ def find_value_after_phrase(phrase, file_contents):
         return 0
 
     # This assumes we only have one instance of the last word in the phrase
-    last_word_in_phrase = phrase.split(" ")
-    last_word = last_word_in_phrase[len(last_word_in_phrase) - 1]
+    words_in_phrase_list = phrase.split(" ")
+    last_word = words_in_phrase_list[len(words_in_phrase_list) - 1]
     digit_index = split_line.index(last_word) + 1
 
     return split_line[digit_index]
