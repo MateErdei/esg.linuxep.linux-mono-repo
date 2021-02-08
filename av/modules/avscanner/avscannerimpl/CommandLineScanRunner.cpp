@@ -198,8 +198,12 @@ namespace avscanner::avscannerimpl
         {
             // Tracks erros in filewalker is either E_CLEAN or E_GENERIC_FAILURE
             m_returnCode = commandLineWalkerCallbacks.returnCode();
-            // Tracks errors in ScanClient
-            m_returnCode = m_scanCallbacks->returnCode();
+
+            if (m_returnCode == common::E_CLEAN)
+            {
+                // Tracks errors in ScanClient
+                m_returnCode = m_scanCallbacks->returnCode();
+            }
         }
 
         if (m_returnCode != common::E_CLEAN && m_returnCode != common::E_VIRUS_FOUND)
