@@ -69,10 +69,10 @@ Swap Dbos Config and Restart MTR Plugin
     Move File  /tmp/test/mock_darkbytes/config.json  /tmp/test/mock_darkbytes/config.json.original
     Copy File  ${SUPPORT_FILES}/mock_darkbytes/configNoScheduledQueries.json  /tmp/test/mock_darkbytes/config.json
     Start MDR Plugin
-    Wait Until SophosMTR Executable Running
+    Wait Until SophosMTR Executable Running  60
 
 Swap Dbos Config Back and Restart MTR Plugin
     Stop MDR Plugin
     Move File  /tmp/test/mock_darkbytes/config.json.original  /tmp/test/mock_darkbytes/config.json
     Start MDR Plugin
-    Wait Until SophosMTR Executable Running
+    Wait Until SophosMTR Executable Running  60
