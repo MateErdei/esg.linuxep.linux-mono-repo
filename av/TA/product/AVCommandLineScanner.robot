@@ -417,7 +417,7 @@ CLS Will Not Scan Inside Restricted Folder
     Log  output is ${output}
 
     Should Contain       ${output.replace("\n", " ")}  Failed to get the symlink status of
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
 
 CLS Cannot Open Permission Denied File
@@ -433,7 +433,7 @@ CLS Cannot Open Permission Denied File
     Log  output is ${output}
 
     Should Contain       ${output}  Failed to open as permission denied: /home/vagrant/this/is/a/directory/for/scanning/eicar
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
 
 CLS Can Scan Zero Byte File
@@ -474,7 +474,7 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
 
     Log   return code is ${rc}
     Log   output is ${output}
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
 
 CLS Creates Threat Report
@@ -1012,7 +1012,7 @@ CLS Reports Error Once When Using Custom Log File
     ${lines} =  Get Lines Containing String     ${content}  file/folder does not exist
 
     ${count} =  Get Line Count   ${lines}
-    Should Be Equal As Integers  ${2}  ${count}
+    Should Be Equal As Integers  ${1}  ${count}
 
 
 CLS Scans root with non-canonical path
