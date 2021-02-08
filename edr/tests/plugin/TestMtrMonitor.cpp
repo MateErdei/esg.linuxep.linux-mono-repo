@@ -29,11 +29,6 @@ class TestableMtrMonitor : public MtrMonitor
         {
             return MtrMonitor::findMtrSocketPath();
         }
-
-        std::optional<std::string> getcurrentMtrSocket()
-        {
-            return m_currentMtrSocket;
-        }
 };
 
 std::string EXAMPLE_FLAGS_FILE_CONTENTS="--host_identifier=uuid\n"
@@ -239,7 +234,6 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueByDefault) //NO_L
 
     TestableMtrMonitor mtrMonitor(std::move(mockOsqueryClient));
     ASSERT_TRUE(mtrMonitor.hasScheduledQueriesConfigured());
-    ASSERT_EQ(mtrMonitor.getcurrentMtrSocket(), socket);
 }
 
 TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsNonZeroCount) //NO_LINT
@@ -269,7 +263,6 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsNon
 
     TestableMtrMonitor mtrMonitor(std::move(mockOsqueryClient));
     ASSERT_TRUE(mtrMonitor.hasScheduledQueriesConfigured());
-    ASSERT_EQ(mtrMonitor.getcurrentMtrSocket(), socket);
 }
 
 TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsZeroCount) //NO_LINT
@@ -299,7 +292,6 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsZer
 
     TestableMtrMonitor mtrMonitor(std::move(mockOsqueryClient));
     ASSERT_FALSE(mtrMonitor.hasScheduledQueriesConfigured());
-    ASSERT_EQ(mtrMonitor.getcurrentMtrSocket(), socket);
 }
 
 TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredDefaultsToTrueAndIgnoresUnexpectedData) //NO_LINT
@@ -336,7 +328,6 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredDefaultsToTrueAndIgnoresUnex
 
     TestableMtrMonitor mtrMonitor(std::move(mockOsqueryClient));
     ASSERT_TRUE(mtrMonitor.hasScheduledQueriesConfigured());
-    ASSERT_EQ(mtrMonitor.getcurrentMtrSocket(), socket);
 }
 
 TEST_F(TestMtrMonitor, hasScheduledQueriesReturnsTrueAndIgnoresUnexpectedDataEvenWhenCorrectFieldPresent) //NO_LINT
@@ -373,5 +364,4 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesReturnsTrueAndIgnoresUnexpectedDataEve
 
     TestableMtrMonitor mtrMonitor(std::move(mockOsqueryClient));
     ASSERT_TRUE(mtrMonitor.hasScheduledQueriesConfigured());
-    ASSERT_EQ(mtrMonitor.getcurrentMtrSocket(), socket);
 }

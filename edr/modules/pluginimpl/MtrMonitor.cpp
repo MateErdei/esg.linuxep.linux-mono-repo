@@ -11,7 +11,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 
 MtrMonitor::MtrMonitor(std::unique_ptr<osqueryclient::IOsqueryClient> osqueryClient) :
-    m_osqueryClient(std::move(osqueryClient)), m_currentMtrSocket()
+    m_osqueryClient(std::move(osqueryClient))
 {
 }
 
@@ -107,19 +107,17 @@ std::optional<OsquerySDK::QueryData> MtrMonitor::queryMtr(const std::string& que
 bool MtrMonitor::connectToMtr()
 {
     LOGDEBUG("Connecting MTR Monitor to MTR OSQuery");
-    if (!m_currentMtrSocket.has_value())
-    {
-        m_currentMtrSocket = findMtrSocketPath();
-    }
 
-    if (m_currentMtrSocket.has_value())
+    std::optional<std::string> currentMtrSocket = findMtrSocketPath();
+
+    if (currentMtrSocket.has_value())
     {
         auto filesystem = Common::FileSystem::fileSystem();
-        if (filesystem->exists(m_currentMtrSocket.value()))
+        if (filesystem->exists(currentMtrSocket.value()))
         {
             try
             {
-                m_osqueryClient->connect(m_currentMtrSocket.value());
+                m_osqueryClient->connect(currentMtrSocket.value());
                 return true;
             }
             catch (const std::exception& exception)

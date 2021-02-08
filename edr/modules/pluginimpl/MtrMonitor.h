@@ -14,7 +14,6 @@ public:
 protected:
     static const int QUERY_SUCCESS = 0;
     std::unique_ptr<osqueryclient::IOsqueryClient> m_osqueryClient;
-    std::optional<std::string> m_currentMtrSocket = std::nullopt;
     bool m_clientAlive = false;
 
     // flags is a vector of strings of the form --flag=value from the osquery flags file.
