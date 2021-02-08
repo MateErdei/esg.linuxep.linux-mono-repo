@@ -9,6 +9,8 @@ Resource    EDRResources.robot
 
 Default Tags   EDR_PLUGIN   MDR_PLUGIN
 
+Test Timeout    10 minutes
+
 *** Test Cases ***
 EDR takes netlink once MTR stops running scheduled queries
     # Start fake MTR backend
