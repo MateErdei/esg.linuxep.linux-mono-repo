@@ -36,13 +36,13 @@ EDR takes netlink once MTR stops running scheduled queries
     Swap Dbos Config and Restart MTR Plugin
 
     Wait Until Keyword Succeeds
-    ...   100 secs
+    ...   150 secs
     ...   5 secs
     ...   Check Netlink Owned By EDR
     Swap Dbos Config Back and Restart MTR Plugin
 
     Wait Until Keyword Succeeds
-    ...   100 secs
+    ...   150 secs
     ...   5 secs
     ...   Check Netlink Owned By MTR
 
