@@ -22,6 +22,8 @@ public:
 
     std::string createJsonString(const std::string& oldPartString, const std::string& newPartString)
     {
+        // Values set below represent values of a running system in which the last update was successful.
+
         std::string jsonString = R"({
  "DownloadFailedSinceTime": "0",
  "DownloadState": "0",
@@ -35,17 +37,31 @@ public:
  "canSendEvent": true
 })";
 
-        if (!oldPartString.empty())
-        {
-            size_t pos = jsonString.find(oldPartString);
+        return updateJsonString(jsonString, oldPartString, newPartString);
 
-            EXPECT_TRUE(pos != std::string::npos);
-
-            jsonString.replace(pos, oldPartString.size(), newPartString);
-        }
-
-        return jsonString;
     }
+
+    std::string createDefaultJsonString(const std::string& oldPartString, const std::string& newPartString)
+    {
+        // Values set below represent values of a running system in which the last update was successful.
+
+        std::string jsonString = R"({
+ "DownloadFailedSinceTime": "0",
+ "DownloadState": "1",
+ "DownloadStateCredit": "0",
+ "EventStateLastError": "0",
+ "EventStateLastTime": "0",
+ "InstallFailedSinceTime": "0",
+ "InstallState": "1",
+ "InstallStateCredit": "0",
+ "LastGoodInstallTime": "0",
+ "canSendEvent": true
+})";
+
+        return updateJsonString(jsonString, oldPartString, newPartString);
+
+    }
+
 
     std::string updateJsonString(std::string jsonString, const std::string& oldPartString, const std::string& newPartString)
     {

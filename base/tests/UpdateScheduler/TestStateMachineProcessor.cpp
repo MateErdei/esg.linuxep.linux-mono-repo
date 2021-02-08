@@ -266,10 +266,13 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     expectedStateMachineData.setInstallStateCredit("1");
     expectedStateMachineData.setDownloadState("1");
     expectedStateMachineData.setInstallState("0");
+    expectedStateMachineData.setEventStateLastError(std::to_string(configModule::EventMessageNumber::SINGLEPACKAGEMISSING));
 
     EXPECT_NE(expectedStateMachineData.getDownloadFailedSinceTime(), stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
+    EXPECT_NE(expectedStateMachineData.getEventStateLastTime(), stateMachineProcessor.getStateMachineData().getEventStateLastTime());
     // update expected time stamps to match actual for the times that are expected to change.
     expectedStateMachineData.setDownloadFailedSinceTime(stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
+    expectedStateMachineData.setEventStateLastTime(stateMachineProcessor.getStateMachineData().getEventStateLastTime());
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 
@@ -293,10 +296,13 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateIsMulti
     expectedStateMachineData.setInstallStateCredit("1");
     expectedStateMachineData.setDownloadState("1");
     expectedStateMachineData.setInstallState("0");
+    expectedStateMachineData.setEventStateLastError(std::to_string(configModule::EventMessageNumber::MULTIPLEPACKAGEMISSING));
 
     EXPECT_NE(expectedStateMachineData.getDownloadFailedSinceTime(), stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
+    EXPECT_NE(expectedStateMachineData.getEventStateLastTime(), stateMachineProcessor.getStateMachineData().getEventStateLastTime());
     // update expected time stamps to match actual for the times that are expected to change.
     expectedStateMachineData.setDownloadFailedSinceTime(stateMachineProcessor.getStateMachineData().getDownloadFailedSinceTime());
+    expectedStateMachineData.setEventStateLastTime(stateMachineProcessor.getStateMachineData().getEventStateLastTime());
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 
@@ -798,4 +804,46 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermane
     bool expectedCanSendEvent = true;
     EXPECT_EQ( expectedCanSendEvent, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
-// test with errors throttled, success that is resent after 24h (can also be one with failures), event is not sent in the scenario: success-networkerror - success
+
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultIsSuccess) // NOLINT
+{
+    std::string rawJsonStateMachineData = createDefaultJsonString("", "");
+
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
+
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
+
+    stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
+
+    StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createJsonString("", ""));
+    EXPECT_NE( expectedStateMachineData.getEventStateLastTime(),stateMachineProcessor.getStateMachineData().getEventStateLastTime());
+    expectedStateMachineData.setEventStateLastTime(stateMachineProcessor.getStateMachineData().getEventStateLastTime());
+    expectedStateMachineData.setCanSendEvent(true);
+
+    EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
+
+}
+
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultInFailed) // NOLINT
+{
+    std::string rawJsonStateMachineData = createDefaultJsonString("", "");
+
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
+
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
+
+    stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::DOWNLOADFAILED);
+
+    StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createDefaultJsonString("", ""));
+    EXPECT_NE( expectedStateMachineData.getEventStateLastTime(),stateMachineProcessor.getStateMachineData().getEventStateLastTime());
+    // Updated expected values.
+    expectedStateMachineData.setEventStateLastTime(stateMachineProcessor.getStateMachineData().getEventStateLastTime());
+    expectedStateMachineData.setEventStateLastError(std::to_string(configModule::EventMessageNumber::DOWNLOADFAILED));
+    expectedStateMachineData.setLastGoodInstallTime("1610465945");
+    expectedStateMachineData.setCanSendEvent(true);
+
+    EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
+
+}

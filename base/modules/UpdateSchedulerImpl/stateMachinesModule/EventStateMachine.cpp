@@ -20,6 +20,9 @@ namespace stateMachinesModule
             return false;
         case IDS_RMS_DWNLD_ERROR:
         case IDS_RMS_CONNECTIONFAILED:
+        case IDS_RMS_NOLOCATIONS_AT_ALL:
+        case IDS_RMS_MISSING_PRODUCT:
+        case IDS_RMS_NOLOCATIONS_FOR_PACKAGE:
             // Download failure.
             return 0 != downloadStateMachine_.CurrentState().credit;
         default:
