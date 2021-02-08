@@ -53,6 +53,7 @@ class LogUtils(object):
         self.marked_mcs_envelope_logs = 0
         self.marked_watchdog_logs = 0
         self.marked_managementagent_log = 0
+        self.marked_edr_log = 0
 
     def log_contains_in_order(self, log_location, log_name, args, log_finds=True):
         return log_contains_in_order(log_location, log_name, args, log_finds)
@@ -369,6 +370,18 @@ class LogUtils(object):
             self.dump_mcsrouter_log()
             raise AssertionError("MCS Router log did not contain: " + string_to_contain)
 
+    def mark_edr_log(self):
+        contents = get_log_contents(self.edr_log)
+        self.marked_edr_logs = len(contents)
+
+    def check_marked_edr_log_contains(self, string_to_contain):
+        contents = get_log_contents(self.edr_log)
+
+        contents = contents[self.marked_edr_log:]
+
+        if string_to_contain not in contents:
+            raise AssertionError(f"EDR did not contain: {string_to_contain}")
+
     def check_marked_mcsrouter_log_contains_string_n_times(self, string_to_contain, expected_occurence):
         mcsrouter_log = os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
         contents = get_log_contents(mcsrouter_log)
@@ -583,6 +596,15 @@ class LogUtils(object):
         num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain, use_regex=False)
         if num_occurences != int(expected_occurence):
             raise AssertionError("managementagent Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain, num_occurences, expected_occurence))
+
+    def check_edr_log_contains_string_n_times(self, string_to_contain, expected_occurence):
+
+        log = self.edr_log
+        contents = get_log_contents(log)
+
+        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain, use_regex=False)
+        if num_occurences != int(expected_occurence):
+            raise AssertionError(f"EDR Log Contains: \"{string_to_contain}\" - {num_occurences} times not the requested {expected_occurence} times")
 
     def check_updatescheduler_log_contains_string_n_times(self, string_to_contain, expected_occurence):
 
