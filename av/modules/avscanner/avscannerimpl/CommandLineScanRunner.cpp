@@ -185,7 +185,7 @@ namespace avscanner::avscannerimpl
         }
 
         // Override E_CLEAN with E_GENERIC_FAILURE but don't override if a different error code has already been set
-        if (commandLineWalkerCallbacks.returnCode() != common::E_CLEAN && m_returnCode == common::E_CLEAN)
+        if (m_returnCode == common::E_CLEAN)
         {
             // returnCode() is either E_CLEAN or E_GENERIC_FAILURE
             m_returnCode = commandLineWalkerCallbacks.returnCode();
