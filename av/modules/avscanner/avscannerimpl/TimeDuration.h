@@ -15,7 +15,6 @@ namespace avscanner::avscannerimpl
     {
     public:
         int sec, min, hour;
-
         TimeDuration() = default;
         TimeDuration(int,int,int);
         TimeDuration timeConversion(const int totalScanTime);

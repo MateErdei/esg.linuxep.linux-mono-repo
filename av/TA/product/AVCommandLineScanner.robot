@@ -175,13 +175,9 @@ CLS Summary is Correct
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/EXTRA_FOLDER -a
 
-    Log  ${output}
+    Log to console  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}  1502 files scanned in  minute  seconds
-    Should Not Contain  ${output}  hours
-    Should Not Contain  ${output}  hour
-    Should Not Contain  ${output}  minutes
-    Should Not Contain  ${output}  less than a second
+    Should Contain   ${output}  1502 files scanned in  minute  second
     Should Contain   ${output}  1501 files out of 1502 were infected.
     Should Contain   ${output}  1502 EICAR-AV-Test infections discovered.
 
@@ -193,11 +189,6 @@ CLS Summary in Less Than a Second
 
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
     Should Contain   ${output}  0 files scanned in less than a second
-    Should Not Contain  ${output}  hours
-    Should Not Contain  ${output}  hour
-    Should Not Contain  ${output}  minutes
-    Should Not Contain  ${output}  minute
-    Should Not Contain  ${output}  seconds
     Should Contain   ${output}  0 files out of 0 were infected.
 
 

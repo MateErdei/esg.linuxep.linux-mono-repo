@@ -29,8 +29,6 @@ namespace avscanner::avscannerimpl
         void scanError(const std::string& errorMsg) override;
         common::E_ERROR_CODES returnCode();
         void scanStarted() override { m_startTime = time(nullptr); }
-        struct TimeDuration { int sec; int min; int hour;};
-        TimeDuration timeConversion(const long totalScanTime);
         void logSummary() override;
 
     protected:
