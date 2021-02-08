@@ -61,6 +61,8 @@ UpdateScheduler Status No Longer Contains Deprecated Fields
     [Documentation]  Checks fix from LINUXEP-8108
     Set Log Level For Component And Reset and Return Previous Log  suldownloader  DEBUG
 
+    Remove File   ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Remove File   ${SOPHOS_INSTALL}/base/mcs/status/cache/ALC.xml
     Simulate Send Policy And Run Update  ${BasePolicy}
     ${eventPath} =  Check Status and Events Are Created  waitTime=120 secs
     ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
@@ -71,10 +73,6 @@ UpdateScheduler Status No Longer Contains Deprecated Fields
     Should Not Contain  ${StatusContent}  <lastInstallStartedTime>
     Should Not Contain  ${StatusContent}  <lastFinishedTime>
     Should Not Contain  ${StatusContent}  <lastResult>
-
-    Check Event Report Success  ${eventPath}
-
-    File Should Exist    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
 
 UpdateScheduler Report Failure On Versig Error
@@ -115,6 +113,7 @@ UpdateScheduler Report Failure On Versig Error
     Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${UPDATE_ROOTCERT_DIR}
     Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${UPDATE_ROOTCERT_DIR}
 
+    Copy File  ${SUPPORT_FILES}/StateMachine_RawData/FailedInstall.json  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json
     Simulate Update Now
     ${eventPath} =  Check Event File Generated  120
 
@@ -127,7 +126,7 @@ UpdateScheduler Report Failure On Versig Error
     ${eventContent} =   Get File   ${eventPath}
     Should Not Contain   ${eventContent}  <number>0</number>
 
-    File Should Not Exist  ${statusPath}
+    File Should Exist  ${statusPath}
     Remove File    ${eventPath}
 
     # run a second update, should report the same error.

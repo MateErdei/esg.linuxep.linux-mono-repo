@@ -1,0 +1,12 @@
+{
+"DownloadFailedSinceTime": "0",
+"DownloadState": "0",
+"DownloadStateCredit": "72",
+"EventStateLastError": "0",
+"EventStateLastTime": "0",
+"InstallFailedSinceTime": "0",
+"InstallState": "1",
+"InstallStateCredit": "1",
+"LastGoodInstallTime": "0",
+"canSendEvent": true
+}
