@@ -63,9 +63,10 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
         int error = errno;
         std::string escapedPath = common::escapePathForLogging(fileToScanPath, true);
 
-        std::string logMsg = failedToOpen(error);
+        std::ostringstream logMsg;
+        logMsg << failedToOpen(error) << escapedPath;
 
-        LOGERROR( logMsg << escapedPath);
+        m_callbacks->scanError(logMsg.str());
 
         return scan_messages::ScanResponse();
     }
