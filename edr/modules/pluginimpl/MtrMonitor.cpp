@@ -81,16 +81,24 @@ std::optional<OsquerySDK::QueryData> MtrMonitor::queryMtr(const std::string& que
 
     if (m_clientAlive)
     {
-        OsquerySDK::QueryData queryData;
-        auto status = m_osqueryClient->query(query, queryData);
-        LOGDEBUG("MTR Monitor returned query status: " << status.code);
-        if (status.code == QUERY_SUCCESS)
+        try
         {
-            return queryData;
+            OsquerySDK::QueryData queryData;
+            auto status = m_osqueryClient->query(query, queryData);
+            LOGDEBUG("MTR Monitor returned query status: " << status.code);
+            if (status.code == QUERY_SUCCESS)
+            {
+                return queryData;
+            }
+            else
+            {
+                LOGWARN("Failed to query MTR OSQuery: " << status.code << " " << status.message);
+                m_clientAlive = false;
+            }
         }
-        else
+        catch (const std::exception& exception)
         {
-            LOGWARN("Failed to query MTR OSQuery: " << status.code << " " << status.message);
+            LOGWARN("Failed to query MTR OSQuery: " << exception.what());
             m_clientAlive = false;
         }
     }
@@ -106,15 +114,18 @@ bool MtrMonitor::connectToMtr()
 
     if (m_currentMtrSocket.has_value())
     {
-        try
+        auto filesystem = Common::FileSystem::fileSystem();
+        if (filesystem->exists(m_currentMtrSocket.value()))
         {
-
-            m_osqueryClient->connect(m_currentMtrSocket.value());
-            return true;
-        }
-        catch (const std::exception& exception)
-        {
-            LOGERROR("Failed to connect to MTR OSQuery: " << exception.what());
+            try
+            {
+                m_osqueryClient->connect(m_currentMtrSocket.value());
+                return true;
+            }
+            catch (const std::exception& exception)
+            {
+                LOGERROR("Failed to connect to MTR OSQuery: " << exception.what());
+            }
         }
     }
     return false;

@@ -236,6 +236,8 @@ TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsFalseIfEdrH
     std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
     EXPECT_CALL(*mockFileSystem,
                 readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
 
     // Setup osquery client mock
     std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
@@ -277,6 +279,8 @@ TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsTrueIfEdrDo
     std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
     EXPECT_CALL(*mockFileSystem,
                 readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
 
     // Setup osquery client mock
     std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
@@ -316,6 +320,8 @@ TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsTrueIfEdrDo
     std::vector<std::string> flags = { "some text", "--extensions_socket=" + socket, "--flag=value" };
     EXPECT_CALL(*mockFileSystem, readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags"))
         .WillOnce(Return(flags));
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
 
     // Setup osquery client mock
     std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
@@ -356,7 +362,8 @@ TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsFalseIfEdrD
     std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
     EXPECT_CALL(*mockFileSystem,
                 readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
-
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
     // Setup osquery client mock
     std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
     EXPECT_CALL(*mockOsqueryClient, connect(socket)).Times(1);
@@ -396,7 +403,8 @@ TEST_F(TestOsqueryConfigurator, checkIfReconfigurationRequiredReturnsTrueIfEdrHa
     std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
     EXPECT_CALL(*mockFileSystem,
                 readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
-
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
     // Setup osquery client mock
     std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
     EXPECT_CALL(*mockOsqueryClient, connect(socket)).Times(1);

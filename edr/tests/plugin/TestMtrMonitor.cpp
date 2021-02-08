@@ -226,6 +226,8 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueByDefault) //NO_L
 
     EXPECT_CALL(*mockFileSystem,
                 exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
 
     std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
     EXPECT_CALL(*mockFileSystem,
@@ -258,6 +260,8 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsNon
 
     EXPECT_CALL(*mockFileSystem,
                 exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
 
     std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
     EXPECT_CALL(*mockFileSystem,
@@ -286,6 +290,8 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsZer
 
     EXPECT_CALL(*mockFileSystem,
                 exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
 
     std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
     EXPECT_CALL(*mockFileSystem,
@@ -325,6 +331,8 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredDefaultsToTrueAndIgnoresUnex
     std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
     EXPECT_CALL(*mockFileSystem,
                 readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
 
     TestableMtrMonitor mtrMonitor(std::move(mockOsqueryClient));
     ASSERT_TRUE(mtrMonitor.hasScheduledQueriesConfigured());
@@ -360,6 +368,8 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesReturnsTrueAndIgnoresUnexpectedDataEve
     std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
     EXPECT_CALL(*mockFileSystem,
                 readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
 
     TestableMtrMonitor mtrMonitor(std::move(mockOsqueryClient));
     ASSERT_TRUE(mtrMonitor.hasScheduledQueriesConfigured());
