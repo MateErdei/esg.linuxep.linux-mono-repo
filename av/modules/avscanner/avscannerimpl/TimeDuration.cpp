@@ -51,9 +51,9 @@ string TimeDuration::toString(const TimeDuration result)
     }
     if ((result.sec > 0 && result.min == 0) or (result.min > 0 or result.hour > 0))
     {
-        timingSummary += to_string(result.sec) + common::pluralize(result.sec, " second, ", " seconds, ");
+        timingSummary += to_string(result.sec) + common::pluralize(result.sec, " second.", " seconds.");
     }
-    if (result.sec < 0 && result.hour == 0 && result.min == 0)
+    if (result.sec == 0 && result.hour == 0 && result.min == 0)
     {
         timingSummary += "less than a second";
     }
