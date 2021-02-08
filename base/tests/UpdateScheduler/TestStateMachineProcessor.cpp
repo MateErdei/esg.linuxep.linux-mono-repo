@@ -27,6 +27,10 @@ public:
 
     MockFileSystem& setupFileSystemAndGetMock()
     {
+        return setupFileSystemAndGetMock(true);
+    }
+    MockFileSystem& setupFileSystemAndGetMock(bool nonEmptyExistsFilePathDefaultValue)
+    {
         using ::testing::Ne;
         Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, "/installroot");
@@ -37,7 +41,7 @@ public:
         ON_CALL(*filesystemMock, isDirectory(m_distPath)).WillByDefault(Return(true));
         std::string empty;
         ON_CALL(*filesystemMock, exists(empty)).WillByDefault(Return(false));
-        ON_CALL(*filesystemMock, exists(Ne(empty))).WillByDefault(Return(true));
+        ON_CALL(*filesystemMock, exists(Ne(empty))).WillByDefault(Return(nonEmptyExistsFilePathDefaultValue));
 
         m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *filesystemMock;
@@ -805,12 +809,10 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermane
     EXPECT_EQ( expectedCanSendEvent, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultIsSuccess) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultIsSuccess) // NOLINT
 {
-    std::string rawJsonStateMachineData = createDefaultJsonString("", "");
-
-    auto& fileSystemMock = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
+    auto& fileSystemMock = setupFileSystemAndGetMock(false);
+    EXPECT_CALL(fileSystemMock, readFile(_)).Times(0);
 
     stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
@@ -825,12 +827,10 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstInstallU
 
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultInFailed) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultInFailure) // NOLINT
 {
-    std::string rawJsonStateMachineData = createDefaultJsonString("", "");
-
-    auto& fileSystemMock = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
+    auto& fileSystemMock = setupFileSystemAndGetMock(false);
+    EXPECT_CALL(fileSystemMock, readFile(_)).Times(0);
 
     stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
@@ -841,6 +841,27 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstInstallU
     // Updated expected values.
     expectedStateMachineData.setEventStateLastTime(stateMachineProcessor.getStateMachineData().getEventStateLastTime());
     expectedStateMachineData.setEventStateLastError(std::to_string(configModule::EventMessageNumber::DOWNLOADFAILED));
+    expectedStateMachineData.setLastGoodInstallTime("1610465945");
+    expectedStateMachineData.setCanSendEvent(true);
+
+    EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
+}
+
+TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultInConnectionFailure) // NOLINT
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock(false);
+    EXPECT_CALL(fileSystemMock, readFile(_)).Times(0);
+
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
+
+    stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::CONNECTIONERROR);
+    StateMachineData temp = stateMachineProcessor.getStateMachineData();
+
+    StateMachineData expectedStateMachineData = StateMachineData::fromJsonStateMachineData(createDefaultJsonString("", ""));
+    //EXPECT_NE( expectedStateMachineData.getEventStateLastTime(),stateMachineProcessor.getStateMachineData().getEventStateLastTime());
+    // Updated expected values.
+    expectedStateMachineData.setEventStateLastTime(stateMachineProcessor.getStateMachineData().getEventStateLastTime());
+    expectedStateMachineData.setEventStateLastError(std::to_string(configModule::EventMessageNumber::CONNECTIONERROR));
     expectedStateMachineData.setLastGoodInstallTime("1610465945");
     expectedStateMachineData.setCanSendEvent(true);
 

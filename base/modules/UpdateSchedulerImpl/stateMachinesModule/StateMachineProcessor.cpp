@@ -111,7 +111,6 @@ namespace UpdateSchedulerImpl::stateMachinesModule
             {
                 std::string stateMachineDataContent = fileSystem->readFile(stateMachineDataPath);
                 m_stateMachineData = StateData::StateMachineData::fromJsonStateMachineData(stateMachineDataContent);
-                populateStateMachines();
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {
@@ -124,6 +123,7 @@ namespace UpdateSchedulerImpl::stateMachinesModule
                 "No state machine data file found at : " << stateMachineDataPath
                                                          << " , state machines are starting with default values.");
         }
+        populateStateMachines();
     }
 
     void StateMachineProcessor::writeStateMachineRawData()
@@ -188,8 +188,6 @@ namespace UpdateSchedulerImpl::stateMachinesModule
 
         ::stateMachinesModule::EventStateMachine eventStateMachine(downloadStateMachine, installStateMachine, m_eventMachineState);
 
-        int val = configModule::EventMessageNumber::MULTIPLEPACKAGEMISSING;
-        LOGINFO(val);
         m_stateMachineData.setCanSendEvent(!eventStateMachine.Discard(updateResult, currentTime));
 
         m_downloadMachineState = downloadStateMachine.CurrentState();
