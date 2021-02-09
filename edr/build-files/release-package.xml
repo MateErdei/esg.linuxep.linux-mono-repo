@@ -19,6 +19,7 @@
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <build-asset project="winep" repo="dbos">
+            <release-version branch="release/2021.07" build-id="20210204175546-4fbd4a100d645bfc56c87cf29cb66075f18f8eeb-ijfuzf"/>
             <development-version branch="develop"/>
             <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
         </build-asset>
