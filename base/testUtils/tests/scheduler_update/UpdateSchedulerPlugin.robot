@@ -484,14 +484,21 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
     Remove File  ${SULDOWNLOADER_LOG_PATH}
 
     #Update after 5-10 minutes (boot storm avoiding update)
-    ${eventPath} =  Check Event File Generated  wait_time_seconds=600
-    Remove File  ${eventPath}
     ${reportPath} =  Get latest report path
     Remove File  ${reportPath}
-    Check Sul Downloader log contains  Doing supplement-only update
+    Wait Until Keyword Succeeds
+    ...  600 secs
+    ...  5 secs
+    ...  Check Sul Downloader log contains  Generating the report file
 
     #Scheduled update - 7 minutes after the previous update
-    ${eventPath} =  Check Event File Generated  wait_time_seconds=480
+    Log File     ${SULDOWNLOADER_LOG_PATH}
+    Remove File  ${SULDOWNLOADER_LOG_PATH}
+    Wait Until Keyword Succeeds
+    ...  480 secs
+    ...  5 secs
+    ...  Check Sul Downloader log contains  Generating the report file
+
     ${reportPath} =  Get latest report path
     Check report was a product update  ${reportPath}
 
