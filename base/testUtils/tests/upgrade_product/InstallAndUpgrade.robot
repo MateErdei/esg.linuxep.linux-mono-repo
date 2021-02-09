@@ -358,13 +358,6 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     ...   200 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
-
     # Swap old manifest files around, this will make the cleanup process mark files for delete which should not be
     # deleted, because the files are outside of the components realm
 
@@ -374,7 +367,11 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
     Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
-    Trigger Update Now
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
 
     Wait Until Keyword Succeeds
     ...   200 secs
