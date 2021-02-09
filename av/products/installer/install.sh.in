@@ -69,6 +69,14 @@ SUSI_UPDATE_SRC="$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/"
 SUSI_DIST_VERS="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
 SUSI_V1DIR="${SUSI_DIST_VERS}version1/"
 
+function delete_removed_vdl()
+{
+    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/vdl"
+    local dest_dir="${SUSI_UPDATE_SRC}/vdl"
+
+    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" --notVersioned || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed files"
+}
+
 function generate_susi_package_manifest()
 {
     local nonsupplement_manifest="${SUSI_UPDATE_SRC}/nonsupplement_manifest.txt"
@@ -145,7 +153,8 @@ function install_product()
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
     #Install SUSI
-    rsync -avz "$DIST/files/plugins/av/chroot/susi" "$SOPHOS_INSTALL/plugins/av/chroot" --delete || failure ${EXIT_FAIL_RSYNC} "Failed to copy SUSI files to installation"
+    mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot"
+    cp -arfv "$DIST/files/plugins/av/chroot/susi" "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_RSYNC} "Failed to copy SUSI files to installation"
     #Install SUSI libraries (with version copy)
     find "$DIST/files/plugins/av/chroot/susi" -type f -name "*.so.*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"
@@ -252,6 +261,7 @@ function install_product()
 
     ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner
 
+    delete_removed_vdl
     generate_susi_package_manifest
     bootstrap_susi_from_update_source
 
@@ -264,9 +274,8 @@ function install_product()
 function update_supplement()
 {
     # Copy supplement updates
-    rsync -avz "$DIST/files/plugins/av/chroot/susi/update_source" "$SOPHOS_INSTALL/plugins/av/chroot/susi/" --delete || failure ${EXIT_FAIL_RSYNC} "Failed to copy SUSI files to installation"
-    find "$DIST/files/plugins/av/chroot/susi/update_source" -type f -name "*.so.*" -print0 \
-        | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"
+    cp -afv "$DIST/files/plugins/av/chroot/susi/update_source/vdl/"* "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl/" || failure ${EXIT_FAIL_RSYNC} "Failed to copy SUSI files to installation"
+    delete_removed_vdl
 
     generate_susi_package_manifest
 

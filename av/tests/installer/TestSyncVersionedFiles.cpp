@@ -144,8 +144,41 @@ TEST_F(TestSyncVersionedFiles, testDeleteRemovedFile_oneMissing)
     EXPECT_FALSE(fs::exists(testfile));
 }
 
-TEST_F(TestSyncVersionedFiles, testSyncVersionedFiles)
+class SyncVersionedFilesParameterizedTest
+    : public ::testing::TestWithParam<bool>
 {
+protected:
+    void SetUp() override
+    {
+        const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+        m_testDir = fs::temp_directory_path();
+        m_testDir /= test_info->test_case_name();
+        m_testDir /= test_info->name();
+        fs::remove_all(m_testDir);
+        fs::create_directories(m_testDir);
+        fs::current_path(m_testDir);
+    }
+
+    void TearDown() override
+    {
+        fs::current_path(fs::temp_directory_path());
+        fs::remove_all(m_testDir);
+    }
+
+    void create_file(const fs::path &p)
+    {
+        std::ofstream(p).close();
+    }
+
+    fs::path m_testDir;
+};
+
+INSTANTIATE_TEST_CASE_P(TestSyncVersionedFiles, SyncVersionedFilesParameterizedTest, ::testing::Values(true, false)); // NOLINT
+
+TEST_P(SyncVersionedFilesParameterizedTest, testSyncVersionedFiles)
+{
+    bool isVersioned = GetParam();
+
     fs::path src = m_testDir / "src";
     fs::path dest = m_testDir / "dest";
     fs::create_directory(src);
@@ -161,10 +194,10 @@ TEST_F(TestSyncVersionedFiles, testSyncVersionedFiles)
     fs::create_directory(dest / "directory");
     fs::create_symlink(".", dest / "symlink");
 
-    int ret = sync_versioned_files::sync_versioned_files(src, dest);
+    int ret = sync_versioned_files::sync_versioned_files(src, dest, isVersioned);
     EXPECT_EQ(ret, 0);
 
-    EXPECT_TRUE(fs::exists(dest / "exists.0"));
+    EXPECT_EQ(fs::exists(dest / "exists.0"), isVersioned);
     EXPECT_TRUE(fs::exists(dest / "exists"));
 
     EXPECT_FALSE(fs::exists(dest / "doesnt_exist.0"));

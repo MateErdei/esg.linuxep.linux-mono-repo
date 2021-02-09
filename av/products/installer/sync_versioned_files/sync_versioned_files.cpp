@@ -47,7 +47,7 @@ void sync_versioned_files::delete_removed_file(const fs::path& p)
     }
 }
 
-int sync_versioned_files::sync_versioned_files(const fs::path& src, const fs::path& dest)
+int sync_versioned_files::sync_versioned_files(const fs::path& src, const fs::path& dest, bool isVersioned)
 {
     // for each file in dest, work out what we expect as a source, and see if it is present
     for (const auto& p : fs::directory_iterator(dest))
@@ -61,12 +61,23 @@ int sync_versioned_files::sync_versioned_files(const fs::path& src, const fs::pa
             continue;
         }
         fs::path expected_name = p.path();
-        expected_name.replace_extension();
+        if (isVersioned)
+        {
+            expected_name.replace_extension();
+        }
         fs::path src_name = replace_stem(expected_name, dest, src);
         if (!fs::is_regular_file(src_name))
         {
-            // delete p and all symlinks to p created by versioned copy
-            delete_removed_file(p.path());
+            if (isVersioned)
+            {
+                // delete p and all symlinks to p created by versioned copy
+                delete_removed_file(p.path());
+            }
+            else
+            {
+                PRINT("Delete "<< p.path());
+                fs::remove(p.path());
+            }
         }
     }
     return 0;

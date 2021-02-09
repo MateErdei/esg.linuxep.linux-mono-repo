@@ -12,7 +12,7 @@ namespace fs = sophos_filesystem;
 
 namespace sync_versioned_files
 {
-    int sync_versioned_files(const fs::path& src, const fs::path& dest);
+    int sync_versioned_files(const fs::path& src, const fs::path& dest, bool isVersioned=true);
 
     void delete_removed_file(const fs::path& p);
 
