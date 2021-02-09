@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-plugin-edr-component" version="1.1.0">
+<package name="sspl-plugin-edr-component" version="1.1.1">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -14,7 +14,7 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2020-44-linux" build-id="20201029124003-8477070a030b3915d003b74a6c4e8a061272e06b-Jy7Ts2"/>
+            <release-version branch="release/2021-07" build-id="20210205194609-7083eb9befef6eb36a3a990fe2aecd5eb2c08016-m0r2UY"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
