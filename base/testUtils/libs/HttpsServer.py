@@ -44,8 +44,8 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(b"<html><head><title>Response</title></head><body>Response From HttpsServer</body></html>")
 
     def handle_put_request_with_hang(self):
-        self.log_message("Sleeping for 10s")
-        time.sleep(10)
+        self.log_message("Sleeping for 30s")
+        time.sleep(30)
         self.log_message("Done sleeping")
 
     def do_POST(self):
