@@ -19,22 +19,7 @@ TimeDuration::TimeDuration(const int totalScanTime)
     newScanTime /= 60;
     m_minute = newScanTime % 60;
     newScanTime /= 60;
-    m_hour = newScanTime % 24;
-}
-
-int TimeDuration::getSeconds()
-{
-    return m_sec;
-}
-
-int TimeDuration::getMinutes()
-{
-    return m_minute;
-}
-
-int TimeDuration::getHours()
-{
-    return m_hour;
+    m_hour = newScanTime;
 }
 
 std::string TimeDuration::toString()
