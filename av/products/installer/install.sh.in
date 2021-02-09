@@ -17,7 +17,7 @@ EXIT_FAIL_VERSIONEDCOPY=20
 EXIT_FAIL_INSTALL_PACKAGE=21
 EXIT_FAIL_COPY_MANIFEST=22
 EXIT_FAIL_DELETE_REMOVED_FILES=23
-EXIT_FAIL_RSYNC=24
+EXIT_FAIL_NONVERSIONEDCOPY=24
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -154,7 +154,7 @@ function install_product()
 
     #Install SUSI
     mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot"
-    cp -arfv "$DIST/files/plugins/av/chroot/susi" "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_RSYNC} "Failed to copy SUSI files to installation"
+    cp -arfv "$DIST/files/plugins/av/chroot/susi" "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
     #Install SUSI libraries (with version copy)
     find "$DIST/files/plugins/av/chroot/susi" -type f -name "*.so.*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"
@@ -274,7 +274,7 @@ function install_product()
 function update_supplement()
 {
     # Copy supplement updates
-    cp -afv "$DIST/files/plugins/av/chroot/susi/update_source/vdl/"* "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl/" || failure ${EXIT_FAIL_RSYNC} "Failed to copy SUSI files to installation"
+    cp -afv "$DIST/files/plugins/av/chroot/susi/update_source/vdl/"* "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
     delete_removed_vdl
 
     generate_susi_package_manifest
