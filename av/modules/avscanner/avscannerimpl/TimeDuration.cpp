@@ -9,10 +9,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "common/StringUtils.h"
 #include "Logger.h"
 
-#include <iostream>
-
 using namespace avscanner::avscannerimpl;
-using namespace std;
 
 TimeDuration::TimeDuration(int s, int m, int h)
 {
@@ -37,21 +34,21 @@ TimeDuration TimeDuration::timeConversion(const int totalScanTime)
     return result;
 }
 
-string TimeDuration::toString(const TimeDuration result)
+std::string TimeDuration::toString(const TimeDuration result)
 {
-    string timingSummary;
+    std::string timingSummary;
 
     if (result.hour > 0)
     {
-        timingSummary += to_string(result.hour) + common::pluralize(result.hour, " hour, ", " hours, ");
+        timingSummary += std::to_string(result.hour) + common::pluralize(result.hour, " hour, ", " hours, ");
     }
     if ((result.min > 0 && result.hour == 0) or result.hour > 0)
     {
-        timingSummary += to_string(result.min) + common::pluralize(result.min, " minute, ", " minutes, ");
+        timingSummary += std::to_string(result.min) + common::pluralize(result.min, " minute, ", " minutes, ");
     }
     if ((result.sec > 0 && result.min == 0) or (result.min > 0 or result.hour > 0))
     {
-        timingSummary += to_string(result.sec) + common::pluralize(result.sec, " second.", " seconds.");
+        timingSummary += std::to_string(result.sec) + common::pluralize(result.sec, " second.", " seconds.");
     }
     if (result.sec == 0 && result.hour == 0 && result.min == 0)
     {
