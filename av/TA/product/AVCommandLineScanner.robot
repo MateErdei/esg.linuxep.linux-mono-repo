@@ -175,7 +175,7 @@ CLS Summary is Correct
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/EXTRA_FOLDER -a
 
-    Log to console  ${output}
+    Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}  1502 files scanned in  minute  second
     Should Contain   ${output}  1501 files out of 1502 were infected.

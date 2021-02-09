@@ -71,7 +71,7 @@ void ScanCallbackImpl::logSummary()
     auto endTime = time(nullptr);
     auto totalScanTime = static_cast<double>(endTime - getStartTime());
 
-    TimeDuration x;
+    TimeDuration convertedTime(totalScanTime);
 
     std::ostringstream scanSummary;
 
@@ -79,7 +79,7 @@ void ScanCallbackImpl::logSummary()
 
     scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfScannedFiles(), " file", " files") << " scanned in ";
 
-    scanSummary << x.toString(x.timeConversion(totalScanTime)) << std::endl;
+    scanSummary << convertedTime.toString() << std::endl;
 
     scanSummary << getNoOfInfectedFiles() << common::pluralize(getNoOfInfectedFiles(), " file", " files") << " out of ";
     scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfInfectedFiles(), " was", " were") << " infected." << std::endl;

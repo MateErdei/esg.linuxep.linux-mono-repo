@@ -4,8 +4,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#ifndef SSPL_PLUGIN_MAV_TIMEDURATION_H
-#define SSPL_PLUGIN_MAV_TIMEDURATION_H
+#pragma once
 
 #include <string>
 
@@ -14,12 +13,16 @@ namespace avscanner::avscannerimpl
     class TimeDuration
     {
     public:
-        int sec, min, hour;
-        TimeDuration() = default;
-        TimeDuration(int,int,int);
-        TimeDuration timeConversion(const int totalScanTime);
-        std::string toString(const TimeDuration result);
+        TimeDuration() = delete;
+        explicit TimeDuration(const int totalScanTime);
+        int getSeconds();
+        int getMinutes();
+        int getHours();
+        std::string toString();
+
+    private:
+        int m_sec = 0;
+        int m_minute = 0;
+        int m_hour = 0;
     };
 }
-
-#endif // SSPL_PLUGIN_MAV_TIMEDURATION_H

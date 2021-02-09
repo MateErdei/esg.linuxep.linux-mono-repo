@@ -11,46 +11,49 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 
-TimeDuration::TimeDuration(int s, int m, int h)
+TimeDuration::TimeDuration(const int totalScanTime)
 {
-    sec = s;
-    min = m;
-    hour = h;
-}
-
-TimeDuration TimeDuration::timeConversion(const int totalScanTime)
-{
-
     auto newScanTime = int(totalScanTime);
 
-    auto seconds = newScanTime % 60;
+    m_sec = newScanTime % 60;
     newScanTime /= 60;
-    auto minutes = newScanTime % 60;
+    m_minute = newScanTime % 60;
     newScanTime /= 60;
-    auto hours = newScanTime % 24;
-
-    TimeDuration result (seconds,minutes,hours);
-
-    return result;
+    m_hour = newScanTime % 24;
 }
 
-std::string TimeDuration::toString(const TimeDuration result)
+int TimeDuration::getSeconds()
+{
+    return m_sec;
+}
+
+int TimeDuration::getMinutes()
+{
+    return m_minute;
+}
+
+int TimeDuration::getHours()
+{
+    return m_hour;
+}
+
+std::string TimeDuration::toString()
 {
     std::string timingSummary;
 
-    if (result.hour > 0)
+    if (m_hour > 0)
     {
-        timingSummary += std::to_string(result.hour) + common::pluralize(result.hour, " hour, ", " hours, ");
+        timingSummary += std::to_string(m_hour) + common::pluralize(m_hour, " hour, ", " hours, ");
     }
-    if ((result.min > 0 && result.hour == 0) or result.hour > 0)
+    if ((m_minute > 0 && m_hour == 0) or m_hour > 0)
     {
-        timingSummary += std::to_string(result.min) + common::pluralize(result.min, " minute, ", " minutes, ");
+        timingSummary += std::to_string(m_minute) + common::pluralize(m_minute, " minute, ", " minutes, ");
     }
-    if ((result.sec > 0 && result.min == 0) or (result.min > 0 or result.hour > 0))
+    if ((m_sec > 0 && m_minute == 0) or (m_minute > 0 or m_hour > 0))
     {
-        timingSummary += std::to_string(result.sec) + common::pluralize(result.sec, " second.", " seconds.");
+        timingSummary += std::to_string(m_sec) + common::pluralize(m_sec, " second.", " seconds.");
     }
-    if (result.sec == 0 && result.hour == 0 && result.min == 0)
+    if (m_sec == 0 && m_hour == 0 && m_minute == 0)
     {
         timingSummary += "less than a second";
     }

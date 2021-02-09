@@ -19,14 +19,13 @@ class TestTimeDuration : public LogInitializedTests
 
 TEST_F(TestTimeDuration, TestScanDurationZeroSeconds) // NOLINT
 {
-    TimeDuration timeDuration;
-    TimeDuration result = timeDuration.timeConversion(0);
+    TimeDuration result(0);
 
-    EXPECT_EQ(result.sec, 0);
-    EXPECT_EQ(result.min, 0);
-    EXPECT_EQ(result.hour, 0);
+    EXPECT_EQ(result.getSeconds(), 0);
+    EXPECT_EQ(result.getMinutes(), 0);
+    EXPECT_EQ(result.getHours(), 0);
 
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "less than a second");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour")));
@@ -37,14 +36,13 @@ TEST_F(TestTimeDuration, TestScanDurationZeroSeconds) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationLowerBoundarySecond) // NOLINT
 {
-    TimeDuration timeDuration;
-    TimeDuration result = timeDuration.timeConversion(1);
+    TimeDuration result(1);
 
-    EXPECT_EQ(result.sec, 1);
-    EXPECT_EQ(result.min, 0);
-    EXPECT_EQ(result.hour, 0);
+    EXPECT_EQ(result.getSeconds(), 1);
+    EXPECT_EQ(result.getMinutes(), 0);
+    EXPECT_EQ(result.getHours(), 0);
 
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "1 second.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour")));
@@ -54,14 +52,13 @@ TEST_F(TestTimeDuration, TestScanDurationLowerBoundarySecond) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationNormalSecond) // NOLINT
 {
-    TimeDuration timeDuration;
-    TimeDuration result = timeDuration.timeConversion(2);
+    TimeDuration result(2);
 
-    EXPECT_EQ(result.sec, 2);
-    EXPECT_EQ(result.min, 0);
-    EXPECT_EQ(result.hour, 0);
+    EXPECT_EQ(result.getSeconds(), 2);
+    EXPECT_EQ(result.getMinutes(), 0);
+    EXPECT_EQ(result.getHours(), 0);
 
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "2 seconds.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour")));
@@ -71,14 +68,13 @@ TEST_F(TestTimeDuration, TestScanDurationNormalSecond) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationUpperBoundarySecond) // NOLINT
 {
-    TimeDuration timeDuration;
-    TimeDuration result = timeDuration.timeConversion(59);
+    TimeDuration result(59);
 
-    EXPECT_EQ(result.sec, 59);
-    EXPECT_EQ(result.min, 0);
-    EXPECT_EQ(result.hour, 0);
+    EXPECT_EQ(result.getSeconds(), 59);
+    EXPECT_EQ(result.getMinutes(), 0);
+    EXPECT_EQ(result.getHours(), 0);
 
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "59 seconds.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour")));
@@ -88,14 +84,13 @@ TEST_F(TestTimeDuration, TestScanDurationUpperBoundarySecond) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationLowerBoundaryMinute) // NOLINT
 {
-    TimeDuration timeDuration;
-    TimeDuration result = timeDuration.timeConversion(60);
+    TimeDuration result(60);
 
-    EXPECT_EQ(result.sec, 0);
-    EXPECT_EQ(result.min, 1);
-    EXPECT_EQ(result.hour, 0);
+    EXPECT_EQ(result.getSeconds(), 0);
+    EXPECT_EQ(result.getMinutes(), 1);
+    EXPECT_EQ(result.getHours(), 0);
 
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "1 minute, 0 seconds.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour")));
@@ -105,14 +100,13 @@ TEST_F(TestTimeDuration, TestScanDurationLowerBoundaryMinute) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationNormalMinute) // NOLINT
 {
-    TimeDuration timeDuration;
-    TimeDuration result = timeDuration.timeConversion(61);
+    TimeDuration result(61);
 
-    EXPECT_EQ(result.sec, 1);
-    EXPECT_EQ(result.min, 1);
-    EXPECT_EQ(result.hour, 0);
+    EXPECT_EQ(result.getSeconds(), 1);
+    EXPECT_EQ(result.getMinutes(), 1);
+    EXPECT_EQ(result.getHours(), 0);
 
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "1 minute, 1 second.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour")));
@@ -122,14 +116,13 @@ TEST_F(TestTimeDuration, TestScanDurationNormalMinute) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationLowerBoundaryTwoMinutes) // NOLINT
 {
-    TimeDuration timeDuration;
-    TimeDuration result = timeDuration.timeConversion(120);
+    TimeDuration result(120);
 
-    EXPECT_EQ(result.sec, 0);
-    EXPECT_EQ(result.min, 2);
-    EXPECT_EQ(result.hour, 0);
+    EXPECT_EQ(result.getSeconds(), 0);
+    EXPECT_EQ(result.getMinutes(), 2);
+    EXPECT_EQ(result.getHours(), 0);
 
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "2 minutes, 0 seconds.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour")));
@@ -139,14 +132,13 @@ TEST_F(TestTimeDuration, TestScanDurationLowerBoundaryTwoMinutes) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationNormalTwoMinutes) // NOLINT
 {
-    TimeDuration timeDuration;
-    TimeDuration result = timeDuration.timeConversion(121);
+    TimeDuration result(121);
 
-    EXPECT_EQ(result.sec, 1);
-    EXPECT_EQ(result.min, 2);
-    EXPECT_EQ(result.hour, 0);
+    EXPECT_EQ(result.getSeconds(), 1);
+    EXPECT_EQ(result.getMinutes(), 2);
+    EXPECT_EQ(result.getHours(), 0);
 
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "2 minutes, 1 second.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour")));
@@ -156,14 +148,13 @@ TEST_F(TestTimeDuration, TestScanDurationNormalTwoMinutes) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationUpperBoundaryMinutes) // NOLINT
 {
-    TimeDuration timeDuration;
-    TimeDuration result = timeDuration.timeConversion(3599);
+    TimeDuration result(3599);
 
-    EXPECT_EQ(result.sec, 59);
-    EXPECT_EQ(result.min, 59);
-    EXPECT_EQ(result.hour, 0);
+    EXPECT_EQ(result.getSeconds(), 59);
+    EXPECT_EQ(result.getMinutes(), 59);
+    EXPECT_EQ(result.getHours(), 0);
 
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "59 minutes, 59 seconds.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour")));
@@ -173,15 +164,13 @@ TEST_F(TestTimeDuration, TestScanDurationUpperBoundaryMinutes) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationLowerBoundaryHour) // NOLINT
 {
-    TimeDuration timeDuration;
+    TimeDuration result(3600);
 
-    TimeDuration result = timeDuration.timeConversion(3600);
+    EXPECT_EQ(result.getSeconds(), 0);
+    EXPECT_EQ(result.getMinutes(), 0);
+    EXPECT_EQ(result.getHours(), 1);
 
-    EXPECT_EQ(result.sec, 0);
-    EXPECT_EQ(result.min, 0);
-    EXPECT_EQ(result.hour, 1);
-
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "1 hour, 0 minutes, 0 seconds.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hours")));
@@ -191,15 +180,13 @@ TEST_F(TestTimeDuration, TestScanDurationLowerBoundaryHour) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationNormalHour) // NOLINT
 {
-    TimeDuration timeDuration;
+    TimeDuration result(3601);
 
-    TimeDuration result = timeDuration.timeConversion(3601);
+    EXPECT_EQ(result.getSeconds(), 1);
+    EXPECT_EQ(result.getMinutes(), 0);
+    EXPECT_EQ(result.getHours(), 1);
 
-    EXPECT_EQ(result.sec, 1);
-    EXPECT_EQ(result.min, 0);
-    EXPECT_EQ(result.hour, 1);
-
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "1 hour, 0 minutes, 1 second.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hours")));
@@ -209,15 +196,13 @@ TEST_F(TestTimeDuration, TestScanDurationNormalHour) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationNormalHourAndMinute) // NOLINT
 {
-    TimeDuration timeDuration;
+    TimeDuration result(3660);
 
-    TimeDuration result = timeDuration.timeConversion(3660);
+    EXPECT_EQ(result.getSeconds(), 0);
+    EXPECT_EQ(result.getMinutes(), 1);
+    EXPECT_EQ(result.getHours(), 1);
 
-    EXPECT_EQ(result.sec, 0);
-    EXPECT_EQ(result.min, 1);
-    EXPECT_EQ(result.hour, 1);
-
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "1 hour, 1 minute, 0 seconds.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hours")));
@@ -227,15 +212,13 @@ TEST_F(TestTimeDuration, TestScanDurationNormalHourAndMinute) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationNormalHourMinuteSecond) // NOLINT
 {
-    TimeDuration timeDuration;
+    TimeDuration result(3661);
 
-    TimeDuration result = timeDuration.timeConversion(3661);
+    EXPECT_EQ(result.getSeconds(), 1);
+    EXPECT_EQ(result.getMinutes(), 1);
+    EXPECT_EQ(result.getHours(), 1);
 
-    EXPECT_EQ(result.sec, 1);
-    EXPECT_EQ(result.min, 1);
-    EXPECT_EQ(result.hour, 1);
-
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "1 hour, 1 minute, 1 second.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hours")));
@@ -245,15 +228,13 @@ TEST_F(TestTimeDuration, TestScanDurationNormalHourMinuteSecond) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationNormalTwoHour) // NOLINT
 {
-    TimeDuration timeDuration;
+    TimeDuration result(7200);
 
-    TimeDuration result = timeDuration.timeConversion(7200);
+    EXPECT_EQ(result.getSeconds(), 0);
+    EXPECT_EQ(result.getMinutes(), 0);
+    EXPECT_EQ(result.getHours(), 2);
 
-    EXPECT_EQ(result.sec, 0);
-    EXPECT_EQ(result.min, 0);
-    EXPECT_EQ(result.hour, 2);
-
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "2 hours, 0 minutes, 0 seconds.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour,")));
@@ -263,15 +244,13 @@ TEST_F(TestTimeDuration, TestScanDurationNormalTwoHour) // NOLINT
 
 TEST_F(TestTimeDuration, TestScanDurationNormalTwoHourSecond) // NOLINT
 {
-    TimeDuration timeDuration;
+    TimeDuration result(7201);
 
-    TimeDuration result = timeDuration.timeConversion(7201);
+    EXPECT_EQ(result.getSeconds(), 1);
+    EXPECT_EQ(result.getMinutes(), 0);
+    EXPECT_EQ(result.getHours(), 2);
 
-    EXPECT_EQ(result.sec, 1);
-    EXPECT_EQ(result.min, 0);
-    EXPECT_EQ(result.hour, 2);
-
-    std::string time = result.toString(result);
+    std::string time = result.toString();
 
     EXPECT_EQ(time, "2 hours, 0 minutes, 1 second.");
     EXPECT_THAT(time, Not(testing::HasSubstr("hour,")));
