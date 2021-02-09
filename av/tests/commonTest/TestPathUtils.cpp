@@ -53,3 +53,25 @@ TEST(TestPathUtils, TestRemovingTrailingDotFromPath) // NOLINT
     EXPECT_EQ(PathUtils::removeTrailingDotsFromPath("/a/b/c/"), "/a/b/c/");
     EXPECT_EQ(PathUtils::removeTrailingDotsFromPath("/a/b/c/."), "/a/b/c/");
 }
+
+TEST(TestPathUtils, TestIsNonNormalisedPath) // NOLINT
+{
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath("a//b"));
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath("."));
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath(".."));
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath("/./a"));
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath("/../a"));
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath("/a/."));
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath("/a/.."));
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath("./a"));
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath("../a"));
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath("/a/./b"));
+    EXPECT_TRUE(PathUtils::isNonNormalisedPath("/a/../b"));
+
+    EXPECT_FALSE(PathUtils::isNonNormalisedPath(".foo"));
+    EXPECT_FALSE(PathUtils::isNonNormalisedPath("bar/.foo"));
+    EXPECT_FALSE(PathUtils::isNonNormalisedPath("..foo"));
+    EXPECT_FALSE(PathUtils::isNonNormalisedPath("bar/..foo"));
+    EXPECT_FALSE(PathUtils::isNonNormalisedPath("..."));
+    EXPECT_FALSE(PathUtils::isNonNormalisedPath("bar/..."));
+}

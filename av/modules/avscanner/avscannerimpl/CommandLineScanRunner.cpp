@@ -127,7 +127,7 @@ namespace avscanner::avscannerimpl
                 LOGERROR("Refusing to exclude empty path");
                 continue;
             }
-            if (exclusion.at(0) == '.' or exclusion.find("/.") != std::string::npos)
+            if (common::PathUtils::isNonNormalisedPath(exclusion))
             {
                 if (fs::exists(exclusion))
                 {

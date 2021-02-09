@@ -73,6 +73,8 @@ namespace common
             return path;
         }
 
+        static bool isNonNormalisedPath(const sophos_filesystem::path& p);
+
         static std::string lexicallyNormal(const sophos_filesystem::path& p);
 
     };
