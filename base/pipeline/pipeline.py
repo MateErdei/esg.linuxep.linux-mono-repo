@@ -150,7 +150,7 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
 
 @tap.pipeline(version=1, component='sspl-base', root_sequential=False)
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    component = tap.Component(name='sspl-base', base_version='1.1.4')
+    component = tap.Component(name='sspl-base', base_version='1.1.5')
     
     RELEASE_MODE = 'release'
     ANALYSIS_MODE = 'analysis'
