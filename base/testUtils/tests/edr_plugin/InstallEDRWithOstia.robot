@@ -143,75 +143,7 @@ EDR Uninstalled When Removed From ALC Policy
     File Should Not Exist   ${EDR_STATUS_XML}
     File Should Not Exist   ${CACHED_STATUS_XML}
 
-Install Base And MTR Then Migrate To EDR
-    [Tags]   THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
-
-    # Install MTR
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Should Exist  ${MTR_DIR}
-
-    Check EDR Executable Not Running
-    Should Not Exist  ${EDR_DIR}
-
-    # Install EDR
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  should exist  ${EDR_DIR}
-
-    Wait Until EDR Running
-    Wait Until OSQuery Running
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains    Uninstalling plugin ServerProtectionLinux-Plugin-MDR since it was removed from warehouse
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SophosMTR Executable Not Running
-    # MTR is uninstalled after EDR is installed
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Should Not Exist  ${MTR_DIR}
-
-Install Base And EDR Then Migrate To BASE
-    [Tags]  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   EDR_PLUGIN
-    Install EDR  ${BaseAndEdrVUTPolicy}
-    Wait Until OSQuery Running
-    # Uninstall EDR
-    Send ALC Policy And Prepare For Upgrade  ${BaseVUTPolicy}
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...  100 secs
-    ...  5 secs
-    ...  should Not exist  ${EDR_DIR}
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains    Uninstalling plugin ServerProtectionLinux-Plugin-EDR since it was removed from warehouse
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  EDR Plugin Is Not Running
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-
-Install base and edr and mtr 999 then downgrade to current master
+Install all plugins 999 then downgrade to all plugins develop
     [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
     Install EDR  ${BaseAndMTREdr999Policy}
     Wait Until EDR and MTR OSQuery Running  30
@@ -290,45 +222,6 @@ Install mtr 999 and downgrade to current mtr
 
     ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
     Should not contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
-
-
-Install master of base and edr and mtr and upgrade to mtr 999
-    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
-
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
-    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtr999Policy}
-    #truncate log so that check mdr plugin installed works correctly later in the test
-    ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  EDR Plugin Is Running
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-    Check MDR Plugin Installed
-
-    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
-
-    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should not contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
-    # Ensure MTR was restarted during upgrade.
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop mtr
-    ...  wdctl <> start mtr
 
 
 Update Run that Does Not Change The Product Does not ReInstall The Product
@@ -494,53 +387,6 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
 
 
 
-Install Base And Mtr Vut Then Transition To Base Edr And Mtr Vut
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
-
-    # Install MTR
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   5 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    # ensure MTR plugin is installed and running
-    Wait For MDR To Be Installed
-
-    # ensure EDR is not installed.
-    Wait Until EDR Uninstalled
-
-    # Install EDR
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR
-
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   5 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-
-    Wait For EDR to be Installed
-
-    # ensure Plugins are running after update
-    Check MDR Plugin Running
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check MTR Osquery Executable Running
-    EDR Plugin Is Running
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check EDR Osquery Executable Running
 
 Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
@@ -589,48 +435,6 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     ...  20 secs
     ...  1 secs
     ...  Check EDR Osquery Executable Running
-
-
-Install Base Edr And Mtr Vut Then Transition To Base Mtr Vut
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrAndMtrVUTPolicy}
-
-    # Install EDR And MTR
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   5 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    # ensure initial plugins are installed and running
-    Wait Until MDR Installed
-    Wait For EDR to be Installed
-
-    # Transition to MTR Only
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Uninstalling plugin ServerProtectionLinux-Plugin-EDR since it was removed from warehouse
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check MCS Envelope Contains Event Success On N Event Sent  2
-
-    Wait Until EDR Uninstalled
-
-    # ensure MTR still running after update
-    Check MDR Plugin Running
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check MTR Osquery Executable Running
 
 
 Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
