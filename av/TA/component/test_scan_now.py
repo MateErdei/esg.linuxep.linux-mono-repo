@@ -20,7 +20,7 @@ def test_scan_now(sspl_mock, av_plugin_instance):
     av_plugin_instance.wait_log_contains("Evaluating Scan Now")
     av_plugin_instance.wait_log_contains("Starting scan Scan Now")
     av_plugin_instance.wait_log_contains("Sending scan complete event to Central")
-    # TODO needs to check for reply from plugin
+    # TODO Needs to check for scan complete event from plugin (using agent.handle_send_event()) LINUXDAR-2677
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)
 
 

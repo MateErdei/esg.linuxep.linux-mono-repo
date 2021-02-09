@@ -91,8 +91,6 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
     datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
     unixsocket::send_fd(clientFd.get(), devNull.get()); // send our test fd
 
-    // TODO - could check for activity on our fake scanner here
-
     // check for a pending response
     fd_set readFDs;
     FD_ZERO(&readFDs);

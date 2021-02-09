@@ -43,7 +43,6 @@ GL_EXPECTED_CONTENTS = {
         '''action="101"'''
     ],
 
-    #TODO: uncomment when LINUXDAR-1721 fixed and also update list_of_expected_encoded_eicars file
     "encoded_eicars": [
         '''" " path="/tmp_test/encoded_eicars/"''',
         r'''WIERDPATH-eicar.com-VIRUS" path="/tmp_test/encoded_eicars/.\r/''',

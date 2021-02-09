@@ -27,7 +27,7 @@ namespace manager::scheduler
         /**
          * Get how long we should wait before waking up.
          *
-         * Based on when the next scheduled scan should run, but a max of 1 hour. (TODO: correct to implementation)
+         * Based on when the next scheduled scan should run, but a max of 1 hour.
          * (To account for systems being suspended)
          *
          * @param timespec Result of the calculation

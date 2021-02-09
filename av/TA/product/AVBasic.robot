@@ -124,7 +124,6 @@ Scheduled Scan Configuration Is Correct
     Use Fake AVScanner
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Check AV Plugin Installed
-    # TODO LINUXDAR-1482 Change Send Sav Policy With Imminent Scheduled Scan To Base (see comment in method)
     Run Scheduled Scan
     Check Scheduled Scan Configuration File is Correct
 

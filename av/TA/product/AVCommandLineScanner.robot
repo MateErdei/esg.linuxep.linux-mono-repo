@@ -149,8 +149,7 @@ CLS Can Scan Shallow Archive But not Deep Archive
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar30.zip --scan-archives
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
     Log  ${output}
-    Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/archives/eicar30.zip
-    # TODO: Once CORE-2151 is fixed, check the output for "as it is a Zip Bomb"
+    Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/archives/eicar30.zip as it is a Zip Bomb
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar15.tar --scan-archives
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
@@ -568,7 +567,7 @@ CLS simple eicar in encoded archive
 
 
 CLS Encoded Eicars
-    # TODO - Fix  "Wait Until AV Plugin Log Contains With Offset" to match UTF-8 strings, then replace this with "Mark AV Log"
+    # TODO  Fix "Wait Until AV Plugin Log Contains With Offset" to match UTF-8 strings, then use "Mark AV Log" instead of resetting AVCommandLineScanner Suite LINUXDAR-2677
     # Reset AVCommandLineScanner Suite
     Stop AV
     Remove File  ${THREAT_DETECTOR_LOG_PATH}

@@ -73,6 +73,7 @@ Mark AV Log
     Log  "AV LOG MARK = ${AV_LOG_MARK}"
 
 Mark Sophos Threat Detector Log
+    [Arguments]  ${mark}=""
     ${count} =  Count File Log Lines  ${THREAT_DETECTOR_LOG_PATH}
     Set Test Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
@@ -343,7 +344,7 @@ AV And Base Teardown
 Create Install Options File With Content
     [Arguments]  ${installFlags}
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
-    #TODO set permissions
+    #TODO Set correct permissions for install options file TODO
 
 Check ScanNow Log Exists
     File Should Exist  ${SCANNOW_LOG_PATH}
@@ -430,8 +431,6 @@ Check Scheduled Scan Configuration File is Correct
         ...    120 secs
         ...    1 secs
         ...    File Should Exist  ${configFilename}
-    # TODO LINUXDAR-1482 Update this to check all the configuration is correct - run the test and see what's outputted first
-    # TODO LINUXDAR-1482 Make the check more complicated so we check the list attributes
     @{exclusions} =  ExclusionHelper.get exclusions to scan tmp test
     CapnpHelper.check named scan object   ${configFilename}
         ...     name=Sophos Cloud Scheduled Scan
@@ -489,7 +488,7 @@ Check IDE absent from installation
     file should not exist  ${INSTALL_IDE_DIR}/${ide_name}
 
 Run IDE update
-    # TODO - find a way to do this without clobbering any existing log mark
+    # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
     Mark Sophos Threat Detector Log
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
     Run installer from install set

@@ -77,7 +77,6 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     }
     else if (fs::is_directory(itemStatus))
     {
-        // TODO - unnecessary, but unit tests currently expect it
         if (m_callback.userDefinedExclusionCheck(starting_point, m_startIsSymlink))
         {
             return;
