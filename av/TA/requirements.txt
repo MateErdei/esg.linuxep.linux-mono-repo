@@ -2,5 +2,5 @@ pyzmq
 protobuf
 pytest-html
 Cython
-pycapnp==0.6.4
+pycapnp
 robotframework>=3.1
