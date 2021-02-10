@@ -56,9 +56,9 @@ void Options::constructOptions()
             ("help,h", "Print this help message")
             ("scan-archives,a", "Scan inside archives")
             ("follow-symlinks,s", "Follow symlinks while scanning")
-            ("exclude,x",po::value<std::vector<std::string>>()->value_name("EXCLUSION...")->multitoken(),"Exclude these locations from being scanned")
-            ("output,o", po::value<std::string>()->value_name("OUTPUT..."), "Write to log file")
-            ("log-level,l", po::value<std::string>()->value_name("LOGLEVEL..."), "Log level for Command Line Scanner")
+            ("exclude,x",po::value<std::vector<std::string>>()->value_name("EXCLUSION [EXCLUSION...]")->multitoken(),"Exclude these locations from being scanned")
+            ("output,o", po::value<std::string>()->value_name("OUTPUT"), "Write to log file")
+            ("log-level,l", po::value<std::string>()->value_name("LOGLEVEL"), "Log level for Command Line Scanner")
             ("files,f", po::value<std::vector<std::string>>()->value_name("file [file...]")->multitoken(), "Files to scan")
             ("config,c", po::value<std::string>()->value_name("config_file"), "Input configuration file for scheduled scans");
     }
@@ -128,12 +128,12 @@ std::string Options::getHelp()
     helpText << "Usage: avscanner PATH... [OPTION]..." << std::endl;
     helpText << "Perform an on-demand scan of PATH" << std::endl << std::endl;
     helpText << "Allowed options:" << std::endl;
-    helpText << "  -h, --help                  Print this help message" << std::endl;
-    helpText << "  -a, --scan-archives         Scan inside archives" << std::endl;
-    helpText << "  -s, --follow-symlinks       Follow symlinks while scanning" << std::endl;
-    helpText << "  -x, --exclude EXCLUSION...  Exclude these locations from being scanned" << std::endl;
-    helpText << "  -o, --output OUTPUT...      Write to log file" << std::endl;
-    helpText << "  -l, --log-level LOGLEVEL... Set the logging level" << std::endl << std::endl;
+    helpText << "  -h, --help                              Print this help message" << std::endl;
+    helpText << "  -a, --scan-archives                     Scan inside archives" << std::endl;
+    helpText << "  -s, --follow-symlinks                   Follow symlinks while scanning" << std::endl;
+    helpText << "  -x, --exclude EXCLUSION [EXCLUSION...]  Exclude these locations from being scanned" << std::endl;
+    helpText << "  -o, --output OUTPUT                     Write to log file" << std::endl;
+    helpText << "  -l, --log-level LOGLEVEL                Set the logging level" << std::endl << std::endl;
 
     helpText << "Examples:" << std::endl;
     helpText << "  avscanner / --scan-archives            Scan the Root Directory (recursively including dot files/directories) including the contents of any archive files found" << std::endl;
