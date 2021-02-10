@@ -51,6 +51,9 @@ def pip_install(machine: tap.Machine, *install_args: str):
                        "--disable-pip-version-check",
                        "--default-timeout", "120"]
     machine.run(pip(machine), '--log', '/opt/test/logs/pip.log',
+                'install', '--upgrade', 'pip' *install_args, *pip_index_args,
+                log_mode=tap.LoggingMode.ON_ERROR)
+    machine.run(pip(machine), '--log', '/opt/test/logs/pip.log',
                 'install', '-v', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
