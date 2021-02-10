@@ -9,7 +9,7 @@ then
     else
         apt-get install -y python3.8 python3.8-dev
     fi
-    apt-get install -y nfs-kernel-server zip unzip python3-pkgconfig cython3
+    apt-get install -y nfs-kernel-server zip unzip python3-pkgconfig cython3 capnproto libcapnp-dev
 elif [[ -x $(which yum) ]]
 then
     ping -c2 abn-centosrepo || true
