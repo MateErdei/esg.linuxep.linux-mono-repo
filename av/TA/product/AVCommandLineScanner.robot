@@ -772,14 +772,30 @@ CLS Can Handle Wildcard Exclusions
 
 
 CLS Can Handle Relative Non-Canonical Exclusions
-    ${test_dir} =  Set Variable  ${CURDIR}/exclusion_test_dir/
-    Create File     ${test_dir}/eicar.nope    ${EICAR_STRING}
+    ${test_dir} =  Set Variable  ${NORMAL_DIRECTORY}/exclusion_test_dir/
+    Create File     ${test_dir}/eicar.nope          ${EICAR_STRING}
+    Create File     ${test_dir}/a/eicar.nope        ${EICAR_STRING}
+    Create File     ${test_dir}/b/eicar.nope        ${EICAR_STRING}
+    Create File     ${test_dir}/c/eicar.nope        ${EICAR_STRING}
+    Create File     ${test_dir}/d/e/eicar.nope      ${EICAR_STRING}
+    Create File     ${test_dir}/f/g/eicar.nope      ${EICAR_STRING}
+
     Register Cleanup    Remove Directory      ${test_dir}     recursive=True
 
-    ${rc}   ${output} =    Run And Return Rc And Output  cd ${CURDIR} && ${CLI_SCANNER_PATH} ${CURDIR} --exclude "./exclusion_test_dir/"
+    ${rc}   ${output} =    Run And Return Rc And Output  cd ${test_dir} && ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude "../exclusion_test_dir/" "exclusion_test_dir//a" "${test_dir}/b/." "${test_dir}/c/../c" "${test_dir}/d/./e/" "${test_dir}/f/g/.."
     Log   ${rc}
     Log   ${output}
-    Should Contain      ${output}  Exclusions: ${CURDIR}/exclusion_test_dir/
+    Should Contain      ${output}  Exclusions: ${NORMAL_DIRECTORY}/exclusion_test_dir/
+    Should Contain      ${output}  Exclusions: ${test_dir}b/
+    Should Contain      ${output}  Exclusions: ${test_dir}c/
+    Should Contain      ${output}  Exclusions: ${test_dir}d/e/
+    Should Contain      ${output}  Exclusions: ${test_dir}f/
+    Should Not Contain  &{output}  "${test_dir}/eicar.nope" is infected with EICAR-AV-Test
+    Should Not Contain  &{output}  "${test_dir}/a/eicar.nope" is infected with EICAR-AV-Test
+    Should Not Contain  &{output}  "${test_dir}/b/eicar.nope" is infected with EICAR-AV-Test
+    Should Not Contain  &{output}  "${test_dir}/c/eicar.nope" is infected with EICAR-AV-Test
+    Should Not Contain  &{output}  "${test_dir}/d/e/eicar.nope" is infected with EICAR-AV-Test
+    Should Not Contain  &{output}  "${test_dir}/f/g/eicar.nope" is infected with EICAR-AV-Test
 
 
 CLS Can Change Log Level
