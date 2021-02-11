@@ -28,4 +28,22 @@ namespace Plugin
         Task stopTask{ .taskType = Task::TaskType::Stop, .Content = "" };
         push(std::move(stopTask));
     }
+
+    bool QueueTask::pop(Task& task, int timeout)
+    {
+        std::unique_lock<std::mutex> lck(m_mutex);
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
+        m_cond.wait_until(lck, now + std::chrono::seconds(timeout),[this] { return !m_list.empty(); });
+
+        if (m_list.empty())
+        {
+            return false;
+        }
+
+        Task val = m_list.front();
+        m_list.pop_front();
+        task =  val;
+        return true;
+    }
 } // namespace Plugin

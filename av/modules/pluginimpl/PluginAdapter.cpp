@@ -86,6 +86,12 @@ namespace Plugin
         {
             LOGERROR("Failed to get ALC policy at startup (" << e.what() << ")");
         }
+
+        auto policySavXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(20), 5, "2");
+        processPolicy(policySavXml);
+        auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(20), 5, "1");
+        processPolicy(policyALCXml);
+
         ThreadRunner scheduler(
             m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
         ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
@@ -174,11 +180,11 @@ namespace Plugin
         {
             Plugin::Task task;
 
-//            if (!queueTask.pop(task, timeoutInS.count()))
-//            {
-//                LOGINFO(policyAppId << " policy has not been sent to the plugin");
-//                break;
-//            }
+            if (!queueTask.pop(task, timeoutInS.count()))
+            {
+                LOGINFO(policyAppId << " policy has not been sent to the plugin");
+                break;
+            }
 
             if (task.taskType == Plugin::Task::TaskType::Policy)
             {
