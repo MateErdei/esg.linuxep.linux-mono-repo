@@ -26,6 +26,24 @@ namespace Plugin
         };
         TaskType taskType;
         std::string Content;
+
+        [[nodiscard]] std::string getTaskName() {
+            switch (taskType)
+            {
+                case TaskType::Policy:
+                    return "Policy";
+                case TaskType::Stop:
+                    return "Stop";
+                case TaskType::Action:
+                    return "Action";
+                case TaskType::ScanComplete:
+                    return "ScanComplete";
+                case TaskType::ThreatDetected:
+                    return "ThreatDetected";
+                case TaskType::SendStatus:
+                    return "SendStatus";
+            }
+        }
     };
 
     class QueueTask
@@ -38,6 +56,8 @@ namespace Plugin
         void push(Task);
         Task pop();
         void pushStop();
+
+
     };
 
 } // namespace Plugin

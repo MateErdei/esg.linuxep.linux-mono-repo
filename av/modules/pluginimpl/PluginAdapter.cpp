@@ -164,6 +164,54 @@ namespace Plugin
         m_callback->sendStatus(revID);
     }
 
+    std::string PluginAdapter::waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS,
+                                                    int maxTasksThreshold,
+                                                    const std::string& policyAppId)
+    {
+        std::vector<Plugin::Task> nonPolicyTasks;
+        std::string policyXml;
+        for (int i = 0; i < maxTasksThreshold; i++)
+        {
+            Plugin::Task task;
+
+//            if (!queueTask.pop(task, timeoutInS.count()))
+//            {
+//                LOGINFO(policyAppId << " policy has not been sent to the plugin");
+//                break;
+//            }
+
+            if (task.taskType == Plugin::Task::TaskType::Policy)
+            {
+                policyXml = task.Content;
+                auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+                auto policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
+
+                if (policyAppId == policyType)
+                {
+
+                    LOGINFO("First " << policyAppId << " policy received.");
+                    break;
+                }
+            }
+
+            LOGSUPPORT("Keep task: " << task.getTaskName());
+            nonPolicyTasks.push_back(task);
+            if (task.taskType == Plugin::Task::TaskType::Stop)
+            {
+                throw Common::PluginApi::ApiException("Abort waiting for the first policy as Stop signal received.");
+            }
+        }
+
+        LOGDEBUG("Return from waitForTheFirstPolicy ");
+
+        for (const auto& task : nonPolicyTasks)
+        {
+            queueTask.push(task);
+        }
+
+        return policyXml;
+    }
+
     void PluginAdapter::processAction(const std::string& actionXml)
     {
         LOGDEBUG("Process action: " << actionXml);

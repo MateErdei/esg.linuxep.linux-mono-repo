@@ -45,5 +45,8 @@ namespace Plugin
 
         void incrementTelemetryThreatCount(const std::string &threatName);
         AlcPolicyProcessor m_updatePolicyProcessor;
+
+        std::string waitForTheFirstPolicy(QueueTask &queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
+                                          const std::string &policyAppId);
     };
 } // namespace Plugin
