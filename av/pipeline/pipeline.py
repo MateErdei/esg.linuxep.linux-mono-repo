@@ -241,11 +241,27 @@ def bullseye_coverage_task(machine: tap.Machine):
         # publish combined html results and coverage file to artifactory
         machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
 
+        COVERAGE_NORMALISE_JSON = os.path.join(coverage_results_dir, "test_coverage.json")
+        COVERAGE_MIN_FUNCTION = 70
+        COVERAGE_MIN_CONDITION = 70
+        test_coverage_script = machine.inputs.bazel_tools / 'tools' / 'src' / 'bullseye' / 'test_coverage.py'
+        test_coverage_args = [
+            'python', '-u', str(test_coverage_script),
+            COVFILE_COMBINED, '--output', COVERAGE_NORMALISE_JSON,
+            '--min-function', str(COVERAGE_MIN_FUNCTION),
+            '--min-condition', str(COVERAGE_MIN_CONDITION)
+        ]
+        global BRANCH_NAME
+        if BRANCH_NAME == 'develop':
+            test_coverage_args += ['--upload', '--upload-job', 'UnifiedPipelines/winep/livequery']
+        machine.run(*test_coverage_args)
+
         if exception is not None:
             raise exception
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
+        machine.output_artifact(coverage_results_dir, 'coverage')
 
 
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
