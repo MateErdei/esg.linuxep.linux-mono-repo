@@ -85,7 +85,7 @@ Remove Permission to Read Status and Write Policy From McsRouter Will Make it To
     Run Process   chown  root:root   ${SOPHOS_INSTALL}/base/mcs/policy  ${SOPHOS_INSTALL}/base/mcs/status
     Start System Watchdog
     Wait Until Keyword Succeeds
-    ...  30 secs
+    ...  35 secs
     ...  5 secs
     ...  Check Log Contains  Failed to configure Configure Management Agent    ${SOPHOS_INSTALL}/logs/base/watchdog.log    SophosManagement
 

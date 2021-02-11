@@ -98,6 +98,10 @@ EDR plugin restarts mtr extension when killed
     ...  70 secs
     ...  10 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Created and monitoring extension child  2
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  2
     Run Live Query  ${GREP}   simple
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -121,6 +125,10 @@ EDR Osquery restarts mtr extension when killed
     ...  70 secs
     ...  10 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Created and monitoring extension child  2
+        Wait Until Keyword Succeeds
+        ...  5 secs
+        ...  1 secs
+        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  2
     Run Live Query  ${GREP}   simple
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -131,6 +139,10 @@ EDR Osquery restarts mtr extension when killed
     ...  70 secs
     ...  10 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Created and monitoring extension child  3
+        Wait Until Keyword Succeeds
+        ...  5 secs
+        ...  1 secs
+        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  3
     Run Live Query  ${GREP}   simple
     Wait Until Keyword Succeeds
     ...  30 secs
