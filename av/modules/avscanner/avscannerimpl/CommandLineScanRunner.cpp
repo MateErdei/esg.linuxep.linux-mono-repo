@@ -127,24 +127,25 @@ namespace avscanner::avscannerimpl
                 LOGERROR("Refusing to exclude empty path");
                 continue;
             }
+
             if (common::PathUtils::isNonNormalisedPath(exclusion))
             {
                 if (fs::exists(exclusion))
                 {
-                    exclusion = fs::canonical(exclusion);
                     if (fs::is_directory(exclusion) && exclusion != "/")
                     {
-                        exclusion.append("/");
+                        exclusion = common::PathUtils::appendForwardSlashToPath(exclusion);
                     }
+                    exclusion = common::PathUtils::lexicallyNormal(exclusion);
                 }
                 else
                 {
-                    LOGERROR("Cannot canonicalize: " << exclusion);
+                    LOGERROR("Exclusion does not exist: " << exclusion);
                 }
             }
 
             oss << exclusion << ", ";
-            cmdExclusions.emplace_back(exclusion);
+            cmdExclusions.emplace_back(fs::path(exclusion));
         }
 
         if (!m_exclusions.empty())
