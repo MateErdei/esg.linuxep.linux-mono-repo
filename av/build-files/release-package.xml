@@ -69,6 +69,10 @@
             <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 
+        <build-asset project="em" repo="esg">
+            <release-version branch="release/bazeltools" build-id="20210210152107-afccb9e629c26987caed7dc9f9f66855b7eaeace-9j683V"/>
+            <include artifact-path="bazel-tools" dest-dir="input/esg"/>
+        </build-asset>
 
         <!-- external dependencies -->
         <package name="openssl" version="1-1-1d-6/219246" dest="input/susi_input" >
