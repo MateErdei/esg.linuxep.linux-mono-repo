@@ -135,7 +135,6 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
-        bazel_tools=context.artifact.from_folder('./input/esg'),
         av=build / output,
         # tapartifact upload-file
         # esg-tap-component-store/com.sophos/ssplav-localrep/released/20200219/reputation.zip
@@ -245,7 +244,7 @@ def bullseye_coverage_task(machine: tap.Machine):
         COVERAGE_NORMALISE_JSON = os.path.join(coverage_results_dir, "test_coverage.json")
         COVERAGE_MIN_FUNCTION = 70
         COVERAGE_MIN_CONDITION = 70
-        test_coverage_script = machine.inputs.bazel_tools / 'tools' / 'src' / 'bullseye' / 'test_coverage.py'
+        test_coverage_script = os.path.join(INPUTS_DIR, 'esg', 'tools', 'src', 'bullseye', 'test_coverage.py')
         test_coverage_args = [
             'python', '-u', str(test_coverage_script),
             COVFILE_COMBINED, '--output', COVERAGE_NORMALISE_JSON,
