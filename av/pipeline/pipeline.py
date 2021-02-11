@@ -25,7 +25,7 @@ BRANCH_NAME = "master"
 
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
-    return branch_name in ('master', "develop") or branch_name.endswith('coverage')
+    return branch_name in ('master', "develop") or branch_name.endswith('coverage') or branch_name.endswith('LINUXDAR-2659-submit-coverage-results-to-the-esg-system-dashboard')
 
 def is_debian_based(machine: tap.Machine):
     return machine.template.startswith("ubuntu")
@@ -252,7 +252,7 @@ def bullseye_coverage_task(machine: tap.Machine):
             '--min-condition', str(COVERAGE_MIN_CONDITION)
         ]
         global BRANCH_NAME
-        if BRANCH_NAME == 'develop':
+        if BRANCH_NAME == 'develop' or BRANCH_NAME.endswith('LINUXDAR-2659-submit-coverage-results-to-the-esg-system-dashboard'):
             test_coverage_args += ['--upload', '--upload-job', 'UnifiedPipelines/winep/livequery']
         machine.run(*test_coverage_args)
 
