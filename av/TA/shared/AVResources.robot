@@ -344,7 +344,6 @@ AV And Base Teardown
 Create Install Options File With Content
     [Arguments]  ${installFlags}
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
-    #TODO Set correct permissions for install options file TODO
 
 Check ScanNow Log Exists
     File Should Exist  ${SCANNOW_LOG_PATH}
