@@ -75,7 +75,10 @@ namespace common
 
         static bool isNonNormalisedPath(const sophos_filesystem::path& p)
         {
-            if(contains(p, "//")) return true;
+            if(contains(p, "//"))
+            {
+                return true;
+            }
 
             for (auto part = p.begin(); part != p.end(); part++)
             {
