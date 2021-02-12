@@ -30,6 +30,7 @@ Sophos Threat Detector Has No Unnecessary Capabilities
     Run Keyword Unless  "${output}" == "Capabilities for `${pid}\': =" or "${output}" == "${pid}: ="  FAIL  msg=Enexpected capabilities: ${output}
 
 Threat detector does not recreate logging symlink if present
+    Should Exist   ${THREAT_DETECTOR_LOG_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}/sophos_threat_detector.log
     Restart sophos_threat_detector
@@ -38,6 +39,7 @@ Threat detector does not recreate logging symlink if present
 
 Threat detector recreates logging symlink if missing
     register cleanup   Install With Base SDDS
+    Should Exist   ${THREAT_DETECTOR_LOG_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
 
     Run Process   rm   ${CHROOT_LOGGING_SYMLINK}
@@ -56,6 +58,7 @@ Threat detector recreates logging symlink if missing
 
 Threat detector aborts if logging symlink cannot be created
     register cleanup   Install With Base SDDS
+    Should Exist   ${THREAT_DETECTOR_LOG_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
 
     Run Process   rm   ${CHROOT_LOGGING_SYMLINK}
