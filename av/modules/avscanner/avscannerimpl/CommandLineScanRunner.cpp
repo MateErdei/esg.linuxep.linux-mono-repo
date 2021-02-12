@@ -130,18 +130,11 @@ namespace avscanner::avscannerimpl
 
             if (common::PathUtils::isNonNormalisedPath(exclusion))
             {
-                if (fs::exists(exclusion))
+                if (fs::is_directory(exclusion) && exclusion != "/")
                 {
-                    if (fs::is_directory(exclusion) && exclusion != "/")
-                    {
-                        exclusion = common::PathUtils::appendForwardSlashToPath(exclusion);
-                    }
-                    exclusion = common::PathUtils::lexicallyNormal(exclusion);
+                    exclusion = common::PathUtils::appendForwardSlashToPath(exclusion);
                 }
-                else
-                {
-                    LOGERROR("Exclusion does not exist: " << exclusion);
-                }
+                exclusion = common::PathUtils::lexicallyNormal(exclusion);
             }
 
             oss << exclusion << ", ";

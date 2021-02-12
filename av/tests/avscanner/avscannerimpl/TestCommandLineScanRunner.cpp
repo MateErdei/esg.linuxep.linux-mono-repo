@@ -574,16 +574,14 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalNonExistentExclusions) // NOLINT
 
     std::string expected = "Exclusions: ";
     expected += fs::absolute("sandbox/a/f/").string();
-    expected += ", " + fs::absolute("does_not_exist/./a/f/").string();
+    expected += ", " + fs::absolute("does_not_exist/a/f/").string();
     expected += ", " + fs::absolute("sandbox/a/f/").string();
     expected += ", " + fs::absolute(".does_not_exist/a/f/").string();
     expected += ", " + fs::absolute("sandbox/a/b/").string();
     EXPECT_TRUE(appenderContains(expected)) << "Did not contain: \"" << expected << "\"";
 
     EXPECT_TRUE(appenderContains("Excluding directory: " + fs::absolute("sandbox/a/b/").string()));
-    EXPECT_TRUE(appenderContains("Exclusion does not exist: " + fs::absolute("does_not_exist/./a/f/").string()));
     EXPECT_TRUE(appenderContains("Excluding directory: " + fs::absolute("sandbox/a/b/").string()));
-    EXPECT_TRUE(appenderContains("Exclusion does not exist: " + fs::absolute(".does_not_exist/a/f/").string()));
     EXPECT_TRUE(appenderContains("Excluding directory: " + fs::absolute("sandbox/a/f/").string()));
     EXPECT_FALSE(appenderContains("Scanning " + fs::absolute("sandbox/a/b/file1.txt").string()));
     EXPECT_FALSE(appenderContains("Scanning " + fs::absolute("sandbox/a/f/file2.txt").string()));
