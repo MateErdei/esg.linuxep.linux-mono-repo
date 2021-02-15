@@ -57,7 +57,7 @@ def read_datafeed_tracker():
             with open(filepath, 'r') as outfile:
                 contents = outfile.read()
                 file_data = json.loads(contents)
-        except PermissionError as e:
+        except (PermissionError, json.JSONDecodeError) as e:
             LOGGER.warning("Unable to read {} with error: ".format(filepath, e))
             file_data['size'] = 0
             file_data['time_sent'] = int(time.time())
