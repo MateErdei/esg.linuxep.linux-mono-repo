@@ -89,14 +89,14 @@ namespace Plugin
             LOGERROR("Failed to get ALC policy at startup (" << e.what() << ")");
         }
 
-        auto policySAVXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_second), 5, "2", "SAV");
+        auto policySAVXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "2", "SAV");
         if (!policySAVXml.empty())
         {
             processPolicy(policySAVXml);
             m_processedSAVPolicyBeforeLoop = true;
         }
 
-        auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_second), 5, "1", "ALC");
+        auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "1", "ALC");
         if (!policyALCXml.empty())
         {
             processPolicy(policyALCXml);
