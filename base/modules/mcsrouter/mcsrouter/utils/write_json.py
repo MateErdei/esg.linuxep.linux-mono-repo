@@ -8,6 +8,7 @@ from .get_ids import get_gid, get_uid
 import logging
 import json
 import os
+import time
 LOGGER = logging.getLogger(__name__)
 
 def write_current_proxy_info(proxy):
@@ -47,3 +48,44 @@ def write_mcs_flags(info):
     flag_file_path = path_manager.mcs_flags_file()
     with open(flag_file_path, 'w') as outfile:
         outfile.write(info)
+
+def read_datafeed_tracker():
+    filepath = path_manager.datafeed_tracker()
+    file_data = {}
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, 'r') as outfile:
+                contents = outfile.read()
+                file_data = json.loads(contents)
+        except PermissionError as e:
+            LOGGER.warning("Unable to read {} with error: ".format(filepath, e))
+            file_data['size'] = 0
+            file_data['time_sent'] = int(time.time())
+    else:
+        file_data['size'] = 0
+        file_data['time_sent'] = int(time.time())
+
+    return file_data
+
+def update_datafeed_tracker(datafeed_info, size):
+    filepath = path_manager.datafeed_tracker()
+
+    try:
+        datafeed_info['size'] += size
+    except ValueError:
+        LOGGER.warning(f"size {datafeed_info['size']} in file: {filepath} not a valid int")
+        datafeed_info['size'] = size
+
+    current_time = int(time.time())
+    if (current_time - datafeed_info["time_sent"]) > 24*60*60:
+        LOGGER.info(f"Sent {datafeed_info['size']} since {datafeed_info['time_sent']}")
+        datafeed_info['time_sent'] = current_time
+        datafeed_info['size'] = 0
+
+    with open(filepath, 'w') as outfile:
+        json.dump(datafeed_info, outfile)
+    os.chmod(filepath, 0o640)
+
+def update_datafeed_size(size):
+    datafeed_info = read_datafeed_tracker()
+    update_datafeed_tracker(datafeed_info, size)

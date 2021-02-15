@@ -163,6 +163,12 @@ class Datafeeds(object):
                 datafeed_result.remove_datafeed_file()
         self.__m_datafeeds = datafeed_results_to_keep
 
+    def get_total_size(self):
+        total_size = 0
+        for datafeed_result in self.__m_datafeeds:
+            total_size += datafeed_result.get_compressed_body_size()
+        return total_size
+
     def prune_too_large_datafeed_files(self):
         datafeed_results_to_keep = []
         for datafeed_result in self.__m_datafeeds:

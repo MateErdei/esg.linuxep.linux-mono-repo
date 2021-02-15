@@ -510,6 +510,7 @@ class MCS:
                     for datafeed in all_datafeeds:
                         if datafeed.get_feed_id() == datafeed_id:
                             if datafeed.add_datafeed_result(result_file_path, datafeed_id, datafeed_timestamp, datafeed_body):
+
                                 LOGGER.debug(f"Queuing datafeed result for: {datafeed_id}, with timestamp: {datafeed_timestamp}")
                             else:
                                 LOGGER.debug(f"Already queued datafeed result for: {datafeed_id}, with timestamp: {datafeed_timestamp}")
@@ -519,7 +520,9 @@ class MCS:
                 LOGGER.debug("No datafeed result files")
 
         def send_datafeed_files(v2_datafeed_available):
+            total_size = 0
             for datafeed in all_datafeeds:
+                total_size += datafeed.get_total_size()
                 if datafeed.has_results():
                     LOGGER.debug(f"Datafeed results present for datafeed ID: {datafeed.get_feed_id()}")
                     try:
@@ -527,6 +530,8 @@ class MCS:
                     except Exception as df_exception:
                         LOGGER.error(
                             f"Failed to send datafeed results, datafeed ID: {datafeed.get_feed_id()}, error: {str(df_exception)}")
+
+            write_json.update_datafeed_size(total_size)
 
         def status_updated(reason=None):
             """

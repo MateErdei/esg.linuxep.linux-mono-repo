@@ -161,4 +161,5 @@ class TestDatafeeds(unittest.TestCase):
         self.assertEqual(datafeed_results[0].m_json_body, content)
         expected_compressed = zlib.compress(bytes(content, "utf-8"))
         self.assertEqual(expected_compressed, datafeed_results[0].m_compressed_body)
+        print(len(expected_compressed), datafeed_results[0].m_compressed_body_size)
         self.assertEqual(len(expected_compressed), datafeed_results[0].m_compressed_body_size)

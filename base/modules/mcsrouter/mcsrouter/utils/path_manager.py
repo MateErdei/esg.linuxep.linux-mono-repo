@@ -230,6 +230,12 @@ def mcs_current_proxy():
     """
     return os.path.join(sophos_etc_dir(), "current_proxy")
 
+def datafeed_tracker():
+    """
+    datafeed_tracker
+    """
+    return os.path.join(sophos_etc_dir(), "datafeed_tracker")
+
 def sophosspl_config():
     """
     sophosspl_config
