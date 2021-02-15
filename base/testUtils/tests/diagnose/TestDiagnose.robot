@@ -135,6 +135,9 @@ Diagnose Tool Gathers EDR Logs When Run From Installation
         ...   10 secs
         ...   1 secs
         ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf
+
+    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
     Wait Until Keyword Succeeds
         ...   10 secs
         ...   1 secs

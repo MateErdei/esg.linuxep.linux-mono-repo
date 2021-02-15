@@ -73,13 +73,15 @@ Check Diagnose Output For EDR Plugin logs
 Check Diagnose Output For Additional EDR Plugin File
     ${EDRFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr
     ${EDRConfFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr/etc
+    ${ScheduledQueryConfFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr/etc/osquery.conf.d
 
     Should Contain  ${EDRFiles}    edr.log
     Should Contain  ${EDRFiles}    osqueryd.results.log
     Should Contain  ${EDRFiles}    VERSION.ini
     Should Contain  ${EDRConfFiles}    osquery.flags
     Should Contain  ${EDRConfFiles}    osquery.conf
-
+    Should Contain  ${ScheduledQueryConfFiles}    sophos-scheduled-query-pack.conf
+    Should Contain  ${ScheduledQueryConfFiles}    sophos-scheduled-query-pack.mtr.conf
 
 Check Diagnose Output For Additional MDR Plugin File
     [Documentation]  Requires 'Mimic MDR Files' to be executed first
@@ -109,7 +111,8 @@ Check Diagnose Output For System Command Files
     Should Contain  ${Files}    systemd
     Should Contain  ${Files}    usr-systemd
     Should Contain  ${Files}    list-unit-files
-    Should Contain  ${Files}    auditctl
+    Should Contain  ${Files}    auditctl-rules
+    Should Contain  ${Files}    audit-subsystem-status
     Should Contain  ${Files}    systemctl-status-auditd
     Should Contain  ${Files}    plugins.d
     Should Contain  ${Files}    journalctl-sophos-spl
