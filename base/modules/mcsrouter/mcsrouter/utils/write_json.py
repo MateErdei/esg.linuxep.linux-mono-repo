@@ -64,7 +64,6 @@ def read_datafeed_tracker():
     else:
         file_data['size'] = 0
         file_data['time_sent'] = int(time.time())
-
     return file_data
 
 def update_datafeed_tracker(datafeed_info, size):
@@ -78,7 +77,9 @@ def update_datafeed_tracker(datafeed_info, size):
 
     current_time = int(time.time())
     if (current_time - datafeed_info["time_sent"]) > 24*60*60:
-        LOGGER.info(f"Sent {datafeed_info['size']} since {datafeed_info['time_sent']}")
+        time_string = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(datafeed_info['time_sent']))
+        data_size_in_kB = datafeed_info['size']/1000
+        LOGGER.info(f"Sent {data_size_in_kB}kB of datafeed to Central since {time_string}")
         datafeed_info['time_sent'] = current_time
         datafeed_info['size'] = 0
 

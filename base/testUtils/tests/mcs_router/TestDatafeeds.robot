@@ -19,7 +19,6 @@ Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS  DATAFEED
 
 *** Test Cases ***
 Basic XDR Datafeed Sent
-    Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
@@ -28,6 +27,19 @@ Basic XDR Datafeed Sent
     Check Cloud Server Log For Scheduled Query   scheduled_query
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send}
     Cloud Server Log Should Not Contain  Failed to decompress response body content
+
+Basic XDR Datafeed size is logged
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Create file  ${SOPHOS_INSTALL}/base/etc/sophosspl/datafeed_tracker   content={"time_sent":2,"size": 423}
+    Start MCSRouter
+    ${json_to_send} =   Set Variable  {"abc":"def123"}
+    send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
+    Check Cloud Server Log For Scheduled Query   scheduled_query
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...  Check MCS Router Log Contains    Sent 0.447kB of datafeed to Central since 1970-01-01T00:00:02Z
 
 Invalid Datafeed Filename Not Sent But Does not Block Other Datafeed Files
     [Documentation]  Written to test the eact scenario set out in LINUXDAR-2463
@@ -258,6 +270,8 @@ Ensure correct sending protocol handles all possible datafeed states at same tim
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-2900000014.json
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-2900000015.json
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-3000000001.json
+    Log file  ${SOPHOS_INSTALL}/base/etc/sophosspl/datafeed_tracker
+    fail
 
 MCS Reads Flags Policy And Has Correct
     Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true", "mcs.v2.data_feed.available": "true"}
