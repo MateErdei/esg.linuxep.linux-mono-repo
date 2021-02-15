@@ -57,8 +57,18 @@ def read_datafeed_tracker():
             with open(filepath, 'r') as outfile:
                 contents = outfile.read()
                 file_data = json.loads(contents)
+                try:
+                    int(file_data['size'])
+                except (ValueError, TypeError):
+                    LOGGER.warning(f"size {file_data['size']} in file: {filepath} not a valid int")
+                    file_data['size'] = 0
+                try:
+                    int(file_data["time_sent"])
+                except (ValueError, TypeError):
+                    LOGGER.warning(f"epoch time {file_data['time_sent']} in file: {filepath} not a valid int, resetting to current time")
+                    file_data["time_sent"] = time.time()
         except (PermissionError, json.JSONDecodeError) as e:
-            LOGGER.warning("Unable to read {} with error: ".format(filepath, e))
+            LOGGER.warning("Unable to read {} with error: {}".format(filepath, e))
             file_data['size'] = 0
             file_data['time_sent'] = int(time.time())
     else:
@@ -68,15 +78,12 @@ def read_datafeed_tracker():
 
 def update_datafeed_tracker(datafeed_info, size):
     filepath = path_manager.datafeed_tracker()
-
-    try:
-        datafeed_info['size'] += size
-    except ValueError:
-        LOGGER.warning(f"size {datafeed_info['size']} in file: {filepath} not a valid int")
-        datafeed_info['size'] = size
+    datafeed_info['size'] += size
 
     current_time = int(time.time())
-    if (current_time - datafeed_info["time_sent"]) > 24*60*60:
+    #check that data feed time from file is valid int
+
+    if (current_time - datafeed_info['time_sent']) >= 24*60*60:
         time_string = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(datafeed_info['time_sent']))
         data_size_in_kB = datafeed_info['size']/1000
         LOGGER.info(f"Sent {data_size_in_kB}kB of datafeed to Central since {time_string}")
