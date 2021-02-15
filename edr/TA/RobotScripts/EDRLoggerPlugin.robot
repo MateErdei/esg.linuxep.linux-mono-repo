@@ -37,7 +37,10 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
     Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Processing LiveQuery Policy
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs

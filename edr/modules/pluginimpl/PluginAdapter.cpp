@@ -787,6 +787,7 @@ namespace Plugin
 
     void PluginAdapter::processLiveQueryPolicy(const std::string& liveQueryPolicy)
     {
+        LOGINFO("Processing LiveQuery Policy");
         if (!liveQueryPolicy.empty())
         {
             std::optional<std::string> customQueries;
