@@ -54,14 +54,16 @@ namespace Plugin
     PluginAdapter::PluginAdapter(
         std::shared_ptr<QueueTask> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-        std::shared_ptr<PluginCallback> callback) :
+        std::shared_ptr<PluginCallback> callback,
+        int waitForPolicyTimeout) :
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(*this),
         m_threatReporterServer(threat_reporter_socket(), 0600, std::make_shared<ThreatReportCallbacks>(*this)),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
-            sophos_threat_detector_launcher()))
+            sophos_threat_detector_launcher())),
+        m_waitForPolicyTimeout(waitForPolicyTimeout)
     {
     }
 
@@ -87,10 +89,19 @@ namespace Plugin
             LOGERROR("Failed to get ALC policy at startup (" << e.what() << ")");
         }
 
-        auto policySavXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(20), 5, "2");
-        processPolicy(policySavXml);
-        auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(20), 5, "1");
-        processPolicy(policyALCXml);
+        auto policySAVXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_second), 5, "2", "SAV");
+        if (!policySAVXml.empty())
+        {
+            processPolicy(policySAVXml);
+            m_processedSAVPolicyBeforeLoop = true;
+        }
+
+        auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_second), 5, "1", "ALC");
+        if (!policyALCXml.empty())
+        {
+            processPolicy(policyALCXml);
+            m_processedALCPolicyBeforeLoop = true;
+        }
 
         ThreadRunner scheduler(
             m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
@@ -132,8 +143,6 @@ namespace Plugin
     void PluginAdapter::processPolicy(const std::string& policyXml)
     {
         LOGINFO("Received Policy");
-        LOGDEBUG("Processing policy: " << policyXml);
-
         auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
 
         // Work out whether it's ALC or SAV policy
@@ -143,7 +152,16 @@ namespace Plugin
         {
             if (policyType == "1")
             {
+                if (m_processedALCPolicyBeforeLoop)
+                {
+                    m_processedALCPolicyBeforeLoop = false;
+                    LOGINFO("ALC Policy already processed");
+                    return;
+                }
+
                 // ALC policy
+                LOGINFO("Processing ALC Policy");
+                LOGDEBUG("Processing policy: " << policyXml);
                 bool updated = m_updatePolicyProcessor.processAlcPolicy(attributeMap);
                 if (updated)
                 {
@@ -164,6 +182,17 @@ namespace Plugin
             LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
             return;
         }
+
+        if (m_processedSAVPolicyBeforeLoop)
+        {
+            m_processedSAVPolicyBeforeLoop = false;
+            LOGINFO("SAV Policy already processed");
+            return;
+        }
+
+        LOGINFO("Processing SAV Policy");
+        LOGDEBUG("Processing policy: " << policyXml);
+
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
         std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
@@ -172,7 +201,7 @@ namespace Plugin
 
     std::string PluginAdapter::waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS,
                                                     int maxTasksThreshold,
-                                                    const std::string& policyAppId)
+                                                    const std::string& policyAppId, const std::string& policyName)
     {
         std::vector<Plugin::Task> nonPolicyTasks;
         std::string policyXml;
@@ -182,7 +211,7 @@ namespace Plugin
 
             if (!queueTask.pop(task, timeoutInS.count()))
             {
-                LOGINFO(policyAppId << " policy has not been sent to the plugin");
+                LOGINFO(policyName << " policy has not been sent to the plugin");
                 break;
             }
 
@@ -190,25 +219,32 @@ namespace Plugin
             {
                 policyXml = task.Content;
                 auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-                auto policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
+
+                auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
+                auto policyType = alc_comp.value("policyType", "unknown");
+
+                if (policyType == "unknown")
+                {
+                    policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
+                }
+
+                if (policyType == "unknown")
+                {
+                    policyXml = "";
+                }
 
                 if (policyAppId == policyType)
                 {
-
-                    LOGINFO("First " << policyAppId << " policy received.");
+                    LOGINFO(policyName << " policy received for the first time.");
                     break;
                 }
             }
 
             LOGSUPPORT("Keep task: " << task.getTaskName());
             nonPolicyTasks.push_back(task);
-            if (task.taskType == Plugin::Task::TaskType::Stop)
-            {
-                throw Common::PluginApi::ApiException("Abort waiting for the first policy as Stop signal received.");
-            }
         }
 
-        LOGDEBUG("Return from waitForTheFirstPolicy ");
+        LOGINFO("Return from waitForTheFirstPolicy");
 
         for (const auto& task : nonPolicyTasks)
         {

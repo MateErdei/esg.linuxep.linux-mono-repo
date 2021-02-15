@@ -124,7 +124,7 @@ TEST_F(TestPluginAdapter, testConstruction) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
 }
 
 
@@ -136,7 +136,7 @@ TEST_F(TestPluginAdapter, testMainLoop) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(QueueStopTask(m_queueTask));
@@ -152,7 +152,7 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
 
     Common::PluginApi::ApiException ex { "dummy error" };
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).WillOnce(Throw(ex));
@@ -180,7 +180,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
 
     std::string policy1revID = "12345678901";
     std::string policy2revID = "12345678902";
@@ -218,7 +218,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
 
     std::string policy1revID = "12345678901";
     std::string policy2revID = "12345678902";
@@ -242,7 +242,6 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
-    EXPECT_TRUE(appenderContains("Processing policy: " + policy1Xml));
     EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
     EXPECT_TRUE(appenderContains("Ignoring policy of incorrect type: 1"));
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
@@ -270,7 +269,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy) //NOLINT
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
 
     std::string policyRevID = "12345678901";
     std::string policyXml = generateUpdatePolicyXML(policyRevID);
@@ -308,7 +307,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID) //NO
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
 
     std::string policy1revID = "12345678901";
     std::string policy2revID = "12345678902";
@@ -325,7 +324,6 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID) //NO
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
-    EXPECT_TRUE(appenderContains("Processing policy: " + policy1Xml));
     EXPECT_TRUE(appenderContains("Ignoring policy of incorrect type: 2"));
     EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
 }
@@ -343,11 +341,12 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
 
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
-    EXPECT_TRUE(waitForLog("Starting scanScheduler", 500ms));
+    EXPECT_TRUE(waitForLog("Starting the main program loop", 5500ms));
+    EXPECT_TRUE(waitForLog("Starting scanScheduler", 5500ms));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>)";
@@ -381,7 +380,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
 
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
@@ -426,7 +425,7 @@ TEST_F(TestPluginAdapter, testProcessScanComplete) //NOLINT
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", scanCompleteXml));
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
     pluginAdapter.processScanComplete(scanCompleteXml);
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
@@ -473,7 +472,7 @@ TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
     pluginAdapter.processThreatReport(threatDetectedXML);
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
@@ -504,7 +503,7 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
 
     Common::Telemetry::TelemetryHelper::getInstance().reset();
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
     pluginAdapter.processThreatReport(threatDetectedXML);
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
@@ -535,7 +534,7 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount) //N
 
     Common::Telemetry::TelemetryHelper::getInstance().reset();
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
     pluginAdapter.processThreatReport(threatDetectedXML);
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
@@ -557,7 +556,7 @@ TEST_F(TestPluginAdapter, testInvalidTaskType) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);

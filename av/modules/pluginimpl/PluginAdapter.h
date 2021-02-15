@@ -28,12 +28,16 @@ namespace Plugin
         manager::scheduler::ScanScheduler m_scanScheduler;
         unixsocket::ThreatReporterServerSocket m_threatReporterServer;
         std::unique_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_threatDetector;
+        bool m_processedSAVPolicyBeforeLoop = false;
+        bool m_processedALCPolicyBeforeLoop = false;
+        int m_waitForPolicyTimeout = 0;
 
     public:
         PluginAdapter(
             std::shared_ptr<QueueTask> queueTask,
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-            std::shared_ptr<PluginCallback> callback);
+            std::shared_ptr<PluginCallback> callback,
+            int waitForPolicyTimeout = 5);
         void mainLoop();
         void processScanComplete(std::string& scanCompletedXml) override;
         void processThreatReport(const std::string& threatDetectedXML);
@@ -46,7 +50,7 @@ namespace Plugin
         void incrementTelemetryThreatCount(const std::string &threatName);
         AlcPolicyProcessor m_updatePolicyProcessor;
 
-        std::string waitForTheFirstPolicy(QueueTask &queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
-                                          const std::string &policyAppId);
+        std::string waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
+                                          const std::string& policyAppId, const std::string& policyName);
     };
 } // namespace Plugin
