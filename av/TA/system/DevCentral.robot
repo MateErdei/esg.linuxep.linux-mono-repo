@@ -10,6 +10,7 @@ Library         OperatingSystem
 Library         String
 
 Resource        ../shared/AVResources.robot
+Resource        ../shared/AVAndBaseResources.robot
 
 Suite Setup     DevCentral Suite Setup
 Suite Teardown  DevCentral Suite Teardown
@@ -160,3 +161,30 @@ Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
     Wait For Central Scheduled Scan to complete
     Wait For Scheduled Scan Completion in central  ${currentTime}
     Wait For Eicar Detection in central  /tmp_test/testeicar/eicar.com  ${currentTime}
+
+SAV and ALC Policy Arrives And Is Handled Correctly
+    [Tags]  SYSTEM  CENTRAL  MANUAL
+    Select Central Region
+    log central events
+    clear alerts in central
+    Ensure AV Policy Exists
+    Install Base And Plugin Without Register
+    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+    Register In Central
+    Wait for computer to appear in Central
+    Assign AntiVirus Product to Endpoint in Central
+
+    Stop AV Plugin
+    Remove File    ${AV_LOG_PATH}
+    Remove File    ${THREAT_DETECTOR_LOG_PATH}
+    Start AV Plugin
+
+    Wait Until AV Plugin Log exists   timeout=30
+
+    Wait Until AV Plugin Log Contains  ALC policy received for the first time.
+    Wait Until AV Plugin Log Contains  Processing ALC Policy
+    Wait Until AV Plugin Log Contains  SAV policy received for the first time.
+    Wait Until AV Plugin Log Contains  Processing SAV Policy
+    Wait Until AV Plugin Log Contains  Received policy from management agent for AppId: ALC
+    Wait until scheduled scan updated
+    Threat Detector Does Not Log Contain  Failed to read customerID - using default value

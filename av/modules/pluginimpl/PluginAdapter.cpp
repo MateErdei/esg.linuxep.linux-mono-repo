@@ -93,14 +93,12 @@ namespace Plugin
         if (!policySAVXml.empty())
         {
             processPolicy(policySAVXml);
-            m_processedSAVPolicyBeforeLoop = true;
         }
 
         auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "1", "ALC");
         if (!policyALCXml.empty())
         {
             processPolicy(policyALCXml);
-            m_processedALCPolicyBeforeLoop = true;
         }
 
         ThreadRunner scheduler(
@@ -152,13 +150,6 @@ namespace Plugin
         {
             if (policyType == "1")
             {
-                if (m_processedALCPolicyBeforeLoop)
-                {
-                    m_processedALCPolicyBeforeLoop = false;
-                    LOGINFO("ALC Policy already processed");
-                    return;
-                }
-
                 // ALC policy
                 LOGINFO("Processing ALC Policy");
                 LOGDEBUG("Processing policy: " << policyXml);
@@ -183,13 +174,6 @@ namespace Plugin
             return;
         }
 
-        if (m_processedSAVPolicyBeforeLoop)
-        {
-            m_processedSAVPolicyBeforeLoop = false;
-            LOGINFO("SAV Policy already processed");
-            return;
-        }
-
         LOGINFO("Processing SAV Policy");
         LOGDEBUG("Processing policy: " << policyXml);
 
@@ -205,6 +189,8 @@ namespace Plugin
     {
         std::vector<Plugin::Task> nonPolicyTasks;
         std::string policyXml;
+        std::string tempPolicyXml;
+
         for (int i = 0; i < maxTasksThreshold; i++)
         {
             Plugin::Task task;
@@ -217,7 +203,7 @@ namespace Plugin
 
             if (task.taskType == Plugin::Task::TaskType::Policy)
             {
-                auto tempPolicyXml = task.Content;
+                tempPolicyXml = task.Content;
                 auto attributeMap = Common::XmlUtilities::parseXml(tempPolicyXml);
 
                 auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
@@ -233,7 +219,7 @@ namespace Plugin
                 if (policyAppId == policyType)
                 {
                     LOGINFO(policyName << " policy received for the first time.");
-                    policyXml = task.Content;
+                    policyXml = tempPolicyXml;
                     break;
                 }
             }

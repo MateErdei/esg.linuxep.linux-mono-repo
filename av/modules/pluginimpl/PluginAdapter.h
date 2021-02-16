@@ -28,8 +28,6 @@ namespace Plugin
         manager::scheduler::ScanScheduler m_scanScheduler;
         unixsocket::ThreatReporterServerSocket m_threatReporterServer;
         std::unique_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_threatDetector;
-        bool m_processedSAVPolicyBeforeLoop = false;
-        bool m_processedALCPolicyBeforeLoop = false;
         int m_waitForPolicyTimeout = 0;
 
     public:
