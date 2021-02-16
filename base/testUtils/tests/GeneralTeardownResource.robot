@@ -40,6 +40,8 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/osqueryd.INFO
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/osqueryd.results.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
     Dump Teardown Log    ${LIVERESPONSE_DIR}/log/liveresponse.log
     Dump Teardown Log    ${LIVERESPONSE_DIR}/log/sessions.log

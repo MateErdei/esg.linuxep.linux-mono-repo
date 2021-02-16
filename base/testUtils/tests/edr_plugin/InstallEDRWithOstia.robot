@@ -29,7 +29,6 @@ ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_V
 ${BrokenEDRPolicy}                      ${GeneratedWarehousePolicies}/base_and_broken_edr.xml
 ${BaseAndEdrAndMtrVUTPolicy}        ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_and_edr_999.xml
-${BaseEdrAndMtr999Policy}              ${GeneratedWarehousePolicies}/base_edr_vut_and_mtr_999.xml
 ${BaseMtrAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_mtr_vut_and_edr_999.xml
 ${BaseAndMTREdr999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_999.xml
 ${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
@@ -276,8 +275,6 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...  2 secs
     ...  Check EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf for query tags
     Check EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf for query tags
-    # Check for warning that there is a naming collision in the map of query tags
-    Check Edr Log Does Not Contain  already in query map
 
     Wait Until Keyword Succeeds
     ...   200 secs
@@ -315,7 +312,7 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
 
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
-
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  content=[edr]\nVERBOSITY = DEBUG\n
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
@@ -359,6 +356,13 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ...   200 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+    # Check for warning that there is a naming collision in the map of query tags
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  2 secs
+    ...  Check EDR Log Contains  Adding XDR results to intermediary file
+    Check Edr Log Does Not Contain  already in query map
 
     ${base_version_contents} =  Get File  ${SOPHOS_INSTALL}/base/VERSION.ini
     Should contain   ${base_version_contents}   PRODUCT_VERSION = 99.9.9
