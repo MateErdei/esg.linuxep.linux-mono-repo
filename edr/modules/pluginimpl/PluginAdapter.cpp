@@ -790,12 +790,14 @@ namespace Plugin
         if (!liveQueryPolicy.empty())
         {
             std::optional<std::string> customQueries;
+            std::vector<Json::Value> foldingRules;
             try
             {
                 m_dataLimit = getDataLimit(liveQueryPolicy);
                 m_loggerExtensionPtr->setDataLimit(m_dataLimit);
                 m_liveQueryRevId = getRevId(liveQueryPolicy);
                 customQueries = getCustomQueries(liveQueryPolicy);
+                foldingRules = getFoldingRules(liveQueryPolicy);
                 m_liveQueryStatus = "Same";
             }
             catch (std::exception& e)
@@ -825,6 +827,17 @@ namespace Plugin
             catch (Common::FileSystem::IFileSystemException &e)
             {
                 LOGWARN("Filesystem Exception While removing/writing custom query file: " << e.what());
+            }
+
+            if (m_liveQueryStatus != "Failure" && !foldingRules.empty())
+            {
+                LOGDEBUG("Processing LiveQuery Policy folding rules");
+                for (const auto& r : foldingRules)
+                {
+                    LOGDEBUG(r);
+                }
+
+                // TODO: configure logger extension
             }
 
             return;
