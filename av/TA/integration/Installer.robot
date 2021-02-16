@@ -111,11 +111,13 @@ AV Plugin gets customer id after upgrade
     Send Alc Policy
 
     ${expectedId} =   Set Variable   a1c0f318e58aad6bf90d07cabda54b7d
-    Wait Until Created   ${customerIdFile1}   timeout=5sec
+    #A max of 10 seconds might pass before the threatDetector starts
+    Wait Until Created   ${customerIdFile1}   timeout=12sec
     ${customerId1} =   Get File   ${customerIdFile1}
     Should Be Equal   ${customerId1}   ${expectedId}
 
-    Wait Until Created   ${customerIdFile2}   timeout=5sec
+    #A max of 10 seconds might pass before the threatDetector starts
+    Wait Until Created   ${customerIdFile2}   timeout=12sec
     ${customerId2} =   Get File   ${customerIdFile2}
     Should Be Equal   ${customerId2}   ${expectedId}
 
@@ -130,11 +132,13 @@ AV Plugin gets customer id after upgrade
     Modify manifest
     Run Installer From Install Set
 
-    Wait Until Created   ${customerIdFile1}   timeout=5sec
+    #A max of 10 seconds might pass before the threatDetector starts
+    Wait Until Created   ${customerIdFile1}   timeout=12sec
     ${customerId1} =   Get File   ${customerIdFile1}
     Should Be Equal   ${customerId1}   ${expectedId}
 
-    Wait Until Created   ${customerIdFile2}   timeout=5sec
+    #A max of 10 seconds might pass before the threatDetector starts
+    Wait Until Created   ${customerIdFile2}   timeout=12sec
     ${customerId2} =   Get File   ${customerIdFile2}
     Should Be Equal   ${customerId2}   ${expectedId}
 
