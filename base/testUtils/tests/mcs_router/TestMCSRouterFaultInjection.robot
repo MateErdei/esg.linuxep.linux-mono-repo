@@ -55,13 +55,7 @@ Overwriting Action File Doesn't Cause Crash
     Check UpdateScheduler Log Contains  Unexpected action xml received: fakecontents
 
 Repeatedly writing the same file into the action folder Does Not Cause A Crash
-
     Stop MCSRouter
-
-    Dump Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    Create Fake Suldownloader That Will Take A While To Finish
-
     ${temp_dir} =  add_temporary_directory  staging
     Create File   ${temp_dir}/template    content=<?xml version='1.0'?><action type="sophos.mgt.action.ALCForceUpdate"/>
     Chmod  550  ${temp_dir}/template
@@ -71,6 +65,14 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
     ...  5 secs
     ...  1 secs
     ...  Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  1
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check UpdateScheduler Log Contains String N Times  SulDownloader Finished  1
+
+    Dump Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Create Fake Suldownloader That Will Take A While To Finish
 
     ${Actions_to_send} =  Set Variable  10
     FOR    ${i}    IN RANGE    ${Actions_to_send}
