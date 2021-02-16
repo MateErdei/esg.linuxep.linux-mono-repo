@@ -368,6 +368,10 @@ Wait Until AV Plugin Log exists
     [Arguments]  ${timeout}=15  ${interval}=0
     Wait Until File exists  ${AV_LOG_PATH}  ${timeout}  ${interval}
 
+Wait Until Threat Detector Log exists
+    [Arguments]  ${timeout}=15  ${interval}=0
+    Wait Until File exists  ${THREAT_DETECTOR_LOG_PATH}  ${timeout}  ${interval}
+
 Wait until scheduled scan updated
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans  timeout=240
