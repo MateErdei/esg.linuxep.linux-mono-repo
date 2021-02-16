@@ -210,6 +210,29 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
 }
 
+TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPolicy) //NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
+
+    std::string policyXml = R"sophos(<?xml version="1.0"?>
+<invalidPolicy />
+)sophos";
+
+    Task policyTask = {Task::TaskType::Policy, policyXml};
+    m_queueTask->push(policyTask);
+    m_queueTask->pushStop();
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    pluginAdapter.mainLoop();
+}
+
 TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
