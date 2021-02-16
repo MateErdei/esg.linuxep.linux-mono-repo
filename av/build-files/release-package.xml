@@ -57,7 +57,7 @@
         </package>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="develop" build-id="20210209115323-d02ba24fa3f23ec9005db9737da684a50ae2c860-RvTQYv"/>
+            <release-version branch="develop" build-id="20210215163509-e1e013f053ebbce79d594b1e21a63c1986146d9a-TPigDP"/>
             <include artifact-path="release/centos7/libsusi" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/updater" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/interface" dest-dir="input/susi_input/susi/include" />
