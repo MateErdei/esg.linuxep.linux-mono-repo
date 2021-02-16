@@ -174,7 +174,7 @@ Check install permissions
     [Documentation]   Find files or directories owned by sophos-spl-user or writable by sophos-spl-group.
     ...               Check results against an allowed list.
     ${rc}   ${output} =    Run And Return Rc And Output
-    ...     find ${COMPONENT_ROOT_PATH} -! -type l -\\( -user sophos-spl-user -o -group sophos-spl-group -perm -0020 -\\) -prune
+    ...     find ${COMPONENT_ROOT_PATH} -! -type l -\\( -user sophos-spl-av -o -group sophos-spl-group -perm -0020 -\\) -prune
     Should Be Equal As Integers  ${rc}  0
     ${output} =   Replace String   ${output}   ${COMPONENT_ROOT_PATH}/   ${EMPTY}
     @{items} =    Split To Lines   ${output}
@@ -188,7 +188,7 @@ Check install permissions
 Check permissions after upgrade
     # find writable directories
     ${rc}   ${output} =    Run And Return Rc And Output
-    ...     find ${COMPONENT_ROOT_PATH} -name susi -prune -o -type d -\\( -user sophos-spl-user -perm -0200 -o -group sophos-spl-group -perm -0020 -\\) -print
+    ...     find ${COMPONENT_ROOT_PATH} -name susi -prune -o -type d -\\( -user sophos-spl-av -perm -0200 -o -group sophos-spl-group -perm -0020 -\\) -print
     Should Be Equal As Integers  ${rc}  0
     @{items} =    Split To Lines   ${output}
     Sort List   ${items}
@@ -199,7 +199,7 @@ Check permissions after upgrade
     FOR   ${item}   IN   @{items}
        ${file} =   Set Variable   ${item}/test_file
        Create File   ${file}   test data
-       Change Owner   ${file}   sophos-spl-user   sophos-spl-group
+       Change Owner   ${file}   sophos-spl-user   sophos-spl-av
        Append To List   ${files}   ${file}
     END
     Log List   ${files}

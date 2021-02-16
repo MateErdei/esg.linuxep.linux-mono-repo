@@ -42,7 +42,7 @@ export DIST
 export SOPHOS_INSTALL
 export LD_LIBRARY_PATH="$SOPHOS_INSTALL/base/lib64"
 
-USER_NAME=sophos-spl-user
+USER_NAME=sophos-spl-av
 GROUP_NAME=sophos-spl-group
 
 # Use a safe umask while copying files before correcting permissions
@@ -137,6 +137,8 @@ function is_already_installed()
 
 function install_product()
 {
+    useradd ${USER_NAME} --no-create-home --no-user-group --gid ${GROUP_NAME} --groups sophos-spl-ipc --system --shell=/bin/false
+
     if is_already_installed
     then
         "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}

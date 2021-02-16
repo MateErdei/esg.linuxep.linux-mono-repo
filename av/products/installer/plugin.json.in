@@ -19,6 +19,6 @@
       "value": "SOPHOS_INSTALL_VALUE"
     }
   ],
-  "executableUserAndGroup": "sophos-spl-user:sophos-spl-group",
+  "executableUserAndGroup": "sophos-spl-av:sophos-spl-group",
   "secondsToShutDown": 10
 }
