@@ -250,8 +250,8 @@ def bullseye_coverage_task(machine: tap.Machine):
         # publish combined html results and coverage file to artifactory
         machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
 
-        # Run covxml to check that it exists in the PATH and takes the same arguments as on Windows
-        machine.run('covxml', '--file', COVFILE_COMBINED, '--output', '/tmp/cov.xml', '--no-banner')
+        # Check path to the covxml binary
+        machine.run('which', 'covxml')
 
         COVERAGE_NORMALISE_JSON = os.path.join(coverage_results_dir, "test_coverage.json")
         COVERAGE_MIN_FUNCTION = 70
