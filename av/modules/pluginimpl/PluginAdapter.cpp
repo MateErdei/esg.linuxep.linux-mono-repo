@@ -217,25 +217,23 @@ namespace Plugin
 
             if (task.taskType == Plugin::Task::TaskType::Policy)
             {
-                policyXml = task.Content;
-                auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+                auto tempPolicyXml = task.Content;
+                auto attributeMap = Common::XmlUtilities::parseXml(tempPolicyXml);
 
                 auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
+                //returns unknown if it's not ALC type
                 auto policyType = alc_comp.value("policyType", "unknown");
 
                 if (policyType == "unknown")
                 {
+                    //returns unknown if it's not SAV type
                     policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
-                }
-
-                if (policyType == "unknown")
-                {
-                    policyXml = "";
                 }
 
                 if (policyAppId == policyType)
                 {
                     LOGINFO(policyName << " policy received for the first time.");
+                    policyXml = task.Content;
                     break;
                 }
             }
@@ -244,7 +242,7 @@ namespace Plugin
             nonPolicyTasks.push_back(task);
         }
 
-        LOGINFO("Return from waitForTheFirstPolicy");
+        LOGDEBUG("Return from waitForTheFirstPolicy");
 
         for (const auto& task : nonPolicyTasks)
         {
