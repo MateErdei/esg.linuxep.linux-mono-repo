@@ -45,6 +45,10 @@ Restart EDR Plugin
     [Arguments]  ${clearLog}=False
     Wdctl Stop Plugin  edr
     Run Keyword If   ${clearLog}   Remove File  ${EDR_DIR}/log/edr.log
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   1 secs
+    ...   EDR Plugin Is Not Running
     Wdctl Start Plugin  edr
 
 Install EDR
