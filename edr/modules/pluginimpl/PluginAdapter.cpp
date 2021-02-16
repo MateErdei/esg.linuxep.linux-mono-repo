@@ -162,7 +162,7 @@ namespace Plugin
         m_callback->initialiseTelemetry();
         ensureMCSCanReadOldResponses();
         std::string alcPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "ALC");
-        std::string liveQueryPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(1), 5, "LiveQuery");
+        std::string liveQueryPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "LiveQuery");
 
         processALCPolicy(alcPolicy, true);
         processLiveQueryPolicy(liveQueryPolicy);
