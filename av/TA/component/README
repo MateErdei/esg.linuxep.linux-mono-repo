@@ -14,10 +14,10 @@ In order to run them in Vagrant box:
 
   3) cd /vagrant/sspl-plugin-anti-virus/TA
   4) pip install -r requirements.txt
-  5) python3 -u -m pytest
+  5) python3.7 -u -m pytest
   6) Result files can be seen at: /var/tmp/pytest-of-vagrant/pytest-current/sophos-splcurrent
 
 
 To run a single test:
 
-    python3 -u -m pytest -k <test-name>
+    python3.7 -u -m pytest -k <test-name>

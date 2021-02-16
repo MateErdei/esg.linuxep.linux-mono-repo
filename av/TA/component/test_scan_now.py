@@ -32,6 +32,7 @@ def test_scan_now_no_config(sspl_mock, av_plugin_instance):
                      r'subtype="ScanMyComputer" replyRequired="1"/>'
     agent.send_plugin_action('av', 'sav', "123", action_content)
     av_plugin_instance.wait_log_contains("Received new Action")
-    av_plugin_instance.wait_log_contains("Evaluating Scan Now")
+    # AVP will wait 10 seconds (5 for ALC, 5 for SAV) for the policy to arrive
+    av_plugin_instance.wait_log_contains("Evaluating Scan Now", 12)
     av_plugin_instance.wait_log_contains("Refusing to run invalid scan: INVALID")
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)
