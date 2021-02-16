@@ -230,7 +230,12 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+
     pluginAdapter.mainLoop();
+
+    EXPECT_TRUE(appenderContains("ALC policy has not been sent to the plugin"));
+    EXPECT_TRUE(appenderContains("SAV policy has not been sent to the plugin"));
+    EXPECT_TRUE(appenderContains("Keep task: Stop"));
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
