@@ -12,6 +12,10 @@ add_library(loggingobject OBJECT
         PluginLoggingSetup.h
         LoggerConfig.h
         LoggerConfig.cpp
+        FileLoggingSetupEx.cpp
+        FileLoggingSetupEx.h
+        PluginLoggingSetupEx.cpp
+        PluginLoggingSetupEx.h
         )
 
 target_include_directories(loggingobject SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
