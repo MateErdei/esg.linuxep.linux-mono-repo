@@ -606,8 +606,8 @@ TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
 
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH,CUSTOM_QUERY_PACK_PATH);
-    std::string testResult = R"({"name":"pack_mtr_osquery_rocksdb_size_linux"})";
-    std::string correctedNameResult = "{\"name\":\"osquery_rocksdb_size_linux\",\"tag\":\"stream\"}";
+    std::string testResult = R"({"name":"pack_mtr_pack_query"})";
+    std::string correctedNameResult = "{\"name\":\"pack_query\",\"tag\":\"stream\"}";
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, correctedNameResult)).Times(1);
     resultsSender.Add(testResult);
 }
