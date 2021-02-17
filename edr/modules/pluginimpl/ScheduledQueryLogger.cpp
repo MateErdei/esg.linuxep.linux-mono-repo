@@ -1,13 +1,13 @@
 /******************************************************************************************************
 
-Copyright 2020 Sophos Limited.  All rights reserved.
+Copyright 2018-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "OsqueryLogger.h"
+
 #include <Common/Logging/LoggerConfig.h>
 
-log4cplus::Logger& getOsqueryLogger()
+log4cplus::Logger& getScheduledQueryLogger()
 {
-    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("edr_osquery");
-    return STATIC_LOGGER;
+    static log4cplus::Logger QUERY_STATIC_LOGGER = Common::Logging::getInstance("scheduledquery");
+    return QUERY_STATIC_LOGGER;
 }

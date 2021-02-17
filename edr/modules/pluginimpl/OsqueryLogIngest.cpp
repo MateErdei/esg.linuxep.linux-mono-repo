@@ -5,8 +5,9 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "OsqueryLogIngest.h"
-
+#include "Logger.h"
 #include "OsqueryLogger.h"
+#include  "ScheduledQueryLogger.h"
 #include "TelemetryConsts.h"
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
@@ -33,11 +34,70 @@ void OsqueryLogIngest::ingestOutput(const std::string& output)
         bool alreadyLogged = processOsqueryLogLineForEventsMaxTelemetry(line);
         if (!alreadyLogged)
         {
-            LOGINFO_OSQUERY(line);
+            std::tuple<bool, std::string> result = processOsqueryLogLineForScheduledQueries(line);
+            if(std::get<0>(result))
+            {
+                LOGINFO_SQ(std::get<1>(result));
+            }
+
+            if(isGenericLogLine(line))
+            {
+                LOGINFO(line);
+            }
+            LOGDEBUG_OSQUERY(line);
         }
 
         processOsqueryLogLineForTelemetry(line);
     }
+}
+
+std::tuple<bool, std::string> OsqueryLogIngest::processOsqueryLogLineForScheduledQueries(std::string& logLine)
+{
+    std::string lineToFind= "Executing scheduled query ";
+    if (Common::UtilityImpl::StringUtils::isSubstring(logLine, lineToFind))
+    {
+
+        std::vector<std::string> words = Common::UtilityImpl::StringUtils::splitString(logLine, lineToFind);
+        if(words.size() < 2)
+        {
+            return std::make_tuple(false, "");
+        }
+
+        std::vector<std::string> timeString = Common::UtilityImpl::StringUtils::splitString(words[0], " ");
+        if(timeString.size() < 2)
+        {
+            return std::make_tuple(false, "");
+        }
+
+        std::string time = timeString[1];
+
+        std::vector<std::string> nameString = Common::UtilityImpl::StringUtils::splitString(words[1], ":");
+        if(timeString.empty())
+        {
+            return std::make_tuple(false, "");
+        }
+
+        std::string queryName = nameString[0];
+
+        std::stringstream lineReturned ;
+        lineReturned << "Executing query: " << queryName << " at: " << time ;
+        return std::make_tuple(true, lineReturned.str());
+    }
+    return std::make_tuple(false, "");
+}
+
+bool OsqueryLogIngest::isGenericLogLine(std::string& logLine)
+{
+    std::vector<std::string> interestingLines{"Error executing"};
+
+    for(auto& interestingLine : interestingLines)
+    {
+        if(Common::UtilityImpl::StringUtils::isSubstring(logLine, interestingLine))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
@@ -46,12 +106,12 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
     if (Common::UtilityImpl::StringUtils::isSubstring(
         logLine, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
     {
-        LOGDEBUG_OSQUERY("Increment telemetry: " << plugin::telemetryOSQueryRestartsCPU);
+        LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsCPU);
         telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);
     }
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Memory limits exceeded:"))
     {
-        LOGDEBUG_OSQUERY("Increment telemetry: " << plugin::telemetryOSQueryRestartsMemory);
+        LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsMemory);
         telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
     }
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Error executing scheduled query "))
@@ -65,7 +125,7 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
         std::stringstream key;
         key << plugin::telemetryScheduledQueries << "." << queryname << "." << plugin::telemetryQueryErrorCount;
         std::string telemetryKey = key.str();
-        LOGDEBUG_OSQUERY("Increment telemetry: " << telemetryKey);
+        LOGDEBUG("Increment telemetry: " << telemetryKey);
         telemetry.increment(telemetryKey, 1L);
     }
 
@@ -109,7 +169,7 @@ bool OsqueryLogIngest::processOsqueryLogLineForEventsMaxTelemetry(std::string& l
         }
         else
         {
-            LOGERROR_OSQUERY("Table name " << tableName << " not recognised, cannot set event_max telemetry for it");
+            LOGERROR("Table name " << tableName << " not recognised, cannot set event_max telemetry for it");
             return alreadyLogged;
         }
 
@@ -122,7 +182,7 @@ bool OsqueryLogIngest::processOsqueryLogLineForEventsMaxTelemetry(std::string& l
         }
         telemetry.set(key, true);
 
-        LOGDEBUG_OSQUERY("Setting true for telemetry key: " << key);
+        LOGDEBUG("Setting true for telemetry key: " << key);
 
     }
     return alreadyLogged;

@@ -109,11 +109,6 @@ namespace Plugin
             std::vector<std::string> arguments = { "--config_path=" + Plugin::osqueryConfigFilePath(),
                                                    "--flagfile=" + Plugin::osqueryFlagsFilePath() };
 
-            if (getPluginLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))
-            {
-                arguments.emplace_back("--verbose");
-            }
-
             startProcess(osqueryPath, arguments);
             // only allow commands to be processed after this point.
             // this will trigger osquery_started

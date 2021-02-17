@@ -9,6 +9,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IPidLockFileUtils.h>
 #include <Common/Logging/PluginLoggingSetup.h>
+#include <Common/Logging/PluginLoggingSetupEx.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/ErrorCodes.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
@@ -25,7 +26,8 @@ int main()
     using namespace Plugin;
     int ret = 0;
     Common::Logging::PluginLoggingSetup loggerSetup(g_pluginName);
-
+    Common::Logging::PluginLoggingSetupEx scheduledQueryLoggerSetup(g_pluginName, "scheduledquery", "scheduledquery");
+    Common::Logging::PluginLoggingSetupEx osqueryLoggerSetup(g_pluginName, "edr_osquery", "edr_osquery");
     std::unique_ptr<Common::FileSystem::ILockFileHolder> lockFile;
     try
     {

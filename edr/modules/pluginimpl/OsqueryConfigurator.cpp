@@ -108,7 +108,8 @@ namespace Plugin
                                          "--events_expiry=604800",
                                          "--force=true",
                                          "--disable_enrollment=true",
-                                         "--enable_killswitch=false"};
+                                         "--enable_killswitch=false",
+                                         "--verbose"};
 
         std::string eventsMaxValue = "100000";
         std::pair<std::string,std::string> eventsMax = Common::UtilityImpl::FileUtils::extractValueFromFile(Plugin::edrConfigFilePath(), "events_max");

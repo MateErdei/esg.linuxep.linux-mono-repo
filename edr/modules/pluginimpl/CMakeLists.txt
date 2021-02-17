@@ -3,6 +3,8 @@ sophos_add_library(pluginimpl SHARED
         PluginCallback.h
         QueueTask.cpp
         QueueTask.h
+        ScheduledQueryLogger.h
+        ScheduledQueryLogger.cpp
         Logger.h
         Logger.cpp
         MtrMonitor.h
