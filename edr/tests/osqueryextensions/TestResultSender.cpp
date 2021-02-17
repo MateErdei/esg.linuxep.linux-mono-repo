@@ -40,7 +40,7 @@ const std::string EXAMPLE_QUERY_PACK =  R"({
    "packs": {
         "mtr": {
             "queries": {
-                "osquery_rocksdb_size_linux": {
+                "pack_query": {
                     "query": "WITH files (\n  number_of_files,\n  total_size,\n  mb\n) AS (\n  SELECT count(*) AS number_of_files,\n  SUM(size) AS total_size,\n  SUM(size)/1024/1024 AS mb\n  FROM file\n  WHERE path LIKE '/opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM files\nWHERE mb > 50;",
                     "interval": 86400,
                     "removed": false,
@@ -156,6 +156,7 @@ TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
 
     std::vector<ScheduledQuery> expectedQueries;
     expectedQueries.push_back({"deb_packages", "deb_packages", "DataLake"});
+    expectedQueries.push_back({"pack_mtr_pack_query", "pack_query", "stream"});
     expectedQueries.push_back({"osquery_rocksdb_size_linux", "osquery_rocksdb_size_linux", "stream"});
 
     std::map<std::string, std::pair<std::string, std::string>> tagMap;
