@@ -227,6 +227,21 @@ void ResultsSender::loadScheduledQueryTagsFromFile(std::vector<ScheduledQuery> &
         scheduledQueries.push_back(
                 ScheduledQuery { scheduledItr.key().asString(), scheduledItr.key().asString(), query["tag"].asString() });
     }
+    auto otherQueryPacks = confJsonRoot["packs"];
+    for (Json::Value::const_iterator packItr = otherQueryPacks.begin(); packItr != otherQueryPacks.end(); packItr++)
+    {
+        auto packName = packItr.key().asString();
+        auto packNode = *packItr;
+        auto packQueries = packNode["queries"];
+        for (Json::Value::const_iterator packQueriesItr = packQueries.begin(); packQueriesItr != packQueries.end();
+             packQueriesItr++)
+        {
+            auto query = *packQueriesItr;
+            std::string packAppendedName = "pack_" + packName + "_" + packQueriesItr.key().asString();
+            scheduledQueries.push_back(
+                    ScheduledQuery { packAppendedName, packQueriesItr.key().asString(), query["tag"].asString() });
+        }
+    }
 }
 
 void ResultsSender::loadScheduledQueryTags()
