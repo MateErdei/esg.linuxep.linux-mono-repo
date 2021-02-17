@@ -13,6 +13,7 @@ SophosAddTest(TestCommon
         TestSigIntMonitor.cpp
         TestSigTermMonitor.cpp
         TestStringUtils.cpp
+        TestSigTermMonitor.cpp
         PROJECTS common
         INC_DIRS
         ${CMAKE_SOURCE_DIR}
