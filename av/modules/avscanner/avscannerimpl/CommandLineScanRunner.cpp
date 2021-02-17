@@ -182,20 +182,20 @@ namespace avscanner::avscannerimpl
             m_returnCode = common::E_VIRUS_FOUND;
         }
 
-        // E_GENERIC_FAILURE should override E_CLEAN but no other error code
-        if (m_returnCode == common::E_CLEAN)
+        // E_GENERIC_FAILURE should override E_CLEAN_SUCCESS but no other error code
+        if (m_returnCode == common::E_CLEAN_SUCCESS)
         {
-            // Tracks erros in filewalker is either E_CLEAN or E_GENERIC_FAILURE
+            // Tracks erros in filewalker is either E_CLEAN_SUCCESS or E_GENERIC_FAILURE
             m_returnCode = commandLineWalkerCallbacks.returnCode();
 
-            if (m_returnCode == common::E_CLEAN)
+            if (m_returnCode == common::E_CLEAN_SUCCESS)
             {
                 // Tracks errors in ScanClient
                 m_returnCode = m_scanCallbacks->returnCode();
             }
         }
 
-        if (m_returnCode != common::E_CLEAN && m_returnCode != common::E_VIRUS_FOUND)
+        if (m_returnCode != common::E_CLEAN_SUCCESS && m_returnCode != common::E_VIRUS_FOUND)
         {
             LOGERROR("Failed to scan one or more files due to an error");
         }

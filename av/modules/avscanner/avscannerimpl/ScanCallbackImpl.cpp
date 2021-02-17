@@ -66,7 +66,7 @@ common::E_ERROR_CODES ScanCallbackImpl::returnCode()
     }
     else
     {
-        return common::E_CLEAN;
+        return common::E_CLEAN_SUCCESS;
     }
 }
 

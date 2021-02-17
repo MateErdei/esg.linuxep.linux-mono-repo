@@ -29,7 +29,7 @@ namespace avscanner::avscannerimpl
         // m_currentExclusions are the exclusions that are going to be relevant to the specific scan currently running
         std::vector<Exclusion>  m_currentExclusions;
         std::vector<Exclusion>  m_userDefinedExclusions;
-        int m_returnCode = common::E_CLEAN;
+        int m_returnCode = common::E_CLEAN_SUCCESS;
 
     public:
 

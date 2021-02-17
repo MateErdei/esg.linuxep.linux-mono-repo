@@ -37,7 +37,7 @@ TEST_F(TestScanCallbackImpl, TestCleanReturnCode) // NOLINT
 {
     ScanCallbackImpl scanCallback;
     scanCallback.cleanFile("");
-    EXPECT_EQ(scanCallback.returnCode(), E_CLEAN);
+    EXPECT_EQ(scanCallback.returnCode(), E_CLEAN_SUCCESS);
 }
 
 TEST_F(TestScanCallbackImpl, TestInfectedOverCleanReturnCode) // NOLINT
