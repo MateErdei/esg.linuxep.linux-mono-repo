@@ -64,12 +64,18 @@ def read_datafeed_tracker():
                 except (ValueError, TypeError):
                     LOGGER.warning(f"size {file_data['size']} in file: {filepath} not a valid int")
                     file_data['size'] = 0
+                except KeyError:
+                    LOGGER.warning(f"size field not found in file: {filepath}")
+                    file_data['size'] = 0
 
                 #check epoch time is valid
                 try:
                     int(file_data["time_sent"])
                 except (ValueError, TypeError):
-                    LOGGER.warning(f"epoch time {file_data['time_sent']} in file: {filepath} not a valid int, resetting to current time")
+                    LOGGER.warning(f"Epoch time {file_data['time_sent']} in file: {filepath} not a valid int, resetting to current time")
+                    file_data["time_sent"] = time.time()
+                except KeyError:
+                    LOGGER.warning(f"time_sent field not found in file: {filepath} not a valid int")
                     file_data["time_sent"] = time.time()
 
         except (PermissionError, json.JSONDecodeError) as e:
@@ -91,7 +97,7 @@ def update_datafeed_tracker(datafeed_info, size):
         time_string = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(datafeed_info['time_sent']))
         data_size_in_kB = datafeed_info['size']/1000
 
-        LOGGER.info(f"Sent {data_size_in_kB}kB of datafeed to Central since {time_string}")
+        LOGGER.info(f"Since {time_string} we have sent {data_size_in_kB}kB of scheduled query data to Central")
 
         datafeed_info['time_sent'] = current_time
         datafeed_info['size'] = 0

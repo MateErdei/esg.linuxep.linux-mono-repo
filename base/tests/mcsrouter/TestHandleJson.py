@@ -14,7 +14,7 @@ import time
 DUMMY_TIMESTAMP = 1613400109.7271419
 
 
-class TestFlags(unittest.TestCase):
+class TestHandleJson(unittest.TestCase):
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     @mock.patch('os.path.exists', return_value=True)
     @mock.patch('builtins.open', new_callable=mock_open, read_data="")
@@ -47,6 +47,22 @@ class TestFlags(unittest.TestCase):
         data = mcsrouter.utils.handle_json.read_datafeed_tracker()
         self.assertEqual(data, expected)
 
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    @mock.patch('os.path.exists', return_value=True)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"size":"hello","time_sent":"notatimestamp"}}""")
+    def test_read_datafeed_tracker_ignores_non_int_time_sent_value_in_json(self, *mockargs):
+        expected = {"size": 0, "time_sent": DUMMY_TIMESTAMP}
+        data = mcsrouter.utils.handle_json.read_datafeed_tracker()
+        self.assertEqual(data, expected)
+
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    @mock.patch('os.path.exists', return_value=True)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"time_sent":{int(DUMMY_TIMESTAMP)-200}}}""")
+    def test_read_datafeed_tracker_handles_missing_size_value_in_json(self, *mockargs):
+        expected = {"size": 0, "time_sent": int(DUMMY_TIMESTAMP)-200}
+        data = mcsrouter.utils.handle_json.read_datafeed_tracker()
+        self.assertEqual(data, expected)
+
     @mock.patch("logging.Logger.info")
     @mock.patch('builtins.open', new_callable=mock_open)
     @mock.patch('os.chmod')
@@ -55,7 +71,7 @@ class TestFlags(unittest.TestCase):
         from_file = {"size": 3, "time_sent": 0}
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 42)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
-                         mock.call("Sent 0.045kB of datafeed to Central since 1970-01-01T00:00:00Z"))
+                         mock.call("Since 1970-01-01T00:00:00Z we have sent 0.045kB of scheduled query data to Central"))
 
 
     @mock.patch("logging.Logger.info")
@@ -78,7 +94,7 @@ class TestFlags(unittest.TestCase):
         expected_time_last_sent = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(exactly_24h_ago))
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 47)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
-                         mock.call(f"Sent 0.05kB of datafeed to Central since {expected_time_last_sent}"))
+                         mock.call(f"Since {expected_time_last_sent} we have sent 0.05kB of scheduled query data to Central"))
 
     @mock.patch("logging.Logger.info")
     @mock.patch('builtins.open', new_callable=mock_open)
@@ -103,6 +119,5 @@ class TestFlags(unittest.TestCase):
         expected_time_last_sent = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(0))
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 47)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
-                         mock.call(f"Sent 0.05kB of datafeed to Central since {expected_time_last_sent}"))
+                         mock.call(f"Since {expected_time_last_sent} we have sent 0.05kB of scheduled query data to Central"))
         json.dump.assert_called_once_with(expected_file, mock.ANY)
-        raise AssertionError()
