@@ -3,7 +3,6 @@ Documentation    Product tests of sophos_threat_detector
 Force Tags       INTEGRATION  SOPHOS_THREAT_DETECTOR
 
 Resource    ../shared/ComponentSetup.robot
-Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 
 Library         ../Libs/OnFail.py
@@ -15,18 +14,14 @@ Test Setup      AVSophosThreatDetector Test Setup
 Test Teardown   AVSophosThreatDetector Test TearDown
 
 *** Variables ***
-${CLEAN_STRING}     not an eicar
-${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
-${CUSTOMERID_FILE}  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
-${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
-
+${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
 
 *** Test Cases ***
 Test Global Rep works in chroot
     run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
     run on failure  dump log   ${THREAT_DETECTOR_LOG_PATH}
     set sophos_threat_detector log level
-    Restart sophos_threat_detector and mark log
+    Restart sophos_threat_detector
     scan GR test file
     check sophos_threat_dector log for successful global rep lookup
 
@@ -41,9 +36,9 @@ Threat detector does not recreate logging symlink if present
     Should Exist   ${THREAT_DETECTOR_LOG_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}/sophos_threat_detector.log
-    Restart sophos_threat_detector and mark log
-    Threat Detector Log Should Not Contain With Offset   LogSetup <> Create symlink for logs at
-    Threat Detector Log Should Not Contain With Offset   LogSetup <> Failed to create symlink for logs at
+    Restart sophos_threat_detector
+    Threat Detector Does Not Log Contain   LogSetup <> Create symlink for logs at
+    Threat Detector Does Not Log Contain   LogSetup <> Failed to create symlink for logs at
 
 Threat detector recreates logging symlink if missing
     register cleanup   Install With Base SDDS
@@ -52,10 +47,11 @@ Threat detector recreates logging symlink if missing
 
     Run Process   rm   ${CHROOT_LOGGING_SYMLINK}
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
-    Restart sophos_threat_detector and mark log
+    Create File   ${THREAT_DETECTOR_LOG_PATH}   # truncate the log
+    Restart sophos_threat_detector
 
-    Wait Until Sophos Threat Detector Log Contains With Offset  LogSetup <> Create symlink for logs at
-    Threat Detector Log Should Not Contain With Offset   LogSetup <> Failed to create symlink for logs at
+    Threat Detector Log Contains   LogSetup <> Create symlink for logs at
+    Threat Detector Does Not Log Contain   LogSetup <> Failed to create symlink for logs at
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}/sophos_threat_detector.log
 
@@ -71,366 +67,31 @@ Threat detector aborts if logging symlink cannot be created
     Run Process   rm   ${CHROOT_LOGGING_SYMLINK}
     # stop sophos_threat_detector from creating the link, by denying group access to the directory
     Run Process   chmod   g-rwx    ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log
-    Restart sophos_threat_detector and mark log
+    Create File   ${THREAT_DETECTOR_LOG_PATH}   # truncate the log
+    Restart sophos_threat_detector
 
-    Sophos Threat Detector Log Contains With Offset   LogSetup <> Failed to create symlink for logs at
-    Threat Detector Log Should Not Contain With Offset   LogSetup <> Create symlink for logs at
+    Threat Detector Log Contains   LogSetup <> Failed to create symlink for logs at
+    Threat Detector Does Not Log Contain   LogSetup <> Create symlink for logs at
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
 
 
-SUSI Is Given Empty EndpointId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${MACHINEID_FILE}
-    Start AV Plugin
+Threat detector is killed gracefully
+    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
+    Run Process   /bin/kill   -SIGTERM   ${pid}
+
+    Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector received SIGTERM
+    Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting because it received signal SIGTERM
+    Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result =0
+    Wait Until AV Plugin Log Contains  Exiting sophos_threat_detector with code: 15 E_SIGTERM
+    Wait Until AV Plugin Log Contains  Starting "/opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher"
 
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  EndpointID cannot be empty
-
-
-SUSI Is Given A New Line As EndpointId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${MACHINEID_FILE}  \n
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  EndpointID cannot contain a new line
-
-
-SUSI Is Given An Empty Space As EndpointId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${MACHINEID_FILE}  ${SPACE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  EndpointID cannot contain a empty space
-
-
-SUSI Is Given Short EndpointId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${MACHINEID_FILE}  d22829d94b76c016ec4e04b08baef
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  EndpointID should be 32 hex characters
-
-
-SUSI Is Given Long EndpointId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${MACHINEID_FILE}  d22829d94b76c016ec4e04b08baefaaaaaaaaaaaaaaa
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  EndpointID should be 32 hex characters
-
-
-SUSI Is Given Non-hex EndpointId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${MACHINEID_FILE}  GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  EndpointID must be in hex format
-
-
-SUSI Is Given Non-UTF As EndpointId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    ${rc}   ${output} =    Run And Return Rc And Output  echo -n "ソフォスソフォスソフォスソフォス" | iconv -f utf-8 -t euc-jp > ${MACHINEID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  EndpointID must be in hex format
-
-
-SUSI Is Given Binary EndpointId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Copy File  /bin/true  ${MACHINEID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
-
-
-SUSI Is Given Large File EndpointId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${MACHINEID_FILE}
-
-    FOR  ${item}  IN RANGE  1  10
-        Append To File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
-    END
-
-    ${idfile} =    Get File  ${MACHINEID_FILE}
-    @{list} =    Split to lines  ${idfile}
-
-    FOR  ${line}  IN  @{list}
-       Log  ${line}
-    END
-
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  EndpointID should be 32 hex characters
-
-
-SUSI Is Given Empty CustomerId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${CUSTOMERID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  CustomerID cannot be empty
-
-
-SUSI Is Given A New Line As CustomerId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${CUSTOMERID_FILE}  \n
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  CustomerID cannot contain a new line
-
-
-SUSI Is Given An Empty Space As CustomerId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${CUSTOMERID_FILE}  ${SPACE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  CustomerID cannot contain a empty space
-
-
-SUSI Is Given Short CustomerId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baef
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
-
-
-SUSI Is Given Long CustomerId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baefaaaaaaaaaaaaaaa
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
-
-
-SUSI Is Given Non-hex CustomerId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${CUSTOMERID_FILE}  GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  CustomerID must be in hex format
-
-
-SUSI Is Given Non-UTF As CustomerId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    ${rc}   ${output} =    Run And Return Rc And Output  echo -n "ソフォスソフォスソフォスソフォス" | iconv -f utf-8 -t euc-jp > ${CUSTOMERID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  CustomerID must be in hex format
-
-
-SUSI Is Given Binary CustomerId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Copy File  /bin/true  ${CUSTOMERID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
-
-
-SUSI Is Given Large File CustomerId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${CUSTOMERID_FILE}
-
-    FOR  ${item}  IN RANGE  1  10
-        Append To File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baeffaa
-    END
-
-    ${idfile} =    Get File  ${CUSTOMERID_FILE}
-    @{list} =    Split to lines  ${idfile}
-
-    FOR  ${line}  IN  @{list}
-       Log  ${line}
-    END
-
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
-
-
-SUSI Is Given Non-Permission CustomerId
-    Mark Sophos Threat Detector Log
-    Stop AV Plugin
-    Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baeffaa
-    Run Process  chmod  000  ${CUSTOMERID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
 
 *** Keywords ***
 
 set sophos_threat_detector log level
     Set Log Level  DEBUG
 
-Restart sophos_threat_detector and mark log
+Restart sophos_threat_detector
     Kill sophos_threat_detector
     Mark AV Log
     wait for sophos_threat_detector to be running
