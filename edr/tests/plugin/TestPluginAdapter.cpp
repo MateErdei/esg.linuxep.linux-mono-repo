@@ -703,10 +703,72 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryCustomQueries)
 
 }
 
-TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRules)
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesHandlesExpectedPolicy)
 {
+     std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                    "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                    "   <configuration>\n"
+                                    "       <scheduled>\n"
+                                    "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                    "           <queryPacks>\n"
+                                    "               <queryPack id=\"XDR\"/>\n"
+                                    "               <queryPack id=\"MTR\"/>\n"
+                                    "           </queryPacks>\n"
+                                    "           <foldingRules>\n"
+                                    "               [\n"
+                                    "                   {\n"
+                                    "                       \"query_name\":\"test_folding_query\",\n"
+                                    "                       \"values\":{\n"
+                                    "                           \"column_name\": \"column_value\",\n"
+                                    "                           \"column_name2\": \"column_value2\"\n"
+                                    "                       }\n"
+                                    "                   },\n"
+                                    "                   {\n"
+                                    "                       \"query_name\":\"test_folding_query2\",\n"
+                                    "                        \"values\":{\n"
+                                    "                               \"column_name3\": \"column_value3\"\n"
+                                    "                       }\n"
+                                    "                   }\n"
+                                    "               ]\n"
+                                    "           </foldingRules>\n"
+                                    "       </scheduled>\n"
+                                    "   </configuration>\n"
+                                    "</policy>";
+
+    auto rules = Plugin::getFoldingRules(liveQueryPolicy);
+    EXPECT_EQ(rules.size(), 2);
+    size_t count = 0;
+    for (const auto& r : rules)
     {
-        std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+        SCOPED_TRACE(count);
+
+        ASSERT_TRUE(r.get("query_name", "").isString());
+        ASSERT_TRUE(r.get("values", "").isObject());
+
+        const std::string query_name = r.get("query_name", "").asString();
+        const Json::Value values = r.get("values", "");
+
+        if (count == 0)
+        {
+            EXPECT_STREQ(query_name.c_str(), "test_folding_query");
+            EXPECT_STREQ(values.get("column_name", "").asString().c_str(), "column_value");
+            EXPECT_STREQ(values.get("column_name2", "").asString().c_str(), "column_value2");
+        }
+        else if (count == 1)
+        {
+            EXPECT_STREQ(query_name.c_str(), "test_folding_query2");
+            EXPECT_STREQ(values.get("column_name3", "").asString().c_str(), "column_value3");
+        }
+
+        count++;
+    }
+    EXPECT_EQ(count, rules.size());
+
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesWithNoFoldingRules)
+{
+    std::string liveQueryPolicyNone = "<?xml version=\"1.0\"?>\n"
                                       "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
                                       "   <configuration>\n"
                                       "       <scheduled>\n"
@@ -715,95 +777,77 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRules)
                                       "               <queryPack id=\"XDR\"/>\n"
                                       "               <queryPack id=\"MTR\"/>\n"
                                       "           </queryPacks>\n"
-                                      "           <foldingRules>\n"
-                                      "               [\n"
-                                      "                   {\n"
-                                      "                       \"query_name\":\"test_folding_query\",\n"
-                                      "                       \"values\":{\n"
-                                      "                           \"column_name\": \"column_value\",\n"
-                                      "                           \"column_name2\": \"column_value2\"\n"
-                                      "                       }\n"
-                                      "                   },\n"
-                                      "                   {\n"
-                                      "                       \"query_name\":\"test_folding_query2\",\n"
-                                      "                        \"values\":{\n"
-                                      "                               \"column_name3\": \"column_value3\"\n"
-                                      "                       }\n"
-                                      "                   }\n"
-                                      "               ]\n"
-                                      "           </foldingRules>\n"
                                       "       </scheduled>\n"
                                       "   </configuration>\n"
                                       "</policy>";
 
-        auto rules = Plugin::getFoldingRules(liveQueryPolicy);
-        EXPECT_EQ(rules.size(), 2);
-        size_t count = 0;
-        for (const auto& r : rules)
-        {
-            SCOPED_TRACE(count);
+    EXPECT_TRUE(Plugin::getFoldingRules(liveQueryPolicyNone).empty());
+}
 
-            ASSERT_TRUE(r.get("query_name", "").isString());
-            ASSERT_TRUE(r.get("values", "").isObject());
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesInvalidJson)
+{
+    std::string liveQueryPolicyInvalid = "<?xml version=\"1.0\"?>\n"
+                                         "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                         "   <configuration>\n"
+                                         "       <scheduled>\n"
+                                         "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                         "           <queryPacks>\n"
+                                         "               <queryPack id=\"XDR\"/>\n"
+                                         "               <queryPack id=\"MTR\"/>\n"
+                                         "           </queryPacks>\n"
+                                         "           <foldingRules>\n"
+                                         "               blah\n"
+                                         "           </foldingRules>\n"
+                                         "       </scheduled>\n"
+                                         "   </configuration>\n"
+                                         "</policy>";
 
-            const std::string query_name = r.get("query_name", "").asString();
-            const Json::Value values = r.get("values", "");
+    EXPECT_TRUE(Plugin::getFoldingRules(liveQueryPolicyInvalid).empty());
+}
 
-            if (count == 0)
-            {
-                EXPECT_STREQ(query_name.c_str(), "test_folding_query");
-                EXPECT_STREQ(values.get("column_name", "").asString().c_str(), "column_value");
-                EXPECT_STREQ(values.get("column_name2", "").asString().c_str(), "column_value2");
-            }
-            else if (count == 1)
-            {
-                EXPECT_STREQ(query_name.c_str(), "test_folding_query2");
-                EXPECT_STREQ(values.get("column_name3", "").asString().c_str(), "column_value3");
-            }
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesParsesAllButInvalidRules)
+{
+    std::string liveQueryPolicyInvalid = "<?xml version=\"1.0\"?>\n"
+                                         "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                         "   <configuration>\n"
+                                         "       <scheduled>\n"
+                                         "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                         "           <queryPacks>\n"
+                                         "               <queryPack id=\"XDR\"/>\n"
+                                         "               <queryPack id=\"MTR\"/>\n"
+                                         "           </queryPacks>\n"
+                                         "           <foldingRules>\n"
+                                         "               [\n"
+                                         "                   {\n"
+                                         "                       \"query_name\":\"test_folding_query\",\n"
+                                         "                       \"not-values\":{\n"
+                                         "                           \"column_name\": \"column_value\",\n"
+                                         "                           \"column_name2\": \"column_value2\"\n"
+                                         "                       }\n"
+                                         "                   },\n"
+                                         "                   {\n"
+                                         "                       \"query_name\":\"test_folding_query2\",\n"
+                                         "                        \"values\":{\n"
+                                         "                               \"column_name3\": \"column_value3\"\n"
+                                         "                       }\n"
+                                         "                   }\n"
+                                         "               ]\n"
+                                         "           </foldingRules>\n"
+                                         "       </scheduled>\n"
+                                         "   </configuration>\n"
+                                         "</policy>";
 
-            count++;
-        }
-        EXPECT_EQ(count, rules.size());
-    }
+    std::vector<Json::Value> expected;
+    Json::Value root;
+    Json::Value values;
+    values["column_name3"] = "column_value3";
+    root["query_name"] = "test_folding_query2";
+    root["values"] = values;
+    expected.push_back(root);
+    auto actual = Plugin::getFoldingRules(liveQueryPolicyInvalid);
 
-
-    {
-        std::string liveQueryPolicyNone = "<?xml version=\"1.0\"?>\n"
-                                          "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
-                                          "   <configuration>\n"
-                                          "       <scheduled>\n"
-                                          "           <dailyDataLimit>100</dailyDataLimit>\n"
-                                          "           <queryPacks>\n"
-                                          "               <queryPack id=\"XDR\"/>\n"
-                                          "               <queryPack id=\"MTR\"/>\n"
-                                          "           </queryPacks>\n"
-                                          "       </scheduled>\n"
-                                          "   </configuration>\n"
-                                          "</policy>";
-
-        EXPECT_TRUE(Plugin::getFoldingRules(liveQueryPolicyNone).empty());
-    }
-
-
-    {
-        std::string liveQueryPolicyInvalid = "<?xml version=\"1.0\"?>\n"
-                                             "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
-                                             "   <configuration>\n"
-                                             "       <scheduled>\n"
-                                             "           <dailyDataLimit>100</dailyDataLimit>\n"
-                                             "           <queryPacks>\n"
-                                             "               <queryPack id=\"XDR\"/>\n"
-                                             "               <queryPack id=\"MTR\"/>\n"
-                                             "           </queryPacks>\n"
-                                             "           <foldingRules>\n"
-                                             "               blah\n"
-                                             "           </foldingRules>\n"
-                                             "       </scheduled>\n"
-                                             "   </configuration>\n"
-                                             "</policy>";
-
-        EXPECT_TRUE(Plugin::getFoldingRules(liveQueryPolicyInvalid).empty());
-    }
+    EXPECT_EQ(actual.size(), 1);
+    EXPECT_EQ(actual, expected);
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryConfigIsNotRemovedWhenWeFailToReadLiveQueryPolicy)
