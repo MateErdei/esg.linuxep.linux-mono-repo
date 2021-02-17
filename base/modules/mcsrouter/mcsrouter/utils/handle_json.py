@@ -73,10 +73,10 @@ def read_datafeed_tracker():
                     int(file_data["time_sent"])
                 except (ValueError, TypeError):
                     LOGGER.warning(f"Epoch time {file_data['time_sent']} in file: {filepath} not a valid int, resetting to current time")
-                    file_data["time_sent"] = time.time()
+                    file_data["time_sent"] = int(time.time())
                 except KeyError:
-                    LOGGER.warning(f"time_sent field not found in file: {filepath} not a valid int")
-                    file_data["time_sent"] = time.time()
+                    LOGGER.warning(f"time_sent field not found in file: {filepath}")
+                    file_data["time_sent"] = int(time.time())
 
         except (PermissionError, json.JSONDecodeError) as e:
             LOGGER.warning("Unable to read {} with error: {}".format(filepath, e))
