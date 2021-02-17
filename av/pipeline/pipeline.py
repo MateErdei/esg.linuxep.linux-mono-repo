@@ -25,7 +25,7 @@ BRANCH_NAME = "master"
 
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
-    return branch_name in ('master', "develop") or branch_name.endswith('coverage') or branch_name.endswith('LINUXDAR-2659-submit-coverage-results-to-the-esg-system-dashboard')
+    return branch_name in ('master', "develop") or branch_name.endswith('coverage')
 
 def is_debian_based(machine: tap.Machine):
     return machine.template.startswith("ubuntu")
@@ -143,7 +143,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
-        bazel_tools=unified_artifact(context, 'em.esg', 'bugfix--bazeltools-EES-20548-Make-test_coverage.py-work-on-Linux', 'build/bazel-tools'),
+        bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools'),
         av=build / output,
         # tapartifact upload-file
         # esg-tap-component-store/com.sophos/ssplav-localrep/released/20200219/reputation.zip
@@ -248,11 +248,7 @@ def bullseye_coverage_task(machine: tap.Machine):
                     })
 
         # publish combined html results and coverage file to artifactory
-        machine.run('covxml', '--file', COVFILE_COMBINED, '--output', '/tmp/cov.xml', '--no-banner')
-
-        # Check output from covxml
-        machine.run('cat', '/tmp/cov.xml')
-        machine.run('xmllint', '-format', '/tmp/cov.xml')
+        machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
 
         COVERAGE_NORMALISE_JSON = os.path.join(coverage_results_dir, "test_coverage.json")
         COVERAGE_MIN_FUNCTION = 70
@@ -302,20 +298,20 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         av_build = context.artifact.build()
 
     with stage.parallel('testing'):
-        # test_inputs = get_inputs(context, av_build)
-        # ubuntu1804_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-        # ubuntu2004_machine = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-        # centos7_machine = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-        #
-        # with stage.parallel('component'):
-        #     stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu1804_machine)
-        #     stage.task(task_name='ubuntu2004_x64', func=pytest_task, machine=ubuntu2004_machine)
-        #     stage.task(task_name='centos77_x64',   func=pytest_task, machine=centos7_machine)
-        #
-        # with stage.parallel('integration'):
-        #     stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
-        #     stage.task(task_name='ubuntu2004_x64', func=robot_task, machine=ubuntu2004_machine)
-        #     stage.task(task_name='centos77_x64',   func=robot_task, machine=centos7_machine)
+        test_inputs = get_inputs(context, av_build)
+        ubuntu1804_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        ubuntu2004_machine = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        centos7_machine = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+
+        with stage.parallel('component'):
+            stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu1804_machine)
+            stage.task(task_name='ubuntu2004_x64', func=pytest_task, machine=ubuntu2004_machine)
+            stage.task(task_name='centos77_x64',   func=pytest_task, machine=centos7_machine)
+
+        with stage.parallel('integration'):
+            stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
+            stage.task(task_name='ubuntu2004_x64', func=robot_task, machine=ubuntu2004_machine)
+            stage.task(task_name='centos77_x64',   func=robot_task, machine=centos7_machine)
 
         if do_coverage:
             with stage.parallel('coverage'):

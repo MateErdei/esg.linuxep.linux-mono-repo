@@ -9,7 +9,7 @@ then
     else
         apt-get install -y python3.8 python3.8-dev
     fi
-    apt-get install -y nfs-kernel-server zip unzip libxml2-utils
+    apt-get install -y nfs-kernel-server zip unzip
 elif [[ -x $(which yum) ]]
 then
     ping -c2 abn-centosrepo || true
@@ -20,7 +20,7 @@ then
     cat /etc/yum.conf
     grep -r abn-centosrepo /etc/yum.repos.d/* /etc/yum.conf || true
 
-    yum install -y "gcc" "gcc-c++" "make" "capnproto-devel" "capnproto-libs" "capnproto" nfs-utils zip libxml2
+    yum install -y "gcc" "gcc-c++" "make" "capnproto-devel" "capnproto-libs" "capnproto" nfs-utils zip
 else
     echo "Can't find package management system"
     exit 1
