@@ -261,7 +261,7 @@ def bullseye_coverage_task(machine: tap.Machine):
             '--min-condition', str(COVERAGE_MIN_CONDITION)
         ]
         global BRANCH_NAME
-        if BRANCH_NAME == 'develop' or BRANCH_NAME.endswith('LINUXDAR-2659-submit-coverage-results-to-the-esg-system-dashboard'):
+        if BRANCH_NAME == 'develop':
             test_coverage_args += ['--upload', '--upload-job', 'UnifiedPipelines/linuxep/sspl-plugin-anti-virus']
         machine.run(*test_coverage_args)
 
