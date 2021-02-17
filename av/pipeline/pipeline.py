@@ -248,10 +248,11 @@ def bullseye_coverage_task(machine: tap.Machine):
                     })
 
         # publish combined html results and coverage file to artifactory
-        machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
+        machine.run('covxml', '--file', COVFILE_COMBINED, '--output', '/tmp/cov.xml', '--no-banner')
 
-        # Check contents of covfile
-        machine.run('cat', COVFILE_COMBINED)
+        # Check output from covxml
+        machine.run('cat', '/tmp/cov.xml')
+        machine.run('xmllint', '-format', '/tmp/cov.xml')
 
         COVERAGE_NORMALISE_JSON = os.path.join(coverage_results_dir, "test_coverage.json")
         COVERAGE_MIN_FUNCTION = 70
