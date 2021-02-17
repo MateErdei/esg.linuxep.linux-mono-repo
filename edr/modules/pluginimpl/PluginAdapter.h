@@ -141,6 +141,7 @@ namespace Plugin
         OsqueryConfigurator m_osqueryConfigurator;
         bool m_collectAuditEnabled = false;
         bool m_restartNoDelay = false;
+        std::vector<Json::Value> m_foldingRules;
 
         std::list<std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>> m_extensionAndStateList;
     };
