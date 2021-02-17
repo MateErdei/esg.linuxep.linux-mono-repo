@@ -10,10 +10,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <csignal>
 
-int common::SigTermMonitor::monitorFd()
-{
-    return m_pipe.readFd();
-}
 
 bool common::SigTermMonitor::triggered()
 {
@@ -60,17 +56,11 @@ common::SigTermMonitor::~SigTermMonitor()
     // clear signal handler
     SIGTERM_MONITOR_PIPE = -1;
     struct sigaction action{};
-    action.sa_handler = SIG_IGN;
+    action.sa_handler = SIG_DFL;
     action.sa_flags = 0;
     int ret = ::sigaction(SIGTERM, &action, nullptr);
     if (ret != 0)
     {
         LOGERROR("Failed to clear SIGTERM signal handler");
     }
-}
-
-std::shared_ptr<common::SigTermMonitor> common::SigTermMonitor::getSigTermMonitor()
-{
-    static std::shared_ptr<common::SigTermMonitor> monitor(std::make_shared<common::SigTermMonitor>());
-    return monitor;
 }

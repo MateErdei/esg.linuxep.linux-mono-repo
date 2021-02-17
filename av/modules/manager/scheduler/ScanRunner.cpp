@@ -72,7 +72,6 @@ void ScanRunner::run()
 
     // Start file walker process
     Common::Process::IProcessPtr process(Common::Process::createProcess());
-    process->setOutputLimit(512);
     process->exec(m_scanExecutable, {m_scanExecutable, "--config", config_file});
 
     // TODO: Wait for stop request or file walker process exit, which ever comes first
@@ -80,7 +79,7 @@ void ScanRunner::run()
     int exitCode = process->exitCode();
 
     // 15 is SIGTERM
-    if (exitCode == common::E_SIGTERM || exitCode == common::E_SCAN_ABORTED)
+    if (exitCode == common::E_SIGTERM or exitCode == common::E_SCAN_ABORTED)
     {
         LOGERROR("Scan: " << m_name << ", terminated with exit code: " << exitCode);
     }
@@ -88,24 +87,9 @@ void ScanRunner::run()
     {
         LOGERROR("Scan: " << m_name << ", found threats but aborted with exit code: " << exitCode);
     }
-    else if (exitCode == common::E_CAP_SET_PROC_C || exitCode == common::E_CAP_SET_AMBIENT_C)
-    {
-        // Capabilities failed
-        LOGERROR("Scan: " << m_name << " failed to start (capability failure) with exit code: " << exitCode);
-        LOGERROR("Output: " << process->output());
-    }
-    else if (exitCode == common::E_CLEAN)
-    {
-        LOGINFO("Completed scan " << m_name << " without detecting any threats");
-    }
-    else if (exitCode == common::E_VIRUS_FOUND)
-    {
-        LOGINFO("Completed scan " << m_name << " and detected threats");
-    }
     else
     {
         LOGINFO("Completed scan " << m_name << " with exit code: " << exitCode);
-        LOGINFO("Output: " << process->output());
     }
 
     process.reset();

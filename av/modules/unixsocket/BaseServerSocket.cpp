@@ -9,8 +9,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <common/FDUtils.h>
+#include <common/SigTermMonitor.h>
 
-#include <cassert>
 #include <stdexcept>
 
 #include <sys/socket.h>
@@ -88,8 +88,16 @@ void unixsocket::BaseServerSocket::run()
     announceThreadStarted();
     LOGSUPPORT("Starting listening on socket");
 
+    common::SigTermMonitor sigTermMonitor;
     while (!terminate)
     {
+        if (sigTermMonitor.triggered())
+        {
+            LOGERROR("Sophos Threat Detector received SIGTERM");
+            m_returnCode = common::E_SIGTERM;
+            break;
+        }
+
         fd_set tempRead = readFDs;
 
         //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely

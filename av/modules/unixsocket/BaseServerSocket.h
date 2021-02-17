@@ -16,6 +16,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Common/Threads/AbstractThread.h"
 
+#include <common/ErrorCodes.h>
+
 #include <string>
 #include <vector>
 
@@ -42,6 +44,8 @@ namespace unixsocket
 
     public:
         void run() override;
+        [[nodiscard]] int getReturnCode() { return m_returnCode; }
+
         [[nodiscard]] int maxClientConnections() const
         {
             return m_max_threads;
@@ -50,6 +54,7 @@ namespace unixsocket
     private:
         std::string m_socketPath;
         IMonitorablePtr m_monitorable;
+        int m_returnCode = common::E_CLEAN_SUCCESS;
 
     protected:
         /**

@@ -345,7 +345,14 @@ static int inner_main()
     unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, std::move(scannerFactory), std::move(usr1Monitor));
     server.run();
 
-    return 0;
+    if (server.getReturnCode() == common::E_SIGTERM)
+    {
+        LOGINFO("Sophos Threat Detector is exiting because it received signal SIGTERM");
+        return common::E_SIGTERM;
+    }
+
+    LOGINFO("Sophos Threat Detector is exiting");
+    return common::E_CLEAN_SUCCESS;
 }
 
 int sspl::sophosthreatdetectorimpl::sophos_threat_detector_main()
