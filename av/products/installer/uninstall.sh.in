@@ -58,3 +58,5 @@ rm -rf "$UNINSTALLDIR"
 rm -f "$SYMLINK"
 rm -f "$SYMLINKVERSION"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
+
+userdel sophos-spl-av
