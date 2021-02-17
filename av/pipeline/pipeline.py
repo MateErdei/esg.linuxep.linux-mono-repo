@@ -143,7 +143,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
         bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
-        bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools'),
+        bazel_tools=unified_artifact(context, 'em.esg', 'bugfix--bazeltools-EES-20548-Make-test_coverage.py-work-on-Linux', 'build/bazel-tools'),
         av=build / output,
         # tapartifact upload-file
         # esg-tap-component-store/com.sophos/ssplav-localrep/released/20200219/reputation.zip
