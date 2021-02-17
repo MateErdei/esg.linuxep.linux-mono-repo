@@ -5,7 +5,7 @@ import zlib
 
 import PathManager
 import mcsrouter.mcsclient.datafeeds
-import mcsrouter.utils.write_json
+import mcsrouter.utils.handle_json
 
 logger = logging.getLogger("TestDatafeeds")
 
@@ -164,7 +164,7 @@ class TestDatafeeds(unittest.TestCase):
         self.assertEqual(expected_compressed, datafeed_results[0].m_compressed_body)
         self.assertEqual(len(expected_compressed), datafeed_results[0].m_compressed_body_size)
 
-    @mock.patch("mcsrouter.utils.write_json.update_datafeed_size", return_value="jake is cool af")
+    @mock.patch("mcsrouter.utils.handle_json.update_datafeed_size", return_value="jake is cool af")
     def test_send_datafeed_files_counts_total_compressed_size_properly(self, *mockargs):
         mocked_datafeeds = [
             mcsrouter.mcsclient.datafeeds.Datafeeds("scheduled_query"),
@@ -188,4 +188,4 @@ class TestDatafeeds(unittest.TestCase):
         comms.send_datafeeds = lambda x, y: True
         v2_datafeed_available = mock.Mock()
         mcsrouter.mcsclient.datafeeds.Datafeeds.send_datafeed_files(v2_datafeed_available, mocked_datafeeds, comms)
-        mcsrouter.utils.write_json.update_datafeed_size.assert_called_with(size_total)
+        mcsrouter.utils.handle_json.update_datafeed_size.assert_called_with(size_total)

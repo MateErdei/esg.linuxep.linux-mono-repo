@@ -46,7 +46,7 @@ from .utils import default_values
 from .utils import plugin_registry
 from .utils import signal_handler
 from .utils import timestamp
-from .utils import write_json
+from .utils import handle_json
 from .utils import flags
 
 from .utils.get_ids import get_gid, get_uid
@@ -437,7 +437,7 @@ class MCS:
             LOGGER.info("Checking for updates to mcs flags")
             mcs_flags_content = self.__m_comms.get_flags()
             if mcs_flags_content:
-                write_json.write_mcs_flags(mcs_flags_content)
+                handle_json.write_mcs_flags(mcs_flags_content)
             last_time_checked = time.time()
         return last_time_checked
 

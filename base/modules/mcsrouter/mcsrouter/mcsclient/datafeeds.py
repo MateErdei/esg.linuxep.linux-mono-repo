@@ -12,7 +12,7 @@ import json
 import zlib
 
 from mcsrouter.utils import path_manager
-from mcsrouter.utils import write_json
+from mcsrouter.utils import handle_json
 
 LOGGER = logging.getLogger(__name__)
 
@@ -225,4 +225,4 @@ class Datafeeds(object):
                     LOGGER.error(
                         f"Failed to send datafeed results, datafeed ID: {datafeed.get_feed_id()}, error: {str(df_exception)}")
 
-        write_json.update_datafeed_size(total_size)
+        handle_json.update_datafeed_size(total_size)

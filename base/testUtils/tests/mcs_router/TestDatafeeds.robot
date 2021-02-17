@@ -192,7 +192,7 @@ Ensure correct sending protocol handles all possible datafeed states at same tim
     Check MCS Router Log Contains   mcsrouter.adapters.datafeed_receiver <> Failed to load datafeed json file "/opt/sophos-spl/base/mcs/datafeed/scheduled_query-3000000004.json"
 
     # Check that MCS detected datafeed results
-    Check MCS Router Log Contains   mcsrouter.mcs <> Datafeed results present for datafeed ID: scheduled_query
+    Check MCS Router Log Contains   Datafeed results present for datafeed ID: scheduled_query
 
     Check MCS Router Log Contains  mcsrouter.mcs <> Queuing datafeed result for: scheduled_query, with timestamp: 2900000014
     Check MCS Router Log Contains  mcsrouter.mcs <> Queuing datafeed result for: scheduled_query, with timestamp: 3000000002
