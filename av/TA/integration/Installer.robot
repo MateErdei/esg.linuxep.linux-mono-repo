@@ -199,7 +199,7 @@ Check permissions after upgrade
     FOR   ${item}   IN   @{items}
        ${file} =   Set Variable   ${item}/test_file
        Create File   ${file}   test data
-       Change Owner   ${file}   sophos-spl-user   sophos-spl-av
+       Change Owner   ${file}   sophos-spl-av   sophos-spl-group
        Append To List   ${files}   ${file}
     END
     Log List   ${files}
