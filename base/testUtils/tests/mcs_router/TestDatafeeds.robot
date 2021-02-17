@@ -39,7 +39,7 @@ Basic XDR Datafeed size is logged
     Wait Until Keyword Succeeds
     ...  10s
     ...  1s
-    ...  Check MCS Router Log Contains    Sent 0.447kB of datafeed to Central since 1970-01-01T00:00:02Z
+    ...  Check MCS Router Log Contains    Since 1970-01-01T00:00:02Z we have sent 0.447kB of scheduled query data to Central
 
 Invalid Datafeed Filename Not Sent But Does not Block Other Datafeed Files
     [Documentation]  Written to test the eact scenario set out in LINUXDAR-2463
