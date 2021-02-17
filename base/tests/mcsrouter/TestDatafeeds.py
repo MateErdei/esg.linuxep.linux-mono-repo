@@ -5,6 +5,7 @@ import zlib
 
 import PathManager
 import mcsrouter.mcsclient.datafeeds
+import mcsrouter.utils.write_json
 
 logger = logging.getLogger("TestDatafeeds")
 
@@ -162,3 +163,29 @@ class TestDatafeeds(unittest.TestCase):
         expected_compressed = zlib.compress(bytes(content, "utf-8"))
         self.assertEqual(expected_compressed, datafeed_results[0].m_compressed_body)
         self.assertEqual(len(expected_compressed), datafeed_results[0].m_compressed_body_size)
+
+    @mock.patch("mcsrouter.utils.write_json.update_datafeed_size", return_value="jake is cool af")
+    def test_send_datafeed_files_counts_total_compressed_size_properly(self, *mockargs):
+        mocked_datafeeds = [
+            mcsrouter.mcsclient.datafeeds.Datafeeds("scheduled_query"),
+            mcsrouter.mcsclient.datafeeds.Datafeeds("not_scheduled_query"),
+            mcsrouter.mcsclient.datafeeds.Datafeeds("stil_not_scheduled_query")
+        ]
+
+        body1 = "garbage"
+        body1size = len(zlib.compress(bytes(body1, 'utf-8')))
+        body2 = "not a real body"
+        body2size = len(zlib.compress(bytes(body2, 'utf-8')))
+        body3 = "a third one"
+        body3size = len(zlib.compress(bytes(body3, 'utf-8')))
+        size_total = body1size + body2size + body3size
+
+        mocked_datafeeds[0].add_datafeed_result("/tmp/filepath1", "scheduled_query", "1601033100", body1)
+        mocked_datafeeds[0].add_datafeed_result("/tmp/filepath2", "scheduled_query", "1601033100", body2)
+        mocked_datafeeds[1].add_datafeed_result("/tmp/filepath3", "not_scheduled_query", "1601033100", body3)
+
+        comms = mock.Mock()
+        comms.send_datafeeds = lambda x, y: True
+        v2_datafeed_available = mock.Mock()
+        mcsrouter.mcsclient.datafeeds.Datafeeds.send_datafeed_files(v2_datafeed_available, mocked_datafeeds, comms)
+        mcsrouter.utils.write_json.update_datafeed_size.assert_called_with(size_total)
