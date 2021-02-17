@@ -7,7 +7,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/PersistentValue/PersistentValue.h>
-#include <redist/jsoncpp/include/json/value.h>
+#include <json/value.h>
 #include <ResultsSenderInterface.h>
 #include <functional>
 

@@ -7,7 +7,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <redist/jsoncpp/include/json/json.h>
+#include <json/json.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <string>
