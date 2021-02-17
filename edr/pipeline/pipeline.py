@@ -189,11 +189,11 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
             ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
         )
 
-        if mode == 'coverage':
-            with stage.parallel('combined'):
-                for template_name, machine in coverage_machines:
-                    stage.task(task_name=template_name, func=combined_task, machine=machine)
-        else:
+        # if mode == 'coverage':
+        #     with stage.parallel('combined'):
+        #         for template_name, machine in coverage_machines:
+        #             stage.task(task_name=template_name, func=combined_task, machine=machine)
+        #else:
             # with stage.parallel('integration'):
             #     for template_name, machine in machines:
             #         stage.task(task_name=template_name, func=robot_task, machine=machine)
