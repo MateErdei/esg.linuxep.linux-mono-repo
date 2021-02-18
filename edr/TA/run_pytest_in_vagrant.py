@@ -30,7 +30,7 @@ then
 fi
 
 pushd /vagrant/sspl-plugin-edr-component/TA
-sudo -E python3 -u -m pytest
+sudo -E python3  RobotFramework.py
 popd
 """
 VAGRANTROOT = find_vagrant_root()
