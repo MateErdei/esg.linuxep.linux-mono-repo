@@ -52,6 +52,9 @@ Create Eicar
 Wait for SAV policy on endpoint
     Wait Until Created  ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml  5 mins
 
+Wait for ALC policy on endpoint
+    Wait Until Created  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml  5 mins
+
 Check Specific File Content
     [Arguments]     ${expectedContent}  ${filePath}
     ${FileContents} =  Get File  ${filePath}
@@ -173,6 +176,9 @@ SAV and ALC Policy Arrives And Is Handled Correctly
     Register In Central
     Wait for computer to appear in Central
     Assign AntiVirus Product to Endpoint in Central
+
+    Wait for ALC policy on endpoint
+    Wait for SAV policy on endpoint
 
     Stop AV Plugin
     Remove File    ${AV_LOG_PATH}
