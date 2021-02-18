@@ -37,10 +37,7 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
     Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  Processing LiveQuery Policy
+
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -52,70 +49,31 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
     ...  2 secs
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
-EDR Plugin Applies Folding Rules When Folding Rules Have Changed
-    [Setup]  Install With Base SDDS
+EDR Plugin Tags All Queries Correctly
     Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to stop edr
-    Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  10
+    Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  10
+    replace_query_bodies_with_sql_that_always_gives_results  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    replace_query_bodies_with_sql_that_always_gives_results  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
 
-    # Inject policy with folding rules
-    Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_foldingrules_limit.xml
+    Log file  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Log file  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
 
-    # Throw away one set of results here so that we are certain they are not from before the folding rules were applied
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-
-    # Wait for a result we know will contain folded and non-fodled results
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Check Query Results Are Folded  ${query_results}  uptime  fixed_column  fixed_value
-    Check Query Results Are Not Folded  ${query_results}  uptime_not_folded  fixed_column  fixed_value
-
-    # Wait for a 2nd batch of result to prove that folding is done per batch, i.e. the folded query shows up again
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Check Query Results Are Folded  ${query_results}  uptime  fixed_column  fixed_value
-    Check Query Results Are Not Folded  ${query_results}  uptime_not_folded  fixed_column  fixed_value
-
-    # Inject policy without folding rules
-    Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml
-
-    # Throw away one set of results here so that we are certain they are not from before the folding rules were removed
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-
-    # Wait until the results appear and check they are not folded now there are no folding rules
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Check Query Results Are Not Folded  ${query_results}  uptime  fixed_column  fixed_value
-
-
-EDR Plugin Applies Folding Rules Based Column Value
-    [Setup]  Install With Base SDDS
-    Check EDR Plugin Installed With Base
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to stop edr
-
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Enable XDR
-    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
-    # Inject policy with folding rules
-    Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_foldingrules_limit.xml
+    #restart edr so that the altered queries are read in and debug mode applied
+    Restart EDR
 
-    # Throw away one set of results here so that we are certain they are not from before the folding rules were applied
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-
-    # Wait for a result we know will contain folded and non-fodled results
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Check Query Results Are Folded  ${query_results}  random  number  0
-    Check Query Results Are Not Folded  ${query_results}  random  number  1
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  Check All Query Results Contain Correct Tag  ${SOPHOS_INSTALL}/base/mcs/datafeed/  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
 EDR Plugin Runs All Scheduled Queries
     [Setup]  Install With Base SDDS
@@ -155,11 +113,6 @@ EDR Plugin Runs All Scheduled Queries
     ...  100 secs
     ...  5 secs
     ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
-
-    Wait Until Keyword Succeeds
-    ...  40 secs
-    ...  5 secs
-    ...  Check All Query Results Contain Correct Tag  ${SOPHOS_INSTALL}/base/mcs/datafeed/  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
 
 EDR Plugin Detects Data Limit From Policy And That A Status Is Sent On Start
     [Setup]  No Operation
@@ -401,30 +354,3 @@ Osquery Flag File Should Contain
     [Arguments]  ${stringToContain}
     ${flags} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
     Should Contain  ${flags}   ${stringToContain}
-
-Clear Datafeed Dir And Wait For Next Result File
-    Empty Directory  ${SOPHOS_INSTALL}/base/mcs/datafeed
-    ${QueryFile} =  Wait For Scheduled Query File And Return Filename
-    [Return]  ${QueryFile}
-
-Check Query Results Are Folded
-    [Arguments]  ${result_string}  ${query_name}  ${column_name}  ${column_value}
-    ${IsFolded} =  Check Query Results Folded  ${result_string}  ${query_name}  ${column_name}  ${column_value}
-    Should Be True  ${IsFolded}
-
-Check Query Results Are Not Folded
-    [Arguments]  ${result_string}  ${query_name}  ${column_name}  ${column_value}
-    ${IsFolded} =  Check Query Results Folded  ${result_string}  ${query_name}  ${column_name}  ${column_value}
-    Should Not Be True  ${IsFolded}
-
-Apply Live Query Policy And Expect Folding Rules To Have Changed
-    [Arguments]  ${policy_file}
-    Move File Atomically  ${policy_file}  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  Processing LiveQuery Policy
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  LiveQuery Policy folding rules have changed

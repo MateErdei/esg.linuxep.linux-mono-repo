@@ -7,6 +7,41 @@ import os
 import json
 import time
 
+#select  'my message';
+
+def linux_queries_in_pack(config: dict)  -> (str, dict):
+    # Only yield linux queries
+    for query_name, query in queries_in_pack(config):
+        # queries without designated platforms will run on linux
+        if "linux" in query.get("platform", "linux"):
+            yield query_name, query
+
+def queries_in_pack(config: dict) -> (str, dict):
+    # for query in flat "schedule" field
+    for query_name, query in config["schedule"].items():
+        yield query_name, query
+    #for query in packs
+    for pack in config.get("packs", {}).values():
+        for query_name, query in pack["queries"].items():
+            yield query_name, query
+
+def replace_query_bodies_with_sql_that_always_gives_results(config_path):
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            config_json_string = f.read()
+        config = json.loads(config_json_string)
+
+        query_that_always_returns = "SELECT CURRENT_TIMESTAMP AS current_date_time;"
+        for query_name, query_dict in linux_queries_in_pack(config):
+            print(f"changing {query_name}'s query field to {query_that_always_returns}")
+            query_dict["query"] = query_that_always_returns
+
+        new_config_json_string = json.dumps(config, indent=4)
+        with open(config_path, 'w') as f:
+            f.write(new_config_json_string)
+    else:
+        raise AssertionError(f"{config_path} does not exist")
+
 
 def change_all_scheduled_queries_interval(config_path, interval):
     if os.path.exists(config_path):
@@ -34,6 +69,8 @@ def change_all_scheduled_queries_interval(config_path, interval):
         new_config_json_string = json.dumps(config, indent=4)
         with open(config_path, 'w') as f:
             f.write(new_config_json_string)
+    else:
+        raise AssertionError(f"{config_path} does not exist")
 
 
 def check_all_queries_run(log_path: str, config_path: str):
@@ -62,7 +99,7 @@ def check_all_queries_run(log_path: str, config_path: str):
         if found == 0:
             raise AssertionError("Did not search for any queries, are you sure this keyword is testing what you think it is?")
     else:
-        raise AssertionError("Failed to read config")
+        raise AssertionError(f"{config_path} does not exist")
 
 
 def check_for_query_in_log(log_path, query_name: str):
@@ -73,38 +110,29 @@ def check_for_query_in_log(log_path, query_name: str):
     if query_name not in log_content_stripped:
         raise AssertionError("could not find query in log: " + query_name)
 
-def check_all_query_results_contain_correct_tag(results_directory: str, config_path1: str,  config_path2: str):
-    if os.path.exists(config_path1) and os.path.exists(config_path2):
-        with open(config_path1, 'r') as f:
-            config_json_string1 = f.read()
-        config1 = json.loads(config_json_string1)
-        with open(config_path2, 'r') as f:
-            config_json_string2 = f.read()
-        config2 = json.loads(config_json_string2)
+def check_all_query_results_contain_correct_tag(results_directory: str, *config_paths):
+    assert(len(config_paths) > 0)
 
-        config = {**config1["schedule"], **config2["schedule"]}
+    results_dict = {}
+    for file in os.listdir(results_directory):
+        print(f"file: {file}")
+        with open(os.path.join(results_directory, file), 'r') as f:
+            results_json_string = f.read()
 
-        flattened_queries = {}
-
-        packs = config1.get("packs", {})
-        for pack in packs.values():
-            flattened_queries = {**flattened_queries, **pack["queries"]}
-
-        packs = config2.get("packs", {})
-        for pack in packs.values():
-            flattened_queries = {**flattened_queries, **pack["queries"]}
-
-        flattened_queries = {**flattened_queries, **config}
-
-        results_json = json.loads("[]")
-        for file in os.listdir(results_directory):
-            print(f"file: {file}")
-            with open(os.path.join(results_directory, file), 'r') as f:
-                results_json_string = f.read()
-            results_json += json.loads(results_json_string)
+        results_json = json.loads(results_json_string)
         for result in results_json:
-            if flattened_queries[result["name"]]["tag"] != result["tag"]:
-                raise AssertionError("tags do not match")
+            results_dict[result["name"]] = result
+
+    for path in config_paths:
+        if not os.path.exists(path):
+            raise AssertionError(f"{path} does not exist")
+        with open(path, 'r') as f:
+            config_json_string = f.read()
+        config = json.loads(config_json_string)
+
+        for query_name, query_dict in linux_queries_in_pack(config):
+            print(f"Checking {query_name}")
+            assert(query_dict["tag"] == results_dict[query_name]["tag"])
 
 
 def check_query_results_folded(query_result: str, expected_query: str, expected_column_name: str, expected_column_value: str):
