@@ -124,12 +124,20 @@ Threat Detector Restarts When /etc/hosts changed
 
 Threat detector is killed gracefully
     Start AV
+    Wait until threat detector running
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /
 
+    Wait Until Sophos Threat Detector Log Contains  Scan requested of
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
     Run Process   /bin/kill   -SIGTERM   ${pid}
 
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector received SIGTERM
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting because it received signal SIGTERM
+    Wait Until Sophos Threat Detector Log Contains  Closing scanning socket thread
     Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result =0
     Wait Until AV Plugin Log Contains  Exiting sophos_threat_detector with code: 15 E_SIGTERM
     Wait Until AV Plugin Log Contains  Starting "/opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher"
+
+    Terminate Process  ${cls_handle}
+    Stop AV
+    Process Should Be Stopped
