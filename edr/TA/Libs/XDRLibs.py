@@ -13,13 +13,23 @@ def change_all_scheduled_queries_interval(config_path, interval):
         with open(config_path, 'r') as f:
             config_json_string = f.read()
         config = json.loads(config_json_string)
-        for query_name in config["schedule"]:
+        # edit flat queries under "schedule"
+        for query_name, query in config["schedule"].items():
             try:
-                config["schedule"][query_name]["interval"] = interval
-                config["schedule"][query_name]["blacklist"] = False
+                query["interval"] = interval
+                query["blacklist"] = False
             except Exception as e:
                 print("No interval for: " + query_name)
                 pass
+        #edit queries in packs
+        for pack in config.get("packs", {}).values():
+            for query_name, query in pack["queries"].items():
+                try:
+                    query["interval"] = interval
+                    query["blacklist"] = False
+                except Exception as e:
+                    print(f"No interval for: {query_name}")
+                    pass
 
         new_config_json_string = json.dumps(config, indent=4)
         with open(config_path, 'w') as f:
@@ -32,8 +42,17 @@ def check_all_queries_run(log_path: str, config_path: str):
             config_json_string = f.read()
         config = json.loads(config_json_string)
         found = 0
-        for query_name in config["schedule"]:
-            if "platform" in config["schedule"][query_name] and "linux" not in config["schedule"][query_name]["platform"]:
+
+        flattened_queries = {}
+        packs = config.get("packs", {})
+
+        for pack in packs.values():
+            flattened_queries = {**flattened_queries, **pack["queries"]}
+
+        flattened_queries = {**flattened_queries, **config["schedule"]}
+
+        for query_name in flattened_queries:
+            if "platform" in flattened_queries[query_name] and "linux" not in flattened_queries[query_name]["platform"]:
                 print(f"Skipping {query_name} because it's specified platforms does not include linux")
             else:
                 print(f"checking for {query_name}")
@@ -43,8 +62,7 @@ def check_all_queries_run(log_path: str, config_path: str):
         if found == 0:
             raise AssertionError("Did not search for any queries, are you sure this keyword is testing what you think it is?")
     else:
-        raise AssertionError("Failed to r"
-                             "ead config")
+        raise AssertionError("Failed to read config")
 
 
 def check_for_query_in_log(log_path, query_name: str):
@@ -55,7 +73,7 @@ def check_for_query_in_log(log_path, query_name: str):
     if query_name not in log_content_stripped:
         raise AssertionError("could not find query in log: " + query_name)
 
-def check_all_query_results_contain_correct_tag(results_directory: str, config_path1: str,  config_path2: str, expected_tag: str):
+def check_all_query_results_contain_correct_tag(results_directory: str, config_path1: str,  config_path2: str):
     if os.path.exists(config_path1) and os.path.exists(config_path2):
         with open(config_path1, 'r') as f:
             config_json_string1 = f.read()
@@ -66,6 +84,18 @@ def check_all_query_results_contain_correct_tag(results_directory: str, config_p
 
         config = {**config1["schedule"], **config2["schedule"]}
 
+        flattened_queries = {}
+
+        packs = config1.get("packs", {})
+        for pack in packs.values():
+            flattened_queries = {**flattened_queries, **pack["queries"]}
+
+        packs = config2.get("packs", {})
+        for pack in packs.values():
+            flattened_queries = {**flattened_queries, **pack["queries"]}
+
+        flattened_queries = {**flattened_queries, **config}
+
         results_json = json.loads("[]")
         for file in os.listdir(results_directory):
             print(f"file: {file}")
@@ -73,7 +103,7 @@ def check_all_query_results_contain_correct_tag(results_directory: str, config_p
                 results_json_string = f.read()
             results_json += json.loads(results_json_string)
         for result in results_json:
-            if config[result["name"]]["tag"] != result["tag"]:
+            if flattened_queries[result["name"]]["tag"] != result["tag"]:
                 raise AssertionError("tags do not match")
 
 
