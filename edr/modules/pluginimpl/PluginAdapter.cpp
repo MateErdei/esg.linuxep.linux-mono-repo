@@ -480,7 +480,7 @@ namespace Plugin
         try
         {
             // Call stop on all extensions, this is ok to call whether running or not.
-            for(auto extension : m_extensionAndStateList)
+            for (const auto& extension : m_extensionAndStateList)
             {
                 extension.first->Stop();
             }
@@ -790,14 +790,18 @@ namespace Plugin
         LOGINFO("Processing LiveQuery Policy");
         if (!liveQueryPolicy.empty())
         {
+            bool osqueryRestartNeeded = false;
             std::optional<std::string> customQueries;
+
+            // TODO make this a custom data type or string or other?
+            std::vector<Json::Value> foldingRules;
             try
             {
                 m_dataLimit = getDataLimit(liveQueryPolicy);
                 m_loggerExtensionPtr->setDataLimit(m_dataLimit);
                 m_liveQueryRevId = getRevId(liveQueryPolicy);
                 customQueries = getCustomQueries(liveQueryPolicy);
-                m_foldingRules = getFoldingRules(liveQueryPolicy);
+                foldingRules = getFoldingRules(liveQueryPolicy);
                 m_liveQueryStatus = "Same";
             }
             catch (std::exception& e)
@@ -806,6 +810,7 @@ namespace Plugin
                 m_liveQueryStatus = "Failure";
             }
 
+            // Custom queries
             try
             {
                 if (m_liveQueryStatus != "Failure" && haveCustomQueriesChanged(customQueries))
@@ -820,8 +825,7 @@ namespace Plugin
                     {
                         fs->writeFile(osqueryCustomConfigFilePath(), customQueries.value());
                     }
-                    stopOsquery();
-                    m_restartNoDelay = true;
+                    osqueryRestartNeeded = true;
                 }
             }
             catch (Common::FileSystem::IFileSystemException &e)
@@ -829,17 +833,32 @@ namespace Plugin
                 LOGWARN("Filesystem Exception While removing/writing custom query file: " << e.what());
             }
 
-            if (m_liveQueryStatus != "Failure" && !m_foldingRules.empty())
+            // Folding rules
+            try
             {
-                LOGDEBUG("Processing LiveQuery Policy folding rules");
-                for (const auto& foldingRule : m_foldingRules)
+                if (m_liveQueryStatus != "Failure" && m_loggerExtensionPtr->compareFoldingRules(foldingRules))
                 {
-                    LOGDEBUG(foldingRule);
+                    m_loggerExtensionPtr->setFoldingRules(foldingRules);
+                    osqueryRestartNeeded = true;
+                    LOGDEBUG("LiveQuery Policy folding rules have changed");
+                    for (const auto& foldingRule : foldingRules)
+                    {
+                        LOGDEBUG(foldingRule);
+                    }
                 }
+            }
+            catch (std::exception &exception)
+            {
+                LOGWARN("Failed to apply new folding rules." << exception.what());
+            }
+
+            if (osqueryRestartNeeded)
+            {
+                m_restartNoDelay = true;
+                stopOsquery();
             }
 
             return;
-
         }
         else
         {

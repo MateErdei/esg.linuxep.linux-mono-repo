@@ -133,3 +133,13 @@ bool LoggerExtension::getDataLimitReached()
 {
     return m_resultsSender.getDataLimitReached();
 }
+
+void LoggerExtension::setFoldingRules(const std::vector<Json::Value>& foldingRules)
+{
+    m_foldingRules = foldingRules;
+}
+
+bool LoggerExtension::compareFoldingRules(const std::vector<Json::Value>& newFoldingRules)
+{
+    return m_foldingRules != newFoldingRules;
+}

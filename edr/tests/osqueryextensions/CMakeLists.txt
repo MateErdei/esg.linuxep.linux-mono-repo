@@ -1,4 +1,5 @@
 SophosAddTest(TestOsqueryExtension
+        TestLoggerExtension.cpp
         TestResultSender.cpp
         TestSophosServerTable.cpp
         MockQueryContext.h

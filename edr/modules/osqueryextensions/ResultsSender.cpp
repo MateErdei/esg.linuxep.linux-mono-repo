@@ -8,13 +8,13 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <json/json.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/TelemetryConsts.h>
 
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-
-#include <json/json.h>
 #include <iostream>
 
 ResultsSender::ResultsSender(
@@ -138,7 +138,6 @@ void ResultsSender::Send()
     auto filesystem = Common::FileSystem::fileSystem();
     if (filesystem->exists(m_intermediaryPath))
     {
-        filesystem->appendFile(m_intermediaryPath, "]");
         auto filePermissions = Common::FileSystem::filePermissions();
         filePermissions->chown(m_intermediaryPath, "sophos-spl-local", "sophos-spl-group");
         filePermissions->chmod(m_intermediaryPath, 0640);
@@ -290,12 +289,60 @@ bool ResultsSender::getDataLimitReached()
 
 void ResultsSender::SaveBatchResults(const Json::Value& results)
 {
-    // TODO LINUXDAR-2623
-    LOGDEBUG("Size of batch to save" << results.empty());
+    auto filesystem = Common::FileSystem::fileSystem();
+    try
+    {
+        Json::StreamWriterBuilder builder;
+        std::stringstream resultsStringStream;
+
+        // Make sure there are no indentations or new lines by setting empty string
+        builder["indentation"] = "";
+
+        // Make sure that "null" is not written out if the results object is empty
+        builder["dropNullPlaceholders"] = true;
+
+        std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+        filesystem->writeFile(m_intermediaryPath, Json::writeString(builder, results));
+    }
+    catch (const std::exception& exception)
+    {
+        LOGERROR(  "Failed to save result batch file " << m_intermediaryPath << " Error: " << exception.what());
+    }
 }
 
 Json::Value ResultsSender::PrepareBatchResults()
 {
-    Json::Value value;
-    return value;
+    Json::Value batchResults;
+    auto filesystem = Common::FileSystem::fileSystem();
+    if (filesystem->exists(m_intermediaryPath))
+    {
+        bool batchFileIsValidJson = false;
+        try
+        {
+            filesystem->appendFile(m_intermediaryPath, "]");
+            batchResults = readJsonFile(m_intermediaryPath);
+            batchFileIsValidJson = true;
+        }
+        catch (const std::exception& exception)
+        {
+            LOGERROR(
+                "Failed to prepare result batch file " << m_intermediaryPath << " Error: " << exception.what()
+                                                     << ". Deleting File");
+        }
+
+        if (!batchFileIsValidJson)
+        {
+            try
+            {
+                filesystem->removeFile(m_intermediaryPath);
+            }
+            catch (Common::FileSystem::IFileSystemException& fileSystemException)
+            {
+                LOGERROR(
+                    "Failed to remove invalid result batch file " << m_intermediaryPath
+                                                                  << " Error: " << fileSystemException.what());
+            }
+        }
+    }
+    return batchResults;
 }

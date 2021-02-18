@@ -35,6 +35,8 @@ public:
     bool checkDataPeriodHasElapsed();
     bool getDataLimitReached();
     void reloadTags();
+    void setFoldingRules(const std::vector<Json::Value>& foldingRules);
+    bool compareFoldingRules(const std::vector<Json::Value>& newFoldingRules);
 
 private:
     void Run(std::shared_ptr<std::atomic_bool> extensionFinished);
@@ -45,8 +47,5 @@ private:
     std::unique_ptr<OsquerySDK::ExtensionInterface> m_extension;
     uintmax_t m_maxBatchBytes = 10000000;
     unsigned int m_maxBatchSeconds = 15;
-    // TODO LINUXDAR-2623 for now this is empty which means no folding will be done, populate this with rules in 2623
     std::vector<Json::Value> m_foldingRules;
-
-
 };
