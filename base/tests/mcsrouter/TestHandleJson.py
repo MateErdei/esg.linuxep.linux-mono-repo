@@ -51,7 +51,7 @@ class TestHandleJson(unittest.TestCase):
     @mock.patch('os.path.exists', return_value=True)
     @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"size":"hello","time_sent":"notatimestamp"}}""")
     def test_read_datafeed_tracker_ignores_non_int_time_sent_value_in_json(self, *mockargs):
-        expected = {"size": 0, "time_sent": DUMMY_TIMESTAMP}
+        expected = {"size": 0, "time_sent": int(DUMMY_TIMESTAMP)}
         data = mcsrouter.utils.handle_json.read_datafeed_tracker()
         self.assertEqual(data, expected)
 
