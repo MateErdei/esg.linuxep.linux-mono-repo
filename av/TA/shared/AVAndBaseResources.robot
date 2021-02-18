@@ -21,9 +21,14 @@ Start AV Plugin
 Check avscanner not in /usr/local/bin
     File Should Not Exist  /usr/local/bin/avscanner
 
+User Should Not Exist
+    [Arguments]  ${user}
+    File Log Should Not Contain   /etc/passwd   ${user}
+
 Check AV Plugin Not Installed
     Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}
     File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
+    User Should Not Exist  sophos-spl-av
 
 Check Logs Saved On Downgrade
     File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
