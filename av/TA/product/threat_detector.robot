@@ -135,7 +135,7 @@ Threat detector is killed gracefully
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting because it received signal SIGTERM
     Wait Until Sophos Threat Detector Log Contains  Closing scanning socket thread
     Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result =0
-    Wait Until AV Plugin Log Contains  Exiting sophos_threat_detector with code: 15 E_SIGTERM
+    Wait Until AV Plugin Log Contains  Exiting sophos_threat_detector with code: 0
     Wait Until AV Plugin Log Contains  Starting "/opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher"
 
     Terminate Process  ${cls_handle}
