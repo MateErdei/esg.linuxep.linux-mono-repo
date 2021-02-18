@@ -247,7 +247,7 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
 Install master of base and edr and mtr and upgrade to edr 999
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
-    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  content=[edr]\nVERBOSITY = DEBUG\n
+    Override Local LogConf File for a component    DEBUG  edr
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
@@ -312,7 +312,7 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
 
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
-    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  content=[edr]\nVERBOSITY = DEBUG\n
+    Override Local LogConf File for a component    DEBUG  edr
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
@@ -558,5 +558,3 @@ Setup Base FakeCloud And FakeCentral-LT Servers
 
     create file  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
     Register With Local Cloud Server
-    #Override LogConf File as Global Level  DEBUG
-    #Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log   liveresponse   DEBUG

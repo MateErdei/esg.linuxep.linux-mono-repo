@@ -83,7 +83,7 @@ Check Local Logger Config Settings Are Processed and Persist After Upgrade
     ...  1 secs
     ...  Check mcsrouter Log Contains  Logging level: 20
 
-    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  content=${expected_local_file_contents}
+    Override Local LogConf File for a component   DEBUG  global
     Restart And Remove MCS And Watchdog Logs
 
     Wait Until Keyword Succeeds
