@@ -38,7 +38,7 @@ void OsqueryLogIngest::ingestOutput(const std::string& output)
             std::tuple<bool, std::string> result = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
             if(std::get<0>(result))
             {
-                LOGINFO_SQ(std::get<1>(result));
+                LOGINFO_SCHEDULEDOSQUERY(std::get<1>(result));
             }
 
             if(OsqueryLogStringUtil::isGenericLogLine(line))
