@@ -75,17 +75,6 @@ Threat detector aborts if logging symlink cannot be created
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
 
 
-Threat detector is killed gracefully
-    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
-    Run Process   /bin/kill   -SIGTERM   ${pid}
-
-    Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector received SIGTERM
-    Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting because it received signal SIGTERM
-    Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result =0
-    Wait Until AV Plugin Log Contains  Exiting sophos_threat_detector with code: 15 E_SIGTERM
-    Wait Until AV Plugin Log Contains  Starting "/opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher"
-
-
 *** Keywords ***
 
 set sophos_threat_detector log level
