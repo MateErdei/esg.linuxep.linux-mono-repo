@@ -11,7 +11,6 @@ namespace common
     {
         E_CLEAN_SUCCESS = 0,
         E_GENERIC_FAILURE = 1,
-//      signals occupy numbers up to 65
         E_SIGTERM = 15,
         E_VIRUS_FOUND = 69,
         E_SCAN_ABORTED = 70,

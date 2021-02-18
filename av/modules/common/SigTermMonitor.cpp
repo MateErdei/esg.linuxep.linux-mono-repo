@@ -10,6 +10,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <csignal>
 
+int common::SigTermMonitor::monitorFd()
+{
+    return m_pipe.readFd();
+}
 
 bool common::SigTermMonitor::triggered()
 {

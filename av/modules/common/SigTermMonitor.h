@@ -19,6 +19,7 @@ namespace common
         SigTermMonitor(const SigTermMonitor&) = delete;
         ~SigTermMonitor();
 
+        int monitorFd();
         bool triggered();
 
     private:

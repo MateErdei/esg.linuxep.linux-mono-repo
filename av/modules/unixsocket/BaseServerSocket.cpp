@@ -65,12 +65,15 @@ unixsocket::BaseServerSocket::~BaseServerSocket()
 void unixsocket::BaseServerSocket::run()
 {
     int exitFD = m_notifyPipe.readFd();
+    common::SigTermMonitor sigTermMonitor;
 
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
     max = FDUtils::addFD(&readFDs, exitFD, max);
     max = FDUtils::addFD(&readFDs, m_socket_fd, max);
+    max = FDUtils::addFD(&readFDs, sigTermMonitor.monitorFd(), max);
+
     if (m_monitorable)
     {
         max = FDUtils::addFD(&readFDs, m_monitorable->monitorFd(), max);
@@ -88,7 +91,6 @@ void unixsocket::BaseServerSocket::run()
     announceThreadStarted();
     LOGSUPPORT("Starting listening on socket");
 
-    common::SigTermMonitor sigTermMonitor;
     while (!terminate)
     {
         if (sigTermMonitor.triggered())
