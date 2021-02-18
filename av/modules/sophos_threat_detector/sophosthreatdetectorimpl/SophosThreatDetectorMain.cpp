@@ -348,7 +348,6 @@ static int inner_main()
     if (server.getReturnCode() == common::E_SIGTERM)
     {
         LOGINFO("Sophos Threat Detector is exiting because it received signal SIGTERM");
-        return common::E_SIGTERM;
     }
 
     LOGINFO("Sophos Threat Detector is exiting");

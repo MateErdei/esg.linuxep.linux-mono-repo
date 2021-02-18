@@ -147,14 +147,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
                 process->waitUntilProcessEnds();
                 // process->exitCode() may log, so get the value first.
                 int exitCode = process->exitCode();
-                if (exitCode == common::E_SIGTERM)
-                {
-                    LOGERROR("Exiting sophos_threat_detector with code: " << 15 << " E_SIGTERM");
-                }
-                else
-                {
-                    LOGERROR("Exiting sophos_threat_detector with code: " << exitCode);
-                }
+                LOGERROR("Exiting sophos_threat_detector with code: " << exitCode);
 
                 if (!output.empty())
                 {
