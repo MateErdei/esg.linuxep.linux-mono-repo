@@ -7,8 +7,6 @@ import os
 import json
 import time
 
-#select  'my message';
-
 def linux_queries_in_pack(config: dict)  -> (str, dict):
     # Only yield linux queries
     for query_name, query in queries_in_pack(config):
