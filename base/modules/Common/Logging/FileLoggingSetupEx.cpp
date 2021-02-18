@@ -26,7 +26,7 @@ Common::Logging::FileLoggingSetupEx::FileLoggingSetupEx(const std::string& logba
 Common::Logging::FileLoggingSetupEx::FileLoggingSetupEx(const Path& logdir, const std::string& logbase)
 {
     Path logPath = Common::FileSystem::join(logdir, logbase + ".log");
-    setupFileLoggingWithPath(logPath, "");
+    setupFileLoggingWithPath(logPath, logbase);
     applyGeneralConfig(logbase);
 }
 
@@ -50,7 +50,7 @@ void Common::Logging::FileLoggingSetupEx::setupFileLogging(const std::string& lo
     }
 
     Path logFilename = Common::FileSystem::join(logDir, logfilename);
-    setupFileLoggingWithPath(logFilename, "");
+    setupFileLoggingWithPath(logFilename, logbase);
 }
 
 void Common::Logging::FileLoggingSetupEx::setupFileLoggingWithPath(const std::string& logfilepath, const std::string& instanceName)
