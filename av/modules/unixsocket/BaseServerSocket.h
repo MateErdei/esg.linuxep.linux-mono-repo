@@ -44,7 +44,10 @@ namespace unixsocket
 
     public:
         void run() override;
-        [[nodiscard]] int getReturnCode() { return m_returnCode; }
+        [[nodiscard]] int getReturnCode() const
+        {
+            return m_returnCode;
+        }
 
         [[nodiscard]] int maxClientConnections() const
         {
