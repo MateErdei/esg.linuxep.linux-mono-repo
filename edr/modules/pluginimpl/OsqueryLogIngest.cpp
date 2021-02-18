@@ -5,6 +5,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "OsqueryLogIngest.h"
+#include "OsqueryLogStringUtil.h"
 #include "Logger.h"
 #include "OsqueryLogger.h"
 #include  "ScheduledQueryLogger.h"
@@ -34,13 +35,13 @@ void OsqueryLogIngest::ingestOutput(const std::string& output)
         bool alreadyLogged = processOsqueryLogLineForEventsMaxTelemetry(line);
         if (!alreadyLogged)
         {
-            std::tuple<bool, std::string> result = processOsqueryLogLineForScheduledQueries(line);
+            std::tuple<bool, std::string> result = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
             if(std::get<0>(result))
             {
                 LOGINFO_SQ(std::get<1>(result));
             }
 
-            if(isGenericLogLine(line))
+            if(OsqueryLogStringUtil::isGenericLogLine(line))
             {
                 LOGINFO(line);
             }
@@ -49,55 +50,6 @@ void OsqueryLogIngest::ingestOutput(const std::string& output)
 
         processOsqueryLogLineForTelemetry(line);
     }
-}
-
-std::tuple<bool, std::string> OsqueryLogIngest::processOsqueryLogLineForScheduledQueries(std::string& logLine)
-{
-    std::string lineToFind= "Executing scheduled query ";
-    if (Common::UtilityImpl::StringUtils::isSubstring(logLine, lineToFind))
-    {
-
-        std::vector<std::string> words = Common::UtilityImpl::StringUtils::splitString(logLine, lineToFind);
-        if(words.size() < 2)
-        {
-            return std::make_tuple(false, "");
-        }
-
-        std::vector<std::string> timeString = Common::UtilityImpl::StringUtils::splitString(words[0], " ");
-        if(timeString.size() < 2)
-        {
-            return std::make_tuple(false, "");
-        }
-
-        std::string time = timeString[1];
-
-        std::vector<std::string> nameString = Common::UtilityImpl::StringUtils::splitString(words[1], ":");
-        if(timeString.empty())
-        {
-            return std::make_tuple(false, "");
-        }
-
-        std::string queryName = nameString[0];
-
-        std::stringstream lineReturned ;
-        lineReturned << "Executing query: " << queryName << " at: " << time ;
-        return std::make_tuple(true, lineReturned.str());
-    }
-    return std::make_tuple(false, "");
-}
-
-bool OsqueryLogIngest::isGenericLogLine(std::string& logLine)
-{
-    std::vector<std::string> interestingLines{"Error executing"};
-
-    for(auto& interestingLine : interestingLines)
-    {
-        if(Common::UtilityImpl::StringUtils::isSubstring(logLine, interestingLine))
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)

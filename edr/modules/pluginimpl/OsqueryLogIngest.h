@@ -10,8 +10,6 @@ class OsqueryLogIngest
 {
 public:
     void operator()(std::string output);
-    std::tuple<bool, std::string> processOsqueryLogLineForScheduledQueries(std::string& logLine);
-    bool isGenericLogLine(std::string& logLine);
 private:
     /// Logging
     ///   Takes in OUTPUT_BUFFER_LIMIT_BYTES number of bytes from the output of the osquery watchdog which

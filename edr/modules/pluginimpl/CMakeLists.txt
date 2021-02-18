@@ -5,6 +5,8 @@ sophos_add_library(pluginimpl SHARED
         QueueTask.h
         ScheduledQueryLogger.h
         ScheduledQueryLogger.cpp
+        OsqueryLogStringUtil.cpp
+        OsqueryLogStringUtil.h
         Logger.h
         Logger.cpp
         MtrMonitor.h
