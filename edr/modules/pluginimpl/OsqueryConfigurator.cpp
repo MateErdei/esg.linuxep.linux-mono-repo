@@ -108,6 +108,7 @@ namespace Plugin
                                          "--events_expiry=604800",
                                          "--force=true",
                                          "--disable_enrollment=true",
+                                         "--pack_refresh_interval=10",
                                          "--enable_killswitch=false"};
 
         std::string eventsMaxValue = "100000";
@@ -145,7 +146,7 @@ namespace Plugin
         {
             LOGDEBUG("Adding XDR flags to osquery flags file.");
             flags.emplace_back("--extensions_timeout=10");
-            flags.emplace_back("--extensions_require=SophosLoggerPlugin,sophosmdrextension.ext");
+            flags.emplace_back("--extensions_require=SophosLoggerPlugin");
             flags.emplace_back("--config_refresh=30");
             flags.emplace_back("--logger_plugin=SophosLoggerPlugin");
 
