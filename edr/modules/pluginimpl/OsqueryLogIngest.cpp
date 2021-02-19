@@ -35,10 +35,10 @@ void OsqueryLogIngest::ingestOutput(const std::string& output)
         bool alreadyLogged = processOsqueryLogLineForEventsMaxTelemetry(line);
         if (!alreadyLogged)
         {
-            std::tuple<bool, std::string> result = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
-            if(std::get<0>(result))
+            std::optional<std::string> scheduledQueryLogLine = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
+            if(scheduledQueryLogLine.has_value())
             {
-                LOGINFO_SCHEDULEDOSQUERY(std::get<1>(result));
+                LOGINFO_SCHEDULEDOSQUERY(scheduledQueryLogLine.value());
             }
 
             if(OsqueryLogStringUtil::isGenericLogLine(line))

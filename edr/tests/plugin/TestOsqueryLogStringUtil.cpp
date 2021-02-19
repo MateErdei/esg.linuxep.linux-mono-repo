@@ -14,10 +14,10 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesRet
 {
     std::string line = "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query host_sensor_heartbeat_check: SELECT";
 
-    std::tuple<bool, std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
+    std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
 
-    EXPECT_EQ(std::get<0>(actualResult), true);
-    EXPECT_EQ(std::get<1>(actualResult), "Executing query: host_sensor_heartbeat_check at: 15:47:24.150650");
+    EXPECT_EQ(actualResult.has_value(), true);
+    EXPECT_EQ(actualResult.value(), "Executing query: host_sensor_heartbeat_check at: 15:47:24.150650");
 
 }
 
@@ -25,11 +25,9 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesRet
 {
     std::string line = "I0215 15:47:24.150650  8842 scheduler.cpp:102] hello: SELECT";
 
-    std::tuple<bool, std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
+    std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
 
-    EXPECT_EQ(std::get<0>(actualResult), false);
-    EXPECT_EQ(std::get<1>(actualResult), "");
-
+    EXPECT_EQ(actualResult.has_value(), false);
 }
 
 TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsFalseOnMalformedLine) // NOLINT
@@ -47,11 +45,10 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesRet
 
     for(auto& badLine : badLines)
     {
-        std::tuple<bool, std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(
+        std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(
                 badLine);
 
-        EXPECT_EQ(std::get<0>(actualResult), false);
-        EXPECT_EQ(std::get<1>(actualResult), "");
+        EXPECT_EQ(actualResult.has_value(), false);
     }
 }
 

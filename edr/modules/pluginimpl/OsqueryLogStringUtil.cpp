@@ -10,7 +10,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 
 
-std::tuple<bool, std::string> OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(std::string& logLine)
+std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(std::string& logLine)
 {
     std::string lineToFind= "Executing scheduled query ";
     if (Common::UtilityImpl::StringUtils::isSubstring(logLine, lineToFind))
@@ -18,13 +18,13 @@ std::tuple<bool, std::string> OsqueryLogStringUtil::processOsqueryLogLineForSche
         std::vector<std::string> items = Common::UtilityImpl::StringUtils::splitString(logLine, lineToFind);
         if(items.size() < 2)
         {
-            return std::make_tuple(false, "");
+            return {};
         }
 
         std::vector<std::string> timeString = Common::UtilityImpl::StringUtils::splitString(items[0], " ");
         if(timeString.size() < 2)
         {
-            return std::make_tuple(false, "");
+            return {};
         }
 
         std::string time = timeString[1];
@@ -32,21 +32,21 @@ std::tuple<bool, std::string> OsqueryLogStringUtil::processOsqueryLogLineForSche
         std::vector<std::string> nameString = Common::UtilityImpl::StringUtils::splitString(items[1], ":");
         if(timeString.empty())
         {
-            return std::make_tuple(false, "");
+            return {};
         }
 
         std::string queryName = nameString[0];
 
         if(nameString.empty() || time.empty())
         {
-            return std::make_tuple(false, "");
+            return {};
         }
 
         std::stringstream lineReturned ;
         lineReturned << "Executing query: " << queryName << " at: " << time ;
-        return std::make_tuple(true, lineReturned.str());
+        return  lineReturned.str();
     }
-    return std::make_tuple(false, "");
+    return {};
 }
 
 bool OsqueryLogStringUtil::isGenericLogLine(std::string& logLine)
