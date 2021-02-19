@@ -41,6 +41,7 @@ Mock Base Installation
     Set Log Level  DEBUG
     Run Process   groupadd  sophos-spl-group
     Run Process   useradd  sophos-spl-av    --no-create-home  --no-user-group  --gid  sophos-spl-group  --groups  sophos-spl-ipc  --system
+    Run Process   useradd  sophos-spl-threat-detector  --no-create-home  --no-user-group  --gid  sophos-spl-group  --system
     Run Process   useradd  sophos-spl-user  --no-create-home  --no-user-group  --gid  sophos-spl-group  --system
 
 Set Log Level

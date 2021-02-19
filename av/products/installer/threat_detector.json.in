@@ -1,0 +1,12 @@
+{
+  "executableFullPath": "plugins/@PLUGIN_NAME@/sbin/sophos_threat_detector_launcher",
+  "executableArguments": [
+  ],
+  "environmentVariables": [
+    {
+      "name": "SOPHOS_INSTALL",
+      "value": "SOPHOS_INSTALL_VALUE"
+    }
+  ],
+  "executableUserAndGroup": "sophos-spl-threat-detector:sophos-spl-group"
+}

@@ -21,21 +21,18 @@ Start AV Plugin
 Check avscanner not in /usr/local/bin
     File Should Not Exist  /usr/local/bin/avscanner
 
-Wait Until Logs Exist
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  File Should Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/log/av.log
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  File Should Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/chroot/log/sophos_threat_detector.log
+User Should Not Exist
+    [Arguments]  ${user}
+    File Log Should Not Contain   /etc/passwd   ${user}
 
 Check AV Plugin Not Installed
     Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}
     File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
+    User Should Not Exist  sophos-spl-av
+    User Should Not Exist  sophos-spl-threat-detector
 
 Check Logs Saved On Downgrade
+    File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
     Directory Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV
     File Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV/av.log
     File Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV/sophos_threat_detector.log
