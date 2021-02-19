@@ -191,14 +191,14 @@ Install all plugins 999 then downgrade to all plugins develop
     Should not contain   ${contents}   PRODUCT_VERSION = 99.99.99
 
 
-Install mtr 999 and downgrade to current mtr
+Install edr 999 and downgrade to current edr
     [Tags]  PLUGIN_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
-    Install EDR  ${BaseEdrAndMtr999Policy}
+    Install EDR  ${BaseMtrAndEdr999Policy}
 
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
 
-    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
+    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
     Override LogConf File as Global Level  DEBUG
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
@@ -208,9 +208,9 @@ Install mtr 999 and downgrade to current mtr
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
 
-    Check SulDownloader Log Contains     Prepared ServerProtectionLinux-Plugin-MDR for downgrade
+    Check SulDownloader Log Contains     Prepared ServerProtectionLinux-Plugin-EDR for downgrade
 
     Wait Until Keyword Succeeds
     ...   200 secs
