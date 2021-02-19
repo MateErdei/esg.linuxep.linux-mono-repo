@@ -35,13 +35,18 @@ Threat Detector Test Teardown
     Component Test TearDown
 
 Start AV
-    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
+    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
+    Set Test Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Test Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
     # Check AV Plugin Installed checks sophos_threat_detector is started
 
 Stop AV
-     ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
+    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
 
 Verify threat detector log rotated
     List Directory  ${AV_PLUGIN_PATH}/log/sophos_threat_detector

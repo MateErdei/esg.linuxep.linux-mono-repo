@@ -13,8 +13,12 @@ Check avscanner in /usr/local/bin
 Stop AV Plugin
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   av
     Should Be Equal As Integers    ${result.rc}    0
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   threat_detector
+    Should Be Equal As Integers    ${result.rc}    0
 
 Start AV Plugin
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start   threat_detector
+    Should Be Equal As Integers    ${result.rc}    0
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start   av
     Should Be Equal As Integers    ${result.rc}    0
 

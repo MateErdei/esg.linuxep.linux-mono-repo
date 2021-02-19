@@ -59,12 +59,16 @@ Clear logs
 
 Start AV
     Clear logs
+    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
+    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
+    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
 
 Stop AV
+    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
     Log  ${result.stderr}
     Log  ${result.stdout}
