@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<policy type="LiveQuery" RevID="revId" policyType="56">
+    <configuration>
+        <scheduled>
+            <dailyDataLimit>10000</dailyDataLimit>
+            <queryPacks>
+                <queryPack id="queryPackId" />
+            </queryPacks>
+            <foldingRules>
+               [
+                   {
+                       "query_name":"uptime",
+                       "values":{
+                           "days": "0"
+                       }
+                   }
+               ]
+            </foldingRules>
+        </scheduled>
+    </configuration>
+</policy>

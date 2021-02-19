@@ -76,6 +76,20 @@ def check_all_query_results_contain_correct_tag(results_directory: str, config_p
             if config[result["name"]]["tag"] != result["tag"]:
                 raise AssertionError("tags do not match")
 
+def check_query_results_folded(query_string: str, expected_query: str):
+    query_json = json.loads(query_string)
+    isFolded = False
+    if isinstance(query_json, list):
+        if len(query_json) == 0:
+            raise AssertionError("no queries")
+        for result in query_json:
+            if result['name'] == expected_query:
+                if 'folded' in result and result['folded'] > 1:
+                    isFolded = True
+    else:
+        raise AssertionError("query not list")
+    return isFolded
+
 def integer_is_within_range(integer, lower, upper):
     assert int(lower) <= int(integer) <= int(upper), f"expected {lower} <= {integer} <= {upper}"
 
