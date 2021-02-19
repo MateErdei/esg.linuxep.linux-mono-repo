@@ -173,7 +173,7 @@ function is_rsyslog_installed()
 [[ -f "${SOPHOS_INSTALL}/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr version link file failed to be created"
 [[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr uninstall script failed to be installed"
 
-echo ${SOPHOS_INSTALL}/plugins/edr/extensions/SophosMTR.ext > ${SOPHOS_INSTALL}/plugins/edr/extensions/extensions.load
+echo ${SOPHOS_INSTALL}/plugins/edr/extensions/sophosmdrextension.ext > ${SOPHOS_INSTALL}/plugins/edr/extensions/extensions.load
 
 # Check services are running after install
 waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/edr" || failure ${EXIT_FAIL_SERVICE} "EDR plugin not running"

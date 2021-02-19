@@ -145,7 +145,7 @@ namespace Plugin
         {
             LOGDEBUG("Adding XDR flags to osquery flags file.");
             flags.emplace_back("--extensions_timeout=10");
-            flags.emplace_back("--extensions_require=SophosLoggerPlugin,sophosmdrextension");
+            flags.emplace_back("--extensions_require=SophosLoggerPlugin,sophosmdrextension.ext");
             flags.emplace_back("--logger_plugin=SophosLoggerPlugin");
 
             std::stringstream scheduleEpochSS;
