@@ -36,6 +36,8 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/etc/DiagnosePaths.conf
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/log/osqueryd.INFO

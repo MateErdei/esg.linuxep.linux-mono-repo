@@ -116,6 +116,11 @@ Check EDR Log Contains
     ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
     Should Contain  ${EDR_LOG_CONTENT}   ${string_to_contain}
 
+Check Scheduled Query Log Contains
+    [Arguments]  ${string_to_contain}
+    ${SCHEDULED_QUERY_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/scheduledquery.log
+    Should Contain  ${SCHEDULED_QUERY_LOG_CONTENT}   ${string_to_contain}
+
 Wait Keyword Succeed
     [Arguments]  ${keyword}
     Wait Until Keyword Succeeds
