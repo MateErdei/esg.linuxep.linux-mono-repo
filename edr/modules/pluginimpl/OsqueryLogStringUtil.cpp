@@ -21,25 +21,28 @@ std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForSchedul
             return {};
         }
 
+        std::string time;
         std::vector<std::string> timeString = Common::UtilityImpl::StringUtils::splitString(items[0], " ");
         if(timeString.size() < 2)
         {
             return {};
         }
-
-        std::string time = timeString[1];
-
-        std::vector<std::string> nameString = Common::UtilityImpl::StringUtils::splitString(items[1], ":");
-        if(timeString.empty())
+        else
         {
-            return {};
+            time = timeString[1];
         }
 
-        std::string queryName = nameString[0];
+        std::vector<std::string> nameString = Common::UtilityImpl::StringUtils::splitString(items[1], ":");
+
+        std::string queryName;
 
         if(nameString.empty() || time.empty())
         {
             return {};
+        }
+        else
+        {
+            queryName = nameString[0];
         }
 
         std::stringstream lineReturned ;
