@@ -82,10 +82,14 @@ def check_query_results_folded(query_string: str, expected_query: str):
     if isinstance(query_json, list):
         if len(query_json) == 0:
             raise AssertionError("no queries")
+        queryFound = False
         for result in query_json:
             if result['name'] == expected_query:
+                queryFound = True
                 if 'folded' in result and result['folded'] > 1:
                     isFolded = True
+        if not queryFound:
+            raise AssertionError(f"query {expected_query} not found")
     else:
         raise AssertionError("query not list")
     return isFolded
