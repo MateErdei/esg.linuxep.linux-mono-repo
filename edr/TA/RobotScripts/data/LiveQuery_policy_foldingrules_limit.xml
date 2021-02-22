@@ -13,6 +13,12 @@
                        "values":{
                            "days": "0"
                        }
+                   },
+                   {
+                       "query_name":"random",
+                       "values":{
+                           "number": "0"
+                       }
                    }
                ]
             </foldingRules>

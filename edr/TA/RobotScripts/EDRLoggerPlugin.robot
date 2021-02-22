@@ -72,14 +72,14 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     # Wait for a result we know will contain folded and non-fodled results
     ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
     ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Check Query Results Are Folded  ${query_results}  uptime
-    Check Query Results Are Not Folded  ${query_results}  uptime_not_folded
+    Check Query Results Are Folded  ${query_results}  uptime  days  0
+    Check Query Results Are Not Folded  ${query_results}  uptime_not_folded  days  0
 
     # Wait for a 2nd batch of result to prove that folding is done per batch, i.e. the folded query shows up again
     ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
     ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Check Query Results Are Folded  ${query_results}  uptime
-    Check Query Results Are Not Folded  ${query_results}  uptime_not_folded
+    Check Query Results Are Folded  ${query_results}  uptime  days  0
+    Check Query Results Are Not Folded  ${query_results}  uptime_not_folded  days  0
 
     # Inject policy without folding rules
     Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml
@@ -90,8 +90,32 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     # Wait until the results appear and check they are not folded now there are no folding rules
     ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
     ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Check Query Results Are Not Folded  ${query_results}  uptime
+    Check Query Results Are Not Folded  ${query_results}  uptime  days  0
 
+
+EDR Plugin Applies Folding Rules Based Column Value
+    [Setup]  Install With Base SDDS
+    Check EDR Plugin Installed With Base
+    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to stop edr
+
+    Enable XDR
+    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+
+    # Inject policy with folding rules
+    Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_foldingrules_limit.xml
+
+    # Throw away one set of results here so that we are certain they are not from before the folding rules were applied
+    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
+
+    # Wait for a result we know will contain folded and non-fodled results
+    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
+    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
+    Check Query Results Are Folded  ${query_results}  random  number  0
+    Check Query Results Are Not Folded  ${query_results}  random  number  1
 
 EDR Plugin Runs All Scheduled Queries
     [Setup]  Install With Base SDDS
@@ -384,13 +408,13 @@ Clear Datafeed Dir And Wait For Next Result File
     [Return]  ${QueryFile}
 
 Check Query Results Are Folded
-    [Arguments]  ${result_string}  ${query_name}
-    ${IsFolded} =  Check Query Results Folded  ${result_string}  ${query_name}
+    [Arguments]  ${result_string}  ${query_name}  ${column_name}  ${column_value}
+    ${IsFolded} =  Check Query Results Folded  ${result_string}  ${query_name}  ${column_name}  ${column_value}
     Should Be True  ${IsFolded}
 
 Check Query Results Are Not Folded
-    [Arguments]  ${result_string}  ${query_name}
-    ${IsFolded} =  Check Query Results Folded  ${result_string}  ${query_name}
+    [Arguments]  ${result_string}  ${query_name}  ${column_name}  ${column_value}
+    ${IsFolded} =  Check Query Results Folded  ${result_string}  ${query_name}  ${column_name}  ${column_value}
     Should Not Be True  ${IsFolded}
 
 Apply Live Query Policy And Expect Folding Rules To Have Changed
