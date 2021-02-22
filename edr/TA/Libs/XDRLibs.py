@@ -76,24 +76,26 @@ def check_all_query_results_contain_correct_tag(results_directory: str, config_p
             if config[result["name"]]["tag"] != result["tag"]:
                 raise AssertionError("tags do not match")
 
+
 def check_query_results_folded(query_result: str, expected_query: str, expected_column_name: str, expected_column_value: str):
     query_json = json.loads(query_result)
-    isFolded = False
+    is_folded = False
     if isinstance(query_json, list):
         if len(query_json) == 0:
             raise AssertionError("no queries")
-        queryFound = False
+        query_found = False
         for result in query_json:
             if result['name'] == expected_query and expected_column_name in result['columns']:
                 if result['columns'][expected_column_name] == expected_column_value:
-                    queryFound = True
+                    query_found = True
                     if 'folded' in result and result['folded'] > 1:
-                        isFolded = True
-        if not queryFound:
+                        is_folded = True
+        if not query_found:
             raise AssertionError(f"query {expected_query} not found")
     else:
         raise AssertionError("query not list")
-    return isFolded
+    return is_folded
+
 
 def integer_is_within_range(integer, lower, upper):
     assert int(lower) <= int(integer) <= int(upper), f"expected {lower} <= {integer} <= {upper}"
