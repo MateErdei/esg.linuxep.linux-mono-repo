@@ -23,6 +23,9 @@ def _edr_log_path():
 def _edr_osquery_log_path():
     return os.path.join(_log_path(), 'edr_osquery.log')
 
+def _scheduled_query_log_path():
+    return os.path.join(_log_path(), 'scheduledquery.log')
+
 def _live_query_log_path():
     return os.path.join(_log_path(), 'livequery.log')
 
@@ -165,10 +168,13 @@ class EDRPlugin:
         raise AssertionError("osqueryd failed to stop. Information {}".format(content))
 
     # Will return empty string if log doesn't exist
-    def log(self, log_path=_edr_log_path()):
+    def log(self):
+        log_path = _edr_log_path()
+        edr_osquery_path = _edr_osquery_log_path()
+        scheduled_query_path = _scheduled_query_log_path()
         live_query_path = _live_query_log_path()
         content=[]
-        for path in [log_path, live_query_path]:
+        for path in [log_path, live_query_path, edr_osquery_path, scheduled_query_path]:
             if os.path.exists(path):
                 content.append(_file_content(path))
         return '\n'.join(content)
@@ -180,17 +186,9 @@ class EDRPlugin:
             full_content += _file_content(file_path)
         return full_content
 
-    def log_contains(self, content, log_path=_edr_log_path()):
-        log_content = self.log(log_path=log_path)
+    def log_contains(self, content):
+        log_content = self.log()
         return content in log_content
-
-    def wait_edr_osquery_log_contains(self, content, timeout=10):
-        """Wait for up to timeout seconds for the log_contains to report true"""
-        for i in range(timeout):
-            if self.log_contains(content, _edr_osquery_log_path()):
-                return True
-            time.sleep(1)
-        raise AssertionError("Log does not contain {}.\nFull log: {}".format(content, self.log()))
 
     def wait_log_contains(self, content, timeout=10):
         """Wait for up to timeout seconds for the log_contains to report true"""
