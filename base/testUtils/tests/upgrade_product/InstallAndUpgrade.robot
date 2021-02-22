@@ -593,7 +593,21 @@ Ensure Supplement Updates Only Perform A Supplement Update
     Check Log Does Not Contain  Doing product and supplement update   ${SULDownloaderLog}  SulDownloaderLog
     Check Log Does Not Contain  Forcing product update due previous update failure or change in configuration   ${SULDownloaderLog}  SulDownloaderLog
 
+Ensure Download Report Content Contains Sub Component Entries
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndEdrVUTPolicy}
 
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndEdrVUTPolicy}
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Check Current Release Installed Correctly
+    # Make sure that the minium components are listed.
+    # This will ensure sub components are listed in the report when a sub component has it's own installer.
+    Check Download Report Contains Minimum Products
 
 *** Keywords ***
 

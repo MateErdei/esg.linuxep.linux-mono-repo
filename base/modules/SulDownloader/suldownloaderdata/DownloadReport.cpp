@@ -267,7 +267,7 @@ namespace SulDownloader
                     productReportEntry.productStatus = ProductReport::ProductStatus::Uninstalled;
                 }
             }
-            LOGDEBUG("Product Report for product downloaded: " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription); 
+            LOGDEBUG("Product Report for product downloaded: " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription);
 
             productReport[productReportEntry.rigidName] = productReportEntry;
             if (productReportEntry.productStatus == ProductReport::ProductStatus::Uninstalled || productReportEntry.productStatus == ProductReport::ProductStatus::UninstallFailed)
@@ -276,12 +276,12 @@ namespace SulDownloader
                 if ( std::find_if(subscriptionsInfo.begin(), subscriptionsInfo.end(), productMatchSubscriptionEntry) == subscriptionsInfo.end() )
                 {
                     // uninstalled products will not be in the subscription info, hence, explicitly adding it
-                    LOGDEBUG("Adding information for uninstalled products directly to the combined list " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription); 
+                    LOGDEBUG("Adding information for uninstalled products directly to the combined list " << productReportEntry.rigidName << " " << productReportEntry.statusToString() << " err: " << productReportEntry.errorDescription);
                     productsRep.push_back(productReportEntry);
                 }
             }
         }
-        LOGDEBUG("Combine the products to merge into the subscriptions"); 
+        LOGDEBUG("Combine the products to merge into the subscriptions");
         
         for (const auto& subscriptionInfo : subscriptionsInfo)
         {
@@ -303,11 +303,36 @@ namespace SulDownloader
                 for (auto& subComp : subscriptionInfo.subProducts)
                 {
                     auto subComponentProduct = productReport.find(subComp.m_line);
+
                     if (subComponentProduct != productReport.end())
                     {
                         const std::string& error{ subComponentProduct->second.errorDescription };
                         suldownloaderdata::ProductReport::ProductStatus status =
                             subComponentProduct->second.productStatus;
+
+                        /*
+                         * if sub component has own installer, create a product report entry for the component
+                         * as well as the combined entry.
+                         */
+                        for (auto& product : products)
+                        {
+                            if(product.getLine() == subComp.m_line)
+                            {
+                                if(Common::UtilityImpl::StringUtils::isSubstring(product.installerPath(), subComp.m_line))
+                                {
+                                    // installer located in sub component.
+                                    LOGDEBUG("Added subcomponent to report entry for :" << subComp.m_line);
+                                    ProductReport subProductReportEntry;
+                                    subProductReportEntry.rigidName = subComp.m_line;
+                                    subProductReportEntry.downloadedVersion = subComp.m_version;
+                                    subProductReportEntry.name = subComp.m_line;
+                                    subProductReportEntry.productStatus = subComponentProduct->second.productStatus;
+                                    subProductReportEntry.errorDescription = product.getError().Description;
+                                    productsRep.push_back(subProductReportEntry);
+                                }
+                                break;
+                            }
+                        }
 
                         if (!error.empty())
                         {
