@@ -792,8 +792,6 @@ namespace Plugin
         {
             bool osqueryRestartNeeded = false;
             std::optional<std::string> customQueries;
-
-            // TODO make this a custom data type or string or other?
             std::vector<Json::Value> foldingRules;
             try
             {
