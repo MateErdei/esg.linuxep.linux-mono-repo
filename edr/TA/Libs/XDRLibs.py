@@ -70,6 +70,20 @@ def change_all_scheduled_queries_interval(config_path, interval):
     else:
         raise AssertionError(f"{config_path} does not exist")
 
+def remove_discovery_query_from_pack(config_path):
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            config_json_string = f.read()
+    config = json.loads(config_json_string)
+
+    for pack in config.get("packs", {}).values():
+        pack.pop('discovery', None)
+
+    new_config_json_string = json.dumps(config, indent=4)
+    with open(config_path, 'w') as f:
+        f.write(new_config_json_string)
+    else:
+    raise AssertionError(f"{config_path} does not exist")
 
 def check_all_queries_run(log_path: str, config_path: str):
     if os.path.exists(config_path):

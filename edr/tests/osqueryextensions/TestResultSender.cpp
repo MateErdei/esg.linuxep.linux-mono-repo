@@ -48,6 +48,14 @@ const std::string EXAMPLE_QUERY_PACK =  R"({
                     "platform": "linux",
                     "description": "Retrieves the size of Osquery RocksDB on Linux.",
                     "tag": "stream"
+                },
+                "pack_query_no_tag": {
+                    "query": "WITH files (\n  number_of_files,\n  total_size,\n  mb\n) AS (\n  SELECT count(*) AS number_of_files,\n  SUM(size) AS total_size,\n  SUM(size)/1024/1024 AS mb\n  FROM file\n  WHERE path LIKE '/opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/%'\n)\nSELECT\n  number_of_files,\n  total_size,\n  mb\nFROM files\nWHERE mb > 50;",
+                    "interval": 86400,
+                    "removed": false,
+                    "blacklist": false,
+                    "platform": "linux",
+                    "description": "Retrieves the size of Osquery RocksDB on Linux."
                 }
             },
             "discovery": [
@@ -596,7 +604,6 @@ TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false)).WillOnce(Return(false));
 
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
@@ -608,6 +615,11 @@ TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
     ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH,CUSTOM_QUERY_PACK_PATH);
     std::string testResult = R"({"name":"pack_mtr_pack_query"})";
     std::string correctedNameResult = "{\"name\":\"pack_query\",\"tag\":\"stream\"}";
+    std::string testResult1 = R"({"name":"pack_mtr_pack_query_no_tag"})";
+    std::string correctedNameResult1 = ",{\"name\":\"pack_query_no_tag\"}";
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, correctedNameResult)).Times(1);
+
     resultsSender.Add(testResult);
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, correctedNameResult1)).Times(1);
+    resultsSender.Add(testResult1);
 }
