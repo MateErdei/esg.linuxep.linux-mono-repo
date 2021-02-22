@@ -82,6 +82,13 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     Should Be True  ${IsFolded}
     ${IsFolded} =  Check Query Results Folded  ${Query}  uptime_not_folded
     Should Not Be True  ${IsFolded}
+    Empty Directory  ${SOPHOS_INSTALL}/base/mcs/datafeed
+    ${QueryFile} =  Wait For Scheduled Query File And Return Filename
+    ${Query} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${QueryFile}
+    ${IsFolded} =  Check Query Results Folded  ${Query}  uptime
+    Should Be True  ${IsFolded}
+    ${IsFolded} =  Check Query Results Folded  ${Query}  uptime_not_folded
+    Should Not Be True  ${IsFolded}
 
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Wait Until Keyword Succeeds
