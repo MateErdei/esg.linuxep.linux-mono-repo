@@ -15,6 +15,7 @@ import socket
 import sys
 import subprocess
 import json
+from urllib.error import URLError
 
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
@@ -283,8 +284,12 @@ def Wait_For_Server_In_Cloud(hostname=None, wait=60, delay=1):
 
     start = time.time()
     while time.time() < start + wait:
-        if client.getServerByName(hostname) is not None:
-            return True
+        try:
+            if client.getServerByName(hostname) is not None:
+                return True
+        except Exception as e:
+            print(f"Got error when trying to contact cloud server. Error : {e}")
+
         time.sleep(delay)
         delay += 1
 
