@@ -279,12 +279,12 @@ def Check_Server_In_Cloud(hostname=None):
 def Wait_For_Server_In_Cloud(hostname=None, wait=60, delay=1):
     global OPTIONS
     options = OPTIONS
-    client = getClient()
     hostname = CloudAutomation.cloudClient.host(hostname)
 
     start = time.time()
     while time.time() < start + wait:
         try:
+            client = getClient()
             if client.getServerByName(hostname) is not None:
                 return True
         except Exception as e:
