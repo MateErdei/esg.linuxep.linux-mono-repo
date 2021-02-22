@@ -15,7 +15,6 @@ import socket
 import sys
 import subprocess
 import json
-from urllib.error import URLError
 
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
