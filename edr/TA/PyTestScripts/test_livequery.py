@@ -245,7 +245,7 @@ def test_edr_plugin_receives_binary_data_livequery_and_produces_answer(sspl_mock
     binary_table_exec = os.path.join(extensions_path, binary_data_name)
     sock_path = os.path.join(sspl_mock.sspl, 'plugins/edr/var/osquery.sock')
     # it needs to wait for the osquery to be really launched.
-    edr_plugin_instance.wait_log_contains("osquery initialized", 15)
+    edr_plugin_instance.wait_edr_osquery_log_contains("osquery initialized", 10)
     popen = subprocess.Popen([binary_table_exec, '--socket', sock_path])
     #give a small time for the extension to be launched and communicate with osquery
     time.sleep(5)
