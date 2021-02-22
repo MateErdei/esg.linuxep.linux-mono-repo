@@ -292,6 +292,7 @@ void ResultsSender::SaveBatchResults(const Json::Value& results)
     auto filesystem = Common::FileSystem::fileSystem();
     try
     {
+        LOGDEBUG("Saving batch results");
         Json::StreamWriterBuilder builder;
         std::stringstream resultsStringStream;
 
