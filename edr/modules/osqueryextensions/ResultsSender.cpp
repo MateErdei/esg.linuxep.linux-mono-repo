@@ -290,6 +290,10 @@ bool ResultsSender::getDataLimitReached()
 void ResultsSender::SaveBatchResults(const Json::Value& results)
 {
     auto filesystem = Common::FileSystem::fileSystem();
+    if (results.empty())
+    {
+        return;
+    }
     try
     {
         LOGDEBUG("Saving batch results");
