@@ -57,7 +57,7 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  { "schedule": { "uptime": { "query": "SELECT * FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT * FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to stop edr
     Enable XDR
@@ -72,14 +72,14 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     # Wait for a result we know will contain folded and non-fodled results
     ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
     ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Check Query Results Are Folded  ${query_results}  uptime  days  0
-    Check Query Results Are Not Folded  ${query_results}  uptime_not_folded  days  0
+    Check Query Results Are Folded  ${query_results}  uptime  fixed_column  fixed_value
+    Check Query Results Are Not Folded  ${query_results}  uptime_not_folded  fixed_column  fixed_value
 
     # Wait for a 2nd batch of result to prove that folding is done per batch, i.e. the folded query shows up again
     ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
     ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Check Query Results Are Folded  ${query_results}  uptime  days  0
-    Check Query Results Are Not Folded  ${query_results}  uptime_not_folded  days  0
+    Check Query Results Are Folded  ${query_results}  uptime  fixed_column  fixed_value
+    Check Query Results Are Not Folded  ${query_results}  uptime_not_folded  fixed_column  fixed_value
 
     # Inject policy without folding rules
     Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml
@@ -90,7 +90,7 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     # Wait until the results appear and check they are not folded now there are no folding rules
     ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
     ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Check Query Results Are Not Folded  ${query_results}  uptime  days  0
+    Check Query Results Are Not Folded  ${query_results}  uptime  fixed_column  fixed_value
 
 
 EDR Plugin Applies Folding Rules Based Column Value
