@@ -72,7 +72,7 @@ class TestHandleJson(unittest.TestCase):
         expected_time_last_sent = round(time.time()/3600, 1)
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 42)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
-                         mock.call(f"Since {expected_time_last_sent}hs we have sent 0.045kB of scheduled query data to Central"))
+                         mock.call(f"In the past {expected_time_last_sent}h we have sent 0.045kB of scheduled query data to Central"))
 
 
     @mock.patch("logging.Logger.info")
@@ -94,7 +94,7 @@ class TestHandleJson(unittest.TestCase):
         from_file = {"size": 3, "time_sent": exactly_24h_ago}
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 47)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
-                         mock.call(f"Since 24.0h we have sent 0.05kB of scheduled query data to Central"))
+                         mock.call(f"In the past 24.0h we have sent 0.05kB of scheduled query data to Central"))
 
     @mock.patch("logging.Logger.info")
     @mock.patch('builtins.open', new_callable=mock_open)
@@ -119,5 +119,5 @@ class TestHandleJson(unittest.TestCase):
         expected_time_last_sent = round(time.time()/3600, 1)
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 47)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
-                         mock.call(f"Since {expected_time_last_sent}h we have sent 0.05kB of scheduled query data to Central"))
+                         mock.call(f"In the past {expected_time_last_sent}h we have sent 0.05kB of scheduled query data to Central"))
         json.dump.assert_called_once_with(expected_file, mock.ANY)

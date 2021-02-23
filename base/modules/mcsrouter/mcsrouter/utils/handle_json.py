@@ -98,7 +98,7 @@ def update_datafeed_tracker(datafeed_info, size):
 
         data_size_in_kB = datafeed_info['size']/1000
         elasped_time_hours = round(time_since_last_sent/3600, 1)
-        LOGGER.info(f"Since {elasped_time_hours}h we have sent {data_size_in_kB}kB of scheduled query data to Central")
+        LOGGER.info(f"In the past {elasped_time_hours}h we have sent {data_size_in_kB}kB of scheduled query data to Central")
 
         datafeed_info['time_sent'] = current_time
         datafeed_info['size'] = 0
