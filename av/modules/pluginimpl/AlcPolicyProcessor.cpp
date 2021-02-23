@@ -15,6 +15,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <common/StringUtils.h>
 
+#include <thirdparty/nlohmann-json/json.hpp>
+
+using json = nlohmann::json;
+
 namespace Plugin
 {
     namespace
@@ -29,6 +33,12 @@ namespace Plugin
         {
             auto pluginInstall = getPluginInstall();
             return pluginInstall + "/var/customer_id.txt";
+        }
+
+        std::string getSusiStartupSettingsPath()
+        {
+            auto pluginInstall = getPluginInstall();
+            return pluginInstall + "/var/susi_startup_settings.json";
         }
     }
 
@@ -123,5 +133,38 @@ namespace Plugin
             cred = common::md5_hash(username + ':' + password);
         }
         return common::md5_hash(cred); // always do the second hash
+    }
+
+
+    bool AlcPolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    {
+        auto oldLookupEnabled = m_lookupEnabled;
+        m_lookupEnabled = isLookupEnabled(policy);
+        if (m_lookupEnabled != oldLookupEnabled)
+        {
+            // Only restart sophos_threat_detector if it changes
+            return false;
+        }
+
+        auto* fs = Common::FileSystem::fileSystem();
+        auto dest = Plugin::getPluginInstall() + "/chroot" + getSusiStartupSettingsPath();
+
+        json susiStartupSettings;
+        susiStartupSettings["enableSxlLookup"] = m_lookupEnabled;
+
+        fs->writeFile(dest, susiStartupSettings.dump());
+
+        return true;
+    }
+
+    std::string AlcPolicyProcessor::isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy)
+    {
+        auto contents = policy.lookup("config/detectionFeedback/sendData").contents();
+        if (contents == "true" || contents == "false")
+        {
+            return contents;
+        }
+        // Default to true if we can't read or understand the sendData value
+        return "true";
     }
 }

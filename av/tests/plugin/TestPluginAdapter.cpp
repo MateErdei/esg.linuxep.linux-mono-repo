@@ -176,6 +176,19 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
+    // Setup Mock filesystem
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+
+    fs::path testDir = tmpdir();
+    const std::string susiStartupSettingsPath = testDir / "var/susi_startup_settings.json";
+    const std::string susiStartupSettingsChrootPath = std::string(testDir / "chroot") + susiStartupSettingsPath;
+    Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + susiStartupSettingsPath + "', file does not exist");
+
+    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Throw(ex));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupSettingsChrootPath, R"({"enableSxlLookup":"true"})")).Times(1);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+
     auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);

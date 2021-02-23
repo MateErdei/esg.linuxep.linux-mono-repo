@@ -21,8 +21,17 @@ namespace Plugin
          */
         bool processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
+        /**
+         *
+         * @param policy
+         * @return True if the Enable SXL Lookup setting has changed - if sophos_threat_detector needs to be restarted
+         */
+        bool processSavPolicy(const Common::XmlUtilities::AttributesMap& policy);
+
         static std::string getCustomerId(const Common::XmlUtilities::AttributesMap& policy);
+        static std::string isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy);
     private:
         std::string m_customerId;
+        std::string m_lookupEnabled;
     };
 }

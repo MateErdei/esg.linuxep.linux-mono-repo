@@ -174,8 +174,17 @@ namespace Plugin
             return;
         }
 
+        // SAV policy
         LOGINFO("Processing SAV Policy");
         LOGDEBUG("Processing policy: " << policyXml);
+
+        m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+
+        auto updated = m_updatePolicyProcessor.processSavPolicy(attributeMap);
+        if (updated)
+        {
+            m_threatDetector->configuration_changed();
+        }
 
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
