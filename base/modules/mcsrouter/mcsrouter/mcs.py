@@ -744,6 +744,10 @@ class MCS:
 
                     error_count += 1
                     self.on_error(push_client, error_count, transient=False)
+                except mcs_connection.MCSHttpGatewayTimeoutException as exception:
+                    # already logged in mcs_connection when error raised
+                    error_count += 1
+                    self.on_error(push_client, error_count)
                 except mcs_connection.MCSHttpException as exception:
                     error_count += 1
                     transient = True
@@ -763,7 +767,6 @@ class MCS:
                     self.on_error(push_client, error_count, transient)
                 except (mcs_exception.MCSNetworkException, http.client.NotConnected):
                     # Already logged from mcsclient
-                    #~ LOGGER.exception("Got connection failed exception")
                     error_count += 1
                     self.on_error(push_client, error_count)
                 except http.client.BadStatusLine as exception:

@@ -33,3 +33,13 @@ MCS responds correctly to single 401
     ...  10 secs
     ...  Check Mcsrouter Log Contains       Lost authentication with server
     Check MCS Router Running
+
+Test 504 From Central Is handled correctly
+    Install Register And Wait First MCS Policy
+    Send Command From Fake Cloud    error/server504
+
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCSRouter Log Contains  HTTP Gateway timeout (504): Gateway Timeout (b'')
+    Check MCS Router Running
