@@ -137,7 +137,7 @@ TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsUnknown) // NOLINT
 
 TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsUnknown) // NOLINT
 {
-    EXPECT_EQ(getEndpointId(),"ab7b6758a3ab11ba8a51d25aa06d1cf4");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
 TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsId) // NOLINT
