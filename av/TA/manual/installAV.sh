@@ -47,11 +47,11 @@ fi
 
 ## Install Base
 chmod 700 "${SDDS_BASE}/install.sh"
-"${SDDS_BASE}/install.sh" || failure 5 "Unable to install base SSPL: $?"
+bash "${SDDS_BASE}/install.sh" || failure 5 "Unable to install base SSPL: $?"
 
 ## Install AV
 chmod 700 "${SDDS_AV}/install.sh"
-"${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
+bash "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
 
 ## Setup Dev region MCS
 OVERRIDE_FLAG_FILE="${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"

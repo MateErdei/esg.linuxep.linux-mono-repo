@@ -311,6 +311,13 @@ static int inner_main()
         exit(EXIT_FAILURE);
     }
 
+    ret = ::chdir("/");
+    if (ret != 0)
+    {
+        LOGERROR("Failed to chdir / after entering chroot (" << ret << ")");
+        exit(EXIT_FAILURE);
+    }
+
     fs::path scanningSocketPath = "/var/scanning_socket";
 #else
     fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
