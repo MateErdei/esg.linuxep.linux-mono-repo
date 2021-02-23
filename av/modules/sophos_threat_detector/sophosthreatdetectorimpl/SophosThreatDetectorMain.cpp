@@ -297,18 +297,25 @@ static int inner_main()
         exit(EXIT_FAILURE);
     }
 
-    ret = dropCapabilities();
-    if (ret != 0)
+    if (getuid() != 0)
     {
-        LOGERROR("Failed to drop capabilities after entering chroot (" << ret << ")");
-        exit(EXIT_FAILURE);
-    }
+        ret = dropCapabilities();
+        if (ret != 0)
+        {
+            LOGERROR("Failed to drop capabilities after entering chroot (" << ret << ")");
+            exit(EXIT_FAILURE);
+        }
 
-    ret = lockCapabilities();
-    if (ret != 0)
+        ret = lockCapabilities();
+        if (ret != 0)
+        {
+            LOGERROR("Failed to lock capabilities after entering chroot (" << ret << ")");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
     {
-        LOGERROR("Failed to lock capabilities after entering chroot (" << ret << ")");
-        exit(EXIT_FAILURE);
+        LOGINFO("Running as root - Skip dropping of capabilities");
     }
 
     ret = ::chdir("/");

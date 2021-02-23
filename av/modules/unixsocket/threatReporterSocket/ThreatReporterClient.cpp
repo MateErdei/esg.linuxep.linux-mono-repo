@@ -19,8 +19,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/socket.h>
 #include <sys/un.h>
 
-#define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
-
 unixsocket::ThreatReporterClientSocket::ThreatReporterClientSocket(const std::string& socket_path)
 {
     m_socket_fd.reset(socket(AF_UNIX, SOCK_STREAM, 0));
@@ -35,7 +33,7 @@ unixsocket::ThreatReporterClientSocket::ThreatReporterClientSocket(const std::st
     int ret = connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
     if (ret != 0)
     {
-        handle_error("Failed to connect to unix socket");
+        throw std::runtime_error("Failed to connect to unix socket");
     }
 }
 
@@ -48,8 +46,9 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
     {
         if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
-            LOGERROR("Failed to write Threat Report Client to socket. Exception caught: " << errno);
-            handle_error("Failed to write capn buffer to unix socket");
+            std::stringstream errMsg;
+            errMsg << "Failed to write Threat Report Client to socket [" << errno << "]";
+            throw std::runtime_error(errMsg.str());
         }
     }
     catch (unixsocket::environmentInterruption& e)
