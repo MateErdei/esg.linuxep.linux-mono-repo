@@ -605,7 +605,7 @@ Ensure Download Report Content Contains Sub Component Entries
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Check Current Release Installed Correctly
-    # Make sure that the minium components are listed.
+    # Make sure that the minimum components are listed.
     # This will ensure sub components are listed in the report when a sub component has it's own installer.
     Check Download Report Contains Minimum Products
 
