@@ -1,13 +1,18 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <modules/pluginimpl/PluginUtils.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <modules/pluginimpl/ApplicationPaths.h>
 
 #include <Common/Helpers/TempDir.h>
 #include <Common/Helpers/LogInitializedTests.h>
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/MockFilePermissions.h>
 #include <gtest/gtest.h>
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
@@ -155,4 +160,176 @@ TEST_F(TestPluginUtils, isInteger)
     ASSERT_EQ(false, Plugin::PluginUtils::isInteger("2.0"));
     ASSERT_EQ(true, Plugin::PluginUtils::isInteger("02"));
     ASSERT_EQ(true, Plugin::PluginUtils::isInteger(""));
+}
+
+class TestPluginUtilsWithMockFileSystem: public LogOffInitializedTests
+{
+public:
+    TestPluginUtilsWithMockFileSystem()
+    {
+        mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
+        mockFilePermissions = new ::testing::NiceMock<MockFilePermissions>();
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
+        Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+    }
+    ~TestPluginUtilsWithMockFileSystem()
+    {
+        Tests::restoreFileSystem();
+    }
+    MockFileSystem * mockFileSystem;
+    MockFilePermissions * mockFilePermissions;
+};
+
+TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsDefaultsIfTargetDirectoryDoesNotExist)
+{
+    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(false));
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    EXPECT_EQ(targetFiles.first, Plugin::osqueryMTRConfigFilePath());
+    EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsReturnsDefaultsIfTargetDirectoryEmpty)
+{
+    std::vector<std::string> files;
+    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    EXPECT_EQ(targetFiles.first, Plugin::osqueryMTRConfigFilePath());
+    EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsReturnsDefaultsIfNeitherFileInDirectoryIsMTROrXDRPacks)
+{
+    std::vector<std::string> files;
+    std::string filename = Plugin::osqueryCustomConfigFilePath();
+    files.push_back(filename);
+    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    EXPECT_EQ(targetFiles.first, Plugin::osqueryMTRConfigFilePath());
+    EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsOverridesXDRDefaultWhenDisabledXDRPackPresent)
+{
+    std::vector<std::string> files;
+    std::string filename = Common::FileSystem::join(Plugin::osqueryConfigDirectoryPath(), "sophos-scheduled-query-pack.DISABLED");
+    files.push_back(filename);
+    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    EXPECT_EQ(targetFiles.first, Plugin::osqueryMTRConfigFilePath());
+    EXPECT_EQ(targetFiles.second, filename);
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsOverridesMTRDefaultWhenDisabledMTRPackPresent)
+{
+    std::vector<std::string> files;
+    std::string filename = Common::FileSystem::join(Plugin::osqueryConfigDirectoryPath(), "sophos-scheduled-query-pack.mtr.DISABLED");
+    files.push_back(filename);
+    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    EXPECT_EQ(targetFiles.first, filename);
+    EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsOverridesMTRDefaultWhenMultipleMTRPacksPresent)
+{
+    std::vector<std::string> files;
+    std::string filename1 = Common::FileSystem::join(Plugin::osqueryConfigDirectoryPath(), "sophos-scheduled-query-pack.mtr.DISABLED");
+    std::string filename2 = Common::FileSystem::join(Plugin::osqueryConfigDirectoryPath(), "sophos-scheduled-query-pack.mtr.conf");
+    files.push_back(filename1);
+    files.push_back(filename2);
+    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    EXPECT_EQ(targetFiles.first, filename2);
+    EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsOverridesDefaultsWhenDisabledPacksPresent)
+{
+    std::vector<std::string> files;
+    std::string filename1 = Common::FileSystem::join(Plugin::osqueryConfigDirectoryPath(), "sophos-scheduled-query-pack.mtr.DISABLED");
+    std::string filename2 = Common::FileSystem::join(Plugin::osqueryConfigDirectoryPath(), "sophos-scheduled-query-pack.DISABLED");
+    files.push_back(filename1);
+    files.push_back(filename2);
+    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    EXPECT_EQ(targetFiles.first, filename1);
+    EXPECT_EQ(targetFiles.second, filename2);
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsDefaultsFileSystemExceptionIsThrown)
+{
+    Common::FileSystem::IFileSystemException e("test exception");
+    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Throw(e));
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    EXPECT_EQ(targetFiles.first, Plugin::osqueryMTRConfigFilePath());
+    EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagDoesNotUpdateFileOrVariableIfValueHasNotChanged)
+{
+    bool flagsHaveChanged = false;
+    Tests::TempDir tempDir("/tmp");
+    tempDir.createFile("plugins/edr/etc/plugin.conf", "flag_name=1");
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+        Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::edrConfigFilePath())).WillRepeatedly(Return(true));
+    Plugin::PluginUtils::updatePluginConfWithFlag("flag_name", true, flagsHaveChanged);
+    EXPECT_FALSE(flagsHaveChanged);
+    std::string newContents = tempDir.fileContent("plugins/edr/etc/plugin.conf");
+    EXPECT_EQ(newContents, "flag_name=1");
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagUpdatesFileAndVariableIfValueHasBecomeTrue)
+{
+    bool flagsHaveChanged = false;
+    std::vector<std::string> oldLines;
+    oldLines.push_back("flag_name=0");
+    Tests::TempDir tempDir("/tmp");
+    tempDir.createFile("plugins/edr/etc/plugin.conf", "flag_name=0");
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+        Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::edrConfigFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readLines(Plugin::edrConfigFilePath())).WillRepeatedly(Return(oldLines));
+    EXPECT_CALL(*mockFileSystem, writeFileAtomically(Plugin::edrConfigFilePath(), "flag_name=1\n", Plugin::etcDir())).Times(1);
+    Plugin::PluginUtils::updatePluginConfWithFlag("flag_name", true, flagsHaveChanged);
+    EXPECT_TRUE(flagsHaveChanged);
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagUpdatesFileAndVariableIfValueHasBecomeFalse)
+{
+    bool flagsHaveChanged = false;
+    std::vector<std::string> oldLines;
+    oldLines.push_back("flag_name=1");
+    Tests::TempDir tempDir("/tmp");
+    tempDir.createFile("plugins/edr/etc/plugin.conf", "flag_name=1");
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+        Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::edrConfigFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readLines(Plugin::edrConfigFilePath())).WillRepeatedly(Return(oldLines));
+    EXPECT_CALL(*mockFileSystem, writeFileAtomically(Plugin::edrConfigFilePath(), "flag_name=0\n", Plugin::etcDir())).Times(1);
+    Plugin::PluginUtils::updatePluginConfWithFlag("flag_name", false, flagsHaveChanged);
+    EXPECT_TRUE(flagsHaveChanged);
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagSetsValueInFileAndVariableIfFlagNotInFile)
+{
+    bool flagsHaveChanged = false;
+    std::vector<std::string> oldLines;
+    oldLines.push_back("other_name=1");
+    Tests::TempDir tempDir("/tmp");
+    tempDir.createFile("plugins/edr/etc/plugin.conf", "other_name=1");
+    Common::ApplicationConfiguration::applicationConfiguration().setData(
+        Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::edrConfigFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readLines(Plugin::edrConfigFilePath())).WillRepeatedly(Return(oldLines));
+    EXPECT_CALL(*mockFileSystem, writeFileAtomically(Plugin::edrConfigFilePath(), "other_name=1\nflag_name=1\n", Plugin::etcDir())).Times(1);
+    Plugin::PluginUtils::updatePluginConfWithFlag("flag_name", true, flagsHaveChanged);
+    EXPECT_TRUE(flagsHaveChanged);
 }

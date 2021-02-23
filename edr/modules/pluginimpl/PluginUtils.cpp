@@ -128,4 +128,89 @@ namespace Plugin
         }
     }
 
+    std::pair<std::string, std::string> PluginUtils::getRunningQueryPackFilePaths(Common::FileSystem::IFileSystem* fileSystem)
+    {
+        std::string targetDirectoryPath = Plugin::osqueryConfigDirectoryPath();
+        std::string targetMtrFilePath = Plugin::osqueryMTRConfigFilePath();
+        std::string targetXdrFilePath = Plugin::osqueryXDRConfigFilePath();
+
+        try
+        {
+            if (fileSystem->isDirectory(targetDirectoryPath))
+            {
+                std::vector<std::string> paths = fileSystem->listFiles(targetDirectoryPath);
+
+                if (!paths.empty())
+                {
+                    for (const auto& filepath : paths)
+                    {
+                        std::string basename = Common::FileSystem::basename(filepath);
+                        if (Common::UtilityImpl::StringUtils::startswith(basename, "sophos-scheduled-query-pack"))
+                        {
+                            if (Common::UtilityImpl::StringUtils::isSubstring(basename, "mtr"))
+                            {
+                                targetMtrFilePath = filepath;
+                            }
+                            else if (!Common::UtilityImpl::StringUtils::isSubstring(basename, "custom"))
+                            {
+                                targetXdrFilePath = filepath;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR("Cannot check for existing query pack names due to exception: " << e.what() << ". Using default filenames: "
+            << Common::FileSystem::basename(targetMtrFilePath) << " & " << Common::FileSystem::basename(targetXdrFilePath));
+        }
+        return {targetMtrFilePath, targetXdrFilePath};
+    }
+
+    void PluginUtils::setQueryPacksInPlace(const bool& useNextQueryPack)
+    {
+        auto* ifileSystem = Common::FileSystem::fileSystem();
+        std::pair<std::string,std::string> targetFiles = getRunningQueryPackFilePaths(ifileSystem);
+
+        try
+        {
+            if (useNextQueryPack)
+            {
+                LOGINFO("Overwriting existing scheduled query packs with 'NEXT' query packs");
+                ifileSystem->copyFile(Plugin::osqueryNextMTRConfigStagingFilePath(), targetFiles.first);
+                ifileSystem->copyFile(Plugin::osqueryNextXDRConfigStagingFilePath(), targetFiles.second);
+            }
+            else
+            {
+                LOGINFO("Reverting to existing scheduled query packs");
+                ifileSystem->copyFile(Plugin::osqueryMTRConfigStagingFilePath(), targetFiles.first);
+                ifileSystem->copyFile(Plugin::osqueryXDRConfigStagingFilePath(), targetFiles.second);
+            }
+        }
+        catch (Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR("Failed to set query packs to the correct version: " << e.what());
+        }
+    }
+
+    void PluginUtils::updatePluginConfWithFlag(const std::string& flagName, const bool& flagSetting, bool& flagsHaveChanged)
+    {
+        try
+        {
+            bool oldMode = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(flagName);
+            if (oldMode != flagSetting)
+            {
+                LOGINFO("Updating " << flagName << " flag settings");
+                Plugin::PluginUtils::setGivenFlagFromSettingsFile(flagName, flagSetting);
+                flagsHaveChanged = true;
+            }
+        }
+        catch (const std::runtime_error& ex)
+        {
+            LOGINFO("Setting " << flagName << " flag settings");
+            Plugin::PluginUtils::setGivenFlagFromSettingsFile(flagName, flagSetting);
+            flagsHaveChanged = true;
+        }
+    }
 }

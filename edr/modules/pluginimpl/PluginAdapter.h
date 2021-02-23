@@ -116,6 +116,7 @@ namespace Plugin
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 5;
         bool m_isXDR = false;
+        bool m_useNextQueryPack = false;
         void sendLiveQueryStatus();
 
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)

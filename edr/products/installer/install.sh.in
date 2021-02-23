@@ -70,6 +70,7 @@ generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr etc dir"
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/osquery.conf.d || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr osquery.conf.d dir"
+mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/query_packs || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr query_packs dir"
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr var dir"
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr log dir"
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions  || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr extensions dir"
@@ -93,12 +94,26 @@ fi
 if [[ -f  ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf ]]
 then
   cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+  cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
   chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
 fi
 if [[ -f  ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf ]]
 then
   cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+  cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
   chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
+fi
+if [[ -f  ${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf ]]
+then
+  cp ${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf
+  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf
+fi
+if [[ -f  ${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf ]]
+then
+  cp ${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf
+  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf
 fi
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 

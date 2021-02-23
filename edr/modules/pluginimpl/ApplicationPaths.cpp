@@ -51,6 +51,11 @@ std::string Plugin::osqueryConfigFilePath()
     return fromRelative("etc/osquery.conf");
 }
 
+std::string Plugin::osqueryConfigDirectoryPath()
+{
+    return fromRelative("etc/osquery.conf.d");
+}
+
 std::string Plugin::osqueryXDRConfigFilePath()
 {
     return fromRelative("etc/osquery.conf.d/sophos-scheduled-query-pack.conf");
@@ -59,6 +64,26 @@ std::string Plugin::osqueryXDRConfigFilePath()
 std::string Plugin::osqueryMTRConfigFilePath()
 {
     return fromRelative("etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf");
+}
+
+std::string Plugin::osqueryXDRConfigStagingFilePath()
+{
+    return fromRelative("etc/query_packs/sophos-scheduled-query-pack.conf");
+}
+
+std::string Plugin::osqueryMTRConfigStagingFilePath()
+{
+    return fromRelative("etc/query_packs/sophos-scheduled-query-pack.mtr.conf");
+}
+
+std::string Plugin::osqueryNextXDRConfigStagingFilePath()
+{
+    return fromRelative("etc/query_packs/sophos-scheduled-query-pack-next.conf");
+}
+
+std::string Plugin::osqueryNextMTRConfigStagingFilePath()
+{
+    return fromRelative("etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf");
 }
 
 std::string Plugin::osqueryXDRResultSenderIntermediaryFilePath()
