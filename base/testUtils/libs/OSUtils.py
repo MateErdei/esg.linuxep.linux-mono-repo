@@ -505,7 +505,8 @@ class ETCHostsWarehouseHandler:
         filtered = self._get_etc_host_lines_filtered() + ['']
         self.replace_etc_hosts(filtered)
 
-
+def time_since_epoch_hours():
+    return round(time.time()/3600, 1)
 
 def setup_etc_hosts_to_connect_to_internal_warehouse():
     etc = ETCHostsWarehouseHandler()

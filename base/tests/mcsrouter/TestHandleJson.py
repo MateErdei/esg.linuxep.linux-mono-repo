@@ -69,9 +69,10 @@ class TestHandleJson(unittest.TestCase):
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     def test_update_datafeed_tracker_logs_when_it_has_been_more_than_24_hours_since_last_log(self, *mockargs):
         from_file = {"size": 3, "time_sent": 0}
+        expected_time_last_sent = round(time.time()/3600, 1)
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 42)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
-                         mock.call("Since 1970-01-01T00:00:00Z we have sent 0.045kB of scheduled query data to Central"))
+                         mock.call(f"Since {expected_time_last_sent}hs we have sent 0.045kB of scheduled query data to Central"))
 
 
     @mock.patch("logging.Logger.info")
@@ -91,10 +92,9 @@ class TestHandleJson(unittest.TestCase):
     def test_update_datafeed_tracker_logs_when_it_has_been_exactly_24_hours_since_last_log(self, *mockargs):
         exactly_24h_ago = int(DUMMY_TIMESTAMP)-((24*60*60))
         from_file = {"size": 3, "time_sent": exactly_24h_ago}
-        expected_time_last_sent = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(exactly_24h_ago))
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 47)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
-                         mock.call(f"Since {expected_time_last_sent} we have sent 0.05kB of scheduled query data to Central"))
+                         mock.call(f"Since 24.0h we have sent 0.05kB of scheduled query data to Central"))
 
     @mock.patch("logging.Logger.info")
     @mock.patch('builtins.open', new_callable=mock_open)
@@ -115,9 +115,9 @@ class TestHandleJson(unittest.TestCase):
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     def test_update_datafeed_tracker_resets_size_to_zero_after_sending(self, *mockargs):
         from_file = {"size": 3, "time_sent": 0}
-        expected_file = {"size": 0, "time_sent":int(DUMMY_TIMESTAMP)}
-        expected_time_last_sent = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(0))
+        expected_file = {"size": 0, "time_sent": int(DUMMY_TIMESTAMP)}
+        expected_time_last_sent = round(time.time()/3600, 1)
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 47)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
-                         mock.call(f"Since {expected_time_last_sent} we have sent 0.05kB of scheduled query data to Central"))
+                         mock.call(f"Since {expected_time_last_sent}h we have sent 0.05kB of scheduled query data to Central"))
         json.dump.assert_called_once_with(expected_file, mock.ANY)

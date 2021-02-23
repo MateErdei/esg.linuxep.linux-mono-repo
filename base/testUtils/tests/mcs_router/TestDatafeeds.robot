@@ -3,6 +3,7 @@ Documentation    Test suite for end to end XDR datafeed tests
 Library   OperatingSystem
 Library   Process
 Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  McsRouterResources.robot
 
@@ -31,15 +32,16 @@ Basic XDR Datafeed Sent
 Basic XDR Datafeed size is logged
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
-    Create file  ${SOPHOS_INSTALL}/base/etc/sophosspl/datafeed_tracker   content={"time_sent":2,"size": 423}
+    Create file  ${SOPHOS_INSTALL}/base/etc/sophosspl/datafeed_tracker   content={"time_sent":0,"size": 423}
     Start MCSRouter
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
     Check Cloud Server Log For Scheduled Query   scheduled_query
+    ${time}=  time_since_epoch_hours
     Wait Until Keyword Succeeds
     ...  10s
     ...  1s
-    ...  Check MCS Router Log Contains    Since 1970-01-01T00:00:02Z we have sent 0.447kB of scheduled query data to Central
+    ...  Check MCS Router Log Contains    Since ${time}h we have sent 0.447kB of scheduled query data to Central
 
 Invalid Datafeed Filename Not Sent But Does not Block Other Datafeed Files
     [Documentation]  Written to test the eact scenario set out in LINUXDAR-2463
