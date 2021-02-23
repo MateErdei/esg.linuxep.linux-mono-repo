@@ -316,9 +316,9 @@ namespace SulDownloader
                          */
                         for (auto& product : products)
                         {
-                            if(product.getLine() == subComp.m_line)
+                            if (product.getLine() == subComp.m_line)
                             {
-                                if(Common::UtilityImpl::StringUtils::isSubstring(product.installerPath(), subComp.m_line))
+                                if (Common::UtilityImpl::StringUtils::isSubstring(product.installerPath(), subComp.m_line))
                                 {
                                     // installer located in sub component.
                                     LOGDEBUG("Added subcomponent to report entry for :" << subComp.m_line);
