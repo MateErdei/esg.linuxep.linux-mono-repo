@@ -118,7 +118,22 @@ namespace avscanner::avscannerimpl
                 {
                     exclusion = common::PathUtils::appendForwardSlashToPath(exclusion);
                 }
+
                 exclusion = common::PathUtils::lexicallyNormal(exclusion);
+
+                // do not canonicalize symlinks as they will be resolved to the target
+                if (fs::exists(exclusion) && !fs::is_symlink(fs::symlink_status(common::PathUtils::removeForwardSlashFromPath(exclusion))))
+                {
+                    exclusion = fs::canonical(exclusion);
+                    if (fs::is_directory(exclusion) && exclusion != "/")
+                    {
+                        exclusion.append("/");
+                    }
+                }
+                else
+                {
+                    LOGERROR("Cannot canonicalize: " << exclusion << "folder/file does not exist");
+                }
             }
 
             oss << exclusion << ", ";

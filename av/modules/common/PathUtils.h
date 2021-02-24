@@ -80,13 +80,24 @@ namespace common
                 return true;
             }
 
-            for (auto part = p.begin(); part != p.end(); part++)
+            auto pos = p.string().find_last_of('/');
+            const auto leaf = p.string().substr(pos+1);
+
+            if(leaf == "." || leaf == "..")
             {
+                return true;
+            }
+
+            // the last part of each path object is always a "." so don't check the last part
+            for (auto part = p.begin(); part != std::prev(p.end()); part++)
+            {
+                auto x = part->string();
                 if (part->string() == ".." || part->string() == ".")
                 {
                     return true;
                 }
             }
+
             return false;
         }
 

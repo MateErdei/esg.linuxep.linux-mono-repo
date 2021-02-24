@@ -789,14 +789,14 @@ CLS Can Handle Relative Non-Canonical Exclusions
 
     ${rc}   ${output} =    Run And Return Rc And Output  cd ${test_dir} && ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude "../exclusion_test_dir/" "exclusion_test_dir//a" "${test_dir}/b/." "${test_dir}/c/../c" "${test_dir}/d/./e/" "${test_dir}/f/g/.."
     Log   ${rc}
-    Log   ${output}
-    Should Contain       ${output}   Exclusions: ../exclusion_test_dir/, exclusion_test_dir/a, ${NORMAL_DIRECTORY}/exclusion_test_dir/b/, ${NORMAL_DIRECTORY}/exclusion_test_dir/c/, ${NORMAL_DIRECTORY}/exclusion_test_dir/d/e/, ${NORMAL_DIRECTORY}/exclusion_test_dir/f/
-    Should Not Contain   ${output}   "${test_dir}/eicar.nope" is infected with EICAR-AV-Test
-    Should Not Contain   ${output}   "${test_dir}/a/eicar.nope" is infected with EICAR-AV-Test
-    Should Not Contain   ${output}   "${test_dir}/b/eicar.nope" is infected with EICAR-AV-Test
-    Should Not Contain   ${output}   "${test_dir}/c/eicar.nope" is infected with EICAR-AV-Test
-    Should Not Contain   ${output}   "${test_dir}/d/e/eicar.nope" is infected with EICAR-AV-Test
-    Should Not Contain   ${output}   "${test_dir}/f/g/eicar.nope" is infected with EICAR-AV-Test
+    Log To Console   ${output}
+    Should Contain       ${output}   Exclusions: ${test_dir}, exclusion_test_dir/a, ${test_dir}b/, ${test_dir}c/, ${test_dir}d/e/, ${test_dir}f/
+    Should Not Contain   ${output}   "${test_dir}eicar.nope" is infected with EICAR-AV-Test
+    Should Not Contain   ${output}   "${test_dir}a/eicar.nope" is infected with EICAR-AV-Test
+    Should Not Contain   ${output}   "${test_dir}b/eicar.nope" is infected with EICAR-AV-Test
+    Should Not Contain   ${output}   "${test_dir}c/eicar.nope" is infected with EICAR-AV-Test
+    Should Not Contain   ${output}   "${test_dir}d/e/eicar.nope" is infected with EICAR-AV-Test
+    Should Not Contain   ${output}   "${test_dir}f/g/eicar.nope" is infected with EICAR-AV-Test
 
 
 CLS Can Change Log Level
