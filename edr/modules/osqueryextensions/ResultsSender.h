@@ -75,4 +75,6 @@ private:
     Json::Value readJsonFile(const std::string& path);
 
     void loadScheduledQueryTagsFromFile(std::vector<ScheduledQuery> &scheduledQueries, Path queryPackFilePath);
+
+    bool updateFoldingTelemetry(const Json::Value& results);
 };

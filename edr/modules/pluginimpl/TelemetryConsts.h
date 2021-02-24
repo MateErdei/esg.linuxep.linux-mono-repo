@@ -28,4 +28,5 @@ namespace plugin
     const char* const telemetrySocketEventsMaxHit = "reached-max-socket-events";
     const char* const telemetryUserEventsMaxHit = "reached-max-user-events";
     const char* const telemetrySelinuxEventsMaxHit = "reached-max-selinux-events";
+    const char* const telemetryFoldedCount = "folded-count";
 }

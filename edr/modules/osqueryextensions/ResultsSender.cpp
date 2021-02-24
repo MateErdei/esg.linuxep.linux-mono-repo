@@ -309,6 +309,10 @@ void ResultsSender::SaveBatchResults(const Json::Value& results)
     {
         return;
     }
+
+    if (!updateFoldingTelemetry(results))
+        return;
+
     try
     {
         LOGDEBUG("Saving batch results");
@@ -365,4 +369,31 @@ Json::Value ResultsSender::PrepareBatchResults()
         }
     }
     return batchResults;
+}
+
+bool ResultsSender::updateFoldingTelemetry(const Json::Value& results)
+{
+    auto& telemetryHelper = Common::Telemetry::TelemetryHelper::getInstance();
+
+    try
+    {
+        for (const auto& result : results)
+        {
+            if (result.isMember("folded") && result.isMember("name"))
+            {
+                std::string name = result["name"].asString();
+                unsigned long count = result["folded"].asUInt();
+
+                std::string scheduledQueryKey = plugin::telemetryScheduledQueries + std::string(".") + name;
+                telemetryHelper.increment(scheduledQueryKey + "." + plugin::telemetryFoldedCount, count);
+            }
+        }
+    }
+    catch (const std::exception& exception)
+    {
+        LOGERROR("Failed to get folded count: " << exception.what());
+        return false;
+    }
+
+    return true;
 }

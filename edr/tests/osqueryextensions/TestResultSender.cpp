@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/MockFileSystem.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/livequery/ResponseData.h>
 #include <modules/osqueryextensions/ResultsSender.h>
 
@@ -144,6 +145,57 @@ public:
 
     }
 
+};
+
+class TestResultSenderTelemetry : public TestResultSender
+{
+protected:
+    void SetUp() override
+    {
+        TestResultSender::SetUp();
+
+        m_mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { m_mockFileSystem });
+
+        ResultSenderForUnitTests::mockNoQueryPack(m_mockFileSystem);
+        ResultSenderForUnitTests::mockPersistentValues(m_mockFileSystem);
+        m_resultsSender.reset(new ResultsSender(
+                    INTERMEDIARY_PATH,
+                    DATAFEED_PATH,
+                    QUERY_PACK_PATH,
+                    MTR_QUERY_PACK_PATH,
+                    CUSTOM_QUERY_PACK_PATH,
+                    PLUGIN_VAR_DIR,
+                    DATA_LIMIT,
+                    PERIOD_IN_SECONDS,
+                    [this]()mutable{m_callbackCalled = true;}));
+
+        getTelemetry().serialiseAndReset();
+    }
+
+    Json::Value parseJson(const std::string& json)
+    {
+        Json::CharReaderBuilder builder;
+        auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
+
+        Json::Value root;
+        std::string errors;
+        reader->parse(json.c_str(), json.c_str()+json.size(), &root, &errors);
+
+        if (!errors.empty())
+            throw std::runtime_error("failed to parse json: " + errors);
+
+        return root;
+    }
+
+    static Common::Telemetry::TelemetryHelper& getTelemetry()
+    {
+        return Common::Telemetry::TelemetryHelper::getInstance();
+    }
+
+    std::unique_ptr<ResultsSender> m_resultsSender;
+    ::testing::StrictMock<MockFileSystem>* m_mockFileSystem = nullptr;
+    bool m_callbackCalled = false;
 };
 
 TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
@@ -412,7 +464,6 @@ TEST_F(TestResultSender, sendMovesBatchFile) // NOLINT
         PERIOD_IN_SECONDS,
         [&callbackCalled]()mutable{callbackCalled = true;});
 
-    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
     EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query"))).Times(1);
     resultsSender.Send();
 }
@@ -464,7 +515,6 @@ TEST_F(TestResultSender, sendThrowsWhenFileMoveThrows) // NOLINT
         DATA_LIMIT,
         PERIOD_IN_SECONDS,
         [&callbackCalled]()mutable{callbackCalled = true;});
-    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
     EXPECT_CALL(*mockFileSystem, moveFile(INTERMEDIARY_PATH, StartsWith(DATAFEED_PATH + "/scheduled_query")))
         .WillOnce(Throw(std::runtime_error("TEST")));
 
@@ -604,7 +654,6 @@ TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-
     EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK));
     EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
@@ -622,4 +671,241 @@ TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
     resultsSender.Add(testResult);
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, correctedNameResult1)).Times(1);
     resultsSender.Add(testResult1);
+}
+
+TEST_F(TestResultSender, prepareBatchResultsAppendsBracketAndReturnsJsonObject) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
+    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
+        CUSTOM_QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
+    EXPECT_CALL(*mockFileSystem, readFile(INTERMEDIARY_PATH)).WillOnce(Return(R"([{"a":"b"}, {"c":1}])"));
+    auto actualResults = resultsSender.PrepareBatchResults();
+    Json::Value expectedResults;
+
+    Json::Value a;
+    a["a"] = "b";
+
+    Json::Value c;
+    c["c"] = 1;
+
+    expectedResults[0] = a;
+    expectedResults[1] = c;
+
+    EXPECT_EQ(actualResults, expectedResults);
+}
+
+TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfJsonInvalid) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
+    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
+        CUSTOM_QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
+    EXPECT_CALL(*mockFileSystem, readFile(INTERMEDIARY_PATH)).WillOnce(Return("this is not json"));
+    auto actualResults = resultsSender.PrepareBatchResults();
+    Json::Value emptyValue;
+    EXPECT_EQ(actualResults, emptyValue);
+}
+
+TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfIntermediaryFileDoesNotExist) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
+    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
+        CUSTOM_QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(0);
+    auto actualResults = resultsSender.PrepareBatchResults();
+    Json::Value emptyValue;
+    EXPECT_EQ(actualResults, emptyValue);
+}
+
+TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectAndRemovesUnredableIntermediaryFile) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
+    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
+        CUSTOM_QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
+    EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]"))
+        .WillOnce(Throw(std::runtime_error("Cannot read file")));
+
+    EXPECT_CALL(*mockFileSystem, removeFile(INTERMEDIARY_PATH));
+
+    auto actualResults = resultsSender.PrepareBatchResults();
+    Json::Value emptyValue;
+    EXPECT_EQ(actualResults, emptyValue);
+}
+
+TEST_F(TestResultSender, saveBatchResultsWritesResultsFile) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
+    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
+        CUSTOM_QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
+    EXPECT_CALL(*mockFileSystem, writeFile(INTERMEDIARY_PATH, R"([{"a":"b"},{"c":1}])" ));
+    Json::Value results;
+    Json::Value a;
+    a["a"] = "b";
+    Json::Value c;
+    c["c"] = 1;
+    results[0] = a;
+    results[1] = c;
+
+    resultsSender.SaveBatchResults(results);
+}
+
+TEST_F(TestResultSender, saveBatchResultsDoesNotThrowIfWriteThrows) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
+    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
+        CUSTOM_QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
+    EXPECT_CALL(*mockFileSystem, writeFile(INTERMEDIARY_PATH, R"([{"a":"b"},{"c":1}])"))
+        .WillOnce(Throw(std::runtime_error("Cannot write to file")));
+
+    Json::Value results;
+    Json::Value a;
+    a["a"] = "b";
+    Json::Value c;
+    c["c"] = 1;
+    results[0] = a;
+    results[1] = c;
+    EXPECT_NO_THROW(resultsSender.SaveBatchResults(results));
+}
+
+TEST_F(TestResultSender, saveBatchResultsSavesEmptyStringIfResultAreEmpty) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
+    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
+        CUSTOM_QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
+    Json::Value results;
+    EXPECT_NO_THROW(resultsSender.SaveBatchResults(results));
+}
+
+TEST_F(TestResultSenderTelemetry, saveBatchResultsUpdatesFoldingTelemetry) // NOLINT
+{
+    const std::string result = R"([{"folded":5,"name":"test_folding_query"},{"folded":13,"name":"test_folding_query2"},{"name":"test_nonfolding_query"}])";
+
+    EXPECT_CALL(*m_mockFileSystem, writeFile(INTERMEDIARY_PATH, result));
+
+    m_resultsSender->SaveBatchResults(parseJson(result));
+
+    EXPECT_EQ(getTelemetry().serialiseAndReset(), "{\"scheduled-queries\":{\"test_folding_query\":{\"folded-count\":5},\"test_folding_query2\":{\"folded-count\":13}}}");
+}
+
+TEST_F(TestResultSenderTelemetry, saveBatchResultsNoFoldingTelemetry) // NOLINT
+{
+    const std::string result = R"([{"name":"test_nonfolding_query"}])";
+
+    EXPECT_CALL(*m_mockFileSystem, writeFile(INTERMEDIARY_PATH, result));
+
+    m_resultsSender->SaveBatchResults(parseJson(result));
+
+    EXPECT_EQ(getTelemetry().serialiseAndReset(), "{}");
+}
+
+TEST_F(TestResultSenderTelemetry, saveBatchResultsInvalidFoldingNoTelemetry) // NOLINT
+{
+    const std::string invalid = R"([{"folded":"","name":"test_folding_query"}])";
+
+    m_resultsSender->SaveBatchResults(parseJson(invalid));
+
+    EXPECT_EQ(getTelemetry().serialiseAndReset(), "{}");
 }
