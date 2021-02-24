@@ -293,7 +293,7 @@ function build()
         mv "${REDIST}/sqlite-amalgamation-3340000" "${REDIST}/sqlite"
 
         mkdir -p "$REDIST"/osquery
-        cp  -r ${INPUT}/osquery/stuff/*  "$REDIST"/osquery
+        cp  -r ${INPUT}/osquery/osquery/*  "$REDIST"/osquery
         cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
 
         cp -r ${INPUT}/linux-x64-extension  "$REDIST"/linux-x64-extension
