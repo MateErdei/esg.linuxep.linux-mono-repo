@@ -116,6 +116,11 @@ Check EDR Log Contains
     ${EDR_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr.log
     Should Contain  ${EDR_LOG_CONTENT}   ${string_to_contain}
 
+Check EDR OSQuery Log Contains
+        [Arguments]  ${string_to_contain}
+        ${EDR_OSQUERY_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/edr_osquery.log
+        Should Contain  ${EDR_OSQUERY_LOG_CONTENT}   ${string_to_contain}
+
 Check Scheduled Query Log Contains
     [Arguments]  ${string_to_contain}
     ${SCHEDULED_QUERY_LOG_CONTENT}=  Get File  ${EDR_DIR}/log/scheduledquery.log

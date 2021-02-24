@@ -48,6 +48,10 @@ Override Local LogConf File for a component
     [Arguments]  ${logLevel}  ${component}
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  content=[${component}]\nVERBOSITY = ${logLevel}\n
 
+Override Local LogConf File Using Content
+    [Arguments]  ${FileContent}
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  content=${FileContent}
+
 Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log
     [Arguments]  ${componentName}  ${logLevel}  ${keyValue}=VERBOSITY   &{kwargs}
     Log  Setting loglevel to ${logLevel} for component: ${componentName} and subcomponents &{kwargs}

@@ -6,3 +6,4 @@ persist-xdrDataUsage
 persist-xdrLimitHit
 persist-xdrPeriodTimestamp
 xdr_intermediary
+osqueryd.INFO

@@ -96,6 +96,9 @@ EDR runs sophos extension when XDR is enabled
     Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log   "columnData": [["ThisIsAnMCSID+1001"]]  1
 
 EDR disables curl tables when network available flag becomes false
+
+    Override Local LogConf File for a component   DEBUG  global
+
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Should Be Equal As Strings  0  ${result.rc}
@@ -121,7 +124,6 @@ EDR disables curl tables when network available flag becomes false
     ...  1
     ...  Check EDR Log Contains  osquery stopped. Scheduling its restart in 0 seconds.
 
-
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   5 secs
@@ -137,7 +139,7 @@ EDR disables curl tables when network available flag becomes false
     Wait Until Keyword Succeeds
     ...  60
     ...  5
-    ...  Check Marked Edr Log Contains  Table curl is disabled, not attaching
+    ...  Check Marked Edr OSQuery Log Contains  Table curl is disabled, not attaching
 
     Wait Until Keyword Succeeds
     ...  10

@@ -44,6 +44,7 @@ class LogUtils(object):
         self.register_log = os.path.join(self.base_logs_dir, "register_central.log")
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
+        self.edr_osquery_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr_osquery.log")
         self.livequery_log = os.path.join(self.install_path, "plugins", "edr", "log", "livequery.log")
         self.liveresponse_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "liveresponse.log")
         self.sessions_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "sessions.log")
@@ -54,6 +55,7 @@ class LogUtils(object):
         self.marked_watchdog_logs = 0
         self.marked_managementagent_log = 0
         self.marked_edr_log = 0
+        self.marked_edr_osquery_log = 0
 
     def log_contains_in_order(self, log_location, log_name, args, log_finds=True):
         return log_contains_in_order(log_location, log_name, args, log_finds)
@@ -378,6 +380,14 @@ class LogUtils(object):
         contents = get_log_contents(self.edr_log)
 
         contents = contents[self.marked_edr_log:]
+
+        if string_to_contain not in contents:
+            raise AssertionError(f"EDR did not contain: {string_to_contain}")
+
+    def check_marked_edr_osquery_log_contains(self, string_to_contain):
+        contents = get_log_contents(self.edr_osquery_log)
+
+        contents = contents[self.marked_edr_osquery_log:]
 
         if string_to_contain not in contents:
             raise AssertionError(f"EDR did not contain: {string_to_contain}")
