@@ -421,32 +421,32 @@ namespace Common::Telemetry
 
     void TelemetryHelper::addValueToSet(const std::string& setKey, long value)
     {
-        appendValueToSetInternal(setKey, value);
+        addValueToSetInternal(setKey, value);
     }
 
     void TelemetryHelper::addValueToSet(const std::string& setKey, unsigned long value)
     {
-        appendValueToSetInternal(setKey, value);
+        addValueToSetInternal(setKey, value);
     }
 
     void TelemetryHelper::addValueToSet(const std::string& setKey, double value)
     {
-        appendValueToSetInternal(setKey, value);
+        addValueToSetInternal(setKey, value);
     }
 
     void TelemetryHelper::addValueToSet(const std::string& setKey, const std::string& value)
     {
-        appendValueToSetInternal(setKey, value);
+        addValueToSetInternal(setKey, value);
     }
 
     void TelemetryHelper::addValueToSet(const std::string& setKey, const char* value)
     {
-        appendValueToSetInternal(setKey, value);
+        addValueToSetInternal(setKey, value);
     }
 
     void TelemetryHelper::addValueToSet(const std::string& setKey, bool value)
     {
-        appendValueToSetInternal(setKey, value);
+        addValueToSetInternal(setKey, value);
     }
 
 } // namespace Common::Telemetry

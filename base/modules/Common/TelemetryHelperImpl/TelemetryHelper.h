@@ -188,7 +188,7 @@ namespace Common::Telemetry
         }
 
         template<class T>
-        void appendValueToSetInternal(const std::string& key, T value)
+        void addValueToSetInternal(const std::string& key, T value)
         {
             std::lock_guard<std::mutex> lock(m_dataLock);
             TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
