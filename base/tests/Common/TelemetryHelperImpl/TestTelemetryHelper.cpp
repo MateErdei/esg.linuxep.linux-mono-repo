@@ -191,9 +191,9 @@ TEST(TestTelemetryHelper, appendDoubleObject) // NOLINT
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
     helper.appendObject("array", "key1", 1.0);
-    ASSERT_EQ(R"({"array":[{"key1":1}]})", helper.serialise());
+    ASSERT_EQ(R"({"array":[{"key1":1.0}]})", helper.serialise());
     helper.appendObject("array", "key2", 2.0);
-    ASSERT_EQ(R"({"array":[{"key1":1},{"key2":2}]})", helper.serialise());
+    ASSERT_EQ(R"({"array":[{"key1":1.0},{"key2":2.0}]})", helper.serialise());
 }
 
 TEST(TestTelemetryHelper, appendStringObject) // NOLINT
