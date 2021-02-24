@@ -37,6 +37,7 @@ public:
     void reloadTags();
     void setFoldingRules(const std::vector<Json::Value>& foldingRules);
     bool compareFoldingRules(const std::vector<Json::Value>& newFoldingRules);
+    std::vector<std::string> getFoldableQueries() const;
 
 private:
     void Run(std::shared_ptr<std::atomic_bool> extensionFinished);

@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFileSystem.h>
@@ -848,6 +849,75 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesParsesAl
 
     EXPECT_EQ(actual.size(), 1);
     EXPECT_EQ(actual, expected);
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testFoldingRulesTelemetry)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+    telemetry.serialiseAndReset();
+
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                  "   <configuration>\n"
+                                  "       <scheduled>\n"
+                                  "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                  "           <queryPacks>\n"
+                                  "               <queryPack id=\"XDR\"/>\n"
+                                  "               <queryPack id=\"MTR\"/>\n"
+                                  "           </queryPacks>\n"
+                                  "           <foldingRules>\n"
+                                  "               [\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query\",\n"
+                                  "                       \"values\":{\n"
+                                  "                           \"column_name\": \"column_value\",\n"
+                                  "                           \"column_name2\": \"column_value2\"\n"
+                                  "                       }\n"
+                                  "                   },\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query2\",\n"
+                                  "                        \"values\":{\n"
+                                  "                               \"column_name3\": \"column_value3\"\n"
+                                  "                       }\n"
+                                  "                   }\n"
+                                  "               ]\n"
+                                  "           </foldingRules>\n"
+                                  "       </scheduled>\n"
+                                  "   </configuration>\n"
+                                  "</policy>";
+
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
+
+    EXPECT_EQ(telemetry.serialiseAndReset(), "{\"foldable-queries\":[\"test_folding_query\",\"test_folding_query2\"]}");
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testNoFoldingRulesTelemetry)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+    telemetry.serialiseAndReset();
+
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                  "   <configuration>\n"
+                                  "       <scheduled>\n"
+                                  "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                  "           <queryPacks>\n"
+                                  "               <queryPack id=\"XDR\"/>\n"
+                                  "               <queryPack id=\"MTR\"/>\n"
+                                  "           </queryPacks>\n"
+                                  "       </scheduled>\n"
+                                  "   </configuration>\n"
+                                  "</policy>";
+
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
+
+    EXPECT_EQ(telemetry.serialiseAndReset(), "{}");
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryConfigIsNotRemovedWhenWeFailToReadLiveQueryPolicy)

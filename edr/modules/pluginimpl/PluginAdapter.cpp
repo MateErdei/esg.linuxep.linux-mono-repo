@@ -836,12 +836,15 @@ namespace Plugin
             {
                 if (m_liveQueryStatus != "Failure" && m_loggerExtensionPtr->compareFoldingRules(foldingRules))
                 {
+                    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+
                     m_loggerExtensionPtr->setFoldingRules(foldingRules);
                     osqueryRestartNeeded = true;
                     LOGDEBUG("LiveQuery Policy folding rules have changed");
-                    for (const auto& foldingRule : foldingRules)
+                    for (const auto& queryName : m_loggerExtensionPtr->getFoldableQueries())
                     {
-                        LOGDEBUG(foldingRule);
+                        LOGDEBUG("Folding rule query: " << queryName);
+                        telemetry.addValueToSet(plugin::telemetryFoldableQueries, queryName);
                     }
                 }
             }

@@ -143,3 +143,22 @@ bool LoggerExtension::compareFoldingRules(const std::vector<Json::Value>& newFol
 {
     return m_foldingRules != newFoldingRules;
 }
+
+std::vector<std::string> LoggerExtension::getFoldableQueries() const
+{
+    std::vector<std::string> queries;
+
+    try
+    {
+        for (const auto& foldingRule : m_foldingRules)
+        {
+            queries.push_back(foldingRule["query_name"].asString());
+        }
+    }
+    catch (const std::exception& exception)
+    {
+        LOGWARN("Failed to read foldable queries. Error: " << exception.what());
+    }
+
+    return queries;
+}
