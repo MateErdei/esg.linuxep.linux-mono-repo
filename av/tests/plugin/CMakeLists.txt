@@ -7,7 +7,7 @@ SophosAddTest(TestPlugin
         ../common/LogInitializedTests.cpp
         MockFileSystem.cpp
         MockFileSystem.h
-        TestAlcPolicyProcessor.cpp
+        TestPolicyProcessor.cpp
         TestPlugin.cpp
         TestPluginAdapter.cpp
         TestPluginCallback.cpp

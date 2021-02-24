@@ -185,7 +185,6 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + susiStartupSettingsPath + "', file does not exist");
 
     EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Throw(ex));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupSettingsChrootPath, R"({"enableSxlLookup":"true"})")).Times(1);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 

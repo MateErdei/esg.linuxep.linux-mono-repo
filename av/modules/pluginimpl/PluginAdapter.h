@@ -6,8 +6,8 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "AlcPolicyProcessor.h"
 #include "PluginCallback.h"
+#include "PolicyProcessor.h"
 #include "QueueTask.h"
 
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
@@ -46,7 +46,7 @@ namespace Plugin
         void innerLoop();
 
         void incrementTelemetryThreatCount(const std::string &threatName);
-        AlcPolicyProcessor m_updatePolicyProcessor;
+        PolicyProcessor m_updatePolicyProcessor;
 
         std::string waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
                                           const std::string& policyAppId, const std::string& policyName);

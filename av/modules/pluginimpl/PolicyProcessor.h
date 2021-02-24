@@ -10,10 +10,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
-    class AlcPolicyProcessor
+    class PolicyProcessor
     {
     public:
-        AlcPolicyProcessor();
+        PolicyProcessor();
         /**
          *
          * @param policy
@@ -29,9 +29,9 @@ namespace Plugin
         bool processSavPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
         static std::string getCustomerId(const Common::XmlUtilities::AttributesMap& policy);
-        static std::string isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy);
+        static bool isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy);
     private:
         std::string m_customerId;
-        std::string m_lookupEnabled;
+        bool m_lookupEnabled = true;
     };
 }

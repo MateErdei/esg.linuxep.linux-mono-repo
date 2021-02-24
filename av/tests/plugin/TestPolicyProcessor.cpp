@@ -4,23 +4,20 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "PluginMemoryAppenderUsingTests.h"
 #include "MockFileSystem.h"
-
-#include <pluginimpl/AlcPolicyProcessor.h>
+#include "PluginMemoryAppenderUsingTests.h"
 
 #include "datatypes/sophos_filesystem.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
-
 #include <gtest/gtest.h>
-
+#include <pluginimpl/PolicyProcessor.h>
 
 namespace fs = sophos_filesystem;
 
 namespace
 {
-    class TestAlcPolicyProcessor : public PluginMemoryAppenderUsingTests
+    class TestPolicyProcessor : public PluginMemoryAppenderUsingTests
     {
     protected:
         fs::path m_testDir;
@@ -108,17 +105,17 @@ std::string GL_POLICY_2 =  // NOLINT
 </AUConfigurations>
 )sophos";
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMap) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromAttributeMap) // NOLINT
 {
     std::string policyXml = FULL_POLICY;
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
     EXPECT_EQ(customerId, "5e259db8da3ae4df8f18a2add2d3d47d");
 }
 
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromMinimalAttributeMap) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromMinimalAttributeMap) // NOLINT
 {
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -131,21 +128,21 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromMinimalAttributeMap) // NOLINT
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
     EXPECT_EQ(customerId, "5e259db8da3ae4df8f18a2add2d3d47d");
 }
 
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromClearAttributeMap) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromClearAttributeMap) // NOLINT
 {
     std::string policyXml = GL_POLICY_2;
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
     EXPECT_EQ(customerId, "a1c0f318e58aad6bf90d07cabda54b7d");
 }
 
-TEST_F(TestAlcPolicyProcessor, processAlcPolicyNoChangePolicy) // NOLINT
+TEST_F(TestPolicyProcessor, processAlcPolicyNoChangePolicy) // NOLINT
 {
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
@@ -157,7 +154,7 @@ TEST_F(TestAlcPolicyProcessor, processAlcPolicyNoChangePolicy) // NOLINT
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
-    Plugin::AlcPolicyProcessor proc;
+    Plugin::PolicyProcessor proc;
 
     auto attributeMap = Common::XmlUtilities::parseXml(FULL_POLICY);
     bool changed = proc.processAlcPolicy(attributeMap);
@@ -168,7 +165,7 @@ TEST_F(TestAlcPolicyProcessor, processAlcPolicyNoChangePolicy) // NOLINT
 }
 
 
-TEST_F(TestAlcPolicyProcessor, processAlcPolicyChangedPolicy) // NOLINT
+TEST_F(TestPolicyProcessor, processAlcPolicyChangedPolicy) // NOLINT
 {
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
@@ -186,7 +183,7 @@ TEST_F(TestAlcPolicyProcessor, processAlcPolicyChangedPolicy) // NOLINT
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
-    Plugin::AlcPolicyProcessor proc;
+    Plugin::PolicyProcessor proc;
 
     auto attributeMap = Common::XmlUtilities::parseXml(FULL_POLICY);
     bool changed = proc.processAlcPolicy(attributeMap);
@@ -198,7 +195,7 @@ TEST_F(TestAlcPolicyProcessor, processAlcPolicyChangedPolicy) // NOLINT
 }
 
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromEmptyAttributeMap) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromEmptyAttributeMap) // NOLINT
 {
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -211,11 +208,11 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromEmptyAttributeMap) // NOLINT
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
     EXPECT_EQ(customerId, "");
 }
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapNoAlgorithm) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromAttributeMapNoAlgorithm) // NOLINT
 {
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -228,11 +225,11 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapNoAlgorithm) // NOLI
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
     EXPECT_EQ(customerId, "a1c0f318e58aad6bf90d07cabda54b7d");
 }
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapHashed) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromAttributeMapHashed) // NOLINT
 {
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -245,12 +242,12 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapHashed) // NOLINT
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
     EXPECT_EQ(customerId, "a1c0f318e58aad6bf90d07cabda54b7d");
 }
 
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapNotHashed) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromAttributeMapNotHashed) // NOLINT
 {
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -263,12 +260,12 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapNotHashed) // NOLINT
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
     EXPECT_EQ(customerId, "9f8a273ce2a45c1c20eae4f9163a3f75");
 }
 
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapEmptyPassword) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromAttributeMapEmptyPassword) // NOLINT
 {
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -283,7 +280,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapEmptyPassword) // NO
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     try
     {
-        auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+        auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
         FAIL() << "getCustomerId didn't throw";
     }
     catch (std::invalid_argument& e)
@@ -293,7 +290,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapEmptyPassword) // NO
 }
 
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapMissingPassword) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromAttributeMapMissingPassword) // NOLINT
 {
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -308,7 +305,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapMissingPassword) // 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     try
     {
-        auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+        auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
         FAIL() << "getCustomerId didn't throw";
     }
     catch (std::invalid_argument& e)
@@ -318,7 +315,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapMissingPassword) // 
 }
 
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapEmptyUserName) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromAttributeMapEmptyUserName) // NOLINT
 {
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -333,7 +330,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapEmptyUserName) // NO
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     try
     {
-        auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+        auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
         FAIL() << "getCustomerId didn't throw";
     }
     catch (std::invalid_argument& e)
@@ -342,7 +339,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapEmptyUserName) // NO
     }
 }
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapMissingUserName) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromAttributeMapMissingUserName) // NOLINT
 {
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -357,7 +354,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapMissingUserName) // 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     try
     {
-        auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+        auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
         FAIL() << "getCustomerId didn't throw";
     }
     catch (std::invalid_argument& e)
@@ -367,7 +364,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapMissingUserName) // 
 }
 
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapInvalidAlgorithm) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromAttributeMapInvalidAlgorithm) // NOLINT
 {
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -382,7 +379,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapInvalidAlgorithm) //
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     try
     {
-        auto customerId = Plugin::AlcPolicyProcessor::getCustomerId(attributeMap);
+        auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
         FAIL() << "getCustomerId didn't throw";
     }
     catch (std::invalid_argument& e)
@@ -392,7 +389,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromAttributeMapInvalidAlgorithm) //
 }
 
 
-TEST_F(TestAlcPolicyProcessor, getCustomerIdFromBlankAttributeMap) // NOLINT
+TEST_F(TestPolicyProcessor, getCustomerIdFromBlankAttributeMap) // NOLINT
 {
     std::string policyXml {};
 
@@ -408,7 +405,7 @@ TEST_F(TestAlcPolicyProcessor, getCustomerIdFromBlankAttributeMap) // NOLINT
 }
 
 
-TEST_F(TestAlcPolicyProcessor, processAlcPolicyInvalid) // NOLINT
+TEST_F(TestPolicyProcessor, processAlcPolicyInvalid) // NOLINT
 {
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
@@ -418,7 +415,7 @@ TEST_F(TestAlcPolicyProcessor, processAlcPolicyInvalid) // NOLINT
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
-    Plugin::AlcPolicyProcessor proc;
+    Plugin::PolicyProcessor proc;
 
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -433,4 +430,134 @@ TEST_F(TestAlcPolicyProcessor, processAlcPolicyInvalid) // NOLINT
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     bool changed = proc.processAlcPolicy(attributeMap);
     EXPECT_FALSE(changed);
+}
+
+TEST_F(TestPolicyProcessor, processSavPolicy) // NOLINT
+{
+    // Setup Mock filesystem
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+
+    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+
+    Plugin::PolicyProcessor proc;
+
+    std::string policyXml = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>true</sendData>
+    </detectionFeedback>
+</config>
+)sophos";
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    bool changed = proc.processSavPolicy(attributeMap);
+    EXPECT_FALSE(changed);
+}
+
+TEST_F(TestPolicyProcessor, processSavPolicyChanged) // NOLINT
+{
+    // Setup Mock filesystem
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+
+    const std::string susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
+    const std::string susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + susiStartupConfigPath;
+    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+
+    Plugin::PolicyProcessor proc;
+
+    std::string policyXmlTrue = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>true</sendData>
+    </detectionFeedback>
+</config>
+)sophos";
+
+    std::string policyXmlFalse = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>false</sendData>
+    </detectionFeedback>
+</config>
+)sophos";
+
+    auto attributeMapTrue = Common::XmlUtilities::parseXml(policyXmlTrue);
+    auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
+    proc.processSavPolicy(attributeMapTrue);
+    bool changed = proc.processSavPolicy(attributeMapFalse);
+    EXPECT_TRUE(changed);
+}
+
+TEST_F(TestPolicyProcessor, processSavPolicyMissing) // NOLINT
+{
+    // Setup Mock filesystem
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+
+    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_, R"sophos({"enableSxlLookup":true})sophos"));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+
+    Plugin::PolicyProcessor proc;
+
+    std::string policyXml = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>false</sendData>
+    </detectionFeedback>
+</config>
+)sophos";
+
+    std::string policyXmlInvalid = R"sophos(<?xml version="1.0"?>
+<config>
+</config>
+)sophos";
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    auto attributeMapInvalid = Common::XmlUtilities::parseXml(policyXmlInvalid);
+    proc.processSavPolicy(attributeMap);
+    bool changed = proc.processSavPolicy(attributeMapInvalid);
+    EXPECT_TRUE(changed);
+}
+
+TEST_F(TestPolicyProcessor, processSavPolicyInvalid) // NOLINT
+{
+    // Setup Mock filesystem
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+
+    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_, R"sophos({"enableSxlLookup":true})sophos"));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+
+    Plugin::PolicyProcessor proc;
+
+    std::string policyXml = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>false</sendData>
+    </detectionFeedback>
+</config>
+)sophos";
+
+    std::string policyXmlInvalid = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>absolute nonsense</sendData>
+    </detectionFeedback>
+</config>
+)sophos";
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    auto attributeMapInvalid = Common::XmlUtilities::parseXml(policyXmlInvalid);
+    proc.processSavPolicy(attributeMap);
+    bool changed = proc.processSavPolicy(attributeMapInvalid);
+    EXPECT_TRUE(changed);
 }

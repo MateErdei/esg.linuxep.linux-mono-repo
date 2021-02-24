@@ -4,17 +4,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "AlcPolicyProcessor.h"
+#include "PolicyProcessor.h"
 
 #include "Logger.h"
-
-#include <pluginimpl/ObfuscationImpl/Obfuscate.h>
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <common/StringUtils.h>
-
+#include <pluginimpl/ObfuscationImpl/Obfuscate.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 using json = nlohmann::json;
@@ -42,7 +40,7 @@ namespace Plugin
         }
     }
 
-    AlcPolicyProcessor::AlcPolicyProcessor()
+    PolicyProcessor::PolicyProcessor()
     {
         auto* fs = Common::FileSystem::fileSystem();
         auto dest = getNonChrootCustomerIdPath();
@@ -58,7 +56,7 @@ namespace Plugin
         }
     }
 
-    bool AlcPolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    bool PolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
         auto oldCustomerId = m_customerId;
         m_customerId = getCustomerId(policy);
@@ -88,7 +86,7 @@ namespace Plugin
         return true; // Only restart sophos_threat_detector if it changes
     }
 
-    std::string AlcPolicyProcessor::getCustomerId(const Common::XmlUtilities::AttributesMap& policy)
+    std::string PolicyProcessor::getCustomerId(const Common::XmlUtilities::AttributesMap& policy)
     {
         auto primaryLocation = policy.lookup("AUConfigurations/AUConfig/primary_location/server");
         if (primaryLocation.empty())
@@ -136,11 +134,11 @@ namespace Plugin
     }
 
 
-    bool AlcPolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
         auto oldLookupEnabled = m_lookupEnabled;
         m_lookupEnabled = isLookupEnabled(policy);
-        if (m_lookupEnabled != oldLookupEnabled)
+        if (m_lookupEnabled == oldLookupEnabled)
         {
             // Only restart sophos_threat_detector if it changes
             return false;
@@ -157,14 +155,14 @@ namespace Plugin
         return true;
     }
 
-    std::string AlcPolicyProcessor::isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy)
+    bool PolicyProcessor::isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy)
     {
         auto contents = policy.lookup("config/detectionFeedback/sendData").contents();
         if (contents == "true" || contents == "false")
         {
-            return contents;
+            return contents == "true";
         }
         // Default to true if we can't read or understand the sendData value
-        return "true";
+        return true;
     }
 }
