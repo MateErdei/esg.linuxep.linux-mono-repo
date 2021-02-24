@@ -119,7 +119,6 @@ namespace avscanner::avscannerimpl
                     exclusion = common::PathUtils::appendForwardSlashToPath(exclusion);
                 }
 
-                // only canonicalizes absolute symlinks
                 exclusion = common::PathUtils::lexicallyNormal(exclusion);
 
                 if (fs::exists(exclusion) && !fs::is_symlink(fs::symlink_status(common::PathUtils::removeForwardSlashFromPath(exclusion))))
