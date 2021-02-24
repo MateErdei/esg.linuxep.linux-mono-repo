@@ -60,6 +60,9 @@ void TestSusiWrapperFactory::setupFilesForTestingGlobalRep()
     customerIdFilePath /= "var/customer_id.txt";
     auto varDirectory = customerIdFilePath.parent_path();
 
+    fs::path susiSettingsFilePath = PLUGIN_INSTALL;
+    susiSettingsFilePath /= "var/susi_startup_settings.json";
+
     fs::create_directories(fakeEtcDirectory);
     fs::create_directories(varDirectory);
 
@@ -72,6 +75,11 @@ void TestSusiWrapperFactory::setupFilesForTestingGlobalRep()
     ASSERT_TRUE(customerIdFileStream.good());
     customerIdFileStream << "d22829d94b76c016ec4e04b08baeffaa";
     customerIdFileStream.close();
+
+    std::ofstream susiSettingsFileStream(susiSettingsFilePath);
+    ASSERT_TRUE(susiSettingsFileStream.good());
+    susiSettingsFileStream << R"sophos({"enableSxlLookup":false})sophos";
+    susiSettingsFileStream.close();
 }
 
 TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsUnknown) // NOLINT
@@ -84,14 +92,25 @@ TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsUnknown) // NOLINT
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabledReturnsUnknown) // NOLINT
+{
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
 TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsId) // NOLINT
 {
     setupFilesForTestingGlobalRep();
     EXPECT_EQ(getEndpointId(),"ab7b6758a3ab11ba8a51d25aa06d1cf4");
 }
 
-TEST_F(TestSusiWrapperFactory, geCustomerIdReturnsId) // NOLINT
+TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsId) // NOLINT
 {
     setupFilesForTestingGlobalRep();
     EXPECT_EQ(getCustomerId(),"d22829d94b76c016ec4e04b08baeffaa");
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabledReturnsFalse) // NOLINT
+{
+    setupFilesForTestingGlobalRep();
+    EXPECT_FALSE(isSxlLookupEnabled());
 }

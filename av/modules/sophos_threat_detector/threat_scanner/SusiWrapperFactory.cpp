@@ -83,10 +83,38 @@ namespace threat_scanner
             return "c1cfcf69a42311a6084bcefe8af02c8a";
         }
 
+        bool isSxlLookupEnabled()
+        {
+            auto susiStartupSettingsPath = pluginInstall() / "var/susi_startup_settings.json";
+
+            std::ifstream fs(susiStartupSettingsPath, std::ifstream::in);
+
+            if (fs.good())
+            {
+                try
+                {
+                    std::stringstream settingsString;
+                    settingsString << fs.rdbuf();
+
+                    auto settingsJson = json::parse(settingsString.str());
+
+                    return settingsJson["enableSxlLookup"];
+                }
+                catch (const std::exception& e)
+                {
+                    LOGERROR("Unexpected error when reading susi startup settings for global rep setup: " << e.what());
+                }
+            }
+
+            LOGERROR("Failed to read SXL lookup setting - using default value");
+            return true;
+        }
+
         std::string create_runtime_config(
             const std::string& scannerInfo,
             const std::string& endpointId,
-            const std::string& customerId)
+            const std::string& customerId,
+            bool enableSxlLookup)
         {
             fs::path libraryPath = susi_library_path();
             auto versionNumber = common::getPluginVersion();
@@ -102,7 +130,7 @@ namespace threat_scanner
             "version": "@@VERSION_NUMBER@@"
         },
         "SXL4": {
-            "enableLookup": true,
+            "enableLookup": @@ENABLE_SXL_LOOKUP@@,
             "sendTelemetry": true,
             "customerID": "@@CUSTOMER_ID@@",
             "machineID":  "@@MACHINE_ID@@",
@@ -114,6 +142,7 @@ namespace threat_scanner
 })sophos",
                 { { "@@LIBRARY_PATH@@", libraryPath },
                   { "@@VERSION_NUMBER@@", versionNumber },
+                  { "@@ENABLE_SXL_LOOKUP@@", enableSxlLookup?"true":"false" },
                   { "@@CUSTOMER_ID@@", customerId },
                   { "@@MACHINE_ID@@", endpointId },
                   { "@@SCANNER_CONFIG@@", scannerInfo } });
@@ -130,7 +159,7 @@ namespace threat_scanner
     SusiWrapperFactory::SusiWrapperFactory()
     {
         std::string scannerInfo = create_scanner_info(false);
-        std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId());
+        std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId(), isSxlLookupEnabled());
         m_globalHandler = std::make_shared<SusiGlobalHandler>(runtimeConfig);
     }
 
