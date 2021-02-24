@@ -109,7 +109,7 @@ EDR plugin restarts mtr extension when killed
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query  1
 
 EDR Osquery restarts mtr extension when killed
-    #[Tags]  EDR_PLUGIN
+    [Tags]  EDR_PLUGIN
     Run Full Installer
     Override LogConf File as Global Level  DEBUG
     Install EDR Directly
