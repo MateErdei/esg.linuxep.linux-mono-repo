@@ -778,24 +778,25 @@ CLS Can Handle Wildcard Exclusions
 
 CLS Can Handle Relative Non-Canonical Exclusions
     ${test_dir} =  Set Variable  ${NORMAL_DIRECTORY}/exclusion_test_dir/
-    Register Cleanup    Remove Directory      ${test_dir}     recursive=True
+#    Register Cleanup    Remove Directory      ${test_dir}     recursive=True
 
-    Create File     ${test_dir}/a/eicar.nope        ${EICAR_STRING}
-    Create File     ${test_dir}/b/eicar.nope        ${EICAR_STRING}
-    Create File     ${test_dir}/c/eicar.nope        ${EICAR_STRING}
-    Create File     ${test_dir}/d/e/eicar.nope      ${EICAR_STRING}
-    Create File     ${test_dir}/f/g/eicar.nope      ${EICAR_STRING}
-    Create File     ${test_dir}/h/...nope           ${EICAR_STRING}
-    Create File     ${test_dir}/i/..nope.           ${EICAR_STRING}
-    Create File     ${test_dir}/j/...               ${EICAR_STRING}
+    Create File     ${test_dir}a/eicar.nope        ${EICAR_STRING}
+    Create File     ${test_dir}b/eicar.nope        ${EICAR_STRING}
+    Create File     ${test_dir}c/eicar.nope        ${EICAR_STRING}
+    Create File     ${test_dir}d/e/eicar.nope      ${EICAR_STRING}
+    Create File     ${test_dir}f/g/eicar.nope      ${EICAR_STRING}
+    Create File     ${test_dir}h/...nope           ${EICAR_STRING}
+    Create File     ${test_dir}i/..nope.           ${EICAR_STRING}
+    Create File     ${test_dir}j/...               ${EICAR_STRING}
+
 
     ${rc}   ${output} =    Run And Return Rc And Output  cd ${test_dir} && ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude "a//" "b/." "c/../c" "d/./e/" "f/g/.." "./j/..." "i/..nope." "...nope"
     Log   ${rc}
-    Log To Console   ${output}
+    Log   ${output}
     Should Contain       ${output}   Exclusions: ${test_dir}a/, ${test_dir}b/, ${test_dir}c/, ${test_dir}d/e/, ${test_dir}f/
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
-    Create File     ${test_dir}/eicar.nope          ${EICAR_STRING}
+    Create File     ${test_dir}eicar.nope          ${EICAR_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output  cd ${test_dir} && ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude "../exclusion_test_dir/"
     Log   ${rc}
@@ -804,6 +805,11 @@ CLS Can Handle Relative Non-Canonical Exclusions
     Should Contain       ${output}   Excluding directory: /home/vagrant/this/is/a/directory/for/scanning/exclusion_test_dir/
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
+    ${rc}   ${output} =    Run And Return Rc And Output  ${CLI_SCANNER_PATH} ${test_dir}i/ --exclude ..nope.
+    Log   ${rc}
+    Log   ${output}
+    Should Contain       ${output}   Excluding file: /home/vagrant/this/is/a/directory/for/scanning/exclusion_test_dir/i/..nope.
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Can Change Log Level
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --log-level=WARN

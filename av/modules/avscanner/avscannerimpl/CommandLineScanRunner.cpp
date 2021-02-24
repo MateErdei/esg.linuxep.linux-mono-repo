@@ -132,7 +132,7 @@ namespace avscanner::avscannerimpl
 
                 if (fs::is_directory(exclusion) && exclusion != "/")
                 {
-                    exclusion.append("/");
+                    exclusion = common::PathUtils::appendForwardSlashToPath(exclusion);
                 }
             }
 
