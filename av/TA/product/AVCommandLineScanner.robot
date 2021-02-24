@@ -778,25 +778,31 @@ CLS Can Handle Wildcard Exclusions
 
 CLS Can Handle Relative Non-Canonical Exclusions
     ${test_dir} =  Set Variable  ${NORMAL_DIRECTORY}/exclusion_test_dir/
-    Create File     ${test_dir}/eicar.nope          ${EICAR_STRING}
+    Register Cleanup    Remove Directory      ${test_dir}     recursive=True
+
     Create File     ${test_dir}/a/eicar.nope        ${EICAR_STRING}
     Create File     ${test_dir}/b/eicar.nope        ${EICAR_STRING}
     Create File     ${test_dir}/c/eicar.nope        ${EICAR_STRING}
     Create File     ${test_dir}/d/e/eicar.nope      ${EICAR_STRING}
     Create File     ${test_dir}/f/g/eicar.nope      ${EICAR_STRING}
+    Create File     ${test_dir}/h/...nope           ${EICAR_STRING}
+    Create File     ${test_dir}/i/..nope.           ${EICAR_STRING}
+    Create File     ${test_dir}/j/...               ${EICAR_STRING}
 
-    Register Cleanup    Remove Directory      ${test_dir}     recursive=True
-
-    ${rc}   ${output} =    Run And Return Rc And Output  cd ${test_dir} && ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude "../exclusion_test_dir/" "exclusion_test_dir//a" "${test_dir}/b/." "${test_dir}/c/../c" "${test_dir}/d/./e/" "${test_dir}/f/g/.."
+    ${rc}   ${output} =    Run And Return Rc And Output  cd ${test_dir} && ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude "a//" "b/." "c/../c" "d/./e/" "f/g/.." "./j/..." "i/..nope." "...nope"
     Log   ${rc}
     Log To Console   ${output}
-    Should Contain       ${output}   Exclusions: ${test_dir}, exclusion_test_dir/a, ${test_dir}b/, ${test_dir}c/, ${test_dir}d/e/, ${test_dir}f/
-    Should Not Contain   ${output}   "${test_dir}eicar.nope" is infected with EICAR-AV-Test
-    Should Not Contain   ${output}   "${test_dir}a/eicar.nope" is infected with EICAR-AV-Test
-    Should Not Contain   ${output}   "${test_dir}b/eicar.nope" is infected with EICAR-AV-Test
-    Should Not Contain   ${output}   "${test_dir}c/eicar.nope" is infected with EICAR-AV-Test
-    Should Not Contain   ${output}   "${test_dir}d/e/eicar.nope" is infected with EICAR-AV-Test
-    Should Not Contain   ${output}   "${test_dir}f/g/eicar.nope" is infected with EICAR-AV-Test
+    Should Contain       ${output}   Exclusions: ${test_dir}a/, ${test_dir}b/, ${test_dir}c/, ${test_dir}d/e/, ${test_dir}f/
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    Create File     ${test_dir}/eicar.nope          ${EICAR_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output  cd ${test_dir} && ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude "../exclusion_test_dir/"
+    Log   ${rc}
+    Log   ${output}
+    Should Contain       ${output}   Exclusions: ${test_dir}
+    Should Contain       ${output}   Excluding directory: /home/vagrant/this/is/a/directory/for/scanning/exclusion_test_dir/
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
 CLS Can Change Log Level

@@ -125,14 +125,15 @@ namespace avscanner::avscannerimpl
                 if (fs::exists(exclusion) && !fs::is_symlink(fs::symlink_status(common::PathUtils::removeForwardSlashFromPath(exclusion))))
                 {
                     exclusion = fs::canonical(exclusion);
-                    if (fs::is_directory(exclusion) && exclusion != "/")
-                    {
-                        exclusion.append("/");
-                    }
                 }
                 else
                 {
                     LOGWARN("Will not canonicalize further: " << exclusion);
+                }
+
+                if (fs::is_directory(exclusion) && exclusion != "/")
+                {
+                    exclusion.append("/");
                 }
             }
 
