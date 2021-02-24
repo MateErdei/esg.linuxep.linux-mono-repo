@@ -61,6 +61,13 @@ namespace Common::Telemetry
         void appendObject(const std::string& arrayKey, const std::string& key, const char* value);
         void appendObject(const std::string& arrayKey, const std::string& key, bool value);
 
+        void addValueToSet(const std::string& setKey, long value);
+        void addValueToSet(const std::string& setKey, unsigned long value);
+        void addValueToSet(const std::string& setKey, double value);
+        void addValueToSet(const std::string& setKey, const std::string& value);
+        void addValueToSet(const std::string& setKey, const char* value);
+        void addValueToSet(const std::string& setKey, bool value);
+
         void appendStat(const std::string& statsKey, double value);
         void updateTelemetryWithStats();
 
@@ -178,6 +185,28 @@ namespace Common::Telemetry
             TelemetryObject newObj;
             newObj.set(key, newValue);
             list.emplace_back(newObj);
+        }
+
+        template<class T>
+        void appendValueToSetInternal(const std::string& key, T value)
+        {
+            std::lock_guard<std::mutex> lock(m_dataLock);
+            TelemetryObject& telemetryObject = getTelemetryObjectByKey(key);
+
+            // Force telemetry object to be an array, they are defaulted to object type.
+            if (telemetryObject.getType() != TelemetryObject::Type::array)
+            {
+                telemetryObject.set(std::list<TelemetryObject>());
+            }
+
+            std::list<TelemetryObject>& list = telemetryObject.getArray();
+            TelemetryValue newValue(value);
+            TelemetryObject newObj;
+            newObj.set(newValue);
+            if (std::find(list.begin(), list.end(), newObj) == list.end())
+            {
+                list.emplace_back(newObj);
+            }
         }
 
         TelemetryObject& getTelemetryObjectByKey(const std::string& keyPath);

@@ -186,6 +186,16 @@ TEST(TestTelemetryHelper, appendIntObject) // NOLINT
     ASSERT_EQ(R"({"array":[{"key1":1},{"key2":2}]})", helper.serialise());
 }
 
+TEST(TestTelemetryHelper, appendDoubleObject) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.appendObject("array", "key1", 1.0);
+    ASSERT_EQ(R"({"array":[{"key1":1}]})", helper.serialise());
+    helper.appendObject("array", "key2", 2.0);
+    ASSERT_EQ(R"({"array":[{"key1":1},{"key2":2}]})", helper.serialise());
+}
+
 TEST(TestTelemetryHelper, appendStringObject) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
@@ -627,4 +637,18 @@ TEST(TestTelemetryHelper, updateStatsFromSavedTelemetryInvalidJson) // NOLINT
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Restore Telemetry unsuccessful reason: "));
     ASSERT_EQ(R"({})", helper.serialise());
+}
+
+TEST(TestTelemetryHelper, addValueToSet) // NOLINT
+{
+    TelemetryHelper& helper = TelemetryHelper::getInstance();
+    helper.reset();
+    helper.set("a.nested.thing", 123UL);
+    helper.addValueToSet("my-set","a");
+    helper.addValueToSet("my-set","b");
+    helper.addValueToSet("my-set","b");
+    helper.addValueToSet("my-set","c");
+    helper.addValueToSet("my-set","a");
+    helper.addValueToSet("my-set","a");
+    ASSERT_EQ(R"({"a":{"nested":{"thing":123}},"my-set":["a","b","c"]})", helper.serialise());
 }
