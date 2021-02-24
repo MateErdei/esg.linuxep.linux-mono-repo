@@ -69,7 +69,37 @@ namespace Common::Telemetry
 
     TelemetryValue::Type TelemetryValue::getType() const { return static_cast<Type>(m_value.index()); }
 
-    bool TelemetryValue::operator==(const TelemetryValue& rhs) const { return m_value == rhs.m_value; }
+    bool TelemetryValue::operator==(const TelemetryValue& rhs) const
+    {
+        // Handle comparing signed and unsigned long
+        if (getType() != rhs.getType())
+        {
+            if (getType() == Type::integer_type && rhs.getType() == Type::unsigned_integer_type)
+            {
+                long signedNum = getInteger();
+                unsigned long unsignedNum = rhs.getUnsignedInteger();
+                if (signedNum < 0)
+                {
+                    return false;
+                }
+                return ((unsigned long)signedNum == unsignedNum);
+            }
+
+            if (getType() == Type::unsigned_integer_type && rhs.getType() == Type::integer_type)
+            {
+                unsigned long unsignedNum = getUnsignedInteger();
+                long signedNum = rhs.getInteger();
+                if (signedNum < 0)
+                {
+                    return false;
+                }
+                return ((unsigned long)signedNum == unsignedNum);
+            }
+        }
+
+        // Use standard variant == operator if same type.
+        return m_value == rhs.m_value;
+    }
 
     bool TelemetryValue::operator!=(const TelemetryValue& rhs) const { return !(rhs == *this); }
 

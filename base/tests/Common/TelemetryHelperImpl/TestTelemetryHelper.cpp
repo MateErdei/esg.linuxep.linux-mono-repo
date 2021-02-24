@@ -643,12 +643,22 @@ TEST(TestTelemetryHelper, addValueToSet) // NOLINT
 {
     TelemetryHelper& helper = TelemetryHelper::getInstance();
     helper.reset();
-    helper.set("a.nested.thing", 123UL);
+    std::string aString = "string";
     helper.addValueToSet("my-set","a");
     helper.addValueToSet("my-set","b");
     helper.addValueToSet("my-set","b");
     helper.addValueToSet("my-set","c");
     helper.addValueToSet("my-set","a");
-    helper.addValueToSet("my-set","a");
-    ASSERT_EQ(R"({"a":{"nested":{"thing":123}},"my-set":["a","b","c"]})", helper.serialise());
+    helper.addValueToSet("my-set",aString);
+    helper.addValueToSet("my-set",aString);
+    helper.addValueToSet("my-set",false);
+    helper.addValueToSet("my-set",false);
+    helper.addValueToSet("my-set",1.0213);
+    helper.addValueToSet("my-set",1.0);
+    helper.addValueToSet("my-set",1UL);
+    helper.addValueToSet("my-set",2L);
+    helper.addValueToSet("my-set",2L);
+    helper.addValueToSet("my-set",2UL);
+    helper.addValueToSet("my-set",2UL);
+    ASSERT_EQ(R"({"my-set":["a","b","c","string",false,1.0213,1.0,1,2]})", helper.serialise());
 }
