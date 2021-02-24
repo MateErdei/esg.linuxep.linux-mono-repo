@@ -178,3 +178,10 @@ TEST(TestTelemetryValueImpl, EqualitySignedUnsignedDifferent) // NOLINT
     TelemetryValue telemetryValue2(2UL);
     ASSERT_FALSE(telemetryValue1 == telemetryValue2);
 }
+
+TEST(TestTelemetryValueImpl, EqualitySignedUnsignedDifferentNegative) // NOLINT
+{
+    TelemetryValue telemetryValue1(-1L);
+    TelemetryValue telemetryValue2(1UL);
+    ASSERT_FALSE(telemetryValue1 == telemetryValue2);
+}
