@@ -15,6 +15,7 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/Process/IProcess.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/osqueryextensions/LoggerExtension.h>
 #include <modules/osqueryextensions/SophosExtension.h>
 #include <queryrunner/IQueryRunner.h>
@@ -120,6 +121,8 @@ namespace Plugin
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
 
+        static const std::string TELEMETRY_CALLBACK_COOKIE = "EDR plugin";
+
 
 
         void processQuery(const std::string& query, const std::string& correlationId);
@@ -134,6 +137,7 @@ namespace Plugin
         static bool pluginMemoryAboveThreshold();
         void loadXdrFlags();
         void dataFeedExceededCallback();
+        void telemetryResetCallback(Common::Telemetry::TelemetryHelper&);
 
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;

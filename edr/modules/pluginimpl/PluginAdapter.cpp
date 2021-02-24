@@ -112,6 +112,7 @@ namespace Plugin
             m_extensionAndStateList.push_back(extensionRunningStatus);
         }
 
+        Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback(TELEMETRY_CALLBACK_COOKIE, [this](Common::Telemetry::TelemetryHelper& telemetry){ telemetryResetCallback(telemetry); });
     }
 
     void PluginAdapter::mainLoop()
@@ -517,6 +518,8 @@ namespace Plugin
             std::cerr << "Plugin adapter exception: " << ex.what() << std::endl;
         }
         // safe to clean up.
+
+        Common::Telemetry::TelemetryHelper::getInstance().unregisterResetCallback(TELEMETRY_CALLBACK_COOKIE);
     }
 
     void PluginAdapter::processQuery(const std::string& queryJson, const std::string& correlationId)
@@ -733,6 +736,16 @@ namespace Plugin
         m_osqueryConfigurator.disableQueryPack(Plugin::osqueryXDRConfigFilePath());
         // osquery will automatically be restarted but set this to make sure there is no delay.
         m_restartNoDelay = true;
+    }
+
+    void PluginAdapter::telemetryResetCallback(Common::Telemetry::TelemetryHelper& telemetry)
+    {
+        LOGDEBUG("Telemetry has been reset");
+
+        for (const auto& queryName : m_loggerExtensionPtr->getFoldableQueries())
+        {
+            telemetry.addValueToSet(plugin::telemetryFoldableQueries, queryName);
+        }
     }
 
     std::string PluginAdapter::serializeLiveQueryStatus(bool dailyDataLimitExceeded)

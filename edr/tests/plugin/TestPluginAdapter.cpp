@@ -892,6 +892,9 @@ TEST_F(PluginAdapterWithMockFileSystem, testFoldingRulesTelemetry)
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
 
     EXPECT_EQ(telemetry.serialiseAndReset(), "{\"foldable-queries\":[\"test_folding_query\",\"test_folding_query2\"]}");
+
+    // foldable queries resent after reset
+    EXPECT_EQ(telemetry.serialiseAndReset(), "{\"foldable-queries\":[\"test_folding_query\",\"test_folding_query2\"]}");
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testNoFoldingRulesTelemetry)
