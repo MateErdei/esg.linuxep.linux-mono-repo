@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <common/StringUtils.h>
+#include <common/ErrorCodes.h>
 
 #include <iostream>
 #include <string>
@@ -88,6 +89,11 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
             if (!errorMsg.empty())
             {
                 m_callbacks->scanError(errorMsg);
+
+                if(common::contains(errorMsg, "as it is password protected"))
+                {
+                    m_callbacks->m_returnCode = common::E_PASSWORD_PROTECTED;
+                }
             }
             else
             {

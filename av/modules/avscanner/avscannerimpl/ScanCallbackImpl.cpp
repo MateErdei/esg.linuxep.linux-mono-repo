@@ -56,6 +56,10 @@ common::E_ERROR_CODES ScanCallbackImpl::returnCode()
     {
         return common::E_VIRUS_FOUND;
     }
+    else if (m_returnCode == common::E_PASSWORD_PROTECTED)
+    {
+        return common::E_PASSWORD_PROTECTED;
+    }
     else if (getNoOfScanErrors() > 0)
     {
         return common::E_GENERIC_FAILURE;

@@ -66,6 +66,7 @@ namespace avscanner::avscannerimpl
                 if (m_sigIntMonitor->triggered())
                 {
                     LOGDEBUG("Received SIGINT");
+                    m_returnCode = common::E_EXECUTION_INTERRUPTED;
                     throw AbortScanException("Scan manually aborted");
                 }
             }

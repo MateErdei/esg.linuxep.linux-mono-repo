@@ -208,5 +208,10 @@ namespace common
         escapeControlCharacters(pathToEscape, escapeXmlCharacters);
         return pathToEscape;
     }
+
+    bool contains(const std::string& string, const std::string& value)
+    {
+        return string.find(value, 0) != std::string::npos;
+    }
 }
 

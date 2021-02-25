@@ -33,6 +33,8 @@ namespace avscanner::avscannerimpl
         virtual void scanError(const std::string&) = 0;
         virtual void scanStarted() = 0;
         virtual void logSummary() = 0;
+
+        int m_returnCode = 0;
     };
 
     class ScanClient : public IScanClient
