@@ -54,6 +54,8 @@ NO_BUILD=0
 LOCAL_GCC=0
 LOCAL_CMAKE=0
 DUMP_LAST_TEST_ON_FAILURE=1
+FAILURE_CPPCHECK=62
+CPPCHECK=0
 
 while [[ $# -ge 1 ]]
 do
@@ -183,6 +185,10 @@ do
             BULLSEYE_UPLOAD=0
             UNITTEST=1
             ;;
+        --cpp-check)
+            CPPCHECK=1
+            NO_BUILD=1
+            ;;
         --bullseye-upload-unittest|--bullseye-upload)
             BULLSEYE_UPLOAD=1
             ;;
@@ -295,6 +301,38 @@ function setup_susi()
     python3 $BASE/build/setup_tree.py
 }
 
+function cppcheck_build()
+{
+    CPP_XML_REPORT="err.xml"
+    CPP_REPORT_DIR="cppcheck"
+    mkdir -p ${CPP_REPORT_DIR}
+    cppcheck --inline-suppr --std=c++11 --xml --quiet --force \
+    --template="[{severity}][{id}] {message} {callstack} \(On {file}:{line}\)" \
+    -i tests/googletest/ -i redist/ -i tapvenv/ -i build64/ -i input/ -i sspl-plugin-anti-virus/ -i cmake-build-debug/ . 2> ${CPP_REPORT_DIR}/${CPP_XML_REPORT}
+    python3.7 "$BASE/build/analysis/cpp_check_html_report.py" --file=${CPP_REPORT_DIR}/${CPP_XML_REPORT} --report-dir=${CPP_REPORT_DIR} --source-dir=${BASE}
+    ANALYSIS_ERRORS=$(grep 'severity="error"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_WARNINGS=$(grep 'severity="warning"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_PERFORMANCE=$(grep 'severity="performance"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_INFORMATION=$(grep 'severity="information"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_STYLE=$(grep 'severity="style"' ${CPP_XML_REPORT} | wc -l)
+
+    echo "The full XML static analysis report:"
+    cat ${CPP_XML_REPORT}
+    echo "There are $ANALYSIS_ERRORS static analysis error issues"
+    echo "There are $ANALYSIS_WARNINGS static analysis warning issues"
+    echo "There are $ANALYSIS_PERFORMANCE static analysis performance issues"
+    echo "There are $ANALYSIS_INFORMATION static analysis information issues"
+    echo "There are $ANALYSIS_STYLE static analysis style issues"
+
+    ANALYSIS_OUTPUT_DIR="${OUTPUT}/analysis/"
+    [[ -d ${ANALYSIS_OUTPUT_DIR} ]] || mkdir -p "${ANALYSIS_OUTPUT_DIR}"
+    cp -a ${CPP_REPORT_DIR}  "${ANALYSIS_OUTPUT_DIR}" || exitFailure $FAILURE_COPY_CPPCHECK_RESULT_FAILED  "Failed to copy cppcheck report to output"
+
+     # Fail the build if there are any static analysis warnings or errors.
+    [[ $ANALYSIS_ERRORS == 0 ]] || exitFailure $FAILURE_CPPCHECK "Build failed. There are $ANALYSIS_ERRORS static analysis errors"
+    [[ $ANALYSIS_WARNINGS == 0 ]] || exitFailure $FAILURE_CPPCHECK "Build failed. There are $ANALYSIS_WARNINGS static analysis warnings"
+}
+
 function build()
 {
     local BITS=$1
@@ -330,6 +368,11 @@ function build()
 
     addpath "$REDIST/cmake/bin"
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
+
+    if (( CPPCHECK == 1 ))
+    then
+      cppcheck_build  || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
+    fi
 
     if (( NO_BUILD == 1 ))
     then

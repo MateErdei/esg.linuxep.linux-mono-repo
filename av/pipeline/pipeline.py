@@ -290,6 +290,9 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         build_image = 'JenkinsLinuxTemplate5'
         release_package = "./build-files/release-package.xml"
         with stage.parallel('build'):
+            av_cpp_check = stage.artisan_build(name="cpp-check", component=component, image=build_image,
+                                               mode="cppcheck", release_package=release_package)
+
             av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
                                            mode=parameters.mode, release_package=release_package)
             if do_coverage:

@@ -110,6 +110,11 @@
             <args>./build.sh --ci --name av --esg-ci-coverage</args>
             <workingdir>.</workingdir>
         </command>
+        <command mode="cppcheck">
+            <program>/bin/bash</program>
+            <args>./build.sh --ci --name av --cpp-check</args>
+            <workingdir>.</workingdir>
+        </command>
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
