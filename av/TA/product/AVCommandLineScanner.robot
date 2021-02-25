@@ -778,7 +778,7 @@ CLS Can Handle Wildcard Exclusions
 
 CLS Can Handle Relative Non-Canonical Exclusions
     ${test_dir} =  Set Variable  ${NORMAL_DIRECTORY}/exclusion_test_dir/
-#    Register Cleanup    Remove Directory      ${test_dir}     recursive=True
+    Register Cleanup    Remove Directory      ${test_dir}     recursive=True
 
     Create File     ${test_dir}a/eicar.nope        ${EICAR_STRING}
     Create File     ${test_dir}b/eicar.nope        ${EICAR_STRING}
