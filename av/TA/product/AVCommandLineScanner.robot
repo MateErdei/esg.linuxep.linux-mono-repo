@@ -342,7 +342,7 @@ CLS Aborts Scanning of Password Protected File
 
     Log  return code is ${rc}
     Log  output is ${output}
-    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+    Should Be Equal As Integers  ${rc}  ${PASSWORD_PROTECTED_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected
 
 
@@ -1171,8 +1171,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
     File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
-    # Should have an error output, not 0 or a signal
-    Should Be True  ${result.rc} > 0
+    Should Be Equal As Integers  ${result.rc}  ${SCAN_ABORTED}
 
 
 CLS scan with Bind Mount
@@ -1324,3 +1323,32 @@ CLS Skips scanning of special file
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
     Should Contain   ${output}   Not scanning special file/device: "/dev/null"
+
+CLS Return Codes Are Correct
+    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    Copy File  ${RESOURCES_PATH}/file_samples/password_protected.7z  ${NORMAL_DIRECTORY}
+    Copy File  ${RESOURCES_PATH}/file_samples/corrupt_tar.tar  ${NORMAL_DIRECTORY}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
+    Should Be Equal As Integers  ${rc}  ${PASSWORD_PROTECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
+    Should Be Equal As Integers  ${rc}  ${PASSWORD_PROTECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/corrupt_tar.tar --scan-archives
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/corrupt_tar.tar ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
+    Should Be Equal As Integers  ${rc}  ${PASSWORD_PROTECTED_RESULT}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/ ${NORMAL_DIRECTORY}/corrupt_tar.tar ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+

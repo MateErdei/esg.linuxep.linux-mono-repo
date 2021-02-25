@@ -38,9 +38,12 @@ Global Setup Tasks
     Set Global Variable  ${MCS_PATH}                        ${SOPHOS_INSTALL}/base/mcs
     Set Global Variable  ${AV_PLUGIN_PATH}                  ${COMPONENT_ROOT_PATH}
     Set Global Variable  ${AV_LOG_PATH}                     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
-    Set Global Variable  ${VIRUS_DETECTED_RESULT}           ${69}
     Set Global Variable  ${CLEAN_RESULT}                    ${0}
-    Set Global Variable  ${ERROR_RESULT}                    ${1}
+    Set Global Variable  ${ERROR_RESULT}                    ${8}
+    Set Global Variable  ${PASSWORD_PROTECTED_RESULT}       ${16}
+    Set Global Variable  ${VIRUS_DETECTED_RESULT}           ${24}
+    Set Global Variable  ${SCAN_ABORTED_WITH_THREAT}        ${25}
+    Set Global Variable  ${SCAN_ABORTED}                    ${36}
 
 
     Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}            UsingFakeAvScanner
