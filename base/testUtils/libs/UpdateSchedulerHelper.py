@@ -383,14 +383,11 @@ class UpdateSchedulerHelper(object):
         products = report["products"]
         for item in minimum_product_list:
             for product in products:
-                if item in product["rigidName"]:
+                if item == product["rigidName"]:
                     actual_count = actual_count + 1
 
         if actual_count != expected_count:
             raise AssertionError("Download report does not contain the minimum set of expected products")
-
-
-
 
     def get_latest_report_dict(self):
         newest = self.get_latest_report_path()
