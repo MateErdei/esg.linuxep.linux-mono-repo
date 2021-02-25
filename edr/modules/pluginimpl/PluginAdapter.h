@@ -121,7 +121,7 @@ namespace Plugin
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
 
-        static const std::string TELEMETRY_CALLBACK_COOKIE = "EDR plugin";
+        static constexpr const char * TELEMETRY_CALLBACK_COOKIE = "EDR plugin";
 
 
 
