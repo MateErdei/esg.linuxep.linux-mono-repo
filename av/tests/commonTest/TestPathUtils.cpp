@@ -86,4 +86,5 @@ TEST(TestPathUtils, TestIsNonNormalisedPath) // NOLINT
     EXPECT_FALSE(PathUtils::isNonNormalisedPath("bar/..foo"));
     EXPECT_FALSE(PathUtils::isNonNormalisedPath("..."));
     EXPECT_FALSE(PathUtils::isNonNormalisedPath("bar/..."));
+    EXPECT_FALSE(PathUtils::isNonNormalisedPath("/a/b/c/"));
 }
