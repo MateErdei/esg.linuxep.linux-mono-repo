@@ -144,12 +144,17 @@ namespace Plugin
             return false;
         }
 
-        auto* fs = Common::FileSystem::fileSystem();
-        auto dest = Plugin::getPluginInstall() + "/chroot" + getSusiStartupSettingsPath();
-
         json susiStartupSettings;
         susiStartupSettings["enableSxlLookup"] = m_lookupEnabled;
 
+        auto* fs = Common::FileSystem::fileSystem();
+
+        // Write settings to file
+        auto dest = getSusiStartupSettingsPath();
+        fs->writeFile(dest, susiStartupSettings.dump());
+
+        // Write a copy to chroot
+        dest = Plugin::getPluginInstall() + "/chroot" + dest;
         fs->writeFile(dest, susiStartupSettings.dump());
 
         return true;

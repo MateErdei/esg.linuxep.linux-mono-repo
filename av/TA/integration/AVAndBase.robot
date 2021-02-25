@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests for AVP and Base
-Default Tags  INTEGRATION
+Force Tags      INTEGRATION
 Library         Collections
 Library         OperatingSystem
 Library         Process
@@ -546,7 +546,8 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Wait Until Keyword Succeeds
     ...  240 secs
     ...  5 secs
-    ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, terminated with exit code: ${SCAN_ABORTED}
+    ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, terminated with exit code: 70
+
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
     Check AV Plugin Installed With Base
@@ -567,4 +568,24 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Wait Until Keyword Succeeds
     ...  240 secs
     ...  10 secs
-    ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
+    ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, found threats but aborted with exit code: 71
+
+
+AV Runs Scan With SXL Lookup Enabled
+    Check AV Plugin Installed With Base
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
+    Configure and check scan now
+    Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+
+    Wait Until AV Plugin Log Contains   Sending threat detection notification to central
+    SUSI Debug Log Contains   Found bundle for host 4.sophosxl.net
+
+
+AV Runs Scan With SXL Lookup Disabled
+    Check AV Plugin Installed With Base
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
+    Configure and check scan now with lookups disabled
+    Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+
+    Wait Until AV Plugin Log Contains   Sending threat detection notification to central
+    SUSI Debug Log Does Not Contain   Found bundle for host 4.sophosxl.net

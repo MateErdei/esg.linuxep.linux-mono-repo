@@ -153,6 +153,10 @@ Susi Debug Log Contains
     [Arguments]  ${input}
     File Log Contains  ${SUSI_DEBUG_LOG_PATH}   ${input}
 
+SUSI Debug Log Does Not Contain
+    [Arguments]  ${input}
+    LogUtils.File Log Should Not Contain  ${SUSI_DEBUG_LOG_PATH}   ${input}
+
 Wait Until Sophos Threat Detector Log Contains
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  Threat Detector Log Contains   ${input}   timeout=${timeout}

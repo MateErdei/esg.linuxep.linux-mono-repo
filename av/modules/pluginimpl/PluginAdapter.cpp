@@ -183,6 +183,7 @@ namespace Plugin
         auto updated = m_updatePolicyProcessor.processSavPolicy(attributeMap);
         if (updated)
         {
+            LOGDEBUG("Reloading susi as startup configuration changed");
             m_threatDetector->configuration_changed();
         }
 

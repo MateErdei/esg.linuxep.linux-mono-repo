@@ -464,6 +464,7 @@ TEST_F(TestPolicyProcessor, processSavPolicyChanged) // NOLINT
     const std::string susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
     const std::string susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + susiStartupConfigPath;
     EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
@@ -498,9 +499,14 @@ TEST_F(TestPolicyProcessor, processSavPolicyMissing) // NOLINT
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
 
+    const std::string susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
+    const std::string susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + susiStartupConfigPath;
+
     EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
@@ -531,9 +537,14 @@ TEST_F(TestPolicyProcessor, processSavPolicyInvalid) // NOLINT
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
 
+    const std::string susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
+    const std::string susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + susiStartupConfigPath;
+
     EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 

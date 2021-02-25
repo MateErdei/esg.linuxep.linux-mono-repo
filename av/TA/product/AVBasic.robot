@@ -469,6 +469,25 @@ AV Plugin Gets Customer ID from Obfuscated Creds
     Should Be Equal   ${customerId2}   ${expectedId}
 
 
+AV Plugin Gets Sxl Lookup Setting From SAV Policy
+    ${susiStartupSettingsFile} =   Set Variable   ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
+    ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${susiStartupSettingsFile}
+    Remove Files   ${susiStartupSettingsFile}   ${susiStartupSettingsChrootFile}
+
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${handle}
+    Check AV Plugin Installed
+
+    ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
+    Log    ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
+
+    Wait Until Created   ${susiStartupSettingsFile}   timeout=5sec
+    ${susiStartupSettings} =   Get File   ${susiStartupSettingsFile}
+    Should Be Equal   ${susiStartupSettings}   ${expectedSusiStartupSettings}
+
 AV Plugin requests policies at startup
     ${handle} =   Start Process  ${AV_PLUGIN_BIN}
     Register Cleanup   Terminate Process  ${handle}
@@ -529,6 +548,56 @@ AV Plugin restarts threat detector on customer id change
     ${policyContent} =   Get ALC Policy   revid=${id3}  userpassword=${id3}  username=${id3}
     Log   ${policyContent}
     Send Plugin Policy  av  alc  ${policyContent}
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+    Check Sophos Threat Detector has different PID   ${pid}
+
+
+AV Plugin restarts threat detector on susi startup settings change
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${handle}
+    Check AV Plugin Installed
+
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
+    Log   ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+    Check Sophos Threat Detector has different PID   ${pid}
+
+    # don't change lookup setting, threat_detector should not restart
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${id2} =   Generate Random String
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
+    Log   ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Run Keyword And Expect Error
+    ...   Keyword 'AV Plugin Log Contains With Offset' failed after retrying for 5 seconds.*
+    ...   Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=5
+    Check Sophos Threat Detector has same PID   ${pid}
+
+    # change lookup setting, threat_detector should restart
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${id3} =   Generate Random String
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
+    Log   ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
@@ -607,5 +676,18 @@ Get ALC Policy
     ...       </primary_location>
     ...     </AUConfig>
     ...   </AUConfigurations>
+    ${policyContent} =   Replace Variables   ${policyContent}
+    [Return]   ${policyContent}
+
+Get SAV Policy
+    [Arguments]  ${revid}=${EMPTY}  ${sxlLookupEnabled}=A
+    ${policyContent} =  Catenate   SEPARATOR=${\n}
+    ...   <?xml version="1.0"?>
+    ...   <config>
+    ...       <csc:Comp RevID="${revid}" policyType="2"/>
+    ...       <detectionFeedback>
+    ...           <sendData>${sxlLookupEnabled}</sendData>
+    ...       </detectionFeedback>
+    ...   </config>
     ${policyContent} =   Replace Variables   ${policyContent}
     [Return]   ${policyContent}

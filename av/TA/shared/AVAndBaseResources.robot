@@ -46,8 +46,16 @@ Configure and check scan now
     Configure scan now
     Check scan now
 
+Configure and check scan now with lookups disabled
+    Configure scan now with lookups disabled
+    Check scan now
+
 Configure scan now
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
+    Wait until scheduled scan updated
+
+Configure scan now with lookups disabled
+    Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
     Wait until scheduled scan updated
 
 Check scan now
