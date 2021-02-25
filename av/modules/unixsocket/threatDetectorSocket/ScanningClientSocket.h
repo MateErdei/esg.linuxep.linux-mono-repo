@@ -8,8 +8,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IScanningClientSocket.h"
 
-#include "scan_messages/ScanResponse.h"
+#include "common/SigIntMonitor.h"
 #include "scan_messages/ClientScanRequest.h"
+#include "scan_messages/ScanResponse.h"
 
 #include <string>
 
@@ -28,8 +29,10 @@ namespace unixsocket
     private:
         void connect();
         int attemptConnect();
+        void checkIfScanAborted();
         scan_messages::ScanResponse attemptScan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest&);
 
+        std::shared_ptr<common::SigIntMonitor> m_sigIntMonitor;
         int m_reconnectAttempts;
         std::string m_socketPath;
         datatypes::AutoFd m_socket_fd;

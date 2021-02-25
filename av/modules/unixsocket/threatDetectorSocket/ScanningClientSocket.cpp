@@ -40,6 +40,7 @@ unixsocket::ScanningClientSocket::ScanningClientSocket(std::string socket_path, 
     , m_socketPath(std::move(socket_path))
     , m_sleepTime(sleepTime)
 {
+    m_sigIntMonitor = std::make_shared<common::SigIntMonitor>();
     connect();
 }
 
@@ -81,6 +82,15 @@ int unixsocket::ScanningClientSocket::attemptConnect()
     return ::connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
 }
 
+void unixsocket::ScanningClientSocket::checkIfScanAborted()
+{
+    if (m_sigIntMonitor->triggered())
+    {
+        LOGDEBUG("Received SIGINT");
+        throw AbortScanException("Scan manually aborted");
+    }
+}
+
 scan_messages::ScanResponse
 unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request)
 {
@@ -92,11 +102,14 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
             throw AbortScanException("Reached total maximum number of reconnection attempts. Aborting scan.");
         }
 
+        checkIfScanAborted();
+
         try
         {
             scan_messages::ScanResponse response = attemptScan(fd, request);
             if (m_reconnectAttempts > 0)
             {
+                checkIfScanAborted();
                 LOGINFO("Reconnected to Sophos Threat Detector after " << m_reconnectAttempts << " attempts");
                 m_reconnectAttempts = 0;
             }
@@ -106,6 +119,7 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
         {
             if (!retryErrorLogged) // NOLINT
             {
+                checkIfScanAborted();
                 LOGERROR(e.what() << " - retrying after sleep");
             }
             nanosleep(&m_sleepTime, nullptr);
@@ -113,6 +127,7 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
             {
                 if (!retryErrorLogged) // NOLINT
                 {
+                    checkIfScanAborted();
                     LOGWARN("Failed to reconnect to Sophos Threat Detector - retrying...");
                 }
             }

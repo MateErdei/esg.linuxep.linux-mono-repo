@@ -213,6 +213,11 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Send Signal To Process  2
     ${result} =  Wait For Process  timeout=10s
     Process Should Be Stopped
+
+    Should Not Contain  ${result.stdout}  Reached total maximum number of reconnection attempts. Aborting scan.
+    Should Not Contain  ${result.stdout}  Reconnected to Sophos Threat Detector after
+    Should Not Contain  ${result.stdout}  - retrying after sleep
+    Should Not Contain  ${result.stdout}  Failed to reconnect to Sophos Threat Detector - retrying...
     Should Contain   ${result.stdout}  Received SIGINT
     Should Contain   ${result.stdout}  0 files out of
 

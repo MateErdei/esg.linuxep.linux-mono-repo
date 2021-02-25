@@ -10,8 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <csignal>
 
-
-bool avscanner::SigIntMonitor::triggered()
+bool common::SigIntMonitor::triggered()
 {
     while (m_pipe.notified())
     {
@@ -37,7 +36,7 @@ static void signal_handler(int)
     }
 }
 
-avscanner::SigIntMonitor::SigIntMonitor()
+common::SigIntMonitor::SigIntMonitor()
 {
     // Setup signal handler
     struct sigaction action{};
@@ -51,7 +50,7 @@ avscanner::SigIntMonitor::SigIntMonitor()
     SIGINT_MONITOR_PIPE = m_pipe.writeFd();
 }
 
-avscanner::SigIntMonitor::~SigIntMonitor()
+common::SigIntMonitor::~SigIntMonitor()
 {
     // clear signal handler
     SIGINT_MONITOR_PIPE = -1;

@@ -3,6 +3,8 @@ add_library(common SHARED
         ErrorCodes.h
         Logger.cpp
         Logger.h
+        SigIntMonitor.cpp
+        SigIntMonitor.h
         StringUtils.cpp
         StringUtils.h
         PathUtils.cpp

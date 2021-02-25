@@ -20,8 +20,6 @@ add_library(avscannerimpl SHARED
         ScanCallbackImpl.h
         ScanClient.cpp
         ScanClient.h
-        SigIntMonitor.cpp
-        SigIntMonitor.h
         TimeDuration.cpp
         TimeDuration.h
         )

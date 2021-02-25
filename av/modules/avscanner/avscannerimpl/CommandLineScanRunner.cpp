@@ -33,11 +33,9 @@ namespace avscanner::avscannerimpl
         public:
             explicit CommandLineWalkerCallbackImpl(
                 std::shared_ptr<IScanClient> scanner,
-                std::shared_ptr<SigIntMonitor> sigIntMonitor,
                 std::vector<fs::path> mountExclusions,
                 std::vector<Exclusion> cmdExclusions) :
-                BaseFileWalkCallbacks(std::move(scanner)),
-                m_sigIntMonitor(std::move(sigIntMonitor))
+                BaseFileWalkCallbacks(std::move(scanner))
             {
                 m_mountExclusions = std::move(mountExclusions);
                 m_currentExclusions.reserve(m_mountExclusions.size());
@@ -60,20 +58,6 @@ namespace avscanner::avscannerimpl
                     }
                 }
             }
-
-            void checkIfScanAborted() override
-            {
-                if (m_sigIntMonitor->triggered())
-                {
-                    LOGDEBUG("Received SIGINT");
-                    m_returnCode = common::E_EXECUTION_INTERRUPTED;
-                    throw AbortScanException("Scan manually aborted");
-                }
-            }
-
-        protected:
-            std::shared_ptr<SigIntMonitor> m_sigIntMonitor;
-
         };
     }
 
@@ -84,7 +68,6 @@ namespace avscanner::avscannerimpl
         m_archiveScanning(options.archiveScanning()),
         m_followSymlinks(options.followSymlinks())
     {
-        m_sigIntMonitor = std::make_shared<SigIntMonitor>();
     }
 
     int CommandLineScanRunner::run()
@@ -150,12 +133,12 @@ namespace avscanner::avscannerimpl
         m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
         auto scanner =
             std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
-        CommandLineWalkerCallbackImpl commandLineWalkerCallbacks(scanner, m_sigIntMonitor, excludedMountPoints, cmdExclusions);
+        CommandLineWalkerCallbackImpl commandLineWalkerCallbacks(scanner, excludedMountPoints, cmdExclusions);
         filewalker::FileWalker fw(commandLineWalkerCallbacks);
         fw.followSymlinks(m_followSymlinks);
 
         m_scanCallbacks->scanStarted();
-        bool scanAborted = false;
+
         // for each select included mount point call filewalker for that mount point
         for (auto& path : m_paths)
         {
@@ -177,8 +160,7 @@ namespace avscanner::avscannerimpl
 
             if (!walk(fw, p, path))
             {
-                scanAborted = true;
-                m_returnCode = common::E_SCAN_ABORTED;
+                // Abort scan
                 break;
             }
         }
@@ -187,11 +169,6 @@ namespace avscanner::avscannerimpl
         if (m_scanCallbacks->returnCode() == common::E_VIRUS_FOUND)
         {
             m_returnCode = common::E_VIRUS_FOUND;
-
-            if(scanAborted)
-            {
-                m_returnCode = common::E_SCAN_ABORTED_WITH_THREATS;
-            }
         }
 
         // E_GENERIC_FAILURE should override E_CLEAN but no other error code

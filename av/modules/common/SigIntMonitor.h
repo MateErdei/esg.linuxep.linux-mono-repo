@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/Threads/NotifyPipe.h>
 
-namespace avscanner
+namespace common
 {
     class SigIntMonitor
     {
