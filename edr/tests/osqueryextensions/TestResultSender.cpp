@@ -905,6 +905,8 @@ TEST_F(TestResultSenderTelemetry, saveBatchResultsInvalidFoldingNoTelemetry) // 
 {
     const std::string invalid = R"([{"folded":"","name":"test_folding_query"}])";
 
+    EXPECT_CALL(*m_mockFileSystem, writeFile(INTERMEDIARY_PATH, invalid));
+
     m_resultsSender->SaveBatchResults(parseJson(invalid));
 
     EXPECT_EQ(getTelemetry().serialiseAndReset(), "{}");

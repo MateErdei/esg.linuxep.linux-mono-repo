@@ -311,7 +311,9 @@ void ResultsSender::SaveBatchResults(const Json::Value& results)
     }
 
     if (!updateFoldingTelemetry(results))
+    {
         return;
+    }
 
     try
     {
@@ -381,6 +383,12 @@ bool ResultsSender::updateFoldingTelemetry(const Json::Value& results)
         {
             if (result.isMember("folded") && result.isMember("name"))
             {
+                if (!result["name"].isString() || !result["folded"].isUInt())
+                {
+                    LOGWARN("Unexpected type for query folded count");
+                    continue;
+                }
+
                 std::string name = result["name"].asString();
                 unsigned long count = result["folded"].asUInt();
 

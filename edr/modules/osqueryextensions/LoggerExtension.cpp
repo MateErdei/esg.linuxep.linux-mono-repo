@@ -157,7 +157,7 @@ std::vector<std::string> LoggerExtension::getFoldableQueries() const
     }
     catch (const std::exception& exception)
     {
-        LOGWARN("Failed to read foldable queries. Error: " << exception.what());
+        LOGWARN("Failed to extract query name from folding rules. Error: " << exception.what());
     }
 
     return queries;
