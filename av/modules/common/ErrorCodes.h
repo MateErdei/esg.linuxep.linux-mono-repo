@@ -8,9 +8,11 @@ namespace common
     enum E_ERROR_CODES: int
     {
         E_CLEAN = 0,
-        E_GENERIC_FAILURE = 1,
-        E_VIRUS_FOUND = 69,
-        E_SCAN_ABORTED = 70,
-        E_SCAN_ABORTED_WITH_THREATS = 71
+        E_GENERIC_FAILURE = 8,
+        E_PASSWORD_PROTECTED = 16,
+        E_VIRUS_FOUND = 24,
+        E_SCAN_ABORTED_WITH_THREATS = 25,
+        E_SCAN_ABORTED = 36,
+        E_EXECUTION_INTERRUPTED = 40
     };
 }
