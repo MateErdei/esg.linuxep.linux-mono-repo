@@ -309,12 +309,12 @@ function cppcheck_build()
     cppcheck --inline-suppr --std=c++11 --xml --quiet --force \
     --template="[{severity}][{id}] {message} {callstack} \(On {file}:{line}\)" \
     -i tests/googletest/ -i redist/ -i tapvenv/ -i build64/ -i input/ -i sspl-plugin-anti-virus/ -i cmake-build-debug/ . 2> ${CPP_REPORT_DIR}/${CPP_XML_REPORT}
-    python3.7 "$BASE/build/analysis/cpp_check_html_report.py" --file=${CPP_REPORT_DIR}/${CPP_XML_REPORT} --report-dir=${CPP_REPORT_DIR} --source-dir=${BASE}
-    ANALYSIS_ERRORS=$(grep 'severity="error"' ${CPP_XML_REPORT} | wc -l)
-    ANALYSIS_WARNINGS=$(grep 'severity="warning"' ${CPP_XML_REPORT} | wc -l)
-    ANALYSIS_PERFORMANCE=$(grep 'severity="performance"' ${CPP_XML_REPORT} | wc -l)
-    ANALYSIS_INFORMATION=$(grep 'severity="information"' ${CPP_XML_REPORT} | wc -l)
-    ANALYSIS_STYLE=$(grep 'severity="style"' ${CPP_XML_REPORT} | wc -l)
+    python3 "$BASE/build/analysis/cpp_check_html_report.py" --file=${CPP_REPORT_DIR}/${CPP_XML_REPORT} --report-dir=${CPP_REPORT_DIR} --source-dir=${BASE}
+    ANALYSIS_ERRORS=$(grep 'severity="error"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_WARNINGS=$(grep 'severity="warning"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_PERFORMANCE=$(grep 'severity="performance"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_INFORMATION=$(grep 'severity="information"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_STYLE=$(grep 'severity="style"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
 
     echo "The full XML static analysis report:"
     cat ${CPP_XML_REPORT}
