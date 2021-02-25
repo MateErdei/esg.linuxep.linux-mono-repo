@@ -265,7 +265,7 @@ std::map<std::string, std::pair<std::string, std::string>> ResultsSender::getQue
     {
         if (queryTagMap.find(query.queryNameWithPack) != queryTagMap.end())
         {
-            LOGWARN(query.queryNameWithPack << " already in query map");
+            LOGINFO(query.queryNameWithPack << " already in query map");
         }
         queryTagMap.insert(std::make_pair(query.queryNameWithPack, std::make_pair(query.queryName, query.tag)));
     }
