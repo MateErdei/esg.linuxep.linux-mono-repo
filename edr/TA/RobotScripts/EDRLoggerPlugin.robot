@@ -3,6 +3,7 @@ Documentation    Testing the Logger Plugin for XDR Behaviour
 
 Library         Process
 Library         OperatingSystem
+Library         Collections
 Library         ../Libs/XDRLibs.py
 
 Resource        EDRResources.robot
@@ -118,6 +119,16 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
     Check Query Results Are Not Folded  ${query_results}  uptime  fixed_column  fixed_value
 
+    # Telemetry
+    ${edr_telemetry} =  Get Plugin Telemetry  edr
+    ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
+    ${foldable_queries} =  Set Variable  ${telemetry_json['foldable-queries']}
+    List Should Contain Value  ${foldable_queries}  uptime
+    ${query_json} =  Set Variable  ${telemetry_json['scheduled-queries']['uptime']}
+    Dictionary Should Contain Key  ${query_json}  folded-count
+    ${folded_count} =  Get From Dictionary  ${query_json}  folded-count
+    Should Be True  ${folded_count} > 1
+    Should Be True  ${folded_count} < 100
 
 EDR Plugin Applies Folding Rules Based Column Value
     [Setup]  Install With Base SDDS
@@ -142,6 +153,17 @@ EDR Plugin Applies Folding Rules Based Column Value
     ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
     Check Query Results Are Folded  ${query_results}  random  number  0
     Check Query Results Are Not Folded  ${query_results}  random  number  1
+
+    # Telemetry
+    ${edr_telemetry} =  Get Plugin Telemetry  edr
+    ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
+    ${foldable_queries} =  Set Variable  ${telemetry_json['foldable-queries']}
+    List Should Contain Value  ${foldable_queries}  random
+    ${query_json} =  Set Variable  ${telemetry_json['scheduled-queries']['random']}
+    Dictionary Should Contain Key  ${query_json}  folded-count
+    ${folded_count} =  Get From Dictionary  ${query_json}  folded-count
+    Should Be True  ${folded_count} > 1
+    Should Be True  ${folded_count} < 100
 
 EDR Plugin Runs All Scheduled Queries
     [Setup]  Install With Base SDDS
