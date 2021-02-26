@@ -39,7 +39,7 @@
         <include artifact-path="output/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"/>
       </build-asset>
 
-      <build-asset project="em" repo="esg" mode="release-package-mdr-999,release-package-edr-mdr-999,release-package-060,release-package-edr-999,">
+      <build-asset project="em" repo="esg" mode="release-package-mdr-999,release-package-edr-mdr-999,release-package-060,release-package-edr-999,release-package,release-package-base-999">
         <development-version branch="develop"/>
         <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
       </build-asset>
@@ -143,7 +143,7 @@
         <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-query-pack.yaml</args>
         <workingdir>src</workingdir>
       </command>
-      <command mode="release-base-999">
+      <command mode="release-package-base-999">
         <program>py.exe</program>
         <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-base-999.yaml</args>
         <workingdir>src</workingdir>
