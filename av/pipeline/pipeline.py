@@ -88,7 +88,7 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
 
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
         machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', *robot_exclusion_tags, environment=environment,
-                    timeout=3600)
+                    timeout=5400)
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
