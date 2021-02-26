@@ -11,7 +11,6 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "common/ErrorCodes.h"
 #include "common/PathUtils.h"
-#include "common/SigIntMonitor.h"
 #include <filewalker/IFileWalkCallbacks.h>
 
 namespace avscanner::avscannerimpl
