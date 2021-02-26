@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,15 +8,21 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include <common/AbortScanException.h>
-#include <common/StringUtils.h>
+#include "common/AbortScanException.h"
+#include "common/ErrorCodes.h"
+#include "common/ScanInterruptedException.h"
+#include "common/StringUtils.h"
 
 using namespace avscanner::avscannerimpl;
 
-BaseFileWalkCallbacks::BaseFileWalkCallbacks(std::shared_ptr<IScanClient> scanner) : m_scanner(std::move(scanner)) {}
+BaseFileWalkCallbacks::BaseFileWalkCallbacks(std::shared_ptr<IScanClient> scanner) : m_scanner(std::move(scanner))
+{
+}
 
 bool BaseFileWalkCallbacks::excludeSymlink(const fs::path& path)
 {
+    checkIfScanAborted();
+
     fs::path targetPath = fs::canonical(path);
     const std::string targetPathWithSlash = common::PathUtils::appendForwardSlashToPath(targetPath);
     std::string escapedTarget = common::escapePathForLogging(targetPath);
@@ -55,6 +61,8 @@ bool BaseFileWalkCallbacks::excludeSymlink(const fs::path& path)
 
 void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget)
 {
+    checkIfScanAborted();
+
     std::string escapedPath(common::escapePathForLogging(path));
     if (symlinkTarget)
     {
@@ -81,6 +89,11 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
     {
         m_scanner->scan(path, symlinkTarget);
     }
+    catch (const ScanInterruptedException& e)
+    {
+        LOGWARN(e.what());
+        throw;
+    }
     catch (const std::exception& e)
     {
         genericFailure(e, escapedPath);
@@ -89,6 +102,8 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
 
 bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path)
 {
+    checkIfScanAborted();
+
     const std::string pathWithSlash = common::PathUtils::appendForwardSlashToPath(path);
 
     for (const auto& exclusion : m_currentExclusions)
@@ -135,6 +150,8 @@ bool BaseFileWalkCallbacks::includeDirectory(const sophos_filesystem::path& path
 
 bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::path& path, bool isSymlink)
 {
+    checkIfScanAborted();
+
     // N.B. doesn't check targetPath too, need to call this twice for symlinks (with and without isSymlink set)
     const std::string pathWithSlash = common::PathUtils::appendForwardSlashToPath(path);
 
@@ -166,6 +183,6 @@ void BaseFileWalkCallbacks::genericFailure(const std::exception& e, const std::s
     errorString << "Failed to scan" << escapedPath << " [" << e.what() << "]";
 
     m_scanner->scanError(errorString);
-    m_returnCode = E_GENERIC_FAILURE;
+    m_returnCode = common::E_GENERIC_FAILURE;
     throw AbortScanException(e.what());
 }
