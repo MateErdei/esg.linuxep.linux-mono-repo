@@ -3,6 +3,8 @@
 Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#pragma once
+
 namespace common
 {
     enum E_ERROR_CODES: int
