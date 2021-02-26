@@ -338,10 +338,12 @@ AV And Base Teardown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SUSI_DEBUG_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
+    Remove File    ${SUSI_DEBUG_LOG_PATH}
     Empty Directory  /opt/sophos-spl/base/mcs/event/
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
 
