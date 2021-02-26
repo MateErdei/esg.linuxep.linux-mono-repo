@@ -155,7 +155,7 @@ Susi Debug Log Contains
 
 SUSI Debug Log Does Not Contain
     [Arguments]  ${input}
-    LogUtils.File Log Should Not Contain  ${SUSI_DEBUG_LOG_PATH}   ${input}
+    check log does not contain  ${input}  ${SUSI_DEBUG_LOG_PATH}   susi_debug_log
 
 Wait Until Sophos Threat Detector Log Contains
     [Arguments]  ${input}  ${timeout}=15
