@@ -546,7 +546,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Wait Until Keyword Succeeds
     ...  240 secs
     ...  5 secs
-    ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, terminated with exit code: 70
+    ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, terminated with exit code: ${SCAN_ABORTED}
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
     Check AV Plugin Installed With Base
@@ -567,4 +567,4 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Wait Until Keyword Succeeds
     ...  240 secs
     ...  10 secs
-    ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, found threats but aborted with exit code: 71
+    ...  File Log Contains  ${AV_LOG_PATH}  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
