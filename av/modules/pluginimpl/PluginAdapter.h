@@ -46,7 +46,7 @@ namespace Plugin
         void innerLoop();
 
         void incrementTelemetryThreatCount(const std::string &threatName);
-        PolicyProcessor m_updatePolicyProcessor;
+        PolicyProcessor m_policyProcessor;
 
         std::string waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
                                           const std::string& policyAppId, const std::string& policyName);

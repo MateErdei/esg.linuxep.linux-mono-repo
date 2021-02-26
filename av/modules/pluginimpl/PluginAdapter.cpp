@@ -153,7 +153,7 @@ namespace Plugin
                 // ALC policy
                 LOGINFO("Processing ALC Policy");
                 LOGDEBUG("Processing policy: " << policyXml);
-                bool updated = m_updatePolicyProcessor.processAlcPolicy(attributeMap);
+                bool updated = m_policyProcessor.processAlcPolicy(attributeMap);
                 if (updated)
                 {
                     m_threatDetector->configuration_changed();
@@ -180,7 +180,7 @@ namespace Plugin
 
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
-        auto savPolicyHasChanged = m_updatePolicyProcessor.processSavPolicy(attributeMap);
+        auto savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap);
         if (savPolicyHasChanged)
         {
             LOGDEBUG("Reloading susi as startup configuration changed");
