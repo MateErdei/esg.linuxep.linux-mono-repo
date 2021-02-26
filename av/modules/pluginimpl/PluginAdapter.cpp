@@ -180,8 +180,8 @@ namespace Plugin
 
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
-        auto updated = m_updatePolicyProcessor.processSavPolicy(attributeMap);
-        if (updated)
+        auto savPolicyHasChanged = m_updatePolicyProcessor.processSavPolicy(attributeMap);
+        if (savPolicyHasChanged)
         {
             LOGDEBUG("Reloading susi as startup configuration changed");
             m_threatDetector->configuration_changed();

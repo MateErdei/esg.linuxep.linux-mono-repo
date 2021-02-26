@@ -106,7 +106,7 @@ namespace threat_scanner
                 }
             }
 
-            LOGERROR("Failed to read SXL lookup setting - using default value");
+            LOGERROR("Failed to match central setting for Live Protection - turning Live Protection on as default");
             return true;
         }
 
