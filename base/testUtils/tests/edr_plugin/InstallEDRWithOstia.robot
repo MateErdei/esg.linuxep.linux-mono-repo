@@ -201,6 +201,10 @@ Install edr 999 and downgrade to current edr
     Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
     Override LogConf File as Global Level  DEBUG
 
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
 
     Trigger Update Now
@@ -256,7 +260,10 @@ Install master of base and edr and mtr and upgrade to edr 999
 
     ${query_pack_vut} =  Get File  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_before_query_pack_reload} =  Get Edr OsQuery PID
-
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
     Trigger Update Now
 
@@ -313,6 +320,10 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
