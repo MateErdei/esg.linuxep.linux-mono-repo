@@ -171,13 +171,11 @@ EDR Plugin Runs All Scheduled Queries
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
     Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  5
+    Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  5
     Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  5
     Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  5
+    Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf  5
     Change All Scheduled Queries Interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED  5
     Remove Discovery Query From Pack  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
@@ -278,9 +276,8 @@ EDR Plugin Respects Data Limit
     ...  1 secs
     ...  EDR Plugin Log Contains  First LiveQuery policy received
     Expect New Datalimit  10000
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
     change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  10
+    change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  10
     change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  10
     Enable XDR
 
@@ -354,9 +351,8 @@ Check XDR Results Contain Correct ScheduleEpoch Timestamp
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
     Install EDR Directly from SDDS
 
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
     change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  10
+    change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  10
     change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  10
     Enable XDR
 
@@ -411,7 +407,7 @@ Expect New Datalimit
     ...  EDR Plugin Log Contains  Setting Data Limit to ${limit}
 
 Enable XDR
-    Create File  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json  {"xdr.enabled": true}
+    Create File  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json  {"xdr.enabled": true, "scheduled_queries.next": false}
     ${result} =  Run Process  chown  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json
     Should Be Equal As Strings  0  ${result.rc}
     Move File  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json  ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
@@ -425,17 +421,14 @@ Is XDR Enabled in Plugin Conf
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  EDR Plugin Log Contains   Flags running mode is XDR
+    ...  EDR Plugin Log Contains   Flags have changed so restarting osquery
     ${EDR_CONFIG_CONTENT}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=1
 
 Add Uptime Query to Scheduled Queries
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": 1}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  {"schedule": {"uptime": {"query": "select * from uptime;","interval": 1}}}
+    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
+    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": 1}}}
 
 Test Teardown
     EDR And Base Teardown

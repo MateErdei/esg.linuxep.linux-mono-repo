@@ -183,7 +183,7 @@ public:
 TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsDefaultsIfTargetDirectoryDoesNotExist)
 {
     EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(false));
-    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths();
     EXPECT_EQ(targetFiles.first, Plugin::osqueryMTRConfigFilePath());
     EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
 }
@@ -193,7 +193,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsRet
     std::vector<std::string> files;
     EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
-    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths();
     EXPECT_EQ(targetFiles.first, Plugin::osqueryMTRConfigFilePath());
     EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
 }
@@ -205,7 +205,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsRet
     files.push_back(filename);
     EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
-    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths();
     EXPECT_EQ(targetFiles.first, Plugin::osqueryMTRConfigFilePath());
     EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
 }
@@ -217,7 +217,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsOve
     files.push_back(filename);
     EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
-    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths();
     EXPECT_EQ(targetFiles.first, Plugin::osqueryMTRConfigFilePath());
     EXPECT_EQ(targetFiles.second, filename);
 }
@@ -229,7 +229,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsOve
     files.push_back(filename);
     EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
-    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths();
     EXPECT_EQ(targetFiles.first, filename);
     EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
 }
@@ -243,7 +243,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsOve
     files.push_back(filename2);
     EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
-    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths();
     EXPECT_EQ(targetFiles.first, filename2);
     EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
 }
@@ -257,7 +257,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsOve
     files.push_back(filename2);
     EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(files));
-    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths();
     EXPECT_EQ(targetFiles.first, filename1);
     EXPECT_EQ(targetFiles.second, filename2);
 }
@@ -267,7 +267,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsDef
     Common::FileSystem::IFileSystemException e("test exception");
     EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osqueryConfigDirectoryPath())).WillOnce(Throw(e));
-    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths(mockFileSystem);
+    std::pair<std::string,std::string> targetFiles = Plugin::PluginUtils::getRunningQueryPackFilePaths();
     EXPECT_EQ(targetFiles.first, Plugin::osqueryMTRConfigFilePath());
     EXPECT_EQ(targetFiles.second, Plugin::osqueryXDRConfigFilePath());
 }

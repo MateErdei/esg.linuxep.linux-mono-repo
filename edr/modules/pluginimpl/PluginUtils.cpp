@@ -128,17 +128,18 @@ namespace Plugin
         }
     }
 
-    std::pair<std::string, std::string> PluginUtils::getRunningQueryPackFilePaths(Common::FileSystem::IFileSystem* fileSystem)
+    std::pair<std::string, std::string> PluginUtils::getRunningQueryPackFilePaths()
     {
+        auto* ifileSystem = Common::FileSystem::fileSystem();
         std::string targetDirectoryPath = Plugin::osqueryConfigDirectoryPath();
         std::string targetMtrFilePath = Plugin::osqueryMTRConfigFilePath();
         std::string targetXdrFilePath = Plugin::osqueryXDRConfigFilePath();
 
         try
         {
-            if (fileSystem->isDirectory(targetDirectoryPath))
+            if (ifileSystem->isDirectory(targetDirectoryPath))
             {
-                std::vector<std::string> paths = fileSystem->listFiles(targetDirectoryPath);
+                std::vector<std::string> paths = ifileSystem->listFiles(targetDirectoryPath);
 
                 if (!paths.empty())
                 {
@@ -170,8 +171,8 @@ namespace Plugin
 
     void PluginUtils::setQueryPacksInPlace(const bool& useNextQueryPack)
     {
+        std::pair<std::string,std::string> targetFiles = getRunningQueryPackFilePaths();
         auto* ifileSystem = Common::FileSystem::fileSystem();
-        std::pair<std::string,std::string> targetFiles = getRunningQueryPackFilePaths(ifileSystem);
 
         try
         {

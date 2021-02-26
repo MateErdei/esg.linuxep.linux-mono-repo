@@ -44,9 +44,8 @@ namespace Plugin
 
         /**
         * Reads filenames from osquery.conf.d and returns the filepaths for both the xdr and mtr query packs
-        * @param filesystem
         */
-        static std::pair<std::string, std::string> getRunningQueryPackFilePaths(Common::FileSystem::IFileSystem* filesystem);
+        static std::pair<std::string, std::string> getRunningQueryPackFilePaths();
 
         /**
         * Overwrites the content of scheduled query packs with the correct contents based on the flag

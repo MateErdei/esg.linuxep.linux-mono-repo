@@ -57,6 +57,8 @@ def install_component(sophos_install):
     mtr_extension_path = os.path.join(sophos_install,"plugins/edr/extensions/SophosMTR.ext")
     run_shell(['echo', mtr_extension_path, ">>",os.path.join(extensions_dir, 'extensions.load')])
     os.makedirs(os.path.join(sophos_install, "plugins/edr/etc/osquery.conf.d"), exist_ok=True)
+    os.makedirs(os.path.join(sophos_install, "plugins/edr/etc/query_packs"), exist_ok=True)
+    shutil.copy("/opt/test/inputs/qp/sophos-scheduled-query-pack.conf", os.path.join(sophos_install, "plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf"))
     shutil.copy("/opt/test/inputs/qp/sophos-scheduled-query-pack.conf", os.path.join(sophos_install, "plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf"))
 
 

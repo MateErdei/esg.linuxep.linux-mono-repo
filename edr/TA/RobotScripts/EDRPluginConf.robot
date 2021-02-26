@@ -26,7 +26,6 @@ EDR plugins handles invalid value for events max in plugin conf
     ...  1 secs
     ...  EDR Plugin Log Contains  events_max value in '/opt/sophos-spl/plugins/edr/etc/plugin.conf' not an integer, so using default of
 
-
 EDR plugins handles valid value for events max in plugin conf
     Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf  events_max=4000\n

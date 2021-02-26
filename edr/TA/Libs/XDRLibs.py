@@ -175,7 +175,7 @@ def get_current_epoch_time():
 
 def wait_for_scheduled_query_file_and_return_filename():
     n = 0
-    while n < 40:
+    while n < 60:
         files = os.listdir("/opt/sophos-spl/base/mcs/datafeed")
         if len(files) == 0:
             time.sleep(1)
