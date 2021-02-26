@@ -63,8 +63,6 @@ def combined_task(machine: tap.Machine):
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
 
-
-
         # upload unit test coverage html results to allegro
         unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-plugin-edr-unittest")
         machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
@@ -77,7 +75,7 @@ def combined_task(machine: tap.Machine):
         machine.run('mkdir', coverage_results_dir)
         machine.run('cp', "-r", unitest_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
-
+        machine.run("echo", f"COVFILE={COVFILE_COMBINED}", ">", "/tmp/BullseyeCoverageEnv.txt")
         # run component pytests and integration robot tests with coverage file to get combined coverage
         machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
 
