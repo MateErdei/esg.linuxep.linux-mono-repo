@@ -802,13 +802,13 @@ CLS Can Handle Relative Non-Canonical Exclusions
     Log   ${rc}
     Log   ${output}
     Should Contain       ${output}   Exclusions: ${test_dir}
-    Should Contain       ${output}   Excluding directory: /home/vagrant/this/is/a/directory/for/scanning/exclusion_test_dir/
+    Should Contain       ${output}   Excluding directory: ${test_dir}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     ${rc}   ${output} =    Run And Return Rc And Output  ${CLI_SCANNER_PATH} ${test_dir}i/ --exclude ..nope.
     Log   ${rc}
     Log   ${output}
-    Should Contain       ${output}   Excluding file: /home/vagrant/this/is/a/directory/for/scanning/exclusion_test_dir/i/..nope.
+    Should Contain       ${output}   Excluding file: ${test_dir}i/..nope.
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Can Change Log Level
