@@ -10,6 +10,7 @@ find_package( Boost REQUIRED COMPONENTS system locale)
 SophosAddTest(TestCommon
         ../common/LogInitializedTests.cpp
         TestPathUtils.cpp
+        TestSigIntMonitor.cpp
         TestStringUtils.cpp
         PROJECTS common
         INC_DIRS
