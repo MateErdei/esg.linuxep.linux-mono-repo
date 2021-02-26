@@ -196,7 +196,10 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
          tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
                      platform=tap.Platform.Linux)),
         ("centos77",
-         tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
+         tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+
+        ("centos8",
+         tap.Machine('centos82_x64_server_en_us	', inputs=test_inputs, platform=tap.Platform.Linux))
         # add other distros here
     )
     with stage.parallel('integration'):
