@@ -75,8 +75,8 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     with stage.parallel('build'):
         build = build_dev_warehouse(stage=stage, name="release-package")
-        if edr999:
-            build_dev_warehouse(stage=stage, name="release-package-edr-999")
+        if base999:
+            build_dev_warehouse(stage=stage, name="release-package-base-999")
         if query_pack:
             build_dev_warehouse(stage=stage, name="release-package-query-pack")
         if edr999:
