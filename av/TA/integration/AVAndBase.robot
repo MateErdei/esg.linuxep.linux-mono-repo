@@ -578,7 +578,7 @@ AV Runs Scan With SXL Lookup Enabled
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
     Wait Until AV Plugin Log Contains   Sending threat detection notification to central
-    SUSI Debug Log Contains   Found bundle for host 4.sophosxl.net
+    SUSI Debug Log Contains   Post-scan lookup succeeded
 
 
 AV Runs Scan With SXL Lookup Disabled
@@ -588,4 +588,4 @@ AV Runs Scan With SXL Lookup Disabled
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
     Wait Until AV Plugin Log Contains   Sending threat detection notification to central
-    SUSI Debug Log Does Not Contain   Found bundle for host 4.sophosxl.net
+    SUSI Debug Log Does Not Contain   Post-scan lookup succeeded
