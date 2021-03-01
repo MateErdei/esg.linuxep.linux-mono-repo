@@ -47,6 +47,7 @@ def package_install(machine: tap.Machine, *install_args: str):
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     try:
+        machine.run('sudo','apt-get','install','python3.6')
         machine.run('pip3', 'install', "pip", "--upgrade")
         pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
         machine.run('useradd', 'sophos-spl-user')
