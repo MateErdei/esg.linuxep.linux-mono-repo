@@ -203,7 +203,7 @@ CLS Duration Summary is Displayed Correctly
 
     Should Contain   ${result.stdout}  files scanned in 1 minute
     ${seconds} =  Find Value After Phrase  minute,  ${result.stdout}
-    Check Is Greater Than  ${seconds}  ${4}
+    Check Is Greater Than  ${seconds}  ${0}
 
 
 CLS Summary is Printed When Avscanner Is Terminated Prematurely
