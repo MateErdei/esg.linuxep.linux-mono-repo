@@ -35,7 +35,7 @@ UpdateScheduler SulDownloader Report Sync With Warehouse Success
     Setup Base and Plugin Sync and UpToDate
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created
-    sleep 100
+    #sleep  100
     Check Event Report Success  ${eventPath}
 
     ${statusContent}        Get File   ${statusPath}
