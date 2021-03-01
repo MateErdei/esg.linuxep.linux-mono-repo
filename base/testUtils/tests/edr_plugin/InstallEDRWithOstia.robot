@@ -27,12 +27,14 @@ Force Tags  LOAD1
 *** Variables ***
 ${BaseAndMtrReleasePolicy}          ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${BaseAndMtrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
+${querypackPolicy}              ${GeneratedWarehousePolicies}/old_query_pack.xml
 ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 ${BrokenEDRPolicy}                      ${GeneratedWarehousePolicies}/base_and_broken_edr.xml
 ${BaseAndEdrAndMtrVUTPolicy}        ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseEdrAndMtrAndAVVUTPolicy}      ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
 ${BaseAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_and_edr_999.xml
 ${BaseMtrAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_mtr_vut_and_edr_999.xml
+${Base999Policy}              ${GeneratedWarehousePolicies}/mtr_edr_vut_and_base_999.xml
 ${BaseAndMTREdr999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_999.xml
 ${BaseAndMTREdrAV999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_av_999.xml
 ${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
@@ -198,6 +200,40 @@ Install master of base and edr and mtr and upgrade to edr 999
     Should Not Be Equal As Strings  ${query_pack_99}  ${query_pack_vut}
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_reload}  ${osquery_pid_before_query_pack_reload}
 
+Install master of base and edr and mtr and upgrade to new query pack
+    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
+    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
+
+    ${query_pack_vut} =  Get File  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_before_query_pack_reload} =  Get Edr OsQuery PID
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Send ALC Policy And Prepare For Upgrade  ${querypackPolicy}
+    Trigger Update Now
+
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+
+    # Ensure EDR was restarted during upgrade.
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop edr
+    ...  wdctl <> start edr
+
+    ${query_pack_99} =  Get File  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_after_query_pack_reload} =  Get Edr OsQuery PID
+    ${edr_version_contents1} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should Not Be Equal As Strings  ${query_pack_99}  ${query_pack_vut}
+    Should Be Equal As Strings  ${edr_version_contents1}  ${edr_version_contents}
+    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_reload}  ${osquery_pid_before_query_pack_reload}
 
 Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999 and av 999
     [Timeout]  10 minutes
