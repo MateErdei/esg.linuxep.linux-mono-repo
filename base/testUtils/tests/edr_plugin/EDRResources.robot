@@ -178,6 +178,7 @@ Report Audit Link Ownership
 
 
 EDR Test Teardown
+    Run Keyword if Test Failed    Log Status Of Auditd
     Run Keyword if Test Failed    Report Audit Link Ownership
     Run Keyword if Test Failed    Report On MCS_CA
     Run Keyword if Test Failed    Log File  ${UPDATE_CONFIG}
@@ -233,3 +234,8 @@ Wait Until EDR Uninstalled
 Get Edr OsQuery PID
     ${edr_osquery_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
     [return]  ${edr_osquery_pid.stdout}
+
+Log Status Of Auditd
+    ${result} =  Run Process  systemctl  status  auditd
+    Log  ${result.stdout}
+    Log  ${result.stderr}

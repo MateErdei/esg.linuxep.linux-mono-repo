@@ -4,7 +4,7 @@ Suite Teardown   EDR Suite Teardown
 
 Test Setup       Run Keywords
 ...              EDR Test Setup   AND
-...              Run Shell Process    systemctl start auditd   OnError=failed to start auditd   timeout=10s
+...              Run Shell Process    systemctl start auditd   OnError=failed to start auditd   timeout=60s
 
 Test Teardown    EDR Test Teardown
 
