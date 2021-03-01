@@ -136,7 +136,7 @@ namespace Plugin
 
     bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
-        auto oldLookupEnabled = m_lookupEnabled;
+        bool oldLookupEnabled = m_lookupEnabled;
         m_lookupEnabled = isLookupEnabled(policy);
         if (m_lookupEnabled == oldLookupEnabled)
         {

@@ -36,11 +36,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #endif
 
 unixsocket::ScanningClientSocket::ScanningClientSocket(std::string socket_path, const struct timespec& sleepTime)
-    : m_reconnectAttempts(0)
+    : m_sigIntMonitor(std::make_shared<common::SigIntMonitor>())
+    , m_reconnectAttempts(0)
     , m_socketPath(std::move(socket_path))
     , m_sleepTime(sleepTime)
 {
-    m_sigIntMonitor = std::make_shared<common::SigIntMonitor>();
     connect();
 }
 
