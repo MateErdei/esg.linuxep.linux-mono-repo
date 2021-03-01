@@ -303,6 +303,18 @@ function setup_susi()
 
 function cppcheck_build()
 {
+    PKG_MANAGER="$( command -v yum || command -v apt-get )"
+    case "${PKG_MANAGER}" in
+      *yum*)
+        "${PKG_MANAGER}" -y install cppcheck
+        "${PKG_MANAGER}" -y install python36-pygments
+      ;;
+      *apt*)
+        sudo "${PKG_MANAGER}" -y install python3-pygments
+        sudo "${PKG_MANAGER}" -y install cppcheck
+      ;;
+    esac
+
     CPP_XML_REPORT="err.xml"
     CPP_REPORT_DIR="cppcheck"
     mkdir -p ${CPP_REPORT_DIR}
@@ -317,7 +329,7 @@ function cppcheck_build()
     ANALYSIS_STYLE=$(grep 'severity="style"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
 
     echo "The full XML static analysis report:"
-    cat ${CPP_XML_REPORT}
+    cat ${CPP_REPORT_DIR}/${CPP_XML_REPORT}
     echo "There are $ANALYSIS_ERRORS static analysis error issues"
     echo "There are $ANALYSIS_WARNINGS static analysis warning issues"
     echo "There are $ANALYSIS_PERFORMANCE static analysis performance issues"
