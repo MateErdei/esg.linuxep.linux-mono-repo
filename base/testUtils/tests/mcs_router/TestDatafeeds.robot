@@ -37,11 +37,10 @@ Basic XDR Datafeed size is logged
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
     Check Cloud Server Log For Scheduled Query   scheduled_query
-    ${time}=  time_since_epoch_hours
     Wait Until Keyword Succeeds
     ...  10s
     ...  1s
-    ...  Check MCS Router Log Contains    In the past ${time}h we have sent 0.447kB of scheduled query data to Central
+    ...  Check MCS Router Log Contains    we have sent 0.447kB of scheduled query data to Central
 
 Invalid Datafeed Filename Not Sent But Does not Block Other Datafeed Files
     [Documentation]  Written to test the eact scenario set out in LINUXDAR-2463
