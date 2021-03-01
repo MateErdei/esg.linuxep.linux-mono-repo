@@ -19,19 +19,19 @@
 
       <!-- Packages for normal release-package build -->
 
-      <build-asset project="winep" repo="liveterminal" mode="release-package,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-060">
+      <build-asset project="winep" repo="liveterminal" mode="release-package,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-060,release-package-query-pack">
         <development-version branch="develop"/>
         <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal"/>
       </build-asset>
-      <build-asset project="linuxep" repo="everest-base" mode="release-package,release-package-edr-999,release-package-mdr-999">
+      <build-asset project="linuxep" repo="everest-base" mode="release-package,release-package-edr-999,release-package-mdr-999,release-package-query-pack">
         <development-version branch="develop"/>
         <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
       </build-asset>
-      <build-asset project="linuxep" repo="sspl-plugin-edr-component" mode="release-package,release-package-base-999,release-package-mdr-999,release-package-060">
+      <build-asset project="linuxep" repo="sspl-plugin-edr-component" mode="release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack">
         <development-version branch="develop"/>
         <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component"/>
       </build-asset>
-      <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite" mode="release-package,release-package-base-999,release-package-edr-999">
+      <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite" mode="release-package,release-package-base-999,release-package-edr-999,release-package-query-pack">
         <development-version branch="develop"/>
         <include artifact-path="output/SDDS-SSPL-DBOS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT"/>
         <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT"/>
