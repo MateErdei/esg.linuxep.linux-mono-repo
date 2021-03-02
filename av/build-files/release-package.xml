@@ -43,7 +43,7 @@
         </build-asset>
 
         <build-asset project="core" repo="engine">
-            <release-version branch="release/sophtainer-1.1.1" build-id="20201105220741-963f9976a7ba2659cbdb8786f4a00cb7edbb6ba1-ILs2ye"/>
+            <release-version branch="release/sophtainer-1.1.1" build-id="20210218060855-3061d225f712961b8d95f485ae70ab883b454f44-F8JM2R"/>
             <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
