@@ -29,7 +29,7 @@ static bool isAllowlistedFile(void *token, SusiHashAlg algorithm, const char *fi
 }
 
 static SusiCallbackTable my_susi_callbacks{ // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-        .version = CALLBACK_TABLE_VERSION,
+        .version = SUSI_CALLBACK_TABLE_VERSION,
         .token = nullptr,
         .IsAllowlistedFile = isAllowlistedFile,
         .IsTrustedCert = threat_scanner::isTrustedCert,
