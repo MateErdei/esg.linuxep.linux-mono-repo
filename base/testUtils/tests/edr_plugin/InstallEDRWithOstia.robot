@@ -149,10 +149,7 @@ Install all plugins 999 then downgrade to all plugins develop
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Wait for first update
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
@@ -178,10 +175,7 @@ Install all plugins 999 then downgrade to all plugins develop
     ...  5 secs
     ...  EDR Plugin Is Running
 
-    Wait Until Keyword Succeeds
-    ...   60 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Wait for first update
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
@@ -201,10 +195,7 @@ Install edr 999 and downgrade to current edr
     Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
     Override LogConf File as Global Level  DEBUG
 
-    Wait Until Keyword Succeeds
-    ...   60 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Wait for first update
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
 
     Trigger Update Now
@@ -260,10 +251,7 @@ Install master of base and edr and mtr and upgrade to edr 999
 
     ${query_pack_vut} =  Get File  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_before_query_pack_reload} =  Get Edr OsQuery PID
-    Wait Until Keyword Succeeds
-    ...   60 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Wait for first update
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
     Trigger Update Now
 
@@ -320,10 +308,7 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
-    Wait Until Keyword Succeeds
-    ...   60 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Wait for first update
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
@@ -412,10 +397,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
     Trigger Update Now
 
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   5 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Wait for first update
 
     # ensure EDR plugin is installed and running
     Wait For EDR to be Installed
@@ -461,10 +443,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
     Trigger Update Now
 
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   5 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Wait for first update
 
     # ensure initial plugins are installed and running
     Wait Until MDR Installed
@@ -558,14 +537,9 @@ Check MCS Envelope Log For Event Success Within Nth Set Of Events Sent
 Upgrade Installs EDR Twice
     Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Installing product: ServerProtectionLinux-Plugin-EDR   2
 
+Wait for first update
+    Wait Until Keyword Succeeds
+        ...   60 secs
+        ...   10 secs
+        ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
-
-*** Keywords ***
-Setup Base FakeCloud And FakeCentral-LT Servers
-    Install LT Server Certificates
-    Start MCS Push Server
-    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
-    Set Local CA Environment Variable
-
-    create file  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
-    Register With Local Cloud Server
