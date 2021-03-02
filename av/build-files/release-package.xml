@@ -38,7 +38,7 @@
 
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
-            <release-version branch="release/3.81.0-CORE-2026" build-id="20200917132546-06a514a114bba47e82ad8ef70a3d5bd6284a49f2-5DyK5f/"/>
+            <release-version branch="release/3.81.0-CORE-2026" build-id="20201105220741-963f9976a7ba2659cbdb8786f4a00cb7edbb6ba1-ILs2ye"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
         </build-asset>
 
