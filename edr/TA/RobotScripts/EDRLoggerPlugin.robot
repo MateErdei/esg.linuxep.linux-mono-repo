@@ -401,7 +401,7 @@ EDR Plugin Runs Scheduled Queries And Reports Telemetry
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
 
     Should Contain  ${telemetryFileContents}  "bad-query":{"query-error-count":1}
-    Should Contain  ${telemetryFileContents}  "endpoint_id":{"record-size-avg":576.0,"record-size-max":576.0,"record-size-min":576.0,"record-size-std-deviation":0.0,"records-count":1}
+    Should Contain  ${telemetryFileContents}  "endpoint_id":{"record-size-avg":
 
 
 *** Keywords ***
