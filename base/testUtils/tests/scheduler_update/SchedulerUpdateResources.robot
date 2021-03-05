@@ -103,7 +103,7 @@ Setup Current Update Scheduler Environment Without Policy
 
 
 Check Status and Events Are Created
-    [Arguments]   ${waitTime}=30 secs  ${attemptsTime}=1 secs
+    [Arguments]   ${waitTime}=10 secs  ${attemptsTime}=1 secs
 
     Wait Until Keyword Succeeds
     ...  ${waitTime}
