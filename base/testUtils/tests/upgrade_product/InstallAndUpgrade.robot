@@ -610,7 +610,7 @@ Ensure Download Report Content Contains Sub Component Entries
     # This will ensure sub components are listed in the report when a sub component has it's own installer.
     Check Download Report Contains Minimum Products
 
-rename me
+Test That Only Subscriptions Appear As Subscriptions In ALC Status File
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
