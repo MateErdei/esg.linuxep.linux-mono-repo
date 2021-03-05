@@ -610,6 +610,20 @@ Ensure Download Report Content Contains Sub Component Entries
     # This will ensure sub components are listed in the report when a sub component has it's own installer.
     Check Download Report Contains Minimum Products
 
+rename me
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Only Subscriptions In Policy Are In Alc Status Subscriptions
+
 *** Keywords ***
 
 Cleanup Warehouse And Test Teardown

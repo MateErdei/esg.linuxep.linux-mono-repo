@@ -127,3 +127,43 @@ def dump_plugin_registry_files():
     for basename in os.listdir(plugin_registry):
         with open(os.path.join(plugin_registry,basename)) as file:
             logger.info(f"{basename} :\n{file.read()}")
+
+def only_subscriptions_in_policy_are_in_alc_status_subscriptions():
+    import xml.dom.minidom as xml
+
+    policy_xml_string = open("/opt/sophos-spl/base/mcs/policy/ALC-1_policy.xml").read()
+    status_xml_string = open("/opt/sophos-spl/base/mcs/status/ALC_status.xml").read()
+
+    policy_xml = xml.parseString(policy_xml_string)
+    status_xml = xml.parseString(status_xml_string)
+    logger.info(policy_xml_string)
+    logger.info(status_xml_string)
+
+    policy_xml_subscriptions = policy_xml.getElementsByTagName("subscription")
+    status_xml_subscriptions = status_xml.getElementsByTagName("subscription")
+
+    status_subscriptions = []
+    for subscription in status_xml_subscriptions:
+        rigidName = subscription.getAttribute("rigidName")
+        assert rigidName != ""
+        if rigidName not in status_subscriptions:
+            status_subscriptions.append(rigidName)
+        else:
+            raise AssertionError(f"found duplicate rigidname in status: {rigidName}")
+
+    policy_subscriptions = []
+    for subscription in policy_xml_subscriptions:
+        rigidName = subscription.getAttribute("RigidName")
+        assert rigidName != ""
+        if rigidName not in policy_subscriptions:
+            policy_subscriptions.append(rigidName)
+        else:
+            raise AssertionError(f"found duplicate rigidname in policy: {rigidName}")
+
+    policy_subscriptions.sort()
+    status_subscriptions.sort()
+    logger.info(policy_subscriptions)
+    logger.info(status_subscriptions)
+
+    if policy_subscriptions != status_subscriptions:
+        raise AssertionError(f"{policy_subscriptions} != {status_subscriptions}")
