@@ -5,7 +5,6 @@ Library         String
 Library         DateTime
 
 Library         ../Libs/FakeManagement.py
-Library         ../Libs/XDRLibs.py
 
 Resource    ComponentSetup.robot
 
@@ -13,9 +12,13 @@ Resource    ComponentSetup.robot
 ${EDR_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${EDR_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${EDR_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/edr.log
+${SCHEDULED_QUERY_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/scheduledquery.log
 ${LIVEQUERY_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/livequery.log
 ${BASE_SDDS}        ${TEST_INPUT_PATH}/base_sdds/
 ${EDR_SDDS}         ${COMPONENT_SDDS}
+${TELEMETRY_EXECUTABLE_LOG}    ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
+${TELEMETRY_EXE_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/telemetry/var/telemetry-exe.json
+${TELEMETRY_OUTPUT_JSON}    ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
 
 *** Keywords ***
 Run Shell Process
@@ -26,24 +29,6 @@ Run Shell Process
 Check EDR Plugin Running
     Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/edr   OnError=EDR not running
 
-Mark File
-    [Arguments]  ${path}
-    ${content} =  Get File   ${path}
-    Log  ${content}
-    [Return]  ${content.split("\n").__len__()}
-
-Marked File Contains
-    [Arguments]  ${path}  ${input}  ${mark}
-    ${content} =  Get File   ${path}
-    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
-    Should Contain  ${content}  ${input}
-
-Marked File Does Not Contain
-    [Arguments]  ${path}  ${input}  ${mark}
-    ${content} =  Get File   ${path}
-    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
-    Should Not Contain  ${content}  ${input}
-
 File Log Contains
     [Arguments]  ${path}  ${input}
     ${content} =  Get File   ${path}
@@ -53,6 +38,10 @@ File Log Does Not Contain
     [Arguments]  ${path}  ${input}
     ${content} =  Get File   ${path}
     Should Not Contain  ${content}  ${input}
+
+Scheduled Query Log Contains
+    [Arguments]  ${input}
+    File Log Contains  ${SCHEDULED_QUERY_LOG_PATH}   ${input}
 
 EDR Plugin Log Contains
     [Arguments]  ${input}
@@ -105,38 +94,25 @@ Simulate Live Query
 
 Install With Base SDDS
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
-    Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
-    Install EDR Directly from SDDS
-
-Install With Base SDDS And Marked Next And Latest Files
-    [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
-    Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
-    Install EDR Directly from SDDS With Latest And Next Marked
-
-Install With Base SDDS With Fixed Values Queries
-    [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
-    Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
-    Install EDR Directly from SDDS With Fixed Value Queries
-
-Install With Base SDDS With Random Queries
-    [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
-    Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
-    Install EDR Directly from SDDS With Random Queries
-
-
-
-Install With Base SDDS Inner
-    [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
     Remove Directory   ${SOPHOS_INSTALL}   recursive=True
     Directory Should Not Exist  ${SOPHOS_INSTALL}
     Install Base For Component Tests
     Run Keyword If  ${enableAuditConfig}  Create Install Options File With Content  --disable-auditd
     ${ALCContent}=  Get ALC Policy Without MTR
     Run Keyword If  ${preInstallALCPolicy}  Install ALC Policy   ALCContent
+    Install EDR Directly from SDDS
+
+Uninstall All
+    Run Keyword And Ignore Error  Log File   /tmp/installer.log
+    Run Keyword And Ignore Error  Log File   ${EDR_LOG_PATH}
+    Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=30s
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    File Should Not Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
 
 Uninstall EDR
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --force   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall EDR.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
 Uninstall And Revert Setup
     Uninstall All
     Setup Base And Component
@@ -147,48 +123,6 @@ Install Base For Component Tests
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install EDR Directly from SDDS
-    [Arguments]  ${interval}=5
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf       ${interval}
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf            ${interval}
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf   ${interval}
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf        ${interval}
-    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
-    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
-    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
-    Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
-    ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
-
-Install EDR Directly from SDDS With Latest And Next Marked
-    Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf  {"schedule": {"latest_xdr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf  {"schedule": {"latest_mtr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf  {"schedule": {"next_xdr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf  {"schedule": {"next_mtr_query": {"query": "select * from uptime;","interval": 2}}}
-    ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
-
-
-Install EDR Directly from SDDS With Fixed Value Queries
-    Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-
-    ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
-
-Install EDR Directly from SDDS With Random Queries
-    Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf              { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf          { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf         { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf     { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
 
@@ -202,10 +136,6 @@ Check EDR Plugin Installed With Base
     ...  15 secs
     ...  1 secs
     ...  EDR Plugin Log Contains  edr <> Entering the main loop
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  Plugin preparation complete
 
 
 Get ALC Policy Without MTR
@@ -226,16 +156,12 @@ Check Osquery Running
     Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd   OnError=osquery not running
 
 Display All SSPL Files Installed
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v comms | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v comms | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
 
 EDR And Base Teardown
-    Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-    Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
@@ -249,17 +175,14 @@ EDR And Base Teardown
     ...  1 secs
     ...  Check EDR Executable Not Running
     Run Keyword If Test Failed   Log File   ${EDR_LOG_PATH}
-    Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${LIVEQUERY_LOG_PATH}
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
+    Run Keyword If Test Failed   Log File   ${LIVEQUERY_LOG_PATH}
     Remove File    ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
 
 Create Install Options File With Content
     [Arguments]  ${installFlags}
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
-    Run Process  chown  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/install_options  shell=True
-    Run Process  chmod  440  ${SOPHOS_INSTALL}/base/etc/install_options  shell=True
+    #TODO set permissions
 
 Check Ownership
     [Arguments]  ${path}  ${owner}
@@ -276,35 +199,21 @@ Check EDR Executable Not Running
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Restart EDR
-    ${mark} =  Mark File  ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Marked File Contains  ${EDR_LOG_PATH}  edr <> Plugin Finished  ${mark}
-    ${mark} =  Mark File  ${EDR_LOG_PATH}
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  Marked File Contains  ${EDR_LOG_PATH}  Plugin preparation complete  ${mark}
 
-File Should Contain
-    [Arguments]  ${file}  ${string_to_contain}
-    ${content} =  Get File  ${file}
-    Should Contain  ${content}   ${string_to_contain}
+Run Telemetry Executable
+    Remove File  ${TELEMETRY_EXECUTABLE_LOG}
+    Copy File    ${EXAMPLE_DATA_PATH}/telemetry-exe.json  ${TELEMETRY_EXE_CONFIG_FILE}
+    Run Process  chmod  644  ${TELEMETRY_EXE_CONFIG_FILE}
 
-File Should Contain Only
-    [Arguments]  ${file}  ${string}
-    ${content} =  Get File  ${file}
-    Should Be Equal As Strings  ${content}   ${string}
+    ${result} =  Run Process  sudo  -u  sophos-spl-user  ${SOPHOS_INSTALL}/base/bin/telemetry  ${TELEMETRY_EXE_CONFIG_FILE}
 
-File Should Not Contain Only
-    [Arguments]  ${file}  ${string}
-    ${content} =  Get File  ${file}
-    Should Not Be Equal As Strings  ${content}   ${string}
+    Log  "stdout = ${result.stdout}"
+    Log  "stderr = ${result.stderr}"
 
-Move File Atomically
-    [Arguments]  ${source}  ${destination}
-    Copy File  ${source}  /opt/NotARealFile
-    Move File  /opt/NotARealFile  ${destination}
+    Should Be Equal As Integers  ${result.rc}  0  Telemetry executable returned a non-successful error code
