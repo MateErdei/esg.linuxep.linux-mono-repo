@@ -268,6 +268,13 @@ namespace UpdateSchedulerImpl
             writeConfigurationData(settingsHolder.configurationData);
             m_scheduledUpdateConfig = settingsHolder.weeklySchedule;
             m_featuresInPolicy = settingsHolder.configurationData.getFeatures();
+            m_subscriptionRigidNamesInPolicy.clear();
+            m_subscriptionRigidNamesInPolicy.push_back(settingsHolder.configurationData.getPrimarySubscription().rigidName());
+
+            for (auto& productSubscription : settingsHolder.configurationData.getProductsSubscription())
+            {
+                m_subscriptionRigidNamesInPolicy.push_back(productSubscription.rigidName());
+            }
 
             if (m_scheduledUpdateConfig.enabled)
             {
@@ -536,12 +543,15 @@ namespace UpdateSchedulerImpl
             writeInstalledFeaturesJsonFile(m_featuresCurrentlyInstalled);
         }
 
+
+
         std::string statusXML = SerializeUpdateStatus(
             reportAndFiles.reportCollectionResult.SchedulerStatus,
             m_policyTranslator.revID(),
             VERSIONID,
             m_machineID,
             m_formattedTime,
+            m_subscriptionRigidNamesInPolicy,
             m_featuresCurrentlyInstalled,
             stateMachineProcessor.getStateMachineData());
 
@@ -550,7 +560,7 @@ namespace UpdateSchedulerImpl
         copyStatus.LastStartTime = "";
         copyStatus.LastFinishdTime = "";
         std::string statusWithoutTimeStamp = configModule::SerializeUpdateStatus(
-            copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime, m_featuresCurrentlyInstalled, stateMachineProcessor.getStateMachineData());
+            copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime, m_subscriptionRigidNamesInPolicy, m_featuresCurrentlyInstalled, stateMachineProcessor.getStateMachineData());
         m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGINFO("Sending status to Central");

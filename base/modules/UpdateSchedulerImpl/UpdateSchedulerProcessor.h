@@ -70,5 +70,6 @@ namespace UpdateSchedulerImpl
         SulDownloader::suldownloaderdata::WeekDayAndTimeForDelay m_scheduledUpdateConfig;
         std::vector<std::string> m_featuresInPolicy;
         std::vector<std::string> m_featuresCurrentlyInstalled;
+        std::vector<std::string> m_subscriptionRigidNamesInPolicy;
     };
 } // namespace UpdateSchedulerImpl

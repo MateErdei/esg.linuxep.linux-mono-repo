@@ -23,15 +23,30 @@ namespace
      * @param products
      * @param subscriptionsNode
      */
-    void addSubscriptionElements(const std::vector<ProductStatus>& products, pt::ptree& subscriptionsNode)
+    void addSubscriptionElements(const std::vector<ProductStatus>& products, const std::vector<std::string>& subscriptionsInPolicy, pt::ptree& subscriptionsNode)
     {
         for (auto& product : products)
         {
-            pt::ptree subNode;
-            subNode.put("<xmlattr>.rigidName", product.RigidName);
-            subNode.put("<xmlattr>.version", product.DownloadedVersion);
-            subNode.put("<xmlattr>.displayVersion", product.DownloadedVersion);
-            subscriptionsNode.add_child("subscription", subNode);
+            // Central will only process subscription data which it has been hard cooded to know about.
+            // Need to filter out products based on subscription list taken from ALC policy.
+            bool subscriptionValid = false;
+            for(auto& validSubscriptionRigidName : subscriptionsInPolicy)
+            {
+                if (product.RigidName == validSubscriptionRigidName)
+                {
+                    subscriptionValid = true;
+                    break;
+                }
+            }
+
+            if (subscriptionValid)
+            {
+                pt::ptree subNode;
+                subNode.put("<xmlattr>.rigidName", product.RigidName);
+                subNode.put("<xmlattr>.version", product.DownloadedVersion);
+                subNode.put("<xmlattr>.displayVersion", product.DownloadedVersion);
+                subscriptionsNode.add_child("subscription", subNode);
+            }
         }
     }
 
@@ -140,6 +155,7 @@ namespace UpdateSchedulerImpl
             const std::string& versionId,
             const std::string& machineId,
             const Common::UtilityImpl::IFormattedTime& iFormattedTime,
+            const std::vector<std::string>& subscriptionsInPolicy,
             const std::vector<std::string>& features,
             const StateData::StateMachineData& stateMachineData)
         {
@@ -185,7 +201,7 @@ namespace UpdateSchedulerImpl
 
             addStates(autoUpdate, stateMachineData);
 
-            addSubscriptionElements(status.Subscriptions, statusNode.get_child("subscriptions"));
+            addSubscriptionElements(status.Subscriptions, subscriptionsInPolicy, statusNode.get_child("subscriptions"));
             addProductsElements(status.Products, statusNode.get_child("products"));
             addFeatures(features,statusNode.get_child("Features"));
             return toString(tree);

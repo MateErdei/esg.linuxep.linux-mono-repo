@@ -52,6 +52,7 @@ namespace UpdateSchedulerImpl
             const std::string& versionId,
             const std::string& machineID,
             const Common::UtilityImpl::IFormattedTime& iFormattedTime,
+            const std::vector<std::string>& subscriptionsInPolicy,
             const std::vector<std::string>& features,
             const StateData::StateMachineData& stateMachineData);
 
