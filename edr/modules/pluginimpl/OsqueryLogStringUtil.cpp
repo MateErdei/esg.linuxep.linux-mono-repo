@@ -54,7 +54,10 @@ std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForSchedul
 
 bool OsqueryLogStringUtil::isGenericLogLine(const std::string& logLine)
 {
-    std::vector<std::string> interestingLines{"Error executing"};
+    std::vector<std::string> interestingLines{
+        "Error executing",
+        "failed to parse config"
+    };
 
     for(auto& interestingLine : interestingLines)
     {

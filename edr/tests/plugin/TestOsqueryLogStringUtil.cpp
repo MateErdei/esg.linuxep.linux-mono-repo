@@ -54,12 +54,19 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesRet
 
 TEST_F(TestOsqueryLogStringUtil, testIsGenericLogLineReturnsTrueOnMatchingLine) // NOLINT
 {
-    std::string line = "Error executing scheduled query arp_cache: no such table: arp_cache_s";
+    std::vector<std::string> lines{
+        "Error executing scheduled query arp_cache: no such table: arp_cache_s",
+        "updateSource failed to parse config, of source: /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf"
+    };
 
-    bool actualResult = OsqueryLogStringUtil::isGenericLogLine(line);
+    for (const auto& line : lines)
+    {
+        SCOPED_TRACE(line);
 
-    EXPECT_EQ(actualResult, true);
+        bool actualResult = OsqueryLogStringUtil::isGenericLogLine(line);
 
+        EXPECT_TRUE(actualResult);
+    }
 }
 
 TEST_F(TestOsqueryLogStringUtil, testIsGenericLogLineReturnsFalseOnNonMatchingLines) // NOLINT
@@ -68,6 +75,6 @@ TEST_F(TestOsqueryLogStringUtil, testIsGenericLogLineReturnsFalseOnNonMatchingLi
 
     bool actualResult = OsqueryLogStringUtil::isGenericLogLine(line);
 
-    EXPECT_EQ(actualResult, false);
+    EXPECT_FALSE(actualResult);
 
 }

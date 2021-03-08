@@ -202,6 +202,11 @@ Json::Value ResultsSender::readJsonFile(const std::string& path)
         throw std::runtime_error("Failed to open " + path + " to read. Error:" + err.what());
     }
 
+    if (!errors.empty())
+    {
+        LOGWARN("Failed to parse " << path << " Error:" << errors);
+    }
+
     return root;
 }
 
