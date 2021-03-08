@@ -10,7 +10,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 
 
-std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(std::string& logLine)
+std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(const std::string& logLine)
 {
     std::string lineToFind= "Executing scheduled query ";
     if (Common::UtilityImpl::StringUtils::isSubstring(logLine, lineToFind))
@@ -52,7 +52,7 @@ std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForSchedul
     return {};
 }
 
-bool OsqueryLogStringUtil::isGenericLogLine(std::string& logLine)
+bool OsqueryLogStringUtil::isGenericLogLine(const std::string& logLine)
 {
     std::vector<std::string> interestingLines{"Error executing"};
 

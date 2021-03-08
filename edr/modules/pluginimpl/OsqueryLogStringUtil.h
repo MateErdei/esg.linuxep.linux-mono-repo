@@ -10,8 +10,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 class OsqueryLogStringUtil
 {
 public:
-    static std::optional<std::string> processOsqueryLogLineForScheduledQueries(std::string& logLine);
-    static bool isGenericLogLine(std::string& logLine);
+    static std::optional<std::string> processOsqueryLogLineForScheduledQueries(const std::string& logLine);
+    static bool isGenericLogLine(const std::string& logLine);
 };
 
 
