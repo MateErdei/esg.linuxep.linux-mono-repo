@@ -258,6 +258,18 @@ Check no duplicate virus data files
     Check no symlinks in directory  ${vdlUpdate}
     Check no duplicate files in directory  ${vdlUpdate}
 
+Check installer corrects permissions of var directory on upgrade
+    Register On Fail  dump watchdog log
+    Mark Watchdog Log
+    ${customerIdFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/var/customer_id.txt
+    Create file   ${customerIdFile}
+    Change Owner  ${customerIdFile}  sophos-spl-user  sophos-spl-group
+    Modify manifest
+    Install AV Directly from SDDS
+    Send Alc Policy
+
+    File Log Does Not Contain  Check Marked Watchdog Log Contains  Failed to create file: '${customerIdFile}', Permission denied
+
 
 *** Variables ***
 ${IDE_NAME}         peend.ide

@@ -255,6 +255,7 @@ function install_product()
     touch "sophos_threat_detector/sophos_threat_detector.log"
     chown ${USER_NAME}:${GROUP_NAME} "sophos_threat_detector/sophos_threat_detector.log"
     ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
+    chown -R ${USER_NAME}:${GROUP_NAME} ${PLUGIN_INSTALL}/var
 
     pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
     THREAT_DETECTOR="sophos_threat_detector_launcher"
