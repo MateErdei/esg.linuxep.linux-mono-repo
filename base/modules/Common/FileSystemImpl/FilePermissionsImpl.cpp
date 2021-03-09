@@ -76,9 +76,10 @@ namespace Common
             // max size is 131072
             const double bufferMaxSize = bufferStartSize * pow(multiplier, 7);
             size_t bufferSize = bufferStartSize;
+            std::unique_ptr<char[]> bufferPtr;
             while (err == ERANGE && bufferSize <= bufferMaxSize)
             {
-                auto bufferPtr = std::make_unique<char[]>(bufferSize);
+                bufferPtr = std::make_unique<char[]>(bufferSize);
                 err = getgrnam_r(groupString.c_str(), &groupbuf, bufferPtr.get(), bufferSize, &replygroup);
                 bufferSize *= multiplier;
             }
@@ -107,9 +108,21 @@ namespace Common
         {
             struct group groupbuf;
             struct group* replygroup;
-            std::array<char, 256> buffer; // placeholder, event if it is not sufficient
 
-            int err = getgrgid_r(groupId, &groupbuf, buffer.data(), buffer.size(), &replygroup);
+            int err = ERANGE;
+            const int multiplier = 2;
+            const int bufferStartSize = 1024;
+            // max size is 131072
+            const double bufferMaxSize = bufferStartSize * pow(multiplier, 7);
+            size_t bufferSize = bufferStartSize;
+            std::unique_ptr<char[]> bufferPtr;
+            while (err == ERANGE && bufferSize <= bufferMaxSize)
+            {
+                bufferPtr = std::make_unique<char[]>(bufferSize);
+                err = getgrgid_r(groupId, &groupbuf, bufferPtr.get(), bufferSize, &replygroup);
+                bufferSize *= multiplier;
+            }
+
             if (replygroup == nullptr) // no matching found
             {
                 std::stringstream errorMessage;
@@ -169,9 +182,20 @@ namespace Common
         {
             struct passwd userBuf;
             struct passwd* replyUser;
-            std::array<char, 256> buffer; // placeholder, event if it is not sufficient
+            int err = ERANGE;
+            const int multiplier = 2;
+            const int bufferStartSize = 1024;
+            // max size is 131072
+            const double bufferMaxSize = bufferStartSize * pow(multiplier, 7);
+            size_t bufferSize = bufferStartSize;
+            std::unique_ptr<char[]> bufferPtr;
+            while (err == ERANGE && bufferSize <= bufferMaxSize)
+            {
+                bufferPtr = std::make_unique<char[]>(bufferSize);
+                err = getpwnam_r(userString.c_str(), &userBuf, bufferPtr.get(), bufferSize, &replyUser);
+                bufferSize *= multiplier;
+            }
 
-            int err = getpwnam_r(userString.c_str(), &userBuf, buffer.data(), buffer.size(), &replyUser);
             if (replyUser == nullptr) // no matching found
             {
                 std::stringstream errorMessage;
@@ -195,9 +219,20 @@ namespace Common
         {
             struct passwd userBuf;
             struct passwd* replyUser;
-            std::array<char, NSS_BUFLEN_PASSWD> buffer; // placeholder, event if it is not sufficient
+            int err = ERANGE;
+            const int multiplier = 2;
+            const int bufferStartSize = NSS_BUFLEN_PASSWD;
+            // max size is 131072
+            const double bufferMaxSize = bufferStartSize * pow(multiplier, 7);
+            size_t bufferSize = bufferStartSize;
+            std::unique_ptr<char[]> bufferPtr;
+            while (err == ERANGE && bufferSize <= bufferMaxSize)
+            {
+                bufferPtr = std::make_unique<char[]>(bufferSize);
+                err = getpwuid_r(userId, &userBuf, bufferPtr.get(), bufferSize, &replyUser);
+                bufferSize *= multiplier;
+            }
 
-            int err = getpwuid_r(userId, &userBuf, buffer.data(), buffer.size(), &replyUser);
             if (replyUser == nullptr) // no matching found
             {
                 std::stringstream errorMessage;
