@@ -40,7 +40,7 @@ std::string TimeDuration::toString()
     }
     if (m_sec == 0 && m_hour == 0 && m_minute == 0)
     {
-        timingSummary += "less than a second";
+        timingSummary += "less than a second.";
     }
 
     return  timingSummary;

@@ -189,7 +189,7 @@ CLS Summary in Less Than a Second
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file -x ${NORMAL_DIRECTORY}/clean_file
 
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Contain   ${output}  0 files scanned in less than a second
+    Should Contain   ${output}  0 files scanned in less than a second.
     Should Contain   ${output}  0 files out of 0 were infected.
 
 
