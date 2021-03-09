@@ -142,6 +142,8 @@ function install_product()
     if is_already_installed
     then
         "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
+        # Wait up to 10 seconds for AV Plugin to stop before changing ownership of log files etc
+        timeout 10 tail --pid=$(pgrep -G sophos-spl-group av) -f /dev/null
     fi
 
     #Create plugin registration file
@@ -164,6 +166,7 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
     ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
+    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}"
     chmod 0751 "${PLUGIN_INSTALL}"
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}"
 
@@ -255,7 +258,6 @@ function install_product()
     touch "sophos_threat_detector/sophos_threat_detector.log"
     chown ${USER_NAME}:${GROUP_NAME} "sophos_threat_detector/sophos_threat_detector.log"
     ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
-    chown -R ${USER_NAME}:${GROUP_NAME} ${PLUGIN_INSTALL}/var
 
     pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
     THREAT_DETECTOR="sophos_threat_detector_launcher"

@@ -270,6 +270,17 @@ Check installer corrects permissions of var directory on upgrade
 
     File Log Does Not Contain  Check Marked Watchdog Log Contains  Failed to create file: '${customerIdFile}', Permission denied
 
+Check installer corrects permissions of logs directory on upgrade
+    Register On Fail  dump watchdog log
+    Mark Watchdog Log
+    Change Owner  ${AV_LOG_PATH}  sophos-spl-user  sophos-spl-group
+    Modify manifest
+    Install AV Directly from SDDS
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
+
+    File Log Does Not Contain  Check Marked Watchdog Log Contains  log4cplus:ERROR Unable to open file: ${AV_LOG_PATH}
+
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
