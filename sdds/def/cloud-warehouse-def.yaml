@@ -67,6 +67,11 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
+                subcomponents:
+                    sspl-base-component:
+                        supplements:
+                            - ssplflags-supp
+                    sspl-liveterminal:
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
@@ -78,6 +83,8 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
+                supplements:
+                    - scheduled-query-pack-supp
 
             sspl-av:
                 import:
@@ -117,3 +124,4 @@ customer-files:
         output-dir: customer
         split-warehouses:
             - warehouse: ssplav-wh
+            - warehouse: ssplmdr-wh
