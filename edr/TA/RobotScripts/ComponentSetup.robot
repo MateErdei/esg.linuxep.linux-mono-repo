@@ -41,3 +41,11 @@ Setup Component For Testing
     Create Directory   ${SOPHOS_INSTALL}/plugins/edr/log
     Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
     Run Process   chmod +x ${COMPONENT_BIN_PATH}  shell=True
+
+Uninstall All
+    Run Keyword And Ignore Error  Log File   /tmp/installer.log
+    Run Keyword And Ignore Error  Log File   ${EDR_LOG_PATH}
+    Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=30s
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    File Should Not Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf

@@ -210,7 +210,8 @@ EDR And Base Teardown
 Create Install Options File With Content
     [Arguments]  ${installFlags}
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
-    #TODO set permissions
+    Run Process  chown  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/install_options  shell=True
+    Run Process  chmod  440  ${SOPHOS_INSTALL}/base/etc/install_options  shell=True
 
 Check Ownership
     [Arguments]  ${path}  ${owner}
