@@ -605,7 +605,7 @@ namespace Plugin
             LOGSUPPORT("Flags running mode in policy is EDR");
         }
 
-        PluginUtils::updatePluginConfWithFlag(PluginUtils::QUERY_PACK_NEXT, useNextQueryPack, flagsHaveChanged);
+        PluginUtils::updatePluginConfWithFlag(PluginUtils::QUERY_PACK_NEXT_SETTING, useNextQueryPack, flagsHaveChanged);
         PluginUtils::updatePluginConfWithFlag(PluginUtils::MODE_IDENTIFIER, xdrEnabled, flagsHaveChanged);
         PluginUtils::updatePluginConfWithFlag(PluginUtils::NETWORK_TABLES_AVAILABLE,
             networkTablesAvailable, flagsHaveChanged);

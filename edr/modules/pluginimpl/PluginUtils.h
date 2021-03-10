@@ -63,6 +63,7 @@ namespace Plugin
 
         inline static const std::string MODE_IDENTIFIER = "running_mode";
         inline static const std::string NETWORK_TABLES_AVAILABLE = "network_tables";
+        inline static const std::string QUERY_PACK_NEXT_SETTING = "scheduled_queries_next";
         inline static const std::string XDR_FLAG = "xdr.enabled";
         inline static const std::string QUERY_PACK_NEXT = "scheduled_queries.next";
         inline static const std::string NETWORK_TABLES_FLAG = "livequery.network-tables.available";
