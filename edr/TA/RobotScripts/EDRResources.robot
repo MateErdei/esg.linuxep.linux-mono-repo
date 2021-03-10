@@ -26,6 +26,24 @@ Run Shell Process
 Check EDR Plugin Running
     Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/edr   OnError=EDR not running
 
+Mark File
+    [Arguments]  ${path}
+    ${content} =  Get File   ${path}
+    Log  ${content}
+    [Return]  ${content.split("\n").__len__()}
+
+Marked File Contains
+    [Arguments]  ${path}  ${input}  ${mark}
+    ${content} =  Get File   ${path}
+    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
+    Should Contain  ${content}  ${input}
+
+Marked File Does Not Contain
+    [Arguments]  ${path}  ${input}  ${mark}
+    ${content} =  Get File   ${path}
+    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
+    Should Not Contain  ${content}  ${input}
+
 File Log Contains
     [Arguments]  ${path}  ${input}
     ${content} =  Get File   ${path}
