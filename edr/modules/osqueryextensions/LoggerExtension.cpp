@@ -139,6 +139,11 @@ void LoggerExtension::setFoldingRules(const std::vector<Json::Value>& foldingRul
     m_foldingRules = foldingRules;
 }
 
+std::vector<Json::Value> LoggerExtension::getCurrentFoldingRules()
+{
+    return m_foldingRules;
+}
+
 bool LoggerExtension::compareFoldingRules(const std::vector<Json::Value>& newFoldingRules)
 {
     return m_foldingRules != newFoldingRules;

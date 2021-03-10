@@ -84,7 +84,7 @@ namespace Plugin
         return customQueryPack.dump();
     }
 
-    std::vector<Json::Value> getFoldingRules(const std::string& liveQueryPolicy)
+    std::vector<Json::Value> getFoldingRules(const std::string& liveQueryPolicy, std::vector<Json::Value> lastGoodRules)
     {
         const std::string foldingRulesPath = "policy/configuration/scheduled/foldingRules";
 
@@ -112,13 +112,13 @@ namespace Plugin
         catch (const std::exception& err)
         {
             LOGWARN("Failed to parse folding rules. Error:" << err.what());
-            return std::vector<Json::Value> {};
+            return lastGoodRules;
         }
 
         if (!errors.empty())
         {
             LOGWARN("Unable to parse folding rules:" << errors);
-            return std::vector<Json::Value> {};
+            return lastGoodRules;
         }
 
         std::vector<Json::Value> foldingRules;
@@ -143,8 +143,11 @@ namespace Plugin
         catch (const std::exception& err)
         {
             LOGWARN("Failed to process folding rules. Error:" << err.what());
-            return std::vector<Json::Value> {};
+            return lastGoodRules;
         }
+
+        if(foldingRules == std::vector<Json::Value> {})
+            return lastGoodRules;
 
         return foldingRules;
     }

@@ -787,7 +787,7 @@ namespace Plugin
                 m_loggerExtensionPtr->setDataLimit(m_dataLimit);
                 m_liveQueryRevId = getRevId(liveQueryPolicy);
                 customQueries = getCustomQueries(liveQueryPolicy);
-                foldingRules = getFoldingRules(liveQueryPolicy);
+                foldingRules = getFoldingRules(liveQueryPolicy, m_loggerExtensionPtr->getCurrentFoldingRules());
                 m_liveQueryStatus = "Same";
             }
             catch (std::exception& e)

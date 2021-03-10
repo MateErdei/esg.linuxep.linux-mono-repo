@@ -36,6 +36,7 @@ public:
     bool getDataLimitReached();
     void reloadTags();
     void setFoldingRules(const std::vector<Json::Value>& foldingRules);
+    std::vector<Json::Value> getCurrentFoldingRules();
     bool compareFoldingRules(const std::vector<Json::Value>& newFoldingRules);
     std::vector<std::string> getFoldableQueries() const;
 
