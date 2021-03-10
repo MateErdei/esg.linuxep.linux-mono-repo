@@ -84,7 +84,7 @@ namespace Plugin
         return customQueryPack.dump();
     }
 
-    std::vector<Json::Value> getFoldingRules(const std::string& liveQueryPolicy, std::vector<Json::Value> lastGoodRules)
+    std::vector<Json::Value> getFoldingRules(const std::string& liveQueryPolicy, const std::vector<Json::Value> lastGoodRules)
     {
         const std::string foldingRulesPath = "policy/configuration/scheduled/foldingRules";
 
