@@ -4,7 +4,7 @@ Suite Teardown   EDR Suite Teardown
 
 Test Setup       Run Keywords
 ...              EDR Test Setup   AND
-...              Run Shell Process    systemctl start auditd   OnError=failed to start auditd   timeout=60s
+...              Ensure AuditD Running
 
 Test Teardown    EDR Test Teardown
 
@@ -48,7 +48,7 @@ EDR Disables Auditd After Install With Auditd Running Default Behaviour
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   2 secs
-    ...   check edr has audit netlink
+    ...   Check EDR Has Audit Netlink
 
     ${contents}=  Get File  ${EDR_DIR}/etc/osquery.flags
     Should contain  ${contents}  --disable_audit=false
@@ -156,7 +156,11 @@ Thin Installer Creates Options File With Many Args
     Should Contain  ${options}  --c
 
 *** Keywords ***
-check edr has audit netlink
+Check EDR Has Audit Netlink
     ${edr_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
     ${result} =  Run Process   auditctl -s | grep pid | awk '{print $2}'  shell=True
     Should be equal as strings  ${result.stdout}  ${edr_pid.stdout}
+
+Ensure AuditD Running
+    ${status} =   Run Process  systemctl  is-active  auditd
+    Run Keyword If  ${status.rc} != 0  Run Shell Process  systemctl restart auditd   OnError=failed to start auditd   timeout=60s
