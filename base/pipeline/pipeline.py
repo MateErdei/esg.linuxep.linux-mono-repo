@@ -1,4 +1,5 @@
 import os
+import time
 import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 
@@ -29,8 +30,14 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def package_install(machine: tap.Machine, *install_args: str):
     if machine.run('which', 'apt-get', return_exit_code=True) == 0:
-        machine.run('apt-get', '-y', 'install', *install_args,
-                    log_mode=tap.LoggingMode.ON_ERROR)
+        i = 0
+        while i < 10:
+            if machine.run('apt-get', '-y', 'install', *install_args,
+                    log_mode=tap.LoggingMode.ON_ERROR) == 0:
+                break
+            else:
+                ++i
+                time.sleep(3)
     else:
         machine.run('yum', '-y', 'install', *install_args,
                     log_mode=tap.LoggingMode.ON_ERROR)
