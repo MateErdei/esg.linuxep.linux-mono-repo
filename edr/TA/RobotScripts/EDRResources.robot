@@ -5,7 +5,6 @@ Library         String
 Library         DateTime
 
 Library         ../Libs/FakeManagement.py
-Library         ../Libs/XDRLibs.py
 
 Resource    ComponentSetup.robot
 
@@ -25,24 +24,6 @@ Run Shell Process
 
 Check EDR Plugin Running
     Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/edr   OnError=EDR not running
-
-Mark File
-    [Arguments]  ${path}
-    ${content} =  Get File   ${path}
-    Log  ${content}
-    [Return]  ${content.split("\n").__len__()}
-
-Marked File Contains
-    [Arguments]  ${path}  ${input}  ${mark}
-    ${content} =  Get File   ${path}
-    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
-    Should Contain  ${content}  ${input}
-
-Marked File Does Not Contain
-    [Arguments]  ${path}  ${input}  ${mark}
-    ${content} =  Get File   ${path}
-    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
-    Should Not Contain  ${content}  ${input}
 
 File Log Contains
     [Arguments]  ${path}  ${input}
@@ -113,17 +94,9 @@ Install With Base SDDS
     Run Keyword If  ${preInstallALCPolicy}  Install ALC Policy   ALCContent
     Install EDR Directly from SDDS
 
-#Uninstall All
-#    Run Keyword And Ignore Error  Log File   /tmp/installer.log
-#    Run Keyword And Ignore Error  Log File   ${EDR_LOG_PATH}
-#    Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
-#    ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=30s
-#    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
-#    File Should Not Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
-
 Uninstall EDR
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --force   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall EDR.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
 
 Uninstall And Revert Setup
     Uninstall All
@@ -135,20 +108,6 @@ Install Base For Component Tests
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install EDR Directly from SDDS
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf       5
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf            5
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf   5
-    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf        5
-    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
-    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
-    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
-    Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
 
@@ -182,7 +141,7 @@ Check Osquery Running
     Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd   OnError=osquery not running
 
 Display All SSPL Files Installed
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v comms | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}

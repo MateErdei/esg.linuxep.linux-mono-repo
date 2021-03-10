@@ -12,13 +12,14 @@ Resource        ComponentSetup.robot
 Suite Setup     No Operation
 Suite Teardown  No Operation
 
-Test Setup      Install With Base SDDS
+Test Setup      Run Keywords
+...  Install With Base SDDS  AND
+...  Check EDR Plugin Installed With Base
+
 Test Teardown   Test Teardown
 
 *** Test Cases ***
 EDR Plugin outputs XDR results and Its Answer is available to MCSRouter
-    [Setup]  Install With Base SDDS
-    Check EDR Plugin Installed With Base
     Add Uptime Query to Scheduled Queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Enable XDR
@@ -28,8 +29,6 @@ EDR Plugin outputs XDR results and Its Answer is available to MCSRouter
     ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
 EDR Plugin Restarts Osquery When Custom Queries Have Changed
-    [Setup]  Install With Base SDDS
-    Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
@@ -54,7 +53,6 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
 EDR Plugin Tags All Queries Correctly
-    Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
@@ -80,8 +78,6 @@ EDR Plugin Tags All Queries Correctly
     ...  Check All Query Results Contain Correct Tag  ${SOPHOS_INSTALL}/base/mcs/datafeed/  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
 EDR Plugin Applies Folding Rules When Folding Rules Have Changed
-    [Setup]  Install With Base SDDS
-    Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
@@ -131,8 +127,6 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     Should Be True  ${folded_count} < 100
 
 EDR Plugin Applies Folding Rules Based Column Value
-    [Setup]  Install With Base SDDS
-    Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
@@ -166,8 +160,6 @@ EDR Plugin Applies Folding Rules Based Column Value
     Should Be True  ${folded_count} < 100
 
 EDR Plugin Runs All Scheduled Queries
-    [Setup]  Install With Base SDDS
-    Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
@@ -278,10 +270,8 @@ EDR Plugin Respects Data Limit
     ...  1 secs
     ...  EDR Plugin Log Contains  First LiveQuery policy received
     Expect New Datalimit  10000
-#    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-#    change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  10
-    change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  10
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    change_all_scheduled_queries_interval  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  10
     Enable XDR
 
     # Restart edr so that the altered queries are read in and debug mode applied
@@ -374,7 +364,7 @@ Check XDR Results Contain Correct ScheduleEpoch Timestamp
     Should Contain  ${scheduledQueryContents}  "epoch":${currentEpochTimeMinus3Days}
 
 EDR Plugin Hits Data Limit And Queries Resume After Period
-    [Setup]  No Operation
+    [Setup]  Uninstall All
     [Timeout]  600
     [Teardown]  Run keywords
                 ...  Remove File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf  AND
@@ -606,7 +596,7 @@ Add Uptime Query to Scheduled Queries
 
 Test Teardown
     EDR And Base Teardown
-    Uninstall And Revert Setup
+    Uninstall All
 
 Osquery Flag File Should Contain
     [Arguments]  ${stringToContain}
