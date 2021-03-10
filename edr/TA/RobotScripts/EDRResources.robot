@@ -116,10 +116,20 @@ Install Base For Component Tests
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install EDR Directly from SDDS
-    Copy File  ${TEST_INPUT_PATH}/test_scripts/RobotScripts/data/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/test_scripts/RobotScripts/data/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
-    Copy File  ${TEST_INPUT_PATH}/test_scripts/RobotScripts/data/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
-    Copy File  ${TEST_INPUT_PATH}/test_scripts/RobotScripts/data/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
+    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf       5
+    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf            5
+    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf   5
+    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf        5
+    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
+    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
+    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
+    Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
+    Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
+    Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
 
