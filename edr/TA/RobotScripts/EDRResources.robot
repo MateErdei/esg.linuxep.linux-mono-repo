@@ -5,6 +5,7 @@ Library         String
 Library         DateTime
 
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/XdrLibs.py
 
 Resource    ComponentSetup.robot
 
