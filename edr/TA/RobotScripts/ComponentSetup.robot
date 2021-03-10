@@ -46,6 +46,9 @@ Uninstall All
     Run Keyword And Ignore Error  Log File   /tmp/installer.log
     Run Keyword And Ignore Error  Log File   ${EDR_LOG_PATH}
     Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Run Keyword If  os.path.exists("${SOPHOS_INSTALL}/bin/uninstall.sh")  Uninstall Base
+    File Should Not Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
+
+Uninstall Base
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=30s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
-    File Should Not Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
