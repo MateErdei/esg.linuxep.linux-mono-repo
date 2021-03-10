@@ -34,6 +34,7 @@ Resource    UpgradeResources.robot
 *** Variables ***
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${BaseEdrAndMtrReleasePolicy}               ${GeneratedWarehousePolicies}/base_edr_and_mtr_VUT-1.xml
+${BaseEdrAndMtrAndAVReleasePolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
 ${BaseAndEDROldWHFormat}                    ${GeneratedWarehousePolicies}/base_edr_old_wh_format.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${BaseAndMtrAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
@@ -42,6 +43,8 @@ ${BaseAndEdrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_a
 ${BaseOnlyVUTPolicy}                        ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${BaseOnlyVUT_weekly_schedule_Policy}       ${GeneratedWarehousePolicies}/base_only_weeklyScheduleVUT.xml
 ${BaseOnlyVUT_Without_SDU_Policy}           ${GeneratedWarehousePolicies}/base_only_VUT_without_SDU_Feature.xml
+${BaseAndMtrAndAvReleasePolicy}             ${GeneratedWarehousePolicies}/base_and_mtr_and_av_VUT-1.xml
+${BaseAndMtrAndAvVUTPolicy}                 ${GeneratedWarehousePolicies}/base_and_mtr_and_av_VUT.xml
 
 ${LocalWarehouseDir}                        ./local_warehouses
 ${Testpolicy}                               ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_and_mtr_VUT.xml
@@ -99,21 +102,18 @@ We Can Install From A Ballista Warehouse
 #    Fail
 
 We Can Upgrade From A Release To Master Without Unexpected Errors
-    [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndAvReleasePolicy}
 
     Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
-    Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndAvReleasePolicy}
+
 
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
 
     Check EAP Release Installed Correctly
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
@@ -124,15 +124,16 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrAndAvVUTPolicy}
 
     Mark Watchdog Log
     Mark Managementagent Log
 
+    Trigger Update Now
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -142,16 +143,13 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-    #TODO LINUXDAR-2881 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     #TODO LINUXDAR-2339 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
 
     Check Mtr Reconnects To Management Agent After Upgrade
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
@@ -166,20 +164,17 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Check Update Reports Have Been Processed
 
 VersionCopy File in the Wrong Location Is Removed
-    [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
 
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
-    Override LogConf File as Global Level  DEBUG
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
 
     Check EAP Release Installed Correctly
 
@@ -206,7 +201,7 @@ VersionCopy File in the Wrong Location Is Removed
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -215,8 +210,8 @@ VersionCopy File in the Wrong Location Is Removed
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
 We Can Downgrade From Master To A Release Without Unexpected Errors
-    [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
+    [Timeout]  600
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndEdrVUTPolicy}
 
@@ -226,9 +221,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...   200 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
 
     Check Current Release Installed Correctly
     # products that should change version
@@ -284,17 +276,12 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
-    #TODO LINUXDAR-2881 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     #TODO LINUXDAR-2339 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-    Log File  /tmp/preserve-sul-downgrade
     Check EAP Release Installed Correctly
 
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
@@ -311,24 +298,14 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
 
     # Upgrade back to master to check we can upgrade from a downgraded product
+    # Then check the number of update successes to prove everything is OK.
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndEdrVUTPolicy}
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  150 secs
-    ...  10 secs
-    ...  Component Version has changed  ${BaseReleaseVersion}    ${InstalledBaseVersionFile}
-
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Component Version has changed  ${MtrReleaseVersion}    ${InstalledMDRPluginVersionFile}
-
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Component Version has changed  ${EdrReleaseVersion}    ${InstalledEDRPluginVersionFile}
-
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     #the query pack should have been re-installed
     Should Exist  ${Sophos_Scheduled_Query_Pack}
@@ -401,8 +378,8 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     # ensure that the list of files to remove contains files which are outside of the components realm
     ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
@@ -457,11 +434,13 @@ Version Copy Versions All Changed Files When Upgrading
 
     Mark Watchdog Log
     Mark Managementagent Log
+    Trigger Update Now
+
 
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
 
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
@@ -469,15 +448,11 @@ Version Copy Versions All Changed Files When Upgrading
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-    #TODO LINUXDAR-2881 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     # FIXME LINUXDAR-2136 remove this line
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to connect to the warehouse
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
     #TODO LINUXDAR-2339 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
 
     Check Mtr Reconnects To Management Agent After Upgrade
 
@@ -538,8 +513,8 @@ Update Will Be Forced When Feature List Changes Without Unexpected Errors
     # Update should be automatically invoke due to policy
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
@@ -573,8 +548,8 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
      # Update should be automatically invoke due to policy
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
@@ -636,20 +611,6 @@ Ensure Download Report Content Contains Sub Component Entries
     # Make sure that the minimum components are listed.
     # This will ensure sub components are listed in the report when a sub component has it's own installer.
     Check Download Report Contains Minimum Products
-
-Test That Only Subscriptions Appear As Subscriptions In ALC Status File
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Only Subscriptions In Policy Are In Alc Status Subscriptions
 
 *** Keywords ***
 
@@ -881,11 +842,6 @@ Check Files After Upgrade
     File Should Exist   ${UPDATE_CONFIG}
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
 
-Component Version has changed
-    [Arguments]  ${oldVersion}  ${InstalledVersionFile}
-    ${NewDevVersion} =  Get Version Number From Ini File   ${InstalledVersionFile}
-    Should Not Be Equal As Strings  ${oldVersion}  ${NewDevVersion}
-
 Check Update Reports Have Been Processed
     Directory Should Exist  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
     ${files_in_processed_dir} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
@@ -894,10 +850,7 @@ Check Update Reports Have Been Processed
     Log  ${filesInUpdateVar}
 
     ${ProcessedFileCountDir}=  Get length   ${files_in_processed_dir}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Should Be Equal As Numbers  ${ProcessedFileCountDir}     2
+    Should Be Equal As Numbers  ${ProcessedFileCountDir}     2
 
     Should Contain  ${files_in_processed_dir}[0]  update_report
     Should Not Contain  ${files_in_processed_dir}[0]  update_report.json
