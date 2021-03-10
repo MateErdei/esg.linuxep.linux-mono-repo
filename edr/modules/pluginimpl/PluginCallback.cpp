@@ -36,7 +36,7 @@ namespace Plugin
     void PluginCallback::applyNewPolicyWithAppId(const std::string& appId, const std::string& policyXml)
     {
         LOGSUPPORT("Applying new policy with APPID: " << appId);
-        m_task->push(Task { Task::TaskType::Policy, policyXml, "", appId });
+        m_task->push(Task { Task::TaskType::POLICY, policyXml, "", appId });
     }
 
     void PluginCallback::queueAction(const std::string& /* actionXml */)
@@ -47,7 +47,7 @@ namespace Plugin
     void PluginCallback::queueActionWithCorrelation(const std::string& queryJson, const std::string& correlationId)
     {
         LOGSUPPORT("Receive new query");
-        m_task->push(Task { Task::TaskType::Query, queryJson, correlationId });
+        m_task->push(Task { Task::TaskType::QUERY, queryJson, correlationId });
     }
 
     void PluginCallback::onShutdown()

@@ -193,6 +193,8 @@ namespace Plugin
                 {
                     m_osqueryConfigurator.enableQueryPack(Plugin::osqueryXDRConfigFilePath());
                     sendLiveQueryStatus();
+                    m_queueTask->pushOsqueryRestart(
+                        "Data limit period has rolled over, need to re-enable query pack");
                 }
 
                 //Check extensions are still running and restart osquery if any have stopped unexpectedly
@@ -262,14 +264,20 @@ namespace Plugin
                         LOGDEBUG("Process task STOP");
                         stopOsquery();
                         return;
-                    case Task::TaskType::RESTARTOSQUERY:
+                    case Task::TaskType::START_OSQUERY:
                         LOGDEBUG("Process task RESTARTOSQUERY");
                         LOGINFO("Restarting osquery");
                         setUpOsqueryMonitor();
                         break;
-                    case Task::TaskType::OSQUERYPROCESSFINISHED:
+                    case Task::TaskType::QUEUE_OSQUERY_RESTART:
+                        LOGDEBUG("Process task QUEUE_OSQUERY_RESTART");
+                        LOGINFO("Restarting osquery, reason: " << task.m_content);
+                        m_restartNoDelay = true;
+                        stopOsquery();
+                        break;
+                    case Task::TaskType::OSQUERY_PROCESS_FINISHED:
                     {
-                        LOGDEBUG("Process task OSQUERYPROCESSFINISHED");
+                        LOGDEBUG("Process task OSQUERY_PROCESS_FINISHED");
                         m_timesOsqueryProcessFailedToStart = 0;
                         Common::Telemetry::TelemetryHelper::getInstance().increment(
                             plugin::telemetryOsqueryRestarts, 1UL);
@@ -279,11 +287,11 @@ namespace Plugin
                         LOGINFO("osquery stopped. Scheduling its restart in " << delay <<" seconds.");
                         m_delayedRestart.reset( // NOLINT
                             new WaitUpTo(
-                                std::chrono::seconds(delay), [this]() { this->m_queueTask->pushRestartOsquery(); }));
+                                std::chrono::seconds(delay), [this]() { this->m_queueTask->pushStartOsquery(); }));
                         break;
                     }
-                    case Task::TaskType::Policy:
-                        LOGDEBUG("Process task Policy: " << task.m_appId);
+                    case Task::TaskType::POLICY:
+                        LOGDEBUG("Process task POLICY: " << task.m_appId);
                         if (task.m_appId == "FLAGS")
                         {
                             processFlags(task.m_content);
@@ -300,12 +308,12 @@ namespace Plugin
                             LOGWARN("Received " << task.m_appId << " policy unexpectedly");
                         }
                         break;
-                    case Task::TaskType::Query:
-                        LOGDEBUG("Process task Query");
+                    case Task::TaskType::QUERY:
+                        LOGDEBUG("Process task QUERY");
                         processQuery(task.m_content, task.m_correlationId);
                         break;
-                    case Task::TaskType::OSQUERYPROCESSFAILEDTOSTART:
-                        LOGDEBUG("Process task OsqueryProcessFailedToStart");
+                    case Task::TaskType::OSQUERY_PROCESS_FAILED_TO_START:
+                        LOGDEBUG("Process task OSQUERY_PROCESS_FAILED_TO_START");
                         static unsigned int baseDelay = 10;
                         static unsigned int growthBase = 2;
                         static unsigned int maxTime = 320;
@@ -321,7 +329,7 @@ namespace Plugin
                             plugin::telemetryOsqueryRestarts, 1UL);
                         m_delayedRestart.reset( // NOLINT
                             new WaitUpTo(
-                                std::chrono::seconds(delay), [this]() { this->m_queueTask->pushRestartOsquery(); }));
+                                std::chrono::seconds(delay), [this]() { this->m_queueTask->pushStartOsquery(); }));
                 }
             }
         }
@@ -407,7 +415,7 @@ namespace Plugin
     void PluginAdapter::setUpOsqueryMonitor()
     {
         LOGINFO("Prepare system for running osquery");
-        m_osqueryConfigurator.prepareSystemForPlugin(m_isXDR, m_scheduleEpoch.getValue());
+        m_osqueryConfigurator.prepareSystemForPlugin(m_isXDR, m_scheduleEpoch.getValue(), m_loggerExtensionPtr->getDataLimitReached());
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;
@@ -459,7 +467,7 @@ namespace Plugin
             return;
         }
         m_loggerExtensionPtr->reloadTags();
-        for( auto extensionAndRunningStatus :   m_extensionAndStateList)
+        for (const auto& extensionAndRunningStatus :   m_extensionAndStateList)
         {
             auto extension = extensionAndRunningStatus.first;
             extensionAndRunningStatus.second->store(false);
@@ -635,7 +643,7 @@ namespace Plugin
                 LOGINFO(policyAppId << " policy has not been sent to the plugin");
                 break;
             }
-            if (task.m_taskType == Plugin::Task::TaskType::Policy && task.m_appId == policyAppId)
+            if (task.m_taskType == Plugin::Task::TaskType::POLICY && task.m_appId == policyAppId)
             {
                 policyContent = task.m_content;
                 LOGINFO("First " << policyAppId << " policy received.");
@@ -705,12 +713,10 @@ namespace Plugin
     void PluginAdapter::dataFeedExceededCallback()
     {
         LOGWARN("Datafeed limit has been hit. Disabling scheduled queries");
-
+        Plugin::OsqueryConfigurator::disableQueryPack(Plugin::osqueryXDRConfigFilePath());
         sendLiveQueryStatus();
-        stopOsquery();
-        m_osqueryConfigurator.disableQueryPack(Plugin::osqueryXDRConfigFilePath());
-        // osquery will automatically be restarted but set this to make sure there is no delay.
-        m_restartNoDelay = true;
+        // Thread safe osquery and extensions stop call, osquery and all extensions will be restarted automatically
+        m_queueTask->pushOsqueryRestart("XDR data limit exceeded");
     }
 
     void PluginAdapter::telemetryResetCallback(Common::Telemetry::TelemetryHelper& telemetry)

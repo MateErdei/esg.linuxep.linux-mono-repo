@@ -18,3 +18,4 @@ tests/googletest
 log
 PLUGINNAME
 thirdparty/libprotobuf-mutator/
+/TA/output.xml

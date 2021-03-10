@@ -22,7 +22,7 @@ namespace Plugin
         bool enableAuditDataCollection() const;
 
         void loadALCPolicy(const std::string& alcPolicy);
-        void prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch);
+        void prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch, bool xdrDataLimitHit);
         static void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection,
                                                bool xdrEnabled,
                                                time_t scheduleEpoch);

@@ -40,25 +40,31 @@ namespace Plugin
 
     void QueueTask::pushOsqueryProcessDelayRestart()
     {
-        Task stopTask{ .m_taskType = Task::TaskType::OSQUERYPROCESSFAILEDTOSTART, .m_content = "" };
+        Task stopTask{ .m_taskType = Task::TaskType::OSQUERY_PROCESS_FAILED_TO_START, .m_content = "" };
         push(stopTask);
     }
 
     void QueueTask::pushOsqueryProcessFinished()
     {
-        Task stopTask{ .m_taskType = Task::TaskType::OSQUERYPROCESSFINISHED, .m_content = "" };
+        Task stopTask{ .m_taskType = Task::TaskType::OSQUERY_PROCESS_FINISHED, .m_content = "" };
         push(stopTask);
     }
 
-    void QueueTask::pushRestartOsquery()
+    void QueueTask::pushStartOsquery()
     {
-        Task stopTask{ .m_taskType = Task::TaskType::RESTARTOSQUERY, .m_content = "" };
+        Task stopTask{ .m_taskType = Task::TaskType::START_OSQUERY, .m_content = "" };
         push(stopTask);
     }
 
     void QueueTask::pushPolicy(const std::string& appId, const std::string& policyXMl)
     {
-        Task task{ .m_taskType = Task::TaskType::Policy, .m_content = policyXMl, .m_correlationId = "", .m_appId = appId };
+        Task task{ .m_taskType = Task::TaskType::POLICY, .m_content = policyXMl, .m_correlationId = "", .m_appId = appId };
         push(task);
+    }
+
+    void QueueTask::pushOsqueryRestart(const std::string& reason)
+    {
+        Task stopTask{ .m_taskType = Task::TaskType::QUEUE_OSQUERY_RESTART, .m_content = reason };
+        push(stopTask);
     }
 } // namespace Plugin

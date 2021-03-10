@@ -51,9 +51,10 @@ ResultsSender::ResultsSender(
     {
         LOGERROR("Failed to load scheduled query tags on start up. " << e.what());
     }
+    LOGDEBUG("Initial XDR data limit: " << m_dataLimit << " bytes");
+    LOGDEBUG("Initial XDR data limit roll over period: " << m_periodInSeconds.getValue() << " seconds");
+    LOGDEBUG("Initial XDR data limit roll over timestamp: " << m_periodStartTimestamp.getValue());
 }
-
-
 
 void ResultsSender::Add(const std::string& result)
 {
@@ -68,11 +69,18 @@ void ResultsSender::Add(const std::string& result)
     unsigned int incrementedDataUsage = m_currentDataUsage.getValue() + result.length();
 
     // Record that this data has caused us to go over limit.
-    if (incrementedDataUsage > m_dataLimit)
+    if (incrementedDataUsage > m_dataLimit && !m_hitLimitThisPeriod.getValue())
     {
         LOGWARN("XDR data limit for this period exceeded");
         m_hitLimitThisPeriod.setValue(true);
-        m_dataExceededCallback();
+        try
+        {
+            m_dataExceededCallback();
+        }
+        catch (const std::exception& ex)
+        {
+            LOGERROR("Data exceeded callback threw an exception: " << ex.what());
+        }
     }
 
     Json::Value logLine;
@@ -155,7 +163,7 @@ void ResultsSender::Send()
 
 void ResultsSender::Reset()
 {
-    LOGDEBUG("Reset");
+    LOGDEBUG("ResultsSender::Reset");
     auto filesystem = Common::FileSystem::fileSystem();
     if (filesystem->exists(m_intermediaryPath))
     {

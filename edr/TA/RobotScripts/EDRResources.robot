@@ -56,7 +56,7 @@ File Log Does Not Contain
 
 EDR Plugin Log Contains
     [Arguments]  ${input}
-    File Log Contains  ${EDR_LOG_PATH}   ${input}
+        File Log Contains  ${EDR_LOG_PATH}   ${input}
 
 EDR Plugin Log Does Not Contain
     [Arguments]  ${input}
@@ -113,13 +113,13 @@ Install With Base SDDS
     Run Keyword If  ${preInstallALCPolicy}  Install ALC Policy   ALCContent
     Install EDR Directly from SDDS
 
-Uninstall All
-    Run Keyword And Ignore Error  Log File   /tmp/installer.log
-    Run Keyword And Ignore Error  Log File   ${EDR_LOG_PATH}
-    Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
-    ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=30s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
-    File Should Not Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
+#Uninstall All
+#    Run Keyword And Ignore Error  Log File   /tmp/installer.log
+#    Run Keyword And Ignore Error  Log File   ${EDR_LOG_PATH}
+#    Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log
+#    ${result} =   Run Process  bash ${SOPHOS_INSTALL}/bin/uninstall.sh --force   shell=True   timeout=30s
+#    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall base.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+#    File Should Not Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
 
 Uninstall EDR
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --force   shell=True   timeout=20s
@@ -194,6 +194,7 @@ EDR And Base Teardown
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/edr/extensions/extensions.load
+
     Run Keyword If Test Failed   Display All SSPL Files Installed
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
     Wait Until Keyword Succeeds
@@ -201,7 +202,8 @@ EDR And Base Teardown
     ...  1 secs
     ...  Check EDR Executable Not Running
     Run Keyword If Test Failed   Log File   ${EDR_LOG_PATH}
-    Run Keyword If Test Failed   Log File   ${LIVEQUERY_LOG_PATH}
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${LIVEQUERY_LOG_PATH}
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
     Remove File    ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
 
@@ -231,3 +233,18 @@ Restart EDR
     ...  1 secs
     ...  EDR Plugin Log Contains      edr <> Plugin Finished
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+
+File Should Contain
+    [Arguments]  ${file}  ${string_to_contain}
+    ${content} =  Get File  ${file}
+    Should Contain  ${content}   ${string_to_contain}
+
+File Should Contain Only
+    [Arguments]  ${file}  ${string}
+    ${content} =  Get File  ${file}
+    Should Be Equal As Strings  ${content}   ${string}
+
+File Should Not Contain Only
+    [Arguments]  ${file}  ${string}
+    ${content} =  Get File  ${file}
+    Should Not Be Equal As Strings  ${content}   ${string}

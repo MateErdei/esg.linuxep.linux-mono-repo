@@ -192,7 +192,7 @@ namespace Plugin
         fileSystem->writeFile(osqueryFlagsFilePath, flagsAsString.str());
     }
 
-    void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch)
+    void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch, bool xdrDataLimitHit)
     {
         m_disableAuditDInPluginConfig = retrieveDisableAuditDFlagFromSettingsFile();
         bool disableAuditDataGathering = enableAuditDataCollection();
@@ -202,7 +202,7 @@ namespace Plugin
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditDataGathering, xdrEnabled, scheduleEpoch);
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
 
-        if (xdrEnabled)
+        if (xdrEnabled && !xdrDataLimitHit)
         {
             enableQueryPack(Plugin::osqueryXDRConfigFilePath());
         }
@@ -319,7 +319,7 @@ namespace Plugin
             try
             {
                 fs->moveFile(disabledPath, queryPackFilePath);
-                LOGDEBUG("Enabled query pack conf file");
+                LOGDEBUG("Enabled query pack conf file: " << queryPackFilePath);
             }
             catch (std::exception& ex)
             {

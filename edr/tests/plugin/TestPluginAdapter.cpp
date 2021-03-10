@@ -150,7 +150,7 @@ TEST_F(TestPluginAdapterWithLogger, processALCPolicyShouldInstructRestartOnChang
 Plugin::Task defaultQueryTask()
 {
     Plugin::Task task;
-    task.m_taskType = Plugin::Task::TaskType::Query;
+    task.m_taskType = Plugin::Task::TaskType::QUERY;
     task.m_correlationId = "id";
     task.m_content = "a";
     return task;
