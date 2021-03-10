@@ -262,7 +262,7 @@ function install_product()
     ln -snf "${BACKLINK}/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector" \
         ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create symlink ${CHROOT_LINK_DIR}/log/sophos_threat_detector: $?"
     # Create empty log file so that symlink to it will not be cleaned up by the SSPL Base installer
-    mkdir sophos_threat_detector
+    mkdir -p sophos_threat_detector
     touch "sophos_threat_detector/sophos_threat_detector.log"
     chown ${USER_NAME}:${GROUP_NAME} "sophos_threat_detector/sophos_threat_detector.log"
     ln -snf "sophos_threat_detector/sophos_threat_detector.log" "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
