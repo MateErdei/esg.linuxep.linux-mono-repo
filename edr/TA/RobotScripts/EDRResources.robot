@@ -37,7 +37,7 @@ File Log Does Not Contain
 
 EDR Plugin Log Contains
     [Arguments]  ${input}
-        File Log Contains  ${EDR_LOG_PATH}   ${input}
+    File Log Contains  ${EDR_LOG_PATH}   ${input}
 
 EDR Plugin Log Does Not Contain
     [Arguments]  ${input}
