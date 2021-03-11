@@ -77,6 +77,7 @@ def get_suffix():
     return "-" + BRANCH_NAME
 
 
+@tap.timeout(5400)
 def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=None):
     if machine_name is None:
         machine_name = machine.template
@@ -87,7 +88,8 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
             robot_exclusion_tags.remove('VQA')
 
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
-        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', *robot_exclusion_tags, environment=environment,
+        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', *robot_exclusion_tags,
+                    environment=environment,
                     timeout=5400)
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
