@@ -60,7 +60,7 @@ EDR changes running mode when XDR enabled flags are sent
     ...  10
     ...  1
     ...  Check EDR Log Contains  Flags running mode in policy is XDR
-    Check EDR Log Contains  Updating XDR flag settings
+    Check EDR Log Contains  Updating running_mode flag settings
     ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Should Contain  ${contents}   running_mode=1
     Should Not Contain  ${contents}   running_mode=0
@@ -114,7 +114,7 @@ EDR disables curl tables when network available flag becomes false
     Wait Until Keyword Succeeds
     ...  10
     ...  1
-    ...  Check EDR Log Contains  Updating XDR flag settings
+    ...  Check EDR Log Contains  Updating running_mode flag settings
     ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Should Contain  ${contents}   network_tables=1
     Should Not Contain  ${contents}   network_tables=0

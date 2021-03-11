@@ -232,6 +232,10 @@ Wait Until EDR Uninstalled
     ...  Check EDR Plugin Uninstalled
 
 Get Edr OsQuery PID
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   Check EDR Osquery Executable Running
     ${edr_osquery_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
     [return]  ${edr_osquery_pid.stdout}
 
