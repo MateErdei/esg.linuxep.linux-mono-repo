@@ -823,12 +823,7 @@ namespace Plugin
             // Folding rules
             try
             {
-                if (!changeFoldingRules)
-                {
-                    foldingRules = m_loggerExtensionPtr->getCurrentFoldingRules();
-                }
-
-                if (m_liveQueryStatus != "Failure" && m_loggerExtensionPtr->compareFoldingRules(foldingRules))
+                if (m_liveQueryStatus != "Failure" && m_loggerExtensionPtr->compareFoldingRules(foldingRules) && changeFoldingRules)
                 {
                     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
