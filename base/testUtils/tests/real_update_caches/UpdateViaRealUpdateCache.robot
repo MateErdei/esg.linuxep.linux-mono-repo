@@ -27,7 +27,7 @@ Endpoint Updates Via Update Cache Without Errors
     Log File  ${InstalledMTRVersionFile}
 
     Remove File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-
+    Override LogConf File as Global Level  DEBUG
     Register With Real Update Cache and Message Relay Account
     Wait For MCS Router To Be Running
     Wait For Server In Cloud
