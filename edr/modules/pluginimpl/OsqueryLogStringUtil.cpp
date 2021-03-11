@@ -21,8 +21,13 @@ std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForSchedul
             return {};
         }
 
+        auto first = items[0].find_first_not_of(" ");
+        if (first == std::string::npos)
+        {
+            return {};
+        }
         std::string time;
-        std::vector<std::string> timeString = Common::UtilityImpl::StringUtils::splitString(items[0], " ");
+        std::vector<std::string> timeString = Common::UtilityImpl::StringUtils::splitString(items[0].substr(first), " ");
         if(timeString.size() < 2)
         {
             return {};

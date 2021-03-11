@@ -12,13 +12,22 @@ class TestOsqueryLogStringUtil : public LogOffInitializedTests{};
 
 TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsCorrectFormattedString) // NOLINT
 {
-    std::string line = "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query host_sensor_heartbeat_check: SELECT";
+    std::vector<std::string> lines{
+        "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query host_sensor_heartbeat_check: SELECT",
+        "    \"deI0310 16:50:56.705953 35257 scheduler.cpp:103] Executing scheduled query running_processes_linux_events: SELECT"   // due to invalid JSON in config file
+    };
+    std::vector<std::string> expected{
+        "Executing query: host_sensor_heartbeat_check at: 15:47:24.150650",
+        "Executing query: running_processes_linux_events at: 16:50:56.705953"
+    };
 
-    std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
+    for (size_t index=0 ; index<lines.size() ; index++)
+    {
+        std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(lines[index]);
 
-    EXPECT_EQ(actualResult.has_value(), true);
-    EXPECT_EQ(actualResult.value(), "Executing query: host_sensor_heartbeat_check at: 15:47:24.150650");
-
+        ASSERT_TRUE(actualResult.has_value());
+        EXPECT_EQ(actualResult.value(), expected[index]);
+    }
 }
 
 TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsFalseForUninterestingStrings) // NOLINT
