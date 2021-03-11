@@ -14,11 +14,12 @@
         <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
         <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
         <bootstrap Location="" UsePrimaryServerAddress="true"/>
-        <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+        <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/>
         <cloud_subscriptions>
-            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
-            <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/>
-            <subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="RECOMMENDED"/>
+            <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/>
+            <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="BETA"/>
+            <subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="BETA"/>
+            <subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="BETA"/>
         </cloud_subscriptions>
         <delay_supplements enabled="true"/>
     </AUConfig>
@@ -27,6 +28,7 @@
         <Feature id="MDR"/>
         <Feature id="SDU"/>
         <Feature id="AV"/>
+        <Feature id="LIVEQUERY"/>
     </Features>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
     <customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/>

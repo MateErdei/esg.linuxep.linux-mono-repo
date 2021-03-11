@@ -18,6 +18,7 @@
         <cloud_subscriptions>
             <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
             <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/>
+            <subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/>
             <subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="RECOMMENDED"/>
         </cloud_subscriptions>
         <delay_supplements enabled="true"/>
@@ -27,6 +28,7 @@
         <Feature id="MDR"/>
         <Feature id="SDU"/>
         <Feature id="AV"/>
+        <Feature id="LIVEQUERY"/>
     </Features>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
     <customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/>

@@ -25,6 +25,7 @@ Resource    ../mcs_router-nova/McsRouterNovaResources.robot
 Resource    ../installer/InstallerResources.robot
 Resource    ../thin_installer/ThinInstallerResources.robot
 Resource    ../example_plugin/ExamplePluginResources.robot
+Resource    ../av_plugin/AVResources.robot
 Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../edr_plugin/EDRResources.robot
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
@@ -34,15 +35,21 @@ Resource    UpgradeResources.robot
 *** Variables ***
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${BaseEdrAndMtrReleasePolicy}               ${GeneratedWarehousePolicies}/base_edr_and_mtr_VUT-1.xml
+
 ${BaseEdrAndMtrAndAVReleasePolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
+
 ${BaseAndEDROldWHFormat}                    ${GeneratedWarehousePolicies}/base_edr_old_wh_format.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
+
+${BaseEdrAndMtrAndAVVUTPolicy}              ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
+
 ${BaseAndMtrAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseAndMtrWithFakeLibs}                   ${GeneratedWarehousePolicies}/base_and_mtr_0_6_0.xml
 ${BaseAndEdrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 ${BaseOnlyVUTPolicy}                        ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${BaseOnlyVUT_weekly_schedule_Policy}       ${GeneratedWarehousePolicies}/base_only_weeklyScheduleVUT.xml
 ${BaseOnlyVUT_Without_SDU_Policy}           ${GeneratedWarehousePolicies}/base_only_VUT_without_SDU_Feature.xml
+
 ${BaseAndMtrAndAvReleasePolicy}             ${GeneratedWarehousePolicies}/base_and_mtr_and_av_VUT-1.xml
 ${BaseAndMtrAndAvVUTPolicy}                 ${GeneratedWarehousePolicies}/base_and_mtr_and_av_VUT.xml
 
@@ -115,12 +122,13 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
-    Check EAP Release Installed Correctly
-    ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    Check EAP Release With AV Installed Correctly
+    ${BaseReleaseVersion} =      Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
 
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndAvVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
@@ -133,7 +141,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -157,9 +165,11 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    ${AVDevVersion} =   Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
 
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
+    Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
 
     Check Update Reports Have Been Processed
 
@@ -213,20 +223,21 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
     [Timeout]  600
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndEdrVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndEdrVUTPolicy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
-    Check Current Release Installed Correctly
+    Check Current Release With AV Installed Correctly
     # products that should change version
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    ${AVDevVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
     # Products that should be uninstalled after downgrade
@@ -245,11 +256,11 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Run Process  chown  -R  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action/testfile
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrReleasePolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVReleasePolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrReleasePolicy}
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVReleasePolicy}
 
     Mark Watchdog Log
     Mark Managementagent Log
@@ -282,15 +293,17 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-    Check EAP Release Installed Correctly
+    Check EAP Release With AV Installed Correctly
 
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    ${AVReleaseVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
 
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${EdrReleaseVersion}  ${EdrDevVersion}
+    Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
 
     #the query pack should have been removed with a down grade to a version that does not have it as a supplement
     Should Not Exist  ${Sophos_Scheduled_Query_Pack}
@@ -299,7 +312,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     # Upgrade back to master to check we can upgrade from a downgraded product
     # Then check the number of update successes to prove everything is OK.
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndEdrVUTPolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -746,6 +759,20 @@ Check EAP Release Installed Correctly
     Check MCS Router Running
     Check MDR Plugin Installed
     Check Installed Correctly
+
+
+Check Current Release With AV Installed Correctly
+    Check Mcs Router Running
+    Check MDR Plugin Installed
+    Check AV Plugin Installed
+    Check Installed Correctly
+
+Check EAP Release With AV Installed Correctly
+    Check MCS Router Running
+    Check MDR Plugin Installed
+    Check AV Plugin Installed
+    Check Installed Correctly
+
 
 Check Installed Correctly
     Should Exist    ${SOPHOS_INSTALL}

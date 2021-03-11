@@ -22,6 +22,7 @@ Resource    ../liveresponse_plugin/LiveResponseResources.robot
 ${warehousedir}                             ./tmp
 ${InstalledBaseVersionFile}                 ${SOPHOS_INSTALL}/base/VERSION.ini
 ${InstalledMDRPluginVersionFile}            ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
+${InstalledAVPluginVersionFile}             ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
 ${InstalledMDRSuiteVersionFile}             ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
 ${InstalledEDRPluginVersionFile}            ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
 ${InstalledLRPluginVersionFile}             ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
