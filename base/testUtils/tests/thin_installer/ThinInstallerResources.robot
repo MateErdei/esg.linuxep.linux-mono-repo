@@ -1,3 +1,7 @@
+*** Variables ***
+${EtcGroupFilePath}  /etc/group
+${EtcGroupFileBackupPath}  /etc/group.bak
+
 *** Keywords ***
 Regenerate HTTPS Certificates
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
@@ -37,3 +41,15 @@ Check Root Directory Permissions Are Not Changed
     ${result}=  Run Process  stat  -c  "%A"  /
     ${ExpectedPerms}=  Set Variable  "dr[w-]xr-xr-x"
     Should Match Regexp  ${result.stdout}  ${ExpectedPerms}
+
+Setup Group File With Large Group Creation
+    Copy File  ${EtcGroupFilePath}  ${EtcGroupFileBackupPath}
+    ${LongLine} =  Get File  ${SUPPORT_FILES}/misc/325CharEtcGroupLine
+    Append To File  ${EtcGroupFilePath}  ${LongLine}
+    Log File  ${EtcGroupFilePath}
+
+Teardown Group File With Large Group Creation
+    Move File  ${EtcGroupFileBackupPath}  ${EtcGroupFilePath}
+    ${content} =  Get File  ${EtcGroupFilePath}
+    ${LongLine} =  Get File  ${SUPPORT_FILES}/misc/325CharEtcGroupLine
+    Should Not Contain  ${content}  ${LongLine}
