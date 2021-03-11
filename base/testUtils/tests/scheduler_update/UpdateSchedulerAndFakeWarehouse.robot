@@ -28,6 +28,7 @@ ${BasePolicy}           ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/Genera
 
 *** Test Cases ***
 UpdateScheduler Update Against Ostia
+    [Tags]   UPDATE_SCHEDULER  OSTIA  WAREHOUSE_SYNC
     Set Log Level For Component And Reset and Return Previous Log  suldownloader  DEBUG
 
     Simulate Send Policy And Run Update  ${BasePolicy}
@@ -58,6 +59,7 @@ UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
     Check Update Scheduler Running
 
 UpdateScheduler Status No Longer Contains Deprecated Fields
+    [Tags]   UPDATE_SCHEDULER  OSTIA  WAREHOUSE_SYNC
     [Documentation]  Checks fix from LINUXEP-8108
     Set Log Level For Component And Reset and Return Previous Log  suldownloader  DEBUG
 
@@ -158,7 +160,7 @@ UpdateScheduler Report Failure On Versig Error
     File Should Exist  ${statusPath}
 
 Update Scheduler Ignores Non Report Files When Processing Reports
-
+    [Tags]   UPDATE_SCHEDULER  OSTIA  WAREHOUSE_SYNC
     ${config} =    Create JSON Config    install_path=${tmpdir}/sspl
     Create File    ${tmpdir}/NotAReportFile.json    content=${config}
     Copy File   ${tmpdir}/NotAReportFile.json   ${SOPHOS_INSTALL}/base/update/var/config.json

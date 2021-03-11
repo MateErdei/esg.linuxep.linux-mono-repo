@@ -19,6 +19,7 @@ ${MDR_VUT_POLICY}           ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/Ge
 
 *** Test Cases ***
 Preventing MDR From Creating Config File Generates An Error In The MTR Log
+    [Tags]   FAULTINJECTION   OSTIA   MDR_PLUGIN  WAREHOUSE_SYNC
     Block Connection Between EndPoint And FleetManager
     Simulate Send Policy And Run Update  ${MDR_VUT_POLICY}
     Check SSPL Installed

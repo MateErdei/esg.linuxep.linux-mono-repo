@@ -21,7 +21,7 @@ ${BASE_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/Generated
 
 *** Test Cases ***
 Test MDR Installed Based On MDR Feature And Subscription In ALC Policy Simple
-    [Tags]  SMOKE  MDR_PLUGIN   MANAGEMENT_AGENT  OSTIA
+    [Tags]  SMOKE  MDR_PLUGIN   MANAGEMENT_AGENT  OSTIA  WAREHOUSE_SYNC
     Block Connection Between EndPoint And FleetManager
     Setup Update Scheduler Environment
     Check MDR Plugin uninstalled
@@ -33,7 +33,7 @@ Test MDR Installed Based On MDR Feature And Subscription In ALC Policy Simple
     Check MDR Plugin Installed
 
 Test MDR Installed Based On MDR Feature And Subscription In ALC Policy With Combinations
-    [Tags]   MDR_PLUGIN   MANAGEMENT_AGENT  OSTIA
+    [Tags]   MDR_PLUGIN   MANAGEMENT_AGENT  OSTIA  WAREHOUSE_SYNC
     Block Connection Between EndPoint And FleetManager
     Check MDR Plugin uninstalled
     Check SSPL Installed
@@ -81,7 +81,7 @@ No Base Or MDR Component In Warehouse Should Report Error And Fail Update
     Check Report For Missing Package  ServerProtectionLinux-Base;ServerProtectionLinux-Plugin-MDR
 
 Test MDR Uninstalled Correctly
-    [Tags]   MDR_PLUGIN   MANAGEMENT_AGENT  OSTIA
+    [Tags]   MDR_PLUGIN   MANAGEMENT_AGENT  OSTIA  WAREHOUSE_SYNC
     Block Connection Between EndPoint And FleetManager
     Check MDR Plugin uninstalled
     Check SSPL Installed

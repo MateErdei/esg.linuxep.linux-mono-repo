@@ -99,4 +99,5 @@ The following tags can be used to select which tests can be run, using the inclu
 * UPDATE_CACHE - Tests that use an Update Cache
 * UPDATE_SCHEDULER - Tests that exercise the Update Scheduler plugin
 * WATCHDOG - Tests that exercise the Watchdog
+* WAREHOUSE_SYNC - Test that fail if the warehouse and base build are out of sync
 * WDCTL - Tests that exercise WDCTL, Watchdog Control
