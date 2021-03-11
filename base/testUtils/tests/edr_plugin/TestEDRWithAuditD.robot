@@ -138,7 +138,10 @@ EDR Does Disable Auditd When Installed with MTR
     ...  Check MTR Osquery Executable Running
 
     Check Log Contains  --disable_audit=true   /opt/sophos-spl/plugins/edr/etc/osquery.flags   osquery.flags
-
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check EDR Osquery Executable Running
     ${result} =  Check If Process Has Osquery Netlink   /opt/sophos-spl/plugins/edr/bin/osqueryd
     Should Be Equal  ${result}   ${FALSE}
 
