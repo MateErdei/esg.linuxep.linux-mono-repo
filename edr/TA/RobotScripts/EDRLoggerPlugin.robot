@@ -281,7 +281,7 @@ EDR Plugin Rolls ScheduleEpoch Over When The Previous One Has Elapsed
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
 
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  15 secs
     ...  1 secs
     ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${oldScheduleEpochTimestamp}
 
@@ -312,7 +312,7 @@ EDR Plugin Does Not Roll ScheduleEpoch Over When The Previous One Has Not Elapse
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
 
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  15 secs
     ...  1 secs
     ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${currentEpochTimeMinus3Days}
     Wait Until Keyword Succeeds
