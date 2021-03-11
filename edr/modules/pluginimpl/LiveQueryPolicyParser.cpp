@@ -86,6 +86,7 @@ namespace Plugin
 
     std::vector<Json::Value> getFoldingRules(const std::string& liveQueryPolicy, const std::vector<Json::Value> lastGoodRules)
     {
+        bool hasBadRule = false;
         const std::string foldingRulesPath = "policy/configuration/scheduled/foldingRules";
 
         Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(liveQueryPolicy);
@@ -129,11 +130,13 @@ namespace Plugin
                 if (!it->isObject())
                 {
                     LOGWARN("Unexpected type " << it->type() << " for folding rule");
+                    hasBadRule = true;
                     continue;
                 }
                 if (!it->isMember("query_name") || !it->isMember("values"))
                 {
                     LOGWARN("Invalid folding rule");
+                    hasBadRule = true;
                     continue;
                 }
 
@@ -146,7 +149,7 @@ namespace Plugin
             return lastGoodRules;
         }
 
-        if(foldingRules == std::vector<Json::Value> {})
+        if(foldingRules == std::vector<Json::Value> {} && hasBadRule == true)
             return lastGoodRules;
 
         return foldingRules;
