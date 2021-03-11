@@ -736,10 +736,13 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesHandlesE
                                     "   </configuration>\n"
                                     "</policy>";
 
-    auto rules = Plugin::getFoldingRules(liveQueryPolicy, std::vector<Json::Value> {});
-    EXPECT_EQ(rules.size(), 2);
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = Plugin::getFoldingRules(liveQueryPolicy, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_EQ(foldingRules.size(), 2);
     size_t count = 0;
-    for (const auto& r : rules)
+    for (const auto& r : foldingRules)
     {
         SCOPED_TRACE(count);
 
@@ -763,7 +766,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesHandlesE
 
         count++;
     }
-    EXPECT_EQ(count, rules.size());
+    EXPECT_EQ(count, foldingRules.size());
 
 }
 
@@ -782,7 +785,10 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesWithNoFo
                                       "   </configuration>\n"
                                       "</policy>";
 
-    EXPECT_TRUE(Plugin::getFoldingRules(liveQueryPolicyNone, std::vector<Json::Value> {}).empty());
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = Plugin::getFoldingRules(liveQueryPolicyNone, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_TRUE(foldingRules.empty());
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesInvalidJson)
@@ -803,7 +809,10 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesInvalidJ
                                          "   </configuration>\n"
                                          "</policy>";
 
-    EXPECT_TRUE(Plugin::getFoldingRules(liveQueryPolicyInvalid, std::vector<Json::Value> {}).empty());
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = Plugin::getFoldingRules(liveQueryPolicyInvalid, foldingRules);
+    EXPECT_EQ(changeFoldingRules, false);
+    EXPECT_TRUE(foldingRules.empty());
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesParsesAllButInvalidRules)
@@ -845,10 +854,13 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesParsesAl
     root["query_name"] = "test_folding_query2";
     root["values"] = values;
     expected.push_back(root);
-    auto actual = Plugin::getFoldingRules(liveQueryPolicyInvalid, std::vector<Json::Value> {});
 
-    EXPECT_EQ(actual.size(), 1);
-    EXPECT_EQ(actual, expected);
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = Plugin::getFoldingRules(liveQueryPolicyInvalid, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+
+    EXPECT_EQ(foldingRules.size(), 1);
+    EXPECT_EQ(foldingRules, expected);
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testFoldingRulesTelemetry)
@@ -930,10 +942,12 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesGoodThen
                                   "   </configuration>\n"
                                   "</policy>";
 
-    auto rules = Plugin::getFoldingRules(liveQueryPolicy, std::vector<Json::Value> {});
-    EXPECT_EQ(rules.size(), 2);
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = Plugin::getFoldingRules(liveQueryPolicy, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_EQ(foldingRules.size(), 2);
     size_t count = 0;
-    for (const auto& r : rules)
+    for (const auto& r : foldingRules)
     {
         SCOPED_TRACE(count);
 
@@ -957,7 +971,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesGoodThen
 
         count++;
     }
-    EXPECT_EQ(count, rules.size());
+    EXPECT_EQ(count, foldingRules.size());
 
     // We get another policy which has invalid rules
     std::string liveQueryPolicyInvalid = "<?xml version=\"1.0\"?>\n"
@@ -976,10 +990,12 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesGoodThen
                                          "   </configuration>\n"
                                          "</policy>";
     // We keep the previous folding rules
-    auto nextRules = Plugin::getFoldingRules(liveQueryPolicyInvalid, rules);
-    EXPECT_EQ(nextRules, rules);
+    std::vector<Json::Value> nextRules;
+    bool changeFoldingRulesBadRules = Plugin::getFoldingRules(liveQueryPolicyInvalid, nextRules);
+    EXPECT_EQ(changeFoldingRulesBadRules, false);
+    EXPECT_EQ(nextRules, std::vector<Json::Value> {});
 
-    // We get another policy with good fields but bad rules
+    // We get another policy with good fields but some bad rules
     std::string liveQueryPolicyInvalidRules = "<?xml version=\"1.0\"?>\n"
                                          "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
                                          "   <configuration>\n"
@@ -1017,7 +1033,10 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesGoodThen
     root["query_name"] = "test_folding_query2";
     root["values"] = values;
     expected.push_back(root);
-    auto lastRules = Plugin::getFoldingRules(liveQueryPolicyInvalidRules, nextRules);
+
+    std::vector<Json::Value> lastRules;
+    bool changeFoldingRulesSomeBadRules = Plugin::getFoldingRules(liveQueryPolicyInvalidRules, lastRules);
+    EXPECT_EQ(changeFoldingRulesSomeBadRules, true);
     // We keep only the good rule
     EXPECT_EQ(lastRules.size(), 1);
     EXPECT_EQ(lastRules, expected);

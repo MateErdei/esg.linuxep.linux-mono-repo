@@ -84,7 +84,7 @@ namespace Plugin
         return customQueryPack.dump();
     }
 
-    std::vector<Json::Value> getFoldingRules(const std::string& liveQueryPolicy, const std::vector<Json::Value> lastGoodRules)
+    bool getFoldingRules(const std::string& liveQueryPolicy, std::vector<Json::Value>& foldingRules)
     {
         bool hasBadRule = false;
         const std::string foldingRulesPath = "policy/configuration/scheduled/foldingRules";
@@ -95,7 +95,8 @@ namespace Plugin
         if (attributes.empty())
         {
             LOGDEBUG("No folding rules in LiveQuery policy");
-            return std::vector<Json::Value> {};
+            foldingRules = std::vector<Json::Value> {};
+            return true;
         }
 
         Json::CharReaderBuilder builder;
@@ -113,16 +114,17 @@ namespace Plugin
         catch (const std::exception& err)
         {
             LOGWARN("Failed to parse folding rules. Error:" << err.what());
-            return lastGoodRules;
+            foldingRules = std::vector<Json::Value> {};
+            return false;
         }
 
         if (!errors.empty())
         {
             LOGWARN("Unable to parse folding rules:" << errors);
-            return lastGoodRules;
+            foldingRules = std::vector<Json::Value> {};
+            return false;
         }
 
-        std::vector<Json::Value> foldingRules;
         try
         {
             for (Json::Value::const_iterator it = root.begin(); it != root.end(); ++it)
@@ -146,12 +148,13 @@ namespace Plugin
         catch (const std::exception& err)
         {
             LOGWARN("Failed to process folding rules. Error:" << err.what());
-            return lastGoodRules;
+            foldingRules = std::vector<Json::Value> {};
+            return false;
         }
 
-        if(foldingRules == std::vector<Json::Value> {} && hasBadRule == true)
-            return lastGoodRules;
+        if(foldingRules.empty() && hasBadRule)
+            return false;
 
-        return foldingRules;
+        return true;
     }
 } // namespace Plugin

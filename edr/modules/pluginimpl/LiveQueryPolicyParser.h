@@ -25,5 +25,5 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 namespace Plugin
 {
     std::optional<std::string> getCustomQueries(const std::string& liveQueryPolicy);
-    std::vector<Json::Value> getFoldingRules(const std::string& liveQueryPolicy, const std::vector<Json::Value> lastGoodRules);
+    bool getFoldingRules(const std::string& liveQueryPolicy, std::vector<Json::Value>& foldingRules);
 } // namespace Plugin

@@ -781,13 +781,14 @@ namespace Plugin
             bool osqueryRestartNeeded = false;
             std::optional<std::string> customQueries;
             std::vector<Json::Value> foldingRules;
+            bool changeFoldingRules = false;
             try
             {
                 m_dataLimit = getDataLimit(liveQueryPolicy);
                 m_loggerExtensionPtr->setDataLimit(m_dataLimit);
                 m_liveQueryRevId = getRevId(liveQueryPolicy);
                 customQueries = getCustomQueries(liveQueryPolicy);
-                foldingRules = getFoldingRules(liveQueryPolicy, m_loggerExtensionPtr->getCurrentFoldingRules());
+                changeFoldingRules = getFoldingRules(liveQueryPolicy, foldingRules);
                 m_liveQueryStatus = "Same";
             }
             catch (std::exception& e)
@@ -822,6 +823,11 @@ namespace Plugin
             // Folding rules
             try
             {
+                if (!changeFoldingRules)
+                {
+                    foldingRules = m_loggerExtensionPtr->getCurrentFoldingRules();
+                }
+
                 if (m_liveQueryStatus != "Failure" && m_loggerExtensionPtr->compareFoldingRules(foldingRules))
                 {
                     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();

@@ -336,7 +336,7 @@ Check XDR Results Contain Correct ScheduleEpoch Timestamp
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
 
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  15 secs
     ...  1 secs
     ...  Osquery Flag File Should Contain  --schedule_epoch=${currentEpochTimeMinus3Days}
 
