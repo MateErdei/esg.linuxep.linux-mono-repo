@@ -64,7 +64,7 @@ def check_if_process_has_osquery_netlink(file_path):
     pids = pids_of_file(file_path)
 
     if len(pids) < 2:
-        raise AssertionError("not all osquery processes are not running only {} processes running".format(len(pids)))
+        raise AssertionError("Not all osquery processes are running, only {} processes running".format(len(pids)))
     try:
         output = subprocess.check_output(['auditctl', '-s'])
         string_to_check = output.decode()

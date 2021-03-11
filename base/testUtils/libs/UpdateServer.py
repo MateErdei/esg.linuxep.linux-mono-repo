@@ -151,12 +151,17 @@ class UpdateServer(object):
         tries = 100
         while tries > 0:
             if self.is_proxy_up(port):
-                return True
+                # Once we have verified the proxy is on the right port we now wait for it to be fully usable.
+                if os.path.exists(self.__m_proxy_log_path):
+                    with open(self.__m_proxy_log_path, "r") as log:
+                        log_content = log.read()
+                        if 'Serving HTTP Proxy' in log_content:
+                            return True
             if proxyProcess.poll() is not None:
                 raise AssertionError("Proxy has exited while waiting for it to be up port={}, pid={}, exit={}".format(port, proxyProcess.pid, proxyProcess.returncode))
             tries -= 1
-            time.sleep(0.1)
-        return AssertionError("Proxy hasn't started up after 10 seconds port={}, pid={}".format(port, proxyProcess.pid))
+            time.sleep(1)
+        return AssertionError("Proxy hasn't started up after {} seconds port={}, pid={}".format(tries, port, proxyProcess.pid))
 
 
     def wait_for_server_up(self, url, port):
