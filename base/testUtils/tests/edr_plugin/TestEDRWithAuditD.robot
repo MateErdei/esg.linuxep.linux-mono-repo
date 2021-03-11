@@ -163,4 +163,4 @@ Check EDR Has Audit Netlink
 
 Ensure AuditD Running
     ${status} =   Run Process  systemctl  is-active  auditd
-    Run Keyword If  ${status.rc} != 0  Run Shell Process  systemctl restart auditd   OnError=failed to start auditd   timeout=60s
+    Run Keyword If  ${status.rc} != 0  Run Shell Process  systemctl start auditd   OnError=failed to start auditd   timeout=60s
