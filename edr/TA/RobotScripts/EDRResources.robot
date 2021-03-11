@@ -153,7 +153,6 @@ EDR And Base Teardown
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf
     Run Keyword If Test Failed   Log File   ${SOPHOS_INSTALL}/plugins/edr/extensions/extensions.load
-
     Run Keyword If Test Failed   Display All SSPL Files Installed
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
     Wait Until Keyword Succeeds

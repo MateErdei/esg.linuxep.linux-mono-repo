@@ -265,7 +265,7 @@ namespace Plugin
                         stopOsquery();
                         return;
                     case Task::TaskType::START_OSQUERY:
-                        LOGDEBUG("Process task RESTARTOSQUERY");
+                        LOGDEBUG("Process task START_OSQUERY");
                         LOGINFO("Restarting osquery");
                         setUpOsqueryMonitor();
                         break;
