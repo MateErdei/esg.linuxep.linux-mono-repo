@@ -32,6 +32,11 @@ namespace
                 return true;
             }
         }
+
+        if(Common::UtilityImpl::StringUtils::isSubstring(filename, "current_proxy"))
+        {
+            return true;
+        }
         return false;
     }
 } // namespace

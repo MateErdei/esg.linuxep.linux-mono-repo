@@ -25,7 +25,7 @@ Default Tags  DIAGNOSE
 
 Diagnose Tool Gathers Logs When Run From Installation
     [Tags]  DIAGNOSE  TAP_TESTS  SMOKE
-
+    Mimic Base Component Files  ${SOPHOS_INSTALL}
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
     Create Directory  ${TAR_FILE_DIRECTORY}
@@ -304,9 +304,10 @@ Diagnose Tool Fails Due To Read Only Mount And Should Not Generate Uncaught Exce
     Should Contain   ${result.stderr}   Cause: Read-only file system
 
 
-Diagnose Tool Overwrite Hanles Files Of Same Name In Different Directoies
+Diagnose Tool Overwrite Handles Files Of Same Name In Different Directories
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
+    Mimic Base Component Files  ${SOPHOS_INSTALL}
     Create File  ${BASE_LOGS_DIR}/a.log  text
     Create File  ${BASE_LOGS_DIR}/sophosspl/a.log  text
     Create File  ${EDR_DIR}/log/plugin.log  text

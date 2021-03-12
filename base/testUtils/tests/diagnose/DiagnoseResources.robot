@@ -56,6 +56,7 @@ Check Diagnose Base Output
     Should Contain  ${Files}    comms_component.log
     Should Contain  ${Files}    comms_network.log
     Should Contain  ${Files}    commscomponent.json
+    Should Contain  ${Files}    current_proxy
 
     Should Contain  ${GeneratedComponentFiles}  addedFiles_manifest.dat
     Should Contain  ${GeneratedComponentFiles}  changedFiles_manifest.dat
@@ -164,3 +165,8 @@ Mimic LR Component Files
     [Documentation]  Creates files to simulate LR plugin being installed and run
     [Arguments]     ${installLocation}
     Create File  ${installLocation}/plugins/liveresponse/log/sessions.log
+
+Mimic Base Component Files
+    [Documentation]  Creates files to simulate Full Base plugin being installed
+    [Arguments]     ${installLocation}
+    Create File  ${installLocation}/base/etc/sophosspl/current_proxy
