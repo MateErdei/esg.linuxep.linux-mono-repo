@@ -157,8 +157,13 @@ function install_product()
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
     #Install SUSI
-    mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot/susi"
-    cp -arfv "$DIST/files/plugins/av/chroot/susi/*" "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
+    mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot"
+    if [[ -d "$SOPHOS_INSTALL/plugins/av/chroot/susi" ]]
+    then
+      cp -arfv "$DIST/files/plugins/av/chroot/susi/*" "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
+    else
+      cp -arfv "$DIST/files/plugins/av/chroot/susi" "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
+    fi
     #Install SUSI libraries (with version copy)
     find "$DIST/files/plugins/av/chroot/susi" -type f -name "*.so.*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"
