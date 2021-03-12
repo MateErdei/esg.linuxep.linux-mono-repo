@@ -85,6 +85,12 @@
         <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
       </build-asset>
 
+      <!-- Packages for av-999 -->
+      <build-asset project="linuxep" repo="sspl-plugin-anti-virus" mode="release-package-edr-mdr-999">
+        <development-version branch="master"/>
+        <include artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
+      </build-asset>
+
       <!-- Packages for 060 -->
 
       <build-asset project="linuxep" repo="everest-base" mode="release-package-060">
