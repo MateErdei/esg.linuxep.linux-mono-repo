@@ -16,7 +16,7 @@ Library    ${LIBS_DIRECTORY}/ProxyUtils.py
 
 ## EXCLUDE_AWS because this requires the secureproxyserver
 Default Tags  CENTRAL  MCS  EXCLUDE_AWS
-Suite Setup     Restart Secure Server Proxy   # ensure the secureproxy is in a good state before tests
+
 Test Teardown     Run Keywords
 ...               Remove Environment Variable    https_proxy   AND
 ...               Stop Proxy Servers                   AND
