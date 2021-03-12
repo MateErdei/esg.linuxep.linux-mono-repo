@@ -207,37 +207,6 @@ VersionCopy File in the Wrong Location Is Removed
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
-Can Update When Large Number Of Users Are Assigned To A Group
-    [Setup]  Setup Group File With Large Group Creation
-    [Teardown]  Teardown Clean Up Group File With Large Group Creation
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndEdrVUTPolicy}
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndEdrVUTPolicy}
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrReleasePolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrReleasePolicy}
-
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...   60 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
-
-    # ensure log does not contain any issues relating to getGroupName function call.
-    Check Log Does Not Contain   Calling getGroupName    ${SULDownloaderLog}     SulDownload.log
-
-
-
 We Can Downgrade From Master To A Release Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
@@ -912,7 +881,3 @@ Check Mtr Reconnects To Management Agent After Upgrade
     ...  mtr <> Entering the main loop
     ...  Received new policy
     ...  RevID of the new policy
-
-Teardown Clean Up Group File With Large Group Creation
-    Teardown Group File With Large Group Creation
-    Test Teardown

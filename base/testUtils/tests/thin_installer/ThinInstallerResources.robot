@@ -45,7 +45,9 @@ Check Root Directory Permissions Are Not Changed
 Setup Group File With Large Group Creation
     Copy File  ${EtcGroupFilePath}  ${EtcGroupFileBackupPath}
     ${LongLine} =  Get File  ${SUPPORT_FILES}/misc/325CharEtcGroupLine
-    Append To File  ${EtcGroupFilePath}  ${LongLine}
+    ${OriginalFileContent} =   Get File   ${EtcGroupFilePath}
+    Create File  ${EtcGroupFilePath}  ${LongLine}
+    Append To File  ${EtcGroupFilePath}  ${OriginalFileContent}
     Log File  ${EtcGroupFilePath}
 
 Teardown Group File With Large Group Creation

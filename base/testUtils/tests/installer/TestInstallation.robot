@@ -13,7 +13,7 @@ Library    Collections
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../mcs_router/McsRouterResources.robot
-
+Resource  ../thin_installer/ThinInstallerResources.robot
 Default Tags  INSTALLER
 
 *** Test Cases ***
@@ -228,6 +228,26 @@ Test Successfull Install Does Not Contain Error And Noise
     ${consoleOutput} =  Run Full Installer Without X Set
     Should Be Equal As Strings  ${consoleOutput}  Installation complete, performing post install steps\n
 
+Version Copy Copies Files When Group Contains Long List Of Users
+    [Teardown]  Teardown Clean Up Group File With Large Group Creation
+    Require Installed
+    Setup Group File With Large Group Creation
+
+    ${VersionCopy} =  Set Variable  ${SOPHOS_INSTALL}/base/bin/versionedcopy
+    File Should Exist   ${VersionCopy}
+    Create Directory  /tmp/testVersionCopy/files
+    Create File    /tmp/testVersionCopy/files/liba.so.1.2.3  123
+    Run Process  ${VersionCopy} files/liba.so.1.2.3  shell=True  cwd=/tmp/testVersionCopy  env:SOPHOS_INSTALL=/tmp/target
+    ${lib123} =  Get File  /tmp/target/liba.so
+    Should Be Equal  ${lib123}  123
+
+    Create File    /tmp/testVersionCopy/files/liba.so.1.2.3  12345
+    ${result} =  Run Process  ${VersionCopy} files/liba.so.1.2.3  shell=True  cwd=/tmp/testVersionCopy  env:SOPHOS_INSTALL=/tmp/target
+    log  ${result.stdout}
+    log  ${result.stderr}
+    ${lib123} =  Get File  /tmp/target/liba.so
+    Should Be Equal  ${lib123}  12345
+
 Version Copy Correctly Set Links
     [Teardown]  VersionCopy Teardown
     Require Installed
@@ -237,8 +257,12 @@ Version Copy Correctly Set Links
     Create File    /tmp/testVersionCopy/files/liba.so.1.2.3  123
     Create File    /tmp/testVersionCopy/files/liba.so.1.2.4  124
     Run Process  ${VersionCopy} files/liba.so.1.2.3  shell=True  cwd=/tmp/testVersionCopy  env:SOPHOS_INSTALL=/tmp/target
+
     ${lib123} =  Get File  /tmp/target/liba.so
     Should Be Equal  ${lib123}  123
+
+    Log To Console   Sleeping
+    Sleep  300
 
     Run Process  ${VersionCopy} files/liba.so.1.2.4  shell=True  cwd=/tmp/testVersionCopy  env:SOPHOS_INSTALL=/tmp/target
     ${lib124} =  Get File  /tmp/target/liba.so
@@ -357,3 +381,8 @@ Verify Sophos Users And Groups are Removed
 
     Verify User Removed   sophos-spl-network
     Verify User Removed   sophos-spl-local
+
+
+Teardown Clean Up Group File With Large Group Creation
+    Teardown Group File With Large Group Creation
+    VersionCopy Teardown
