@@ -157,8 +157,8 @@ function install_product()
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
     #Install SUSI
-    mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot"
-    cp -arfv "$DIST/files/plugins/av/chroot/susi" "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
+    mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot/susi"
+    cp -arfv "$DIST/files/plugins/av/chroot/susi/*" "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
     #Install SUSI libraries (with version copy)
     find "$DIST/files/plugins/av/chroot/susi" -type f -name "*.so.*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"
@@ -166,13 +166,9 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
     ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
-    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
-    chmod 0751 "${PLUGIN_INSTALL}/var"
-    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
-
-    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/logs"
-    chmod 0751 "${PLUGIN_INSTALL}/logs"
-    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/logs"
+    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}"
+    chmod 0751 "${PLUGIN_INSTALL}"
+    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}"
 
     chmod 0644 "${PLUGIN_INSTALL}/VERSION.ini"*
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/VERSION.ini"
@@ -206,6 +202,10 @@ function install_product()
     chmod 0770 ${CHROOT_LINK_DIR}
     chmod 0710 ${CHROOT_LINK_DIR%/*}
     ln -snf / ${CHROOT_LINK_DIR}/chroot
+
+#    mkdir -p "${CHROOT_LINK_DIR}/susi/susi"
+#    chmod 0770 "${CHROOT_LINK_DIR}/susi/susi"
+#    chown root:${GROUP_NAME} "${CHROOT_LINK_DIR}/susi/susi"
 
     mkdir -p "${CHROOT_LINK_DIR}/log"
     chmod 0770 "${CHROOT_LINK_DIR}/log"
