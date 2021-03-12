@@ -106,7 +106,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
-    Override LogConf File as Global Level  DEBUG
+    Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
 
     Wait Until Keyword Succeeds
     ...   200 secs
@@ -147,7 +147,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Check Mtr Reconnects To Management Agent After Upgrade
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
-
+    sleep  20
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
@@ -160,6 +160,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
     Check Update Reports Have Been Processed
+    fail
 
 VersionCopy File in the Wrong Location Is Removed
     [Timeout]  10 minutes
