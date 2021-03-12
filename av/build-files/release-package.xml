@@ -115,12 +115,19 @@
             <args>./build.sh --ci --name av --cpp-check</args>
             <workingdir>.</workingdir>
         </command>
+        <command mode="999">
+            <program>/bin/bash</program>
+            <args>./build.sh --ci --name av --999 --no-unit-test</args>
+            <workingdir>.</workingdir>
+        </command>
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
         <destdir>sspl-plugin-anti-virus</destdir>
 
         <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
+        <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
+
         <build-asset artifact-path="output" source-dir="output" mode="release,debug">
         </build-asset>
         <build-asset artifact-path="coverage" source-dir="output" mode="coverage">

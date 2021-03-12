@@ -213,6 +213,9 @@ do
             LOCAL_GCC=1
             LOCAL_CMAKE=1
             ;;
+         --999)
+            export VERSION_OVERRIDE=9.99.9.999
+            ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
             ;;

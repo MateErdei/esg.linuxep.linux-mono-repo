@@ -87,16 +87,19 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
         COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
 )
+if (DEFINED ENV{VERSION_OVERRIDE})
+    set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
+else()
+    execute_process(
+            COMMAND ${PYTHON} ${PLUGINAPIPATH}/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build-files/release-package.xml
+            OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(
-        COMMAND ${PYTHON} ${PLUGINAPIPATH}/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build-files/release-package.xml
-        OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process(
-        COMMAND ${PYTHON} ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} CIJenkinsfile
-        OUTPUT_VARIABLE PRODUCT_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(
+            COMMAND ${PYTHON} ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} CIJenkinsfile
+            OUTPUT_VARIABLE PRODUCT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
 
 if (PRODUCT_VERSION STREQUAL "")
     message(FATAL_ERROR "Failed to read product version into PRODUCT_VERSION")
