@@ -37,10 +37,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 unixsocket::ScanningClientSocket::ScanningClientSocket(std::string socket_path, const struct timespec& sleepTime)
     : m_sigIntMonitor(std::make_shared<common::SigIntMonitor>())
+    , m_sigTermMonitor(std::make_shared<common::SigTermMonitor>())
     , m_reconnectAttempts(0)
     , m_socketPath(std::move(socket_path))
     , m_sleepTime(sleepTime)
 {
+
     connect();
 }
 
@@ -88,6 +90,12 @@ void unixsocket::ScanningClientSocket::checkIfScanAborted()
     {
         LOGDEBUG("Received SIGINT");
         throw AbortScanException("Scan manually aborted");
+    }
+
+    if (m_sigTermMonitor->triggered())
+    {
+        LOGDEBUG("Received SIGTERM");
+        throw ScanInterruptedException("Scan aborted due to environment interruption ");
     }
 }
 

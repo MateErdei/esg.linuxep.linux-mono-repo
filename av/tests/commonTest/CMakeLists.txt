@@ -11,6 +11,7 @@ SophosAddTest(TestCommon
         ../common/LogInitializedTests.cpp
         TestPathUtils.cpp
         TestSigIntMonitor.cpp
+        TestSigTermMonitor.cpp
         TestStringUtils.cpp
         PROJECTS common
         INC_DIRS

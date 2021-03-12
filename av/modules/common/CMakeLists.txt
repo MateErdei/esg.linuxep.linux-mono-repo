@@ -5,6 +5,8 @@ add_library(common SHARED
         Logger.h
         SigIntMonitor.cpp
         SigIntMonitor.h
+        SigTermMonitor.cpp
+        SigTermMonitor.h
         StringUtils.cpp
         StringUtils.h
         PathUtils.cpp
