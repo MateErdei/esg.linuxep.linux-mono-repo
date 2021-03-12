@@ -366,9 +366,6 @@ Check XDR Results Contain Correct ScheduleEpoch Timestamp
 EDR Plugin Hits Data Limit And Queries Resume After Period
     [Setup]  Uninstall All
     [Timeout]  600
-    [Teardown]  Run keywords
-                ...  Remove File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf  AND
-                ...  Remove File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds
 
     Install Base For Component Tests
     Create Debug Level Logger Config File
@@ -384,10 +381,11 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
 
     # Inject query pack and initial data limit period into SDDS
     Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   120
-    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
-    change_all_scheduled_queries_interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf  10
 
     Install EDR Directly from SDDS
+
+    # TODO: LINUXDAR-2609 Remove this workaround once feature is implemented and extend test to ensure other query packs are disabled/enabled
+    Move File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
 
     # Check install script did install query pack.
     # Default to start up in EDR mode so query pack should be disabled by EDR initially.
