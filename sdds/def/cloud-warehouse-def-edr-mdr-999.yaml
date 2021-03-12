@@ -117,7 +117,7 @@ customer-files:
             - warehouse: ssplmdr-wh
 
     -   warehouse: ssplav-wh
-        user: av_user_vut
+        user: av_user_999
         password: password
         output-dir: customer
         split-warehouses:
