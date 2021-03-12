@@ -160,7 +160,7 @@ function install_product()
     mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot"
     if [[ -d "$SOPHOS_INSTALL/plugins/av/chroot/susi" ]]
     then
-      cp -arfv "$DIST/files/plugins/av/chroot/susi/*" "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
+      cp -arfv $DIST/files/plugins/av/chroot/susi/* "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
     else
       cp -arfv "$DIST/files/plugins/av/chroot/susi" "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
     fi
