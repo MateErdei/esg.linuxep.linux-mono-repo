@@ -7,15 +7,23 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include "common/SigTermMonitor.h"
 
-TEST(TestSigTermMonitor, testConstruction) // NOLINT
+namespace
 {
-    ASSERT_NO_THROW(common::SigTermMonitor monitor);
+    class TestSigTermMonitor: public ::testing::Test
+    {
+    public:
+        common::SigTermMonitor m_monitor;
+    };
 }
 
-TEST(TestSigTermMonitor, triggerNotified) // NOLINT
+TEST_F(TestSigTermMonitor, testConstruction) // NOLINT
 {
-    common::SigTermMonitor monitor;
-    EXPECT_FALSE(monitor.triggered());
+    EXPECT_FALSE(m_monitor.triggered());
+}
+
+TEST_F(TestSigTermMonitor, triggerNotified) // NOLINT
+{
+    EXPECT_FALSE(m_monitor.triggered());
     ::kill(::getpid(), SIGTERM);
-    EXPECT_TRUE(monitor.triggered());
+    EXPECT_TRUE(m_monitor.triggered());
 }

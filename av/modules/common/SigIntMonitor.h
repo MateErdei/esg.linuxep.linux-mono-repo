@@ -19,6 +19,7 @@ namespace common
         SigIntMonitor(const SigIntMonitor&) = delete;
         ~SigIntMonitor();
 
+        static std::shared_ptr<SigIntMonitor> makeSigIntMonitor();
         bool triggered();
 
     private:

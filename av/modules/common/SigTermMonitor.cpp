@@ -68,3 +68,9 @@ common::SigTermMonitor::~SigTermMonitor()
         LOGERROR("Failed to clear SIGTERM signal handler");
     }
 }
+
+std::shared_ptr<common::SigTermMonitor> common::SigTermMonitor::makeSigTermMonitor()
+{
+    static std::shared_ptr<common::SigTermMonitor> monitor(std::make_shared<common::SigTermMonitor>());
+    return monitor;
+}

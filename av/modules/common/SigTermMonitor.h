@@ -18,7 +18,7 @@ namespace common
         explicit SigTermMonitor();
         SigTermMonitor(const SigTermMonitor&) = delete;
         ~SigTermMonitor();
-
+        static std::shared_ptr<SigTermMonitor> makeSigTermMonitor();
         int monitorFd();
         bool triggered();
 

@@ -63,3 +63,9 @@ common::SigIntMonitor::~SigIntMonitor()
         LOGERROR("Failed to clear SIGINT signal handler");
     }
 }
+
+std::shared_ptr<common::SigIntMonitor> common::SigIntMonitor::makeSigIntMonitor()
+{
+    static std::shared_ptr<common::SigIntMonitor> monitor(std::make_shared<common::SigIntMonitor>());
+    return monitor;
+}
