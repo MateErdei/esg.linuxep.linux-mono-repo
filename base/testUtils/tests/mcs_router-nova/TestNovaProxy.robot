@@ -13,7 +13,7 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
 Library    ${LIBS_DIRECTORY}/ProxyUtils.py
 
-Suite Setup     check secure proxy is up
+Suite Setup     Check Secure Proxy Is Up
 
 ## EXCLUDE_AWS because this requires the secureproxyserver
 Default Tags  CENTRAL  MCS  EXCLUDE_AWS
@@ -52,9 +52,10 @@ Register in Central through environment proxy
     ...  Check MCS Router log contains proxy success  ${SECURE_PROXY_HOST}:8888
 
 *** Keywords ***
-check secure proxy is up
+Check Secure Proxy Is Up
+    # ensure the secureproxy is in a good state before tests
     ${Result}=  Is Secure Proxy Server Up
-    Run Keyword If   ${Result}==${True}  Restart Secure Server Proxy   # ensure the secureproxy is in a good state before tests
+    Run Keyword If   ${Result}==${False}  Restart Secure Server Proxy
 Check MCS Router log contains message relay success
     [Arguments]    ${MESSAGE_RELAY}
     Check Mcsrouter Log Contains  Successfully connected to ${MCS_ADDRESS} via ${MESSAGE_RELAY}
