@@ -261,9 +261,6 @@ Version Copy Correctly Set Links
     ${lib123} =  Get File  /tmp/target/liba.so
     Should Be Equal  ${lib123}  123
 
-    Log To Console   Sleeping
-    Sleep  300
-
     Run Process  ${VersionCopy} files/liba.so.1.2.4  shell=True  cwd=/tmp/testVersionCopy  env:SOPHOS_INSTALL=/tmp/target
     ${lib124} =  Get File  /tmp/target/liba.so
     Should Be Equal  ${lib124}  124
