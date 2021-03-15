@@ -106,6 +106,7 @@ TEST_F(StateMachineDataTest, fromJsonSettingsInvalidJsonStringThrows) // NOLINT
     try
     {
         StateMachineData::fromJsonStateMachineData("non json string");
+        FAIL();
     }
     catch (StateMachineException& e)
     {
@@ -113,11 +114,45 @@ TEST_F(StateMachineDataTest, fromJsonSettingsInvalidJsonStringThrows) // NOLINT
     }
 }
 
-TEST_F(StateMachineDataTest, fromJsonSettingsValidButEmptyJsonStringShouldThrow) // NOLINT
+TEST_F(StateMachineDataTest, fromJsonSettingsValidButEmptyJsonStringShouldNotThrow) // NOLINT
+{
+    EXPECT_NO_THROW(StateMachineData::fromJsonStateMachineData("{}"));
+}
+
+TEST_F(StateMachineDataTest, fromJsonSettingsCanSendEventStringShouldThrow) // NOLINT
 {
     try
     {
-        StateMachineData::fromJsonStateMachineData("{}");
+        StateMachineData::fromJsonStateMachineData(R"({"canSendEvent":""})");
+        FAIL();
+    }
+    catch (StateMachineException& e)
+    {
+        EXPECT_STREQ("Failed to process json message", e.what());
+    }
+}
+
+TEST_F(StateMachineDataTest, fromJsonSettingsCanSendEventNumberShouldThrow) // NOLINT
+{
+    try
+    {
+        StateMachineData::fromJsonStateMachineData(R"({"canSendEvent":0})");
+        FAIL();
+    }
+    catch (StateMachineException& e)
+    {
+        EXPECT_STREQ("Failed to process json message", e.what());
+    }
+}
+
+TEST_F(StateMachineDataTest, fromJsonSettingsBinaryDataShouldThrow) // NOLINT
+{
+    std::vector<unsigned char> data{0xde, 0xad, 0xbe, 0xef};
+
+    try
+    {
+        StateMachineData::fromJsonStateMachineData(std::string(data.begin(), data.end()));
+        FAIL();
     }
     catch (StateMachineException& e)
     {

@@ -6,6 +6,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include "InstallStateMachine.h"
 
+#include <climits>
+
 namespace stateMachinesModule
 {
     InstallStateMachine::InstallStateMachine(const StateData::InstallMachineState& state, const std::chrono::system_clock::time_point& now) :
@@ -41,7 +43,14 @@ namespace stateMachinesModule
         case StateData::StatusEnum::bad:
             if (state_.credit > 0)
             {
-                --state_.credit;
+                if (state_.credit <= INT_MAX)
+                {
+                    --state_.credit;
+                }
+                else // negative
+                {
+                    state_.credit = 0;
+                }
                 if (std::chrono::system_clock::time_point{} == state_.failedSince)
                 {
                     state_.failedSince = now;

@@ -8,6 +8,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
@@ -105,6 +107,14 @@ public:
 
         return ::testing::AssertionSuccess();
     }
+};
+
+class StateMachineProcessorTestWithCredit : public StateMachineProcessorTest, public ::testing::WithParamInterface<std::tuple<std::string, long, long, int>>
+{
+};
+
+class StateMachineProcessorTestWithException : public StateMachineProcessorTest, public ::testing::WithParamInterface<std::tuple<std::string, std::string>>
+{
 };
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsSuccess) // NOLINT
@@ -532,6 +542,111 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     // last failed time should not have changed.
     EXPECT_PRED_FORMAT2(
             stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor2.getStateMachineData());
+}
+
+TEST_P(StateMachineProcessorTestWithCredit, StateMachinesCorrectlyUpdatedWhenCreditIsLargeOrNegative) // NOLINT
+{
+    std::string credit = std::get<0>(GetParam());
+    long defaultValue = std::get<1>(GetParam());
+    long testValue = std::get<2>(GetParam());
+    int status = std::get<3>(GetParam());
+
+    std::ostringstream oldPart, newPart;
+    oldPart << "\"" << credit << "\": \"" << defaultValue << "\"";
+    newPart << "\"" << credit << "\": \"" << testValue << "\"";
+    std::string rawJsonStateMachineData = createJsonString(oldPart.str(), newPart.str());
+
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
+
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
+
+    stateMachineProcessor.updateStateMachines(status);
+
+    switch (status)
+    {
+        case configModule::EventMessageNumber::INSTALLFAILED:
+            {
+                long expected = (testValue < 0) ? 0 : testValue - 1;
+                EXPECT_EQ(stateMachineProcessor.getStateMachineData().getInstallStateCredit(), std::to_string(expected));
+            }
+            break;
+
+        case configModule::EventMessageNumber::DOWNLOADFAILED:
+            {
+                long expected = (testValue < 0) ? 0 : testValue - 18;
+                EXPECT_EQ(stateMachineProcessor.getStateMachineData().getDownloadStateCredit(), std::to_string(expected));
+            }
+            break;
+
+        default:
+            FAIL() << "unexpected status " << status;
+            break;
+    }
+}
+
+INSTANTIATE_TEST_CASE_P(StateMachineProcessorCreditTest, StateMachineProcessorTestWithCredit, ::testing::Values(
+            std::make_tuple("InstallStateCredit", 3, -1, configModule::EventMessageNumber::INSTALLFAILED),
+            std::make_tuple("InstallStateCredit", 3, 0x7fffffff, configModule::EventMessageNumber::INSTALLFAILED),
+            std::make_tuple("DownloadStateCredit", 72, -1, configModule::EventMessageNumber::DOWNLOADFAILED),
+            std::make_tuple("DownloadStateCredit", 72, 0x7fffffff, configModule::EventMessageNumber::DOWNLOADFAILED)));
+
+TEST_P(StateMachineProcessorTestWithException, StateMachinesReadNotANumberShouldThrow) // NOLINT
+{
+    std::ostringstream rawJsonStateMachineData;
+    rawJsonStateMachineData << "{\"" << std::get<0>(GetParam()) << "\":\"not a number\"}";
+    std::string expectedException = std::get<1>(GetParam());
+
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData.str()));
+
+    try
+    {
+        stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
+        FAIL();
+    }
+    catch (const std::exception& ex)
+    {
+        EXPECT_STREQ(expectedException.c_str(), ex.what());
+    }
+}
+
+INSTANTIATE_TEST_CASE_P(StateMachineProcessorExceptionTest, StateMachineProcessorTestWithException, ::testing::Values(
+            std::make_tuple("DownloadStateCredit", "stoi"),
+            std::make_tuple("InstallStateCredit", "stoi"),
+            std::make_tuple("EventStateLastError", "stoi"),
+            std::make_tuple("DownloadFailedSinceTime", "stol"),
+            std::make_tuple("EventStateLastTime", "stol"),
+            std::make_tuple("InstallFailedSinceTime", "stol"),
+            std::make_tuple("LastGoodInstallTime", "stol")));
+
+TEST_F(StateMachineProcessorTest, StateMachinesReadCatchesFileSystemException) // NOLINT
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Throw(IFileSystemException("permission denied")));
+
+    EXPECT_NO_THROW(stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945"));
+}
+
+TEST_F(StateMachineProcessorTest, StateMachinesReadCatchesFileTooLargeException) // NOLINT
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Throw(IFileTooLargeException("file too large")));
+
+    EXPECT_NO_THROW(stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945"));
+}
+
+TEST_F(StateMachineProcessorTest, StateMachinesWriteCatchesFileSystemException) // NOLINT
+{
+    std::string rawJsonStateMachineData = createJsonString("", "");
+
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
+    EXPECT_CALL(fileSystemMock, writeFile(_, _)).WillOnce(Throw(IFileSystemException("permission denied")));
+
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
+
+    EXPECT_NO_THROW(stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::SUCCESS));
 }
 
 TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenResultIsDownloadFailed) // NOLINT
