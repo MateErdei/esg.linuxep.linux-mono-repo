@@ -52,9 +52,7 @@ public:
 
     // Protected so we can unit test things
 protected:
-    std::vector<ScheduledQuery> m_scheduledQueryTags{};
-
-    std::map<std::string, std::pair<std::string, std::string>> getQueryTagMap();
+    std::map<std::string, std::pair<std::string, std::string>> m_scheduledQueryTagMap{};
 
 private:
     bool m_firstEntry = true;

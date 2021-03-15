@@ -89,11 +89,10 @@ void ResultsSender::Add(const std::string& result)
     {
         std::stringstream logLineStream(result);
         logLineStream >> logLine;
-        std::map<std::string, std::pair<std::string, std::string>> queryTagMap = getQueryTagMap();
         queryName = logLine["name"].asString();
         if (!queryName.empty())
         {
-            auto correctQueryNameAndTag = queryTagMap[queryName];
+            auto correctQueryNameAndTag = m_scheduledQueryTagMap[queryName];
             if (logLine["name"] != correctQueryNameAndTag.first && !correctQueryNameAndTag.first.empty())
             {
                 logLine["name"] = correctQueryNameAndTag.first;
@@ -268,13 +267,8 @@ void ResultsSender::loadScheduledQueryTags()
         loadScheduledQueryTagsFromFile(scheduledQueries, m_osqueryCustomConfigFilePath);
     }
 
-    m_scheduledQueryTags = scheduledQueries;
-}
-
-std::map<std::string, std::pair<std::string, std::string>> ResultsSender::getQueryTagMap()
-{
     std::map<std::string, std::pair<std::string, std::string>> queryTagMap;
-    for (const auto& query : m_scheduledQueryTags)
+    for (const auto& query : scheduledQueries)
     {
         if (queryTagMap.find(query.queryNameWithPack) != queryTagMap.end())
         {
@@ -282,7 +276,7 @@ std::map<std::string, std::pair<std::string, std::string>> ResultsSender::getQue
         }
         queryTagMap.insert(std::make_pair(query.queryNameWithPack, std::make_pair(query.queryName, query.tag)));
     }
-    return queryTagMap;
+    m_scheduledQueryTagMap = queryTagMap;
 }
 
 void ResultsSender::setDataLimit(unsigned int limitbytes)

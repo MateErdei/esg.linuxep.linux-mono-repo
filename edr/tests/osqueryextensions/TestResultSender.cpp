@@ -99,7 +99,31 @@ const std::string EXAMPLE_MTR_QUERY_PACK =  R"({
     }
 })";
 
+const std::string EXAMPLE_QUERY_PACK_WITH_DUPLICATES =  R"({
+    "schedule": {
+           "query1": {
+                "query": "select * from users;",
+                "interval": 86400,
+                "removed": false,
+                "blacklist": false,
+                "platform": "linux",
+                "description": "test query",
+                "tag": "stream"
+            },
+            "query1": {
+                "query": "select * from users;",
+                "interval": 86400,
+                "removed": false,
+                "blacklist": false,
+                "platform": "linux",
+                "description": "test query",
+                "tag": "DataLake"
+            }
+    }
+})";
+
 class TestResultSender : public LogOffInitializedTests{};
+class TestResultSenderWithLogger : public LogInitializedTests{};
 
 class ResultSenderForUnitTests : public ResultsSender
 {
@@ -113,14 +137,9 @@ public:
         ResultsSender(intermediaryPath, datafeedPath, osqueryXDRConfigFilePath,osqueryMTRConfigFilePath,osqueryCustomConfigFilePath,PLUGIN_VAR_DIR, DATA_LIMIT, PERIOD_IN_SECONDS, []() { })
     {}
 
-    std::vector<ScheduledQuery> getQueryTags()
+    std::map<std::string, std::pair<std::string, std::string>> getQueryTagMapOverridden()
     {
-        return m_scheduledQueryTags;
-    }
-
-    std::map<std::string, std::pair<std::string, std::string>> getQueryTagMapOveridden()
-    {
-        return getQueryTagMap();
+        return m_scheduledQueryTagMap;
     }
 
     static void mockPersistentValues(::testing::StrictMock<MockFileSystem>* mockFileSystem)
@@ -211,8 +230,7 @@ TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
     EXPECT_CALL(*mockFileSystem, exists(CUSTOM_QUERY_PACK_PATH)).WillOnce(Return(false));
     ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH,CUSTOM_QUERY_PACK_PATH);
 
-    auto actualQueries = resultsSender.getQueryTags();
-    auto actualQueryTagMap = resultsSender.getQueryTagMapOveridden();
+    auto actualQueryTagMap = resultsSender.getQueryTagMapOverridden();
 
     std::vector<ScheduledQuery> expectedQueries;
     expectedQueries.push_back({"deb_packages", "deb_packages", "DataLake"});
@@ -222,14 +240,6 @@ TEST_F(TestResultSender, loadScheduledQueryTags) // NOLINT
     std::map<std::string, std::pair<std::string, std::string>> tagMap;
     tagMap.insert(std::make_pair("deb_packages", std::make_pair("deb_packages", "DataLake")));
     tagMap.insert(std::make_pair("osquery_rocksdb_size_linux", std::make_pair("osquery_rocksdb_size_linux", "stream")));
-
-    ASSERT_EQ(actualQueries[0].queryNameWithPack, expectedQueries[0].queryNameWithPack);
-    ASSERT_EQ(actualQueries[0].queryName, expectedQueries[0].queryName);
-    ASSERT_EQ(actualQueries[0].tag, expectedQueries[0].tag);
-
-    ASSERT_EQ(actualQueries[1].queryNameWithPack, expectedQueries[1].queryNameWithPack);
-    ASSERT_EQ(actualQueries[1].queryName, expectedQueries[1].queryName);
-    ASSERT_EQ(actualQueries[1].tag, expectedQueries[1].tag);
 
     ASSERT_EQ(actualQueryTagMap["deb_packages"].first, tagMap["deb_packages"].first);
     ASSERT_EQ(actualQueryTagMap["deb_packages"].second, tagMap["deb_packages"].second);
@@ -246,9 +256,7 @@ TEST_F(TestResultSender, loadScheduledQueryTagsWithNoQueryPackDoesNotCrash) // N
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH,CUSTOM_QUERY_PACK_PATH);
-    auto actualQueries = resultsSender.getQueryTags();
-    auto actualQueryTagMap = resultsSender.getQueryTagMapOveridden();
-    ASSERT_EQ(actualQueries.size(), 0);
+    auto actualQueryTagMap = resultsSender.getQueryTagMapOverridden();
     ASSERT_EQ(actualQueryTagMap.size(), 0);
 }
 
@@ -300,6 +308,50 @@ TEST_F(TestResultSender, addWritesToFile) // NOLINT
 
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, testResult)).Times(1);
     resultsSender.Add(testResult);
+}
+
+TEST_F(TestResultSenderWithLogger, addDoesNotRegenTagMap) // NOLINT
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    std::string testResult = R"({"name":"","test":"value"})";
+    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
+    EXPECT_CALL(*mockFileSystem, exists(QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK_WITH_DUPLICATES));
+    EXPECT_CALL(*mockFileSystem, exists(MTR_QUERY_PACK_PATH)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(MTR_QUERY_PACK_PATH)).WillOnce(Return(EXAMPLE_QUERY_PACK_WITH_DUPLICATES));
+    EXPECT_CALL(*mockFileSystem, exists(CUSTOM_QUERY_PACK_PATH)).WillOnce(Return(false));
+
+    testing::internal::CaptureStderr();
+
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
+        CUSTOM_QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, testResult)).Times(1);
+    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "," + testResult)).Times(1);
+    resultsSender.Add(testResult);
+    resultsSender.Add(testResult);
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    std::string alreadyInQueryMapLogLine = "already in query map";
+    EXPECT_THAT(logMessage, ::testing::HasSubstr(alreadyInQueryMapLogLine));
+
+    int occurrences = 0;
+    std::string::size_type pos = 0;
+    while ((pos = logMessage.find(alreadyInQueryMapLogLine, pos)) != std::string::npos)
+    {
+        ++occurrences;
+        pos += alreadyInQueryMapLogLine.length();
+    }
+    EXPECT_EQ(occurrences,1);
 }
 
 TEST_F(TestResultSender, addAppendsToFileExistinEntries) // NOLINT
