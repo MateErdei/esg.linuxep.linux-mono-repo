@@ -287,10 +287,7 @@ function build()
 
         untar_input openssl
         untar_input protobuf
-        # sqlite build output currently has an awkward name so renaming here.
-        unzip -o $(ls ${INPUT}/sqlite-*.zip) -d "$REDIST" || exitFailure 1 "No sqlite zip"
-        rm -rf "${REDIST}/sqlite"
-        mv "${REDIST}/sqlite-amalgamation-3340000" "${REDIST}/sqlite"
+        mv "${INPUT}/sqlite-amalgamation" "${REDIST}/sqlite"
 
         mkdir -p "$REDIST"/osquery
         cp  -r ${INPUT}/osquery/osquery/*  "$REDIST"/osquery

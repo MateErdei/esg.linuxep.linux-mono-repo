@@ -15,7 +15,7 @@
         </build-asset>
         <build-asset project="winep" repo="livequery">
             <release-version branch="release/2021.07" build-id="20210205194609-7083eb9befef6eb36a3a990fe2aecd5eb2c08016-m0r2UY"/>
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-2693-upgrade-3rd-party-libraries-2nd-task-in-project"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <build-asset project="winep" repo="dbos">
@@ -23,7 +23,7 @@
             <development-version branch="develop"/>
             <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
         </build-asset>
-        <package name="boostlinux11" version="1-74-0-5/221614/output" dest="input">
+        <package name="boostlinux11" version="1-75-0-4/222018/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
@@ -36,7 +36,7 @@
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
         <trusted-asset artifact-path="com.osquery/osquery/4.6.0/osquery-4.6.0-linux" dest-dir="input/osquery"/>
-        <package name="openssllinux11" version="1-1-1i-1/221620/output" dest="input">
+        <package name="openssllinux11" version="1-1-1j-1/222017/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
         <package name="protobuflinux11" version="3-14-0-6/221619/output" dest="input">
@@ -48,11 +48,11 @@
         <package name="gloglinux11" version="0-4-0-14/219062/output" dest="input">
             <include src="glog.tar" dest="."/>
         </package>
-        <package name="thriftlinux11" version="0-13-0-15/221628/output" dest="input">
+        <package name="thriftlinux11" version="0-14-1-5/222026/output" dest="input">
             <include src="thrift.tar" dest="."/>
         </package>
-        <package name="sqlite-amalgamation" version="3-34-0-11/221627/sqlite-amalgamation" dest="input">
-            <include src="sqlite-amalgamation-3340000.zip" dest="."/>
+        <package name="sqlite-amalgamation" version="3-34-1-4/221901" dest="input">
+            <include src="sqlite-amalgamation" dest="sqlite-amalgamation"/>
         </package>
         <package name="jsoncpplinux11" version="1-8-4-17/220379/output" dest="input">
             <include src="jsoncpp.tar" dest="."/>
