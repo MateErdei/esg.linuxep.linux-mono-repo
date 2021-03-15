@@ -123,8 +123,7 @@ def restart_Secure_Server_Proxy():
 
 def is_secure_proxy_server_up():
     try:
-
-        proxies={'http':'http://ssplsecureproxysever.eng.sophos:8888'}
+        proxies={'http':'http://ssplsecureproxyserver.eng.sophos:8888'}
         requests.get("http://10.55.36.78", proxies=proxies)
     except IOError:
         return False
