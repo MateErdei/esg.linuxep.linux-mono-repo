@@ -361,6 +361,7 @@ class LogUtils(object):
         mcsrouter_log = self.mcs_router_log()
         contents = get_log_contents(mcsrouter_log)
         self.marked_mcsrouter_logs = len(contents)
+        logger.info(f"mcsrouter log marked at line: {self.marked_mcsrouter_logs}")
 
     def check_marked_mcsrouter_log_contains(self, string_to_contain):
         mcsrouter_log = self.mcs_router_log()

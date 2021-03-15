@@ -7,6 +7,7 @@
 import sys
 import subprocess
 import os
+import urllib
 
 import PathManager
 
@@ -119,6 +120,16 @@ def restart_Secure_Server_Proxy():
     output = subprocess.check_output(command)
 
     return output
+
+def is_secure_proxy_server_up():
+    try:
+        urllib.urlopen(
+            "http://10.55.36.78",
+            proxies={'http':'http://ssplsecureproxyserver.eng.sophos:8888'}
+        )
+    except IOError:
+        return False
+    return True
 
 def main(argv):
     distance = "5"

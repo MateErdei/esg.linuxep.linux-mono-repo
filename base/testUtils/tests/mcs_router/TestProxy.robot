@@ -158,8 +158,8 @@ The Connection Will Transfer Between Proxies When One Fails
     Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:${Proxy_Port_One}
     Check Mcsenvelope Log Contains In Order  PUT /statuses/endpoint  ${Proxy_Name_One}
 
-    Stop Proxy Server On Port  3331
     Mark Mcsrouter Log
+    Stop Proxy Server On Port  3331
     Check Cloud Server Log For Command Poll  2
     Check Marked MCSRouter Log Contains  Failed connection with message relay via localhost:${Proxy_Port_One}
     Check Marked MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:${Proxy_Port_Two}

@@ -13,6 +13,9 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
 Library    ${LIBS_DIRECTORY}/ProxyUtils.py
 
+Suite Setup     Run Keywords
+...    ${Result}=  Is Secure Proxy Server Up
+...    Run Keyword If   ${Result}==${True}  Restart Secure Server Proxy   # ensure the secureproxy is in a good state before tests
 
 ## EXCLUDE_AWS because this requires the secureproxyserver
 Default Tags  CENTRAL  MCS  EXCLUDE_AWS
