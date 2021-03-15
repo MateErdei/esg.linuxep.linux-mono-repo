@@ -45,7 +45,7 @@ namespace Plugin
         * @param flag
         * @param value
         */
-        static void setGivenFlagFromSettingsFile(const std::string& flag, const bool& flagValue);
+        static void setFlagInPluginConfigFile(const std::string& flag, const bool& flagValue);
 
         /**
         * Reads filenames from osquery.conf.d and returns the filepaths for both the xdr and mtr query packs

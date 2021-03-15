@@ -39,6 +39,7 @@ namespace Plugin
 
     public:
         void push(Task);
+        void pushIfNotAlreadyInQueue(Task);
         bool pop(Task&, int timeout);
         void pushStop();
         void pushOsqueryProcessDelayRestart();

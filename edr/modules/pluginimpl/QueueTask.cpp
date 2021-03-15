@@ -5,6 +5,8 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "QueueTask.h"
+
+#include <algorithm>
 namespace Plugin
 {
     void QueueTask::push(Task task)
@@ -12,6 +14,21 @@ namespace Plugin
         std::lock_guard<std::mutex> lck(m_mutex);
         m_list.emplace_back(std::move(task));
         m_cond.notify_one();
+    }
+
+    void QueueTask::pushIfNotAlreadyInQueue(Task task)
+    {
+        std::lock_guard<std::mutex> lck(m_mutex);
+        auto result = std::find_if(
+            std::begin(m_list),
+            std::end(m_list),
+            [task](const Task& taskInList){return (taskInList.m_taskType == task.m_taskType);});
+
+        if (result == std::end(m_list))
+        {
+            m_list.emplace_back(std::move(task));
+            m_cond.notify_one();
+        }
     }
 
     bool QueueTask::pop(Task& task, int timeout)
@@ -64,7 +81,7 @@ namespace Plugin
 
     void QueueTask::pushOsqueryRestart(const std::string& reason)
     {
-        Task stopTask{ .m_taskType = Task::TaskType::QUEUE_OSQUERY_RESTART, .m_content = reason };
-        push(stopTask);
+        Task restartTask{ .m_taskType = Task::TaskType::QUEUE_OSQUERY_RESTART, .m_content = reason };
+        pushIfNotAlreadyInQueue(restartTask);
     }
 } // namespace Plugin

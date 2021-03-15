@@ -217,7 +217,7 @@ namespace Plugin
             catch (std::runtime_error& ex)
             {
                 LOGINFO("Using default value for disable_audit flag");
-                Plugin::PluginUtils::setGivenFlagFromSettingsFile("disable_auditd", disableAuditD);
+                Plugin::PluginUtils::setFlagInPluginConfigFile("disable_auditd", disableAuditD);
             }
         }
         else

@@ -23,7 +23,6 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 #include <future>
 #include <list>
-#include <Common/XmlUtilities/AttributesMap.h>
 
 namespace Plugin
 {
@@ -32,7 +31,11 @@ namespace Plugin
     public:
         using std::runtime_error::runtime_error;
     };
-
+    class FailedToParseLiveQueryPolicy : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
     class PluginAdapter
     {
         std::shared_ptr<QueueTask> m_queueTask;
@@ -79,7 +82,11 @@ namespace Plugin
         void mainLoop();
         ~PluginAdapter();
 
+        unsigned int getDataLimit(const std::string &liveQueryPolicy);
+        std::string getRevId(const std::string &liveQueryPolicy);
+
         bool hasScheduleEpochEnded(time_t now);
+        static bool haveCustomQueriesChanged(const std::optional<std::string>& customQueries);
 
     protected:
         /*
@@ -90,8 +97,7 @@ namespace Plugin
          * But, on arrival of policies, (firstTime=false) it may also push to the queue a RestartRequired.
          */
         void processALCPolicy(const std::string&, bool firstTime);
-        void processLiveQueryPolicy(const std::string&);
-        virtual void applyLiveQueryPolicy(std::optional<Common::XmlUtilities::AttributesMap> policyAttributesMap);
+        void processLiveQueryPolicy(const std::string&, bool firstTime);
         void ensureMCSCanReadOldResponses();
         OsqueryConfigurator& osqueryConfigurator();
 
@@ -104,15 +110,12 @@ namespace Plugin
         Common::PersistentValue<time_t> m_scheduleEpoch;
         // 6 Days in seconds
         const time_t SCHEDULE_EPOCH_DURATION = 518400;
-        static bool isQueryPackEnabled(Path queryPackPathWhenEnabled);
-
     private:
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 5;
         bool m_isXDR = false;
-        std::vector<std::string> m_queryPacksInPolicy;
         void sendLiveQueryStatus();
 
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
@@ -123,7 +126,7 @@ namespace Plugin
 
 
         void processQuery(const std::string& query, const std::string& correlationId);
-        void processFlags(const std::string& flagsContent);
+        void processFlags(const std::string& flagsContent, bool firstTime);
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
         // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
         void setUpOsqueryMonitor();
@@ -132,6 +135,7 @@ namespace Plugin
         void cleanUpOldOsqueryFiles();
         void databasePurge();
         static bool pluginMemoryAboveThreshold();
+        void loadXdrFlags();
         void dataFeedExceededCallback();
         void telemetryResetCallback(Common::Telemetry::TelemetryHelper&);
 

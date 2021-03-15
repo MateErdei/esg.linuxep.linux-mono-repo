@@ -81,7 +81,7 @@ public:
 
     void processLiveQueryPolicy(const std::string& policy)
     {
-        Plugin::PluginAdapter::processLiveQueryPolicy(policy);
+        Plugin::PluginAdapter::processLiveQueryPolicy(policy, false);
     }
 
     void setDataLmit(const int& limit)
