@@ -100,7 +100,7 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/report.html",
                     "robot" + get_suffix() + "_" + machine_name + "-report.html")
 
-
+@tap.timeout(5400)
 def robot_task(machine: tap.Machine):
     install_requirements(machine)
     robot_task_with_env(machine)
