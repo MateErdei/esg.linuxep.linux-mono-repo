@@ -77,9 +77,9 @@ std::string SusiScanner::susiErrorToReadableError(const std::string& filePath, c
         // SOPHOS_SAVI_ERROR_COULD_NOT_OPEN
         errorMsg << " as it could not be opened";
     }
-    else if (susiError == "recursion limit")
+    else if (susiError == "recursion limit" || susiError == "unexpected (0x80040231)")
     {
-        // SOPHOS_SAVI_ERROR_RECURSION_LIMIT
+        // SOPHOS_SAVI_ERROR_RECURSION_LIMIT or SOPHOS_SAVI_ERROR_SCAN_ABORTED
         errorMsg << " as it is a Zip Bomb";
     }
     else if (susiError == "scan failed")

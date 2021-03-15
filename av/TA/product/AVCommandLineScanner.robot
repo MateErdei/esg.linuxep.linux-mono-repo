@@ -150,7 +150,7 @@ CLS Can Scan Shallow Archive But not Deep Archive
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
     Log  ${output}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/archives/eicar30.zip
-    # TODO: Once CORE-2151 is actually fixed (LINUXDAR-2508), check the output for "as it is a Zip Bomb"
+    Should Contain  ${output}  as it is a Zip Bomb
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/archives/eicar15.tar --scan-archives
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
@@ -189,7 +189,7 @@ CLS Summary in Less Than a Second
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file -x ${NORMAL_DIRECTORY}/clean_file
 
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Contain   ${output}  0 files scanned in less than a second.
+    Should Contain   ${output}  0 files scanned in less than a second
     Should Contain   ${output}  0 files out of 0 were infected.
 
 
@@ -220,7 +220,8 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Should Not Contain  ${result.stdout}  Failed to reconnect to Sophos Threat Detector - retrying...
     Should Contain   ${result.stdout}  Received SIGINT
     Should Contain   ${result.stdout}  0 files out of
-
+    ${result} =  Get Process Result
+    log to console  ${result}
 
 CLS Does not request TFTClassification from SUSI
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
@@ -327,7 +328,7 @@ CLS Can Scan Multiple Archive Files
     Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
 
-CLS Reports Reason for Scan Error on Zip Bomb
+CLS Abort Scanning of Zip Bomb
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zipbomb.zip --scan-archives
@@ -336,8 +337,7 @@ CLS Reports Reason for Scan Error on Zip Bomb
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/zipbomb.zip
-    Should Contain  ${output}  [archive bomb]
-
+    Should Contain  ${output}  as it is a Zip Bomb
 
 
 CLS Aborts Scanning of Password Protected File
@@ -1188,7 +1188,8 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
     File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
-    Should Be Equal As Integers  ${result.rc}  ${SCAN_ABORTED}
+    # Specific codes tested in integration
+    Should Be True  ${result.rc} > 0
 
 
 CLS scan with Bind Mount
@@ -1302,8 +1303,6 @@ CLS scan two mounts same inode numbers
 
 
 CLS Can Scan Infected And Error Files
-    # Broken by CORE-2151 removed MANUAL Tag once fixed
-    [Tags]  MANUAL
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
     Create File  ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
 
@@ -1314,8 +1313,6 @@ CLS Can Scan Infected And Error Files
 
 
 CLS Can Scan Clean And Error Files
-    # Broken by CORE-2151 removed MANUAL Tag once fixed
-    [Tags]  MANUAL
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
     Create File  ${NORMAL_DIRECTORY}/cleanfile.txt    ${CLEAN_STRING}
 
