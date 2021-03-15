@@ -158,7 +158,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         test_inputs['bazel_tools'] = unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
     return test_inputs
 
-
+@tap.timeout(5400)
 def bullseye_coverage_task(machine: tap.Machine):
     suffix = get_suffix()
 
