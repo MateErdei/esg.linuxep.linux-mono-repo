@@ -189,13 +189,13 @@ function install_product()
     chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/sbin"
 
     mkdir -p "${PLUGIN_INSTALL}/log"
-    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/log/*"
     chmod 0770 "${PLUGIN_INSTALL}/log"
+    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
 
     mkdir -p "${PLUGIN_INSTALL}/var"
-    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/var/*"
     chmod 0770 "${PLUGIN_INSTALL}/var"
+    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
 
     CHROOT="${PLUGIN_INSTALL}/chroot"
