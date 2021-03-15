@@ -167,6 +167,9 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
     ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
+    chmod 0751 "${PLUGIN_INSTALL}"
+    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}"
+
     chmod 0644 "${PLUGIN_INSTALL}/VERSION.ini"*
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/VERSION.ini"
 
