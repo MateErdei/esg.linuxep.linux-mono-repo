@@ -44,7 +44,6 @@ MTR Plugin Produces Telemetry With Empty OSQueryD Output Log File
     Log  ${telemetryFileContents}
     Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0
 
-
 MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart And Also Uses Cached Values From Disk
     Install MTR From Fake Component Suite
     Create File  ${OSQUERYD_OUTPUT_LOG}
@@ -66,7 +65,6 @@ MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart And Also Uses Ca
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
     Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0
-
 
 MTR Plugin Reports Telemetry Correctly For OSQuery Memory Restarts And Also Uses Cached Values From Disk
     Create File  ${OSQUERYD_OUTPUT_LOG}  ${OSQUERY_RESTART_MEMORY}
@@ -132,9 +130,6 @@ MTR Plugin Counts Osquery Database Purges
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
-
-    ${fileContent}=  Get File  ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/osquery.flags
-    Should Contain  ${fileContent}    --logger_min_status=1
 
     Check MTR Telemetry Json Is Correct  ${telemetryFileContents}  0  1  0  0  ignore_cpu_restarts=True  ignore_memory_restarts=True
 
