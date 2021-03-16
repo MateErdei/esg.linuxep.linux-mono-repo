@@ -457,6 +457,7 @@ namespace Plugin
         {
             registerAndStartExtensionsPlugin();
         }
+        LOGINFO("Plugin preparation complete");
     }
 
     void PluginAdapter::registerAndStartExtensionsPlugin()

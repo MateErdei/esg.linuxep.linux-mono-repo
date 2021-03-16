@@ -202,6 +202,10 @@ Check EDR Plugin Installed With Base
     ...  15 secs
     ...  1 secs
     ...  EDR Plugin Log Contains  edr <> Entering the main loop
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Plugin preparation complete
 
 
 Get ALC Policy Without MTR
