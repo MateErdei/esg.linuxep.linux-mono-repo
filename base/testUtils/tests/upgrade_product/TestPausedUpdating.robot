@@ -71,7 +71,7 @@ Perform Update And Check Expected Version Is Installed
     Wait Until Keyword Succeeds
     ...   240 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  ${updateSuccessLogCount}
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   ${updateSuccessLogCount}
 
     ${length} =    Get Length    ${version}
 

@@ -59,7 +59,7 @@ ALC event Sent On reregister
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   2 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 Update Failure Event Sent On Start Up
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved

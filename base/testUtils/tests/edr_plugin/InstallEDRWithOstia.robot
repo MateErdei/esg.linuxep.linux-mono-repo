@@ -210,7 +210,7 @@ Install edr 999 and downgrade to current edr
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     Check MDR Plugin Installed
 
@@ -279,7 +279,7 @@ Install master of base and edr and mtr and upgrade to edr 999
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
@@ -356,7 +356,7 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     # Check for warning that there is a naming collision in the map of query tags
     Wait Until Keyword Succeeds
@@ -422,7 +422,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     Wait Until MDR Installed
 
@@ -468,7 +468,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     # ensure EDR still running after update
     EDR Plugin Is Running

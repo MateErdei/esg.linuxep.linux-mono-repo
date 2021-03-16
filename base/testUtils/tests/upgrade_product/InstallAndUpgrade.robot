@@ -113,6 +113,8 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
+
     Check EAP Release Installed Correctly
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -130,7 +132,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -174,6 +176,8 @@ VersionCopy File in the Wrong Location Is Removed
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
+
     Check EAP Release Installed Correctly
 
     #fake the file being copied to the wrong location
@@ -199,7 +203,7 @@ VersionCopy File in the Wrong Location Is Removed
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -219,6 +223,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...   200 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
 
     Check Current Release Installed Correctly
     # products that should change version
@@ -304,7 +310,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     #the query pack should have been re-installed
     Should Exist  ${Sophos_Scheduled_Query_Pack}
@@ -378,7 +384,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     # ensure that the list of files to remove contains files which are outside of the components realm
     ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
@@ -439,7 +445,7 @@ Version Copy Versions All Changed Files When Upgrading
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
 
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
@@ -514,7 +520,7 @@ Update Will Be Forced When Feature List Changes Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
@@ -549,7 +555,7 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
