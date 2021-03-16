@@ -283,8 +283,9 @@ INSTANTIATE_TEST_CASE_P(TestThreatScanner, ThreatScannerParameterizedTest, ::tes
     std::make_tuple("unsupported", "Failed to scan test.file as it is not a supported file type"),
     std::make_tuple("couldn't open", "Failed to scan test.file as it could not be opened"),
     std::make_tuple("recursion limit", "Failed to scan test.file as it is a Zip Bomb"),
+    std::make_tuple("unexpected (0x80040231)", "Failed to scan test.file as it is a Zip Bomb"),
     std::make_tuple("scan failed", "Failed to scan test.file due to a sweep failure"),
-    std::make_tuple("unexpected (0x80040231)", "Failed to scan test.file [unexpected (0x80040231)]")
+    std::make_tuple("unexpected (0x80040246)", "Failed to scan test.file [unexpected (0x80040246)]")
 )); // NOLINT
 
 TEST_P(ThreatScannerParameterizedTest, susiErrorToReadableError) // NOLINT
