@@ -13,6 +13,7 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
 Library    ${LIBS_DIRECTORY}/ProxyUtils.py
 
+# check if proxy can reach nova, restart proxy if it cant reach it
 Suite Setup     Check Secure Proxy Is Up
 
 ## EXCLUDE_AWS because this requires the secureproxyserver
@@ -54,8 +55,9 @@ Register in Central through environment proxy
 *** Keywords ***
 Check Secure Proxy Is Up
     # ensure the secureproxy is in a good state before tests
-    ${Result}=  Is Secure Proxy Server Up
+    ${Result}=  Can Secure Proxy Server Contact Nova
     Run Keyword If   ${Result}==${False}  Restart Secure Server Proxy
+
 Check MCS Router log contains message relay success
     [Arguments]    ${MESSAGE_RELAY}
     Check Mcsrouter Log Contains  Successfully connected to ${MCS_ADDRESS} via ${MESSAGE_RELAY}

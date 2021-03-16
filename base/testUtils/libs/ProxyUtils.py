@@ -121,10 +121,10 @@ def restart_Secure_Server_Proxy():
 
     return output
 
-def is_secure_proxy_server_up():
+def can_secure_proxy_server_contact_nova():
     try:
         proxies={'http':'http://ssplsecureproxyserver.eng.sophos:8888'}
-        requests.get("http://10.55.36.78", proxies=proxies)
+        requests.get("http://novasspl.eng.sophos", proxies=proxies)
     except IOError:
         return False
     return True
