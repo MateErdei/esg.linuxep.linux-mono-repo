@@ -7,6 +7,8 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "PluginUtils.h"
 #include "ApplicationPaths.h"
+#include "OsqueryConfigurator.h"
+#include "LiveQueryPolicyParser.h"
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
@@ -246,5 +248,149 @@ namespace Plugin
             Plugin::PluginUtils::setGivenFlagFromSettingsFile(flagName, flagSetting);
             flagsHaveChanged = true;
         }
+
     }
+
+    bool PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(std::vector<std::string> enabledQueryPacks, bool dataLimitHit)
+    {
+        bool needsOsqueryRestart = false;
+
+        if (dataLimitHit)
+        {
+            LOGINFO("Disabling all query packs because the daily data limit has been hit");
+            enabledQueryPacks = {};
+        }
+        else
+        {
+            // custom query pack is not listed in policy, and should always be enabled
+            // if it exists and the data limit has not been hit
+            needsOsqueryRestart = needsOsqueryRestart || enableQueryPack(osqueryCustomConfigFilePath());
+        }
+
+        std::vector<std::string> queryPackKeys;
+        for (auto const& queryPack : getLiveQueryPackIdToConfigPath())
+        {
+            try
+            {
+                bool currentlyEnabled = isQueryPackEnabled(queryPack.second);
+                bool shouldBeEnabled =
+                        std::find(std::begin(enabledQueryPacks), std::end(enabledQueryPacks), queryPack.first) !=
+                        std::end(enabledQueryPacks);
+
+                if (currentlyEnabled != shouldBeEnabled) {
+                    needsOsqueryRestart = true;
+                    if (shouldBeEnabled) {
+                        enableQueryPack(queryPack.second);
+                        LOGDEBUG("Enabling :" << queryPack.second);
+                    } else {
+                        disableQueryPack(queryPack.second);
+                        LOGDEBUG("Disabling :" << queryPack.second);
+                    }
+                }
+            }
+            catch (const MissingQueryPackException& exception)
+            {
+                LOGERROR(exception.what());
+            }
+        }
+        return needsOsqueryRestart;
+    }
+
+
+    bool PluginUtils::isQueryPackEnabled(Path queryPackPathWhenEnabled)
+    {
+        Path queryPackPathWhenDisabled = queryPackPathWhenEnabled + ".DISABLED";
+        if (Common::FileSystem::fileSystem()->isFile(queryPackPathWhenEnabled))
+        {
+            return true;
+        }
+        else if (Common::FileSystem::fileSystem()->isFile(queryPackPathWhenDisabled))
+        {
+            return false;
+        }
+        throw MissingQueryPackException("Expected at least one of: " + queryPackPathWhenEnabled + " or " + queryPackPathWhenDisabled + " to exist");
+    }
+
+    bool PluginUtils::enableQueryPack(const std::string& queryPackFilePath)
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        std::string disabledPath = queryPackFilePath + ".DISABLED";
+        if (fs->exists(disabledPath))
+        {
+            try
+            {
+                fs->moveFile(disabledPath, queryPackFilePath);
+                LOGDEBUG("Enabled query pack conf file: " << queryPackFilePath);
+                return true;
+            }
+            catch (std::exception& ex)
+            {
+                LOGERROR("Failed to enabled query pack conf file: " << ex.what());
+            }
+        }
+        return false;
+    }
+
+    void PluginUtils::disableQueryPack(const std::string& queryPackFilePath)
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->exists(queryPackFilePath))
+        {
+            try
+            {
+                fs->moveFile(queryPackFilePath, queryPackFilePath + ".DISABLED");
+                LOGDEBUG("Disabled query pack conf file");
+            }
+            catch (std::exception& ex)
+            {
+                LOGERROR("Failed to disable query pack conf file: " << ex.what());
+            }
+        }
+    }
+
+    void PluginUtils::disableAllQueryPacks()
+    {
+        for (auto const& queryPack : getLiveQueryPackIdToConfigPath())
+        {
+            disableQueryPack(queryPack.second);
+        }
+        disableQueryPack(osqueryCustomConfigFilePath());
+    }
+
+    void PluginUtils::enableCustomQueries(std::optional<std::string> customQueries, bool& osqueryRestartNeeded)
+    {
+        try
+        {
+            auto fs = Common::FileSystem::fileSystem();
+
+            if (fs->exists(osqueryCustomConfigFilePath()))
+            {
+                fs->removeFileOrDirectory(osqueryCustomConfigFilePath());
+            }
+            if (customQueries.has_value())
+            {
+                fs->writeFile(osqueryCustomConfigFilePath(), customQueries.value());
+            }
+            osqueryRestartNeeded = true;
+
+        }
+        catch (Common::FileSystem::IFileSystemException &e)
+        {
+            LOGWARN("Filesystem Exception While removing/writing custom query file: " << e.what());
+        }
+    }
+
+    bool PluginUtils::haveCustomQueriesChanged(const std::optional<std::string>& customQueries)
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        std::optional<std::string> oldCustomQueries;
+
+        if (fs->exists(osqueryCustomConfigFilePath()))
+        {
+            oldCustomQueries = fs->readFile(osqueryCustomConfigFilePath());
+        }
+
+        return customQueries != oldCustomQueries;
+    }
+
 }

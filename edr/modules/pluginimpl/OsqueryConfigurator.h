@@ -27,8 +27,6 @@ namespace Plugin
                                                bool xdrEnabled,
                                                time_t scheduleEpoch);
         static void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
-        static void enableQueryPack(const std::string& queryPackFilePath);
-        static void disableQueryPack(const std::string& queryPackFilePath);
         static void addTlsServerCertsOsqueryFlag(std::vector<std::string>& flags);
 
         // This is polled by pluginAdapter, e.g. once a minute to check if netlink ownership has changed and therefore

@@ -394,3 +394,51 @@ TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagSetsValueInFil
     Plugin::PluginUtils::updatePluginConfWithFlag("flag_name", true, flagsHaveChanged);
     EXPECT_TRUE(flagsHaveChanged);
 }
+TEST_F(TestPluginUtilsWithMockFileSystem, enableAnddisableQueryPackRenamesQueryPack) // NOLINT
+{
+    std::string queryPackPath = "querypackpath";
+    std::string queryPackPathDisabled = "querypackpath.DISABLED";
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(_)).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPathDisabled, queryPackPath));
+    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPath, queryPackPathDisabled));
+    Plugin::PluginUtils::enableQueryPack(queryPackPath);
+    Plugin::PluginUtils::disableQueryPack(queryPackPath);
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, enableQueryPackReturnsTrueWhenAChangeWasMade) // NOLINT
+{
+    std::string queryPackPath = "querypackpath";
+    std::string queryPackPathDisabled = "querypackpath.DISABLED";
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(queryPackPathDisabled)).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPathDisabled, queryPackPath));
+    ASSERT_TRUE(Plugin::PluginUtils::enableQueryPack(queryPackPath));
+
+    EXPECT_CALL(*mockFileSystem, exists(queryPackPathDisabled)).Times(1).WillRepeatedly(Return(false));
+    ASSERT_FALSE(Plugin::PluginUtils::enableQueryPack(queryPackPath));
+}
+
+TEST_F(TestPluginUtilsWithMockFileSystem, testHaveCustomQueriesChanged)
+{
+    std::optional<std::string> value1 = "1";
+    std::optional<std::string> value2 = "2";
+    std::optional<std::string> emptyOptionalString;
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(value2.value()));
+    // file exists, different value
+    EXPECT_TRUE(Plugin::PluginUtils::haveCustomQueriesChanged(value1));
+    // file exists, same value
+    EXPECT_FALSE(Plugin::PluginUtils::haveCustomQueriesChanged(value2));
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(false));
+    // file doesn't exist, new custom pack has value
+    EXPECT_TRUE(Plugin::PluginUtils::haveCustomQueriesChanged(value1));
+    // file doesn't exist, new custom pack has no value
+    EXPECT_FALSE(Plugin::PluginUtils::haveCustomQueriesChanged(emptyOptionalString));
+}

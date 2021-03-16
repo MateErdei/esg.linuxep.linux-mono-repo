@@ -12,6 +12,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include "PluginCallback.h"
 #include "QueueTask.h"
 
+#include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/Process/IProcess.h>
 #include <modules/osqueryextensions/LoggerExtension.h>
@@ -24,6 +25,19 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
-    std::optional<std::string> getCustomQueries(const std::string& liveQueryPolicy);
-    bool getFoldingRules(const std::string& liveQueryPolicy, std::vector<Json::Value>& foldingRules);
+    class FailedToParseLiveQueryPolicy : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
+
+    unsigned int getDataLimit(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
+    std::string getRevId(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
+    std::optional<std::string> getCustomQueries(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
+    std::vector<Json::Value> getFoldingRules(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
+    std::map<std::string, std::string> getLiveQueryPackIdToConfigPath();
+    std::vector<std::string> getEnabledQueryPacksInPolicy(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
+    bool getScheduledQueriesEnabledInPolicy(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
+
+
 } // namespace Plugin

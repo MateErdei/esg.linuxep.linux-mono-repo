@@ -10,6 +10,11 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
+    class MissingQueryPackException : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
 
     class PluginUtils
             {
@@ -66,6 +71,39 @@ namespace Plugin
         * @param flagsHaveChanged
         */
         static void updatePluginConfWithFlag(const std::string& flagName, const bool& flagSetting, bool& flagsHaveChanged);
+
+        /**
+        * Given a query pack path returns whether it is enabled or disabled
+        * @returns true if query pack is enabled and false if disabled. Throws if query pack missing
+        * @param queryPackPathWhenEnabled
+        */
+        static bool isQueryPackEnabled(Path queryPackPathWhenEnabled);
+
+        /**
+        * Enables or disables the query packs as per policy and whether we have hit the data limit
+        * @returns true if an osquery restart is required and false otherwise
+        * @param enabledQueryPacks
+        * @param dataLimitHit
+        */
+        static bool handleDisablingAndEnablingScheduledQueryPacks(std::vector<std::string> enabledQueryPacks, bool dataLimitHit);
+
+        /**
+         * Replaces the old custom query config with one that runs the given queries and updates osqueryRestartNeeded if changed
+         * @param customQueries
+         * @param osqueryRestartNeeded
+         */
+        static void enableCustomQueries(std::optional<std::string> customQueries, bool& osqueryRestartNeeded);
+
+        /**
+         * Checks whether new custom queries are different to current custom queries on disk
+         * @param customQueries
+         * @return true if custom queries have changed and false otherwise
+         */
+        static bool haveCustomQueriesChanged(const std::optional<std::string>& customQueries);
+
+        static bool enableQueryPack(const std::string& queryPackFilePath);
+        static void disableQueryPack(const std::string& queryPackFilePath);
+        static void disableAllQueryPacks();
 
         inline static const std::string MODE_IDENTIFIER = "running_mode";
         inline static const std::string NETWORK_TABLES_AVAILABLE = "network_tables";

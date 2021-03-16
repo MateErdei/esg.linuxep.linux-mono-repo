@@ -14,6 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <tests/osqueryclient/MockOsqueryClient.h>
 
 #include <gtest/gtest.h>
+#include <modules/pluginimpl/PluginUtils.h>
 
 using namespace Plugin;
 class TestableOsqueryConfigurator : public OsqueryConfigurator
@@ -138,20 +139,6 @@ TEST_F(TestOsqueryConfigurator, ForALCContainingMTRFeatureAuditShouldNeverBeConf
     enabledOption.loadALCPolicy(PolicyWithMTRFeature());
     EXPECT_TRUE(enabledOption.getPresenceOfMtrInAlcPolicy());
     EXPECT_FALSE(enabledOption.enableAuditDataCollection());
-}
-
-TEST_F(TestOsqueryConfigurator, enableAnddisableQueryPackRenamesQueryPack) // NOLINT
-{
-    std::string queryPackPath = "querypackpath";
-    std::string queryPackPathDisabled = "querypackpath.DISABLED";
-
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, exists(_)).Times(2).WillRepeatedly(Return(true));
-    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPathDisabled, queryPackPath));
-    EXPECT_CALL(*mockFileSystem, moveFile(queryPackPath, queryPackPathDisabled));
-    TestableOsqueryConfigurator::enableQueryPack(queryPackPath);
-    TestableOsqueryConfigurator::disableQueryPack(queryPackPath);
 }
 
 TEST_F(TestOsqueryConfigurator, enableAuditDataCollectionInternalReturnsExpectedValueGivenSetOfInputs) // NOLINT

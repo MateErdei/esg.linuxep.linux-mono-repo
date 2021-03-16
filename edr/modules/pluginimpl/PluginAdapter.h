@@ -31,11 +31,7 @@ namespace Plugin
     public:
         using std::runtime_error::runtime_error;
     };
-    class FailedToParseLiveQueryPolicy : public std::runtime_error
-    {
-    public:
-        using std::runtime_error::runtime_error;
-    };
+
     class PluginAdapter
     {
         std::shared_ptr<QueueTask> m_queueTask;
@@ -82,11 +78,7 @@ namespace Plugin
         void mainLoop();
         ~PluginAdapter();
 
-        unsigned int getDataLimit(const std::string &liveQueryPolicy);
-        std::string getRevId(const std::string &liveQueryPolicy);
-
         bool hasScheduleEpochEnded(time_t now);
-        static bool haveCustomQueriesChanged(const std::optional<std::string>& customQueries);
 
     protected:
         /*
@@ -110,14 +102,17 @@ namespace Plugin
         Common::PersistentValue<time_t> m_scheduleEpoch;
         // 6 Days in seconds
         const time_t SCHEDULE_EPOCH_DURATION = 518400;
+        static bool isQueryPackEnabled(Path queryPackPathWhenEnabled);
+
     private:
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 5;
         bool m_isXDR = false;
-        bool m_useNextQueryPack = false;
+        std::vector<std::string> m_queryPacksInPolicy;
         void sendLiveQueryStatus();
+        void handleDisablingAndEnablingScheduledQueryPacks();
 
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;
@@ -136,7 +131,6 @@ namespace Plugin
         void cleanUpOldOsqueryFiles();
         void databasePurge();
         static bool pluginMemoryAboveThreshold();
-        void loadXdrFlags();
         void dataFeedExceededCallback();
         void telemetryResetCallback(Common::Telemetry::TelemetryHelper&);
 

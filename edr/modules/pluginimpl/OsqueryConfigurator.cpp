@@ -204,11 +204,11 @@ namespace Plugin
 
         if (xdrEnabled && !xdrDataLimitHit)
         {
-            enableQueryPack(Plugin::osqueryXDRConfigFilePath());
+            PluginUtils::enableQueryPack(Plugin::osqueryXDRConfigFilePath());
         }
         else
         {
-            disableQueryPack(Plugin::osqueryXDRConfigFilePath());
+            PluginUtils::disableQueryPack(Plugin::osqueryXDRConfigFilePath());
         }
     }
 
@@ -308,41 +308,6 @@ namespace Plugin
             }
         }
         LOGWARN("CA path not found");
-    }
-
-    void OsqueryConfigurator::enableQueryPack(const std::string& queryPackFilePath)
-    {
-        auto fs = Common::FileSystem::fileSystem();
-        std::string disabledPath = queryPackFilePath + ".DISABLED";
-        if (fs->exists(disabledPath))
-        {
-            try
-            {
-                fs->moveFile(disabledPath, queryPackFilePath);
-                LOGDEBUG("Enabled query pack conf file: " << queryPackFilePath);
-            }
-            catch (std::exception& ex)
-            {
-                LOGERROR("Failed to enabled query pack conf file: " << ex.what());
-            }
-        }
-    }
-
-    void OsqueryConfigurator::disableQueryPack(const std::string& queryPackFilePath)
-    {
-        auto fs = Common::FileSystem::fileSystem();
-        if (fs->exists(queryPackFilePath))
-        {
-            try
-            {
-                fs->moveFile(queryPackFilePath, queryPackFilePath + ".DISABLED");
-                LOGDEBUG("Disabled query pack conf file");
-            }
-            catch (std::exception& ex)
-            {
-                LOGERROR("Failed to disable query pack conf file: " << ex.what());
-            }
-        }
     }
 
     bool OsqueryConfigurator::checkIfReconfigurationRequired()
