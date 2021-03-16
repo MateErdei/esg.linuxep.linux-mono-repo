@@ -38,8 +38,11 @@
         <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE"/>
         <include artifact-path="output/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"/>
       </build-asset>
-
-      <build-asset project="em" repo="esg" mode="release-package-mdr-999,release-package-edr-mdr-999,release-package-060,release-package-edr-999,release-package,release-package-base-999">
+      <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
+        <development-version branch="develop"/>
+        <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
+      </build-asset>
+      <build-asset project="em" repo="esg" mode="release-package,release-package-mdr-999,release-package-edr-mdr-999,release-package-060">
         <development-version branch="develop"/>
         <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
       </build-asset>
@@ -84,8 +87,6 @@
         <development-version branch="develop"/>
         <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/sspl-base"/>
       </build-asset>
-
-      <!-- Packages for av-999 -->
       <build-asset project="linuxep" repo="sspl-plugin-anti-virus" mode="release-package-edr-mdr-999">
         <development-version branch="develop"/>
         <include artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
@@ -111,10 +112,6 @@
       <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
         <development-version branch="develop"/>
         <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-edr-componentsuite"/>
-      </build-asset>
-      <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
-        <development-version branch="master"/>
-        <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
       </build-asset>
       <build-asset project="linuxep" repo="sspl-flags">
         <development-version branch="develop"/>
