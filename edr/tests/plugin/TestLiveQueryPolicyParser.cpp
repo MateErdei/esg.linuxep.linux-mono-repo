@@ -13,10 +13,10 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 class TestLiveQueryPolicyParser: public LogOffInitializedTests{};
 
-std::vector<Json::Value> testableGetFoldingRules(const std::string& policy)
+bool testableGetFoldingRules(const std::string& policy, std::vector<Json::Value>& foldingRules)
 {
     Common::XmlUtilities::AttributesMap attributeMap = Common::XmlUtilities::parseXml(policy);
-    return Plugin::getFoldingRules(attributeMap);
+    return Plugin::getFoldingRules(attributeMap, foldingRules);
 }
 
 unsigned int testableGetDataLimit(const std::string& policy)
@@ -71,11 +71,12 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesHandlesExpecte
                                   "   </configuration>\n"
                                   "</policy>";
 
-
-    auto rules = testableGetFoldingRules(liveQueryPolicy);
-    EXPECT_EQ(rules.size(), 2);
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicy, foldingRules);
+    EXPECT_TRUE(changeFoldingRules);
+    EXPECT_EQ(foldingRules.size(), 2);
     size_t count = 0;
-    for (const auto& r : rules)
+    for (const auto& r : foldingRules)
     {
         SCOPED_TRACE(count);
 
@@ -99,7 +100,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesHandlesExpecte
 
         count++;
     }
-    EXPECT_EQ(count, rules.size());
+    EXPECT_EQ(count, foldingRules.size());
 
 }
 
@@ -118,7 +119,10 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithNoFoldingR
                                       "   </configuration>\n"
                                       "</policy>";
 
-    EXPECT_TRUE(testableGetFoldingRules(liveQueryPolicyNone).empty());
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyNone, foldingRules);
+    EXPECT_TRUE(changeFoldingRules);
+    EXPECT_TRUE(foldingRules.empty());
 }
 
 TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesInvalidJson)
@@ -139,7 +143,10 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesInvalidJson)
                                          "   </configuration>\n"
                                          "</policy>";
 
-    EXPECT_TRUE(testableGetFoldingRules(liveQueryPolicyInvalid).empty());
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyInvalid, foldingRules);
+    EXPECT_FALSE(changeFoldingRules);
+    EXPECT_TRUE(foldingRules.empty());
 }
 
 TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesParsesAllButInvalidRules)
@@ -181,10 +188,146 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesParsesAllButIn
     root["query_name"] = "test_folding_query2";
     root["values"] = values;
     expected.push_back(root);
-    auto actual = testableGetFoldingRules(liveQueryPolicyInvalid);
 
-    EXPECT_EQ(actual.size(), 1);
-    EXPECT_EQ(actual, expected);
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyInvalid, foldingRules);
+    EXPECT_FALSE(changeFoldingRules);
+
+    EXPECT_EQ(foldingRules.size(), 1);
+    EXPECT_EQ(foldingRules, expected);
+}
+
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesGoodThenBadThenOneBadRule)
+{
+    // We get a policy with valid folding rules
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                  "   <configuration>\n"
+                                  "       <scheduled>\n"
+                                  "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                  "           <queryPacks>\n"
+                                  "               <queryPack id=\"XDR\"/>\n"
+                                  "               <queryPack id=\"MTR\"/>\n"
+                                  "           </queryPacks>\n"
+                                  "           <foldingRules>\n"
+                                  "               [\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query\",\n"
+                                  "                       \"values\":{\n"
+                                  "                           \"column_name\": \"column_value\",\n"
+                                  "                           \"column_name2\": \"column_value2\"\n"
+                                  "                       }\n"
+                                  "                   },\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query2\",\n"
+                                  "                        \"values\":{\n"
+                                  "                               \"column_name3\": \"column_value3\"\n"
+                                  "                       }\n"
+                                  "                   }\n"
+                                  "               ]\n"
+                                  "           </foldingRules>\n"
+                                  "       </scheduled>\n"
+                                  "   </configuration>\n"
+                                  "</policy>";
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicy, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_EQ(foldingRules.size(), 2);
+    size_t count = 0;
+    for (const auto& r : foldingRules)
+    {
+        SCOPED_TRACE(count);
+
+        ASSERT_TRUE(r.get("query_name", "").isString());
+        ASSERT_TRUE(r.get("values", "").isObject());
+
+        const std::string query_name = r.get("query_name", "").asString();
+        const Json::Value values = r.get("values", "");
+
+        if (count == 0)
+        {
+            EXPECT_STREQ(query_name.c_str(), "test_folding_query");
+            EXPECT_STREQ(values.get("column_name", "").asString().c_str(), "column_value");
+            EXPECT_STREQ(values.get("column_name2", "").asString().c_str(), "column_value2");
+        }
+        else if (count == 1)
+        {
+            EXPECT_STREQ(query_name.c_str(), "test_folding_query2");
+            EXPECT_STREQ(values.get("column_name3", "").asString().c_str(), "column_value3");
+        }
+
+        count++;
+    }
+    EXPECT_EQ(count, foldingRules.size());
+
+    // We get another policy which has invalid rules
+    std::string liveQueryPolicyInvalid = "<?xml version=\"1.0\"?>\n"
+                                         "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                         "   <configuration>\n"
+                                         "       <scheduled>\n"
+                                         "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                         "           <queryPacks>\n"
+                                         "               <queryPack id=\"XDR\"/>\n"
+                                         "               <queryPack id=\"MTR\"/>\n"
+                                         "           </queryPacks>\n"
+                                         "           <foldingRules>\n"
+                                         "               blah\n"
+                                         "           </foldingRules>\n"
+                                         "       </scheduled>\n"
+                                         "   </configuration>\n"
+                                         "</policy>";
+    // We keep the previous folding rules
+    std::vector<Json::Value> nextRules;
+    bool changeFoldingRulesBadRules = testableGetFoldingRules(liveQueryPolicyInvalid, nextRules);
+    EXPECT_EQ(changeFoldingRulesBadRules, false);
+    EXPECT_EQ(nextRules, std::vector<Json::Value> {});
+
+    // We get another policy with good fields but some bad rules
+    std::string liveQueryPolicyInvalidRules = "<?xml version=\"1.0\"?>\n"
+                                              "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                              "   <configuration>\n"
+                                              "       <scheduled>\n"
+                                              "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                              "           <queryPacks>\n"
+                                              "               <queryPack id=\"XDR\"/>\n"
+                                              "               <queryPack id=\"MTR\"/>\n"
+                                              "           </queryPacks>\n"
+                                              "           <foldingRules>\n"
+                                              "               [\n"
+                                              "                   {\n"
+                                              "                       \"query_name\":\"test_folding_query\",\n"
+                                              "                       \"not-values\":{\n"
+                                              "                           \"column_name\": \"column_value\",\n"
+                                              "                           \"column_name2\": \"column_value2\"\n"
+                                              "                       }\n"
+                                              "                   },\n"
+                                              "                   {\n"
+                                              "                       \"query_name\":\"test_folding_query2\",\n"
+                                              "                        \"values\":{\n"
+                                              "                               \"column_name3\": \"column_value3\"\n"
+                                              "                       }\n"
+                                              "                   }\n"
+                                              "               ]\n"
+                                              "           </foldingRules>\n"
+                                              "       </scheduled>\n"
+                                              "   </configuration>\n"
+                                              "</policy>";
+
+    std::vector<Json::Value> expected;
+    Json::Value root;
+    Json::Value values;
+    values["column_name3"] = "column_value3";
+    root["query_name"] = "test_folding_query2";
+    root["values"] = values;
+    expected.push_back(root);
+
+    std::vector<Json::Value> lastRules;
+    bool changeFoldingRulesSomeBadRules = testableGetFoldingRules(liveQueryPolicyInvalidRules, lastRules);
+    EXPECT_EQ(changeFoldingRulesSomeBadRules, true);
+    // We keep only the good rule
+    EXPECT_EQ(lastRules.size(), 1);
+    EXPECT_EQ(lastRules, expected);
 }
 
 TEST_F(TestLiveQueryPolicyParser, testGetDataLimit)

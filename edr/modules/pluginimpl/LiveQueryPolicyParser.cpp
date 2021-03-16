@@ -133,9 +133,9 @@ namespace Plugin
         return customQueryPack.dump();
     }
 
-    std::vector<Json::Value> getFoldingRules(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap)
+    bool getFoldingRules(const std::optional<Common::XmlUtilities::AttributesMap>& liveQueryPolicyMap, std::vector<Json::Value>& foldingRules)
     {
-        std::vector<Json::Value> foldingRules;
+        bool hasBadRule = false;
         Json::CharReaderBuilder builder;
         auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
         Json::Value root;
@@ -149,7 +149,8 @@ namespace Plugin
             if (attributes.empty())
             {
                 LOGDEBUG("No folding rules in LiveQuery policy");
-                return std::vector<Json::Value> {};
+                foldingRules = std::vector<Json::Value> {};
+                return true;
             }
 
             reader->parse(
@@ -161,13 +162,15 @@ namespace Plugin
         catch (const std::exception &e)
         {
             LOGERROR("Failed to extract folding rules from LiveQuery Policy: " << e.what());
-            return std::vector<Json::Value> {};
+            foldingRules = std::vector<Json::Value> {};
+            return false;
         }
 
         if (!errors.empty())
         {
             LOGWARN("Unable to parse folding rules:" << errors);
-            return std::vector<Json::Value> {};
+            foldingRules = std::vector<Json::Value> {};
+            return false;
         }
 
         try
@@ -177,11 +180,13 @@ namespace Plugin
                 if (!it->isObject())
                 {
                     LOGWARN("Unexpected type " << it->type() << " for folding rule");
+                    hasBadRule = true;
                     continue;
                 }
                 if (!it->isMember("query_name") || !it->isMember("values"))
                 {
                     LOGWARN("Invalid folding rule");
+                    hasBadRule = true;
                     continue;
                 }
 
@@ -191,9 +196,15 @@ namespace Plugin
         catch (const std::exception& err)
         {
             LOGWARN("Failed to process folding rules. Error:" << err.what());
-            return std::vector<Json::Value> {};
+            foldingRules = std::vector<Json::Value> {};
+            return false;
         }
-        return foldingRules;
+
+        if (foldingRules.empty() && hasBadRule)
+        {
+            return false;
+        }
+        return true;
     }
 
     std::map<std::string, std::string> getLiveQueryPackIdToConfigPath()
