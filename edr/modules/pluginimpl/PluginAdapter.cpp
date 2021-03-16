@@ -614,36 +614,38 @@ namespace Plugin
 
         try
         {
-            bool oldRunningMode = Plugin::PluginUtils::retrievePluginSetting(PluginUtils::MODE_IDENTIFIER);
+            bool oldRunningMode = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
             if (m_isXDR != oldRunningMode)
             {
                 LOGINFO("Updating XDR flag settings");
-                Plugin::PluginUtils::savePluginSetting(PluginUtils::MODE_IDENTIFIER, m_isXDR);
+                Plugin::PluginUtils::setGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER, m_isXDR);
                 flagsHaveChanged = true;
             }
         }
         catch (const std::runtime_error& ex)
         {
             LOGINFO("Setting XDR flag settings");
-            Plugin::PluginUtils::savePluginSetting(PluginUtils::MODE_IDENTIFIER, m_isXDR);
+            Plugin::PluginUtils::setGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER, m_isXDR);
             flagsHaveChanged = true;
         }
 
         try
         {
             bool oldNetworkTablesSetting =
-                Plugin::PluginUtils::retrievePluginSetting(PluginUtils::NETWORK_TABLES_AVAILABLE);
+                Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::NETWORK_TABLES_AVAILABLE);
             if (networkTablesAvailable != oldNetworkTablesSetting)
             {
                 LOGINFO("Updating network tables flag settings");
-                Plugin::PluginUtils::savePluginSetting(PluginUtils::NETWORK_TABLES_AVAILABLE, networkTablesAvailable);
+                Plugin::PluginUtils::setGivenFlagFromSettingsFile(
+                    PluginUtils::NETWORK_TABLES_AVAILABLE, networkTablesAvailable);
                 flagsHaveChanged = true;
             }
         }
         catch (const std::runtime_error& ex)
         {
             LOGINFO("Setting network tables flag settings");
-            Plugin::PluginUtils::savePluginSetting(PluginUtils::NETWORK_TABLES_AVAILABLE, networkTablesAvailable);
+            Plugin::PluginUtils::setGivenFlagFromSettingsFile(
+                PluginUtils::NETWORK_TABLES_AVAILABLE, networkTablesAvailable);
             flagsHaveChanged = true;
         }
 
@@ -730,7 +732,7 @@ namespace Plugin
     {
         try
         {
-            m_isXDR = Plugin::PluginUtils::retrievePluginSetting(PluginUtils::MODE_IDENTIFIER);
+            m_isXDR = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
         }
         catch (const std::runtime_error& ex)
         {

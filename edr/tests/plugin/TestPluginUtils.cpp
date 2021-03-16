@@ -48,7 +48,7 @@ TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileWhenItIsEDR)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    ASSERT_EQ(false, Plugin::PluginUtils::retrievePluginSetting("running_mode"));
+    ASSERT_EQ(false, Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"));
 }
 
 TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileWhenItIsXDR)
@@ -59,12 +59,12 @@ TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileWhenItIsXDR)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    ASSERT_EQ(true, Plugin::PluginUtils::retrievePluginSetting("running_mode"));
+    ASSERT_EQ(true, Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"));
 }
 
 TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenFileDoesNotExist)
 {
-    EXPECT_THROW(Plugin::PluginUtils::retrievePluginSetting("running_mode"),std::runtime_error);
+    EXPECT_THROW(Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"),std::runtime_error);
 }
 
 TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenRunningModeNotSet)
@@ -75,7 +75,7 @@ TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenRunningModeNo
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    EXPECT_THROW(Plugin::PluginUtils::retrievePluginSetting("running_mode"),std::runtime_error);
+    EXPECT_THROW(Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"),std::runtime_error);
 }
 
 TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenSettingFileHasInvalidContent)
@@ -86,7 +86,7 @@ TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenSettingFileHa
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    EXPECT_THROW(Plugin::PluginUtils::retrievePluginSetting("running_mode"),std::runtime_error);
+    EXPECT_THROW(Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"),std::runtime_error);
 }
 
 TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenSettingFileIsEmpty)
@@ -97,7 +97,7 @@ TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenSettingFileIs
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    EXPECT_THROW(Plugin::PluginUtils::retrievePluginSetting("running_mode"),std::runtime_error);
+    EXPECT_THROW(Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("running_mode"),std::runtime_error);
 }
 
 TEST_F(TestPluginUtils, setGivenFlagFromSettingsFileWhenFileIsEmpty)
@@ -109,7 +109,7 @@ TEST_F(TestPluginUtils, setGivenFlagFromSettingsFileWhenFileIsEmpty)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    Plugin::PluginUtils::savePluginSetting("running_mode", true);
+    Plugin::PluginUtils::setGivenFlagFromSettingsFile("running_mode", true);
     ASSERT_EQ("running_mode=1\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
 }
 
@@ -122,7 +122,7 @@ TEST_F(TestPluginUtils, setGivenFlagFromSettingsFileWhenSettingFileDoesNotExist)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    Plugin::PluginUtils::savePluginSetting("running_mode", true);
+    Plugin::PluginUtils::setGivenFlagFromSettingsFile("running_mode", true);
     ASSERT_EQ("running_mode=1\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
 }
 
@@ -135,7 +135,7 @@ TEST_F(TestPluginUtils, setGivenFlagFromSettingsFileUpdatesFilefromEDRToXDR)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    Plugin::PluginUtils::savePluginSetting("running_mode", true);
+    Plugin::PluginUtils::setGivenFlagFromSettingsFile("running_mode", true);
     ASSERT_EQ("disable_auditd=1\nrunning_mode=1\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
 }
 
@@ -148,7 +148,7 @@ TEST_F(TestPluginUtils, setGivenFlagFromSettingsFileUpdatesFilefromXDRToEDR)
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
-    Plugin::PluginUtils::savePluginSetting("running_mode", false);
+    Plugin::PluginUtils::setGivenFlagFromSettingsFile("running_mode", false);
     ASSERT_EQ("disable_auditd=0\nrunning_mode=0\n",tempDir.fileContent("plugins/edr/etc/plugin.conf"));
 }
 

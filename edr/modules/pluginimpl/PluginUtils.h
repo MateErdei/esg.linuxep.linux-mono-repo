@@ -24,7 +24,7 @@ namespace Plugin
         * @return true if the given field is enabled false if it is disabled
         * @param flag
         */
-        static bool retrievePluginSetting(const std::string& flag);
+        static bool retrieveGivenFlagFromSettingsFile(const std::string& flag);
         /**
         * checks if a string is an integer
         * @return true if the given field is a number
@@ -36,7 +36,7 @@ namespace Plugin
         * @param flag
         * @param value
         */
-        static void savePluginSetting(const std::string& flag, const bool& flagValue);
+        static void setGivenFlagFromSettingsFile(const std::string& flag, const bool& flagValue);
 
         inline static const std::string MODE_IDENTIFIER = "running_mode";
         inline static const std::string NETWORK_TABLES_AVAILABLE = "network_tables";
