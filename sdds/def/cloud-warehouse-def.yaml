@@ -89,7 +89,7 @@ warehouses:
             sspl-av:
                 import:
                     description: "Sophos Server Protection for Linux Anti-Virus"
-                    version: "11.0.0"
+                    version: "1.0.0"
                 features: [ AV ]
                 platforms: [ ]
                 release-tags:
