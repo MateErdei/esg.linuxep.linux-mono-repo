@@ -237,14 +237,14 @@ namespace Plugin
             bool oldMode = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(flagName);
             if (oldMode != flagSetting)
             {
-                LOGINFO("Updating " << flagName << " flag settings");
+                LOGINFO("Updating " << flagName << " flag settings to: " << flagSetting);
                 Plugin::PluginUtils::setGivenFlagFromSettingsFile(flagName, flagSetting);
                 flagsHaveChanged = true;
             }
         }
         catch (const std::runtime_error& ex)
         {
-            LOGINFO("Setting " << flagName << " flag settings");
+            LOGINFO("Setting " << flagName << " flag settings to: " << flagSetting);
             Plugin::PluginUtils::setGivenFlagFromSettingsFile(flagName, flagSetting);
             flagsHaveChanged = true;
         }
