@@ -36,45 +36,7 @@ Flags Are Only Sent To EDR and Not MTR
     ...  Check EDR Log Contains  Applying new policy with APPID: FLAGS
 
     Check MTR Log Does Not Contain  Applying new policy with APPID: FLAGS
-    Wait Until Keyword Succeeds
-    ...  10
-    ...  1
-    ...  Check EDR Log Contains  Flags running mode is EDR
-    ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Should Contain  ${contents}   running_mode=0
 
-EDR changes running mode when XDR enabled flags are sent
-    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    Should Be Equal As Strings  0  ${result.rc}
-    Register With Fake Cloud
-    Wait Until Keyword Succeeds
-    ...  30
-    ...  1
-    ...  Check MCS Router Running
-    Wait Until Keyword Succeeds
-    ...  10
-    ...  1
-    ...  Check Managementagent Log Contains  flags.json applied to 1 plugins
-    Wait Until Keyword Succeeds
-    ...  10
-    ...  1
-    ...  Check EDR Log Contains  Flags running mode in policy is XDR
-    Check EDR Log Contains  Updating running_mode flag settings
-    ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Should Contain  ${contents}   running_mode=1
-    Should Not Contain  ${contents}   running_mode=0
-
-    Wait Until Keyword Succeeds
-    ...  10
-    ...  1
-    ...  Check EDR Log Contains  osquery stopped. Scheduling its restart in 0 seconds.
-
-
-    Wait Until Keyword Succeeds
-    ...   30 secs
-    ...   5 secs
-    ...   EDR Plugin Is Running
 
 EDR runs sophos extension when XDR is enabled
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
