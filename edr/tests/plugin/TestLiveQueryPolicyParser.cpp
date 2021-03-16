@@ -191,7 +191,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesParsesAllButIn
 
     std::vector<Json::Value> foldingRules;
     bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyInvalid, foldingRules);
-    EXPECT_FALSE(changeFoldingRules);
+    EXPECT_TRUE(changeFoldingRules);
 
     EXPECT_EQ(foldingRules.size(), 1);
     EXPECT_EQ(foldingRules, expected);
