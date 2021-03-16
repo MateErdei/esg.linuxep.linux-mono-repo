@@ -158,8 +158,7 @@ namespace Plugin
         bool networkTables;
         try
         {
-            networkTables =
-                Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::NETWORK_TABLES_AVAILABLE);
+            networkTables = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::NETWORK_TABLES_AVAILABLE);
         }
         catch (const std::runtime_error& ex)
         {
