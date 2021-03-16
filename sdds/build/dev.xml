@@ -38,7 +38,7 @@
         <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE"/>
         <include artifact-path="output/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT"/>
       </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-anti-virus" mode="release-package">
+      <build-asset project="linuxep" repo="sspl-plugin-anti-virus" mode="release-package">
         <development-version branch="develop"/>
         <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus"/>
       </build-asset>
