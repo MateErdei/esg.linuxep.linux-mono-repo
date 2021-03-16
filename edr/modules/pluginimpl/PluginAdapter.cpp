@@ -189,7 +189,7 @@ namespace Plugin
             // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
             // make sure that the query pack is either still enabled or becomes enabled.
             // enableQueryPack is safe to call even when the query pack is already enabled.
-            if (m_isXDR )
+            if (m_isXDR)
             {
                 if ( m_loggerExtensionPtr->checkDataPeriodHasElapsed())
                 {
@@ -600,10 +600,20 @@ namespace Plugin
         }
 
         bool flagsHaveChanged = false;
-        m_isXDR = Plugin::PluginUtils::isFlagSet(PluginUtils::XDR_FLAG, flagsContent);
+        bool useNextQueryPack = Plugin::PluginUtils::isFlagSet(PluginUtils::QUERY_PACK_NEXT, flagsContent);
         bool networkTablesAvailable = Plugin::PluginUtils::isFlagSet(PluginUtils::NETWORK_TABLES_FLAG, flagsContent);
+        bool xdrEnabled = Plugin::PluginUtils::isFlagSet(PluginUtils::XDR_FLAG, flagsContent);
 
-        if (m_isXDR)
+        if (useNextQueryPack)
+        {
+            LOGSUPPORT("Flags scheduled query pack in policy is 'NEXT'");
+        }
+        else
+        {
+            LOGSUPPORT("Flags scheduled query pack in policy is 'LATEST'");
+        }
+
+        if (xdrEnabled)
         {
             LOGSUPPORT("Flags running mode in policy is XDR");
         }
@@ -612,56 +622,19 @@ namespace Plugin
             LOGSUPPORT("Flags running mode in policy is EDR");
         }
 
-        try
-        {
-            bool oldRunningMode = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER);
-            if (m_isXDR != oldRunningMode)
-            {
-                LOGINFO("Updating XDR flag settings");
-                Plugin::PluginUtils::setGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER, m_isXDR);
-                flagsHaveChanged = true;
-            }
-        }
-        catch (const std::runtime_error& ex)
-        {
-            LOGINFO("Setting XDR flag settings");
-            Plugin::PluginUtils::setGivenFlagFromSettingsFile(PluginUtils::MODE_IDENTIFIER, m_isXDR);
-            flagsHaveChanged = true;
-        }
-
-        try
-        {
-            bool oldNetworkTablesSetting =
-                Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::NETWORK_TABLES_AVAILABLE);
-            if (networkTablesAvailable != oldNetworkTablesSetting)
-            {
-                LOGINFO("Updating network tables flag settings");
-                Plugin::PluginUtils::setGivenFlagFromSettingsFile(
-                    PluginUtils::NETWORK_TABLES_AVAILABLE, networkTablesAvailable);
-                flagsHaveChanged = true;
-            }
-        }
-        catch (const std::runtime_error& ex)
-        {
-            LOGINFO("Setting network tables flag settings");
-            Plugin::PluginUtils::setGivenFlagFromSettingsFile(
-                PluginUtils::NETWORK_TABLES_AVAILABLE, networkTablesAvailable);
-            flagsHaveChanged = true;
-        }
+        PluginUtils::updatePluginConfWithFlag(PluginUtils::QUERY_PACK_NEXT_SETTING, useNextQueryPack, flagsHaveChanged);
+        PluginUtils::updatePluginConfWithFlag(PluginUtils::MODE_IDENTIFIER, xdrEnabled, flagsHaveChanged);
+        PluginUtils::updatePluginConfWithFlag(PluginUtils::NETWORK_TABLES_AVAILABLE,
+            networkTablesAvailable, flagsHaveChanged);
 
         if (flagsHaveChanged)
         {
-            if (m_isXDR)
-            {
-                LOGINFO("Flags running mode is XDR");
-            }
-            else
-            {
-                LOGINFO("Flags running mode is EDR");
-            }
+            LOGINFO("Flags have changed so restarting osquery");
+            m_isXDR = xdrEnabled;
+            m_useNextQueryPack = useNextQueryPack;
+            Plugin::PluginUtils::setQueryPacksInPlace(useNextQueryPack);
             if (!firstTime)
             {
-                LOGINFO("Flags have changed so restarting osquery");
                 stopOsquery();
                 m_restartNoDelay = true;
             }
