@@ -414,7 +414,7 @@ namespace Plugin
     void PluginAdapter::setUpOsqueryMonitor()
     {
         LOGINFO("Prepare system for running osquery");
-        m_osqueryConfigurator.prepareSystemForPlugin(m_isXDR, m_scheduleEpoch.getValue(), m_loggerExtensionPtr->getDataLimitReached());
+        m_osqueryConfigurator.prepareSystemForPlugin(m_isXDR, m_scheduleEpoch.getValue());
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;

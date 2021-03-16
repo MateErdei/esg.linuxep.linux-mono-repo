@@ -192,7 +192,7 @@ namespace Plugin
         fileSystem->writeFile(osqueryFlagsFilePath, flagsAsString.str());
     }
 
-    void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch, bool xdrDataLimitHit)
+    void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch)
     {
         m_disableAuditDInPluginConfig = retrieveDisableAuditDFlagFromSettingsFile();
         bool disableAuditDataGathering = enableAuditDataCollection();
@@ -201,15 +201,6 @@ namespace Plugin
 
         regenerateOSQueryFlagsFile(Plugin::osqueryFlagsFilePath(), disableAuditDataGathering, xdrEnabled, scheduleEpoch);
         regenerateOsqueryConfigFile(Plugin::osqueryConfigFilePath());
-
-        if (xdrEnabled && !xdrDataLimitHit)
-        {
-            PluginUtils::enableQueryPack(Plugin::osqueryXDRConfigFilePath());
-        }
-        else
-        {
-            PluginUtils::disableQueryPack(Plugin::osqueryXDRConfigFilePath());
-        }
     }
 
     bool OsqueryConfigurator::retrieveDisableAuditDFlagFromSettingsFile() const
