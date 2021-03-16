@@ -567,14 +567,14 @@ TEST_P(StateMachineProcessorTestWithCredit, StateMachinesCorrectlyUpdatedWhenCre
     {
         case configModule::EventMessageNumber::INSTALLFAILED:
             {
-                long expected = (testValue < 0) ? 0 : testValue - 1;
+                long expected = defaultValue - 1;
                 EXPECT_EQ(stateMachineProcessor.getStateMachineData().getInstallStateCredit(), std::to_string(expected));
             }
             break;
 
         case configModule::EventMessageNumber::DOWNLOADFAILED:
             {
-                long expected = (testValue < 0) ? 0 : testValue - 18;
+                long expected = defaultValue - 18;
                 EXPECT_EQ(stateMachineProcessor.getStateMachineData().getDownloadStateCredit(), std::to_string(expected));
             }
             break;

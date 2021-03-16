@@ -29,12 +29,14 @@ namespace UpdateSchedulerImpl::stateMachinesModule
 
     void StateMachineProcessor::populateStateMachines()
     {
-        m_downloadMachineState.credit =  m_stateMachineData.getDownloadStateCredit().empty() ? 0 : std::stoi(m_stateMachineData.getDownloadStateCredit());
+        int downloadStateCredit = m_stateMachineData.getDownloadStateCredit().empty() ? 0 : std::stoi(m_stateMachineData.getDownloadStateCredit());
+        m_downloadMachineState.credit = ((downloadStateCredit < 0) || (downloadStateCredit > m_downloadMachineState.defaultCredit)) ? m_downloadMachineState.defaultCredit : static_cast<uint32_t>(downloadStateCredit);
         long downloadFailedSince = m_stateMachineData.getDownloadFailedSinceTime().empty() ? 0 : std::stol(m_stateMachineData.getDownloadFailedSinceTime());
         m_downloadMachineState.failedSince =
             std::chrono::system_clock::time_point{ std::chrono::seconds{ downloadFailedSince } };
 
-        m_installMachineState.credit = m_stateMachineData.getInstallStateCredit().empty() ? 0 : std::stoi(m_stateMachineData.getInstallStateCredit());
+        int installStateCredit = m_stateMachineData.getInstallStateCredit().empty() ? 0 : std::stoi(m_stateMachineData.getInstallStateCredit());
+        m_installMachineState.credit = ((installStateCredit < 0) || (installStateCredit > m_installMachineState.defaultCredit)) ? m_installMachineState.defaultCredit : static_cast<uint32_t>(installStateCredit);
         long installFailedSince = m_stateMachineData.getInstallFailedSinceTime().empty() ? 0 : std::stol(m_stateMachineData.getInstallFailedSinceTime());
         m_installMachineState.failedSince =
             std::chrono::system_clock::time_point{ std::chrono::seconds{ installFailedSince } };
