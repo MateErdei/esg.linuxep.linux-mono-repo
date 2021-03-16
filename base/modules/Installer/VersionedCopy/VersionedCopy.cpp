@@ -294,7 +294,7 @@ int VersionedCopy::versionedCopy(const Path& filename, const Path& DIST, const P
     }
 
     std::string installationDir = getDirname(fullInstallFilename);
-    makedirs(installationDir); // TODO LINUXEP-6535: Permissions and ownership
+    makedirs(installationDir);
 
     // Find appropriate extension name
     Path extensionName = findAppropriateExtensionName(fullInstallFilename);
