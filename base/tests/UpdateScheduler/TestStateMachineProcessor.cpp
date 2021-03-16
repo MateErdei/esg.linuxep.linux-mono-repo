@@ -721,7 +721,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenPerm
     EXPECT_EQ( expectedCanSendEvent4, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyThrottlesPermanentSuccess) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyThrottlesPermanentSuccessWhenNoFilesInstalled) // NOLINT
 {
     std::string rawJsonStateMachineData = createJsonString("", "");
 
@@ -740,6 +740,42 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyThrottlesPermanentSu
     bool expectedCanSendEvent3 = false;
     EXPECT_EQ( expectedCanSendEvent3, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
+
+TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyThrottlesPermanentSuccessWhenFilesHaveBeenInstalled) // NOLINT
+{
+    // When Last good install time is updated, and the update status continues to report success, no event should be sent.
+
+    unsigned long updateScheduleTime = 86400;
+    unsigned long simiulatedInstallTime = 1610465945;
+
+    std::string rawJsonStateMachineData = createJsonString("", "");
+
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor1(std::to_string(simiulatedInstallTime));
+    stateMachineProcessor1.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
+    bool expectedCanSendEvent = true;
+    EXPECT_EQ( expectedCanSendEvent, stateMachineProcessor1.getStateMachineData().canSendEvent());
+
+    rawJsonStateMachineData = stateMachineProcessor1.getStateMachineData().toJsonStateMachineData(stateMachineProcessor1.getStateMachineData());
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
+    simiulatedInstallTime += updateScheduleTime;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor2(std::to_string(simiulatedInstallTime));
+    stateMachineProcessor2.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
+    bool expectedCanSendEvent2 = false;
+    EXPECT_EQ( expectedCanSendEvent2, stateMachineProcessor2.getStateMachineData().canSendEvent());
+
+    rawJsonStateMachineData = stateMachineProcessor2.getStateMachineData().toJsonStateMachineData(stateMachineProcessor2.getStateMachineData());
+    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData)).RetiresOnSaturation();
+    simiulatedInstallTime += updateScheduleTime;
+    stateMachinesModule::StateMachineProcessor stateMachineProcessor3(std::to_string(simiulatedInstallTime));
+    stateMachineProcessor3.updateStateMachines(configModule::EventMessageNumber::SUCCESS);
+    bool expectedCanSendEvent3 = false;
+    EXPECT_EQ( expectedCanSendEvent3, stateMachineProcessor3.getStateMachineData().canSendEvent());
+
+}
+
 
 TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsFalseWhenPermanentSuccessWithin24Hours) // NOLINT
 {

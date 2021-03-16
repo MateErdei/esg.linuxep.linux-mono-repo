@@ -443,7 +443,6 @@ namespace UpdateSchedulerImpl
         const bool processLatestReport)
     {
         auto* iFileSystem = Common::FileSystem::fileSystem();
-        bool remainingReportToProcess{ false };
 
         if (detectedUpgradeWithBrokenLiveResponse())
         {
@@ -461,7 +460,6 @@ namespace UpdateSchedulerImpl
         {
             LOGINFO("SulDownloader Finished.");
             safeMoveDownloaderReportFile(m_reportfilePath);
-            remainingReportToProcess = true;
         }
 
         LOGSUPPORT("Process reports to get events and status.");
@@ -522,10 +520,10 @@ namespace UpdateSchedulerImpl
         stateMachinesModule::StateMachineProcessor stateMachineProcessor(lastInstallTime);
         stateMachineProcessor.updateStateMachines(lastUpdateResult);
 
-        // only send events if the event a was successful and is relevant and has not been sent yet.
-        // or if the state machine says we can send.
-        if ( (lastUpdateResult == 0 && reportAndFiles.reportCollectionResult.SchedulerEvent.IsRelevantToSend && remainingReportToProcess)
-            || stateMachineProcessor.getStateMachineData().canSendEvent())
+        //  if the state machine says we can send.
+        //  Note we will only send an event if the overall status changes (SUCCESS to FAILED for example) based
+        //  on the state machine logic, or once every 24 hours / updates.
+        if ( stateMachineProcessor.getStateMachineData().canSendEvent())
         {
             std::string eventXml = serializeUpdateEvent(
                 reportAndFiles.reportCollectionResult.SchedulerEvent, m_policyTranslator, m_formattedTime);
