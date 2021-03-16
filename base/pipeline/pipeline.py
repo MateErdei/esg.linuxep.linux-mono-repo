@@ -171,44 +171,44 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     if INCLUDE_BUILD_IN_PIPELINE:
         with stage.parallel('build'):
             if mode == RELEASE_MODE or mode == ANALYSIS_MODE:
-                # analysis_build = stage.artisan_build(name=ANALYSIS_MODE, component=component, image='JenkinsLinuxTemplate5',
-                #                                  mode=ANALYSIS_MODE, release_package='./build/release-package.xml')
+                analysis_build = stage.artisan_build(name=ANALYSIS_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                                 mode=ANALYSIS_MODE, release_package='./build/release-package.xml')
                 base_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
                                                  mode=RELEASE_MODE, release_package='./build/release-package.xml')
-                # nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image='JenkinsLinuxTemplate5',
-                #                                            mode=NINE_NINE_NINE_MODE, release_package='./build/release-package.xml')
-                # zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image='JenkinsLinuxTemplate5',
-                #                                            mode=ZERO_SIX_ZERO_MODE, release_package='./build/release-package.xml')
-    #         elif mode == COVERAGE_MODE:
-    #             coverage = stage.artisan_build(name=COVERAGE_MODE, component=component, image='JenkinsLinuxTemplate5',
-    #                                          mode=COVERAGE_MODE, release_package='./build/release-package.xml')
-    #             release_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
-    #                                                 mode=RELEASE_MODE, release_package='./build/release-package.xml')
-    # else:
-    #     base_build = context.artifact.build()
-    #
-    # if mode == ANALYSIS_MODE:
-    #     return
-    #
-    # test_inputs = get_inputs(context, base_build, mode)
-    # machines = (
-    #     ("ubuntu1804",
-    #      tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
-    #                  platform=tap.Platform.Linux)),
-    #     ("centos77",
-    #      tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-    #
-    #     ("centos82",
-    #      tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-    #     # add other distros here
-    # )
-    # with stage.parallel('integration'):
-    #     task_func = robot_task
-    #     if mode == COVERAGE_MODE:
-    #         stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
-    #     else:
-    #         for template_name, machine in machines:
-    #             stage.task(task_name=template_name, func=task_func, machine=machine)
+                nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                                           mode=NINE_NINE_NINE_MODE, release_package='./build/release-package.xml')
+                zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                                           mode=ZERO_SIX_ZERO_MODE, release_package='./build/release-package.xml')
+            elif mode == COVERAGE_MODE:
+                coverage = stage.artisan_build(name=COVERAGE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                             mode=COVERAGE_MODE, release_package='./build/release-package.xml')
+                release_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                                    mode=RELEASE_MODE, release_package='./build/release-package.xml')
+    else:
+        base_build = context.artifact.build()
+
+    if mode == ANALYSIS_MODE:
+        return
+
+    test_inputs = get_inputs(context, base_build, mode)
+    machines = (
+        ("ubuntu1804",
+         tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
+                     platform=tap.Platform.Linux)),
+        ("centos77",
+         tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+
+        ("centos82",
+         tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+        # add other distros here
+    )
+    with stage.parallel('integration'):
+        task_func = robot_task
+        if mode == COVERAGE_MODE:
+            stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
+        else:
+            for template_name, machine in machines:
+                stage.task(task_name=template_name, func=task_func, machine=machine)
 
     # with stage.group('component'):
     #     stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=machine)
