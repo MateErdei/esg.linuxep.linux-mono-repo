@@ -37,6 +37,18 @@ std::optional<std::string> testableGetCustomQueries(const std::string& policy)
     return Plugin::getCustomQueries(attributeMap);
 }
 
+bool testableGetScheduledQueriesEnabledInPolicy(const std::string& policy)
+{
+    Common::XmlUtilities::AttributesMap attributeMap = Common::XmlUtilities::parseXml(policy);
+    return Plugin::getScheduledQueriesEnabledInPolicy(attributeMap);
+}
+
+std::vector<std::string> testableGetEnabledQueryPacksInPolicy(const std::string& policy)
+{
+    Common::XmlUtilities::AttributesMap attributeMap = Common::XmlUtilities::parseXml(policy);
+    return Plugin::getEnabledQueryPacksInPolicy(attributeMap);
+}
+
 
 
 TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesHandlesExpectedPolicy)
@@ -562,4 +574,89 @@ TEST_F(TestLiveQueryPolicyParser, testUpdateCustomQueriesdoesNotIncludeMalformed
                            "}"
                            "}";
     EXPECT_EQ(testableGetCustomQueries(liveQueryPolicy100).value(), expected);
+}
+
+TEST_F(TestLiveQueryPolicyParser, testGetScheduledQueriesEnabledInPolicy)
+{
+    std::string liveQueryPolicyWithEnabled =    "<?xml version=\"1.0\"?>\n"
+                                                "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                                "    <configuration>\n"
+                                                "        <scheduled>\n"
+                                                "            <enabled>true</enabled>\n"
+                                                "        </scheduled>\n"
+                                                "    </configuration>\n"
+                                                "</policy>";
+
+    std::string liveQueryPolicyWithDisabled =   "<?xml version=\"1.0\"?>\n"
+                                                "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                                "    <configuration>\n"
+                                                "        <scheduled>\n"
+                                                "            <enabled>false</enabled>\n"
+                                                "        </scheduled>\n"
+                                                "    </configuration>\n"
+                                                "</policy>";
+
+    std::string liveQueryPolicyWithNotPresent = "<?xml version=\"1.0\"?>\n"
+                                                "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                                "    <configuration>\n"
+                                                "        <scheduled>\n"
+                                                "        </scheduled>\n"
+                                                "    </configuration>\n"
+                                                "</policy>";
+
+
+    EXPECT_TRUE(testableGetScheduledQueriesEnabledInPolicy(liveQueryPolicyWithEnabled));
+    EXPECT_FALSE(testableGetScheduledQueriesEnabledInPolicy(liveQueryPolicyWithDisabled));
+    EXPECT_FALSE(testableGetScheduledQueriesEnabledInPolicy(liveQueryPolicyWithNotPresent));
+}
+
+TEST_F(TestLiveQueryPolicyParser, testGetEnabledQueryPacksInPolicy) {
+    std::string liveQueryPolicyWithMtr = "<?xml version=\"1.0\"?>\n"
+                                         "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                         "    <configuration>\n"
+                                         "        <scheduled>\n"
+                                         "           <queryPacks>\n"
+                                         "               <queryPack id=\"MTR\" />\n"
+                                         "           </queryPacks>\n"
+                                         "        </scheduled>\n"
+                                         "    </configuration>\n"
+                                         "</policy>";
+
+    EXPECT_EQ(testableGetEnabledQueryPacksInPolicy(liveQueryPolicyWithMtr), std::vector<std::string>{"MTR"});
+
+    std::string liveQueryPolicyWithMtrAndXDR = "<?xml version=\"1.0\"?>\n"
+                                               "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                               "    <configuration>\n"
+                                               "        <scheduled>\n"
+                                               "           <queryPacks>\n"
+                                               "               <queryPack id=\"MTR\" />\n"
+                                               "               <queryPack id=\"XDR\" />\n"
+                                               "           </queryPacks>\n"
+                                               "        </scheduled>\n"
+                                               "    </configuration>\n"
+                                               "</policy>";
+    EXPECT_EQ(testableGetEnabledQueryPacksInPolicy(liveQueryPolicyWithMtrAndXDR), (std::vector<std::string>{"MTR", "XDR"}));
+
+    std::string liveQueryPolicyWithMtrAndXDRAndOther = "<?xml version=\"1.0\"?>\n"
+                                               "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                               "    <configuration>\n"
+                                               "        <scheduled>\n"
+                                               "           <queryPacks>\n"
+                                               "               <queryPack id=\"MTR\" />\n"
+                                               "               <queryPack id=\"XDR\" />\n"
+                                               "               <queryPack id=\"OTHER\" />\n"
+                                               "           </queryPacks>\n"
+                                               "        </scheduled>\n"
+                                               "    </configuration>\n"
+                                               "</policy>";
+    EXPECT_EQ(testableGetEnabledQueryPacksInPolicy(liveQueryPolicyWithMtrAndXDR), (std::vector<std::string>{"MTR", "XDR"}));
+
+    std::string liveQueryPolicyWithNoPacksSection = "<?xml version=\"1.0\"?>\n"
+                                               "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                               "    <configuration>\n"
+                                               "        <scheduled>\n"
+                                               "        </scheduled>\n"
+                                               "    </configuration>\n"
+                                               "</policy>";
+    EXPECT_EQ(testableGetEnabledQueryPacksInPolicy(liveQueryPolicyWithNoPacksSection), (std::vector<std::string>{}));
 }

@@ -258,7 +258,8 @@ namespace Plugin
         if (dataLimitHit)
         {
             LOGINFO("Disabling all query packs because the daily data limit has been hit");
-            enabledQueryPacks = {};
+            disableAllQueryPacks();
+            return true;
         }
         else
         {
@@ -357,19 +358,29 @@ namespace Plugin
         disableQueryPack(osqueryCustomConfigFilePath());
     }
 
-    void PluginUtils::enableCustomQueries(std::optional<std::string> customQueries, bool& osqueryRestartNeeded)
+    void PluginUtils::enableCustomQueries(std::optional<std::string> customQueries, bool &osqueryRestartNeeded, bool dataLimitHit)
     {
         try
         {
             auto fs = Common::FileSystem::fileSystem();
-
             if (fs->exists(osqueryCustomConfigFilePath()))
             {
                 fs->removeFileOrDirectory(osqueryCustomConfigFilePath());
             }
+            if (fs->exists(osqueryCustomConfigFilePath()+".DISABLED"))
+            {
+                fs->removeFileOrDirectory(osqueryCustomConfigFilePath()+".DISABLED");
+            }
             if (customQueries.has_value())
             {
-                fs->writeFile(osqueryCustomConfigFilePath(), customQueries.value());
+                if (dataLimitHit)
+                {
+                    fs->writeFile(osqueryCustomConfigFilePath()+".DISABLED", customQueries.value());
+                }
+                else
+                {
+                    fs->writeFile(osqueryCustomConfigFilePath(), customQueries.value());
+                }
             }
             osqueryRestartNeeded = true;
 

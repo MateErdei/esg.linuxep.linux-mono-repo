@@ -612,6 +612,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryPackIsRemovedWhenNoQuerie
     EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), "running_mode=0\n"));
 
     EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryCustomConfigFilePath())).WillOnce(Return("a value"));
     EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath())).Times(1);
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);

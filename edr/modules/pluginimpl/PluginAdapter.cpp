@@ -738,7 +738,7 @@ namespace Plugin
             customQueries = getCustomQueries(attributesMap);
             if (PluginUtils::haveCustomQueriesChanged(customQueries))
             {
-                PluginUtils::enableCustomQueries(customQueries, osqueryRestartNeeded);
+                PluginUtils::enableCustomQueries(customQueries, osqueryRestartNeeded, m_loggerExtensionPtr->getDataLimitReached());
             }
 
             foldingRules = getFoldingRules(attributesMap);

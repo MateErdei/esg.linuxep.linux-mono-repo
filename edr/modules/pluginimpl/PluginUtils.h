@@ -92,7 +92,7 @@ namespace Plugin
          * @param customQueries
          * @param osqueryRestartNeeded
          */
-        static void enableCustomQueries(std::optional<std::string> customQueries, bool& osqueryRestartNeeded);
+        static void enableCustomQueries(std::optional<std::string> customQueries, bool& osqueryRestartNeeded, bool dataLimitHit);
 
         /**
          * Checks whether new custom queries are different to current custom queries on disk

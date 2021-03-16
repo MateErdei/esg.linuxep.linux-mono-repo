@@ -180,6 +180,24 @@ public:
     MockFilePermissions * mockFilePermissions;
 };
 
+class TestPluginUtilsWithStrictMockFileSystem: public LogOffInitializedTests
+{
+public:
+    TestPluginUtilsWithStrictMockFileSystem()
+    {
+        mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+        mockFilePermissions = new ::testing::StrictMock<MockFilePermissions>();
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
+        Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+    }
+    ~TestPluginUtilsWithStrictMockFileSystem()
+    {
+        Tests::restoreFileSystem();
+    }
+    MockFileSystem * mockFileSystem;
+    MockFilePermissions * mockFilePermissions;
+};
+
 TEST_F(TestPluginUtilsWithMockFileSystem, getRunningQueryPackFilePathsReturnsDefaultsIfTargetDirectoryDoesNotExist)
 {
     EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osqueryConfigDirectoryPath())).WillOnce(Return(false));
@@ -441,4 +459,131 @@ TEST_F(TestPluginUtilsWithMockFileSystem, testHaveCustomQueriesChanged)
     EXPECT_TRUE(Plugin::PluginUtils::haveCustomQueriesChanged(value1));
     // file doesn't exist, new custom pack has no value
     EXPECT_FALSE(Plugin::PluginUtils::haveCustomQueriesChanged(emptyOptionalString));
+}
+
+TEST_F(TestPluginUtilsWithStrictMockFileSystem, testDisableAllQueryPacks)
+{
+    std::string queryPackPath = "querypackpath";
+    std::string queryPackPathDisabled = "querypackpath.DISABLED";
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryXDRConfigFilePath())).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryXDRConfigFilePath(), Plugin::osqueryXDRConfigFilePath()+".DISABLED"));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryMTRConfigFilePath())).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryMTRConfigFilePath(), Plugin::osqueryMTRConfigFilePath()+".DISABLED"));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryCustomConfigFilePath(), Plugin::osqueryCustomConfigFilePath()+".DISABLED"));
+    Plugin::PluginUtils::disableAllQueryPacks();
+}
+
+TEST_F(TestPluginUtilsWithStrictMockFileSystem, testIsQueryPackEnabled)
+{
+    std::string packName = "pack.conf";
+    EXPECT_CALL(*mockFileSystem, isFile(packName)).WillOnce(Return(true));
+    EXPECT_TRUE(Plugin::PluginUtils::isQueryPackEnabled(packName));
+
+    EXPECT_CALL(*mockFileSystem, isFile(packName)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, isFile(packName+".DISABLED")).WillOnce(Return(true));
+    EXPECT_FALSE(Plugin::PluginUtils::isQueryPackEnabled(packName));
+}
+
+TEST_F(TestPluginUtilsWithStrictMockFileSystem, testHandleDisablingAndEnablingScheduledQueryPacksDisablesAllWhenDataLimitHit)
+{
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryXDRConfigFilePath())).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryXDRConfigFilePath(), Plugin::osqueryXDRConfigFilePath()+".DISABLED"));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryMTRConfigFilePath())).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryMTRConfigFilePath(), Plugin::osqueryMTRConfigFilePath()+".DISABLED"));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryCustomConfigFilePath(), Plugin::osqueryCustomConfigFilePath()+".DISABLED"));
+    EXPECT_TRUE(Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks({}, true));
+}
+
+TEST_F(TestPluginUtilsWithStrictMockFileSystem, testHandleDisablingAndEnablingScheduledQueryPacksEnablesAllWhenAllAreDisabled)
+{
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryXDRConfigFilePath())).Times(1).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryXDRConfigFilePath()+".DISABLED")).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryXDRConfigFilePath()+".DISABLED")).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryXDRConfigFilePath()+".DISABLED", Plugin::osqueryXDRConfigFilePath()));
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryMTRConfigFilePath())).Times(1).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryMTRConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryMTRConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryMTRConfigFilePath()+".DISABLED", Plugin::osqueryMTRConfigFilePath()));
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryCustomConfigFilePath()+".DISABLED", Plugin::osqueryCustomConfigFilePath()));
+
+    EXPECT_TRUE(Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks({"XDR", "MTR"}, false));
+}
+
+
+TEST_F(TestPluginUtilsWithStrictMockFileSystem, testHandleDisablingAndEnablingScheduledQueryPacksEnablesSomeWhenSomeAreDisabled)
+{
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryXDRConfigFilePath())).Times(1).WillOnce(Return(true));
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryMTRConfigFilePath())).Times(1).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryMTRConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryMTRConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryMTRConfigFilePath()+".DISABLED", Plugin::osqueryMTRConfigFilePath()));
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryCustomConfigFilePath()+".DISABLED", Plugin::osqueryCustomConfigFilePath()));
+
+    EXPECT_TRUE(Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks({"XDR", "MTR"}, false));
+}
+
+TEST_F(TestPluginUtilsWithStrictMockFileSystem, testHandleDisablingAndEnablingScheduledQueryPacksReturnsFalseWhenNoFilesNeedToBeMoved)
+{
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryXDRConfigFilePath())).Times(1).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryXDRConfigFilePath()+".DISABLED")).Times(1).WillOnce(Return(true));
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryMTRConfigFilePath())).Times(1).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryMTRConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(true));
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(false));
+
+    EXPECT_FALSE(Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks({}, false));
+
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryXDRConfigFilePath())).Times(1).WillOnce(Return(true));
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryMTRConfigFilePath())).Times(1).WillRepeatedly(Return(true));
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(false));
+
+    EXPECT_FALSE(Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks({"XDR", "MTR"}, false));
+}
+
+TEST_F(TestPluginUtilsWithStrictMockFileSystem, testHandleDisablingAndEnablingScheduledQueryPacksReturnsTrueWhenOnlyCustomPackNeedsToBeEnabled)
+{
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryXDRConfigFilePath())).Times(1).WillOnce(Return(true));
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::osqueryMTRConfigFilePath())).Times(1).WillRepeatedly(Return(true));
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osqueryCustomConfigFilePath()+".DISABLED", Plugin::osqueryCustomConfigFilePath()));
+
+    EXPECT_TRUE(Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks({"XDR", "MTR"}, false));
+}
+
+TEST_F(TestPluginUtilsWithStrictMockFileSystem, testEnableCustomQueries)
+{
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath()));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath()+".DISABLED"));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::osqueryCustomConfigFilePath(), "content"));
+
+    bool restartNeeded = false;
+    Plugin::PluginUtils::enableCustomQueries("content", restartNeeded, false);
+    EXPECT_TRUE(restartNeeded);
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath()));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath()+".DISABLED"));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::osqueryCustomConfigFilePath()+".DISABLED", "content"));
+
+    bool restartNeeded2 = false;
+    Plugin::PluginUtils::enableCustomQueries("content", restartNeeded2, true);
+    EXPECT_TRUE(restartNeeded2);
 }
