@@ -98,6 +98,7 @@ namespace Plugin
          */
         void processALCPolicy(const std::string&, bool firstTime);
         void processLiveQueryPolicy(const std::string&, bool firstTime);
+        void processFlags(const std::string& flagsContent, bool firstTime);
         void ensureMCSCanReadOldResponses();
         OsqueryConfigurator& osqueryConfigurator();
 
@@ -126,7 +127,7 @@ namespace Plugin
 
 
         void processQuery(const std::string& query, const std::string& correlationId);
-        void processFlags(const std::string& flagsContent, bool firstTime);
+
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
         // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
         void setUpOsqueryMonitor();

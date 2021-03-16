@@ -42,7 +42,7 @@ namespace Plugin
         return flagValue;
     }
 
-    bool PluginUtils::retrieveGivenFlagFromSettingsFile(const std::string& flag)
+    bool PluginUtils::retrievePluginSetting(const std::string& flag)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         std::string configPath = Plugin::edrConfigFilePath();
@@ -73,7 +73,7 @@ namespace Plugin
         }
         return false;
     }
-    void PluginUtils::setFlagInPluginConfigFile(const std::string& flag, const bool& flagValue)
+    void PluginUtils::savePluginSetting(const std::string& flag, const bool& flagValue)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         std::string settingString;

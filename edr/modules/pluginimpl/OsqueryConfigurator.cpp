@@ -158,7 +158,7 @@ namespace Plugin
         bool networkTables;
         try
         {
-            networkTables = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile(PluginUtils::NETWORK_TABLES_AVAILABLE);
+            networkTables = Plugin::PluginUtils::retrievePluginSetting(PluginUtils::NETWORK_TABLES_AVAILABLE);
         }
         catch (const std::runtime_error& ex)
         {
@@ -212,12 +212,12 @@ namespace Plugin
         {
             try
             {
-                disableAuditD = Plugin::PluginUtils::retrieveGivenFlagFromSettingsFile("disable_auditd");
+                disableAuditD = Plugin::PluginUtils::retrievePluginSetting("disable_auditd");
             }
             catch (std::runtime_error& ex)
             {
                 LOGINFO("Using default value for disable_audit flag");
-                Plugin::PluginUtils::setFlagInPluginConfigFile("disable_auditd", disableAuditD);
+                Plugin::PluginUtils::savePluginSetting("disable_auditd", disableAuditD);
             }
         }
         else

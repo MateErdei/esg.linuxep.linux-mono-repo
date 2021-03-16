@@ -13,14 +13,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/TempDir.h>
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/XmlUtilities/AttributesMap.h>
+#include <pluginimpl/PluginUtils.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/PluginAdapter.h>
 #include <modules/pluginimpl/LiveQueryPolicyParser.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 #include <gtest/gtest.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/XmlUtilities/AttributesMap.h>
 
 class DummyServiceApli : public Common::PluginApi::IBaseServiceApi
 {
@@ -84,14 +85,9 @@ public:
         Plugin::PluginAdapter::processLiveQueryPolicy(policy, false);
     }
 
-    void setDataLmit(const int& limit)
+    void processFlags(const std::string& policy)
     {
-        m_loggerExtensionPtr->setDataLimit(limit);
-    }
-
-    int getDataLmit()
-    {
-        return m_loggerExtensionPtr->getDataLimit();
+        Plugin::PluginAdapter::processFlags(policy, false);
     }
 
     void setScheduleEpoch(time_t scheduleEpoch)
@@ -322,24 +318,6 @@ public:
     MockFilePermissions * mockFilePermissions;
 };
 
-class PluginAdapterWithStrictMockFileSystem: public LogOffInitializedTests
-{
-public:
-    PluginAdapterWithStrictMockFileSystem()
-    {
-        mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-        mockFilePermissions = new ::testing::StrictMock<MockFilePermissions>();
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
-        Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
-    }
-    ~PluginAdapterWithStrictMockFileSystem()
-    {
-        Tests::restoreFileSystem();
-    }
-    MockFileSystem * mockFileSystem;
-    MockFilePermissions * mockFilePermissions;
-};
-
 TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesChownsSingleFile)
 { // NOLINT
     auto queueTask = std::make_shared<Plugin::QueueTask>();
@@ -420,8 +398,256 @@ TEST_F(PluginAdapterWithMockFileSystem, ensureMCSCanReadOldResponsesDoesNothingI
     pluginAdapter.ensureMCSCanReadOldResponses();
 }
 
+TEST_F(PluginAdapterWithMockFileSystem, testGetDataLimit)
+{ // NOLINT
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string liveQueryPolicy100000 = "<?xml version=\"1.0\"?>\n"
+                                        "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                        "    <configuration>\n"
+                                        "        <scheduled>\n"
+                                        "            <dailyDataLimit>100000</dailyDataLimit>\n"
+                                        "            <queryPacks>\n"
+                                        "                <queryPack id=\"queryPackId\" />\n"
+                                        "            </queryPacks>\n"
+                                        "        </scheduled>\n"
+                                        "    </configuration>\n"
+                                        "</policy>";
+    EXPECT_EQ(pluginAdapter.getDataLimit(liveQueryPolicy100000), 100000);
+
+    std::string liveQueryPolicy234567 = "<?xml version=\"1.0\"?>\n"
+                                        "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                        "    <configuration>\n"
+                                        "        <scheduled>\n"
+                                        "            <dailyDataLimit>234567</dailyDataLimit>\n"
+                                        "            <queryPacks>\n"
+                                        "                <queryPack id=\"queryPackId\" />\n"
+                                        "            </queryPacks>\n"
+                                        "        </scheduled>\n"
+                                        "    </configuration>\n"
+                                        "</policy>";
+    EXPECT_EQ(pluginAdapter.getDataLimit(liveQueryPolicy234567), 234567);
+
+    std::string nonsense = "asdfbhasdlfhasdflasdhfasd";
+    EXPECT_THROW(pluginAdapter.getDataLimit(nonsense), std::exception);
+
+    std::string validXmlWithMissingField = "<?xml version=\"1.0\"?>\n"
+                                           "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                           "    <configuration>\n"
+                                           "        <scheduled>\n"
+                                           "            <notDailyDataLimit>234567</notDailyDataLimit>\n"
+                                           "            <queryPacks>\n"
+                                           "                <queryPack id=\"queryPackId\" />\n"
+                                           "            </queryPacks>\n"
+                                           "        </scheduled>\n"
+                                           "    </configuration>\n"
+                                           "</policy>";
+    EXPECT_THROW(pluginAdapter.getDataLimit(validXmlWithMissingField), std::exception);
+
+    std::string validXmlWithInvalidFieldData = "<?xml version=\"1.0\"?>\n"
+                                               "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                               "    <configuration>\n"
+                                               "        <scheduled>\n"
+                                               "            <notDailyDataLimit>notAnInteger</notDailyDataLimit>\n"
+                                               "            <queryPacks>\n"
+                                               "                <queryPack id=\"queryPackId\" />\n"
+                                               "            </queryPacks>\n"
+                                               "        </scheduled>\n"
+                                               "    </configuration>\n"
+                                               "</policy>";
+    EXPECT_THROW(pluginAdapter.getDataLimit(validXmlWithInvalidFieldData), std::exception);
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testGetRevID)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string liveQueryPolicy100 = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    EXPECT_EQ(pluginAdapter.getRevId(liveQueryPolicy100), "100");
+
+    std::string liveQueryPolicy999999999 = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"999999999\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    EXPECT_EQ(pluginAdapter.getRevId(liveQueryPolicy999999999), "999999999");
+
+    std::string noRevIdPolicy = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" NotRevID=\"999999999\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    EXPECT_THROW(pluginAdapter.getRevId(noRevIdPolicy), std::exception);
+
+    std::string garbage = "garbage";
+
+    EXPECT_THROW(pluginAdapter.getRevId(garbage), std::exception);
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testUpdateCustomQueries)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string liveQueryPolicy100 = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "            <customQueries>\n"
+                                     "                  <customQuery queryName=\"blah\">\n"
+                                     "                      <description>basic query</description>\n"
+                                     "                      <query>SELECT * FROM stuff</query>\n"
+                                     "                      <interval>10</interval>\n"
+                                     "                      <tag>DataLake</tag>\n"
+                                     "                      <removed>false</removed>\n"
+                                     "                      <denylist>false</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery queryName=\"blah2\">\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query>SELECT * FROM otherstuff</query>\n"
+                                     "                      <interval>5</interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "            </customQueries>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    std::string expected = "{"
+                               "\"schedule\":{"
+                                   "\"blah\":{"
+                                       "\"denylist\":\"false\","
+                                       "\"description\":\"basic query\","
+                                       "\"interval\":\"10\","
+                                       "\"query\":\"SELECT * FROM stuff\","
+                                       "\"removed\":\"false\","
+                                       "\"tag\":\"DataLake\""
+                                   "},"
+                                   "\"blah2\":{"
+                                       "\"denylist\":\"true\","
+                                       "\"description\":\"a different basic query\","
+                                       "\"interval\":\"5\","
+                                       "\"query\":\"SELECT * FROM otherstuff\","
+                                       "\"removed\":\"true\","
+                                       "\"tag\":\"stream\""
+                                   "}"
+                               "}"
+                           "}";
+    EXPECT_EQ(Plugin::getCustomQueries(liveQueryPolicy100).value(), expected);
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testUpdateCustomQueriesdoesNotIncludeMalformedQueriesInJson)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string liveQueryPolicy100 = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "            <customQueries>\n"
+                                     "                  <customQuery queryName=\"blah\">\n"
+                                     "                      <description>basic query</description>\n"
+                                     "                      <query>SELECT * FROM stuff</query>\n"
+                                     "                      <interval>10</interval>\n"
+                                     "                      <tag>DataLake</tag>\n"
+                                     "                      <removed>false</removed>\n"
+                                     "                      <denylist>false</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery queryName=\"blah2\">\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query>SELECT * FROM otherstuff</query>\n"
+                                     "                      <interval></interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery>\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query>SELECT * FROM otherstuff</query>\n"
+                                     "                      <interval></interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery queryName=\"blah2\">\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query></query>\n"
+                                     "                      <interval></interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery queryName=\"blah2\">\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query>  </query>\n"
+                                     "                      <interval></interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "            </customQueries>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    std::string expected = "{"
+                           "\"schedule\":{"
+                           "\"blah\":{"
+                           "\"denylist\":\"false\","
+                           "\"description\":\"basic query\","
+                           "\"interval\":\"10\","
+                           "\"query\":\"SELECT * FROM stuff\","
+                           "\"removed\":\"false\","
+                           "\"tag\":\"DataLake\""
+                           "}"
+                           "}"
+                           "}";
+    EXPECT_EQ(Plugin::getCustomQueries(liveQueryPolicy100).value(), expected);
+}
+
 TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryCustomQueries)
 {
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
     std::string liveQueryPolicy100 = "<?xml version=\"1.0\"?>\n"
                                      "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
                                      "    <configuration>\n"
@@ -479,13 +705,373 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryCustomQueries)
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(),"running_mode=0\n"));
     EXPECT_CALL(*mockFileSystem, writeFile(Plugin::osqueryCustomConfigFilePath(),expected));
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
 
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesHandlesExpectedPolicy)
+{
+     std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                    "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                    "   <configuration>\n"
+                                    "       <scheduled>\n"
+                                    "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                    "           <queryPacks>\n"
+                                    "               <queryPack id=\"XDR\"/>\n"
+                                    "               <queryPack id=\"MTR\"/>\n"
+                                    "           </queryPacks>\n"
+                                    "           <foldingRules>\n"
+                                    "               [\n"
+                                    "                   {\n"
+                                    "                       \"query_name\":\"test_folding_query\",\n"
+                                    "                       \"values\":{\n"
+                                    "                           \"column_name\": \"column_value\",\n"
+                                    "                           \"column_name2\": \"column_value2\"\n"
+                                    "                       }\n"
+                                    "                   },\n"
+                                    "                   {\n"
+                                    "                       \"query_name\":\"test_folding_query2\",\n"
+                                    "                        \"values\":{\n"
+                                    "                               \"column_name3\": \"column_value3\"\n"
+                                    "                       }\n"
+                                    "                   }\n"
+                                    "               ]\n"
+                                    "           </foldingRules>\n"
+                                    "       </scheduled>\n"
+                                    "   </configuration>\n"
+                                    "</policy>";
+
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = Plugin::getFoldingRules(liveQueryPolicy, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_EQ(foldingRules.size(), 2);
+    size_t count = 0;
+    for (const auto& r : foldingRules)
+    {
+        SCOPED_TRACE(count);
+
+        ASSERT_TRUE(r.get("query_name", "").isString());
+        ASSERT_TRUE(r.get("values", "").isObject());
+
+        const std::string query_name = r.get("query_name", "").asString();
+        const Json::Value values = r.get("values", "");
+
+        if (count == 0)
+        {
+            EXPECT_STREQ(query_name.c_str(), "test_folding_query");
+            EXPECT_STREQ(values.get("column_name", "").asString().c_str(), "column_value");
+            EXPECT_STREQ(values.get("column_name2", "").asString().c_str(), "column_value2");
+        }
+        else if (count == 1)
+        {
+            EXPECT_STREQ(query_name.c_str(), "test_folding_query2");
+            EXPECT_STREQ(values.get("column_name3", "").asString().c_str(), "column_value3");
+        }
+
+        count++;
+    }
+    EXPECT_EQ(count, foldingRules.size());
+
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesWithNoFoldingRules)
+{
+    std::string liveQueryPolicyNone = "<?xml version=\"1.0\"?>\n"
+                                      "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                      "   <configuration>\n"
+                                      "       <scheduled>\n"
+                                      "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                      "           <queryPacks>\n"
+                                      "               <queryPack id=\"XDR\"/>\n"
+                                      "               <queryPack id=\"MTR\"/>\n"
+                                      "           </queryPacks>\n"
+                                      "       </scheduled>\n"
+                                      "   </configuration>\n"
+                                      "</policy>";
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = Plugin::getFoldingRules(liveQueryPolicyNone, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_TRUE(foldingRules.empty());
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesInvalidJson)
+{
+    std::string liveQueryPolicyInvalid = "<?xml version=\"1.0\"?>\n"
+                                         "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                         "   <configuration>\n"
+                                         "       <scheduled>\n"
+                                         "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                         "           <queryPacks>\n"
+                                         "               <queryPack id=\"XDR\"/>\n"
+                                         "               <queryPack id=\"MTR\"/>\n"
+                                         "           </queryPacks>\n"
+                                         "           <foldingRules>\n"
+                                         "               blah\n"
+                                         "           </foldingRules>\n"
+                                         "       </scheduled>\n"
+                                         "   </configuration>\n"
+                                         "</policy>";
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = Plugin::getFoldingRules(liveQueryPolicyInvalid, foldingRules);
+    EXPECT_EQ(changeFoldingRules, false);
+    EXPECT_TRUE(foldingRules.empty());
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesParsesAllButInvalidRules)
+{
+    std::string liveQueryPolicyInvalid = "<?xml version=\"1.0\"?>\n"
+                                         "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                         "   <configuration>\n"
+                                         "       <scheduled>\n"
+                                         "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                         "           <queryPacks>\n"
+                                         "               <queryPack id=\"XDR\"/>\n"
+                                         "               <queryPack id=\"MTR\"/>\n"
+                                         "           </queryPacks>\n"
+                                         "           <foldingRules>\n"
+                                         "               [\n"
+                                         "                   {\n"
+                                         "                       \"query_name\":\"test_folding_query\",\n"
+                                         "                       \"not-values\":{\n"
+                                         "                           \"column_name\": \"column_value\",\n"
+                                         "                           \"column_name2\": \"column_value2\"\n"
+                                         "                       }\n"
+                                         "                   },\n"
+                                         "                   {\n"
+                                         "                       \"query_name\":\"test_folding_query2\",\n"
+                                         "                        \"values\":{\n"
+                                         "                               \"column_name3\": \"column_value3\"\n"
+                                         "                       }\n"
+                                         "                   }\n"
+                                         "               ]\n"
+                                         "           </foldingRules>\n"
+                                         "       </scheduled>\n"
+                                         "   </configuration>\n"
+                                         "</policy>";
+
+    std::vector<Json::Value> expected;
+    Json::Value root;
+    Json::Value values;
+    values["column_name3"] = "column_value3";
+    root["query_name"] = "test_folding_query2";
+    root["values"] = values;
+    expected.push_back(root);
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = Plugin::getFoldingRules(liveQueryPolicyInvalid, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+
+    EXPECT_EQ(foldingRules.size(), 1);
+    EXPECT_EQ(foldingRules, expected);
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testFoldingRulesTelemetry)
+{
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
 
-    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+    telemetry.serialiseAndReset();
+
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                  "   <configuration>\n"
+                                  "       <scheduled>\n"
+                                  "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                  "           <queryPacks>\n"
+                                  "               <queryPack id=\"XDR\"/>\n"
+                                  "               <queryPack id=\"MTR\"/>\n"
+                                  "           </queryPacks>\n"
+                                  "           <foldingRules>\n"
+                                  "               [\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query\",\n"
+                                  "                       \"values\":{\n"
+                                  "                           \"column_name\": \"column_value\",\n"
+                                  "                           \"column_name2\": \"column_value2\"\n"
+                                  "                       }\n"
+                                  "                   },\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query2\",\n"
+                                  "                        \"values\":{\n"
+                                  "                               \"column_name3\": \"column_value3\"\n"
+                                  "                       }\n"
+                                  "                   }\n"
+                                  "               ]\n"
+                                  "           </foldingRules>\n"
+                                  "       </scheduled>\n"
+                                  "   </configuration>\n"
+                                  "</policy>";
+
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
+
+    EXPECT_EQ(telemetry.serialiseAndReset(), "{\"foldable-queries\":[\"test_folding_query\",\"test_folding_query2\"]}");
+
+    // foldable queries resent after reset
+    EXPECT_EQ(telemetry.serialiseAndReset(), "{\"foldable-queries\":[\"test_folding_query\",\"test_folding_query2\"]}");
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryFoldingRulesGoodThenBadThenOneBadRule)
+{
+    // We get a policy with valid folding rules
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                  "   <configuration>\n"
+                                  "       <scheduled>\n"
+                                  "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                  "           <queryPacks>\n"
+                                  "               <queryPack id=\"XDR\"/>\n"
+                                  "               <queryPack id=\"MTR\"/>\n"
+                                  "           </queryPacks>\n"
+                                  "           <foldingRules>\n"
+                                  "               [\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query\",\n"
+                                  "                       \"values\":{\n"
+                                  "                           \"column_name\": \"column_value\",\n"
+                                  "                           \"column_name2\": \"column_value2\"\n"
+                                  "                       }\n"
+                                  "                   },\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query2\",\n"
+                                  "                        \"values\":{\n"
+                                  "                               \"column_name3\": \"column_value3\"\n"
+                                  "                       }\n"
+                                  "                   }\n"
+                                  "               ]\n"
+                                  "           </foldingRules>\n"
+                                  "       </scheduled>\n"
+                                  "   </configuration>\n"
+                                  "</policy>";
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = Plugin::getFoldingRules(liveQueryPolicy, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_EQ(foldingRules.size(), 2);
+    size_t count = 0;
+    for (const auto& r : foldingRules)
+    {
+        SCOPED_TRACE(count);
+
+        ASSERT_TRUE(r.get("query_name", "").isString());
+        ASSERT_TRUE(r.get("values", "").isObject());
+
+        const std::string query_name = r.get("query_name", "").asString();
+        const Json::Value values = r.get("values", "");
+
+        if (count == 0)
+        {
+            EXPECT_STREQ(query_name.c_str(), "test_folding_query");
+            EXPECT_STREQ(values.get("column_name", "").asString().c_str(), "column_value");
+            EXPECT_STREQ(values.get("column_name2", "").asString().c_str(), "column_value2");
+        }
+        else if (count == 1)
+        {
+            EXPECT_STREQ(query_name.c_str(), "test_folding_query2");
+            EXPECT_STREQ(values.get("column_name3", "").asString().c_str(), "column_value3");
+        }
+
+        count++;
+    }
+    EXPECT_EQ(count, foldingRules.size());
+
+    // We get another policy which has invalid rules
+    std::string liveQueryPolicyInvalid = "<?xml version=\"1.0\"?>\n"
+                                         "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                         "   <configuration>\n"
+                                         "       <scheduled>\n"
+                                         "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                         "           <queryPacks>\n"
+                                         "               <queryPack id=\"XDR\"/>\n"
+                                         "               <queryPack id=\"MTR\"/>\n"
+                                         "           </queryPacks>\n"
+                                         "           <foldingRules>\n"
+                                         "               blah\n"
+                                         "           </foldingRules>\n"
+                                         "       </scheduled>\n"
+                                         "   </configuration>\n"
+                                         "</policy>";
+    // We keep the previous folding rules
+    std::vector<Json::Value> nextRules;
+    bool changeFoldingRulesBadRules = Plugin::getFoldingRules(liveQueryPolicyInvalid, nextRules);
+    EXPECT_EQ(changeFoldingRulesBadRules, false);
+    EXPECT_EQ(nextRules, std::vector<Json::Value> {});
+
+    // We get another policy with good fields but some bad rules
+    std::string liveQueryPolicyInvalidRules = "<?xml version=\"1.0\"?>\n"
+                                         "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                         "   <configuration>\n"
+                                         "       <scheduled>\n"
+                                         "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                         "           <queryPacks>\n"
+                                         "               <queryPack id=\"XDR\"/>\n"
+                                         "               <queryPack id=\"MTR\"/>\n"
+                                         "           </queryPacks>\n"
+                                         "           <foldingRules>\n"
+                                         "               [\n"
+                                         "                   {\n"
+                                         "                       \"query_name\":\"test_folding_query\",\n"
+                                         "                       \"not-values\":{\n"
+                                         "                           \"column_name\": \"column_value\",\n"
+                                         "                           \"column_name2\": \"column_value2\"\n"
+                                         "                       }\n"
+                                         "                   },\n"
+                                         "                   {\n"
+                                         "                       \"query_name\":\"test_folding_query2\",\n"
+                                         "                        \"values\":{\n"
+                                         "                               \"column_name3\": \"column_value3\"\n"
+                                         "                       }\n"
+                                         "                   }\n"
+                                         "               ]\n"
+                                         "           </foldingRules>\n"
+                                         "       </scheduled>\n"
+                                         "   </configuration>\n"
+                                         "</policy>";
+
+    std::vector<Json::Value> expected;
+    Json::Value root;
+    Json::Value values;
+    values["column_name3"] = "column_value3";
+    root["query_name"] = "test_folding_query2";
+    root["values"] = values;
+    expected.push_back(root);
+
+    std::vector<Json::Value> lastRules;
+    bool changeFoldingRulesSomeBadRules = Plugin::getFoldingRules(liveQueryPolicyInvalidRules, lastRules);
+    EXPECT_EQ(changeFoldingRulesSomeBadRules, true);
+    // We keep only the good rule
+    EXPECT_EQ(lastRules.size(), 1);
+    EXPECT_EQ(lastRules, expected);
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testNoFoldingRulesTelemetry)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+    telemetry.serialiseAndReset();
+
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                  "   <configuration>\n"
+                                  "       <scheduled>\n"
+                                  "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                  "           <queryPacks>\n"
+                                  "               <queryPack id=\"XDR\"/>\n"
+                                  "               <queryPack id=\"MTR\"/>\n"
+                                  "           </queryPacks>\n"
+                                  "       </scheduled>\n"
+                                  "   </configuration>\n"
+                                  "</policy>";
+
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
+
+    EXPECT_EQ(telemetry.serialiseAndReset(), "{}");
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryConfigIsNotRemovedWhenWeFailToReadLiveQueryPolicy)
@@ -540,39 +1126,6 @@ TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesVal
     EXPECT_EQ(expectedStatus, actualStatus);
 }
 
-TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithEmptyPolicy)
-{
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
-    TestablePluginAdapter pluginAdapter(queueTask);
-
-    std::string empty = "";
-
-    pluginAdapter.processLiveQueryPolicy(empty);
-    EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "NoRef");
-    EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "");
-    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 250000000);
-}
-
-TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithMissingField)
-{
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
-    TestablePluginAdapter pluginAdapter(queueTask);
-
-    std::string liveQueryPolicyMissingField = "<?xml version=\"1.0\"?>\n"
-                                              "<policy type=\"LiveQuery\" RevID=\"987654321\" policyType=\"56\">\n"
-                                              "    <configuration>\n"
-                                              "            <dailyDataLimit>123456</dailyDataLimit>\n"
-                                              "            <queryPacks>\n"
-                                              "                <queryPack id=\"queryPackId\" />\n"
-                                              "            </queryPacks>\n"
-                                              "    </configuration>\n"
-                                              "</policy>";
-
-    pluginAdapter.processLiveQueryPolicy(liveQueryPolicyMissingField);
-    EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Same");
-    EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "987654321");
-    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 262144000);
-}
 
 TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesValidStatusWhenDataLimitHit)
 {
@@ -598,6 +1151,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithValidPolic
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
     const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).WillOnce(Return(false));
     std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
                                      "<policy type=\"LiveQuery\" RevID=\"987654321\" policyType=\"56\">\n"
                                      "    <configuration>\n"
@@ -644,7 +1198,25 @@ TEST_F(PluginAdapterWithMockFileSystem, testHasScheduleEpochEnded)
     EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+scheduleEpochDuration-1));
 }
 
+TEST_F(PluginAdapterWithMockFileSystem, testHaveCustomQueriesChanged)
+{
+    std::optional<std::string> value1 = "1";
+    std::optional<std::string> value2 = "2";
+    std::optional<std::string> emptyOptionalString;
 
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(value2.value()));
+    // file exists, different value
+    EXPECT_TRUE(Plugin::PluginAdapter::haveCustomQueriesChanged(value1));
+    // file exists, same value
+    EXPECT_FALSE(Plugin::PluginAdapter::haveCustomQueriesChanged(value2));
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(false));
+    // file doesn't exist, new custom pack has value
+    EXPECT_TRUE(Plugin::PluginAdapter::haveCustomQueriesChanged(value1));
+    // file doesn't exist, new custom pack has no value
+    EXPECT_FALSE(Plugin::PluginAdapter::haveCustomQueriesChanged(emptyOptionalString));
+}
 
 TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryPackIsRemovedWhenNoQueriesInPolicy)
 {
@@ -656,8 +1228,10 @@ TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryPackIsRemovedWhenNoQuerie
                                      "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
                                      "    <configuration>\n"
                                      "        <scheduled>\n"
-                                     "            <enabled>true</enabled>\n"
                                      "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
                                      "        </scheduled>\n"
                                      "    </configuration>\n"
                                      "</policy>";
@@ -667,55 +1241,122 @@ TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryPackIsRemovedWhenNoQuerie
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), "running_mode=1\n"));
 
     EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(true));
-    // We check twice because processLiveQueryPolicy tries to enable it
-    // We say to return false twice because we want to test the DISABLED pack will be removed if it exists too
-    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryCustomConfigFilePath())).WillOnce(Return("a value"));
     EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath())).Times(1);
-    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(1);
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
 }
-class MockablePluginAdapter : public TestablePluginAdapter
-{
-public:
-    MockablePluginAdapter(std::shared_ptr<Plugin::QueueTask> queueTask) :
-        TestablePluginAdapter(queueTask)
-    {}
 
-    MOCK_METHOD1(applyLiveQueryPolicy, void(std::optional<Common::XmlUtilities::AttributesMap>));
-};
-
-TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyDoesNotApplyPolicyWhenPolicyIsBroken)
+TEST_F(PluginAdapterWithMockFileSystem, processFlagsIgoresEmptyInput)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
-    auto mockPluginAdapter = ::testing::StrictMock<MockablePluginAdapter>(queueTask);
-
+    TestablePluginAdapter pluginAdapter(queueTask);
     const std::string PLUGIN_VAR_DIR = Plugin::varDir();
-    std::string brokenPolicy = "garbage";
-
-    EXPECT_CALL(mockPluginAdapter, applyLiveQueryPolicy(_)).Times(0);
-    mockPluginAdapter.processLiveQueryPolicy(brokenPolicy);
-    EXPECT_EQ(mockPluginAdapter.getLiveQueryStatus(), "Failure");
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    EXPECT_NO_THROW(pluginAdapter.processFlags(""));
 }
 
-TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyAppliesPolicyWhenPolicyIsBroken)
+TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesXDRFlagOn)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
-    auto mockPluginAdapter = ::testing::StrictMock<MockablePluginAdapter>(queueTask);
-
+    TestablePluginAdapter pluginAdapter(queueTask);
     const std::string PLUGIN_VAR_DIR = Plugin::varDir();
-    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
-                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
-                                     "    <configuration>\n"
-                                     "        <scheduled>\n"
-                                     "        </scheduled>\n"
-                                     "    </configuration>\n"
-                                     "</policy>";
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::MODE_IDENTIFIER + "=1\n"));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::NETWORK_TABLES_AVAILABLE + "=0\n"));
+    std::string xdrFlag = "{\"" + Plugin::PluginUtils::XDR_FLAG + "\":true}";
+    EXPECT_NO_THROW(pluginAdapter.processFlags(xdrFlag));
+}
 
-    EXPECT_CALL(mockPluginAdapter, applyLiveQueryPolicy(_)).Times(1);
-    mockPluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
-    EXPECT_EQ(mockPluginAdapter.getLiveQueryStatus(), "Same");
+TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesXDRFlagOff)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::MODE_IDENTIFIER + "=0\n"));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::NETWORK_TABLES_AVAILABLE + "=0\n"));
+    std::string xdrFlag = "{\"" + Plugin::PluginUtils::XDR_FLAG + "\":false}";
+    EXPECT_NO_THROW(pluginAdapter.processFlags(xdrFlag));
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesNetoworkTableFlagOn)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::MODE_IDENTIFIER + "=0\n"));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::NETWORK_TABLES_AVAILABLE + "=1\n"));
+    std::string networkFlag = "{\"" + Plugin::PluginUtils::NETWORK_TABLES_FLAG + "\":true}";
+    EXPECT_NO_THROW(pluginAdapter.processFlags(networkFlag));
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesNetoworkTableFlagOff)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::MODE_IDENTIFIER + "=0\n"));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::NETWORK_TABLES_AVAILABLE + "=0\n"));
+    std::string networkFlag = "{\"" + Plugin::PluginUtils::NETWORK_TABLES_FLAG + "\":false}";
+    EXPECT_NO_THROW(pluginAdapter.processFlags(networkFlag));
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesAllFlagsOn)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::MODE_IDENTIFIER + "=1\n"));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::NETWORK_TABLES_AVAILABLE + "=1\n"));
+    std::string flags = "{\"" +
+                              Plugin::PluginUtils::XDR_FLAG + "\":true, \"" +
+                              Plugin::PluginUtils::NETWORK_TABLES_FLAG +"\":true}";
+    EXPECT_NO_THROW(pluginAdapter.processFlags(flags));
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesAllFlagsOff)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::MODE_IDENTIFIER + "=0\n"));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), Plugin::PluginUtils::NETWORK_TABLES_AVAILABLE + "=0\n"));
+    std::string flags = "{\"" +
+                              Plugin::PluginUtils::XDR_FLAG + "\":false, \"" +
+                              Plugin::PluginUtils::NETWORK_TABLES_FLAG +"\":false}";
+    EXPECT_NO_THROW(pluginAdapter.processFlags(flags));
 }
