@@ -330,27 +330,21 @@ class WarehouseUtils(object):
 
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     ROBOT_LISTENER_API_VERSION = 2
-    os.environ['VUT_PREV']= "QA150434:CCDi/l+hd3hE9xjbiPusVnfxs1k1fS1uo3zc9Iz2pVGl8t11LNb+q9TcWvaaLUCDr/g=:485df61ef051e78f915ad38e596bddff"
-    #    os.environ['VUT_PREV']= "CSP7I0S0GZZE:CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=:db55fcf8898da2b3f3c06f26e9246cbb"
+    os.environ['VUT_PREV']= "CSP7I0S0GZZE:CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=:db55fcf8898da2b3f3c06f26e9246cbb"
+
     template_configuration_values = {
         "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", PROD_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
         "base_and_edr_999.xml": TemplateConfig("BASE_AND_EDR_999", "edr_user_999", PROD_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
         "base_edr_vut_and_mtr_999.xml": TemplateConfig("BASE_EDR_AND_MTR_999", "mtr_user_999", PROD_BUILD_CERTS, OSTIA_MTR_999_ADDRESS ),
         "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "user_mtr_vut_edr_999", PROD_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
         "base_vut_and_mtr_edr_999.xml": TemplateConfig("BASE_AND_MTR_EDR_999", "mtr_and_edr_user_999", PROD_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
-
         "base_vut_and_mtr_edr_av_999.xml": TemplateConfig("BASE_AND_MTR_EDR_AV_999", "av_user_999", PROD_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
-
         "base_and_mtr_VUT.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_and_mtr_VUT-1.xml": TemplateConfig("VUT_PREV", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-
         "base_and_mtr_and_av_VUT.xml": TemplateConfig("BASE_AND_MTR_AND_AV_VUT", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_and_mtr_and_av_VUT-1.xml": TemplateConfig("VUT_PREV", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-
         "base_edr_and_mtr_and_av_VUT.xml": TemplateConfig("BASE_EDR_AND_MTR_AND_AV_VUT", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_edr_and_mtr_and_av_VUT-1.xml": TemplateConfig("VUT_PREV", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-
-
         "base_edr_and_mtr_VUT-1.xml": TemplateConfig("VUT_PREV", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_and_edr_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_edr_and_mtr.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
