@@ -134,6 +134,11 @@ bool LoggerExtension::getDataLimitReached()
     return m_resultsSender.getDataLimitReached();
 }
 
+int LoggerExtension::getDataLimit()
+{
+    return m_resultsSender.getDataLimit();
+}
+
 void LoggerExtension::setFoldingRules(const std::vector<Json::Value>& foldingRules)
 {
     m_foldingRules = foldingRules;

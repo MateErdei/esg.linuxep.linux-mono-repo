@@ -23,6 +23,7 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 #include <future>
 #include <list>
+#include <Common/XmlUtilities/AttributesMap.h>
 
 namespace Plugin
 {
@@ -90,6 +91,7 @@ namespace Plugin
          */
         void processALCPolicy(const std::string&, bool firstTime);
         void processLiveQueryPolicy(const std::string&);
+        virtual void applyLiveQueryPolicy(std::optional<Common::XmlUtilities::AttributesMap> policyAttributesMap);
         void ensureMCSCanReadOldResponses();
         OsqueryConfigurator& osqueryConfigurator();
 

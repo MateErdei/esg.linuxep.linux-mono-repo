@@ -11,7 +11,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 
-class TestLiveQueryPolicyParser: public LogOffInitializedTests{};
+class TestLiveQueryPolicyParser: public LogInitializedTests{};
 
 bool testableGetFoldingRules(const std::string& policy, std::vector<Json::Value>& foldingRules)
 {
@@ -370,10 +370,6 @@ TEST_F(TestLiveQueryPolicyParser, testGetDataLimit)
                                         "</policy>";
     EXPECT_EQ(testableGetDataLimit(liveQueryPolicy234567), 234567);
 
-    // TODO - make sure theres a unit test that processLiveQuery will throw elegantly when the xml cannot be read.
-//    std::string nonsense = "asdfbhasdlfhasdflasdhfasd";
-//    EXPECT_THROW(testableGetDataLimit(nonsense), std::exception);
-
     std::string validXmlWithMissingField = "<?xml version=\"1.0\"?>\n"
                                            "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
                                            "    <configuration>\n"
@@ -604,10 +600,20 @@ TEST_F(TestLiveQueryPolicyParser, testGetScheduledQueriesEnabledInPolicy)
                                                 "    </configuration>\n"
                                                 "</policy>";
 
+    std::string liveQueryPolicyWithWrongType = "<?xml version=\"1.0\"?>\n"
+                                               "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                               "    <configuration>\n"
+                                               "        <scheduled>\n"
+                                               "            <enabled>98176496132</enabled>\n"
+                                               "        </scheduled>\n"
+                                               "    </configuration>\n"
+                                               "</policy>";
+
 
     EXPECT_TRUE(testableGetScheduledQueriesEnabledInPolicy(liveQueryPolicyWithEnabled));
     EXPECT_FALSE(testableGetScheduledQueriesEnabledInPolicy(liveQueryPolicyWithDisabled));
     EXPECT_FALSE(testableGetScheduledQueriesEnabledInPolicy(liveQueryPolicyWithNotPresent));
+    EXPECT_FALSE(testableGetScheduledQueriesEnabledInPolicy(liveQueryPolicyWithWrongType));
 }
 
 TEST_F(TestLiveQueryPolicyParser, testGetEnabledQueryPacksInPolicy) {
@@ -650,6 +656,20 @@ TEST_F(TestLiveQueryPolicyParser, testGetEnabledQueryPacksInPolicy) {
                                                "    </configuration>\n"
                                                "</policy>";
     EXPECT_EQ(testableGetEnabledQueryPacksInPolicy(liveQueryPolicyWithMtrAndXDR), (std::vector<std::string>{"MTR", "XDR"}));
+
+    std::string liveQueryPolicyWithWrongType = "<?xml version=\"1.0\"?>\n"
+                                               "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                               "    <configuration>\n"
+                                               "        <scheduled>\n"
+                                               "           <queryPacks>\n"
+                                               "               <queryPack id=\"1\" />\n"
+                                               "               <queryPack id=\"2\" />\n"
+                                               "               <queryPack id=\"MTR\" />\n"
+                                               "           </queryPacks>\n"
+                                               "        </scheduled>\n"
+                                               "    </configuration>\n"
+                                               "</policy>";
+    EXPECT_EQ(testableGetEnabledQueryPacksInPolicy(liveQueryPolicyWithWrongType), (std::vector<std::string>{"MTR"}));
 
     std::string liveQueryPolicyWithNoPacksSection = "<?xml version=\"1.0\"?>\n"
                                                "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"

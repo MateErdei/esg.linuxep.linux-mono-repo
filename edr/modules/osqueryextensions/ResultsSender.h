@@ -39,6 +39,7 @@ public:
     void loadScheduledQueryTags();
     void setDataLimit(unsigned int limitBytes);
     bool getDataLimitReached();
+    int getDataLimit();
     void setDataPeriod(unsigned int periodSeconds);
     Json::Value PrepareBatchResults() override;
     void SaveBatchResults(const Json::Value& results) override;

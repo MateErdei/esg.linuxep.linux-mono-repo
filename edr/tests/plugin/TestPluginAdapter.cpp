@@ -84,6 +84,16 @@ public:
         Plugin::PluginAdapter::processLiveQueryPolicy(policy);
     }
 
+    void setDataLmit(const int& limit)
+    {
+        m_loggerExtensionPtr->setDataLimit(limit);
+    }
+
+    int getDataLmit()
+    {
+        return m_loggerExtensionPtr->getDataLimit();
+    }
+
     void setScheduleEpoch(time_t scheduleEpoch)
     {
         m_scheduleEpoch.setValue(scheduleEpoch);
@@ -305,6 +315,24 @@ public:
         Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
     }
     ~PluginAdapterWithMockFileSystem()
+    {
+        Tests::restoreFileSystem();
+    }
+    MockFileSystem * mockFileSystem;
+    MockFilePermissions * mockFilePermissions;
+};
+
+class PluginAdapterWithStrictMockFileSystem: public LogOffInitializedTests
+{
+public:
+    PluginAdapterWithStrictMockFileSystem()
+    {
+        mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+        mockFilePermissions = new ::testing::StrictMock<MockFilePermissions>();
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{mockFileSystem});
+        Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+    }
+    ~PluginAdapterWithStrictMockFileSystem()
     {
         Tests::restoreFileSystem();
     }
@@ -617,21 +645,44 @@ TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryPackIsRemovedWhenNoQuerie
     EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath())).Times(1);
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
 }
+class MockablePluginAdapter : public TestablePluginAdapter
+{
+public:
+    MockablePluginAdapter(std::shared_ptr<Plugin::QueueTask> queueTask) :
+        TestablePluginAdapter(queueTask)
+    {}
 
-TEST_F(PluginAdapterWithMockFileSystem, brokenLiveQueryPolicySetsLiveQueryStatusToFailureAndDoesNotChangeSettings)
+    MOCK_METHOD1(applyLiveQueryPolicy, void(std::optional<Common::XmlUtilities::AttributesMap>));
+};
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyDoesNotApplyPolicyWhenPolicyIsBroken)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
-    TestablePluginAdapter pluginAdapter(queueTask);
+    auto mockPluginAdapter = ::testing::StrictMock<MockablePluginAdapter>(queueTask);
 
     const std::string PLUGIN_VAR_DIR = Plugin::varDir();
     std::string brokenPolicy = "garbage";
 
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    EXPECT_CALL(mockPluginAdapter, applyLiveQueryPolicy(_)).Times(0);
+    mockPluginAdapter.processLiveQueryPolicy(brokenPolicy);
+    EXPECT_EQ(mockPluginAdapter.getLiveQueryStatus(), "Failure");
+}
 
-    pluginAdapter.processLiveQueryPolicy(brokenPolicy);
-    EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Failure");
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyAppliesPolicyWhenPolicyIsBroken)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    auto mockPluginAdapter = ::testing::StrictMock<MockablePluginAdapter>(queueTask);
+
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    EXPECT_CALL(mockPluginAdapter, applyLiveQueryPolicy(_)).Times(1);
+    mockPluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
+    EXPECT_EQ(mockPluginAdapter.getLiveQueryStatus(), "Same");
 }

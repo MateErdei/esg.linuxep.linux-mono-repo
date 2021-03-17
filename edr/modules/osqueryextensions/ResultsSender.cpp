@@ -309,6 +309,11 @@ bool ResultsSender::getDataLimitReached()
     return m_hitLimitThisPeriod.getValue();
 }
 
+int ResultsSender::getDataLimit()
+{
+    return m_dataLimit;
+}
+
 void ResultsSender::SaveBatchResults(const Json::Value& results)
 {
     auto filesystem = Common::FileSystem::fileSystem();

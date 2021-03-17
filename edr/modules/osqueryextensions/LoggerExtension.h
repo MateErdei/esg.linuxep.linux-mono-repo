@@ -34,6 +34,7 @@ public:
     void setDataPeriod(unsigned int periodSeconds);
     bool checkDataPeriodHasElapsed();
     bool getDataLimitReached();
+    int getDataLimit();
     void reloadTags();
     void setFoldingRules(const std::vector<Json::Value>& foldingRules);
     std::vector<Json::Value> getCurrentFoldingRules();

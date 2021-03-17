@@ -23,7 +23,6 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include <cmath>
 #include <unistd.h>
 #include <fstream>
-#include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
@@ -702,14 +701,60 @@ namespace Plugin
         return status.str();
     }
 
+    void PluginAdapter::applyLiveQueryPolicy(std::optional<Common::XmlUtilities::AttributesMap> policyAttributesMap)
+    {
+        std::optional<std::string> customQueries;
+        std::vector<Json::Value> foldingRules;
+        bool osqueryRestartNeeded = false;
+
+        m_dataLimit = getDataLimit(policyAttributesMap);
+        m_loggerExtensionPtr->setDataLimit(m_dataLimit);
+
+        m_liveQueryRevId = getRevId(policyAttributesMap);
+
+        m_isXDR = getScheduledQueriesEnabledInPolicy(policyAttributesMap);
+        PluginUtils::updatePluginConfWithFlag(PluginUtils::MODE_IDENTIFIER, m_isXDR, osqueryRestartNeeded);
+
+        m_queryPacksInPolicy = getEnabledQueryPacksInPolicy(policyAttributesMap);
+        //sets osqueryRestartNeeded to true if enabled query packs have changed
+        osqueryRestartNeeded = osqueryRestartNeeded ||
+                               PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy,m_loggerExtensionPtr->getDataLimitReached());
+
+        customQueries = getCustomQueries(policyAttributesMap);
+        if (PluginUtils::haveCustomQueriesChanged(customQueries))
+        {
+            PluginUtils::enableCustomQueries(customQueries, osqueryRestartNeeded, m_loggerExtensionPtr->getDataLimitReached());
+        }
+
+        bool changeFoldingRules = false;
+        changeFoldingRules = getFoldingRules(policyAttributesMap, foldingRules);
+        if (m_loggerExtensionPtr->compareFoldingRules(foldingRules) && changeFoldingRules)
+        {
+            auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+
+            m_loggerExtensionPtr->setFoldingRules(foldingRules);
+            osqueryRestartNeeded = true;
+            LOGDEBUG("LiveQuery Policy folding rules have changed");
+            for (const auto& queryName : m_loggerExtensionPtr->getFoldableQueries())
+            {
+                LOGDEBUG("Folding rule query: " << queryName);
+                telemetry.addValueToSet(plugin::telemetryFoldableQueries, queryName);
+            }
+        }
+
+        m_liveQueryStatus = "Same";
+
+        if (osqueryRestartNeeded)
+        {
+            m_queueTask->pushOsqueryRestart("LiveQuery policy has changed. Restarting osquery to apply changes");
+        }
+    }
+
     void PluginAdapter::processLiveQueryPolicy(const std::string& liveQueryPolicy)
     {
         LOGINFO("Processing LiveQuery Policy");
         if (!liveQueryPolicy.empty())
         {
-            bool osqueryRestartNeeded = false;
-            std::optional<std::string> customQueries;
-            std::vector<Json::Value> foldingRules;
             std::optional<Common::XmlUtilities::AttributesMap> attributesMap;
             try
             {
@@ -721,48 +766,8 @@ namespace Plugin
                 m_liveQueryStatus = "Failure";
                 return;
             }
-
-            m_dataLimit = getDataLimit(attributesMap);
-            m_loggerExtensionPtr->setDataLimit(m_dataLimit);
-
-            m_liveQueryRevId = getRevId(attributesMap);
-
-            m_isXDR = getScheduledQueriesEnabledInPolicy(attributesMap);
-            PluginUtils::updatePluginConfWithFlag(PluginUtils::MODE_IDENTIFIER, m_isXDR, osqueryRestartNeeded);
-
-            m_queryPacksInPolicy = getEnabledQueryPacksInPolicy(attributesMap);
-            //sets osqueryRestartNeeded to true if enabled query packs have changed
-            osqueryRestartNeeded = osqueryRestartNeeded ||
-                    PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy,m_loggerExtensionPtr->getDataLimitReached());
-
-            customQueries = getCustomQueries(attributesMap);
-            if (PluginUtils::haveCustomQueriesChanged(customQueries))
-            {
-                PluginUtils::enableCustomQueries(customQueries, osqueryRestartNeeded, m_loggerExtensionPtr->getDataLimitReached());
-            }
-
-            foldingRules = getFoldingRules(attributesMap);
-            if (m_loggerExtensionPtr->compareFoldingRules(foldingRules))
-            {
-                auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-
-                m_loggerExtensionPtr->setFoldingRules(foldingRules);
-                osqueryRestartNeeded = true;
-                LOGDEBUG("LiveQuery Policy folding rules have changed");
-                for (const auto& queryName : m_loggerExtensionPtr->getFoldableQueries())
-                {
-                    LOGDEBUG("Folding rule query: " << queryName);
-                    telemetry.addValueToSet(plugin::telemetryFoldableQueries, queryName);
-                }
-            }
-
+            applyLiveQueryPolicy(attributesMap);
             m_liveQueryStatus = "Same";
-
-            if (osqueryRestartNeeded)
-            {
-                m_queueTask->pushOsqueryRestart("LiveQuery policy has changed. Restarting osquery to apply changes");
-            }
-
             return;
         }
         else
