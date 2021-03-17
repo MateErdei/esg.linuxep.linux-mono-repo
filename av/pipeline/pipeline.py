@@ -77,7 +77,6 @@ def get_suffix():
     return "-" + BRANCH_NAME
 
 
-@tap.timeout(5400)
 def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=None):
     if machine_name is None:
         machine_name = machine.template
@@ -100,7 +99,7 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/report.html",
                     "robot" + get_suffix() + "_" + machine_name + "-report.html")
 
-@tap.timeout(5400)
+@tap.timeout(task_timeout=5400)
 def robot_task(machine: tap.Machine):
     install_requirements(machine)
     robot_task_with_env(machine)
@@ -158,7 +157,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         test_inputs['bazel_tools'] = unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
     return test_inputs
 
-@tap.timeout(5400)
+@tap.timeout(task_timeout=5400)
 def bullseye_coverage_task(machine: tap.Machine):
     suffix = get_suffix()
 
