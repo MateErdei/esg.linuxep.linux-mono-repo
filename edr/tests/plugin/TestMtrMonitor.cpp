@@ -236,7 +236,7 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueByDefault) //NO_L
     ASSERT_TRUE(mtrMonitor.hasScheduledQueriesConfigured());
 }
 
-TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsNonZeroCount) //NO_LINT
+TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsCountGreaterThanFive) //NO_LINT
 {
     std::string socket = "/socket/path/socket.sock";
     std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
@@ -244,6 +244,35 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsNon
 
     OsquerySDK::TableRow row;
     row["query_count"] = "123";
+    OsquerySDK::QueryData data;
+    data.push_back(row);
+    EXPECT_CALL(*mockOsqueryClient, query(_,_)).WillOnce(
+        DoAll(SetArgReferee<1>(data), Return(OsquerySDK::Status{0,"some message"})));
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    EXPECT_CALL(*mockFileSystem,
+                exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
+
+    std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
+    EXPECT_CALL(*mockFileSystem,
+                readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+
+    TestableMtrMonitor mtrMonitor(std::move(mockOsqueryClient));
+    ASSERT_TRUE(mtrMonitor.hasScheduledQueriesConfigured());
+}
+
+TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsCountOfFive) //NO_LINT
+{
+    std::string socket = "/socket/path/socket.sock";
+    std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
+    EXPECT_CALL(*mockOsqueryClient, connect(socket)).Times(1);
+
+    OsquerySDK::TableRow row;
+    row["query_count"] = "5";
     OsquerySDK::QueryData data;
     data.push_back(row);
     EXPECT_CALL(*mockOsqueryClient, query(_,_)).WillOnce(
@@ -273,6 +302,35 @@ TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsZer
 
     OsquerySDK::TableRow row;
     row["query_count"] = "0";
+    OsquerySDK::QueryData data;
+    data.push_back(row);
+    EXPECT_CALL(*mockOsqueryClient, query(_,_)).WillOnce(
+        DoAll(SetArgReferee<1>(data), Return(OsquerySDK::Status{0,"some message"})));
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+
+    EXPECT_CALL(*mockFileSystem,
+                exists("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem,
+                exists("/socket/path/socket.sock")).WillOnce(Return(true));
+
+    std::vector<std::string> flags = {"some text", "--extensions_socket="+socket, "--flag=value"};
+    EXPECT_CALL(*mockFileSystem,
+                readLines("/opt/sophos-spl/plugins/mtr/dbos/data/osquery.flags")).WillOnce(Return(flags));
+
+    TestableMtrMonitor mtrMonitor(std::move(mockOsqueryClient));
+    ASSERT_FALSE(mtrMonitor.hasScheduledQueriesConfigured());
+}
+
+TEST_F(TestMtrMonitor, hasScheduledQueriesConfiguredReturnsTrueIfQueryReturnsLowNonZeroCount) //NO_LINT
+{
+    std::string socket = "/socket/path/socket.sock";
+    std::unique_ptr<MockIOsqueryClient> mockOsqueryClient = std::make_unique<MockIOsqueryClient>();
+    EXPECT_CALL(*mockOsqueryClient, connect(socket)).Times(1);
+
+    OsquerySDK::TableRow row;
+    row["query_count"] = "3";
     OsquerySDK::QueryData data;
     data.push_back(row);
     EXPECT_CALL(*mockOsqueryClient, query(_,_)).WillOnce(
