@@ -25,7 +25,8 @@ bool MtrMonitor::hasScheduledQueriesConfigured()
         if (row.find("query_count") != row.end())
         {
             LOGDEBUG("Number of MTR scheduled queries: " << row["query_count"]);
-            return row["query_count"] < "5";
+            int count = std::stoi(row["query_count"]);
+            return count > 4;
         }
     }
     else
