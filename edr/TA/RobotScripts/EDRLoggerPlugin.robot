@@ -18,8 +18,6 @@ Test Setup      Run Keywords
 
 Test Teardown   Test Teardown
 
-Default Tags  EVASD
-
 *** Test Cases ***
 EDR Plugin outputs XDR results and Its Answer is available to MCSRouter
     Add Uptime Query to Scheduled Queries
@@ -70,12 +68,12 @@ EDR Plugin Tags All Queries Correctly
     ...  Check All Query Results Contain Correct Tag  ${SOPHOS_INSTALL}/base/mcs/datafeed/  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
 EDR Plugin Applies Folding Rules When Folding Rules Have Changed
+    [Setup]  Install With Base SDDS With Fixed Values Queries
+    Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  { "schedule": { "uptime": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" }, "uptime_not_folded": { "query": "SELECT *, 'fixed_value' as fixed_column FROM uptime;", "interval": 3, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
     Restart EDR
-#    Enable XDR
+    Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
     # Inject policy with folding rules
@@ -119,13 +117,13 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     Should Be True  ${folded_count} < 100
 
 EDR Plugin Applies Folding Rules Based Column Value
+    [Setup]  Install With Base SDDS With Random Queries
+    Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
     Restart EDR
 
-#    Enable XDR
+    Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
     # Inject policy with folding rules
@@ -341,15 +339,10 @@ Check XDR Results Contain Correct ScheduleEpoch Timestamp
     Should Contain  ${scheduledQueryContents}  "epoch":${currentEpochTimeMinus3Days}
 
 EDR Plugin Runs Next Scheduled Queries When Flags Configured To Do So
+    [Setup]  Install With Base SDDS And Marked Next And Latest Files
     Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"latest_xdr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf  {"schedule": {"latest_mtr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"schedule": {"latest_xdr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  {"schedule": {"latest_mtr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf  {"schedule": {"next_xdr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf  {"schedule": {"next_mtr_query": {"query": "select * from uptime;","interval": 2}}}
+    Create Debug Level Logger Config File
     Restart EDR
 
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
@@ -505,26 +498,27 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     ...  20 secs
     ...  1 secs
     ...  EDR Plugin Log Contains X Times  Restarting osquery, reason: XDR data limit exceeded  1
+    EDR Plugin Log Contains X Times  Restarting osquery, reason: LiveQuery policy has changed. Restarting osquery to apply changes  1
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  Stopping LoggerExtension  1
+    ...  EDR Plugin Log Contains X Times  Stopping LoggerExtension  2
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  LoggerExtension::Stopped  1
+    ...  EDR Plugin Log Contains X Times  LoggerExtension::Stopped  2
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  Stopping SophosExtension  1
+    ...  EDR Plugin Log Contains X Times  Stopping SophosExtension  2
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  SophosExtension::Stopped  1
+    ...  EDR Plugin Log Contains X Times  SophosExtension::Stopped  2
 
     # Osquery restart from query pack disabling due to data limit
     Wait Until Keyword Succeeds
@@ -554,7 +548,7 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times   Enabled query pack conf file  2
+    ...  EDR Plugin Log Contains X Times   Enabled query pack conf file  4
 
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -633,6 +627,8 @@ Is XDR Enabled in Plugin Conf
     ...  60 secs
     ...  5 secs
     ...  EDR Plugin Log Contains   Updating running_mode flag setting
+    # race condition here between the above log and the file being written
+    sleep  0.1s
     ${EDR_CONFIG_CONTENT}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=1
 

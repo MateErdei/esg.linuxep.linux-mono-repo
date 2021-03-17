@@ -6,6 +6,7 @@
             <enabled>true</enabled>
             <queryPacks>
                 <queryPack id="XDR" />
+                <queryPack id="MTR" />
             </queryPacks>
         </scheduled>
     </configuration>
