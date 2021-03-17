@@ -455,10 +455,21 @@ TEST_F(TestPluginUtilsWithMockFileSystem, testHaveCustomQueriesChanged)
     EXPECT_FALSE(Plugin::PluginUtils::haveCustomQueriesChanged(value2));
 
     EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(2).WillRepeatedly(Return(false));
     // file doesn't exist, new custom pack has value
     EXPECT_TRUE(Plugin::PluginUtils::haveCustomQueriesChanged(value1));
     // file doesn't exist, new custom pack has no value
     EXPECT_FALSE(Plugin::PluginUtils::haveCustomQueriesChanged(emptyOptionalString));
+
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(3).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(3).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(3).WillRepeatedly(Return(value2.value()));
+    // DISABLED file exists, new custom pack has value
+    EXPECT_TRUE(Plugin::PluginUtils::haveCustomQueriesChanged(value1));
+    // DISABLED file exists, new custom pack has no value
+    EXPECT_TRUE(Plugin::PluginUtils::haveCustomQueriesChanged(emptyOptionalString));
+    // file doesn't exist, new custom pack has same value
+    EXPECT_FALSE(Plugin::PluginUtils::haveCustomQueriesChanged(value2));
 }
 
 TEST_F(TestPluginUtilsWithStrictMockFileSystem, testDisableAllQueryPacks)

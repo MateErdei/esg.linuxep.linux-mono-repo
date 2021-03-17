@@ -5,7 +5,6 @@
             <dailyDataLimit>10000</dailyDataLimit>
             <enabled>true</enabled>
             <queryPacks>
-                <queryPack id="XDR" />
                 <queryPack id="MTR" />
             </queryPacks>
             <customQueries>

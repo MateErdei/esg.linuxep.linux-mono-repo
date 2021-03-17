@@ -406,6 +406,10 @@ namespace Plugin
         {
             oldCustomQueries = fs->readFile(osqueryCustomConfigFilePath());
         }
+        else if (fs->exists(osqueryCustomConfigFilePath()+".DISABLED"))
+        {
+            oldCustomQueries = fs->readFile(osqueryCustomConfigFilePath()+".DISABLED");
+        }
 
         return customQueries != oldCustomQueries;
     }

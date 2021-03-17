@@ -425,14 +425,6 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
 
     Install EDR Directly from SDDS
 
-#    # Check install script did install query pack.
-#    # Default to start up in EDR mode so query pack should be disabled by EDR initially.
-#    Wait Until Keyword Succeeds
-#    ...  20 secs
-#    ...  1 secs
-#    ...  Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-#    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -442,16 +434,16 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-    Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
+    ...  XDR Pack Should Be Enabled
+    MTR Pack Should Be Enabled
+    Custom Pack Should Be Enabled
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
     ...  EDR Plugin Log Contains X Times  Run osquery process  2
 
+    # 2 because custom queries file is written, not enabled
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
@@ -473,19 +465,18 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     ...  1 secs
     ...  EDR Plugin Log Contains  Datafeed limit has been hit. Disabling scheduled queries
 
-    # 1st query pack disable for when we started up, then 2nd for when we hit the data limit.
+    # all 3 packs disabled when we hit the limit
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times   Disabled query pack conf file  2
+    ...  EDR Plugin Log Contains X Times   Disabled query pack conf file  3
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    ...  XDR Pack Should Be Disabled
+    MTR Pack Should Be Disabled
+    Custom Pack Should Be Disabled
 
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -545,18 +536,18 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     ...  1 secs
     ...  EDR Plugin Log Contains X Times  Run osquery process  4
 
+    # up from 2 to 5 because all 3 were enable after the data period rolled over
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times   Enabled query pack conf file  4
+    ...  EDR Plugin Log Contains X Times   Enabled query pack conf file  5
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-    Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
+    ...  XDR Pack Should Be Enabled
+    MTR Pack Should Be Enabled
+    Custom Pack Should Be Enabled
 
     # Prove that scheduled queries are running again
     Create File  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${empty_marker}
@@ -567,8 +558,138 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
 
     File Should Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  Executing query
 
+Test Query Packs Are Enabled And Disabled By Policy
+    Create Debug Level Logger Config File
+    Restart EDR
+
+    XDR Pack Should Be Disabled
+    MTR Pack Should Be Disabled
+    Custom Pack Should Not Exist
+
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+
+    XDR Pack Should Be Enabled
+    MTR Pack Should Be Disabled
+    Custom Pack Should Not Exist
+
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled_with_MTR.xml
+
+    XDR Pack Should Be Enabled
+    MTR Pack Should Be Enabled
+    Custom Pack Should Not Exist
+
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled_with_MTR_and_custom.xml
+
+    XDR Pack Should Be Enabled
+    MTR Pack Should Be Enabled
+    Custom Pack Should Be Enabled
+
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled_with_custom_only.xml
+
+    XDR Pack Should Be Disabled
+    MTR Pack Should Be Disabled
+    Custom Pack Should Be Enabled
+
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled_with_MTR_only.xml
+
+    XDR Pack Should Be Disabled
+    MTR Pack Should Be Enabled
+    Custom Pack Should Not Exist
+
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+
+    XDR Pack Should Be Enabled
+    MTR Pack Should Be Disabled
+    Custom Pack Should Not Exist
+
+EDR Plugin Respects Data Limit When Applying New Live Query Policy With Different Packs Enabled And New Custom Queries
+    [Tags]  DO
+    [Setup]  No Operation
+    Install Base For Component Tests
+    Create Debug Level Logger Config File
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit_and_different_custom_queries_with_xdr_only.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Install EDR Directly from SDDS
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  First LiveQuery policy received
+    Expect New Datalimit  10000
+#    Enable XDR
+
+    # Restart edr so that the altered queries are read in and debug mode applied
+#    Restart EDR
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  10 secs
+    ...  EDR Plugin Log Contains   XDR data limit for this period exceeded
+
+    Wait Until Keyword Succeeds
+    ...  5s
+    ...  1s
+    ...  XDR Pack Should Be Disabled
+    MTR Pack Should Be Disabled
+    Custom Pack Should Be Disabled
+
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit_and_different_custom_queries_with_xdr_only.xml
+
+    XDR Pack Should Be Disabled
+    MTR Pack Should Be Disabled
+    Custom Pack Should Be Disabled
+
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+
+    XDR Pack Should Be Disabled
+    MTR Pack Should Be Disabled
+    Custom Pack Should Not Exist
+
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit_and_different_custom_queries_with_xdr_only.xml
+
+    XDR Pack Should Be Disabled
+    MTR Pack Should Be Disabled
+    Custom Pack Should Be Disabled
 
 *** Keywords ***
+#Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+#Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+#Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
+#Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
+Apply Live Query Policy And Wait For Query Pack Changes
+    [Arguments]  ${policy}
+    ${mark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    Move File Atomically  ${policy}  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  LiveQuery policy has changed. Restarting osquery to apply changes  ${mark}
+
+XDR Pack Should Be Enabled
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
+XDR Pack Should Be Disabled
+    File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
+
+MTR Pack Should Be Enabled
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
+MTR Pack Should Be Disabled
+    File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
+
+Custom Pack Should Be Enabled
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
+    File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf.DISABLED
+Custom Pack Should Be Disabled
+    File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf.DISABLED
+Custom Pack Should Not Exist
+    File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
+    File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf.DISABLED
+
+
+
+
 ScheduleEpoch Should Be Recent
     ${scheduleEpoch} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch
     ${currentEpochTime} =  get_current_epoch_time

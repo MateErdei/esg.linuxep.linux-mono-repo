@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<policy type="LiveQuery" RevID="revId" policyType="56">
+    <configuration>
+        <scheduled>
+            <enabled>true</enabled>
+            <dailyDataLimit>250000000</dailyDataLimit>
+            <queryPacks>
+                <queryPack id="MTR" />
+            </queryPacks>
+        </scheduled>
+    </configuration>
+</policy>

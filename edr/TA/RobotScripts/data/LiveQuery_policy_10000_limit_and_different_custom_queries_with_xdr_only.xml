@@ -6,10 +6,9 @@
             <enabled>true</enabled>
             <queryPacks>
                 <queryPack id="XDR" />
-                <queryPack id="MTR" />
             </queryPacks>
             <customQueries>
-                <customQuery queryName="blah">
+                <customQuery queryName="notblah">
                     <description>basic query</description>
                     <query>SELECT CURRENT_TIMESTAMP AS current_date_time</query>
                     <interval>5</interval>
@@ -18,6 +17,7 @@
                     <denylist>false</denylist>
                 </customQuery>
             </customQueries>
+
         </scheduled>
     </configuration>
 </policy>
