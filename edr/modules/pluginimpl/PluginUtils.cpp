@@ -305,12 +305,14 @@ namespace Plugin
     bool PluginUtils::isQueryPackEnabled(Path queryPackPathWhenEnabled)
     {
         Path queryPackPathWhenDisabled = queryPackPathWhenEnabled + ".DISABLED";
-        if (Common::FileSystem::fileSystem()->isFile(queryPackPathWhenEnabled))
         {
-            return true;
-        }
-        else if (Common::FileSystem::fileSystem()->isFile(queryPackPathWhenDisabled))
-        {
+            if (Common::FileSystem::fileSystem()->isFile(queryPackPathWhenEnabled))
+            {
+                LOGDEBUG(queryPackPathWhenEnabled << " is currently enabled");
+                return true;
+            }
+            else if (Common::FileSystem::fileSystem()->isFile(queryPackPathWhenDisabled))
+                LOGDEBUG( queryPackPathWhenEnabled << " is currently disabled");
             return false;
         }
         throw MissingQueryPackException("Expected at least one of: " + queryPackPathWhenEnabled + " or " + queryPackPathWhenDisabled + " to exist");
