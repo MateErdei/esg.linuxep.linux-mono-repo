@@ -1,3 +1,4 @@
+import datetime
 import subprocess
 import os
 import time
@@ -149,7 +150,7 @@ class EDRPlugin:
                 if p.name() == "osqueryd":
                     return p.pid
             time.sleep(1)
-        raise AssertionError("osqueryd not found in process list: {}".format([p for p in self.process_iter()]))
+        raise AssertionError("osqueryd not found in process list by {}: {}".format(datetime.datetime.now(), [p for p in self.process_iter()]))
 
     def wait_for_osquery_to_stop(self, pid):
         times_run = 0
