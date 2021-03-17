@@ -2,10 +2,11 @@
 <policy type="LiveQuery" RevID="revId" policyType="56">
     <configuration>
         <scheduled>
-            <dailyDataLimit>100000</dailyDataLimit>
             <enabled>true</enabled>
+            <dailyDataLimit>250000000</dailyDataLimit>
             <queryPacks>
                 <queryPack id="XDR" />
+                <queryPack id="MTR" />
             </queryPacks>
         </scheduled>
     </configuration>

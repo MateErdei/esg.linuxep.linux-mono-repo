@@ -3,8 +3,10 @@
     <configuration>
         <scheduled>
             <dailyDataLimit>10000000</dailyDataLimit>
+            <enabled>true</enabled>
             <queryPacks>
-                <queryPack id="queryPackId" />
+                <queryPack id="XDR" />
+                <queryPack id="MTR" />
             </queryPacks>
             <customQueries>
                   <customQuery queryName="blah">
