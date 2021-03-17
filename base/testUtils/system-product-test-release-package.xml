@@ -8,7 +8,7 @@
             <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-2840-increase-query-number-limit-for-edr-taking-the-netlink"/>
             <include artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
