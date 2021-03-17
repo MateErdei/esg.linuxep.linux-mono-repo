@@ -44,7 +44,10 @@ MCS Communicates With Nova Via Message Relay
     Mark Log File  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log
     Wait New MCS Policy Downloaded
     Wait For Server In Cloud
-    Check Marked Mcsrouter Log Contains   Successfully connected to mcs.sandbox.sophos:443 via ${MESSAGE_RELAY_1_HOSTNAME_LOWER}:${MESSAGE_RELAY_1_PORT}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Marked Mcsrouter Log Contains   Successfully connected to mcs.sandbox.sophos:443 via ${MESSAGE_RELAY_1_HOSTNAME_LOWER}:${MESSAGE_RELAY_1_PORT}
 
 
 *** Keywords ***
