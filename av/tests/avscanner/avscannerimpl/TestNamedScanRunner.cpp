@@ -18,6 +18,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 #include <capnp/message.h>
+#include <capnp/serialize.h>
 
 #include <fstream>
 
@@ -182,6 +183,54 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigInvalidFormat) // NOLINT
     {
         ASSERT_EQ(std::string(e.what()), "Aborting: Config file cannot be parsed");
     }
+}
+
+TEST_F(TestNamedScanRunner, TestNamedScanConfigEmptyFile) // NOLINT
+{
+    fs::path emptyFile = "/tmp/TestNamedScanConfigEmptyFile";
+    std::ofstream emptyFileHandle(emptyFile);
+    try
+    {
+        NamedScanRunner runner(emptyFile);
+        FAIL() << "Expected runtime exception";
+    }
+    catch (const std::runtime_error& e)
+    {
+        ASSERT_EQ(std::string(e.what()), "Aborting: Config file cannot be parsed");
+    }
+}
+
+TEST_F(TestNamedScanRunner, TestNamedScanConfigNonUTF8fileName) // NOLINT
+{
+    // echo -n "名前の付いたオンデマンド検索の設定" | iconv -f utf-8 -t euc-jp | hexdump -C
+    std::vector<unsigned char> threatPathBytes { 0xcc, 0xbe, 0xc1, 0xb0, 0xa4, 0xce, 0xc9, 0xd5, 0xa4, 0xa4, 0xa4, 0xbf,
+                                                 0xa5, 0xaa, 0xa5, 0xf3, 0xa5, 0xc7, 0xa5, 0xde, 0xa5, 0xf3, 0xa5, 0xc9,
+                                                 0xb8, 0xa1, 0xba, 0xf7, 0xa4, 0xce, 0xc0, 0xdf, 0xc4, 0xea };
+    std::string eucJPfilename(threatPathBytes.begin(), threatPathBytes.end());
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Builder requestBuilder =
+        message.initRoot<Sophos::ssplav::NamedScan>();
+    requestBuilder.setName(eucJPfilename);
+    requestBuilder.setScanHardDrives(m_scanHardDisc);
+    requestBuilder.setScanNetworkDrives(m_scanNetwork);
+    requestBuilder.setScanCDDVDDrives(m_scanOptical);
+    requestBuilder.setScanRemovableDrives(m_scanRemovable);
+
+    std::ofstream eucJPfileHandle(eucJPfilename);
+    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+    std::string dataAsString(bytes.begin(), bytes.end());
+    eucJPfileHandle << dataAsString;
+    eucJPfileHandle.close();
+
+    NamedScanRunner runner(eucJPfilename);
+    NamedScanConfig config = runner.getConfig();
+    EXPECT_EQ(config.m_scanName, eucJPfilename);
+    EXPECT_EQ(config.m_scanHardDisc, m_scanHardDisc);
+    EXPECT_EQ(config.m_scanNetwork, m_scanNetwork);
+    EXPECT_EQ(config.m_scanOptical, m_scanOptical);
+    EXPECT_EQ(config.m_scanRemovable, m_scanRemovable);
 }
 
 TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
@@ -564,6 +613,46 @@ TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithFileNameExclusions) // NOLINT
     runner.run();
 
     EXPECT_THAT(socket->m_paths, Contains(testfile));
+}
+
+TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithNonUTF8Exclusions) // NOLINT
+{
+    //echo -n "検索から除外するファイル" | iconv -f utf-8 -t euc-jp | hexdump -C
+    std::vector<unsigned char> eucJpFileBytes { 0xb8, 0xa1, 0xba, 0xf7, 0xa4, 0xab, 0xa4, 0xe9,
+                                                0xbd, 0xfc, 0xb3, 0xb0, 0xa4, 0xb9, 0xa4, 0xeb,
+                                                0xa5, 0xd5, 0xa5, 0xa1, 0xa5, 0xa4, 0xa5, 0xeb };
+    std::string eucJPfilename(eucJpFileBytes.begin(), eucJpFileBytes.end());
+
+    fs::path eucJPfilepath = m_testDir / eucJPfilename;
+    std::ofstream eucJPfileHandle(eucJPfilepath.string());
+    eucJPfileHandle << "this file will be excluded";
+    eucJPfileHandle.close();
+
+    std::string utf8filename = "検索から除外するファイル";
+    fs::path utf8filepath = m_testDir / utf8filename;
+    std::ofstream utf8fileHandle(utf8filepath.string());
+    utf8fileHandle << "this file will be included";
+    utf8fileHandle.close();
+
+    m_expectedExclusions.emplace_back(eucJPfilepath);
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
+        message,
+        m_expectedExclusions,
+        m_scanHardDisc,
+        m_scanNetwork,
+        m_scanOptical,
+        m_scanRemovable);
+
+    NamedScanRunner runner(scanConfigOut);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    runner.setSocket(socket);
+    runner.run();
+
+    EXPECT_THAT(socket->m_paths, Not(Contains(eucJPfilepath)));
+    EXPECT_THAT(socket->m_paths, Contains(utf8filepath));
 }
 
 TEST_F(TestNamedScanRunner, TestNamedScanRunnerStopsAtExcludedDirectory) // NOLINT
