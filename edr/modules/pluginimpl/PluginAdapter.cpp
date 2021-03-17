@@ -583,6 +583,7 @@ namespace Plugin
 
         if (flagsHaveChanged)
         {
+            Plugin::PluginUtils::setQueryPacksInPlace(useNextQueryPack);
             m_queueTask->pushOsqueryRestart("Query packs have been enabled or disabled. Restarting osquery to apply changes");
         }
     }
