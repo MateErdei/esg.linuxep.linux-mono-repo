@@ -265,7 +265,7 @@ namespace Plugin
         {
             // custom query pack is not listed in policy, and should always be enabled
             // if it exists and the data limit has not been hit
-            needsOsqueryRestart = needsOsqueryRestart || enableQueryPack(osqueryCustomConfigFilePath());
+            needsOsqueryRestart = enableQueryPack(osqueryCustomConfigFilePath()) || needsOsqueryRestart;
         }
 
         std::vector<std::string> queryPackKeys;

@@ -114,7 +114,6 @@ namespace Plugin
         bool m_isXDR = false;
         std::vector<std::string> m_queryPacksInPolicy;
         void sendLiveQueryStatus();
-        void handleDisablingAndEnablingScheduledQueryPacks();
 
         // If plugin memory exceeds this limit then restart the entire plugin (100 MB)
         static const int MAX_PLUGIN_MEM_BYTES = 100000000;

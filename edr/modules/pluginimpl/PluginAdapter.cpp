@@ -189,7 +189,9 @@ namespace Plugin
             {
                 if ( m_loggerExtensionPtr->checkDataPeriodHasElapsed())
                 {
-                    handleDisablingAndEnablingScheduledQueryPacks();
+                    Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy, m_loggerExtensionPtr->getDataLimitReached());
+                    // add a restart to the the queue
+                    m_queueTask->pushOsqueryRestart("Restarting osquery to apply changes after re-enabling query packs following a data limit rollover");
                     // Enable all query packs that should be enabled
                     // Enable custom query pack if it is disabled
                     sendLiveQueryStatus();
@@ -717,8 +719,7 @@ namespace Plugin
 
         m_queryPacksInPolicy = getEnabledQueryPacksInPolicy(policyAttributesMap);
         //sets osqueryRestartNeeded to true if enabled query packs have changed
-        osqueryRestartNeeded = osqueryRestartNeeded ||
-                               PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy,m_loggerExtensionPtr->getDataLimitReached());
+        osqueryRestartNeeded = PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy,m_loggerExtensionPtr->getDataLimitReached()) || osqueryRestartNeeded;
 
         customQueries = getCustomQueries(policyAttributesMap);
         if (PluginUtils::haveCustomQueriesChanged(customQueries))
@@ -792,14 +793,14 @@ namespace Plugin
         return (now - SCHEDULE_EPOCH_DURATION) > m_scheduleEpoch.getValue();
     }
 
-    void PluginAdapter::handleDisablingAndEnablingScheduledQueryPacks()
-    {
-        bool restartNeeded = Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy, m_loggerExtensionPtr->getDataLimitReached());
-        // add a restart to the the queue
-        if (restartNeeded)
-        {
-            m_queueTask->pushOsqueryRestart("Query packs have been enabled or disabled. Restarting osquery to apply changes");
-        }
-    }
+//    void PluginAdapter::handleDisablingAndEnablingScheduledQueryPacks()
+//    {
+//        bool restartNeeded = Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy, m_loggerExtensionPtr->getDataLimitReached());
+//        // add a restart to the the queue
+//        if (restartNeeded)
+//        {
+//            m_queueTask->pushOsqueryRestart("Query packs have been enabled or disabled. Restarting osquery to apply changes");
+//        }
+//    }
 
 } // namespace Plugin
