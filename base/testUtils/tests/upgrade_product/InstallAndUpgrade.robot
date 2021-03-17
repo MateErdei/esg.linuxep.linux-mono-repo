@@ -143,6 +143,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
     #TODO LINUXDAR-2339 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
 
     Check Mtr Reconnects To Management Agent After Upgrade
 
@@ -276,6 +277,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
     #TODO LINUXDAR-2339 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -451,6 +453,7 @@ Version Copy Versions All Changed Files When Upgrading
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
     #TODO LINUXDAR-2339 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
 
     Check Mtr Reconnects To Management Agent After Upgrade
 
