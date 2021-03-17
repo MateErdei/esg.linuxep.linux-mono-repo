@@ -94,7 +94,7 @@ class EDRPlugin:
         self._proc = subprocess.Popen([_edr_exec_path()])
         # wait for edr to finish waiting for policies it will never get
         self.wait_log_contains("LiveQuery policy has not been sent to the plugin", 15)
-        self.wait_for_osquery_to_run()
+        self.wait_for_osquery_to_be_up_and_stable()
 
     def stop_edr(self):
         """
