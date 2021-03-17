@@ -288,6 +288,10 @@ namespace Plugin
                         LOGDEBUG("Disabling :" << queryPack.second);
                     }
                 }
+                else
+                {
+                    LOGDEBUG("No action needed for: " << queryPack.second);
+                }
             }
             catch (const MissingQueryPackException& exception)
             {
