@@ -43,7 +43,7 @@ EDR Plugin Produces Telemetry When XDR is enabled
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   5 secs
-    ...   Check EDR Log Contains  Process task Updating running_mode flag settings to: 1
+    ...   Check EDR Log Contains  Updating running_mode flag settings to: 1
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   5 secs
@@ -68,7 +68,7 @@ EDR Plugin Produces Telemetry For XDR scheduled queries
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   5 secs
-    ...   Check EDR Log Contains  Process task Updating running_mode flag settings to: 1
+    ...   Check EDR Log Contains  Updating running_mode flag settings to: 1
 
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
@@ -133,7 +133,7 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     ...   5 secs
     ...   Check Log Contains In Order
             ...  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-            ...  Process task Updating running_mode flag settings to: 1
+            ...  Updating running_mode flag settings to: 1
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
 
