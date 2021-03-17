@@ -565,7 +565,6 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithValidPolic
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
     const std::string PLUGIN_VAR_DIR = Plugin::varDir();
-    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).WillOnce(Return(false));
     std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
                                      "<policy type=\"LiveQuery\" RevID=\"987654321\" policyType=\"56\">\n"
                                      "    <configuration>\n"
@@ -624,10 +623,8 @@ TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryPackIsRemovedWhenNoQuerie
                                      "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
                                      "    <configuration>\n"
                                      "        <scheduled>\n"
+                                     "            <enabled>true</enabled>\n"
                                      "            <dailyDataLimit>250000000</dailyDataLimit>\n"
-                                     "            <queryPacks>\n"
-                                     "                <queryPack id=\"queryPackId\" />\n"
-                                     "            </queryPacks>\n"
                                      "        </scheduled>\n"
                                      "    </configuration>\n"
                                      "</policy>";
@@ -637,10 +634,10 @@ TEST_F(PluginAdapterWithMockFileSystem, testCustomQueryPackIsRemovedWhenNoQuerie
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
     EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), "running_mode=0\n"));
+    EXPECT_CALL(*mockFileSystem, writeFile(Plugin::edrConfigFilePath(), "running_mode=1\n"));
 
     EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath())).Times(2).WillRepeatedly(Return(true));
-    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*mockFileSystem, readFile(Plugin::osqueryCustomConfigFilePath())).WillOnce(Return("a value"));
     EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath())).Times(1);
     pluginAdapter.processLiveQueryPolicy(liveQueryPolicy100);
