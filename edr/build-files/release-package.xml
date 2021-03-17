@@ -15,7 +15,7 @@
         </build-asset>
         <build-asset project="winep" repo="livequery">
             <release-version branch="release/2021.07" build-id="20210205194609-7083eb9befef6eb36a3a990fe2aecd5eb2c08016-m0r2UY"/>
-            <development-version branch="feature/LINUXDAR-2693-upgrade-3rd-party-libraries-2nd-task-in-project"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <build-asset project="winep" repo="dbos">
