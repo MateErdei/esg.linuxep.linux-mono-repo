@@ -113,7 +113,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
 
     Wait Until Keyword Succeeds
-    ...   200 secs
+    ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
@@ -134,9 +134,9 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     Trigger Update Now
     Wait Until Keyword Succeeds
-    ...   200 secs
+    ...   300 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
