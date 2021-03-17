@@ -32,6 +32,12 @@ EDR takes netlink once MTR stops running scheduled queries
     fix_dbos_certs_and_restart
     Check Osquery Is Sending Scheduled Query Results
     Check Osquery Respond To LiveQuery
+
+    Wait Until Keyword Succeeds
+    ...  60
+    ...  10
+    ...  Check EDR Log Contains  Number of MTR scheduled queries
+    Check Edr Log Does Not Contain  Triggering reconfiguration of OSQuery due to a change in MTR
     Check Netlink Owned By MTR
 
     # Send config without scheduled queries
