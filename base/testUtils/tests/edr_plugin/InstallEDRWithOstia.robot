@@ -303,7 +303,8 @@ Install master of base and edr and mtr and upgrade to edr 999
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_reload}  ${osquery_pid_before_query_pack_reload}
 
 
-Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
+Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999 and av 999
+    [Timeout]  600
     Install EDR  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
@@ -328,10 +329,20 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ...  120 secs
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Base-component version: 99.9.9
+    Mark Sul Log
+
+    Wait Until Keyword Succeeds
+    ...  180 secs
+    ...  5 secs
+    ...  Check Marked Sul Log Contains     Product installed: ServerProtectionLinux-Base-component
 
     # When waiting for install messages, the order here may not be the actual order, although we are waiting 120 seconds
     # each time, this should take a lot less time overall, max time should be around 120 seconds total for all installing send messages
     # to appear.
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  2 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  2 secs
@@ -345,10 +356,6 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ...  2 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9
 
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  2 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99
 
     # check plugins are running.
     Wait Until Keyword Succeeds
@@ -385,8 +392,8 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
     ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
     Should contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
-    ${av_version_contents} =  Get File  ${AV_DIR}/VERSION.ini
-    Should contain   ${base_version_contents}   PRODUCT_VERSION = 9.99.9
+    ${av_version_contents} =  Get File   ${AV_DIR}/VERSION.ini
+    Should contain   ${av_version_contents}   PRODUCT_VERSION = 9.99.9
     ${live_response_version_contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     Should contain   ${live_response_version_contents}   PRODUCT_VERSION = 99.99.99
 

@@ -50,6 +50,7 @@ class LogUtils(object):
         self.sessions_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "sessions.log")
         self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
+        self.marked_sul_logs = 0
         self.marked_mcsrouter_logs = 0
         self.marked_mcs_envelope_logs = 0
         self.marked_watchdog_logs = 0
@@ -533,6 +534,12 @@ class LogUtils(object):
         managementagent_log = self.managementagent_log()
         self.dump_log(managementagent_log)
 
+    def mark_sul_log(self):
+        sul_log = self.suldownloader_log
+        contents = get_log_contents(sul_log)
+        self.marked_sul_logs = len(contents)
+
+
     def mark_mcs_envelope_log(self):
         mcs_envelope_log = self.mcs_envelope_log()
         contents = get_log_contents(mcs_envelope_log)
@@ -547,6 +554,17 @@ class LogUtils(object):
         managementagent_log = self.managementagent_log()
         contents = get_log_contents(managementagent_log)
         self.marked_managementagent_logs = len(contents)
+
+    def check_marked_sul_log_contains(self, string_to_contain):
+        sul_log = self.suldownloader_log
+        contents = get_log_contents(sul_log)
+
+        contents = contents[self.marked_sul_logs:]
+
+        if string_to_contain not in contents:
+            self.dump_log(sul_log)
+            raise AssertionError("SUL downloader log did not contain: " + string_to_contain)
+
 
     def check_marked_mcs_envelope_log_contains(self, string_to_contain):
         mcs_envelope_log = self.mcs_envelope_log()

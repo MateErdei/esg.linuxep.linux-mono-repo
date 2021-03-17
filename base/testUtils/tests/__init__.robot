@@ -48,6 +48,7 @@ Global Setup Tasks
     Set Global Variable  ${UPDATE_DIR}                  ${SOPHOS_INSTALL}/base/update
     Set Global Variable  ${MTR_DIR}                     ${SOPHOS_INSTALL}/plugins/mtr
     Set Global Variable  ${EDR_DIR}                     ${SOPHOS_INSTALL}/plugins/edr
+    Set Global Variable  ${AV_DIR}                      ${SOPHOS_INSTALL}/plugins/av
     Set Global Variable  ${LIVERESPONSE_DIR}            ${SOPHOS_INSTALL}/plugins/liveresponse
     Set Global Variable  ${UPDATE_CONFIG}               ${UPDATE_DIR}/var/updatescheduler/update_config.json
     Set Global Variable  ${UPDATECACHE_CERT_PATH}       ${UPDATE_DIR}/updatecachecerts/cache_certificates.crt
