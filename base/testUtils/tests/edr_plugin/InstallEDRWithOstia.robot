@@ -180,8 +180,6 @@ Install all plugins 999 then downgrade to all plugins develop
     ...   10 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
 
-    #Wait for first update
-
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
     ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
