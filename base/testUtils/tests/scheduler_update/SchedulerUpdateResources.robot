@@ -330,6 +330,7 @@ Simulate Send Policy And Run Update And Return Event Path
     ${eventPath} =  Check Status and Events Are Created  waitTime=20 secs
     [Return]  ${eventPath}
 
+
 Simulate Send Policy And Run Update
     [Arguments]  ${Policy}  &{kwargs}
     Remove File   ${statusPath}

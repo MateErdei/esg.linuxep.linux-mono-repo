@@ -33,13 +33,25 @@ Test MDR Plugin Can Be Installed Removed and ReInstalled From Central
     Check MDR Installed
 
     Set Log Level For Component And Reset and Return Previous Log  suldownloader  DEBUG
-    Simulate Send Policy And Run Update And Check Success  ${MDR_VUT_POLICY}   remove_features=MDR   remove_subscriptions=MDR
+    #Simulate Send Policy And Run Update And Check Success  ${MDR_VUT_POLICY}   remove_features=MDR   remove_subscriptions=MDR
+    Simulate Send Policy And Run Update    ${MDR_VUT_POLICY}   remove_features=MDR   remove_subscriptions=MDR
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  3 secs
     ...  Check MDR Uninstalled
 
-    Simulate Send Policy And Run Update And Check Success  ${MDR_VUT_POLICY}
+    #Simulate Send Policy And Run Update And Check Success  ${MDR_VUT_POLICY}
+    Simulate Send Policy And Run Update  ${MDR_VUT_POLICY}
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
     Check MDR Installed
 
 

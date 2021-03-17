@@ -131,7 +131,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   10 secs
+    ...   2 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     #confirm that the warehouse flags supplement is installed when upgrading
@@ -203,7 +203,7 @@ VersionCopy File in the Wrong Location Is Removed
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -309,7 +309,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   10 secs
+    ...   2 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     #the query pack should have been re-installed
@@ -383,7 +383,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   10 secs
+    ...   2 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     # ensure that the list of files to remove contains files which are outside of the components realm
@@ -439,12 +439,12 @@ Version Copy Versions All Changed Files When Upgrading
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Trigger Update Now
+    #Trigger Update Now
 
 
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   10 secs
+    ...   2 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
 
@@ -519,7 +519,7 @@ Update Will Be Forced When Feature List Changes Without Unexpected Errors
     # Update should be automatically invoke due to policy
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   10 secs
+    ...   2 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
@@ -554,7 +554,7 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
      # Update should be automatically invoke due to policy
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   10 secs
+    ...   2 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2

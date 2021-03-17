@@ -175,7 +175,12 @@ Install all plugins 999 then downgrade to all plugins develop
     ...  5 secs
     ...  EDR Plugin Is Running
 
-    Wait for first update
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
+
+    #Wait for first update
 
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
@@ -196,9 +201,8 @@ Install edr 999 and downgrade to current edr
     Override LogConf File as Global Level  DEBUG
 
     Wait for first update
+    # This policy change will trigger another update automatically
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
-
-    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  120 secs
@@ -209,7 +213,7 @@ Install edr 999 and downgrade to current edr
 
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   10 secs
+    ...   2 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     Check MDR Plugin Installed
@@ -278,7 +282,7 @@ Install master of base and edr and mtr and upgrade to edr 999
 
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   10 secs
+    ...   2 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
@@ -355,7 +359,7 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Check MDR Plugin Installed
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   10 secs
+    ...   2 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     # Check for warning that there is a naming collision in the map of query tags
