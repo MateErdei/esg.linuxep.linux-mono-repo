@@ -227,15 +227,18 @@ function install_product()
     done
 
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
+    chown -R ${USER_NAME}:${GROUP_NAME} ${CHROOT}/${SOPHOS_INSTALL}
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
     find ${CHROOT}/${SOPHOS_INSTALL} -type d -exec chown root:${GROUP_NAME} {} \;
 
     mkdir -p ${CHROOT}/etc
     chmod 0770 ${CHROOT}/etc
+    chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/etc"
     chown root:${GROUP_NAME} "${CHROOT}/etc"
 
     mkdir -p "${CHROOT}/log"
     chmod 0770 "${CHROOT}/log"
+    chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/log"
     chown root:${GROUP_NAME} "${CHROOT}/log"
 
     chmod 0750 ${CHROOT}/susi
@@ -247,6 +250,7 @@ function install_product()
 
     mkdir -p ${CHROOT}/var
     chmod 0771 ${CHROOT}/var
+    chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/var"
     chown root:${GROUP_NAME} "${CHROOT}/var"
 
     chmod 0711 ${CHROOT}

@@ -270,6 +270,10 @@ Check installer corrects permissions of var directory on upgrade
 
     File Log Does Not Contain  Check Marked Watchdog Log Contains  Failed to create file: '${customerIdFile}', Permission denied
 
+    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
+    Should Be Equal As Integers  ${rc}  0
+    Should Be Empty  ${output}
+
 Check installer corrects permissions of logs directory on upgrade
     Register On Fail  dump watchdog log
     Mark Watchdog Log
@@ -286,6 +290,32 @@ Check installer corrects permissions of logs directory on upgrade
     Should Be Equal As Integers  ${rc}  0
     Should Be Empty  ${output}
 
+Check installer corrects permissions of chroot files on upgrade
+    Register On Fail  dump watchdog log
+    Mark Watchdog Log
+    Change Owner  ${AV_LOG_PATH}  sophos-spl-user  sophos-spl-group
+    Change Owner  ${THREAT_DETECTOR_LOG_PATH}  sophos-spl-user  sophos-spl-group
+    ${customerIdFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt
+    Create file   ${customerIdFile}
+    Change Owner  ${customerIdFile}  sophos-spl-user  sophos-spl-group
+    Change Owner  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/av/VERSION.ini  sophos-spl-user  sophos-spl-group
+    ${loggerConfFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/base/etc/logger.conf
+    Create file   ${loggerConfFile}
+    Change Owner  ${loggerConfFile}  sophos-spl-user  sophos-spl-group
+    ${machineIDFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/base/etc/machine_id.txt
+    Create file   ${machineIDFile}
+    Change Owner  ${machineIDFile}  sophos-spl-user  sophos-spl-group
+    Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/host.conf  sophos-spl-user  sophos-spl-group
+    Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/nsswitch.conf  sophos-spl-user  sophos-spl-group
+    Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/resolv.conf  sophos-spl-user  sophos-spl-group
+    Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/ld.so.cache  sophos-spl-user  sophos-spl-group
+    Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/hosts  sophos-spl-user  sophos-spl-group
+    Modify manifest
+    Install AV Directly from SDDS
+
+    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
+    Should Be Equal As Integers  ${rc}  0
+    Should Be Empty  ${output}
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
