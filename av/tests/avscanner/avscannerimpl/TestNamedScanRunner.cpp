@@ -185,9 +185,22 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigInvalidFormat) // NOLINT
     }
 }
 
+TEST_F(TestNamedScanRunner, TestNamedScanConfigBinaryContents) // NOLINT
+{
+    try
+    {
+        NamedScanRunner runner("/bin/bash");
+        FAIL() << "Expected runtime exception";
+    }
+    catch (const std::runtime_error& e)
+    {
+        ASSERT_EQ(std::string(e.what()), "Aborting: Config file cannot be parsed");
+    }
+}
+
 TEST_F(TestNamedScanRunner, TestNamedScanConfigEmptyFile) // NOLINT
 {
-    fs::path emptyFile = "/tmp/TestNamedScanConfigEmptyFile";
+    fs::path emptyFile = m_testDir / "TestNamedScanConfigEmptyFile";
     std::ofstream emptyFileHandle(emptyFile);
     try
     {
@@ -197,6 +210,39 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigEmptyFile) // NOLINT
     catch (const std::runtime_error& e)
     {
         ASSERT_EQ(std::string(e.what()), "Aborting: Config file cannot be parsed");
+    }
+}
+
+TEST_F(TestNamedScanRunner, TestNamedScanConfigNoPermission) // NOLINT
+{
+    fs::path noPermsFile = "TestNamedScanConfigNoPermissionsFile";
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Builder requestBuilder =
+        message.initRoot<Sophos::ssplav::NamedScan>();
+    requestBuilder.setName(noPermsFile);
+    requestBuilder.setScanHardDrives(m_scanHardDisc);
+    requestBuilder.setScanNetworkDrives(m_scanNetwork);
+    requestBuilder.setScanCDDVDDrives(m_scanOptical);
+    requestBuilder.setScanRemovableDrives(m_scanRemovable);
+
+    fs::path noPermsFilePath = m_testDir / noPermsFile;
+    std::ofstream noPermsFileHandle(noPermsFilePath);
+    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+    std::string dataAsString(bytes.begin(), bytes.end());
+    noPermsFileHandle << dataAsString;
+    noPermsFileHandle.close();
+    fs::permissions(noPermsFilePath, fs::perms::none);
+
+    try
+    {
+        NamedScanRunner runner(noPermsFilePath);
+        FAIL() << "Expected runtime exception";
+    }
+    catch (const std::runtime_error& e)
+    {
+        ASSERT_EQ(std::string(e.what()), "Failed to open config");
     }
 }
 
@@ -217,16 +263,48 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigNonUTF8fileName) // NOLINT
     requestBuilder.setScanCDDVDDrives(m_scanOptical);
     requestBuilder.setScanRemovableDrives(m_scanRemovable);
 
-    std::ofstream eucJPfileHandle(eucJPfilename);
+    fs::path eucJPfilePath = m_testDir / eucJPfilename;
+    std::ofstream eucJPfileHandle(eucJPfilePath);
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
     kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
     std::string dataAsString(bytes.begin(), bytes.end());
     eucJPfileHandle << dataAsString;
     eucJPfileHandle.close();
 
-    NamedScanRunner runner(eucJPfilename);
+    NamedScanRunner runner(eucJPfilePath);
     NamedScanConfig config = runner.getConfig();
     EXPECT_EQ(config.m_scanName, eucJPfilename);
+    EXPECT_EQ(config.m_scanHardDisc, m_scanHardDisc);
+    EXPECT_EQ(config.m_scanNetwork, m_scanNetwork);
+    EXPECT_EQ(config.m_scanOptical, m_scanOptical);
+    EXPECT_EQ(config.m_scanRemovable, m_scanRemovable);
+}
+
+TEST_F(TestNamedScanRunner, TestNamedScanConfigLargeFile) // NOLINT
+{
+    std::string largeScanConfigFilename = "TestNamedScanConfigLargeFile";
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Builder requestBuilder =
+        message.initRoot<Sophos::ssplav::NamedScan>();
+    requestBuilder.setName(largeScanConfigFilename);
+    requestBuilder.setScanHardDrives(m_scanHardDisc);
+    requestBuilder.setScanNetworkDrives(m_scanNetwork);
+    requestBuilder.setScanCDDVDDrives(m_scanOptical);
+    requestBuilder.setScanRemovableDrives(m_scanRemovable);
+
+    fs::path largeScanConfigPath = m_testDir / largeScanConfigFilename;
+    std::ofstream largeScanConfigHandle(largeScanConfigPath);
+    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+    std::string dataAsString(bytes.begin(), bytes.end());
+    // Append data 3x to make the file 3x the expected size
+    largeScanConfigHandle << dataAsString << dataAsString << dataAsString;
+    largeScanConfigHandle.close();
+
+    NamedScanRunner runner(largeScanConfigPath);
+    NamedScanConfig config = runner.getConfig();
+    EXPECT_EQ(config.m_scanName, largeScanConfigFilename);
     EXPECT_EQ(config.m_scanHardDisc, m_scanHardDisc);
     EXPECT_EQ(config.m_scanNetwork, m_scanNetwork);
     EXPECT_EQ(config.m_scanOptical, m_scanOptical);
