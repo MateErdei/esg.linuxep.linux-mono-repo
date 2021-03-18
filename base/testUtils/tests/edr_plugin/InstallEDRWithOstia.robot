@@ -252,6 +252,8 @@ Install master of base and edr and mtr and upgrade to edr 999
     ${query_pack_vut} =  Get File  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_before_query_pack_reload} =  Get Edr OsQuery PID
     Wait for first update
+
+    Mark Edr Log
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
     Trigger Update Now
 
@@ -268,8 +270,11 @@ Install master of base and edr and mtr and upgrade to edr 999
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  2 secs
-    ...  Check EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf for query tags
-    Check EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf for query tags
+    ...  Check Marked EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf for query tags
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check Marked EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf for query tags
 
     Wait Until Keyword Succeeds
     ...   200 secs
@@ -543,3 +548,20 @@ Wait for first update
         ...   10 secs
         ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
+Mark File
+    [Arguments]  ${path}
+    ${content} =  Get File   ${path}
+    Log  ${content}
+    [Return]  ${content.split("\n").__len__()}
+
+Marked File Contains
+    [Arguments]  ${path}  ${input}  ${mark}
+    ${content} =  Get File   ${path}
+    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
+    Should Contain  ${content}  ${input}
+
+Marked File Does Not Contain
+    [Arguments]  ${path}  ${input}  ${mark}
+    ${content} =  Get File   ${path}
+    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
+    Should Not Contain  ${content}  ${input}
