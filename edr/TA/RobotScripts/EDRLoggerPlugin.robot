@@ -56,7 +56,6 @@ EDR Plugin Tags All Queries Correctly
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
-#    Enable XDR
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
     #restart edr so that the altered queries are read in and debug mode applied
@@ -154,7 +153,6 @@ EDR Plugin Runs All Scheduled Queries
     Create Debug Level Logger Config File
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-#    Enable XDR
 
     #restart edr so that the altered queries are read in and debug mode applied
     Restart EDR
@@ -223,7 +221,6 @@ EDR Plugin Send LiveQuery Status On Period Rollover
     Create Debug Level Logger Config File
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Install EDR Directly from SDDS
-#    Enable XDR
 
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrPeriodTimestamp  10
@@ -251,10 +248,6 @@ EDR Plugin Respects Data Limit
     ...  1 secs
     ...  EDR Plugin Log Contains  First LiveQuery policy received
     Expect New Datalimit  10000
-#    Enable XDR
-
-    # Restart edr so that the altered queries are read in and debug mode applied
-#    Restart EDR
 
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -613,10 +606,6 @@ EDR Plugin Respects Data Limit When Applying New Live Query Policy With Differen
     ...  1 secs
     ...  EDR Plugin Log Contains  First LiveQuery policy received
     Expect New Datalimit  10000
-#    Enable XDR
-
-    # Restart edr so that the altered queries are read in and debug mode applied
-#    Restart EDR
 
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -649,10 +638,6 @@ EDR Plugin Respects Data Limit When Applying New Live Query Policy With Differen
     Custom Pack Should Be Disabled
 
 *** Keywords ***
-#Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-#Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-#Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-#Run Keyword If Test Failed  Log File  /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
 Apply Live Query Policy And Wait For Query Pack Changes
     [Arguments]  ${policy}
     ${mark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
