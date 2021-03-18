@@ -274,12 +274,17 @@ Check installer corrects permissions of logs directory on upgrade
     Register On Fail  dump watchdog log
     Mark Watchdog Log
     Change Owner  ${AV_LOG_PATH}  sophos-spl-user  sophos-spl-group
+    Change Owner  ${THREAT_DETECTOR_LOG_PATH}  sophos-spl-user  sophos-spl-group
     Modify manifest
     Install AV Directly from SDDS
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
     File Log Does Not Contain  Check Marked Watchdog Log Contains  log4cplus:ERROR Unable to open file: ${AV_LOG_PATH}
+
+    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
+    Should Be Equal As Integers  ${rc}  0
+    Should Be Empty  ${output}
 
 
 *** Variables ***

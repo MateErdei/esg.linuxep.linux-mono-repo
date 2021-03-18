@@ -191,6 +191,8 @@ function install_product()
     mkdir -p "${PLUGIN_INSTALL}/log"
     chmod 0770 "${PLUGIN_INSTALL}/log"
     chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
+    # Also change ownership of sophos_threat_detector log which gets missed by above chown
+    chown ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/log/sophos_threat_detector/sophos_threat_detector.log"
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
 
     mkdir -p "${PLUGIN_INSTALL}/var"
