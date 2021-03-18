@@ -547,21 +547,3 @@ Wait for first update
         ...   60 secs
         ...   10 secs
         ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-Mark File
-    [Arguments]  ${path}
-    ${content} =  Get File   ${path}
-    Log  ${content}
-    [Return]  ${content.split("\n").__len__()}
-
-Marked File Contains
-    [Arguments]  ${path}  ${input}  ${mark}
-    ${content} =  Get File   ${path}
-    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
-    Should Contain  ${content}  ${input}
-
-Marked File Does Not Contain
-    [Arguments]  ${path}  ${input}  ${mark}
-    ${content} =  Get File   ${path}
-    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
-    Should Not Contain  ${content}  ${input}
