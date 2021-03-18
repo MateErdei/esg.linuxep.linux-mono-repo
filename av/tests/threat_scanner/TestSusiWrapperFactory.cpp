@@ -21,6 +21,12 @@ namespace
     public:
 
         void setupFilesForTestingGlobalRep();
+        void setupEmptySusiStartupFile();
+        void writeBinaryToSusiStartupFile();
+        void writeLargeSusiStartupFile();
+        void writeToSusiStartupFile(std::string susiStartupContents);
+
+        fs::path getSusiStartupPath() { return m_susiStartupPath; }
     protected:
         void SetUp() override
         {
@@ -39,47 +45,92 @@ namespace
             fs::remove_all(m_testDir);
         }
 
+        void createTestFolderAndSetupPaths()
+        {
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData("SOPHOS_INSTALL", m_testDir);
+            PLUGIN_INSTALL = m_testDir;
+            PLUGIN_INSTALL /= "plugins/av";
+            appConfig.setData("PLUGIN_INSTALL", PLUGIN_INSTALL);
+
+            fs::path m_fakeEtcPath  = m_testDir;
+            m_fakeEtcPath  /= "base/etc";
+            m_machineIdpath = m_fakeEtcPath;
+            m_machineIdpath /= "machine_id.txt";
+
+            m_customerIdPath = PLUGIN_INSTALL;
+            m_customerIdPath /= "var/customer_id.txt";
+            auto varDirectory = m_customerIdPath.parent_path();
+
+            m_susiStartupPath = PLUGIN_INSTALL;
+            m_susiStartupPath /= "var/susi_startup_settings.json";
+
+            fs::create_directories(m_fakeEtcPath);
+            fs::create_directories(varDirectory);
+        }
+
+        fs::path PLUGIN_INSTALL;
         fs::path m_testDir;
+
+        fs::path m_machineIdpath;
+        fs::path m_customerIdPath;
+        fs::path m_susiStartupPath;
     };
 }
 
 void TestSusiWrapperFactory::setupFilesForTestingGlobalRep()
 {
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    appConfig.setData("SOPHOS_INSTALL", m_testDir);
-    fs::path PLUGIN_INSTALL = m_testDir;
-    PLUGIN_INSTALL /= "plugins/av";
-    appConfig.setData("PLUGIN_INSTALL", PLUGIN_INSTALL);
+    createTestFolderAndSetupPaths();
 
-    fs::path fakeEtcDirectory  = m_testDir;
-    fakeEtcDirectory  /= "base/etc";
-    fs::path machineIdFilePath = fakeEtcDirectory;
-    machineIdFilePath /= "machine_id.txt";
-
-    fs::path customerIdFilePath = PLUGIN_INSTALL;
-    customerIdFilePath /= "var/customer_id.txt";
-    auto varDirectory = customerIdFilePath.parent_path();
-
-    fs::path susiSettingsFilePath = PLUGIN_INSTALL;
-    susiSettingsFilePath /= "var/susi_startup_settings.json";
-
-    fs::create_directories(fakeEtcDirectory);
-    fs::create_directories(varDirectory);
-
-    std::ofstream machineIdFile(machineIdFilePath);
+    std::ofstream machineIdFile(m_machineIdpath);
     ASSERT_TRUE(machineIdFile.good());
     machineIdFile << "ab7b6758a3ab11ba8a51d25aa06d1cf4";
     machineIdFile.close();
 
-    std::ofstream customerIdFileStream(customerIdFilePath);
+    std::ofstream customerIdFileStream(m_customerIdPath);
     ASSERT_TRUE(customerIdFileStream.good());
     customerIdFileStream << "d22829d94b76c016ec4e04b08baeffaa";
     customerIdFileStream.close();
+}
 
-    std::ofstream susiSettingsFileStream(susiSettingsFilePath);
+void TestSusiWrapperFactory::setupEmptySusiStartupFile()
+{
+    writeToSusiStartupFile("");
+}
+
+void TestSusiWrapperFactory::writeToSusiStartupFile(std::string susiStartupContents)
+{
+    createTestFolderAndSetupPaths();
+
+    std::ofstream susiSettingsFileStream(m_susiStartupPath);
     ASSERT_TRUE(susiSettingsFileStream.good());
-    susiSettingsFileStream << R"sophos({"enableSxlLookup":false})sophos";
+    susiSettingsFileStream << susiStartupContents;
     susiSettingsFileStream.close();
+}
+
+void TestSusiWrapperFactory::writeBinaryToSusiStartupFile()
+{
+    createTestFolderAndSetupPaths();
+
+    char buffer[100];
+
+    std::ofstream susiSettingsFileStream(m_susiStartupPath, std::ios::out | std::ios::binary);
+    ASSERT_TRUE(susiSettingsFileStream.good());
+    susiSettingsFileStream.write(buffer, 100);
+    susiSettingsFileStream.close();
+}
+
+void TestSusiWrapperFactory::writeLargeSusiStartupFile()
+{
+    std::ostringstream largeContents;
+    largeContents << "{\"enableSxlLookup\":false, ";
+
+    for (int i = 0; i < 100000; i++)
+    {
+        largeContents << "\"fakeEntry" << i << "\": \"" << i << "\", ";
+    }
+    largeContents << R"("finalFakeEntry": "last"})";
+    writeToSusiStartupFile(largeContents.str());
 }
 
 TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsUnknown) // NOLINT
@@ -90,11 +141,6 @@ TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsUnknown) // NOLINT
 TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsUnknown) // NOLINT
 {
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
-}
-
-TEST_F(TestSusiWrapperFactory, isSxlLookupEnabledReturnsUnknown) // NOLINT
-{
-    EXPECT_TRUE(isSxlLookupEnabled());
 }
 
 TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsId) // NOLINT
@@ -111,6 +157,84 @@ TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsId) // NOLINT
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabledReturnsFalse) // NOLINT
 {
-    setupFilesForTestingGlobalRep();
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":false})sophos");
+    EXPECT_FALSE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabledReturnsTrue) // NOLINT
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":true})sophos");
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_doesNotExist) // NOLINT
+{
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_emptyFile)
+{
+    setupEmptySusiStartupFile();
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_invalidJson)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":false)sophos");
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_unexpectedValue)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":"false"})sophos");
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_multipleValuesEqual)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":false, "enableSxlLookup":false})sophos");
+    EXPECT_FALSE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_multipleValuesFalseLast)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":true, "enableSxlLookup":false})sophos");
+    EXPECT_FALSE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_multipleValuesTrueLast)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":false, "enableSxlLookup":true})sophos");
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_manyMultipleValuesTrueLast)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":false, "enableSxlLookup":true, "enableSxlLookup":true, "enableSxlLookup":false, "enableSxlLookup":true})sophos");
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_array)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":[false]})sophos");
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_binaryFile)
+{
+    writeBinaryToSusiStartupFile();
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_wrongPermissions)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":false})sophos");
+    fs::permissions(getSusiStartupPath(), fs::perms::none);
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_veryLargeFile)
+{
+    writeLargeSusiStartupFile();
     EXPECT_FALSE(isSxlLookupEnabled());
 }
