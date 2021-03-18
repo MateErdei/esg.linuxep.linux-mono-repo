@@ -127,7 +127,6 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Mark Watchdog Log
     Mark Managementagent Log
 
-    Trigger Update Now
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
