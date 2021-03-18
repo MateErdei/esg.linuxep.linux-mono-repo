@@ -57,6 +57,31 @@ class TestHandleJson(unittest.TestCase):
 
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     @mock.patch('os.path.exists', return_value=True)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"size":48,"time_sent":-34}}""")
+    def test_read_datafeed_tracker_handles_negative_timestamp(self, *mockargs):
+        expected = {"size": 48, "time_sent": -34}
+        data = mcsrouter.utils.handle_json.read_datafeed_tracker()
+        self.assertEqual(data, expected)
+
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    @mock.patch('os.path.exists', return_value=True)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"size":-48,"time_sent": {int(DUMMY_TIMESTAMP)}}}""")
+    def test_read_datafeed_tracker_handles_negative_size(self, *mockargs):
+        expected = {"size": -48, "time_sent": int(DUMMY_TIMESTAMP)}
+        data = mcsrouter.utils.handle_json.read_datafeed_tracker()
+        self.assertEqual(data, expected)
+
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    @mock.patch('os.path.exists', return_value=True)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"size":"hello","time_sent":
+    100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000}}""")
+    def test_read_datafeed_tracker_large_time(self, *mockargs):
+        expected = {"size": 0, "time_sent": 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000}
+        data = mcsrouter.utils.handle_json.read_datafeed_tracker()
+        self.assertEqual(data, expected)\
+
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    @mock.patch('os.path.exists', return_value=True)
     @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"size":0,"time_sent":{int(DUMMY_TIMESTAMP)-200}, "randomfield":"blah"}}""")
     def test_read_datafeed_tracker_handles_extra_field(self, *mockargs):
         expected = {"randomfield":"blah","size": 0, "time_sent": int(DUMMY_TIMESTAMP)-200}
