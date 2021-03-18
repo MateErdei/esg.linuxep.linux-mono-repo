@@ -434,7 +434,7 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     # Inject query pack and initial data limit period into SDDS
     Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   120
 
-    Install EDR Directly from SDDS
+    Install EDR Directly from SDDS  10
 
     Wait Until Keyword Succeeds
     ...  10 secs
