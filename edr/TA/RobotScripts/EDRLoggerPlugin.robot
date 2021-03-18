@@ -603,7 +603,6 @@ Test Query Packs Are Enabled And Disabled By Policy
     Custom Pack Should Not Exist
 
 EDR Plugin Respects Data Limit When Applying New Live Query Policy With Different Packs Enabled And New Custom Queries
-    [Tags]  DO
     [Setup]  No Operation
     Install Base For Component Tests
     Create Debug Level Logger Config File
