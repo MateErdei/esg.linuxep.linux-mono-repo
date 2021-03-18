@@ -82,9 +82,9 @@ class TestHandleJson(unittest.TestCase):
 
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     @mock.patch('os.path.exists', return_value=True)
-    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"size":0,"time_sent":{int(DUMMY_TIMESTAMP)-200}, "randomfield":"blah"}}""")
+    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"size":0,"time_sent":{int(DUMMY_TIMESTAMP)-200},"randomfield":"blah"}}""")
     def test_read_datafeed_tracker_handles_extra_field(self, *mockargs):
-        expected = {"randomfield":"blah","size": 0, "time_sent": int(DUMMY_TIMESTAMP)-200}
+        expected = {"randomfield": "blah", "size": 0, "time_sent": int(DUMMY_TIMESTAMP)-200}
         data = mcsrouter.utils.handle_json.read_datafeed_tracker()
         self.assertEqual(data, expected)
 
@@ -111,6 +111,24 @@ class TestHandleJson(unittest.TestCase):
         expected = {"size": 0, "time_sent": int(DUMMY_TIMESTAMP)-200}
         data = mcsrouter.utils.handle_json.read_datafeed_tracker()
         self.assertEqual(data, expected)
+
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    @mock.patch('os.path.exists', return_value=True)
+    def test_read_datafeed_tracker_handles_permission_error(self, *mockargs):
+        with patch('builtins.open') as mock_open:
+            mock_open.side_effect = PermissionError
+            expected = {"size": 0, "time_sent": int(DUMMY_TIMESTAMP)}
+            data = mcsrouter.utils.handle_json.read_datafeed_tracker()
+            self.assertEqual(data, expected)
+
+    @mock.patch("logging.Logger.info")
+    @mock.patch('os.chmod')
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    def test_update_datafeed_tracker_does_not_throw_on_permission_error(self, *mockargs):
+        with patch('builtins.open') as mock_open:
+            mock_open.side_effect = PermissionError
+            from_file = {"size": 3, "time_sent": 0}
+            mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 42)
 
     @mock.patch("logging.Logger.info")
     @mock.patch('builtins.open', new_callable=mock_open)

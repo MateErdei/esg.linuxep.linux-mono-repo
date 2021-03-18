@@ -103,9 +103,13 @@ def update_datafeed_tracker(datafeed_info, size):
         datafeed_info['time_sent'] = current_time
         datafeed_info['size'] = 0
 
-    with open(tracker_filepath, 'w') as outfile:
-        json.dump(datafeed_info, outfile)
-    os.chmod(tracker_filepath, 0o640)
+    try:
+        with open(tracker_filepath, 'w') as outfile:
+            json.dump(datafeed_info, outfile)
+            os.chmod(tracker_filepath, 0o640)
+    except PermissionError as e:
+        LOGGER.warning(f"Cannot update file {tracker_filepath} with error : {e}")
+
 
 def update_datafeed_size(size):
     datafeed_info = read_datafeed_tracker()
