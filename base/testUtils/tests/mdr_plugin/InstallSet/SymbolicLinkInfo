@@ -24,7 +24,7 @@ o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libstdc++.so.6.0.25
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libzmq.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libzmq.so.5
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libzmq.so.5.2
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libzmq.so.5.2.3
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libzmq.so.5.2.4
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libz.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libz.so.1
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libz.so.1.2
