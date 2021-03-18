@@ -157,8 +157,9 @@ Verify Status Message Sent When Registering With Central And Event And Status Se
 
     Wait Until Keyword Succeeds
     ...   150 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent   2
+
 
     Wait Until Keyword Succeeds
     ...   150 secs
