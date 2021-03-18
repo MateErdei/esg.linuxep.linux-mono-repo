@@ -41,6 +41,18 @@ Basic XDR Datafeed size is logged
     ...  10s
     ...  1s
     ...  Check MCS Router Log Contains    we have sent 0.447kB of scheduled query data to Central
+Large XDR Datafeed size is logged
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Copy file  ${SUPPORT_FILES}/CentralXml/large_size_datafeed_tracker  ${SOPHOS_INSTALL}/base/etc/sophosspl/datafeed_tracker
+    Start MCSRouter
+    ${json_to_send} =   Set Variable  {"abc":"def123"}
+    send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
+    Check Cloud Server Log For Scheduled Query   scheduled_query
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...  Check MCS Router Log Contains    we have sent 0.447kB of scheduled query data to Central
 
 Invalid Datafeed Filename Not Sent But Does not Block Other Datafeed Files
     [Documentation]  Written to test the eact scenario set out in LINUXDAR-2463
