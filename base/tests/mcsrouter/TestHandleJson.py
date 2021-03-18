@@ -57,6 +57,30 @@ class TestHandleJson(unittest.TestCase):
 
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     @mock.patch('os.path.exists', return_value=True)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"size":0,"time_sent":{int(DUMMY_TIMESTAMP)-200}, "randomfield":"blah"}}""")
+    def test_read_datafeed_tracker_handles_extra_field(self, *mockargs):
+        expected = {"randomfield":"blah","size": 0, "time_sent": int(DUMMY_TIMESTAMP)-200}
+        data = mcsrouter.utils.handle_json.read_datafeed_tracker()
+        self.assertEqual(data, expected)
+
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    @mock.patch('os.path.exists', return_value=True)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""""")
+    def test_read_datafeed_tracker_handles_empty_json(self, *mockargs):
+        expected = {"size": 0, "time_sent": int(DUMMY_TIMESTAMP)}
+        data = mcsrouter.utils.handle_json.read_datafeed_tracker()
+        self.assertEqual(data, expected)
+
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    @mock.patch('os.path.exists', return_value=True)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{,}}""")
+    def test_read_datafeed_tracker_handles_invalid_json(self, *mockargs):
+        expected = {"size": 0, "time_sent": int(DUMMY_TIMESTAMP)}
+        data = mcsrouter.utils.handle_json.read_datafeed_tracker()
+        self.assertEqual(data, expected)
+
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    @mock.patch('os.path.exists', return_value=True)
     @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"time_sent":{int(DUMMY_TIMESTAMP)-200}}}""")
     def test_read_datafeed_tracker_handles_missing_size_value_in_json(self, *mockargs):
         expected = {"size": 0, "time_sent": int(DUMMY_TIMESTAMP)-200}
