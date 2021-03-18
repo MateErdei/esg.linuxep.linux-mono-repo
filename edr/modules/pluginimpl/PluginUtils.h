@@ -48,6 +48,12 @@ namespace Plugin
         static std::pair<std::string, std::string> getRunningQueryPackFilePaths();
 
         /**
+        * Compares the running query packs and the next staging query packs and returns whether there is a difference
+        * @returns Whether the next query packs need to be reloaded
+        */
+        static bool nextQueryPacksShouldBeReloaded();
+
+        /**
         * Overwrites the content of scheduled query packs with the correct contents based on the flag
         * @param useNextQueryPack
         */

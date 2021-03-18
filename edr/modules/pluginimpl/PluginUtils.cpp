@@ -169,6 +169,39 @@ namespace Plugin
         return {targetMtrFilePath, targetXdrFilePath};
     }
 
+    bool PluginUtils::nextQueryPacksShouldBeReloaded()
+    {
+        auto* ifileSystem = Common::FileSystem::fileSystem();
+        std::pair<std::string, std::string> runningPaths = PluginUtils::getRunningQueryPackFilePaths();
+        try
+        {
+            bool mtrNextPackChanged = false;
+            bool xdrNextPackChanged = false;
+
+            std::string currentMTRFileContents = ifileSystem->readFile(runningPaths.first);
+            std::string stagingMTRFileContents = ifileSystem->readFile(Plugin::osqueryNextMTRConfigStagingFilePath());
+            if (currentMTRFileContents != stagingMTRFileContents)
+            {
+                mtrNextPackChanged = true;
+            }
+
+            std::string currentXDRFileContents = ifileSystem->readFile(runningPaths.second);
+            std::string stagingXDRFileContents = ifileSystem->readFile(Plugin::osqueryNextXDRConfigStagingFilePath());
+            if (currentXDRFileContents != stagingXDRFileContents)
+            {
+                xdrNextPackChanged = true;
+            }
+
+            return (mtrNextPackChanged || xdrNextPackChanged);
+        }
+        catch (Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR("Cannot compare query pack files due to exception: " << e.what() << ". Assuming difference.");
+        }
+
+        return true;
+    }
+
     void PluginUtils::setQueryPacksInPlace(const bool& useNextQueryPack)
     {
         std::pair<std::string,std::string> targetFiles = getRunningQueryPackFilePaths();

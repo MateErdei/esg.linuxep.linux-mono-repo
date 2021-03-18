@@ -627,6 +627,15 @@ namespace Plugin
             stopOsquery();
             m_restartNoDelay = true;
         }
+        else if (useNextQueryPack)
+        {
+            if (PluginUtils::nextQueryPacksShouldBeReloaded())
+            {
+                Plugin::PluginUtils::setQueryPacksInPlace(useNextQueryPack);
+                m_queueTask->pushOsqueryRestart(
+                    "Reloading 'Next' Scheduled Queries");
+            }
+        }
     }
 
     std::string PluginAdapter::waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS,
