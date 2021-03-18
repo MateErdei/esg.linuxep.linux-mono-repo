@@ -41,7 +41,7 @@ std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForSchedul
 
         std::string queryName;
 
-        if(nameString.empty() || time.empty())
+        if (nameString.empty() || time.empty() || nameString[0].empty())
         {
             return {};
         }

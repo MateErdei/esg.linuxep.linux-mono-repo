@@ -87,3 +87,44 @@ TEST_F(TestOsqueryLogStringUtil, testIsGenericLogLineReturnsFalseOnNonMatchingLi
     EXPECT_FALSE(actualResult);
 
 }
+
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHandlesMissingQueryName) // NOLINT
+{
+    std::vector<std::string> lines{
+        "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query ",
+        "I0310 16:50:56.705953 35257 scheduler.cpp:103] Executing scheduled query",
+        "I0310 16:50:56.705953 35257 scheduler.cpp:103] Executing scheduled query :",
+        "I03sss10 16:5asdasdasdddd705sdsd57 scheduler.cpp:103] Executing scheduled query : a query",
+    };
+    for (auto& line : lines)
+    {
+        std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
+        ASSERT_FALSE(actualResult) << " Failed because this value was set: " + actualResult.value();
+    }
+}
+
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHandlesLongQueryName) // NOLINT
+{
+    std::stringstream line;
+    line << "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query ";
+    std::stringstream expected;
+    expected <<  "Executing query: ";
+    for (int i = 0; i < 1000000; ++i)
+    {
+        line << "a";
+        expected << "a";
+    }
+    expected << " at: 15:47:24.150650";
+    std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line.str());
+    ASSERT_TRUE(actualResult);
+    ASSERT_EQ(actualResult.value(), expected.str());
+}
+
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHandlesNonAsciiChars) // NOLINT
+{
+    std::string line =  "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query query_name_平仮名_片仮名: query ";
+    std::string expected = "Executing query: query_name_平仮名_片仮名 at: 15:47:24.150650";
+    std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
+    ASSERT_TRUE(actualResult);
+    ASSERT_EQ(actualResult.value(), expected);
+}
