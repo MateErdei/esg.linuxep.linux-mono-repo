@@ -141,6 +141,9 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log   OSQUERY_PROCESS_FINISHED  1
 
+    # sleep to give osquery a chance to stabilise so this test doesn't flake
+    # TODO - LINUXDAR-2839 Use new logline to replace this sleep with a smarter wait
+    Sleep  10s
 
     Kill OSQuery
     Wait Until OSQuery Running  20
