@@ -115,7 +115,7 @@ Run Telemetry Executable That Hangs
     ${result} =  Start Process  sudo  -u  ${USERNAME}  ${SOPHOS_INSTALL}/base/bin/telemetry  ${telemetryConfigFilePath}
 
 Kill Telemetry If Running
-    ${result} =    Run Process  pgrep  -f /opt/sophos-spl/base/bin/telemetry
+    ${result} =    Run Process  pgrep  telemetry
     Log  ${result.stdout}
     Run Keyword If  ${result.rc} == 0  Run Process  kill   ${result.stdout}
 

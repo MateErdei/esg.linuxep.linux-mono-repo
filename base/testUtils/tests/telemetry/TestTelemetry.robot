@@ -56,6 +56,7 @@ Telemetry Test Setup With Broken Put Requests
     Drop MCS Config Into Place
 
 Telemetry Test Teardown
+    Kill Telemetry If Running
     Reset MachineID Permissions
     General Test Teardown
     Remove file  ${TELEMETRY_OUTPUT_JSON}
@@ -67,29 +68,15 @@ Telemetry Test Teardown
     Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
     Remove Environment Variable  BREAK_PUT_REQUEST
 
-Test Teardown With Telemetry Kill
-    Telemetry Test Teardown
-
-    ${r1} =  Run Process  pgrep  -f  /opt/sophos-spl/base/bin/telemetry
-    Should be equal as strings  ${r1.rc}  0
-    ${r2} =  Run Process  kill -9 ${r1.stdout.replace("\n", " ")}  shell=True
-    Should be equal as strings  ${r2.rc}  0
-    # reset telemetry as it interfers with subsequent tests
-    ${r3} =  Run Process  systemctl  restart  sophos-spl
-    Should be equal as strings  ${r3.rc}  0
-
-
 
 Teardown With Proxy Clear
     Remove File   /opt/sophos-spl/base/etc/sophosspl/current_proxy
     Telemetry Test Teardown
 
 
-
 Reset MachineID Permissions
     Run Process  chmod  640  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
     Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
-
 
 
 *** Test Cases ***
@@ -355,7 +342,7 @@ Telemetry Causing Comms To Hang Does Not Stop Comms Restarting
     [Tags]   TELEMETRY   COMMS
     [Documentation]    Telemetry Executable Generates System Telemetry
     [Setup]  Telemetry Test Setup With Broken Put Requests
-    [Teardown]  Test Teardown With Telemetry Kill
+
 
     Run Telemetry Executable That Hangs     ${EXE_CONFIG_FILE}
     Wait Until Keyword Succeeds
