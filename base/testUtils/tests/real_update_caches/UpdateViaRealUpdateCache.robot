@@ -32,19 +32,19 @@ Endpoint Updates Via Update Cache Without Errors
     Wait For MCS Router To Be Running
     Wait For Server In Cloud
     Wait Until Keyword Succeeds
-        ...  60 secs
-        ...  5 secs
-        ...  ALC contains Update Cache
+    ...  60 secs
+    ...  5 secs
+    ...  ALC contains Update Cache
 
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
+    ...  300 secs
+    ...  5 secs
     ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
     Check Log Contains  Successfully connected to: Update cache at sspluc1:8191  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
     ...  200 secs
-    ...  10 secs
+    ...  5 secs
     ...  Check Log Contains  wdctl <> start mtr  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctl.log
 
     ${NewBaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
