@@ -6,7 +6,6 @@
 
     <inputs>
         <workingdir>.</workingdir>
-        <!-- DIFF SEPARATION COMMENT -->
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2021-13" build-id="20210319094615-5064d440965da5e2dc87c60852af85208e08dc8b-8gw4vT"/>
             <development-version branch="develop"/>
@@ -14,12 +13,12 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2021.07" build-id="20210205194609-7083eb9befef6eb36a3a990fe2aecd5eb2c08016-m0r2UY"/>
+            <release-version branch="release/2021.13" build-id="20210318090337-4b3737d8aa1985d8a4d07f3d812b5a989b0281bc-kIwLrv"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <build-asset project="winep" repo="dbos">
-            <release-version branch="release/2021.07" build-id="20210204175546-4fbd4a100d645bfc56c87cf29cb66075f18f8eeb-ijfuzf"/>
+            <release-version branch="release/2021.10" build-id="20210309104636-4cf9e440aedc818512dbfeb5f63d3c98cc5ae4c2-6rLar3"/>
             <development-version branch="develop"/>
             <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
         </build-asset>
