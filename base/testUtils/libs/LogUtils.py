@@ -237,7 +237,9 @@ class LogUtils(object):
         combinedfiles = [glob.glob(search_pattern) for search_pattern in glob_search_pattern]
         flat_files = [item for sublist in combinedfiles for item in sublist]
         #TODO: remove once LINUXDAR-2644 is fixed
-        del flat_files[flat_files.index("/opt/sophos-spl/plugins/av/log/av.log")]
+        if self.av_log in flat_files:
+            del flat_files[flat_files.index(self.av_log)]
+
         list_of_logs_containing_string = []
         for filepath in flat_files:
             num_occurence = self.get_number_of_occurences_of_substring_in_log(filepath, string_to_find)
