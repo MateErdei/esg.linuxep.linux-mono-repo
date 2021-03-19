@@ -119,6 +119,7 @@ Install And Wait System Stable
     Stop System Watchdog
 
 Local Test Teardown
+    Kill Telemetry If Running
     Require No Unhandled Exception
     Log SystemCtl Update Status
     MCSRouter Default Test Teardown
