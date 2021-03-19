@@ -30,18 +30,17 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def package_install(machine: tap.Machine, *install_args: str):
     if machine.run('which', 'apt-get', return_exit_code=True) == 0:
-        i = 0
-        while i < 10:
-            if machine.run('apt-get', '-y', 'install', *install_args,
-                    log_mode=tap.LoggingMode.ON_ERROR) == 0:
-                break
-            else:
-                ++i
-                time.sleep(3)
+        pkg_installer = "apt-get"
     else:
-        machine.run('yum', '-y', 'install', *install_args,
-                    log_mode=tap.LoggingMode.ON_ERROR)
+        pkg_installer = "yum"
 
+    for _ in range(20):
+        if machine.run(pkg_installer, '-y', 'install', *install_args,
+                       log_mode=tap.LoggingMode.ON_ERROR,
+                       return_exit_code=True) == 0:
+            break
+        else:
+            time.sleep(3)
 
 
 def install_requirements(machine: tap.Machine):
