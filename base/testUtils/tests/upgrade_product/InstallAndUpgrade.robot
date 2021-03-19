@@ -34,10 +34,13 @@ Resource    UpgradeResources.robot
 
 *** Variables ***
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
+${BaseAndAVReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_av_VUT-1.xml
 ${BaseEdrAndMtrReleasePolicy}               ${GeneratedWarehousePolicies}/base_edr_and_mtr_VUT-1.xml
 ${BaseEdrAndMtrAndAVReleasePolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
+${BaseAndMtrAndAvReleasePolicy}             ${GeneratedWarehousePolicies}/base_and_mtr_and_av_VUT-1.xml
 ${BaseAndEDROldWHFormat}                    ${GeneratedWarehousePolicies}/base_edr_old_wh_format.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
+${BaseAndAVVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_av_VUT.xml
 ${BaseEdrAndMtrAndAVVUTPolicy}              ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
 ${BaseAndMtrAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseAndMtrWithFakeLibs}                   ${GeneratedWarehousePolicies}/base_and_mtr_0_6_0.xml
@@ -45,7 +48,6 @@ ${BaseAndEdrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_a
 ${BaseOnlyVUTPolicy}                        ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${BaseOnlyVUT_weekly_schedule_Policy}       ${GeneratedWarehousePolicies}/base_only_weeklyScheduleVUT.xml
 ${BaseOnlyVUT_Without_SDU_Policy}           ${GeneratedWarehousePolicies}/base_only_VUT_without_SDU_Feature.xml
-${BaseAndMtrAndAvReleasePolicy}             ${GeneratedWarehousePolicies}/base_and_mtr_and_av_VUT-1.xml
 ${BaseAndMtrAndAvVUTPolicy}                 ${GeneratedWarehousePolicies}/base_and_mtr_and_av_VUT.xml
 
 ${LocalWarehouseDir}                        ./local_warehouses
@@ -104,12 +106,14 @@ We Can Install From A Ballista Warehouse
 #    Fail
 
 We Can Upgrade From A Release To Master Without Unexpected Errors
+    [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndAvReleasePolicy}
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndAvReleasePolicy}
+    Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
 
 
     Wait Until Keyword Succeeds
@@ -117,17 +121,21 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
+    Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
+    Override LogConf File as Global Level  DEBUG
+    Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
+
     Check EAP Release With AV Installed Correctly
     ${BaseReleaseVersion} =      Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndAvVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
     ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrAndAvVUTPolicy}
+    Wait until threat detector running
 
     Mark Watchdog Log
     Mark Managementagent Log
@@ -152,11 +160,10 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Check Mtr Reconnects To Management Agent After Upgrade
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
-
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-    Check Current Release Installed Correctly
+    Check Current Release With AV Installed Correctly
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -169,13 +176,14 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Check Update Reports Have Been Processed
 
 VersionCopy File in the Wrong Location Is Removed
+    [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
 
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
-
+    Override LogConf File as Global Level  DEBUG
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -215,15 +223,15 @@ VersionCopy File in the Wrong Location Is Removed
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
 We Can Downgrade From Master To A Release Without Unexpected Errors
+    [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
-    [Timeout]  600
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Wait Until Keyword Succeeds
-    ...   200 secs
+    ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
@@ -262,7 +270,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...   200 secs
+    ...   300 secs
     ...   10 secs
     ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
@@ -619,6 +627,78 @@ Ensure Download Report Content Contains Sub Component Entries
     # Make sure that the minimum components are listed.
     # This will ensure sub components are listed in the report when a sub component has it's own installer.
     Check Download Report Contains Minimum Products
+
+Test That Only Subscriptions Appear As Subscriptions In ALC Status File
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Only Subscriptions In Policy Are In Alc Status Subscriptions
+
+We Can Upgrade AV A Release To VUT Without Unexpected Errors
+    [Timeout]  10 minutes
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndAVReleasePolicy}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndAVReleasePolicy}
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
+    Override LogConf File as Global Level  DEBUG
+    Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
+
+    Check AV Plugin Installed
+    ${BaseReleaseVersion} =      Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndAVVUTPolicy}
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndAVVUTPolicy}
+    Wait until threat detector running
+
+    Mark Watchdog Log
+    Mark Managementagent Log
+    Log to console  Updating!!!
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+
+    Check AV Plugin Installed
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${AVDevVersion} =   Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+
+    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
+    Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
+
+    Check Update Reports Have Been Processed
+
+    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
+    Should Be Equal As Integers  ${rc}  0
+    Should Be Empty  ${output}
+
 
 *** Keywords ***
 

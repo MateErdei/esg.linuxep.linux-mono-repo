@@ -43,6 +43,8 @@ class LogUtils(object):
         self.tscheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "tscheduler.log")
         self.register_log = os.path.join(self.base_logs_dir, "register_central.log")
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
+        self.av_log = os.path.join(self.install_path, "plugins", "av", "log", "av.log")
+        self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "log", "sophos_threat_detector.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.edr_osquery_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr_osquery.log")
         self.livequery_log = os.path.join(self.install_path, "plugins", "edr", "log", "livequery.log")
@@ -55,6 +57,8 @@ class LogUtils(object):
         self.marked_mcs_envelope_logs = 0
         self.marked_watchdog_logs = 0
         self.marked_managementagent_log = 0
+        self.marked_av_log = 0
+        self.marked_sophos_threat_detector_log = 0
         self.marked_edr_log = 0
         self.marked_edr_osquery_log = 0
 
@@ -232,6 +236,8 @@ class LogUtils(object):
         glob_search_pattern = [os.path.join(self.install_path, search_entry) for search_entry in search_list]
         combinedfiles = [glob.glob(search_pattern) for search_pattern in glob_search_pattern]
         flat_files = [item for sublist in combinedfiles for item in sublist]
+        #TODO: remove once LINUXDAR-2644 is fixed
+        del flat_files[flat_files.index("/opt/sophos-spl/plugins/av/log/av.log")]
         list_of_logs_containing_string = []
         for filepath in flat_files:
             num_occurence = self.get_number_of_occurences_of_substring_in_log(filepath, string_to_find)
@@ -539,6 +545,15 @@ class LogUtils(object):
         contents = get_log_contents(sul_log)
         self.marked_sul_logs = len(contents)
 
+    def mark_av_log(self):
+        av_log = self.av_log
+        contents = get_log_contents(av_log)
+        self.marked_av_log = len(contents)
+
+    def mark_sophos_threat_detector_log(self):
+        sophos_threat_detector_log = self.sophos_threat_detector_log
+        contents = get_log_contents(sophos_threat_detector_log)
+        self.marked_sophos_threat_detector_log = len(contents)
 
     def mark_mcs_envelope_log(self):
         mcs_envelope_log = self.mcs_envelope_log()
@@ -554,6 +569,27 @@ class LogUtils(object):
         managementagent_log = self.managementagent_log()
         contents = get_log_contents(managementagent_log)
         self.marked_managementagent_logs = len(contents)
+
+    def check_marked_av_log_contains(self, string_to_contain):
+        av_log = self.av_log
+        contents = get_log_contents(av_log)
+
+        contents = contents[self.marked_av_log:]
+
+        if string_to_contain not in contents:
+            self.dump_log(av_log)
+            raise AssertionError("av.log log did not contain: " + string_to_contain)
+
+    def check_marked_sophos_threat_detector_log_contains(self, string_to_contain):
+        sophos_threat_detector_log = self.sophos_threat_detector_log
+        contents = get_log_contents(sophos_threat_detector_log)
+
+        contents = contents[self.sophos_threat_detector_log:]
+
+        if string_to_contain not in contents:
+            self.dump_log(sophos_threat_detector_log)
+            raise AssertionError("sophos_threat_detector.log log did not contain: " + string_to_contain)
+
 
     def check_marked_sul_log_contains(self, string_to_contain):
         sul_log = self.suldownloader_log
