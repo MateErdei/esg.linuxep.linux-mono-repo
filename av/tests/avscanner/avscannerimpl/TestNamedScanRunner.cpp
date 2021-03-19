@@ -116,20 +116,6 @@ protected:
             m_scanRemovable);
     }
 
-    void printPerms(fs::perms p)
-    {
-        std::cout << ((p & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
-                  << ((p & fs::perms::owner_write) != fs::perms::none ? "w" : "-")
-                  << ((p & fs::perms::owner_exec) != fs::perms::none ? "x" : "-")
-                  << ((p & fs::perms::group_read) != fs::perms::none ? "r" : "-")
-                  << ((p & fs::perms::group_write) != fs::perms::none ? "w" : "-")
-                  << ((p & fs::perms::group_exec) != fs::perms::none ? "x" : "-")
-                  << ((p & fs::perms::others_read) != fs::perms::none ? "r" : "-")
-                  << ((p & fs::perms::others_write) != fs::perms::none ? "w" : "-")
-                  << ((p & fs::perms::others_exec) != fs::perms::none ? "x" : "-")
-                  << '\n';
-    }
-
     fs::path m_testDir;
     std::string m_expectedScanName = "testScan";
     std::vector<std::string> m_expectedExclusions;
@@ -224,41 +210,6 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigEmptyFile) // NOLINT
     catch (const std::runtime_error& e)
     {
         ASSERT_EQ(std::string(e.what()), "Aborting: Config file cannot be parsed");
-    }
-}
-
-TEST_F(TestNamedScanRunner, TestNamedScanConfigNoPermission) // NOLINT
-{
-    fs::path noPermsFile = "TestNamedScanConfigNoPermissionsFile";
-
-    ::capnp::MallocMessageBuilder message;
-    Sophos::ssplav::NamedScan::Builder requestBuilder =
-        message.initRoot<Sophos::ssplav::NamedScan>();
-    requestBuilder.setName(noPermsFile);
-    requestBuilder.setScanHardDrives(m_scanHardDisc);
-    requestBuilder.setScanNetworkDrives(m_scanNetwork);
-    requestBuilder.setScanCDDVDDrives(m_scanOptical);
-    requestBuilder.setScanRemovableDrives(m_scanRemovable);
-
-    fs::path noPermsFilePath = m_testDir / noPermsFile;
-    std::ofstream noPermsFileHandle(noPermsFilePath);
-    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
-    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
-    std::string dataAsString(bytes.begin(), bytes.end());
-    noPermsFileHandle << dataAsString;
-    noPermsFileHandle.close();
-    printPerms(fs::status(noPermsFilePath).permissions());
-    fs::permissions(noPermsFilePath, fs::perms::none);
-    printPerms(fs::status(noPermsFilePath).permissions());
-
-    try
-    {
-        NamedScanRunner runner(noPermsFilePath);
-        FAIL() << "Expected runtime exception";
-    }
-    catch (const std::runtime_error& e)
-    {
-        ASSERT_EQ(std::string(e.what()), "Failed to open config");
     }
 }
 
