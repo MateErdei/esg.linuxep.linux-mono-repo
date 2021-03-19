@@ -76,7 +76,7 @@ EDR disables curl tables when network available flag becomes false
     Wait Until Keyword Succeeds
     ...  10
     ...  1
-    ...  Check EDR Log Contains  Updating running_mode flag settings
+    ...  Check EDR Log Contains  Updating network_tables flag settings
     ${contents}=  Get File   ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Should Contain  ${contents}   network_tables=1
     Should Not Contain  ${contents}   network_tables=0
