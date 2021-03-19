@@ -116,6 +116,20 @@ protected:
             m_scanRemovable);
     }
 
+    void printPerms(fs::perms p)
+    {
+        std::cout << ((p & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
+                  << ((p & fs::perms::owner_write) != fs::perms::none ? "w" : "-")
+                  << ((p & fs::perms::owner_exec) != fs::perms::none ? "x" : "-")
+                  << ((p & fs::perms::group_read) != fs::perms::none ? "r" : "-")
+                  << ((p & fs::perms::group_write) != fs::perms::none ? "w" : "-")
+                  << ((p & fs::perms::group_exec) != fs::perms::none ? "x" : "-")
+                  << ((p & fs::perms::others_read) != fs::perms::none ? "r" : "-")
+                  << ((p & fs::perms::others_write) != fs::perms::none ? "w" : "-")
+                  << ((p & fs::perms::others_exec) != fs::perms::none ? "x" : "-")
+                  << '\n';
+    }
+
     fs::path m_testDir;
     std::string m_expectedScanName = "testScan";
     std::vector<std::string> m_expectedExclusions;
@@ -233,7 +247,9 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigNoPermission) // NOLINT
     std::string dataAsString(bytes.begin(), bytes.end());
     noPermsFileHandle << dataAsString;
     noPermsFileHandle.close();
+    printPerms(fs::status(noPermsFilePath).permissions());
     fs::permissions(noPermsFilePath, fs::perms::none);
+    printPerms(fs::status(noPermsFilePath).permissions());
 
     try
     {
