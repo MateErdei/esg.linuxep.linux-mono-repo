@@ -118,7 +118,7 @@ class TestComputer(unittest.TestCase):
     def test_group_status_xml_with_multiple_entries_in_install_options_file(self, mo, *mockarg):
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
         status_xml = adapter.get_common_status_xml()
-        self.assertTrue("<deviceGroup>groupname</deviceGroup>" in status_xml)
+        self.assertIn("<deviceGroup>groupname</deviceGroup>", status_xml)
 
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
@@ -129,7 +129,7 @@ class TestComputer(unittest.TestCase):
     def test_group_status_xml_with_single_entry_in_install_options_file(self, mo, *mockarg):
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
         status_xml = adapter.get_common_status_xml()
-        self.assertTrue("<deviceGroup>groupname2</deviceGroup>" in status_xml)
+        self.assertIn("<deviceGroup>groupname2</deviceGroup>", status_xml)
 
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
@@ -140,7 +140,7 @@ class TestComputer(unittest.TestCase):
     def testGroupStatusXmlWithMalformedGroupOptionInInstallOptionsFile(self, mo, *mockarg):
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
         status_xml = adapter.get_common_status_xml()
-        self.assertTrue("<deviceGroup>" not in status_xml)
+        self.assertNotIn("<deviceGroup>", status_xml)
 
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
@@ -151,7 +151,7 @@ class TestComputer(unittest.TestCase):
     def test_group_status_xml_with_empty_group_option(self, mo, *mockarg):
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
         status_xml = adapter.get_common_status_xml()
-        self.assertTrue("<deviceGroup>" not in status_xml)
+        self.assertNotIn("<deviceGroup>", status_xml)
 
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
@@ -162,7 +162,7 @@ class TestComputer(unittest.TestCase):
     def test_group_status_xml_with_partial_group_option(self, mo, *mockarg):
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
         status_xml = adapter.get_common_status_xml()
-        self.assertTrue("<deviceGroup>" not in status_xml)
+        self.assertNotIn("<deviceGroup>", status_xml)
 
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
@@ -173,7 +173,7 @@ class TestComputer(unittest.TestCase):
     def test_group_status_xml_with_non_ascii_group_option(self, mo, *mockarg):
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
         status_xml = adapter.get_common_status_xml()
-        self.assertTrue("<deviceGroup>平仮名</deviceGroup>" in status_xml)
+        self.assertIn("<deviceGroup>平仮名</deviceGroup>", status_xml)
 
     @mock.patch("subprocess.Popen", return_value=FakePopen())
     @mock.patch("subprocess.check_output", return_value=b'some-hostname')
@@ -187,7 +187,7 @@ class TestComputer(unittest.TestCase):
         with mock.patch("builtins.open", new_callable=mock_open, read_data="--group=" + group):
             adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
             status_xml = adapter.get_common_status_xml()
-            self.assertTrue("<deviceGroup>" + group + "</deviceGroup>" in status_xml)
+            self.assertIn("<deviceGroup>" + group + "</deviceGroup>", status_xml)
 
     def test_get_installation_device_group_handles_permissions_error(self):
         def mocked_is_file(path):
