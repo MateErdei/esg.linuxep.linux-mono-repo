@@ -317,6 +317,21 @@ Check installer corrects permissions of chroot files on upgrade
     Should Be Equal As Integers  ${rc}  0
     Should Be Empty  ${output}
 
+Check installer can handle versioned copied Virus Data from 1.0.0
+    # Simulate the versioned copied Virus Data that exists in a 1.0.0 install
+    Empty Directory  ${AV_PLUGIN_PATH}/chroot/susi/update_source/vdl
+
+    ${cwd} =  get cwd then change directory  ${AV_SDDS}
+    Register Cleanup  get cwd then change directory  ${cwd}
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     find "files/plugins/av/chroot/susi/update_source/vdl" -type f -print0 | xargs -0 ${SOPHOS_INSTALL}/base/bin/versionedcopy
+
+    Modify manifest
+    Install AV Directly from SDDS
+
+    ${number_of_VDL_files}   Count Files In Directory   ${AV_PLUGIN_PATH}/chroot/susi/update_source/vdl
+    Should Be True   ${number_of_VDL_files} > 1
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE2_NAME}        pemid.ide

@@ -157,6 +157,7 @@ function install_product()
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
     #Install SUSI
+    [ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl" ] && rm "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl/"*
     mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot/susi"
     cp -arfv $DIST/files/plugins/av/chroot/susi/* "$SOPHOS_INSTALL/plugins/av/chroot/susi" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy SUSI files to installation"
 
