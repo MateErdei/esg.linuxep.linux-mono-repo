@@ -97,7 +97,7 @@ then
   rm -f ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
   cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
   cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.conf ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
-  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
   chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
 fi
 if [[ -f  ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf ]]
@@ -106,7 +106,7 @@ then
   rm -f ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
   cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
   cp ${DIST}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
-  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+  chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
   chmod 600 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
 fi
 if [[ -f  ${DIST}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf ]]
