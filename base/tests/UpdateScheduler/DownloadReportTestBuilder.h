@@ -38,6 +38,7 @@ namespace SulDownloader
                 report.name = "BaseName";
                 report.rigidName = "BaseRigidName";
                 report.downloadedVersion = "0.5.0";
+                report.installedVersion = "666";
                 report.errorDescription.clear();
                 report.productStatus = suldownloaderdata::ProductReport::ProductStatus::Upgraded;
                 return report;
@@ -49,6 +50,7 @@ namespace SulDownloader
                 report.name = "PluginName";
                 report.rigidName = "PluginRigidName";
                 report.downloadedVersion = "0.5.0";
+                report.installedVersion = "666";
                 report.errorDescription.clear();
                 report.productStatus = suldownloaderdata::ProductReport::ProductStatus::Upgraded;
                 return report;

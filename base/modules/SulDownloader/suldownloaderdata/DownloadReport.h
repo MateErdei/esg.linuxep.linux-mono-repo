@@ -21,10 +21,12 @@ namespace SulDownloader
 
         struct ProductReport
         {
+            // add installed version here
             std::string name;
             std::string rigidName;
             std::string downloadedVersion;
             std::string errorDescription;
+            std::string installedVersion;
             enum class ProductStatus : int
             {
                 UpToDate = 0,

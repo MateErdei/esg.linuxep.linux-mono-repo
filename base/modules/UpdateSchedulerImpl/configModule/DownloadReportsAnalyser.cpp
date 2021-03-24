@@ -156,14 +156,29 @@ namespace
         for (const auto& product : report.getProducts())
         {
             if (product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
+                //product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::InstallFailed)
             {
                 status.Subscriptions.emplace_back(product.rigidName, product.name, product.downloadedVersion);
             }
+
         }
 
         for (const auto& whComponent : report.getWarehouseComponents())
         {
-            status.Products.emplace_back(whComponent.m_rigidName, whComponent.m_productName, whComponent.m_version);
+            std::string installedVersion = "123123";
+            for(const auto& product : report.getProducts())
+            {
+                if (product.rigidName == whComponent.m_rigidName)
+                {
+                    installedVersion = product.installedVersion;
+                    if(installedVersion == "")
+                    {
+                        installedVersion = "notfound";
+                    }
+                    break;
+                }
+            }
+            status.Products.emplace_back(whComponent.m_rigidName, whComponent.m_productName, whComponent.m_version, installedVersion);
         }
         return status;
     }

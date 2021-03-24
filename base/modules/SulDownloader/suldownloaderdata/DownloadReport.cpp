@@ -233,10 +233,12 @@ namespace SulDownloader
         for (const auto& product : products)
         {
             ProductReport productReportEntry;
+            //add installversion here
             const auto& info = product.getProductMetadata();
             productReportEntry.rigidName = info.getLine();
             productReportEntry.name = info.getName();
             productReportEntry.downloadedVersion = info.getVersion();
+            productReportEntry.installedVersion = "666"; // to change to get
             auto wError = product.getError();
             productReportEntry.errorDescription = wError.Description;
 
@@ -293,10 +295,12 @@ namespace SulDownloader
             }
             else
             {
+                // add installversion here
                 ProductReport productReportEntry;
                 productReportEntry.rigidName = subscriptionInfo.rigidName;
                 productReportEntry.downloadedVersion = subscriptionInfo.version;
                 productReportEntry.name = subscriptionInfo.rigidName;
+                productReportEntry.installedVersion = "333";
                 std::string combinedError;
                 ProductReport::ProductStatus combinedStatus{ ProductReport::ProductStatus::UpToDate };
 
@@ -325,6 +329,7 @@ namespace SulDownloader
                                     ProductReport subProductReportEntry;
                                     subProductReportEntry.rigidName = subComp.m_line;
                                     subProductReportEntry.downloadedVersion = subComp.m_version;
+                                    subProductReportEntry.installedVersion = "111"; //check to see if can get own version
                                     subProductReportEntry.name = subComp.m_line;
                                     subProductReportEntry.productStatus = subComponentProduct->second.productStatus;
                                     subProductReportEntry.errorDescription = product.getError().Description;
@@ -393,10 +398,15 @@ namespace SulDownloader
 
         for (const auto& product : report.getProducts())
         {
+            //add installversion
             SulDownloaderProto::ProductStatusReport* productReport = protoReport.add_products();
             productReport->set_productname(product.name);
             productReport->set_rigidname(product.rigidName);
-            productReport->set_downloadversion(product.downloadedVersion);
+            productReport->set_downloadversion("product.downloadedVersion");
+            //productReport->set_downloadversion("product.downloadedVersion");
+            productReport->set_installedversion(product.installedVersion);
+            //productReport->set_installedversion("product.installedversion");
+
             productReport->set_errordescription(product.errorDescription);
 
             productReport->set_productstatus(convert(product.productStatus));
@@ -443,10 +453,16 @@ namespace SulDownloader
 
         for (auto& protoProduct : protoReport.products())
         {
+            //add install version
             ProductReport productReport;
             productReport.rigidName = protoProduct.rigidname();
             productReport.name = protoProduct.productname();
             productReport.downloadedVersion = protoProduct.downloadversion();
+            productReport.installedVersion = protoProduct.installedversion();
+            if(productReport.installedVersion == "")
+            {
+                productReport.installedVersion = "productreportempty";
+            }
             productReport.errorDescription = protoProduct.errordescription();
             productReport.productStatus = convert(protoProduct.productstatus());
 

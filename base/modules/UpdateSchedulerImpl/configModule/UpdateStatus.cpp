@@ -62,11 +62,13 @@ namespace
     {
         for (auto& product : products)
         {
+            // add only if installed- use download report to get the state
+            // if (product.)
             pt::ptree subNode;
             subNode.put("<xmlattr>.rigidName", product.RigidName);
             subNode.put("<xmlattr>.productName", product.ProductName);
             subNode.put("<xmlattr>.downloadedVersion", product.DownloadedVersion);
-            subNode.put("<xmlattr>.installedVersion", product.DownloadedVersion);
+            subNode.put("<xmlattr>.installedVersion", product.InstalledVersion);
             subscriptionsNode.add_child("product", subNode);
         }
     }

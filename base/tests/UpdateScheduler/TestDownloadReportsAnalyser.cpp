@@ -89,7 +89,8 @@ public:
             }
             if (expectedInsert.DownloadedVersion != resultedInsert.DownloadedVersion)
             {
-                return ::testing::AssertionFailure() << s.str() << " DownloadedVersion differ";
+                return ::testing::AssertionFailure() << s.str() << " DownloadedVersion differ"
+                << expectedInsert.DownloadedVersion << "    " << resultedInsert.DownloadedVersion;
             }
         }
         return ::testing::AssertionSuccess();
@@ -207,6 +208,8 @@ public:
         status.LastInstallStartedTime = StartTimeTest;
         status.LastResult = 0;
         status.FirstFailedTime.clear();
+        status.Products = { {"BaseRigidName", "BaseName", "0.5.0", "666"},
+                            { "PluginRigidName", "PluginName", "0.5.0", "666"} };
         // Products
         //        std::string RigidName;
         //        std::string ProductName;

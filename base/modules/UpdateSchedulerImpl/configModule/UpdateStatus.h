@@ -17,16 +17,25 @@ namespace UpdateSchedulerImpl
     {
         struct ProductStatus
         {
+            //add installed version here
             ProductStatus(std::string rigid, std::string name, std::string downversion) :
+                    RigidName(std::move(rigid)),
+                    ProductName(std::move(name)),
+                    DownloadedVersion(std::move(downversion))
+            {
+            }
+            ProductStatus(std::string rigid, std::string name, std::string downversion, std::string installversion) :
                 RigidName(std::move(rigid)),
                 ProductName(std::move(name)),
-                DownloadedVersion(std::move(downversion))
+                DownloadedVersion(std::move(downversion)),
+                InstalledVersion(std::move(installversion))
             {
             }
 
             std::string RigidName;
             std::string ProductName;
             std::string DownloadedVersion;
+            std::string InstalledVersion;
         };
 
         struct UpdateStatus
