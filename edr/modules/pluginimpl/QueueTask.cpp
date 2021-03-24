@@ -11,20 +11,20 @@ namespace Plugin
 {
     void QueueTask::push(Task task)
     {
-        std::lock_guard<std::mutex> lck(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_list.emplace_back(std::move(task));
         m_cond.notify_one();
     }
 
     void QueueTask::pushIfNotAlreadyInQueue(Task task)
     {
-        std::lock_guard<std::mutex> lck(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         auto result = std::find_if(
-            std::begin(m_list),
-            std::end(m_list),
+            m_list.begin(),
+            m_list.end(),
             [task](const Task& taskInList){return (taskInList.m_taskType == task.m_taskType);});
 
-        if (result == std::end(m_list))
+        if (result == m_list.end())
         {
             m_list.emplace_back(std::move(task));
             m_cond.notify_one();
@@ -33,10 +33,10 @@ namespace Plugin
 
     bool QueueTask::pop(Task& task, int timeout)
     {
-        std::unique_lock<std::mutex> lck(m_mutex);
+        std::unique_lock<std::mutex> lock(m_mutex);
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
-        m_cond.wait_until(lck, now + std::chrono::seconds(timeout),[this] { return !m_list.empty(); });
+        m_cond.wait_until(lock, now + std::chrono::seconds(timeout),[this] { return !m_list.empty(); });
 
         if (m_list.empty())
         {
