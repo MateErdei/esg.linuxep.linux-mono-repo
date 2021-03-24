@@ -76,14 +76,14 @@ namespace Plugin
     void PluginUtils::setGivenFlagFromSettingsFile(const std::string& flag, const bool& flagValue)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
-        std::string settingString;
+        std::string mode;
         if (flagValue)
         {
-            settingString = flag + "=1";
+            mode = flag + "=1";
         }
         else
         {
-            settingString = flag + "=0";
+            mode = flag + "=0";
         }
 
         try
@@ -91,33 +91,34 @@ namespace Plugin
             std::string configPath = Plugin::edrConfigFilePath();
             if (fileSystem->isFile(configPath))
             {
-                bool notSet = true;
+                bool modeIsNotSet = true;
                 std::vector<std::string> content = fileSystem->readLines(configPath);
                 std::stringstream newContent;
                 for (const auto &line : content)
                 {
+                    // if running mode already set replace it
                     if (Common::UtilityImpl::StringUtils::isSubstring(line, flag))
                     {
-                        newContent << settingString << "\n";
-                        notSet = false;
+                        newContent << mode << "\n";
+                        modeIsNotSet = false;
                     }
                     else
-                    {
+                        {
                         newContent << line << "\n";
                     }
                 }
 
-                // if setting not already set, append to end of content
-                if (notSet)
+                // if running mode not already set append to end of content
+                if (modeIsNotSet)
                 {
-                    newContent << settingString << "\n";
+                    newContent << mode << "\n";
                 }
 
                 fileSystem->writeFileAtomically(configPath, newContent.str(), Plugin::etcDir());
             }
             else
             {
-                fileSystem->writeFile(configPath, settingString + "\n");
+                fileSystem->writeFile(configPath, mode + "\n");
             }
             LOGINFO("Updated plugin conf with new " + flag);
         }
