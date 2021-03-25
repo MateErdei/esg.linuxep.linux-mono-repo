@@ -770,11 +770,6 @@ Wait For LiveQuery Status To Contain
     ...  1 secs
     ...  LiveQuery Status Should Contain  ${StringToContain}
 
-Move File Atomically
-    [Arguments]  ${source}  ${destination}
-    Copy File  ${source}  /opt/NotARealFile
-    Move File  /opt/NotARealFile  ${destination}
-
 Expect New Datalimit
     [Arguments]  ${limit}
     Wait Until Keyword Succeeds

@@ -36,11 +36,12 @@ EDR plugins handles valid value for events max in plugin conf
     ...  1 secs
     ...  EDR Plugin Log Contains  Setting events_max to 4000 as per value in
 
-EDR plugin sets disable_audit flag in plugin.conf if not already set
+EDR plugin sets scheduled_queries_next flag in plugin.conf if not already set without logging a warning
     Check EDR Plugin Installed With Base
+    Create File  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json  {"scheduled_queries.next": true}
+    Move File Atomically  ${SOPHOS_INSTALL}/base/mcs/tmp/flags.json  ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains  Setting disable_auditd flag settings to: 1
-    Restart EDR
-    EDR Plugin Log Contains X Times   Setting disable_auditd flag settings to  1
+    ...  EDR Plugin Log Contains  Setting scheduled_queries_next flag settings to: 1
+    EDR Plugin Log Does Not Contain  Failed to read scheduled_queries_next configuration from config file due to error

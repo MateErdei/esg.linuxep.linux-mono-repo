@@ -293,3 +293,8 @@ File Should Not Contain Only
     [Arguments]  ${file}  ${string}
     ${content} =  Get File  ${file}
     Should Not Be Equal As Strings  ${content}   ${string}
+
+Move File Atomically
+    [Arguments]  ${source}  ${destination}
+    Copy File  ${source}  /opt/NotARealFile
+    Move File  /opt/NotARealFile  ${destination}
