@@ -89,9 +89,18 @@ def read_datafeed_tracker():
 
 def update_datafeed_tracker(datafeed_info, size):
     tracker_filepath = path_manager.datafeed_tracker()
+    try:
+        int(datafeed_info['size'])
+    except (TypeError,ValueError):
+        datafeed_info['size'] = 0
 
-    datafeed_info['size'] += size
     current_time = int(time.time())
+    try:
+        int(datafeed_info['time_sent'])
+    except (TypeError,ValueError):
+        datafeed_info['time_sent'] = current_time
+    datafeed_info['size'] += size
+
 
     time_since_last_sent = current_time - datafeed_info['time_sent']
     if time_since_last_sent >= 24*60*60:

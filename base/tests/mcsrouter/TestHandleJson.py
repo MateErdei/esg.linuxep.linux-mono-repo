@@ -78,7 +78,15 @@ class TestHandleJson(unittest.TestCase):
     def test_read_datafeed_tracker_large_time(self, *mockargs):
         expected = {"size": 0, "time_sent": 100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000}
         data = mcsrouter.utils.handle_json.read_datafeed_tracker()
-        self.assertEqual(data, expected)\
+        self.assertEqual(data, expected)
+
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    @mock.patch('os.path.exists', return_value=True)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data=f"""{{"size":b'sss',"time_sent":b'222'}}""")
+    def test_read_datafeed_tracker_binary(self, *mockargs):
+        expected = {"size": 0, "time_sent": int(DUMMY_TIMESTAMP)}
+        data = mcsrouter.utils.handle_json.read_datafeed_tracker()
+        self.assertEqual(data, expected)
 
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     @mock.patch('os.path.exists', return_value=True)
@@ -130,12 +138,27 @@ class TestHandleJson(unittest.TestCase):
             from_file = {"size": 3, "time_sent": 0}
             mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 42)
 
+
+    @mock.patch('builtins.open', new_callable=mock_open)
+    @mock.patch('os.chmod')
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    def test_update_datafeed_tracker_handles_binary_size(self, *mockargs):
+        from_file = {"size": b'string', "time_sent": 0}
+        mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 42)
+
+    @mock.patch('builtins.open', new_callable=mock_open)
+    @mock.patch('os.chmod')
+    @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
+    def test_update_datafeed_tracker_handles_binary_size(self, *mockargs):
+        from_file = {"size": 400, "time_sent": b'not time'}
+        mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 42)
+
     @mock.patch("logging.Logger.info")
     @mock.patch('builtins.open', new_callable=mock_open)
     @mock.patch('os.chmod')
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     def test_update_datafeed_tracker_logs_when_it_has_been_more_than_24_hours_since_last_log(self, *mockargs):
-        from_file = {"size": 3, "time_sent": 0}
+        from_file = {"size": b'string', "time_sent": 0}
         expected_time_last_sent = round(time.time()/3600, 1)
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 42)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
