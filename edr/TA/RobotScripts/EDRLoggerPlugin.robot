@@ -500,7 +500,6 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     ...  20 secs
     ...  1 secs
     ...  EDR Plugin Log Contains X Times  Restarting osquery, reason: XDR data limit exceeded  1
-    EDR Plugin Log Contains X Times  Restarting osquery, reason: LiveQuery policy has changed. Restarting osquery to apply changes  1
 
     Wait Until Keyword Succeeds
     ...  20 secs
