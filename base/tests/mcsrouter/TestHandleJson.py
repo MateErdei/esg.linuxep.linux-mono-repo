@@ -158,7 +158,7 @@ class TestHandleJson(unittest.TestCase):
     @mock.patch('os.chmod')
     @mock.patch('time.time', return_value=DUMMY_TIMESTAMP)
     def test_update_datafeed_tracker_logs_when_it_has_been_more_than_24_hours_since_last_log(self, *mockargs):
-        from_file = {"size": b'string', "time_sent": 0}
+        from_file = {"size": 3, "time_sent": 0}
         expected_time_last_sent = round(time.time()/3600, 1)
         mcsrouter.utils.handle_json.update_datafeed_tracker(from_file, 42)
         self.assertEqual(logging.Logger.info.call_args_list[-1],
