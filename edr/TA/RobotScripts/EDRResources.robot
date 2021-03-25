@@ -282,6 +282,10 @@ Restart EDR
     ...  1 secs
     ...  EDR Plugin Log Contains      edr <> Plugin Finished
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Plugin preparation complete
 
 File Should Contain
     [Arguments]  ${file}  ${string_to_contain}
