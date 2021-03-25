@@ -276,16 +276,18 @@ Check EDR Executable Not Running
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Restart EDR
+    ${mark} =  Mark File  ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains      edr <> Plugin Finished
+    ...  Marked File Contains  ${EDR_LOG_PATH}  edr <> Plugin Finished  ${mark}
+    ${mark} =  Mark File  ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains  Plugin preparation complete
+    ...  Marked File Contains  ${EDR_LOG_PATH}  Plugin preparation complete  ${mark}
 
 File Should Contain
     [Arguments]  ${file}  ${string_to_contain}
