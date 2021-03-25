@@ -504,28 +504,28 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  Stopping LoggerExtension  2
+    ...  EDR Plugin Log Contains X Times  Stopping LoggerExtension  1
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  LoggerExtension::Stopped  2
+    ...  EDR Plugin Log Contains X Times  LoggerExtension::Stopped  1
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  Stopping SophosExtension  2
+    ...  EDR Plugin Log Contains X Times  Stopping SophosExtension  1
 
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  SophosExtension::Stopped  2
+    ...  EDR Plugin Log Contains X Times  SophosExtension::Stopped  1
 
     # Osquery restart from query pack disabling due to data limit
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  Run osquery process  3
+    ...  EDR Plugin Log Contains X Times  Run osquery process  2
 
     # Prove that scheduled queries are not being executed
     ${empty_marker} =  Set Variable    empty-marker
@@ -544,7 +544,7 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  Run osquery process  4
+    ...  EDR Plugin Log Contains X Times  Run osquery process  3
 
     # up from 2 to 5 because all 3 were enable after the data period rolled over
     Wait Until Keyword Succeeds
