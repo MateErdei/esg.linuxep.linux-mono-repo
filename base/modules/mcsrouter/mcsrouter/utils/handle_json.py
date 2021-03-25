@@ -95,8 +95,10 @@ def update_datafeed_tracker(datafeed_info, size):
 
     time_since_last_sent = current_time - datafeed_info['time_sent']
     if time_since_last_sent >= 24*60*60:
-
-        data_size_in_kB = datafeed_info['size']//1000
+        try:
+            data_size_in_kB = datafeed_info['size']/1000
+        except OverflowError:
+            data_size_in_kB = datafeed_info['size']//1000
         elasped_time_hours = round(time_since_last_sent/3600, 1)
         LOGGER.info(f"In the past {elasped_time_hours}h we have sent {data_size_in_kB}kB of scheduled query data to Central")
 
