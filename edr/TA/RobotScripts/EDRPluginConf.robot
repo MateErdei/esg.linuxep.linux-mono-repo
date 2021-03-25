@@ -41,6 +41,6 @@ EDR plugin sets disable_audit flag in plugin.conf if not already set
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains  Failed to read disable_auditd configuration from config file due to error: No such node (disable_auditd)
+    ...  EDR Plugin Log Contains  Setting disable_auditd flag settings to: 1
     Restart EDR
-    EDR Plugin Log Contains X Times   Failed to read disable_auditd configuration from config file due to error  1
+    EDR Plugin Log Contains X Times   Setting disable_auditd flag settings to  1
