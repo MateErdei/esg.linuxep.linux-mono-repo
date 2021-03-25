@@ -540,6 +540,39 @@ TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesVal
     EXPECT_EQ(expectedStatus, actualStatus);
 }
 
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithEmptyPolicy)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string empty = "";
+
+    pluginAdapter.processLiveQueryPolicy(empty);
+    EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "NoRef");
+    EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "");
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 250000000);
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithMissingField)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    std::string liveQueryPolicyMissingField = "<?xml version=\"1.0\"?>\n"
+                                              "<policy type=\"LiveQuery\" RevID=\"987654321\" policyType=\"56\">\n"
+                                              "    <configuration>\n"
+                                              "            <dailyDataLimit>123456</dailyDataLimit>\n"
+                                              "            <queryPacks>\n"
+                                              "                <queryPack id=\"queryPackId\" />\n"
+                                              "            </queryPacks>\n"
+                                              "    </configuration>\n"
+                                              "</policy>";
+
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicyMissingField);
+    EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Same");
+    EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "987654321");
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 262144000);
+}
 
 TEST_F(PluginAdapterWithMockFileSystem, testSerializeLiveQueryStatusGeneratesValidStatusWhenDataLimitHit)
 {

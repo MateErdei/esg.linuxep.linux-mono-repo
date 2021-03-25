@@ -10,6 +10,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/LogInitializedTests.h>
 
 #include <gtest/gtest.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 class TestLiveQueryPolicyParser: public LogInitializedTests{};
 
@@ -49,7 +50,257 @@ std::vector<std::string> testableGetEnabledQueryPacksInPolicy(const std::string&
     return Plugin::getEnabledQueryPacksInPolicy(attributeMap);
 }
 
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithSwappedTypesInJson)
+{
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                  "   <configuration>\n"
+                                  "       <scheduled>\n"
+                                  "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                  "           <queryPacks>\n"
+                                  "               <queryPack id=\"XDR\"/>\n"
+                                  "               <queryPack id=\"MTR\"/>\n"
+                                  "           </queryPacks>\n"
+                                  "           <foldingRules>\n"
+                                  "               [\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":1234,\n"
+                                  "                       \"values\":{\n"
+                                  "                           \"column_name\": \"column_value\",\n"
+                                  "                           \"column_name2\": \"column_value2\"\n"
+                                  "                       }\n"
+                                  "                   },\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query2\",\n"
+                                  "                        \"values\":{\n"
+                                  "                               \"column_name3\": 12345\n"
+                                  "                       }\n"
+                                  "                   },\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query3\",\n"
+                                  "                        \"values\":{\n"
+                                  "                               \"column_name3\": \"column_value3\"\n"
+                                  "                       }\n"
+                                  "                   }\n"
+                                  "               ]\n"
+                                  "           </foldingRules>\n"
+                                  "       </scheduled>\n"
+                                  "   </configuration>\n"
+                                  "</policy>";
 
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicy, foldingRules);
+    EXPECT_EQ(changeFoldingRules, false);
+    EXPECT_EQ(foldingRules.size(), 0);
+}
+
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesForTheSameQuery)
+{
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                  "   <configuration>\n"
+                                  "       <scheduled>\n"
+                                  "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                  "           <queryPacks>\n"
+                                  "               <queryPack id=\"XDR\"/>\n"
+                                  "               <queryPack id=\"MTR\"/>\n"
+                                  "           </queryPacks>\n"
+                                  "           <foldingRules>\n"
+                                  "               [\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query\",\n"
+                                  "                       \"values\":{\n"
+                                  "                           \"column_name\": \"column_value\"\n"
+                                  "                       }\n"
+                                  "                   },\n"
+                                  "                   {\n"
+                                  "                       \"query_name\":\"test_folding_query\",\n"
+                                  "                        \"values\":{\n"
+                                  "                               \"column_name\": \"column_value\"\n"
+                                  "                       }\n"
+                                  "                   }\n"
+                                  "               ]\n"
+                                  "           </foldingRules>\n"
+                                  "       </scheduled>\n"
+                                  "   </configuration>\n"
+                                  "</policy>";
+
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicy, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_EQ(foldingRules.size(), 2);
+    size_t count = 0;
+    for (const auto& r : foldingRules)
+    {
+        SCOPED_TRACE(count);
+
+        ASSERT_TRUE(r.get("query_name", "").isString());
+        ASSERT_TRUE(r.get("values", "").isObject());
+
+        const std::string query_name = r.get("query_name", "").asString();
+        const Json::Value values = r.get("values", "");
+
+        if (count == 0)
+        {
+            EXPECT_STREQ(query_name.c_str(), "test_folding_query");
+            EXPECT_STREQ(values.get("column_name", "").asString().c_str(), "column_value");
+        }
+        else if (count == 1)
+        {
+            EXPECT_STREQ(query_name.c_str(), "test_folding_query");
+            EXPECT_STREQ(values.get("column_name", "").asString().c_str(), "column_value");
+        }
+
+        count++;
+    }
+    EXPECT_EQ(count, foldingRules.size());
+
+}
+
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithNoQueryNames)
+{
+    std::string liveQueryPolicyInvalid = "<?xml version=\"1.0\"?>\n"
+                                         "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                         "   <configuration>\n"
+                                         "       <scheduled>\n"
+                                         "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                         "           <queryPacks>\n"
+                                         "               <queryPack id=\"XDR\"/>\n"
+                                         "               <queryPack id=\"MTR\"/>\n"
+                                         "           </queryPacks>\n"
+                                         "           <foldingRules>\n"
+                                         "               [\n"
+                                         "                   {\n"
+                                         "                        \"values\":{\n"
+                                         "                               \"column_name3\": \"column_value3\"\n"
+                                         "                       }\n"
+                                         "                   },\n"
+                                         "                   {\n"
+                                         "                       \"query_name\":\"test_folding_query2\",\n"
+                                         "                        \"values\":{\n"
+                                         "                               \"column_name3\": \"column_value3\"\n"
+                                         "                       }\n"
+                                         "                   }\n"
+                                         "               ]\n"
+                                         "           </foldingRules>\n"
+                                         "       </scheduled>\n"
+                                         "   </configuration>\n"
+                                         "</policy>";
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyInvalid, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_EQ(foldingRules.size(),1);
+}
+
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithNoValues)
+{
+    std::string liveQueryPolicyInvalid = "<?xml version=\"1.0\"?>\n"
+                                         "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                         "   <configuration>\n"
+                                         "       <scheduled>\n"
+                                         "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                         "           <queryPacks>\n"
+                                         "               <queryPack id=\"XDR\"/>\n"
+                                         "               <queryPack id=\"MTR\"/>\n"
+                                         "           </queryPacks>\n"
+                                         "           <foldingRules>\n"
+                                         "               [\n"
+                                         "                   {\n"
+                                         "                       \"query_name\":\"test_folding_query\"\n"
+                                         "                   },\n"
+                                         "                   {\n"
+                                         "                       \"query_name\":\"test_folding_query2\",\n"
+                                         "                        \"values\":{\n"
+                                         "                               \"column_name3\": \"column_value3\"\n"
+                                         "                       }\n"
+                                         "                   }\n"
+                                         "               ]\n"
+                                         "           </foldingRules>\n"
+                                         "       </scheduled>\n"
+                                         "   </configuration>\n"
+                                         "</policy>";
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyInvalid, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_EQ(foldingRules.size(),1);
+}
+
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesEmptyJson)
+{
+    std::string liveQueryPolicyEmptyJson = "<?xml version=\"1.0\"?>\n"
+                                           "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                           "   <configuration>\n"
+                                           "       <scheduled>\n"
+                                           "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                           "           <queryPacks>\n"
+                                           "               <queryPack id=\"XDR\"/>\n"
+                                           "               <queryPack id=\"MTR\"/>\n"
+                                           "           </queryPacks>\n"
+                                           "           <foldingRules>\n"
+                                           "               []\n"
+                                           "           </foldingRules>\n"
+                                           "       </scheduled>\n"
+                                           "   </configuration>\n"
+                                           "</policy>";
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyEmptyJson, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_TRUE(foldingRules.empty());
+}
+
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithVeryLargeJson)
+{
+    std::string liveQueryPolicyWithLargeJson = "<?xml version=\"1.0\"?>\n"
+                                               "<policy type=\"LiveQuery\" RevID=\"abc123\" policyType=\"56\">\n"
+                                               "   <configuration>\n"
+                                               "       <scheduled>\n"
+                                               "           <dailyDataLimit>100</dailyDataLimit>\n"
+                                               "           <queryPacks>\n"
+                                               "               <queryPack id=\"XDR\"/>\n"
+                                               "               <queryPack id=\"MTR\"/>\n"
+                                               "           </queryPacks>\n"
+                                               "           <foldingRules>\n"
+                                               "               [\n";
+    // Adding 5.000 different folding rules
+    for(int i = 1; i <= 5000; i++)
+    {
+        std::string foldingRule =     "                   {\n"
+                                      "                       \"query_name\":\"test_folding_query" + std::to_string(i) + "\",\n"
+                                      "                       \"values\":{\n"
+                                      "                           \"column_name" + std::to_string(i+5001) + "\": \"column_value" + std::to_string(i+5001) + "\",\n"
+                                      "                           \"column_name2" + std::to_string(i+5001) +  "\": \"column_value2" +  std::to_string(i+5001) + "\"\n"
+                                      "                       }\n"
+                                      "                   },\n";
+
+        liveQueryPolicyWithLargeJson = liveQueryPolicyWithLargeJson + foldingRule;
+    }
+
+    // Adding one more folding rule and the rest of the policy
+    std::string restOfPolicy =                 "                   {\n"
+                                               "                       \"query_name\":\"test_folding_query5002\",\n"
+                                               "                        \"values\":{\n"
+                                               "                               \"column_name10003\": \"column_value10003\"\n"
+                                               "                       }\n"
+                                               "                   }\n"
+                                               "               ]\n"
+                                               "           </foldingRules>\n"
+                                               "       </scheduled>\n"
+                                               "   </configuration>\n"
+                                               "</policy>";
+
+    liveQueryPolicyWithLargeJson = liveQueryPolicyWithLargeJson + restOfPolicy;
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyWithLargeJson, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_EQ(foldingRules.size(), 5001);
+
+}
 
 TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesHandlesExpectedPolicy)
 {
@@ -444,6 +695,190 @@ TEST_F(TestLiveQueryPolicyParser, testGetRevID)
     std::string garbage = "garbage";
 
     EXPECT_THROW(testableGetRevId(garbage), std::exception);
+}
+
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryCustomQueriesTypesMismatched)
+{
+    std::string liveQueryPolicyMismatched =  "<?xml version=\"1.0\"?>\n"
+                                             "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                             "    <configuration>\n"
+                                             "        <scheduled>\n"
+                                             "            <dailyDataLimit>blah</dailyDataLimit>\n"
+                                             "            <queryPacks>\n"
+                                             "                <queryPack id=\"queryPackId\" />\n"
+                                             "            </queryPacks>\n"
+                                             "            <customQueries>\n"
+                                             "               blah\n"
+                                             "            </customQueries>\n"
+                                             "        </scheduled>\n"
+                                             "    </configuration>\n"
+                                             "</policy>";
+
+
+    EXPECT_FALSE(testableGetCustomQueries(liveQueryPolicyMismatched).has_value());
+}
+
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryCustomQueriesAbsurdlyLargeNumber)
+{
+    std::string liveQueryPolicyAbsurd = "<?xml version=\"1.0\"?>\n"
+                                        "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                        "    <configuration>\n"
+                                        "        <scheduled>\n"
+                                        "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                        "            <queryPacks>\n"
+                                        "                <queryPack id=\"queryPackId\" />\n"
+                                        "            </queryPacks>\n"
+                                        "            <customQueries>\n";
+
+    // adding 500 different custom queries
+    for (int i=1; i <= 500; i++)
+    {
+        std::string customQuery =    "                  <customQuery queryName=\"blah" + std::to_string(i) + "\">\n"
+                                     "                      <description>basic query</description>\n"
+                                     "                      <query>SELECT * FROM stuff</query>\n"
+                                     "                      <interval>10</interval>\n"
+                                     "                      <tag>DataLake</tag>\n"
+                                     "                      <removed>false</removed>\n"
+                                     "                      <denylist>false</denylist>\n"
+                                     "                  </customQuery>\n";
+
+        liveQueryPolicyAbsurd = liveQueryPolicyAbsurd + customQuery;
+    }
+
+    std::string restOfPolicy =       "            </customQueries>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    liveQueryPolicyAbsurd = liveQueryPolicyAbsurd + restOfPolicy;
+
+    std::string expected =  "{"
+                            "\"schedule\":{";
+
+    // creating expectations of 500 custom queries
+    for (int i=1; i <= 499; i++)
+    {
+        std::string customQueryExpected =    "\"blah" + std::to_string(i) + "\":{"
+                                                                            "\"denylist\":\"false\","
+                                                                            "\"description\":\"basic query\","
+                                                                            "\"interval\":\"10\","
+                                                                            "\"query\":\"SELECT * FROM stuff\","
+                                                                            "\"removed\":\"false\","
+                                                                            "\"tag\":\"DataLake\""
+                                                                            "},";
+
+        expected = expected + customQueryExpected;
+    }
+
+    // adding the ending of the expectation
+    std::string expectedEnding = "\"blah500\":{"
+                                 "\"denylist\":\"false\","
+                                 "\"description\":\"basic query\","
+                                 "\"interval\":\"10\","
+                                 "\"query\":\"SELECT * FROM stuff\","
+                                 "\"removed\":\"false\","
+                                 "\"tag\":\"DataLake\""
+                                 "}"
+                                 "}"
+                                 "}";
+
+    expected = expected + expectedEnding;
+
+    auto result = testableGetCustomQueries(liveQueryPolicyAbsurd);
+    EXPECT_TRUE(result.has_value());
+
+    // comparing the objects to see if all expected queries are present
+    nlohmann::json j = nlohmann::json::parse(result.value());
+    nlohmann::json g = nlohmann::json::parse(expected);
+    EXPECT_EQ(j, g);
+}
+
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryCustomQueriesInvalidInterval)
+{
+    std::string liveQueryPolicyInvalidInterval = "<?xml version=\"1.0\"?>\n"
+                                                 "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                                 "    <configuration>\n"
+                                                 "        <scheduled>\n"
+                                                 "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                                 "            <queryPacks>\n"
+                                                 "                <queryPack id=\"queryPackId\" />\n"
+                                                 "            </queryPacks>\n"
+                                                 "            <customQueries>\n"
+                                                 "                  <customQuery queryName=\"blah\">\n"
+                                                 "                      <description>basic query</description>\n"
+                                                 "                      <query>SELECT * FROM stuff</query>\n"
+                                                 "                      <interval>-10</interval>\n"
+                                                 "                      <tag>DataLake</tag>\n"
+                                                 "                      <removed>false</removed>\n"
+                                                 "                      <denylist>false</denylist>\n"
+                                                 "                  </customQuery>\n"
+                                                 "                  <customQuery queryName=\"blah2\">\n"
+                                                 "                      <description>a different basic query</description>\n"
+                                                 "                      <query>SELECT * FROM otherstuff</query>\n"
+                                                 "                      <interval>555555555555555555</interval>\n"
+                                                 "                      <tag>stream</tag>\n"
+                                                 "                      <removed>true</removed>\n"
+                                                 "                      <denylist>true</denylist>\n"
+                                                 "                  </customQuery>\n"
+                                                 "                  <customQuery queryName=\"blah3\">\n"
+                                                 "                      <description>a different basic query</description>\n"
+                                                 "                      <query>SELECT * FROM otherstuff</query>\n"
+                                                 "                      <interval>10.55555</interval>\n"
+                                                 "                      <tag>stream</tag>\n"
+                                                 "                      <removed>true</removed>\n"
+                                                 "                      <denylist>true</denylist>\n"
+                                                 "                  </customQuery>\n"
+                                                 "                  <customQuery queryName=\"blah4\">\n"
+                                                 "                      <description>a different basic query</description>\n"
+                                                 "                      <query>SELECT * FROM otherstuff</query>\n"
+                                                 "                      <interval>10/3</interval>\n"
+                                                 "                      <tag>stream</tag>\n"
+                                                 "                      <removed>true</removed>\n"
+                                                 "                      <denylist>true</denylist>\n"
+                                                 "                  </customQuery>\n"
+                                                 "            </customQueries>\n"
+                                                 "        </scheduled>\n"
+                                                 "    </configuration>\n"
+                                                 "</policy>";
+
+    std::string expected =      "{"
+                                "\"schedule\":{"
+                                "\"blah\":{"
+                                "\"denylist\":\"false\","
+                                "\"description\":\"basic query\","
+                                "\"interval\":\"-10\","
+                                "\"query\":\"SELECT * FROM stuff\","
+                                "\"removed\":\"false\","
+                                "\"tag\":\"DataLake\""
+                                "},"
+                                "\"blah2\":{"
+                                "\"denylist\":\"true\","
+                                "\"description\":\"a different basic query\","
+                                "\"interval\":\"555555555555555555\","
+                                "\"query\":\"SELECT * FROM otherstuff\","
+                                "\"removed\":\"true\","
+                                "\"tag\":\"stream\""
+                                "},"
+                                "\"blah3\":{"
+                                "\"denylist\":\"true\","
+                                "\"description\":\"a different basic query\","
+                                "\"interval\":\"10.55555\","
+                                "\"query\":\"SELECT * FROM otherstuff\","
+                                "\"removed\":\"true\","
+                                "\"tag\":\"stream\""
+                                "},"
+                                "\"blah4\":{"
+                                "\"denylist\":\"true\","
+                                "\"description\":\"a different basic query\","
+                                "\"interval\":\"10/3\","
+                                "\"query\":\"SELECT * FROM otherstuff\","
+                                "\"removed\":\"true\","
+                                "\"tag\":\"stream\""
+                                "}"
+                                "}"
+                                "}";
+
+    EXPECT_EQ(testableGetCustomQueries(liveQueryPolicyInvalidInterval).value(),expected);
 }
 
 TEST_F(TestLiveQueryPolicyParser, testUpdateCustomQueries)
