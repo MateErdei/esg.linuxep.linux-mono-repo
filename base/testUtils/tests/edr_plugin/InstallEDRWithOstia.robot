@@ -316,10 +316,10 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
     Wait for first update
+
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
-    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  30 secs

@@ -81,10 +81,15 @@ UpdateScheduler Second Run with Normal Run will not generate new Event
     File Should not Exist  ${reportPath}
 
 
-UpdateScheduler Third Run with Upgrade will generate event
+UpdateScheduler Third Run With Upgrade Will Not Generate Event
+    # If overall result of an update goes from SUCCESS to SUCCESS
+    # even when files are being installed, no new event will be generated.
     Setup Base and Plugin Sync and UpToDate
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created
+    ${StatusPath} =  Check Status Is Created
+    ${StatusContent1} =  Get File  ${StatusPath}
+
     Check Event Report Success  ${eventPath}
 
     ${reportPath} =  Get latest report path
@@ -92,14 +97,18 @@ UpdateScheduler Third Run with Upgrade will generate event
     Setup Base and Plugin Sync and UpToDate  startTime=2
     Simulate Update Now
     Check No New Event Created  ${eventPath}
+
     # first report is to be removed as it does not add relevant information
     File Should not Exist  ${reportPath}
 
     Setup Base and Plugin Upgraded  startTime=3  syncTime=3
     Simulate Update Now
-    ${eventPath} =  Check Status and Events Are Created
-    Check Event Report Success  ${eventPath}
 
+    Check No New Event Created  ${eventPath}
+    ${StatusPath} =  Check Status Is Created
+    ${StatusContent2} =  Get File  ${StatusPath}
+
+    Should Not Be Equal As Strings   ${StatusContent1}  ${StatusContent2}
 
 UpdateScheduler Report Failure to Update
     Setup Plugin Install Failed

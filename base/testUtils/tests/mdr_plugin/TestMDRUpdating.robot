@@ -29,30 +29,28 @@ Test MDR Plugin Can Be Installed Removed and ReInstalled From Central
     [Documentation]  Address bug found LINUXEP-8233
     Create File  ${UPDATE_CONFIG}
     Block Connection Between EndPoint And FleetManager
-    Simulate Send Policy And Run Update And Check Success  ${MDR_VUT_POLICY}
-    Check MDR Installed
+
+    Simulate Send Policy And Simulate Update Now  ${MDR_VUT_POLICY}
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  3 secs
+    ...  Check MDR Installed
 
     Set Log Level For Component And Reset and Return Previous Log  suldownloader  DEBUG
-    #Simulate Send Policy And Run Update And Check Success  ${MDR_VUT_POLICY}   remove_features=MDR   remove_subscriptions=MDR
-    Simulate Send Policy And Run Update    ${MDR_VUT_POLICY}   remove_features=MDR   remove_subscriptions=MDR
+
+    Simulate Send Policy And Simulate Update Now   ${MDR_VUT_POLICY}   remove_features=MDR   remove_subscriptions=MDR
 
     Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
-
-    Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  200 secs
     ...  3 secs
     ...  Check MDR Uninstalled
 
-    #Simulate Send Policy And Run Update And Check Success  ${MDR_VUT_POLICY}
-    Simulate Send Policy And Run Update  ${MDR_VUT_POLICY}
+    Simulate Send Policy And Simulate Update Now  ${MDR_VUT_POLICY}
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
-    Check MDR Installed
+    ...   Check MDR Installed
 
 
 Test MDR Plugin When Installed Emit Status With The Components Of The Warehouse Installed

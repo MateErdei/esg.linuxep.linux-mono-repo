@@ -105,16 +105,23 @@ Setup Current Update Scheduler Environment Without Policy
 Check Status and Events Are Created
     [Arguments]   ${waitTime}=10 secs  ${attemptsTime}=1 secs
 
-    Wait Until Keyword Succeeds
-    ...  ${waitTime}
-    ...  ${attemptsTime}
-    ...  File Should Exist  ${statusPath}
+   Check Status Is Created
 
     @{words} =  Split String    ${waitTime}
     ${eventPath} =  Check Event File Generated  ${words}[0]
     LogFile  ${eventPath}
     LogFile  ${statusPath}
     [Return]  ${eventPath}
+
+Check Status Is Created
+    [Arguments]   ${waitTime}=10 secs  ${attemptsTime}=1 secs
+
+    Wait Until Keyword Succeeds
+    ...  ${waitTime}
+    ...  ${attemptsTime}
+    ...  File Should Exist  ${statusPath}
+    LogFile  ${statusPath}
+    [Return]  ${statusPath}
 
 Simulate Update Now
     Empty Directory  ${SOPHOS_INSTALL}/base/mcs/event
@@ -338,9 +345,16 @@ Simulate Send Policy And Run Update
     Send Policy To UpdateScheduler  ${Policy}  &{kwargs}
     Simulate Update Now
     Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
+    ...  300 secs
+    ...  5 secs
     ...  SulDownloader Reports Finished
+
+Simulate Send Policy And Simulate Update Now
+    [Arguments]  ${Policy}  &{kwargs}
+    Remove File   ${statusPath}
+    Prepare Installation For Upgrade Using Policy  ${Policy}
+    Send Policy To UpdateScheduler  ${Policy}  &{kwargs}
+    Simulate Update Now
 
 Check Update Success
     [Arguments]    ${eventPath}

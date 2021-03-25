@@ -132,7 +132,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -870,7 +870,10 @@ Check Update Reports Have Been Processed
     Log  ${filesInUpdateVar}
 
     ${ProcessedFileCountDir}=  Get length   ${files_in_processed_dir}
-    Should Be Equal As Numbers  ${ProcessedFileCountDir}     2
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Should Be Equal As Numbers  ${ProcessedFileCountDir}     2
 
     Should Contain  ${files_in_processed_dir}[0]  update_report
     Should Not Contain  ${files_in_processed_dir}[0]  update_report.json
