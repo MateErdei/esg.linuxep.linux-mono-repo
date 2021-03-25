@@ -76,11 +76,11 @@ EDR Plugin Produces Telemetry For XDR scheduled queries
     ...   45 secs
     ...   5 secs
     ...   Check EDR Log Contains  Error executing scheduled query bad-query:
-
     Wait Until Keyword Succeeds
-    ...   30 secs
+    ...   45 secs
     ...   5 secs
     ...   Check Scheduled Query Log Contains  Executing query: endpoint_id
+
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
