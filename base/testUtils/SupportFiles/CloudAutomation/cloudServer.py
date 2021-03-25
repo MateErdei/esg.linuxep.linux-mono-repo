@@ -211,6 +211,7 @@ SERVER_401 = False
 NULL_NEXT = False
 SERVER_500 = False
 SERVER_504 = False
+SERVER_404 = False
 
 
 def readCert(basename):
@@ -1295,6 +1296,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         global SERVER_401
         global SERVER_500
         global SERVER_504
+        global SERVER_404
         global NULL_NEXT
 
         if self.path == "/error":
@@ -1303,6 +1305,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/error/server401":
             logger.info("SENDING 401s")
             SERVER_401 = True
+            return self.ret("")
+        elif self.path == "/error/server404":
+            logger.info("SENDING 404s")
+            SERVER_404 = True
             return self.ret("")
         elif self.path == "/error/server500":
             logger.info("SENDING 500")
@@ -1368,9 +1374,22 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         self.end_headers()
         return True
 
+    def send_error_404(self):
+        action_log.debug("404")
+        logger.debug("Sending 404 for %s", self.path)
+        self.send_response(404, "Not Found")
+        self.send_header("Content-Length", "0")
+        ## reset the cookie (this will be ignored by the client in this response)
+        reset_cookies()
+        self.sendAWSCookie()
+        self.send_cookie()
+        self.end_headers()
+        return True
+
     def do_GET_mcs(self):
         global ERROR_NEXT
         global SERVER_504
+        global SERVER_404
         global REREGISTER_NEXT
         global NULL_NEXT
 
@@ -1394,6 +1413,9 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif SERVER_504 and not self.path.startswith('/mcs/push/endpoint/'):
             SERVER_504 = False
             return self.send_error_504()
+        elif SERVER_404 and not self.path.startswith('/mcs/push/endpoint/'):
+            SERVER_404 = False
+            return self.send_error_404()
         elif self.path.startswith("/mcs/commands/applications/"):
             if NULL_NEXT:
                 NULL_NEXT = False
