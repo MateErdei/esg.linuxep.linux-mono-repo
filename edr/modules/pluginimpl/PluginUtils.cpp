@@ -51,14 +51,27 @@ namespace Plugin
 
         if (fileSystem->isFile(configPath))
         {
-            std::pair<std::string,std::string> value = Common::UtilityImpl::FileUtils::extractValueFromFile(configPath, flag);
-            if (value.first.empty() && !value.second.empty())
+            bool flagPresent = true;
+            try
             {
-                LOGWARN("Failed to read " << flag << " configuration from config file due to error: " << value.second);
-                throw std::runtime_error(flag + " not set in plugin setting file");
+                std::string content = fileSystem->readFile(configPath);
+                flagPresent = Common::UtilityImpl::StringUtils::isSubstring(content, flag);
+            }
+            catch (Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to read " << flag << " configuration from config file due to error: " << ex.what());
             }
 
-            return (value.first == "1");;
+            if (flagPresent)
+            {
+                std::pair<std::string,std::string> value = Common::UtilityImpl::FileUtils::extractValueFromFile(configPath, flag);
+                if (value.first.empty() && !value.second.empty())
+                {
+                    LOGWARN("Failed to read " << flag << " configuration from config file due to error: " << value.second);
+                    throw std::runtime_error(flag + " not set in plugin setting file");
+                }
+                return (value.first == "1");;
+            }
         }
         else
         {
@@ -75,6 +88,7 @@ namespace Plugin
         }
         return false;
     }
+
     void PluginUtils::setGivenFlagFromSettingsFile(const std::string& flag, const bool& flagValue)
     {
         auto fileSystem = Common::FileSystem::fileSystem();

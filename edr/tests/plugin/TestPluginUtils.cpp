@@ -82,7 +82,7 @@ TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileThrowsWhenSettingFileHa
 {
     Tests::TempDir tempDir("/tmp");
 
-    tempDir.createFile("plugins/edr/etc/plugin.conf", "blarg$$@~#\n");
+    tempDir.createFile("plugins/edr/etc/plugin.conf", "running_mode=0\nblarg$$@~#\n");
     Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
 
@@ -359,6 +359,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagDoesNotUpdateF
     Common::ApplicationConfiguration::applicationConfiguration().setData(
         Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
     EXPECT_CALL(*mockFileSystem, isFile(Plugin::edrConfigFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(Plugin::edrConfigFilePath())).WillOnce(Return("flag_name=1"));
     Plugin::PluginUtils::updatePluginConfWithFlag("flag_name", true, flagsHaveChanged);
     EXPECT_FALSE(flagsHaveChanged);
     std::string newContents = tempDir.fileContent("plugins/edr/etc/plugin.conf");
@@ -375,6 +376,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagUpdatesFileAnd
     Common::ApplicationConfiguration::applicationConfiguration().setData(
         Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
     EXPECT_CALL(*mockFileSystem, isFile(Plugin::edrConfigFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(Plugin::edrConfigFilePath())).WillOnce(Return("flag_name=0"));
     EXPECT_CALL(*mockFileSystem, readLines(Plugin::edrConfigFilePath())).WillRepeatedly(Return(oldLines));
     EXPECT_CALL(*mockFileSystem, writeFileAtomically(Plugin::edrConfigFilePath(), "flag_name=1\n", Plugin::etcDir())).Times(1);
     Plugin::PluginUtils::updatePluginConfWithFlag("flag_name", true, flagsHaveChanged);
@@ -391,6 +393,7 @@ TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagUpdatesFileAnd
     Common::ApplicationConfiguration::applicationConfiguration().setData(
         Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
     EXPECT_CALL(*mockFileSystem, isFile(Plugin::edrConfigFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(Plugin::edrConfigFilePath())).WillOnce(Return("flag_name=1"));
     EXPECT_CALL(*mockFileSystem, readLines(Plugin::edrConfigFilePath())).WillRepeatedly(Return(oldLines));
     EXPECT_CALL(*mockFileSystem, writeFileAtomically(Plugin::edrConfigFilePath(), "flag_name=0\n", Plugin::etcDir())).Times(1);
     Plugin::PluginUtils::updatePluginConfWithFlag("flag_name", false, flagsHaveChanged);
@@ -407,11 +410,13 @@ TEST_F(TestPluginUtilsWithMockFileSystem, updatePluginConfWithFlagSetsValueInFil
     Common::ApplicationConfiguration::applicationConfiguration().setData(
         Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
     EXPECT_CALL(*mockFileSystem, isFile(Plugin::edrConfigFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(Plugin::edrConfigFilePath())).WillOnce(Return("other_name=1"));
     EXPECT_CALL(*mockFileSystem, readLines(Plugin::edrConfigFilePath())).WillRepeatedly(Return(oldLines));
     EXPECT_CALL(*mockFileSystem, writeFileAtomically(Plugin::edrConfigFilePath(), "other_name=1\nflag_name=1\n", Plugin::etcDir())).Times(1);
     Plugin::PluginUtils::updatePluginConfWithFlag("flag_name", true, flagsHaveChanged);
     EXPECT_TRUE(flagsHaveChanged);
 }
+
 TEST_F(TestPluginUtilsWithMockFileSystem, enableAnddisableQueryPackRenamesQueryPack) // NOLINT
 {
     std::string queryPackPath = "querypackpath";
