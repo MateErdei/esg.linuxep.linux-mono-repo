@@ -141,6 +141,54 @@ class TestMCSResponse(unittest.TestCase):
             caps = conn.capabilities()
         self.assertEqual( cm.exception.error_code(), httplib.GATEWAY_TIMEOUT )
 
+    def testHTTPerror400(self):
+        conn = dummyMCSConnection(status=http.client.BAD_REQUEST)
+        with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpException) as cm:
+            caps = conn.capabilities()
+        self.assertEqual( cm.exception.error_code(), http.client.BAD_REQUEST )
+
+    def testHTTPerror401(self):
+        conn = dummyMCSConnection(status=http.client.UNAUTHORIZED)
+        with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpException) as cm:
+            caps = conn.capabilities()
+        self.assertEqual( cm.exception.error_code(), http.client.UNAUTHORIZED )
+
+    def testHTTPerror403(self):
+        conn = dummyMCSConnection(status=http.client.FORBIDDEN)
+        with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpException) as cm:
+            caps = conn.capabilities()
+        self.assertEqual( cm.exception.error_code(), http.client.FORBIDDEN )
+
+    def testHTTPerror404(self):
+        conn = dummyMCSConnection(status=http.client.NOT_FOUND)
+        with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpException) as cm:
+            caps = conn.capabilities()
+        self.assertEqual( cm.exception.error_code(), http.client.NOT_FOUND )
+
+    def testHTTPerror410(self):
+        conn = dummyMCSConnection(status=http.client.GONE)
+        with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpException) as cm:
+            caps = conn.capabilities()
+        self.assertEqual( cm.exception.error_code(), http.client.GONE )
+
+    def testHTTPerror500(self):
+        conn = dummyMCSConnection(status=http.client.INTERNAL_SERVER_ERROR)
+        with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpException) as cm:
+            caps = conn.capabilities()
+        self.assertEqual( cm.exception.error_code(), http.client.INTERNAL_SERVER_ERROR )
+
+    def testHTTPerror502(self):
+        conn = dummyMCSConnection(status=http.client.BAD_GATEWAY)
+        with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpException) as cm:
+            caps = conn.capabilities()
+        self.assertEqual( cm.exception.error_code(), http.client.BAD_GATEWAY )
+
+    def testHTTPerror503(self):
+        conn = dummyMCSConnection(status=http.client.SERVICE_UNAVAILABLE)
+        with self.assertRaises(mcsrouter.mcsclient.mcs_connection.MCSHttpException) as cm:
+            caps = conn.capabilities()
+        self.assertEqual( cm.exception.error_code(), http.client.SERVICE_UNAVAILABLE )
+
     def testOtherError(self):
         # test a random error code.
         conn = dummyMCSConnection(status=httplib.EXPECTATION_FAILED, reason="bogus error")

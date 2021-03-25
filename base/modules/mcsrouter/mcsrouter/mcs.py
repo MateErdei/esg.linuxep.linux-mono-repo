@@ -761,8 +761,6 @@ class MCS:
                         # From MCS spec section 12 - HTTP Bad Request is
                         # semi-permanent
                         transient = False
-                    else:
-                        LOGGER.exception("Got http error from MCS")
 
                     self.on_error(push_client, error_count, transient)
                 except (mcs_exception.MCSNetworkException, http.client.NotConnected):
