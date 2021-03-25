@@ -42,13 +42,13 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
     ...  1 secs
     ...  EDR Plugin Log Contains  Processing LiveQuery Policy
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  15 secs
     ...  1 secs
     ...  File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
     Log File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  15 secs
     ...  2 secs
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
