@@ -33,8 +33,8 @@ namespace Plugin
 
     unsigned int getDataLimit(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
     std::string getRevId(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
-    std::optional<std::string> getCustomQueries(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
-    std::vector<Json::Value> getFoldingRules(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
+    bool getCustomQueries(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap, std::optional<std::string>& customQueries);
+    bool getFoldingRules(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap, std::vector<Json::Value>& foldingRules);
     std::map<std::string, std::string> getLiveQueryPackIdToConfigPath();
     std::vector<std::string> getEnabledQueryPacksInPolicy(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
     bool getScheduledQueriesEnabledInPolicy(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);

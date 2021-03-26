@@ -32,10 +32,10 @@ std::string testableGetRevId(const std::string& policy)
     return Plugin::getRevId(attributeMap);
 }
 
-std::optional<std::string> testableGetCustomQueries(const std::string& policy)
+bool testableGetCustomQueries(const std::string& policy, std::optional<std::string>& customQueries)
 {
     Common::XmlUtilities::AttributesMap attributeMap = Common::XmlUtilities::parseXml(policy);
-    return Plugin::getCustomQueries(attributeMap);
+    return Plugin::getCustomQueries(attributeMap,customQueries);
 }
 
 bool testableGetScheduledQueriesEnabledInPolicy(const std::string& policy)
@@ -703,7 +703,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryCustomQueriesTypesMismatch
                                              "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
                                              "    <configuration>\n"
                                              "        <scheduled>\n"
-                                             "            <dailyDataLimit>blah</dailyDataLimit>\n"
+                                             "            <dailyDataLimit>100000</dailyDataLimit>\n"
                                              "            <queryPacks>\n"
                                              "                <queryPack id=\"queryPackId\" />\n"
                                              "            </queryPacks>\n"
@@ -715,7 +715,10 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryCustomQueriesTypesMismatch
                                              "</policy>";
 
 
-    EXPECT_FALSE(testableGetCustomQueries(liveQueryPolicyMismatched).has_value());
+    std::optional<std::string> customQueries;
+    bool customQueriesChanged = testableGetCustomQueries(liveQueryPolicyMismatched, customQueries);
+    EXPECT_EQ(customQueriesChanged, false);
+    EXPECT_FALSE(customQueries.has_value());
 }
 
 TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryCustomQueriesAbsurdlyLargeNumber)
@@ -724,7 +727,7 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryCustomQueriesAbsurdlyLarge
                                         "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
                                         "    <configuration>\n"
                                         "        <scheduled>\n"
-                                        "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                        "            <dailyDataLimit>100000</dailyDataLimit>\n"
                                         "            <queryPacks>\n"
                                         "                <queryPack id=\"queryPackId\" />\n"
                                         "            </queryPacks>\n"
@@ -784,7 +787,9 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryCustomQueriesAbsurdlyLarge
 
     expected = expected + expectedEnding;
 
-    auto result = testableGetCustomQueries(liveQueryPolicyAbsurd);
+    std::optional<std::string> result;
+    bool customQueriesChanged = testableGetCustomQueries(liveQueryPolicyAbsurd, result);
+    EXPECT_EQ(customQueriesChanged, true);
     EXPECT_TRUE(result.has_value());
 
     // comparing the objects to see if all expected queries are present
@@ -878,7 +883,10 @@ TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryCustomQueriesInvalidInterv
                                 "}"
                                 "}";
 
-    EXPECT_EQ(testableGetCustomQueries(liveQueryPolicyInvalidInterval).value(),expected);
+    std::optional<std::string> customQueries;
+    bool customQueriesChanged = testableGetCustomQueries(liveQueryPolicyInvalidInterval, customQueries);
+    EXPECT_EQ(customQueriesChanged, true);
+    EXPECT_EQ(customQueries.value(), expected);
 }
 
 TEST_F(TestLiveQueryPolicyParser, testUpdateCustomQueries)
@@ -933,7 +941,11 @@ TEST_F(TestLiveQueryPolicyParser, testUpdateCustomQueries)
                            "}"
                            "}"
                            "}";
-    EXPECT_EQ(testableGetCustomQueries(liveQueryPolicy100).value(), expected);
+
+    std::optional<std::string> customQueries;
+    bool customQueriesChanged = testableGetCustomQueries(liveQueryPolicy100, customQueries);
+    EXPECT_EQ(customQueriesChanged, true);
+    EXPECT_EQ(customQueries.value(), expected);
 }
 
 TEST_F(TestLiveQueryPolicyParser, testUpdateCustomQueriesdoesNotIncludeMalformedQueriesInJson)
@@ -1004,7 +1016,11 @@ TEST_F(TestLiveQueryPolicyParser, testUpdateCustomQueriesdoesNotIncludeMalformed
                            "}"
                            "}"
                            "}";
-    EXPECT_EQ(testableGetCustomQueries(liveQueryPolicy100).value(), expected);
+
+    std::optional<std::string> customQueries;
+    bool customQueriesChanged = testableGetCustomQueries(liveQueryPolicy100, customQueries);
+    EXPECT_EQ(customQueriesChanged, true);
+    EXPECT_EQ(customQueries.value(), expected);
 }
 
 TEST_F(TestLiveQueryPolicyParser, testGetScheduledQueriesEnabledInPolicy)
@@ -1114,4 +1130,160 @@ TEST_F(TestLiveQueryPolicyParser, testGetEnabledQueryPacksInPolicy) {
                                                "    </configuration>\n"
                                                "</policy>";
     EXPECT_EQ(testableGetEnabledQueryPacksInPolicy(liveQueryPolicyWithNoPacksSection), (std::vector<std::string>{}));
+}
+
+TEST_F(TestLiveQueryPolicyParser, testUpdateCustomQueriesGoodBadGoodScenario)
+{
+    // get good policy with valid custom queries
+    std::string liveQueryPolicy100 = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "            <customQueries>\n"
+                                     "                  <customQuery queryName=\"blah\">\n"
+                                     "                      <description>basic query</description>\n"
+                                     "                      <query>SELECT * FROM stuff</query>\n"
+                                     "                      <interval>10</interval>\n"
+                                     "                      <tag>DataLake</tag>\n"
+                                     "                      <removed>false</removed>\n"
+                                     "                      <denylist>false</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery queryName=\"blah2\">\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query>SELECT * FROM otherstuff</query>\n"
+                                     "                      <interval>5</interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "            </customQueries>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    std::string expected = "{"
+                           "\"schedule\":{"
+                           "\"blah\":{"
+                           "\"denylist\":\"false\","
+                           "\"description\":\"basic query\","
+                           "\"interval\":\"10\","
+                           "\"query\":\"SELECT * FROM stuff\","
+                           "\"removed\":\"false\","
+                           "\"tag\":\"DataLake\""
+                           "},"
+                           "\"blah2\":{"
+                           "\"denylist\":\"true\","
+                           "\"description\":\"a different basic query\","
+                           "\"interval\":\"5\","
+                           "\"query\":\"SELECT * FROM otherstuff\","
+                           "\"removed\":\"true\","
+                           "\"tag\":\"stream\""
+                           "}"
+                           "}"
+                           "}";
+
+    std::optional<std::string> customQueries;
+    bool customQueriesChanged = testableGetCustomQueries(liveQueryPolicy100, customQueries);
+    EXPECT_EQ(customQueriesChanged, true);
+    EXPECT_TRUE(customQueries.has_value());
+    EXPECT_EQ(customQueries.value(), expected);
+
+    // get policy with bad custom query field
+    std::string liveQueryPolicyInvalidCustomQueries = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "            <customQueries>\n"
+                                     "                  blah\n"
+                                     "            </customQueries>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    std::optional<std::string> customQueriesNext;
+    bool customQueriesChanged2 = testableGetCustomQueries(liveQueryPolicyInvalidCustomQueries, customQueriesNext);
+    EXPECT_EQ(customQueriesChanged2, false);
+    EXPECT_FALSE(customQueriesNext.has_value());
+
+    // get policy with some good custom queries
+    std::string liveQueryPolicySomeGoodQueries = "<?xml version=\"1.0\"?>\n"
+                                     "<policy type=\"LiveQuery\" RevID=\"100\" policyType=\"56\">\n"
+                                     "    <configuration>\n"
+                                     "        <scheduled>\n"
+                                     "            <dailyDataLimit>250000000</dailyDataLimit>\n"
+                                     "            <queryPacks>\n"
+                                     "                <queryPack id=\"queryPackId\" />\n"
+                                     "            </queryPacks>\n"
+                                     "            <customQueries>\n"
+                                     "                  <customQuery queryName=\"blah\">\n"
+                                     "                      <description>basic query</description>\n"
+                                     "                      <query>SELECT * FROM stuff</query>\n"
+                                     "                      <interval>10</interval>\n"
+                                     "                      <tag>DataLake</tag>\n"
+                                     "                      <removed>false</removed>\n"
+                                     "                      <denylist>false</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery queryName=\"blah2\">\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query>SELECT * FROM otherstuff</query>\n"
+                                     "                      <interval></interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery>\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query>SELECT * FROM otherstuff</query>\n"
+                                     "                      <interval></interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery queryName=\"blah2\">\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query></query>\n"
+                                     "                      <interval></interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "                  <customQuery queryName=\"blah2\">\n"
+                                     "                      <description>a different basic query</description>\n"
+                                     "                      <query>  </query>\n"
+                                     "                      <interval></interval>\n"
+                                     "                      <tag>stream</tag>\n"
+                                     "                      <removed>true</removed>\n"
+                                     "                      <denylist>true</denylist>\n"
+                                     "                  </customQuery>\n"
+                                     "            </customQueries>\n"
+                                     "        </scheduled>\n"
+                                     "    </configuration>\n"
+                                     "</policy>";
+
+    std::string expected2 = "{"
+                           "\"schedule\":{"
+                           "\"blah\":{"
+                           "\"denylist\":\"false\","
+                           "\"description\":\"basic query\","
+                           "\"interval\":\"10\","
+                           "\"query\":\"SELECT * FROM stuff\","
+                           "\"removed\":\"false\","
+                           "\"tag\":\"DataLake\""
+                           "}"
+                           "}"
+                           "}";
+
+    std::optional<std::string> customQueriesLast;
+    bool customQueriesChanged3 = testableGetCustomQueries(liveQueryPolicySomeGoodQueries, customQueriesLast);
+    EXPECT_EQ(customQueriesChanged3, true);
+    EXPECT_TRUE(customQueriesLast.has_value());
+    EXPECT_EQ(customQueriesLast.value(), expected2);
 }

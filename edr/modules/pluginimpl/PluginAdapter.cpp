@@ -748,8 +748,9 @@ namespace Plugin
         //sets osqueryRestartNeeded to true if enabled query packs have changed
         osqueryRestartNeeded = PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy,m_loggerExtensionPtr->getDataLimitReached()) || osqueryRestartNeeded;
 
-        customQueries = getCustomQueries(policyAttributesMap);
-        if (PluginUtils::haveCustomQueriesChanged(customQueries))
+        bool changeCustomQueries = false;
+        changeCustomQueries = getCustomQueries(policyAttributesMap, customQueries);
+        if (PluginUtils::haveCustomQueriesChanged(customQueries) && changeCustomQueries)
         {
             PluginUtils::enableCustomQueries(customQueries, osqueryRestartNeeded, m_loggerExtensionPtr->getDataLimitReached());
         }

@@ -59,22 +59,37 @@ namespace Plugin
         return revId;
     }
 
-    std::optional<std::string> getCustomQueries(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap)
+    bool getCustomQueries(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap, std::optional<std::string>& customQueries)
     {
+        bool hasBadQueries = false;
         bool queryAdded = false;
         nlohmann::json customQueryPack;
 
         try
         {
-            const std::string customQueries = "policy/configuration/scheduled/customQueries";
+            const std::string customQueriesPath = "policy/configuration/scheduled/customQueries";
             const std::string queryTag = "customQuery";
 
-            Common::XmlUtilities::Attributes attributes = liveQueryPolicyMap.value().lookup(
-                    customQueries + "/" + queryTag);
+            Common::XmlUtilities::Attributes attributes = liveQueryPolicyMap.value().lookup(customQueriesPath);
+            std::vector<std::string> entitiesWithPath = liveQueryPolicyMap->entitiesThatContainPath(customQueriesPath);
 
-            if (attributes.empty()) {
-                LOGINFO("No custom queries in LiveQuery policy");
-                return std::nullopt;
+            // attribute "customQueries" does not exist, then there will be no entities with that path
+            if (entitiesWithPath.empty())
+            {
+                LOGINFO("No custom queries field in LiveQuery policy");
+                customQueries = std::nullopt;
+                return true;
+            }
+            else
+            {
+                // attributes will be empty in this case as we do not want "customQueries" to have anything else
+                // besides other attributes
+                if(!attributes.empty())
+                {
+                    LOGWARN("Malformed custom queries field");
+                    customQueries = std::nullopt;
+                    return false;
+                }
             }
 
             int i = 0;
@@ -87,10 +102,11 @@ namespace Plugin
                 }
 
                 i++;
-                std::string key = customQueries + "/" + queryTag + suffix;
+                std::string key = customQueriesPath + "/" + queryTag + suffix;
                 Common::XmlUtilities::Attributes customQuery = liveQueryPolicyMap.value().lookup(key);
 
-                if (customQuery.empty()) {
+                if (customQuery.empty())
+                {
                     break;
                 }
 
@@ -100,6 +116,7 @@ namespace Plugin
 
                 if (interval.empty() || query.empty() || queryName.empty()) {
                     LOGWARN("Custom query is missing mandatory fields");
+                    hasBadQueries = true;
                     continue;
                 }
 
@@ -122,15 +139,29 @@ namespace Plugin
         catch (const std::exception &e)
         {
             LOGERROR("Failed to extract custom queries from LiveQuery Policy: " << e.what());
-            return std::nullopt;
+            customQueries = std::nullopt;
+            return false;
         }
 
-        if (!queryAdded) {
+        // if all custom queries are bad
+        if (hasBadQueries && !queryAdded)
+        {
             LOGWARN("No valid queries found in LiveQuery Policy");
-            return std::nullopt;
+            customQueries = std::nullopt;
+            return false;
         }
 
-        return customQueryPack.dump();
+        // no custom queries in policy
+        if (!hasBadQueries && !queryAdded)
+        {
+            LOGINFO("No custom queries field in LiveQuery policy");
+            customQueries = std::nullopt;
+            return true;
+        }
+
+        // there is at least one good custom query
+        customQueries = customQueryPack.dump();
+        return true;
     }
 
     bool getFoldingRules(const std::optional<Common::XmlUtilities::AttributesMap>& liveQueryPolicyMap, std::vector<Json::Value>& foldingRules)
