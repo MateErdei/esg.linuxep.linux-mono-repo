@@ -31,8 +31,7 @@ EDR Plugin outputs XDR results and Its Answer is available to MCSRouter
 EDR Plugin Restarts Osquery When Custom Queries Have Changed
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to stop edr
+    Restart EDR
 
     Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
