@@ -420,7 +420,7 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
 
     Install Base For Component Tests
     Create Debug Level Logger Config File
-    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit_with_MTR.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit_with_MTR.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
     # Create specific EDR dirs to drop in files before running installer.
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr

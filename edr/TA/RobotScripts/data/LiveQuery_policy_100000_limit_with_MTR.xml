@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<policy type="LiveQuery" RevID="revId" policyType="56">
+    <configuration>
+        <scheduled>
+            <dailyDataLimit>100000</dailyDataLimit>
+            <enabled>true</enabled>
+            <queryPacks>
+                <queryPack id="XDR" />
+                <queryPack id="MTR" />
+            </queryPacks>
+            <customQueries>
+                <customQuery queryName="blah">
+                    <description>basic query</description>
+                    <query>SELECT CURRENT_TIMESTAMP AS current_date_time</query>
+                    <interval>5</interval>
+                    <tag>stream</tag>
+                    <removed>false</removed>
+                    <denylist>false</denylist>
+                </customQuery>
+            </customQueries>
+        </scheduled>
+    </configuration>
+</policy>
