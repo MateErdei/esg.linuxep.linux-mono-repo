@@ -394,7 +394,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
 
     # ensure that the list of files to remove contains files which are outside of the components realm
     ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
@@ -449,13 +449,11 @@ Version Copy Versions All Changed Files When Upgrading
 
     Mark Watchdog Log
     Mark Managementagent Log
-    #Trigger Update Now
-
 
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
 
 
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted

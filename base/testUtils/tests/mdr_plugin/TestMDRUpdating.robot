@@ -27,6 +27,7 @@ ${MDR_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedA
 
 Test MDR Plugin Can Be Installed Removed and ReInstalled From Central
     [Documentation]  Address bug found LINUXEP-8233
+    [Timeout]  10 minutes
     Create File  ${UPDATE_CONFIG}
     Block Connection Between EndPoint And FleetManager
 
