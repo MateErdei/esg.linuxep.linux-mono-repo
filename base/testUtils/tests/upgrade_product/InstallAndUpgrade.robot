@@ -308,9 +308,20 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...  150 secs
+    ...  10 secs
+    ...  Component Version has changed  ${BaseReleaseVersion}    ${InstalledBaseVersionFile}
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Component Version has changed  ${MtrReleaseVersion}    ${InstalledMDRPluginVersionFile}
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Component Version has changed  ${EdrReleaseVersion}    ${InstalledEDRPluginVersionFile}
+
 
     #the query pack should have been re-installed
     Should Exist  ${Sophos_Scheduled_Query_Pack}
@@ -861,6 +872,11 @@ Check Files After Upgrade
 
     File Should Exist   ${UPDATE_CONFIG}
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
+
+Component Version has changed
+    [Arguments]  ${oldVersion}  ${InstalledVersionFile}
+    ${NewDevVersion} =  Get Version Number From Ini File   ${InstalledVersionFile}
+    Should Not Be Equal As Strings  ${oldVersion}  ${NewDevVersion}
 
 Check Update Reports Have Been Processed
     Directory Should Exist  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
