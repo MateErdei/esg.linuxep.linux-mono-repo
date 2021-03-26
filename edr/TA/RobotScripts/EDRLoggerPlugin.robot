@@ -439,7 +439,7 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     ...  10 secs
     ...  1 secs
     ...  EDR Plugin Log Contains  First LiveQuery policy received
-    Expect New Datalimit  10000
+    Expect New Datalimit  100000
 
     Wait Until Keyword Succeeds
     ...  20 secs
