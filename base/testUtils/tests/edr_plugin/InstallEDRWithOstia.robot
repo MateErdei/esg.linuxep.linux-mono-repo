@@ -171,22 +171,14 @@ Install all plugins 999 then downgrade to all plugins develop
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...  Check Plugins Downgraded From 999
+
+    Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Running
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
-
-    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
-    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
-    ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 99.99.99
-
 
 Install edr 999 and downgrade to current edr
     [Tags]  PLUGIN_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
@@ -209,16 +201,18 @@ Install edr 999 and downgrade to current edr
 
     Check SulDownloader Log Contains     Prepared ServerProtectionLinux-Plugin-EDR for downgrade
 
+    # SulDownloader log may be removed during downgrade, therefore check edr version file is no longer
+    # reporting the 999 version and make sure edr is left running.
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check EDR Downgraded From 999
 
-    Check MDR Plugin Installed
-
-    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should not contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
-
+    Wait Until Keyword Succeeds
+    ...   15 secs
+    ...   2 secs
+    ...   Check EDR Executable Running
 
 Update Run that Does Not Change The Product Does not ReInstall The Product
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
@@ -549,3 +543,16 @@ Wait for first update
         ...   60 secs
         ...   10 secs
         ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+
+Check EDR Downgraded From 999
+    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should Not Contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
+
+Check Plugins Downgraded From 999
+    ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
+    Should not contain   ${contents}   PRODUCT_VERSION = 99.99.99
