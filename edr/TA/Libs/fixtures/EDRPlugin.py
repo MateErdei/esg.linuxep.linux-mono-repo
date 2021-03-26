@@ -1,3 +1,4 @@
+import datetime
 import subprocess
 import os
 import time
@@ -93,7 +94,7 @@ class EDRPlugin:
         self.prepare_for_test()
         self._proc = subprocess.Popen([_edr_exec_path()])
         # wait for edr to finish waiting for policies it will never get
-        self.wait_log_contains("LiveQuery policy has not been sent to the plugin", 15)
+        self.wait_log_contains("Plugin preparation complete", 30)
         self.wait_for_osquery_to_run()
 
     def stop_edr(self):
@@ -139,7 +140,7 @@ class EDRPlugin:
             time.sleep(1)
 
         if seconds_pid_is_stable < 10:
-            raise AssertionError("osqueryd not found in process list: {}".format([p for p in self.process_iter()]))
+            raise AssertionError("osqueryd not found in process list by {}: {}".format(datetime.datetime.now(), [p for p in self.process_iter()]))
 
     def wait_for_osquery_to_run(self):
         times_run = 0
@@ -149,7 +150,7 @@ class EDRPlugin:
                 if p.name() == "osqueryd":
                     return p.pid
             time.sleep(1)
-        raise AssertionError("osqueryd not found in process list: {}".format([p for p in self.process_iter()]))
+        raise AssertionError("osqueryd not found in process list by {}: {}".format(datetime.datetime.now(), [p for p in self.process_iter()]))
 
     def wait_for_osquery_to_stop(self, pid):
         times_run = 0
