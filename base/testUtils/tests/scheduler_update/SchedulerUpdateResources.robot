@@ -105,7 +105,7 @@ Setup Current Update Scheduler Environment Without Policy
 Check Status and Events Are Created
     [Arguments]   ${waitTime}=10 secs  ${attemptsTime}=1 secs
 
-   Check Status Is Created
+   Check Status Is Created    ${waitTime}  ${attemptsTime}
 
     @{words} =  Split String    ${waitTime}
     ${eventPath} =  Check Event File Generated  ${words}[0]

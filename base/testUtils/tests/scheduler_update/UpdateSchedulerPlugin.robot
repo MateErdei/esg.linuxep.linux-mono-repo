@@ -402,7 +402,7 @@ UpdateScheduler Periodically Run SulDownloader
     #Remove noref status
     Remove File  ${statusPath}
 
-    ${eventPath} =  Check Status and Events Are Created  waitTime=30 min  attemptsTime=2 min
+    ${eventPath} =  Check Status and Events Are Created  waitTime=30 minutes  attemptsTime=2 minutes
     Check Event Report Install Failed   ${eventPath}
 
     Remove File  ${eventPath}
