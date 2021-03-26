@@ -303,7 +303,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
 
     # Upgrade back to master to check we can upgrade from a downgraded product
-    # Then check the number of update successes to prove everything is OK.
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndEdrVUTPolicy}
     Trigger Update Now
 
