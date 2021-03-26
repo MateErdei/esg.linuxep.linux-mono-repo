@@ -451,7 +451,7 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains X Times  Run osquery process  2
+    ...  EDR Plugin Log Contains X Times  Run osquery process  1
 
     # 2 because custom queries file is written, not enabled
     Wait Until Keyword Succeeds
@@ -466,7 +466,7 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
 
     # Wait for data limit to be hit, EDR starts query pack disabling and osquery restart behaviour
     Wait Until Keyword Succeeds
-    ...  60 secs
+    ...  100 secs
     ...  1 secs
     ...  EDR Plugin Log Contains   XDR data limit for this period exceeded
 
