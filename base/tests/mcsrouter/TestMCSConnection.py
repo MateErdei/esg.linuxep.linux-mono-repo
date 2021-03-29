@@ -155,8 +155,8 @@ class TestMCSConnection(unittest.TestCase):
         self.assertEqual(body, "body")
 
     @mock.patch("logging.Logger.info")
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_response_request",
-                side_effect=mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_response_request)
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_request",
+                side_effect=mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_request)
     def test_send_request_does_not_log_response_bodies(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         dummy_path = "/responses/endpoint/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
@@ -167,15 +167,15 @@ class TestMCSConnection(unittest.TestCase):
         self.assertEqual(logging.Logger.info.call_count, 1)
         expected_args = mock.call("POST {}".format(dummy_path))
         self.assertEqual(logging.Logger.info.call_args, expected_args)
-        self.assertTrue(mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_response_request.called)
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_request.called)
 
 
-    @mock.patch("mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_response_request")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_request")
     def test_send_request_does_not_trim_non_response_messages(self, *mockargs):
         message = "GET /policy/application/ALC/INITIAL_ALC_POLICY_ID"
         envelope_handler = EnvelopeHandler()
         envelope_handler.set_request(message)
-        self.assertFalse(mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_response_request.called)
+        self.assertFalse(mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_request.called)
 
     def test_query_will_process_complete_commands(self):
         mcs_connection=FakeMCSConnection("""<command>
