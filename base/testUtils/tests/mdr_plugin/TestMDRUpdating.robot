@@ -31,26 +31,51 @@ Test MDR Plugin Can Be Installed Removed and ReInstalled From Central
     Create File  ${UPDATE_CONFIG}
     Block Connection Between EndPoint And FleetManager
 
+    Remove File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
+    Remove File  /opt/sophos-spl/base/mcs/status/cache/ALC.xml
+
     Simulate Send Policy And Simulate Update Now  ${MDR_VUT_POLICY}
 
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  3 secs
+    ...  File Should Exist  /opt/sophos-spl/base/mcs/status/ALC_status.xml
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
     ...  Check MDR Installed
 
     Set Log Level For Component And Reset and Return Previous Log  suldownloader  DEBUG
+
+    Remove File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
+    Remove File  /opt/sophos-spl/base/mcs/status/cache/ALC.xml
 
     Simulate Send Policy And Simulate Update Now   ${MDR_VUT_POLICY}   remove_features=MDR   remove_subscriptions=MDR
 
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  3 secs
+    ...  File Should Exist  /opt/sophos-spl/base/mcs/status/ALC_status.xml
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
     ...  Check MDR Uninstalled
 
+    Remove File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
+    Remove File  /opt/sophos-spl/base/mcs/status/cache/ALC.xml
+
     Simulate Send Policy And Simulate Update Now  ${MDR_VUT_POLICY}
+
     Wait Until Keyword Succeeds
-    ...   200 secs
+    ...  200 secs
+    ...  3 secs
+    ...  File Should Exist  /opt/sophos-spl/base/mcs/status/ALC_status.xml
+
+    Wait Until Keyword Succeeds
     ...   10 secs
+    ...   2 secs
     ...   Check MDR Installed
 
 
