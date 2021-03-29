@@ -227,7 +227,7 @@ TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_binaryFile)
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_wrongPermissions)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":false})sophos");
-    fs::permissions(getSusiStartupPath(), fs::perms::none);
+    fs::permissions(getSusiStartupPath(), fs::perms::remove_perms | fs::perms::all);
     EXPECT_TRUE(isSxlLookupEnabled());
 }
 
