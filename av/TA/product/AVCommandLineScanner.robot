@@ -70,18 +70,6 @@ Stop AV
     Log  ${result.stdout}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
 
-Check Process Is Stopped And Print Logs
-     [Arguments]  ${cls_handle}     ${SCAN_LOG}
-
-     ${ScanLogFileContentsBeforeKill} =  Get File    ${SCAN_LOG}
-     Log     ${ScanLogFileContentsBeforeKill}
-
-     ${ScanLogFileContents} =  Get File    ${AV_LOG_PATH}
-     Log     ${ScanLogFileContents}
-
-     Process Should Be Stopped   ${cls_handle}
-
-
 *** Variables ***
 ${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${CLEAN_STRING}     not an eicar
@@ -1389,11 +1377,6 @@ CLS Can Append Summary To Log When SigTerm Occurs
 
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep avscanner
     Run Process   /bin/kill   -SIGTERM   ${pid}
-
-    Wait Until Keyword Succeeds
-        ...  15 secs
-        ...  1 secs
-        ...  Check Process Is Stopped And Print Logs    ${cls_handle}   ${SCAN_LOG}
 
     ${ScanLogFileContents} =  Get File    ${SCAN_LOG}
     Log     ${ScanLogFileContents}
