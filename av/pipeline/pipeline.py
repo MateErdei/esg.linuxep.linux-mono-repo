@@ -77,14 +77,20 @@ def get_suffix():
     return "-" + BRANCH_NAME
 
 
-def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=None):
+def robot_task_with_env(machine: tap.Machine, test_type, environment=None, machine_name=None):
     if machine_name is None:
         machine_name = machine.template
     try:
-        robot_exclusion_tags = ['OSTIA', 'MANUAL', 'STRESS', 'VQA']
+        robot_exclusion_tags = ['OSTIA', 'MANUAL', 'STRESS', 'VQA', 'PRODUCT', 'INTEGRATION']
 
-        if BRANCH_NAME == "master" or "vqa" in BRANCH_NAME:
-            robot_exclusion_tags.remove('VQA')
+        if test_type == "product":
+            robot_exclusion_tags.remove('PRODUCT')
+            #run VQA only with product tests
+            if BRANCH_NAME == "master" or "vqa" in BRANCH_NAME:
+                robot_exclusion_tags.remove('VQA')
+
+        if test_type == "integration":
+            robot_exclusion_tags.remove('INTEGRATION')
 
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
         machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', *robot_exclusion_tags,
@@ -100,10 +106,14 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
                     "robot" + get_suffix() + "_" + machine_name + "-report.html")
 
 @tap.timeout(task_timeout=5400)
-def robot_task(machine: tap.Machine):
+def robot_task_product(machine: tap.Machine):
     install_requirements(machine)
-    robot_task_with_env(machine)
+    robot_task_with_env(machine, "product")
 
+@tap.timeout(task_timeout=5400)
+def robot_task_integration(machine: tap.Machine):
+    install_requirements(machine)
+    robot_task_with_env(machine, "integration")
 
 def pytest_task_with_env(machine: tap.Machine, environment=None):
     try:
@@ -305,26 +315,37 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         # Non-unified build
         av_build = context.artifact.build()
 
-    with stage.parallel('testing'):
-        test_inputs = get_inputs(context, av_build)
-        ubuntu1804_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-        ubuntu2004_machine = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-        centos7_machine = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-
-        with stage.parallel('component'):
-            stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu1804_machine)
-            stage.task(task_name='ubuntu2004_x64', func=pytest_task, machine=ubuntu2004_machine)
-            stage.task(task_name='centos77_x64',   func=pytest_task, machine=centos7_machine)
-
-        with stage.parallel('integration'):
-            stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
-            stage.task(task_name='ubuntu2004_x64', func=robot_task, machine=ubuntu2004_machine)
-            stage.task(task_name='centos77_x64',   func=robot_task, machine=centos7_machine)
-
-        if do_coverage:
-            with stage.parallel('coverage'):
-                coverage_inputs = get_inputs(context, coverage_build, coverage=True)
-                machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
-                                                    inputs=coverage_inputs,
-                                                    platform=tap.Platform.Linux)
-                stage.task(task_name='ubuntu1804_x64_combined', func=bullseye_coverage_task, machine=machine_bullseye_test)
+    # with stage.parallel('testing'):
+    #     test_inputs = get_inputs(context, av_build)
+    #     ubuntu1804_machine_component = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+    #     ubuntu2004_machine_component = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+    #     centos7_machine_component = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+    #
+    #     ubuntu1804_machine_product = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+    #     ubuntu2004_machine_product = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+    #     centos7_machine_product = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+    #
+    #     ubuntu1804_machine_integration = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+    #     ubuntu2004_machine_integration = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+    #     centos7_machine_integration = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+    #
+    #     with stage.parallel('TA'):
+    #         stage.task(task_name='ubuntu1804_machine_component', func=pytest_task, machine=ubuntu1804_machine_component)
+    #         stage.task(task_name='ubuntu2004_machine_component', func=pytest_task, machine=ubuntu2004_machine_component)
+    #         stage.task(task_name='centos77_machine_component',   func=pytest_task, machine=centos7_machine_component)
+    #
+    #         stage.task(task_name='ubuntu1804_x64_product', func=robot_task_product, machine=ubuntu1804_machine_product)
+    #         stage.task(task_name='ubuntu2004_x64_product', func=robot_task_product, machine=ubuntu2004_machine_product)
+    #         stage.task(task_name='centos77_x64_product',   func=robot_task_product, machine=centos7_machine_product)
+    #
+    #         stage.task(task_name='ubuntu1804_machine_integration', func=robot_task_integration, machine=ubuntu1804_machine_integration)
+    #         stage.task(task_name='ubuntu2004_machine_integration', func=robot_task_integration, machine=ubuntu2004_machine_integration)
+    #         stage.task(task_name='centos77_machine_integration',   func=robot_task_integration, machine=centos7_machine_integration)
+    #
+    #     if do_coverage:
+    #         with stage.parallel('coverage'):
+    #             coverage_inputs = get_inputs(context, coverage_build, coverage=True)
+    #             machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
+    #                                                 inputs=coverage_inputs,
+    #                                                 platform=tap.Platform.Linux)
+    #             stage.task(task_name='ubuntu1804_x64_combined', func=bullseye_coverage_task, machine=machine_bullseye_test)
