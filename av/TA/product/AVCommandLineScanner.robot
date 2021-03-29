@@ -70,6 +70,18 @@ Stop AV
     Log  ${result.stdout}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
 
+Check Process Is Stopped And Print Logs
+     [Arguments]  ${cls_handle}     ${SCAN_LOG}
+
+     ${ScanLogFileContentsBeforeKill} =  Get File    ${SCAN_LOG}
+     Log     ${ScanLogFileContentsBeforeKill}
+
+     ${ScanLogFileContents} =  Get File    ${AV_LOG_PATH}
+     Log     ${ScanLogFileContents}
+
+     Process Should Be Stopped   ${cls_handle}
+
+
 *** Variables ***
 ${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${CLEAN_STRING}     not an eicar
@@ -1371,16 +1383,17 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
 
     Wait Until File exists  ${SCAN_LOG}
-    ${AVSCANNER_PID} =  Get PID  avscanner
 
     ${ScanLogFileContentsBeforeKill} =  Get File    ${SCAN_LOG}
     Log     ${ScanLogFileContentsBeforeKill}
 
-    Run Process    kill  15  ${AVSCANNER_PID}
+    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep avscanner
+    Run Process   /bin/kill   -SIGTERM   ${pid}
+
     Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Process Should Be Stopped   ${cls_handle}
+        ...  15 secs
+        ...  1 secs
+        ...  Check Process Is Stopped And Print Logs    ${cls_handle}   ${SCAN_LOG}
 
     ${ScanLogFileContents} =  Get File    ${SCAN_LOG}
     Log     ${ScanLogFileContents}
@@ -1390,6 +1403,3 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ...  1 secs
     ...  Should Contain    ${ScanLogFileContents}  Scan aborted due to environment interruption
     Should Contain    ${ScanLogFileContents}  End of Scan Summary:
-
-    ${ScanLogFileContents} =  Get File    ${AV_LOG_PATH}
-    Log     ${ScanLogFileContents}
