@@ -1372,9 +1372,13 @@ CLS Can Append Summary To Log When SigTerm Occurs
 
     Wait Until File exists  ${SCAN_LOG}
     ${AVSCANNER_PID} =  Get PID  avscanner
+
+    ${ScanLogFileContentsBeforeKill} =  Get File    ${SCAN_LOG}
+    Log     ${ScanLogFileContentsBeforeKill}
+
     Run Process    kill  15  ${AVSCANNER_PID}
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  15 secs
     ...  1 secs
     ...  Process Should Be Stopped   ${cls_handle}
 
@@ -1386,3 +1390,6 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ...  1 secs
     ...  Should Contain    ${ScanLogFileContents}  Scan aborted due to environment interruption
     Should Contain    ${ScanLogFileContents}  End of Scan Summary:
+
+    ${ScanLogFileContents} =  Get File    ${AV_LOG_PATH}
+    Log     ${ScanLogFileContents}
