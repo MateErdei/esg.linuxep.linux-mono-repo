@@ -52,7 +52,6 @@ if [[ -z "$SKIP_GATHER" ]]
 then
     bash ./gather.sh $@|| failure "Failed to gather test files: $?"
 fi
-exit 1
 TEST_TAR=/tmp/sspl-test.tgz
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
 
