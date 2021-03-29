@@ -24,7 +24,7 @@ namespace
         void setupEmptySusiStartupFile();
         void writeBinaryToSusiStartupFile();
         void writeLargeSusiStartupFile();
-        void writeToSusiStartupFile(std::string susiStartupContents);
+        void writeToSusiStartupFile(const std::string& susiStartupContents);
 
         fs::path getSusiStartupPath() { return m_susiStartupPath; }
     protected:
@@ -98,7 +98,7 @@ void TestSusiWrapperFactory::setupEmptySusiStartupFile()
     writeToSusiStartupFile("");
 }
 
-void TestSusiWrapperFactory::writeToSusiStartupFile(std::string susiStartupContents)
+void TestSusiWrapperFactory::writeToSusiStartupFile(const std::string& susiStartupContents)
 {
     createTestFolderAndSetupPaths();
 
@@ -111,9 +111,7 @@ void TestSusiWrapperFactory::writeToSusiStartupFile(std::string susiStartupConte
 void TestSusiWrapperFactory::writeBinaryToSusiStartupFile()
 {
     createTestFolderAndSetupPaths();
-
-    char buffer[100];
-
+    char buffer[100] = {0};
     std::ofstream susiSettingsFileStream(m_susiStartupPath, std::ios::out | std::ios::binary);
     ASSERT_TRUE(susiSettingsFileStream.good());
     susiSettingsFileStream.write(buffer, 100);
