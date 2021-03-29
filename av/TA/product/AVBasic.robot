@@ -471,9 +471,8 @@ AV Plugin Gets Customer ID from Obfuscated Creds
 
 
 AV Plugin Gets Sxl Lookup Setting From SAV Policy
-    ${susiStartupSettingsFile} =   Set Variable   ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
-    ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${susiStartupSettingsFile}
-    Remove Files   ${susiStartupSettingsFile}   ${susiStartupSettingsChrootFile}
+    ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
+    Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
 
     ${handle} =   Start Process  ${AV_PLUGIN_BIN}
     Register Cleanup   Terminate Process  ${handle}
@@ -485,8 +484,8 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
 
     ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
 
-    Wait Until Created   ${susiStartupSettingsFile}   timeout=5sec
-    ${susiStartupSettings} =   Get File   ${susiStartupSettingsFile}
+    Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
+    ${susiStartupSettings} =   Get File   ${SUSI_STARTUP_SETTINGS_FILE}
     Should Be Equal   ${susiStartupSettings}   ${expectedSusiStartupSettings}
 
 AV Plugin requests policies at startup
@@ -554,6 +553,29 @@ AV Plugin restarts threat detector on customer id change
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
     Check Sophos Threat Detector has different PID   ${pid}
+
+AV Plugin sets default if susi startup settings permissions incorrect
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${handle}
+    Check AV Plugin Installed
+
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
+    Log   ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+
+    Run Process  chmod 000 ${SUSI_STARTUP_SETTINGS_FILE}
+
+    Terminate Process  ${handle}
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+    Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
 
 
 AV Plugin restarts threat detector on susi startup settings change
