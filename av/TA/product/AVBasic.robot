@@ -198,6 +198,7 @@ AV Plugin Scans local secondary mount only once
     ${source} =       Set Variable  /tmp_test/ext2.fs
     ${destination} =  Set Variable  /mnt/ext2mnt
     Create Directory  ${destination}
+    Create Directory  /tmp_test/
     Create ext2 mount   ${source}   ${destination}
     Register Cleanup  Remove ext2 mount   ${source}   ${destination}
     Create File       ${destination}/eicar.com    ${EICAR_STRING}
