@@ -31,6 +31,13 @@ def get_platform():
         return "ubuntu"
     elif "rhel" in platform_data or "redhat" in platform_data:
         return "rhel"
+    else:
+        try:
+            with open("/etc/redhat-release", "r") as release_file:
+                if release_file.read() == "CentOS Stream release 8":
+                    return "centos"
+        except FileNotFoundError:
+            pass
     return "unknown"
 
 
