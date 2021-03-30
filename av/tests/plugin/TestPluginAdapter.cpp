@@ -14,6 +14,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#include <Common/ZeroMQWrapper/IIPCException.h>
 #include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 #include <gtest/gtest.h>
@@ -524,6 +526,103 @@ TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
     expectedLog.append(threatDetectedXML);
 
     EXPECT_TRUE(appenderContains(expectedLog));
+}
+
+class SubscriberThread
+{
+public:
+    explicit SubscriberThread(Common::ZMQWrapperApi::IContext& context);
+    ~SubscriberThread()
+    {
+        m_stopThread = true;
+        if (m_thread.joinable())
+        {
+            m_thread.join();
+        }
+    }
+    void start();
+
+    std::vector<std::string> getData()
+    {
+        return m_data;
+    };
+
+private:
+    Common::ZMQWrapperApi::IContext& m_context;
+    Common::ZeroMQWrapper::ISocketSubscriberPtr m_subscriber;
+    std::thread m_thread;
+    bool m_stopThread;
+    std::vector<std::string> m_data;
+    void run();
+};
+
+SubscriberThread::SubscriberThread(Common::ZMQWrapperApi::IContext& context) :
+    m_context(context),
+    m_subscriber(m_context.getSubscriber()),
+    m_thread(),
+    m_stopThread(false)
+{
+    m_subscriber->listen("ipc:///tmp/threatEventPublisherSocket");
+    m_subscriber->subscribeTo("FOOBAR");
+}
+
+void SubscriberThread::start() { m_thread = std::thread(&SubscriberThread::run, this); }
+
+void SubscriberThread::run()
+{
+    try
+    {
+        m_data = m_subscriber->read();
+        PRINT("Successfully read subscription data: " << m_data.at(0) << ", " << m_data.at(1));
+    }
+    catch (const Common::ZeroMQWrapper::IIPCException& e)
+    {
+        PRINT("Failed to read subscription data: " << e.what());
+    }
+}
+
+TEST_F(TestPluginAdapter, testProcessThreatReport_publishThreatReport) //NOLINT
+{
+    auto subContext = Common::ZMQWrapperApi::createContext();
+    SubscriberThread thread(*subContext);
+    thread.start();
+
+    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
+    MockBase* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, 0);
+
+    std::string threatDetectedXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                     <notification xmlns="http://www.sophos.com/EE/Event"
+                               description="Virus/spyware eicar has been detected in path/to/threat"
+                               type="sophos.mgt.msg.event.threat"
+                               timestamp="123">
+
+                     <user userId="User"
+                               domain="local"/>
+                     <threat  type="1"
+                               name="eicar"
+                               scanType="201"
+                               status="50"
+                               id="1"
+                               idSource="1">
+
+                               <item file="threat"
+                                      path="path/to/threat"/>
+                               <action action="104"/>
+                     </threat>
+                     </notification>
+            )sophos";
+
+    while (thread.getData().empty())
+    {
+        pluginAdapter.processThreatReport(threatDetectedXML);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    auto data = thread.getData();
+    EXPECT_EQ(data.at(0), "FOOBAR");
+    EXPECT_EQ(data.at(1), "DATA");
 }
 
 TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT

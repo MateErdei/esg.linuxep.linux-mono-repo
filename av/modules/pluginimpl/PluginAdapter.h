@@ -16,6 +16,8 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/ZMQWrapperApi/IContext.h>
+#include <Common/ZeroMQWrapper/ISocketPublisher.h>
 
 namespace Plugin
 {
@@ -29,6 +31,9 @@ namespace Plugin
         unixsocket::ThreatReporterServerSocket m_threatReporterServer;
         std::unique_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_threatDetector;
         int m_waitForPolicyTimeout = 0;
+
+        Common::ZMQWrapperApi::IContextSharedPtr m_zmqContext;
+        Common::ZeroMQWrapper::ISocketPublisherPtr m_threatEventPublisher;
 
     public:
         PluginAdapter(

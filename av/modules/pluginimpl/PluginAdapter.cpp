@@ -13,6 +13,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Common/ZeroMQWrapper/IIPCException.h>
 
 namespace fs = sophos_filesystem;
 
@@ -63,8 +64,11 @@ namespace Plugin
         m_threatReporterServer(threat_reporter_socket(), 0600, std::make_shared<ThreatReportCallbacks>(*this)),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             sophos_threat_detector_launcher())),
-        m_waitForPolicyTimeout(waitForPolicyTimeout)
+        m_waitForPolicyTimeout(waitForPolicyTimeout),
+        m_zmqContext(Common::ZMQWrapperApi::createContext()),
+        m_threatEventPublisher(m_zmqContext->getPublisher())
     {
+        m_threatEventPublisher->connect("ipc:///tmp/threatEventPublisherSocket");
     }
 
     void PluginAdapter::mainLoop()
@@ -273,6 +277,15 @@ namespace Plugin
         auto attributeMap = Common::XmlUtilities::parseXml(threatDetectedXML);
         incrementTelemetryThreatCount(attributeMap.lookupMultiple("notification/threat")[0].value("name"));
         m_queueTask->push(Task { .taskType = Task::TaskType::ThreatDetected, .Content = threatDetectedXML });
+
+        try
+        {
+            m_threatEventPublisher->write({ "FOOBAR", "DATA" });
+        }
+        catch (const Common::ZeroMQWrapper::IIPCException& e)
+        {
+            LOGERROR("Failed to send subscription data: " << e.what());
+        }
     }
 
     void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName)
