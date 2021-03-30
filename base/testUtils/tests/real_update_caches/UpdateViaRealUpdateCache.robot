@@ -40,7 +40,7 @@ Endpoint Updates Via Update Cache Without Errors
     ...  300 secs
     ...  5 secs
     ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
-    Check Log Contains  Successfully connected to: Update cache at sspluc1:8191  ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Successfully connected to: Update cache at sspluc  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
     ...  200 secs
