@@ -38,6 +38,7 @@ Check Registration Via Message Relay
 MCS Communicates With Nova Via Message Relay
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  updatescheduler
     Remove File  ${SOPHOS_INSTALL}/base/bin/UpdateScheduler
+    block_traffic_to_message_relay  sspluc2
     Register With Real Update Cache and Message Relay Account
     Wait For MCS Router To Be Running
     Check MCSRouter Log Contains  Successfully directly connected to mcs.sandbox.sophos:443
