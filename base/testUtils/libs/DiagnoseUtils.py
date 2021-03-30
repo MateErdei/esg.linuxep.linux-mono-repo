@@ -34,7 +34,9 @@ def get_platform():
     else:
         try:
             with open("/etc/redhat-release", "r") as release_file:
-                if release_file.read() == "CentOS Stream release 8":
+                contents = release_file.read()
+                logger.info(f"/etc/redhat-release contains: {contents}")
+                if "CentOS Stream release 8" in contents:
                     return "centos"
         except FileNotFoundError:
             pass
