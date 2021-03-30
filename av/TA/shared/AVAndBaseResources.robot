@@ -5,6 +5,7 @@ Resource    BaseResources.robot
 *** Keywords ***
 
 AV and Base Setup
+    Check AV Plugin Installed With Base
     Remove Directory  /tmp/DiagnoseOutput  true
 
 Check avscanner in /usr/local/bin
@@ -46,6 +47,10 @@ Configure and check scan now
     Configure scan now
     Check scan now
 
+Configure and check scan now with offset
+    Configure scan now
+    Check scan now with Offset
+
 Configure and check scan now with lookups disabled
     Configure scan now with lookups disabled
     Check scan now
@@ -63,6 +68,13 @@ Check scan now
     Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180  interval=10
     AV Plugin Log Contains  Evaluating Scan Now
     AV Plugin Log Contains  Starting scan Scan Now
+
+Check scan now with Offset
+    Mark AV Log
+    Send Sav Action To Base  ScanNow_Action.xml
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=10
+    AV Plugin Log Contains With Offset  Evaluating Scan Now
+    AV Plugin Log Contains With Offset  Starting scan Scan Now
 
 Validate latest Event
     [Arguments]  ${now}

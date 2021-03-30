@@ -213,8 +213,8 @@ Increase Threat Detector Log To Max Size
     increase_threat_detector_log_to_max_size_by_path  ${THREAT_DETECTOR_LOG_PATH}  ${remaining}
 
 Wait Until AV Plugin Log Contains With Offset
-    [Arguments]  ${input}  ${timeout}=15
-    Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}
+    [Arguments]  ${input}  ${timeout}=15    ${interval}=2
+    Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}  interval=${interval}
 
 Wait Until AV Plugin Log Contains
     [Arguments]  ${input}  ${timeout}=15  ${interval}=0
@@ -267,11 +267,11 @@ Check Plugin Installed and Running
 Wait until AV Plugin running
     Wait Until Keyword Succeeds
     ...  15 secs
-    ...  3 secs
+    ...  2 secs
     ...  Check Plugin Running
     Wait Until Keyword Succeeds
     ...  15 secs
-    ...  3 secs
+    ...  2 secs
     ...  Plugin Log Contains  ${COMPONENT} <> Starting the main program loop
 
 Wait until threat detector running
@@ -332,17 +332,20 @@ Display All SSPL Files Installed
 AV And Base Teardown
     Run Teardown Functions
     Run Keyword If Test Failed   Display All SSPL Files Installed
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check AV Plugin Not Running
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SUSI_DEBUG_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
+
+Special AV And Base Teardown
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check AV Plugin Not Running
+
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
@@ -383,6 +386,10 @@ Wait Until Threat Detector Log exists
 Wait until scheduled scan updated
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans  timeout=240
+
+Wait until scheduled scan updated With Offset
+    Wait Until AV Plugin Log exists  timeout=30
+    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=240
 
 Configure Scan Exclusions Everything Else
     [Arguments]  ${inclusion}

@@ -32,7 +32,6 @@ Diagnose Test TearDown
 *** Test Cases ***
 
 Diagnose collects the correct files
-    Check AV Plugin Installed With Base
     Configure and check scan now
     Run Diagnose
     Check Diagnose Tar Created
