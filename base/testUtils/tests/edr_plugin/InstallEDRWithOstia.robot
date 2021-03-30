@@ -297,6 +297,7 @@ Install master of base and edr and mtr and upgrade to edr 999
 
 
 Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
+    [Timeout]  10 minutes
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
@@ -310,6 +311,8 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
     Wait for first update
+
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdr999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
@@ -349,10 +352,12 @@ Install master of base and edr and mtr and upgrade to edr 999 and mtr 999
     ...  Check Live Response Plugin Running
 
     Check MDR Plugin Installed
+
+    # wait for current update to complete.
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     # Check for warning that there is a naming collision in the map of query tags
     Wait Until Keyword Succeeds
