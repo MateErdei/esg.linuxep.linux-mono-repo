@@ -569,7 +569,7 @@ AV Plugin sets default if susi startup settings permissions incorrect
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
 
-    Run Process  chmod 000 ${SUSI_STARTUP_SETTINGS_FILE}
+    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
 
     Terminate Process  ${handle}
     ${handle} =   Start Process  ${AV_PLUGIN_BIN}
