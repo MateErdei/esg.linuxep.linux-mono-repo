@@ -46,6 +46,15 @@ ${AVSCANNER}        /usr/local/bin/avscanner
 
 
 *** Keywords ***
+AVAndBase Teardown Functions
+    ${av_log_size}=     Get File Size  ${AV_LOG_PATH}
+    Log     AV LOG SIZE: ${av_log_size}
+    ${threat_detector_log_size}=     Get File Size  ${THREAT_DETECTOR_LOG_PATH}
+    Log     AV LOG SIZE: ${threat_detector_log_size}
+    ${susi_debug_log_size}=     Get File Size  ${SUSI_DEBUG_LOG_PATH}
+    Log     AV LOG SIZE: ${susi_debug_log_size}
+    Uninstall All
+
 Check Plugin Running
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
 
@@ -353,6 +362,12 @@ AV And Base Teardown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SUSI_DEBUG_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
+    ${av_log_size}=     Get File Size  ${AV_LOG_PATH}
+    Log     AV LOG SIZE: ${av_log_size}
+    ${threat_detector_log_size}=     Get File Size  ${THREAT_DETECTOR_LOG_PATH}
+    Log     THREAT DETECTOR LOG SIZE: ${threat_detector_log_size}
+    ${susi_debug_log_size}=     Get File Size  ${SUSI_DEBUG_LOG_PATH}
+    Log     SUSI LOG SIZE: ${susi_debug_log_size}
 
 Special AV And Base Teardown
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
