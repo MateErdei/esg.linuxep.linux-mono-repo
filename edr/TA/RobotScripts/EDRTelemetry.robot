@@ -31,13 +31,13 @@ EDR Plugin Runs Scheduled Queries And Reports Telemetry
     Enable XDR
 
     Wait Until Keyword Succeeds
-    ...   45 secs
-    ...   5 secs
+    ...   30 secs
+    ...   2 secs
     ...   EDR Plugin Log Contains  Error executing scheduled query bad-query:
 
     Wait Until Keyword Succeeds
-    ...   30 secs
-    ...   5 secs
+    ...   20 secs
+    ...   2 secs
     ...   Scheduled Query Log Contains  Executing query: endpoint_id
 
     ${edr_telemetry} =  Get Plugin Telemetry  edr
