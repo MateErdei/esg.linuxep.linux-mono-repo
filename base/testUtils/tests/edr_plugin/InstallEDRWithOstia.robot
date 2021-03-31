@@ -306,9 +306,9 @@ Install master of base and edr and mtr and upgrade to new query pack
 
 
     Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...  60 secs
+    ...  5 secs
+    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   2
 
 
     # Ensure EDR was restarted during upgrade.
