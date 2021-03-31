@@ -20,6 +20,7 @@ def get_base_path(script_path, BASE=None):
 def get_possible_auto_version_sub_paths():
     possible_sub_paths = [os.path.join("products", "distribution", "include",
                                        "AutoVersioningHeaders", "AutoVersion.ini"),
+                          os.path.join("sspl-thininstaller-build", "AutoVersioningHeaders", "AutoVersion.ini"),
                           os.path.join("AutoVersioningHeaders", "AutoVersion.ini")
                           ]
     return possible_sub_paths
