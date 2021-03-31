@@ -143,7 +143,7 @@
         <!-- coverage(bullseye) -->
         <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
         <build-asset artifact-path="sspl-base-coverage/openssl" source-dir="redist/openssl" mode="coverage"/>
-        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="coverage">
+        <build-asset artifact-path="sspl-base-coverage/pluginapi" source-dir="output" mode="coverage">
             <include glob="pluginapi.tar.gz"/>
         </build-asset>
         <build-asset artifact-path="sspl-base-coverage/system_test" source-dir="output" mode="coverage">
