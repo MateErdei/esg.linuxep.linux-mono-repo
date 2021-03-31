@@ -16,9 +16,6 @@ ${SCHEDULED_QUERY_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/scheduledquery.log
 ${LIVEQUERY_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/livequery.log
 ${BASE_SDDS}        ${TEST_INPUT_PATH}/base_sdds/
 ${EDR_SDDS}         ${COMPONENT_SDDS}
-${TELEMETRY_EXECUTABLE_LOG}    ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
-${TELEMETRY_EXE_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/telemetry/var/telemetry-exe.json
-${TELEMETRY_OUTPUT_JSON}    ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
 
 *** Keywords ***
 Run Shell Process
@@ -206,14 +203,24 @@ Restart EDR
     ...  EDR Plugin Log Contains      edr <> Plugin Finished
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
 
-Run Telemetry Executable
-    Remove File  ${TELEMETRY_EXECUTABLE_LOG}
-    Copy File    ${EXAMPLE_DATA_PATH}/telemetry-exe.json  ${TELEMETRY_EXE_CONFIG_FILE}
-    Run Process  chmod  644  ${TELEMETRY_EXE_CONFIG_FILE}
+Enable XDR
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Is XDR Enabled in Plugin Conf
 
-    ${result} =  Run Process  sudo  -u  sophos-spl-user  ${SOPHOS_INSTALL}/base/bin/telemetry  ${TELEMETRY_EXE_CONFIG_FILE}
+Enable XDR with MTR
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled_with_MTR.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Is XDR Enabled in Plugin Conf
 
-    Log  "stdout = ${result.stdout}"
-    Log  "stderr = ${result.stderr}"
-
-    Should Be Equal As Integers  ${result.rc}  0  Telemetry executable returned a non-successful error code
+Is XDR Enabled in Plugin Conf
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  File Should Exist    ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  EDR Plugin Log Contains   Updating running_mode flag setting
+    # race condition here between the above log and the file being written
+    sleep  0.1s
+    ${EDR_CONFIG_CONTENT}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
+    Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=1
