@@ -36,7 +36,7 @@ do
 done
 
 INPUT=$BASE/input
-
+find . -name AutoVersion.ini
 if [[ ! -d "$INPUT" ]]
 then
     if [[ -d "$BASE/sspl-thininstaller-build" ]]
