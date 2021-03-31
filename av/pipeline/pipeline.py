@@ -77,19 +77,19 @@ def get_suffix():
     return "-" + BRANCH_NAME
 
 
-def robot_task_with_env(machine: tap.Machine, test_type, environment=None, machine_name=None):
+def robot_task_with_env(machine: tap.Machine, test_type=None, environment=None, machine_name=None):
     if machine_name is None:
         machine_name = machine.template
     try:
         robot_exclusion_tags = ['OSTIA', 'MANUAL', 'STRESS', 'VQA', 'PRODUCT', 'INTEGRATION']
 
-        if test_type == "product":
+        if test_type == "product" or test_type == "coverage":
             robot_exclusion_tags.remove('PRODUCT')
             #run VQA only with product tests
-            if BRANCH_NAME == "master" or "vqa" in BRANCH_NAME:
+            if BRANCH_NAME == "develop" or "vqa" in BRANCH_NAME:
                 robot_exclusion_tags.remove('VQA')
 
-        if test_type == "integration":
+        if test_type == "integration" or test_type == "coverage":
             robot_exclusion_tags.remove('INTEGRATION')
 
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
@@ -226,6 +226,7 @@ def bullseye_coverage_task(machine: tap.Machine):
         # don't abort immediately if robot tests fail, generate the coverage report, then re-raise the exception
         try:
             robot_task_with_env(machine,
+                                test_type="coverage",
                                 environment={
                                     'COVFILE': COVFILE_ROBOT,
                                     'COVSRCDIR': COVSRCDIR,
