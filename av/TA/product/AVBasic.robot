@@ -554,7 +554,7 @@ AV Plugin restarts threat detector on customer id change
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
     Check Sophos Threat Detector has different PID   ${pid}
 
-AV Plugin sets default if susi startup settings permissions incorrect
+Sophos Threat Detector sets default if susi startup settings permissions incorrect
     ${handle} =   Start Process  ${AV_PLUGIN_BIN}
     Register Cleanup   Terminate Process  ${handle}
     Check AV Plugin Installed
@@ -570,9 +570,11 @@ AV Plugin sets default if susi startup settings permissions incorrect
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
 
     Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
+    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
-    Terminate Process  ${handle}
-    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+    Mark Sophos Threat Detector Log
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+    Run Process   /bin/kill   -9   ${output}
 
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found

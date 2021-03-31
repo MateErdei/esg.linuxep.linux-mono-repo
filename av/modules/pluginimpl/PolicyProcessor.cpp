@@ -147,15 +147,23 @@ namespace Plugin
         json susiStartupSettings;
         susiStartupSettings["enableSxlLookup"] = m_lookupEnabled;
 
-        auto* fs = Common::FileSystem::fileSystem();
+        try
+        {
+            auto* fs = Common::FileSystem::fileSystem();
 
-        // Write settings to file
-        auto dest = getSusiStartupSettingsPath();
-        fs->writeFile(dest, susiStartupSettings.dump());
+            // Write settings to file
+            auto dest = getSusiStartupSettingsPath();
+            fs->writeFile(dest, susiStartupSettings.dump());
 
-        // Write a copy to chroot
-        dest = Plugin::getPluginInstall() + "/chroot" + dest;
-        fs->writeFile(dest, susiStartupSettings.dump());
+            // Write a copy to chroot
+            dest = Plugin::getPluginInstall() + "/chroot" + dest;
+            fs->writeFile(dest, susiStartupSettings.dump());
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR(e.what() << ", setting default values for susi startup settings.");
+            return true;
+        }
 
         return true;
     }
