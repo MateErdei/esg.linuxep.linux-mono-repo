@@ -436,8 +436,8 @@ Install master of base and edr and mtr and upgrade to base 999
 
     Wait Until Keyword Succeeds
     ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   2 secs
+    ...   Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
     # check plugins are running.
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -482,7 +482,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Trigger Update Now
 
     Wait Until Keyword Succeeds
-    ...  30 secs
+    ...  40 secs
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR
 
