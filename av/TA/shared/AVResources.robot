@@ -46,15 +46,6 @@ ${AVSCANNER}        /usr/local/bin/avscanner
 
 
 *** Keywords ***
-AVAndBase Teardown Functions
-    ${av_log_size}=     Get File Size  ${AV_LOG_PATH}
-    Log     AV LOG SIZE: ${av_log_size}
-    ${threat_detector_log_size}=     Get File Size  ${THREAT_DETECTOR_LOG_PATH}
-    Log     AV LOG SIZE: ${threat_detector_log_size}
-    ${susi_debug_log_size}=     Get File Size  ${SUSI_DEBUG_LOG_PATH}
-    Log     AV LOG SIZE: ${susi_debug_log_size}
-    Uninstall All
-
 Check Plugin Running
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
 
@@ -362,25 +353,25 @@ AV And Base Teardown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SUSI_DEBUG_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
-    ${av_log_size}=     Get File Size  ${AV_LOG_PATH}
-    Log     AV LOG SIZE: ${av_log_size}
-    ${threat_detector_log_size}=     Get File Size  ${THREAT_DETECTOR_LOG_PATH}
-    Log     THREAT DETECTOR LOG SIZE: ${threat_detector_log_size}
-    ${susi_debug_log_size}=     Get File Size  ${SUSI_DEBUG_LOG_PATH}
-    Log     SUSI LOG SIZE: ${susi_debug_log_size}
 
-Special AV And Base Teardown
+Restart AV Plugin And Clear The Logs
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
     ...  Check AV Plugin Not Running
 
+    Log  Backup logs before removing them
+    Log  ${AV_LOG_PATH}
+    Log  ${THREAT_DETECTOR_LOG_PATH}
+    Log  ${SUSI_DEBUG_LOG_PATH}
+
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
-    Empty Directory  /opt/sophos-spl/base/mcs/event/
+
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
+    Wait until AV Plugin running
 
 Create Install Options File With Content
     [Arguments]  ${installFlags}

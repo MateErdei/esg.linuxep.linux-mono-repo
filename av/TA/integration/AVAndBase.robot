@@ -16,7 +16,7 @@ Resource        ../shared/BaseResources.robot
 Resource        ../shared/AVAndBaseResources.robot
 
 Suite Setup     Install With Base SDDS
-Suite Teardown  AVAndBase Teardown Functions
+Suite Teardown  Uninstall All
 
 Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown

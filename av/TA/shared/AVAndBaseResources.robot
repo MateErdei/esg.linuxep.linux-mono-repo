@@ -6,6 +6,15 @@ Resource    BaseResources.robot
 
 AV and Base Setup
     Check AV Plugin Installed With Base
+
+    ${AV_LOG_SIZE}=  Get File Size   ${AV_LOG_PATH}
+    ${THREAT_DETECTOR_LOG_SIZE}=  Get File Size   ${THREAT_DETECTOR_LOG_PATH}
+    ${SUSI_DEBUG_LOG_SIZE}=  Get File Size   ${SUSI_DEBUG_LOG_PATH}
+    ${av_evaluation}=  Evaluate  ${AV_LOG_SIZE} / ${1000000} > ${9}
+    ${susi_evaluation}=  Evaluate  ${SUSI_DEBUG_LOG_SIZE} / ${1000000} > ${9}
+    ${threat_detector_evaluation}=  Evaluate  ${THREAT_DETECTOR_LOG_SIZE} / ${1000000} > ${9}
+
+    run keyword if  ${av_evaluation} or ${susi_evaluation} or ${threat_detector_evaluation}  Restart AV Plugin And Clear The Logs
     Remove Directory  /tmp/DiagnoseOutput  true
 
 Check avscanner in /usr/local/bin
