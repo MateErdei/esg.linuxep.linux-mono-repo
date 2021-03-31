@@ -85,6 +85,16 @@ Mark Susi Debug Log
     Set Test Variable   ${SUSI_DEBUG_LOG_MARK}  ${count}
     Log  "SUSI_DEBUG LOG MARK = ${SUSI_DEBUG_LOG_MARK}"
 
+SUSI Debug Log Contains With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SUSI_DEBUG_LOG_MARK}  0
+    File Log Contains With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
+
+SUSI Debug Log Does Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SUSI_DEBUG_LOG_MARK}  0
+    File Log Should Not Contain With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
+
 Mark Scan Now Log
     ${count} =  Count File Log Lines  ${SCANNOW_LOG_PATH}
     Set Test Variable   ${SCAN_NOW_LOG_MARK}  ${count}
@@ -229,6 +239,11 @@ Wait Until AV Plugin Log Contains
 AV Plugin Log Does Not Contain
     [Arguments]  ${input}
     LogUtils.Over next 15 seconds ensure log does not contain   ${AV_LOG_PATH}  ${input}
+
+AV Plugin Log Does Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
+    File Log Should Not Contain With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
 
 Plugin Log Contains
     [Arguments]  ${input}
