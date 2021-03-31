@@ -90,16 +90,16 @@ def coverage_task(machine: tap.Machine):
         # run component pytests and integration robot tests with coverage file to get combined coverage
         machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS)
 
-        # Run component pytest
-        # These are disabled for now
-        try:
-            if machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
-                        environment={'COVFILE': COVFILE_TAPTESTS}, return_exit_code=True) ==0:
-                #start systemtest coverage in jenkins
-                run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
-            
-        finally:
-            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+        # # Run component pytest
+        # # These are disabled for now
+        # try:
+        #     if machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
+        #                 environment={'COVFILE': COVFILE_TAPTESTS}, return_exit_code=True) ==0:
+        #         #start systemtest coverage in jenkins
+        #         run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
+        #
+        # finally:
+        #     machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
 
         # generate combined coverage html results and upload to allegro
@@ -179,7 +179,7 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                 zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image='JenkinsLinuxTemplate5',
                                                            mode=ZERO_SIX_ZERO_MODE, release_package='./build/release-package.xml')
             elif mode == COVERAGE_MODE:
-                coverage = stage.artisan_build(name=COVERAGE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                base_build = stage.artisan_build(name=COVERAGE_MODE, component=component, image='JenkinsLinuxTemplate5',
                                              mode=COVERAGE_MODE, release_package='./build/release-package.xml')
                 release_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
                                                     mode=RELEASE_MODE, release_package='./build/release-package.xml')
