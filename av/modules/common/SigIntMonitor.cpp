@@ -64,7 +64,7 @@ common::SigIntMonitor::~SigIntMonitor()
     }
 }
 
-std::shared_ptr<common::SigIntMonitor> common::SigIntMonitor::makeSigIntMonitor()
+std::shared_ptr<common::SigIntMonitor> common::SigIntMonitor::getSigIntMonitor()
 {
     static std::shared_ptr<common::SigIntMonitor> monitor(std::make_shared<common::SigIntMonitor>());
     return monitor;

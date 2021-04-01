@@ -69,7 +69,7 @@ common::SigTermMonitor::~SigTermMonitor()
     }
 }
 
-std::shared_ptr<common::SigTermMonitor> common::SigTermMonitor::makeSigTermMonitor()
+std::shared_ptr<common::SigTermMonitor> common::SigTermMonitor::getSigTermMonitor()
 {
     static std::shared_ptr<common::SigTermMonitor> monitor(std::make_shared<common::SigTermMonitor>());
     return monitor;

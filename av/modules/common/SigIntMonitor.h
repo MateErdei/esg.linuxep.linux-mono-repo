@@ -16,10 +16,11 @@ namespace common
     {
     public:
         explicit SigIntMonitor();
-        SigIntMonitor(const SigIntMonitor&) = delete;
         ~SigIntMonitor();
 
-        static std::shared_ptr<SigIntMonitor> makeSigIntMonitor();
+        SigIntMonitor(const SigIntMonitor&) = delete;
+        SigIntMonitor& operator=(const SigIntMonitor&) = delete;
+        static std::shared_ptr<SigIntMonitor> getSigIntMonitor();
         bool triggered();
 
     private:
