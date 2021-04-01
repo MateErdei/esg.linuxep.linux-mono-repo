@@ -137,6 +137,12 @@ function install_product()
     find "$DIST/files/plugins" -type f -not -path "$DIST/files/plugins/av/chroot/susi/*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
+    if [[ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi" ]]
+    then
+        find "$SOPHOS_INSTALL/plugins/av/chroot/susi" -type f -name "*.so.*" -print0 \
+            | xargs -0 rm || failure "Failed to remove SUSI libraries"
+    fi
+
     #Install SUSI
     [ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl" ] && rm "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl/"*
     mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot/susi"
