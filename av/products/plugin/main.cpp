@@ -75,7 +75,8 @@ int main()
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
+    fs::path threatEventPublisherSocketPath = pluginInstall / "var/threatEventPublisherSocketPath";
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, threatEventPublisherSocketPath);
 
     // If this is the first time restoring this will also set the telemetry backup file name
     Common::Telemetry::TelemetryHelper::getInstance().restore("av");

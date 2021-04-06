@@ -15,6 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <capnp/serialize.h>
 #include <common/FDUtils.h>
 #include <scan_messages/ServerThreatDetected.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <cassert>
 #include <stdexcept>
@@ -23,19 +24,22 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/socket.h>
 #include <unistd.h>
 
+using json = nlohmann::json;
 using namespace unixsocket;
 
 ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(datatypes::AutoFd& fd,
-                                                                           std::shared_ptr<IMessageCallback> callback)
+                                                                           std::shared_ptr<IMessageCallback> threatReportCallback,
+                                                                           std::shared_ptr<IMessageCallback> threatEventPublisherCallback)
         : m_fd(std::move(fd))
-        , m_callback(std::move(callback))
+        , m_threatReportCallback(std::move(threatReportCallback))
+        , m_threatEventPublisherCallback(std::move(threatEventPublisherCallback))
 {
     if (m_fd < 0)
     {
         throw std::runtime_error("Attempting to construct ThreatReporterServerConnectionThread with invalid socket fd");
     }
 
-    if (!m_callback)
+    if (!m_threatReportCallback || !m_threatEventPublisherCallback)
     {
         throw std::runtime_error("Attempting to construct ThreatReporterServerConnectionThread with null callback");
     }
@@ -207,9 +211,13 @@ void ThreatReporterServerConnectionThread::inner_run()
             {
                 LOGERROR("Missing file path in detection report: empty file path");
             }
-            m_callback->processMessage(generateThreatDetectedXml(detectionReader));
+            m_threatReportCallback->processMessage(generateThreatDetectedXml(detectionReader));
+            // TODO: HANDLE ANY SOCKET ERRORS
 
-            // TO DO: HANDLE ANY SOCKET ERRORS
+            json threatEvent;
+            threatEvent["threatName"] = detectionReader.getThreatName();
+            threatEvent["threatPath"] = detectionReader.getFilePath();
+            m_threatEventPublisherCallback->processMessage(threatEvent.dump());
         }
     }
 }

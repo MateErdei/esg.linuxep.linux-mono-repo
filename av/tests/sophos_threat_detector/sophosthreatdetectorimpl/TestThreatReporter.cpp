@@ -43,14 +43,17 @@ TEST_F(TestThreatReporter, testReport) // NOLINT
     setupFakeSophosThreatDetectorConfig();
 
     WaitForEvent serverWaitGuard;
-    auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 
-    EXPECT_CALL(*mock_callback, processMessage(_)).Times(1).WillOnce(
+    auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+    auto mockThreatEventPublisherCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+
+    EXPECT_CALL(*mockThreatReportCallback, processMessage(_)).Times(1);
+    EXPECT_CALL(*mockThreatEventPublisherCallback, processMessage(_)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
 
     fs::path socket_path = pluginInstall() / "chroot/var/threat_report_socket";
     unixsocket::ThreatReporterServerSocket threatReporterServer(
-        socket_path, 0600, mock_callback
+        socket_path, 0600, mockThreatReportCallback, mockThreatEventPublisherCallback
     );
 
     threatReporterServer.start();

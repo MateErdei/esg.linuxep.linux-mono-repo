@@ -24,14 +24,18 @@ namespace unixsocket
     public:
         ThreatReporterServerConnectionThread(const ThreatReporterServerConnectionThread&) = delete;
         ThreatReporterServerConnectionThread& operator=(const ThreatReporterServerConnectionThread&) = delete;
-        explicit ThreatReporterServerConnectionThread(datatypes::AutoFd& fd, std::shared_ptr<IMessageCallback> callback);
+        explicit ThreatReporterServerConnectionThread(
+            datatypes::AutoFd& fd,
+            std::shared_ptr<IMessageCallback> threatReportCallback,
+            std::shared_ptr<IMessageCallback> threatEventPublisherCallback);
         void run() override;
 
     private:
         void inner_run();
 
         datatypes::AutoFd m_fd;
-        std::shared_ptr<IMessageCallback> m_callback;
+        std::shared_ptr<IMessageCallback> m_threatReportCallback;
+        std::shared_ptr<IMessageCallback> m_threatEventPublisherCallback;
     };
 }
 

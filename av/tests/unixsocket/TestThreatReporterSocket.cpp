@@ -59,12 +59,14 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
 
     std::time_t detectionTimeStamp = std::time(nullptr);
 
-    auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+    auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+    auto mockThreatEventPublisherCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 
-    EXPECT_CALL(*mock_callback, processMessage(_)).Times(1).WillOnce(
+    EXPECT_CALL(*mockThreatReportCallback, processMessage(_)).Times(1);
+    EXPECT_CALL(*mockThreatEventPublisherCallback, processMessage(_)).Times(1).WillOnce(
             InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
 
-    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mock_callback);
+    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback, mockThreatEventPublisherCallback);
 
     threatReporterServer.start();
 
@@ -93,17 +95,18 @@ TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
     WaitForEvent serverWaitGuard;
     WaitForEvent serverWaitGuard2;
 
-
     std::time_t detectionTimeStamp = std::time(nullptr);
 
-    auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+    auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+    auto mockThreatEventPublisherCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 
-    EXPECT_CALL(*mock_callback, processMessage(_)).Times(2).WillOnce(
+    EXPECT_CALL(*mockThreatReportCallback, processMessage(_)).Times(2);
+    EXPECT_CALL(*mockThreatEventPublisherCallback, processMessage(_)).Times(2).WillOnce(
             InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs)).WillOnce(
             InvokeWithoutArgs(&serverWaitGuard2, &WaitForEvent::onEventNoArgs));
 
 
-    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mock_callback);
+    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback, mockThreatEventPublisherCallback);
 
     threatReporterServer.start();
 

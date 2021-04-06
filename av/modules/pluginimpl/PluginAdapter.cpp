@@ -50,25 +50,45 @@ namespace Plugin
         private:
             PluginAdapter& m_adapter;
         };
+
+        class ThreatEventPublisherCallbacks : public IMessageCallback
+        {
+        public:
+            explicit ThreatEventPublisherCallbacks(PluginAdapter& adapter, const std::string& threatEventPublisherSocketPath)
+                : m_adapter(adapter)
+                , m_threatEventPublisherSocketPath(threatEventPublisherSocketPath)
+            {}
+
+            void processMessage(const std::string& threatJSON) override
+            {
+                m_adapter.publishThreatEvent(threatJSON, m_threatEventPublisherSocketPath);
+            }
+
+        private:
+            PluginAdapter& m_adapter;
+            std::string m_threatEventPublisherSocketPath;
+        };
     }
 
     PluginAdapter::PluginAdapter(
         std::shared_ptr<QueueTask> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback,
+        const std::string& threatEventPublisherSocketPath,
         int waitForPolicyTimeout) :
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(*this),
-        m_threatReporterServer(threat_reporter_socket(), 0600, std::make_shared<ThreatReportCallbacks>(*this)),
+        m_threatReporterServer(threat_reporter_socket(), 0600,
+                               std::make_shared<ThreatReportCallbacks>(*this),
+                               std::make_shared<ThreatEventPublisherCallbacks>(*this, threatEventPublisherSocketPath)),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             sophos_threat_detector_launcher())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher())
     {
-        m_threatEventPublisher->connect("ipc:///tmp/threatEventPublisherSocket");
     }
 
     void PluginAdapter::mainLoop()
@@ -277,10 +297,15 @@ namespace Plugin
         auto attributeMap = Common::XmlUtilities::parseXml(threatDetectedXML);
         incrementTelemetryThreatCount(attributeMap.lookupMultiple("notification/threat")[0].value("name"));
         m_queueTask->push(Task { .taskType = Task::TaskType::ThreatDetected, .Content = threatDetectedXML });
+    }
 
+    void PluginAdapter::publishThreatEvent(const std::string& threatDetectedJSON, const std::string& threatEventPublisherSocketPath)
+    {
         try
         {
-            m_threatEventPublisher->write({ "FOOBAR", "DATA" });
+            m_threatEventPublisher->connect("ipc://" + threatEventPublisherSocketPath);
+            LOGDEBUG("Publishing threat detection event: " << threatDetectedJSON);
+            m_threatEventPublisher->write({ "threatEvents", threatDetectedJSON });
         }
         catch (const Common::ZeroMQWrapper::IIPCException& e)
         {

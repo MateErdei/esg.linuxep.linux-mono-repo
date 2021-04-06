@@ -40,10 +40,12 @@ namespace Plugin
             std::shared_ptr<QueueTask> queueTask,
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
             std::shared_ptr<PluginCallback> callback,
+            const std::string& threatEventPublisherSocketPath,
             int waitForPolicyTimeout = 5);
         void mainLoop();
         void processScanComplete(std::string& scanCompletedXml) override;
         void processThreatReport(const std::string& threatDetectedXML);
+        void publishThreatEvent(const std::string& threatDetectedJSON, const std::string& threatEventPublisherSocketPath);
 
     private:
         void processPolicy(const std::string& policyXml);
