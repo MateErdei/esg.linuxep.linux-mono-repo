@@ -76,15 +76,15 @@ def combined_task(machine: tap.Machine):
         machine.run('cp', "-r", unitest_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
+        # run component pytests and integration robot tests with coverage file to get combined coverage
+        machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
+
         # "/tmp/BullseyeCoverageEnv.txt" is a special location that bullseye checks for config values
         # We can set the COVFILE env var here so that all instrumented processes know where it is.
         machine.run("echo", f"COVFILE={COVFILE_COMBINED}", ">", "/tmp/BullseyeCoverageEnv.txt")
 
         # Make sure that any product process can update the cov file, no matter the running user.
         machine.run("chmod", "666", COVFILE_COMBINED)
-
-        # run component pytests and integration robot tests with coverage file to get combined coverage
-        machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
 
         # run component pytest
         args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
