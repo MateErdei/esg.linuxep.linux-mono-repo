@@ -191,11 +191,10 @@ namespace Plugin
             {
                 if ( m_loggerExtensionPtr->checkDataPeriodHasElapsed())
                 {
-                    Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy, m_loggerExtensionPtr->getDataLimitReached());
-                    // add a restart to the the queue
-                    m_queueTask->pushOsqueryRestart("Restarting osquery to apply changes after re-enabling query packs following a data limit rollover");
-                    // Enable all query packs that should be enabled
-                    // Enable custom query pack if it is disabled
+                    if (Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy, m_loggerExtensionPtr->getDataLimitReached()))
+                    {
+                        m_queueTask->pushOsqueryRestart("Restarting osquery to apply changes after re-enabling query packs following a data limit rollover");
+                    }
                     sendLiveQueryStatus();
                 }
 
