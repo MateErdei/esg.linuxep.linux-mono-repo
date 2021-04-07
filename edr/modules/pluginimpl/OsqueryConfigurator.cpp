@@ -94,7 +94,7 @@ namespace Plugin
                                          "--watchdog_memory_limit=250",
                                          "--watchdog_utilization_limit=30",
                                          "--watchdog_delay=60",
-                                         "--enable_extensions_watchdog=false",
+                                         "--enable_extensions_watchdog=true",
                                          "--disable_extensions=false",
                                          "--audit_persist=true",
                                          "--enable_syslog=true",

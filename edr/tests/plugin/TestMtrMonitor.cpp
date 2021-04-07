@@ -65,7 +65,7 @@ std::string EXAMPLE_FLAGS_FILE_CONTENTS="--host_identifier=uuid\n"
     "--watchdog_memory_limit=250\n"
     "--watchdog_utilization_limit=30\n"
     "--watchdog_delay=60\n"
-    "--enable_extensions_watchdog=false";
+    "--enable_extensions_watchdog=true";
 
 
 class TestMtrMonitor : public LogOffInitializedTests{};
