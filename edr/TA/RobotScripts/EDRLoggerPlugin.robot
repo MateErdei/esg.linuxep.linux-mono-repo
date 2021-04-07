@@ -608,7 +608,7 @@ OSQuery Does Not Restart After Period Elapses If Data Limit Not Hit
     ...  EDR Plugin Log Contains  XDR period has rolled over
 
     Wait Until Keyword Succeeds
-    ...  5 secs
+    ...  10 secs
     ...  1 secs
     ...  EDR Plugin Log Contains X Times  Sending LiveQuery Status  2
 
