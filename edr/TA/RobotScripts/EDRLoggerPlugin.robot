@@ -574,7 +574,7 @@ OSQuery Does Not Restart After Period Elapses If Data Limit Not Hit
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
     # Inject query pack and initial data limit period into SDDS
-    Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   30
+    Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   20
 
     Install EDR Directly from SDDS
 
@@ -608,8 +608,8 @@ OSQuery Does Not Restart After Period Elapses If Data Limit Not Hit
     ...  EDR Plugin Log Contains  XDR period has rolled over
 
     Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
+    ...  40 secs
+    ...  2 secs
     ...  EDR Plugin Log Contains X Times  Sending LiveQuery Status  2
 
     EDR Plugin Log Does Not Contain  Restarting osquery to apply changes after re-enabling query packs following a data limit rollover
