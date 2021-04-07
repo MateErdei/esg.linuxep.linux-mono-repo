@@ -567,6 +567,56 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
 
     File Should Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  Executing query
 
+OSQuery Does Not Restart After Period Elapses If Data Limit Not Hit
+    [Setup]  Uninstall All
+    Install Base For Component Tests
+    Create Debug Level Logger Config File
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+
+    # Inject query pack and initial data limit period into SDDS
+    Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   30
+
+    Install EDR Directly from SDDS
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  First LiveQuery policy received
+    Expect New Datalimit  100000
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  XDR Pack Should Be Enabled
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains X Times  Run osquery process  1
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/xdr_intermediary
+
+    EDR Plugin Log Contains X Times  Sending LiveQuery Status  1
+
+    # Wait until the 2 mins data limit period rolls over
+    Wait Until Keyword Succeeds
+    ...  35 secs
+    ...  5 secs
+    ...  EDR Plugin Log Contains  XDR period has rolled over
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains X Times  Sending LiveQuery Status  2
+
+    EDR Plugin Log Does Not Contain  Restarting osquery to apply changes after re-enabling query packs following a data limit rollover
+
+    # Check OSQuery has not been restarted
+    EDR Plugin Log Contains X Times  Run osquery process  1
+
 Test Query Packs Are Enabled And Disabled By Policy
     Create Debug Level Logger Config File
     Restart EDR
