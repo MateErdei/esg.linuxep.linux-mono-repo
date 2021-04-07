@@ -14,10 +14,11 @@ then
     echo "${PRODUCT_NAME} Installer, help:"
     echo "Usage: [options]"
     echo "Valid options are:"
-    echo -e "--help [-h]\t\tDisplay this summary"
-    echo -e "--version [-v]\t\tDisplay version of installer"
-    echo -e "--force\t\t\tForce re-install"
-    echo -e "--group=<group>\t\tAdd this endpoint into the Sophos Central group specified"
+    echo -e "--help [-h]\t\t\tDisplay this summary"
+    echo -e "--version [-v]\t\t\tDisplay version of installer"
+    echo -e "--force\t\t\t\tForce re-install"
+    echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
+    echo -e "--group=<group>\\<sub-group>\tAdd this endpoint into the Sophos Central sub-group specified"
     exit 0
 fi
 
