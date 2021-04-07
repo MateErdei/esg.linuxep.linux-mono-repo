@@ -578,6 +578,9 @@ OSQuery Does Not Restart After Period Elapses If Data Limit Not Hit
 
     Install EDR Directly from SDDS
 
+    #Change period back to 120 post-install
+    Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   120
+
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
