@@ -77,7 +77,7 @@ function delete_removed_vdl()
     $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" --notVersioned || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed files"
 }
 
-function copy_libraries()
+function delete_removed_libraries()
 {
     local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/libglobalrep"
     local dest_dir="${SUSI_UPDATE_SRC}/libglobalrep"
@@ -178,7 +178,7 @@ function install_product()
     if [[ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi" ]]
     then
         rm -rf "$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
-        copy_libraries
+        delete_removed_libraries
     fi
 
     #Install SUSI
