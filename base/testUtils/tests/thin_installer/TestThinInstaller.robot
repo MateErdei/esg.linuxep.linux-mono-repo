@@ -295,10 +295,11 @@ Thin Installer Help Prints Correct Output
     Run Default Thininstaller With Args  0  --help
     Check Thininstaller Log Contains   Sophos Linux Protection Installer, help:
     Check Thininstaller Log Contains   Usage: [options]
-    Check Thininstaller Log Contains   --help [-h]\t\tDisplay this summary
-    Check Thininstaller Log Contains   --version [-v]\t\tDisplay version of installer
-    Check Thininstaller Log Contains   --force\t\t\tForce re-install
-    Check Thininstaller Log Contains   --group=<group>\t\tAdd this endpoint into the Sophos Central group specified
+    Check Thininstaller Log Contains   --help [-h]\t\t\tDisplay this summary
+    Check Thininstaller Log Contains   --version [-v]\t\t\tDisplay version of installer
+    Check Thininstaller Log Contains   --force\t\t\t\tForce re-install
+    Check Thininstaller Log Contains   --group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified
+    Check Thininstaller Log Contains   --group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by two backslashes\n\t\t\t\ti.e. <top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>
 
 Thin Installer Creates Install Options File
     ${install_location}=  get_default_install_script_path
