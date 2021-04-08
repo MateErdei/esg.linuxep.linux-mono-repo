@@ -97,6 +97,12 @@ elif [[ -n "${MDR_COVERAGE:-}" ]]; then
   export htmldir=$COVERAGE_STAGING/sspl-mtr-combined
   export COV_HTML_BASE=sspl-mtr-combined
   export BULLSEYE_UPLOAD=1
+elif [[ -n "${EDR_COVERAGE:-}" ]]; then
+  mv $COVERAGE_STAGING/sspl-edr-unittest.cov $COVERAGE_STAGING/sspl-edr-combined.cov
+  export COVFILE=$COVERAGE_STAGING/sspl-edr-combined.cov
+  export htmldir=$COVERAGE_STAGING/sspl-edr-combined
+  export COV_HTML_BASE=sspl-edr-combined
+  export BULLSEYE_UPLOAD=1
 elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   mv $COVERAGE_STAGING/covfile/liveterminal_unittests.cov $COVERAGE_STAGING/sspl-liveresponse-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-liveresponse-combined.cov
@@ -141,7 +147,7 @@ if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
 fi
 
 #upload coverage results
-if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" ]]; then
+if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" || -n "${EDR_COVERAGE:-}" ]]; then
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
 fi
 
