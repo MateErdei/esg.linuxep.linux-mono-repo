@@ -1,0 +1,103 @@
+<?xml version="1.0" ?>
+<importspec>
+  <warehouses>
+    <warehouse id="sspl"   name="DNR_SSPL_SPRINT_2020_38"/>
+  </warehouses>
+  <imports>
+    <line id="ServerProtectionLinux-Base">
+	  <componentsuite id="ServerProtectionLinux-Base-1.1.4.5"
+				version="1.1.4.5"
+				fileset="\\uk-filer5.prod.sophos\prodro\bfr\221\221213\sspl-componentsuite\output\SDDS-SSPL-COMPONENT-SUITE"
+				longdic="Sophos Linux Base"
+				shortdic="Sophos Linux Base"/>
+	  <componentsuite id="ServerProtectionLinux-Base-1.1.3.51"
+				version="1.1.3.51"
+				fileset="\\uk-filer5.prod.sophos\prodro\bfr\221\221027\sspl-componentsuite\output\SDDS-SSPL-COMPONENT-SUITE"
+				longdic="Sophos Linux Base"
+				shortdic="Sophos Linux Base"/>
+	  <componentsuite id="ServerProtectionLinux-Base-1.1.2.20"
+				version="1.1.2.20"
+				fileset="\\uk-filer5.prod.sophos\prodro\bfr\220\220606\sspl-componentsuite\output\SDDS-SSPL-COMPONENT-SUITE"
+				longdic="Sophos Linux Base"
+				shortdic="Sophos Linux Base"/>
+	  <component id="ServerProtectionLinux-Base-1.1.1.139"
+                 version="1.1.1.139" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\219\219677\sspl-base\output\SDDS-COMPONENT" 
+                 longdic="Sophos Linux Base" 
+                 shortdic="Sophos Linux Base"/>
+      <component id="ServerProtectionLinux-Base-1.1.0.137"
+                 version="1.1.0.137" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\219\219265\sspl-base\output\SDDS-COMPONENT" 
+                 longdic="Sophos Linux Base" 
+                 shortdic="Sophos Linux Base"/>
+      <component id="ServerProtectionLinux-Base-1.0.1.264"
+                 version="1.0.1.264" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\217\217854\sspl-base\output\SDDS-COMPONENT" 
+                 longdic="Sophos Linux Base" 
+                 shortdic="Sophos Linux Base"/>
+    </line>
+    <line id="ServerProtectionLinux-Plugin-EDR">
+        <component id="ServerProtectionLinux-Plugin-EDR-1.1.0.5"
+                 version="1.1.0.5" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\221\221214\sspl-plugin-edr-component\output\SDDS-COMPONENT" 
+                 longdic="Sophos Live Discover Plugin" 
+                 shortdic="Sophos Live Discover Plugin"/>
+        <component id="ServerProtectionLinux-Plugin-EDR-1.0.2.506"
+                 version="1.0.2.506" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\221\221010\sspl-plugin-edr-component\output\SDDS-COMPONENT" 
+                 longdic="Sophos Live Discover Plugin" 
+                 shortdic="Sophos Live Discover Plugin"/>
+        <component id="ServerProtectionLinux-Plugin-EDR-1.0.1.131"
+                 version="1.0.1.131" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\219\219728\sspl-plugin-edr-component\output\SDDS-COMPONENT" 
+                 longdic="Sophos Live Discover Plugin" 
+                 shortdic="Sophos Live Discover Plugin"/>
+      <component id="ServerProtectionLinux-Plugin-EDR-1.0.0.120"
+                 version="1.0.0.120" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\219\219146\sspl-plugin-edr-component\output\SDDS-COMPONENT" 
+                 longdic="Sophos Live Discover Plugin" 
+                 shortdic="Sophos Live Discover Plugin"/>
+    </line>
+    <line id="ServerProtectionLinux-Base-component">
+        <component id="ServerProtectionLinux-Base-component-1.1.4.332"
+			 version="1.1.4.332" 
+			 fileset="\\uk-filer5.prod.sophos\prodro\bfr\221\221210\sspl-base\output\SDDS-COMPONENT" 
+			 longdic="Sophos Linux Base Component" 
+			 shortdic="Sophos Linux Base Component"/>
+		  <component id="ServerProtectionLinux-Base-component-1.1.3.703"
+			 version="1.1.3.703" 
+			 fileset="\\uk-filer5.prod.sophos\prodro\bfr\221\221007\sspl-base\output\SDDS-COMPONENT" 
+			 longdic="Sophos Linux Base Component" 
+			 shortdic="Sophos Linux Base Component"/>
+		  <component id="ServerProtectionLinux-Base-component-1.1.2.390"
+			 version="1.1.2.390" 
+			 fileset="\\uk-filer5.prod.sophos\prodro\bfr\220\220601\sspl-base\output\SDDS-COMPONENT" 
+			 longdic="Sophos Linux Base Component" 
+			 shortdic="Sophos Linux Base Component"/>
+    </line>
+    <line id="ServerProtectionLinux-Plugin-liveresponse">
+                  <component id="ServerProtectionLinux-Plugin-liveresponse-1.2.1.1"
+                 version="1.2.1.1" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\221\221216\liveterminal_linux\output\SDDS-COMPONENT"
+                 longdic="Sophos Linux Live Response" 
+                 shortdic="Sophos Linux Live Response"/>
+                  <component id="ServerProtectionLinux-Plugin-liveresponse-1.2.0.11"
+                 version="1.2.0.11" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\221\221025\liveterminal_linux\output\SDDS-COMPONENT"
+                 longdic="Sophos Linux Live Response" 
+                 shortdic="Sophos Linux Live Response"/>
+                  <component id="ServerProtectionLinux-Plugin-liveresponse-1.1.278.0"
+                 version="1.1.278.0" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\220\220605\liveterminal\output\SDDS-COMPONENT"
+                 longdic="Sophos Linux Live Response" 
+                 shortdic="Sophos Linux Live Response"/>
+    </line>
+    <line id="ServerProtectionLinux-Plugin-AV">
+                  <component id="ServerProtectionLinux-Plugin-AV-0.5.0.1094"
+                 version="0.5.0.1094" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\221\221217\sspl-plugin-anti-virus\output\SDDS-COMPONENT"
+                 longdic="Sophos Linux AntiVirus" 
+                 shortdic="Sophos Linux AntiVirus"/>
+    </line>
+  </imports>
+</importspec>

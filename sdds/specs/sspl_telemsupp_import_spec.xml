@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<importspec>
+  <warehouses>
+    <warehouse id="sspltelemsupp"   name="SSPL_telemsupp_1_0_0"/>
+  </warehouses>
+  <imports>
+    <line id="SSPLTELEMSUPP">
+      <component id="SSPLTELEMSUPP" 
+                 version="1.0.0.3" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\217\217066\sspl-telemetry-supplement\output\SDDS-SSPL-TELEMSUPP-COMPONENT" 
+                 longdic="Sophos Protection for Linux Telemetry Supplement" 
+                 shortdic="SSPL Telemetry Supplement"/>
+    </line>
+  </imports>
+</importspec>

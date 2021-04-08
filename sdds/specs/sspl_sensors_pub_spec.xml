@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<publicationspec importspec="sspl_sensors_import_spec.xml">
+  <warehouses>
+    <warehouse furcatedentitlement="CLOUD_SSPL_SENSORS" id="ssplsensors">
+      <line id="ServerProtectionLinux-Plugin-AuditPlugin">
+        <component importreference="AuditPlugin0.5.1.385">
+            <releasetag baseversion="" tag="RECOMMENDED"/>
+        </component>
+      </line>
+      <line id="ServerProtectionLinux-Plugin-EventProcessor">
+        <component importreference="EventProcessor0.5.1.50">
+            <releasetag baseversion="" tag="RECOMMENDED"/>
+        </component>
+      </line>
+    </warehouse>
+  </warehouses>
+  <licenses>
+    <license name="CSP" />
+  </licenses>
+</publicationspec>

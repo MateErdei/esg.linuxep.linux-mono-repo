@@ -1,0 +1,12 @@
+<publicationspec importspec="importspec.xml">
+	<warehouses>
+		<warehouse furcatedentitlement="SSPLFLAGS" id="sspl_flags">
+			<line id="SSPLFLAGS">
+			<component importreference="SSPLFLAGS-1.0.0.5">
+				<releasetag tag="BETA"/>
+			</component>
+			</line>
+		</warehouse>
+	</warehouses>
+	<licenses/>
+</publicationspec>

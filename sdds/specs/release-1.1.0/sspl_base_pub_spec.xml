@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<publicationspec importspec="sspl_base_import_spec.xml">
+  <warehouses>
+    <warehouse furcatedentitlement="SSPL" id="sspl">
+      <line id="ServerProtectionLinux-Base">
+        <component importreference="ServerProtectionLinux-Base-1.1.0.137">
+            <releasetag baseversion="" tag="BETA"/>
+        </component>
+        <component importreference="ServerProtectionLinux-Base-1.0.1.264">
+            <releasetag baseversion="" tag="RECOMMENDED"/>
+        </component>
+      </line>
+      <line id="ServerProtectionLinux-Plugin-EDR">
+        <component importreference="ServerProtectionLinux-Plugin-EDR-1.0.0.120">
+            <releasetag baseversion="" tag="BETA"/>
+        </component>
+      </line>
+     </warehouse>
+  </warehouses>
+  <licenses>
+    <license name="CSP" />
+  </licenses>
+</publicationspec>

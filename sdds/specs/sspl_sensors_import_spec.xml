@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<importspec>
+  <warehouses>
+    <warehouse id="ssplsensors" name="DNR_Cloud_SSPL_Sensors_2019-18-1"/>
+  </warehouses>
+  <imports>
+    <line id="ServerProtectionLinux-Plugin-AuditPlugin">
+      <component id="AuditPlugin0.5.1.385" version="0.5.1.385" fileset="\\uk-filer5.prod.sophos\prodro\bfr\214\214878\sspl-audit\output\SDDS-COMPONENT" longdic="Sophos Protection for linux Audit Plugin v0.5.1.385" shortdic="0.5.1.385"/>
+    </line>
+    <line id="ServerProtectionLinux-Plugin-EventProcessor">
+      <component id="EventProcessor0.5.1.50" version="0.5.1.50" fileset="\\uk-filer5.prod.sophos\prodro\bfr\214\214879\sspl-eventprocessor\output\SDDS-COMPONENT" longdic="Sophos Protection for linux Event Processor v0.5.1.50" shortdic="0.5.1.50"/>
+    </line>
+  </imports>
+</importspec>

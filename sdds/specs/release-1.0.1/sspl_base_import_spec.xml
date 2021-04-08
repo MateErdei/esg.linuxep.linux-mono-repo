@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<importspec>
+  <warehouses>
+    <warehouse id="sspl"   name="SSPL_1_0_1"/>
+  </warehouses>
+  <imports>
+    <line id="ServerProtectionLinux-Base">
+      <component id="ServerProtectionLinux-Base-1.0.1.264"
+                 version="1.0.1.264" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\217\217854\sspl-base\output\SDDS-COMPONENT" 
+                 longdic="Sophos Linux Base" 
+                 shortdic="Sophos Linux Base"/>
+    </line>
+  </imports>
+</importspec>
