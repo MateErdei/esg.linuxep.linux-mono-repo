@@ -1382,7 +1382,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
     Log     ${ScanLogFileContents}
 
     Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
+    ...  18 secs
+    ...  2 secs
     ...  Should Contain    ${ScanLogFileContents}  Scan aborted due to environment interruption
     Should Contain    ${ScanLogFileContents}  End of Scan Summary:
