@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-EDR-Plugin-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
 COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-edr-unit.cov'
 COVFILE_COMBINED = '/opt/test/inputs/coverage/sspl-edr-combined.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
@@ -94,6 +95,9 @@ def combined_task(machine: tap.Machine):
                         environment={'COVFILE': COVFILE_COMBINED})
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+
+        #trigger system test coverage job on jenkins
+        run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
 
         # generate combined coverage html results and upload to allegro
         combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
