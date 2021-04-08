@@ -1378,11 +1378,5 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep avscanner
     Run Process   /bin/kill   -SIGTERM   ${pid}
 
-    ${ScanLogFileContents} =  Get File    ${SCAN_LOG}
-    Log     ${ScanLogFileContents}
-
-    Wait Until Keyword Succeeds
-    ...  18 secs
-    ...  2 secs
-    ...  Should Contain    ${ScanLogFileContents}  Scan aborted due to environment interruption
-    Should Contain    ${ScanLogFileContents}  End of Scan Summary:
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}
+    Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}

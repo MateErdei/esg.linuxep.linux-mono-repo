@@ -603,3 +603,16 @@ Check file clean
      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
      Should Contain   ${output}    0 files out of 1 were infected.
 
+Wait For File With Particular Contents
+    [Arguments]     ${expectedContent}  ${filePath}
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  Check Specific File Content  ${expectedContent}  ${filePath}
+    Log File  ${filePath}
+
+Check Specific File Content
+    [Arguments]     ${expectedContent}  ${filePath}
+    ${FileContents} =  Get File  ${filePath}
+    Should Contain    ${FileContents}   ${expectedContent}
+
