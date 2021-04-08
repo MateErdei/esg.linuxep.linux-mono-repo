@@ -6,6 +6,7 @@ Library    ${LIBS_DIRECTORY}/OSUtils.py
 Resource  ../GeneralTeardownResource.robot
 *** Variables ***
 ${AV_PLUGIN_PATH}                   ${SOPHOS_INSTALL}/plugins/av
+${AV_LOG_PATH}                      ${AV_PLUGIN_PATH}/log/
 ${AV_LOG_FILE}                      ${AV_PLUGIN_PATH}/log/av.log
 ${THREAT_DETECTOR_LOG_PATH}         ${AV_PLUGIN_PATH}/log/sophos_threat_detector.log
 ${SOPHOS_THREAT_DETECTOR_BINARY}    ${AV_PLUGIN_PATH}/sbin/sophos_threat_detector

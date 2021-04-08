@@ -173,6 +173,10 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
 
+    #Log SSPLAV logs to the test report
+    Log File      ${AV_LOG_FILE}
+    Log File      ${THREAT_DETECTOR_LOG_PATH}
+
     Check Update Reports Have Been Processed
 
 VersionCopy File in the Wrong Location Is Removed
@@ -278,7 +282,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
-    ...   60 secs
+    ...   180 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
@@ -327,6 +331,10 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Exist  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_after_query_pack_restored} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
+
+    #Log SSPLAV logs to the test report
+    Log File      ${AV_LOG_FILE}
+    Log File      ${THREAT_DETECTOR_LOG_PATH}
 
 Verify Upgrading Will Remove Files Which Are No Longer Required
     [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
@@ -674,7 +682,6 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Log to console  Updating!!!
     Trigger Update Now
 
     Wait Until Keyword Succeeds
