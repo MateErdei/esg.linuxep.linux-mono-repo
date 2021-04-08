@@ -286,7 +286,7 @@ SWEEP=$(which sweep 2>/dev/null)
 [ -x "$SWEEP" ] && check_SAV_installed "$SWEEP"
 check_SAV_installed '/usr/local/bin/sweep'
 check_SAV_installed '/usr/bin/sweep'
-
+declare -a UNPROCESSED_ARGS
 # Handle arguments
 for i in "$@"
 do
@@ -319,7 +319,7 @@ do
         ;;
         *)
             # Save installer arguments that we don't directly use in the installer so we can write them to a file later
-            UNPROCESSED_ARGS=$UNPROCESSED_ARGS"\n$i"
+            UNPROCESSED_ARGS+=("$i")
             shift
         ;;
     esac
@@ -407,8 +407,10 @@ fi
 INSTALL_OPTIONS_FILE="${SOPHOS_TEMP_DIRECTORY}/install_options"
 
 # File format expects the args to be either --option  or --option=value
-echo "$UNPROCESSED_ARGS" > ${INSTALL_OPTIONS_FILE}
-
+for value in "${UNPROCESSED_ARGS[@]}"
+do
+     echo $value > ${INSTALL_OPTIONS_FILE}
+done
 # Read possible Update Caches from credentials file.
 UPDATE_CACHES=$(grep 'UPDATE_CACHES=' credentials.txt | sed 's/UPDATE_CACHES=//')
 if [ -n "$UPDATE_CACHES" ]
