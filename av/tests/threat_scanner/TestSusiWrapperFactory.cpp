@@ -182,9 +182,27 @@ TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_invalidJson)
     EXPECT_TRUE(isSxlLookupEnabled());
 }
 
-TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_unexpectedValue)
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_string)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":"false"})sophos");
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_unexpectedValue)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":"none"})sophos");
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_corruptedValue)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLookup":fals})sophos");
+    EXPECT_TRUE(isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_corruptedKey)
+{
+    writeToSusiStartupFile(R"sophos({"enableSxlLooku":false})sophos");
     EXPECT_TRUE(isSxlLookupEnabled());
 }
 
