@@ -241,7 +241,7 @@ Check logging symlink
     Should exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
 
 Check no duplicate virus data files
-    ${rc}   ${susiHash} =    Run And Return Rc And Output   head -1 ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/package_manifest.txt
+    ${rc}   ${susiHash} =    Run And Return Rc And Output   head -n 1 ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/package_manifest.txt
     Should Be Equal As Integers  ${rc}  ${0}
     ${vdlInUse} =   Set Variable  ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/${susiHash}/vdb
     ${vdlUpdate} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
