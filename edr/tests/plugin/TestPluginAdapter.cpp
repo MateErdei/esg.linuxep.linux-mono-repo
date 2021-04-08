@@ -645,6 +645,7 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyKeepsOldCustom
     // we expect to not remove and write the custom query pack
     EXPECT_CALL(*mockFileSystem, writeFile(Plugin::osqueryCustomConfigFilePath(),_)).Times(0);
     EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath())).Times(0);
+    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(Plugin::osqueryCustomConfigFilePath()+".DISABLED")).Times(0);
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask);
 
