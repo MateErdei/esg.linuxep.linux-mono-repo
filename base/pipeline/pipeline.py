@@ -183,6 +183,10 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                              mode=COVERAGE_MODE, release_package='./build/release-package.xml')
                 release_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
                                                     mode=RELEASE_MODE, release_package='./build/release-package.xml')
+                nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                                           mode=NINE_NINE_NINE_MODE, release_package='./build/release-package.xml')
+                zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image='JenkinsLinuxTemplate5',
+                                                          mode=ZERO_SIX_ZERO_MODE, release_package='./build/release-package.xml')
     else:
         base_build = context.artifact.build()
 
