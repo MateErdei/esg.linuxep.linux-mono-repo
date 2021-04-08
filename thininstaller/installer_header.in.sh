@@ -409,7 +409,7 @@ INSTALL_OPTIONS_FILE="${SOPHOS_TEMP_DIRECTORY}/install_options"
 # File format expects the args to be either --option  or --option=value
 for value in "${UNPROCESSED_ARGS[@]}"
 do
-     echo $value > ${INSTALL_OPTIONS_FILE}
+     echo $value >> ${INSTALL_OPTIONS_FILE}
 done
 # Read possible Update Caches from credentials file.
 UPDATE_CACHES=$(grep 'UPDATE_CACHES=' credentials.txt | sed 's/UPDATE_CACHES=//')
