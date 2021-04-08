@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<publicationspec importspec="sspl_telemsupp_import_spec.xml">
+  <warehouses>
+    <warehouse furcatedentitlement="SSPLTELEMSUPP" id="sspltelemsupp">
+      <line id="SSPLTELEMSUPP">
+        <component importreference="SSPLTELEMSUPP">
+            <releasetag tag="RECOMMENDED"/>
+        </component>
+      </line>
+     </warehouse>
+  </warehouses>
+  <licenses/>
+</publicationspec>

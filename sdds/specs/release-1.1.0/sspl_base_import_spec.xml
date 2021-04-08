@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<importspec>
+  <warehouses>
+    <warehouse id="sspl"   name="SSPL_1_1_0"/>
+  </warehouses>
+  <imports>
+    <line id="ServerProtectionLinux-Base">
+      <component id="ServerProtectionLinux-Base-1.1.0.137"
+                 version="1.1.0.137" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\219\219265\sspl-base\output\SDDS-COMPONENT" 
+                 longdic="Sophos Linux Base" 
+                 shortdic="Sophos Linux Base"/>
+      <component id="ServerProtectionLinux-Base-1.0.1.264"
+                 version="1.0.1.264" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\217\217854\sspl-base\output\SDDS-COMPONENT" 
+                 longdic="Sophos Linux Base" 
+                 shortdic="Sophos Linux Base"/>
+    </line>
+    <line id="ServerProtectionLinux-Plugin-EDR">
+      <component id="ServerProtectionLinux-Plugin-EDR-1.0.0.120"
+                 version="1.0.0.120" 
+                 fileset="\\uk-filer5.prod.sophos\prodro\bfr\219\219146\sspl-plugin-edr-component\output\SDDS-COMPONENT" 
+                 longdic="Sophos Live Query plug-in" 
+                 shortdic="Sophos Live Query plug-in"/>
+    </line>
+  </imports>
+</importspec>

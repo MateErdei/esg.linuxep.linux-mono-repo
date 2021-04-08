@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="publicationspec">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="componentsuites" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="line" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>                    
+                    <xs:element maxOccurs="unbounded" name="componentsuite">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:choice maxOccurs="unbounded">
+                            <xs:element maxOccurs="unbounded" name="component">
+                              <xs:complexType>
+                                <xs:attribute name="line" type="xs:string" use="required" />
+                                <xs:attribute name="importreference" type="xs:string" use="required" />
+                                <xs:attribute name="mountpoint" type="xs:string" use="optional" />
+                              </xs:complexType>
+                            </xs:element>
+                          </xs:choice>
+                        </xs:sequence>
+                        <xs:attribute name="importreference" type="xs:string" use="required" />
+                      </xs:complexType>
+                    </xs:element>                        
+                  </xs:sequence>
+                  <xs:attribute name="id" type="xs:string" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>        
+        <xs:element name="warehouses">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="5" name="warehouse">
+                <xs:complexType>
+                  <xs:sequence>                    
+                    <xs:element maxOccurs="unbounded" name="line">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:choice maxOccurs="unbounded">
+                            <xs:element maxOccurs="unbounded" name="componentsuite" type ="componentorsuitepayload" />
+                            <xs:element maxOccurs="unbounded" name="component" type ="componentorsuitepayload" />
+                          </xs:choice>                       
+                        </xs:sequence>
+                        <xs:attribute name="id" type="xs:string" use="required" />
+                      </xs:complexType>
+                      <xs:unique name="distinctreleaseandbase">
+                        <xs:selector xpath=".//releasetag" />
+                        <xs:field xpath="@tag" />
+                        <xs:field xpath="@baseversion" />
+                      </xs:unique>
+                      <xs:unique name="distinctrelease">
+                        <xs:selector xpath=".//releasetag" />
+                        <xs:field xpath="@tag" />
+                        <xs:field xpath="@baseversion" />
+                      </xs:unique>
+                    </xs:element>                        
+                  </xs:sequence>
+                  <xs:attribute name="id" type="xs:string" use="required" />
+                  <xs:attribute name="furcatedentitlement" type="xs:string" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="licenses">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="20" name="license">
+                <xs:complexType>
+                  <xs:attribute name="name" use="required" />
+                </xs:complexType>
+              </xs:element> 
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="importspec" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="componentorsuitepayload">
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="releasetag">
+          <xs:complexType>
+            <xs:attribute name="baseversion" type="xs:string" use="optional" />
+            <xs:attribute name="tag" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="resubscription">
+          <xs:complexType>
+            <xs:attribute name="line" type="xs:string" use="required" />
+            <xs:attribute name="baseversion" type="xs:string" use="optional"  />
+            <xs:attribute name="importreference" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="genericsupplement">
+          <xs:complexType>
+            <xs:attribute name="warehousename" type="xs:string" use="required" />
+            <xs:attribute name="line" type="xs:string" use="required" />
+            <xs:attribute name="tag" type="xs:string" use="required" />
+            <xs:attribute name="baseversion" type="xs:string" use="optional" />
+            <xs:attribute name="decodepath" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="absolutesupplement">
+          <xs:complexType>
+            <xs:attribute name="warehousename" type="xs:string" use="required" />
+            <xs:attribute name="line" type="xs:string" use="required" />
+            <xs:attribute name="version" type="xs:string" use="optional" />
+            <xs:attribute name="decodepath" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="importreference" type="xs:string" use="required" />
+    <xs:attribute name="promotionalstate" type="xs:string" use="optional" />
+  </xs:complexType>
+</xs:schema>
