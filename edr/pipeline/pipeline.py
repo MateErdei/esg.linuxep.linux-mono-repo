@@ -2,6 +2,7 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 import os
 import logging
+import requests
 
 logger = logging.getLogger(__name__)
 
