@@ -14,7 +14,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <ctime>
 
-//TODO ED Update these to include all bits
 TEST(TestScanMessages, CreateScanRequestSerialisation) // NOLINT
 {
     ::capnp::MallocMessageBuilder message;
