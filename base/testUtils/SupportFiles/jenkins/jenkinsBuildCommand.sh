@@ -100,10 +100,10 @@ elif [[ -n "${MDR_COVERAGE:-}" ]]; then
 elif [[ -n "${EDR_COVERAGE:-}" ]]; then
   ls $COVERAGE_STAGING
   ls /tmp/system-product-test-inputs
-  mv $COVERAGE_STAGING/sspl-plugin-edr-unit.cov $COVERAGE_STAGING/sspl-edr-combined.cov
-  export COVFILE=$COVERAGE_STAGING/sspl-edr-combined.cov
-  export htmldir=$COVERAGE_STAGING/sspl-edr-combined
-  export COV_HTML_BASE=sspl-edr-combined
+  mv $COVERAGE_STAGING/sspl-plugin-edr-unit.cov $COVERAGE_STAGING/sspl-plugin-edr-combined.cov
+  export COVFILE=$COVERAGE_STAGING/sspl-plugin-edr-combined.cov
+  export htmldir=$COVERAGE_STAGING/sspl-plugin-edr-combined
+  export COV_HTML_BASE=sspl-plugin-edr-combined
   export BULLSEYE_UPLOAD=1
 elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   mv $COVERAGE_STAGING/covfile/liveterminal_unittests.cov $COVERAGE_STAGING/sspl-liveresponse-combined.cov
