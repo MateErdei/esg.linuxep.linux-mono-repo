@@ -81,7 +81,7 @@ def robot_task_with_env(machine: tap.Machine, test_type=None, environment=None, 
     if machine_name is None:
         machine_name = machine.template
     try:
-        robot_exclusion_tags = ['OSTIA', 'MANUAL', 'STRESS', 'VQA', 'PRODUCT', 'INTEGRATION']
+        robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS', 'VQA', 'PRODUCT', 'INTEGRATION']
 
         if test_type == "product" or test_type == "coverage":
             robot_exclusion_tags.remove('PRODUCT')

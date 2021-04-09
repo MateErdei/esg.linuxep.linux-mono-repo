@@ -40,3 +40,12 @@ def change_owner(path, user, group):
 
 def create_symlink(src, dst):
     os.symlink(src, dst)
+
+
+def get_amount_written_to_disk():
+    with open("/proc/diskstats", "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            if "sda" in line:
+                split_line = line.split(" ")
+                return int(split_line[len(split_line)-1])

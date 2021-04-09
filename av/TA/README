@@ -46,5 +46,5 @@ To run specific suites:
     sudo python3.7 -m robot -s TA.Integration.AvAndBase .
 
 To run a full set of tests similar to TAP:
-    python3.7 -m robot --include "INTEGRATION OR PRODUCT" --exclude "OSTIA OR MANUAL OR STRESS" --removekeywords WUKS  .
+    python3.7 -m robot --include "INTEGRATION OR PRODUCT" --exclude "OSTIA OR MANUAL OR DISABLED OR STRESS" --removekeywords WUKS  .
 
