@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-EDR-Plugin-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
 COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-edr-unit.cov'
+COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-plugin-edr-tap.cov'
 COVFILE_COMBINED = '/opt/test/inputs/coverage/sspl-edr-combined.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 LOGS_DIR = '/opt/test/logs'
@@ -78,36 +79,37 @@ def combined_task(machine: tap.Machine):
         machine.run('cp', "-r", unitest_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
-        # run component pytests and integration robot tests with coverage file to get combined coverage
-        machine.run('mv', COVFILE_UNITTEST, COVFILE_COMBINED)
+        # run component pytests and integration robot tests with coverage file to get tap coverage
+        machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS)
 
         # "/tmp/BullseyeCoverageEnv.txt" is a special location that bullseye checks for config values
         # We can set the COVFILE env var here so that all instrumented processes know where it is.
-        machine.run("echo", f"COVFILE={COVFILE_COMBINED}", ">", "/tmp/BullseyeCoverageEnv.txt")
+        machine.run("echo", f"COVFILE={COVFILE_TAPTESTS}", ">", "/tmp/BullseyeCoverageEnv.txt")
 
         # Make sure that any product process can update the cov file, no matter the running user.
-        machine.run("chmod", "666", COVFILE_COMBINED)
+        machine.run("chmod", "666", COVFILE_TAPTESTS)
 
         # run component pytest
         # args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
-        # machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
+        # machine.run(*args, environment={'COVFILE': COVFILE_TAPTESTS})
         # try:
         #     machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
-        #                 environment={'COVFILE': COVFILE_COMBINED})
+        #                 environment={'COVFILE': COVFILE_TAPTESTS})
         # finally:
         #     machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+
+        # generate tap (tap tests + unit tests) coverage html results and upload to allegro
+        tap_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-taptest')
+        machine.run('bash', '-x', UPLOAD_SCRIPT,
+                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir})
+
+        # publish tap (tap tests + unit tests) html results and coverage file to artifactory
+        machine.run('mv', tap_htmldir, coverage_results_dir)
+        machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
 
         #trigger system test coverage job on jenkins
         run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
 
-        # generate combined coverage html results and upload to allegro
-        combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-combined')
-        machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': '1', 'htmldir': combined_htmldir})
-
-        # publish combined html results and coverage file to artifactory
-        machine.run('mv', combined_htmldir, coverage_results_dir)
-        machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
