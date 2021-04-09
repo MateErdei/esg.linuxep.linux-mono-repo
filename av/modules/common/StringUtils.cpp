@@ -11,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "StringUtils.h"
 
+#include <ctype.h>
 #include <iomanip>
 #include <openssl/sha.h>
 #include <openssl/md5.h>
@@ -212,6 +213,18 @@ namespace common
     bool contains(const std::string& string, const std::string& value)
     {
         return string.find(value, 0) != std::string::npos;
+    }
+
+    bool isStringHex(const std::string& stringToCheck)
+    {
+        for (char i : stringToCheck)
+        {
+            if (!isxdigit(i))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }
 

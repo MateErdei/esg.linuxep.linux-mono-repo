@@ -20,7 +20,7 @@ namespace
     {
     public:
 
-        void setupFilesForTestingGlobalRep();
+        void setupFilesForTestingGlobalRep(const std::string customerId, const std::string machineId);
         void setupEmptySusiStartupFile();
         void writeBinaryToSusiStartupFile();
         void writeLargeSusiStartupFile();
@@ -78,18 +78,18 @@ namespace
     };
 }
 
-void TestSusiWrapperFactory::setupFilesForTestingGlobalRep()
+void TestSusiWrapperFactory::setupFilesForTestingGlobalRep(const std::string customerId="d22829d94b76c016ec4e04b08baeffaa", const std::string machineId="ab7b6758a3ab11ba8a51d25aa06d1cf4")
 {
     createTestFolderAndSetupPaths();
 
     std::ofstream machineIdFile(m_machineIdpath);
     ASSERT_TRUE(machineIdFile.good());
-    machineIdFile << "ab7b6758a3ab11ba8a51d25aa06d1cf4";
+    machineIdFile << machineId;
     machineIdFile.close();
 
     std::ofstream customerIdFileStream(m_customerIdPath);
     ASSERT_TRUE(customerIdFileStream.good());
-    customerIdFileStream << "d22829d94b76c016ec4e04b08baeffaa";
+    customerIdFileStream << customerId;
     customerIdFileStream.close();
 }
 
@@ -147,10 +147,106 @@ TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsId) // NOLINT
     EXPECT_EQ(getEndpointId(),"ab7b6758a3ab11ba8a51d25aa06d1cf4");
 }
 
+TEST_F(TestSusiWrapperFactory, getEndpointIdOfWrongSize) // NOLINT
+{
+    setupFilesForTestingGlobalRep("","ab7b6758a3ab11ba8a51d25aa06d1cf4 \n d22829d94b76c016ec4e04b08baeffaa");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+
+    setupFilesForTestingGlobalRep("","ab7b6758a3ab11ba8a51d25aa06d1cf4ab7b6758a3ab11ba8a51d25aa06d1cf4");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+
+    setupFilesForTestingGlobalRep("","a");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+}
+
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithEmptyFile) // NOLINT
+{
+    setupFilesForTestingGlobalRep("","");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+}
+
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithNonUTF8)
+{
+    // echo -n "名前の付いたオンデマンド検索の設定" | iconv -f utf-8 -t euc-jp | hexdump -C
+    std::vector<unsigned char> threatPathBytes { 0xcc, 0xbe, 0xc1, 0xb0, 0xa4, 0xce, 0xc9, 0xd5, 0xa4, 0xa4, 0xa4, 0xbf,
+                                                 0xa5, 0xaa, 0xa5, 0xf3, 0xa5, 0xc7, 0xa5, 0xde, 0xa5, 0xf3, 0xa5, 0xc9,
+                                                 0xb8, 0xa1, 0xba, 0xf7, 0xa4, 0xce, 0xc0, 0xc0};
+    std::string nonUTF8EndpointId(threatPathBytes.begin(), threatPathBytes.end());
+
+    setupFilesForTestingGlobalRep("",nonUTF8EndpointId);
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+}
+
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithNewLine) // NOLINT
+{
+    setupFilesForTestingGlobalRep("","c1cfcf69a42311a\n084bcefe8af02c8a");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+}
+
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithNonHex) // NOLINT
+{
+    setupFilesForTestingGlobalRep("","GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+}
+
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithEmptySpace) // NOLINT
+{
+    setupFilesForTestingGlobalRep("","ab7b6758a3ab1 ba8a51d25aa06d1cf4");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+}
+
 TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsId) // NOLINT
 {
     setupFilesForTestingGlobalRep();
     EXPECT_EQ(getCustomerId(),"d22829d94b76c016ec4e04b08baeffaa");
+}
+
+TEST_F(TestSusiWrapperFactory, getCustomerIdOfWrongSize) // NOLINT
+{
+    setupFilesForTestingGlobalRep("d22829d94b76c016ec4e04b08baeffaa \n d22829d94b76c016ec4e04b08baeffaa");
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
+
+    setupFilesForTestingGlobalRep("d22829d94b76c016ec4e04b08baeffaad22829d94b76c016ec4e04b08baeffaa");
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
+
+    setupFilesForTestingGlobalRep("a");
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
+}
+
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithEmptyFile) // NOLINT
+{
+    setupFilesForTestingGlobalRep("");
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
+}
+
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithNonUTF8)
+{
+    // echo -n "名前の付いたオンデマンド検索の設定" | iconv -f utf-8 -t euc-jp | hexdump -C
+    std::vector<unsigned char> threatPathBytes { 0xcc, 0xbe, 0xc1, 0xb0, 0xa4, 0xce, 0xc9, 0xd5, 0xa4, 0xa4, 0xa4, 0xbf,
+                                                 0xa5, 0xaa, 0xa5, 0xf3, 0xa5, 0xc7, 0xa5, 0xde, 0xa5, 0xf3, 0xa5, 0xc9,
+                                                 0xb8, 0xa1, 0xba, 0xf7, 0xa4, 0xce, 0xc0, 0xc0};
+    std::string nonUTF8CustomerId(threatPathBytes.begin(), threatPathBytes.end());
+
+    setupFilesForTestingGlobalRep(nonUTF8CustomerId);
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
+}
+
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithNewLine) // NOLINT
+{
+    setupFilesForTestingGlobalRep("c1cfcf69a42311a\n084bcefe8af02c8a");
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
+}
+
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithNonHex) // NOLINT
+{
+    setupFilesForTestingGlobalRep("GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg");
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
+}
+
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithEmptySpace) // NOLINT
+{
+    setupFilesForTestingGlobalRep("d22829d94b76c 16ec4e04b08baeffaa");
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabledReturnsFalse) // NOLINT
