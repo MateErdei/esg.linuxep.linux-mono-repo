@@ -61,10 +61,6 @@ void ResultsSender::Add(const std::string& result)
     LOGDEBUG("Adding XDR results to intermediary file: " << result);
     auto& telemetryHelper = Common::Telemetry::TelemetryHelper::getInstance();
 
-
-    // Check if it has been longer than the data limit period, if it has then reset the data counter.
-    checkDataPeriodElapsed();
-
     // The total data usage if we were to add this result
     unsigned int incrementedDataUsage = m_currentDataUsage.getValue() + result.length();
 
