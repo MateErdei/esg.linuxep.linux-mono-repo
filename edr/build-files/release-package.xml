@@ -68,7 +68,7 @@
 
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr --bullseye </args>
+            <args>./build.sh --clean --name edr --bullseye --no-unit-test</args>
             <workingdir>.</workingdir>
         </command>
 

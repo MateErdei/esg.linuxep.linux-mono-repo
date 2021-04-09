@@ -89,13 +89,13 @@ def combined_task(machine: tap.Machine):
         machine.run("chmod", "666", COVFILE_COMBINED)
 
         # run component pytest
-        args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
-        machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
-        try:
-            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
-                        environment={'COVFILE': COVFILE_COMBINED})
-        finally:
-            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+        # args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
+        # machine.run(*args, environment={'COVFILE': COVFILE_COMBINED})
+        # try:
+        #     machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
+        #                 environment={'COVFILE': COVFILE_COMBINED})
+        # finally:
+        #     machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
         #trigger system test coverage job on jenkins
         run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
