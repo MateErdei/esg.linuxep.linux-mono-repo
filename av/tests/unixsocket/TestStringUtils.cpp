@@ -85,7 +85,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXml) // NOLINT
     EXPECT_EQ(result, m_englishsXML);
 }
 
-TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlatsXML) // NOLINT
+TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats) // NOLINT
 {
     std::string threatName = "Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ";
     std::string threatPath = "/πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·";
@@ -117,7 +117,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlatsXML) // NOLINT
     EXPECT_EQ(result, m_umlatsXML);
 }
 
-TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharactersXML) // NOLINT
+TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters) // NOLINT
 {
     std::string threatName = "ありったけの夢をかき集め";
     std::string threatPath = "/捜し物を探しに行くのさ ONE PIECE";
