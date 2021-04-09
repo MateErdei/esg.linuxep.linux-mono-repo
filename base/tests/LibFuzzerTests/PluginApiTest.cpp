@@ -65,7 +65,7 @@ public:
 };
 
 ///**
-// * This class holds the Dummy PLugin instance running on its own thread and the zmq socket to communicate with
+// * This class holds the Dummy Plugin instance running on its own thread and the zmq socket to communicate with
 // * the plugin.
 // * It is constructed as static object from the fuzzer test to allow the dummy plugin to be running for the whole
 // * test phase.
@@ -170,6 +170,8 @@ public:
         std::this_thread::sleep_for(std::chrono::seconds(2));
 
         m_requester = m_contextPtr->getRequester();
+        m_requester->setTimeout(1000);
+        m_requester->setConnectionTimeout(1000);
         std::string dummy_address =
                 Common::ApplicationConfiguration::applicationPathManager().getPluginSocketAddress("Test");
         m_requester->connect(dummy_address);
