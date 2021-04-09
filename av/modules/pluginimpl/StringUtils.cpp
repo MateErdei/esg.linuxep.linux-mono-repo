@@ -10,21 +10,21 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ThreatDetected.capnp.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Time.h"
 
+#include "Common/UtilityImpl/StringUtils.h"
+
 #include <boost/locale.hpp>
+#include <common/StringUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
-#include <openssl/sha.h>
 #include <iomanip>
-#include <common/StringUtils.h>
 
 using json = nlohmann::json;
 namespace fs = sophos_filesystem;
 
-std::string unixsocket::generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection)
+std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection)
 {
     std::string path = detection.getFilePath();
     if (path.size() == 0)
@@ -68,7 +68,7 @@ std::string unixsocket::generateThreatDetectedXml(const scan_messages::ServerThr
     return result;
 }
 
-std::string unixsocket::generateThreatDetectedJson(const std::string& threatName, const std::string& threatPath)
+std::string pluginimpl::generateThreatDetectedJson(const std::string& threatName, const std::string& threatPath)
 {
     json threatEvent;
     threatEvent["threatName"] = threatName;

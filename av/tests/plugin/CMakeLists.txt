@@ -12,6 +12,7 @@ SophosAddTest(TestPlugin
         TestPluginAdapter.cpp
         TestPluginCallback.cpp
         TestPubSub.cpp
+        TestStringUtils.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}

@@ -4,17 +4,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
-#include <gtest/gtest.h>
 #include "ThreatDetected.capnp.h"
-#include <scan_messages/ThreatDetected.h>
-#include <capnp/serialize.h>
-#include "unixsocket/StringUtils.h"
 
+#include "pluginimpl/StringUtils.h"
 #include "tests/common/LogInitializedTests.h"
 
+#include <capnp/serialize.h>
+#include <gtest/gtest.h>
+#include <scan_messages/ThreatDetected.h>
 
-using namespace unixsocket;
+using namespace pluginimpl;
 using namespace scan_messages;
 
 namespace

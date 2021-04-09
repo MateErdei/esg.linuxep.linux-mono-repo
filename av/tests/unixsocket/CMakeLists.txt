@@ -4,7 +4,6 @@ include(GoogleTest)
 SophosAddTest(TestSocketUtils
         ../common/LogInitializedTests.cpp
         TestSocketUtils.cpp
-        TestStringUtils.cpp
         PROJECTS unixsocket avscannerimpl
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules

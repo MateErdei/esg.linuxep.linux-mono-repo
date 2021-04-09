@@ -11,8 +11,6 @@ add_library(unixsocket SHARED
         SocketUtils.h
         SocketUtilsImpl.cpp
         SocketUtilsImpl.h
-        StringUtils.cpp
-        StringUtils.h
         threatDetectorSocket/IReloadable.h
         threatDetectorSocket/IScanningClientSocket.h
         threatDetectorSocket/ScanningClientSocket.cpp

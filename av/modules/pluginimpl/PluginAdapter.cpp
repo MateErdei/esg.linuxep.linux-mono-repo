@@ -7,10 +7,10 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "PluginAdapter.h"
 
 #include "Logger.h"
+#include "StringUtils.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "modules/common/ThreadRunner.h"
-#include "unixsocket/StringUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
@@ -48,9 +48,9 @@ namespace Plugin
 
             void processMessage(const scan_messages::ServerThreatDetected& detection) override
             {
-                m_adapter.processThreatReport(unixsocket::generateThreatDetectedXml(detection));
+                m_adapter.processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
                 m_adapter.publishThreatEvent(
-                    unixsocket::generateThreatDetectedJson(detection.getThreatName(), detection.getFilePath()),
+                    pluginimpl::generateThreatDetectedJson(detection.getThreatName(), detection.getFilePath()),
                     m_threatEventPublisherSocketPath);
             }
 

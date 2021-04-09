@@ -11,7 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 
 
-namespace unixsocket
+namespace pluginimpl
 {
     std::string generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection);
     std::string generateThreatDetectedJson(const std::string& threatName, const std::string& threatPath);
