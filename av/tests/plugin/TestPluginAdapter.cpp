@@ -572,7 +572,6 @@ SubscriberThread::SubscriberThread(Common::ZMQWrapperApi::IContext& context, con
     m_thread(),
     m_stopThread(false)
 {
-    LOGINFO(">>> subscriber socket: " << socketPath);
     m_subscriber->listen("ipc://" + socketPath);
     m_subscriber->subscribeTo("threatEvents");
 }
@@ -584,11 +583,11 @@ void SubscriberThread::run()
     try
     {
         m_data = m_subscriber->read();
-        PRINT("Successfully read subscription data: " << m_data.at(0) << ", " << m_data.at(1));
+        LOGINFO("Successfully read subscription data: " << m_data.at(0) << ", " << m_data.at(1));
     }
     catch (const Common::ZeroMQWrapper::IIPCException& e)
     {
-        PRINT("Failed to read subscription data: " << e.what());
+        LOGERROR("Failed to read subscription data: " << e.what());
     }
 }
 
