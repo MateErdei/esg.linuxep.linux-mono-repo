@@ -805,8 +805,6 @@ namespace Plugin
         m_liveQueryRevId = "";
     }
 
-    // update status
-
     void PluginAdapter::sendLiveQueryStatus()
     {
         bool dailyDataLimitExceeded = m_loggerExtensionPtr->getDataLimitReached();
@@ -819,15 +817,5 @@ namespace Plugin
     {
         return (now - SCHEDULE_EPOCH_DURATION) > m_scheduleEpoch.getValue();
     }
-
-//    void PluginAdapter::handleDisablingAndEnablingScheduledQueryPacks()
-//    {
-//        bool restartNeeded = Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy, m_loggerExtensionPtr->getDataLimitReached());
-//        // add a restart to the the queue
-//        if (restartNeeded)
-//        {
-//            m_queueTask->pushOsqueryRestart("Query packs have been enabled or disabled. Restarting osquery to apply changes");
-//        }
-//    }
 
 } // namespace Plugin

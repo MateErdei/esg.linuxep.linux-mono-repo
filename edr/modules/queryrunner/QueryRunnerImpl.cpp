@@ -10,11 +10,13 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "QueryRunnerImpl.h"
 
-namespace{
+namespace
+{
     const char * QueryName = "name"; 
     const char * ErrorCode = "errorcode"; 
     const char * Duration = "duration"; 
-    const char * RowCount = "rowcount"; 
+    const char * RowCount = "rowcount";
+    const uint QUERY_TIMEOUT_MINS = 10;
 }
 
 namespace queryrunner{
@@ -34,11 +36,17 @@ namespace queryrunner{
                 this->m_process = Common::Process::createProcess(); 
                 LOGINFO("Trigger livequery at: " << this->m_executablePath << " for query : " << correlationid);
                 std::vector<std::string> arguments = {correlationid, query, this->m_osquerySocketPath};            
-                this->m_process->exec(this->m_executablePath, arguments, {}); 
-                auto output = this->m_process->output(); 
+                this->m_process->exec(this->m_executablePath, arguments, {});
+                Common::Process::ProcessStatus processStatus = this->m_process->wait(std::chrono::minutes (QUERY_TIMEOUT_MINS), 1);
+                if (processStatus != Common::Process::ProcessStatus::FINISHED)
+                {
+                    this->m_process->kill();
+                    LOGERROR("Live query process was stopped due to a timeout after "
+                             << QUERY_TIMEOUT_MINS << " mins, correlation ID: " << correlationid);
+                }
+                auto output = this->m_process->output();
                 auto code = this->m_process->exitCode(); 
-                this->setStatus(code, output); 
-
+                this->setStatus(code, output);
             }
             catch (std::exception & ex)
             {
