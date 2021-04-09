@@ -19,8 +19,6 @@ Test ZMQ Stack
     Run Fuzzer By Name  ZMQTests
 
 Test Plugin API
-    [Tags]  FUZZ  TESTFAILURE
-    #TODO  LINUXDAR-888
     Run Fuzzer By Name  PluginApiTest
 
 Test Management Agent API
