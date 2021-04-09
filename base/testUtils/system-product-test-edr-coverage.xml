@@ -11,7 +11,7 @@
             <development-version branch="feature/LINUXDAR-2606-add-edr-system-tests-coverage-job-and-set-the-environment"/>
             <include artifact-path="sspl-edr-coverage/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include artifact-path="sspl-edr-coverage/covfile" dest-dir="coverage"/>
-            <include artifact-path="results" dest-dir="coverage"/>
+            <include artifact-path="task/edr_plugin.test.combined.centos77/results/results.zip" dest-dir="coverage"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
             <development-version branch="develop"/>
