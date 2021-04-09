@@ -11,10 +11,8 @@ using namespace unixsocket;
 ThreatReporterServerSocket::ThreatReporterServerSocket(
     const std::string& path,
     const mode_t mode,
-    std::shared_ptr<IMessageCallback> threatReportCallback,
-    std::shared_ptr<IMessageCallback> threatEventPublisherCallback)
+    std::shared_ptr<IMessageCallback> threatReportCallback)
     : ThreatReporterServerSocketBase(path, mode)
     , m_threatReportCallback(std::move(threatReportCallback))
-    , m_threatEventPublisherCallback(std::move(threatEventPublisherCallback))
 {
 }

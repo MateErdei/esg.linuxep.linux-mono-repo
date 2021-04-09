@@ -19,18 +19,16 @@ namespace unixsocket
         ThreatReporterServerSocket(
             const std::string& path,
             const mode_t mode,
-            std::shared_ptr<IMessageCallback> threatReportCallback,
-            std::shared_ptr<IMessageCallback> threatEventPublisherCallback);
+            std::shared_ptr<IMessageCallback> threatReportCallback);
 
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            return std::make_unique<ThreatReporterServerConnectionThread>(fd, m_threatReportCallback, m_threatEventPublisherCallback);
+            return std::make_unique<ThreatReporterServerConnectionThread>(fd, m_threatReportCallback);
         }
     private:
 
         std::shared_ptr<IMessageCallback> m_threatReportCallback;
-        std::shared_ptr<IMessageCallback> m_threatEventPublisherCallback;
     };
 }
 

@@ -25,7 +25,7 @@ namespace
     class MockIThreatReportCallbacks : public IMessageCallback
     {
     public:
-        MOCK_METHOD1(processMessage, void(const std::string& threatDetectedXML));
+        MOCK_METHOD1(processMessage, void(const scan_messages::ServerThreatDetected& detection));
     };
 }
 
@@ -35,7 +35,7 @@ TEST_F(TestThreatReporterServerConnectionThread, successful_construction) //NOLI
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
 
-    EXPECT_NO_THROW(unixsocket::ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback, mock_callback));
+    EXPECT_NO_THROW(unixsocket::ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback));
 }
 
 TEST_F(TestThreatReporterServerConnectionThread, isRunning_false_after_construction) //NOLINT
@@ -44,7 +44,7 @@ TEST_F(TestThreatReporterServerConnectionThread, isRunning_false_after_construct
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
 
-    ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback, mock_callback);
+    ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback);
     EXPECT_FALSE(connectionThread.isRunning());
 }
 
@@ -53,7 +53,7 @@ TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_bad_fd) 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder;
     ASSERT_EQ(fdHolder.get(), -1);
-    EXPECT_THROW(ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback, mock_callback), std::runtime_error);
+    EXPECT_THROW(ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback), std::runtime_error);
 }
 
 TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_null_factory) //NOLINT
@@ -61,8 +61,7 @@ TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_null_fac
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    EXPECT_THROW(ThreatReporterServerConnectionThread connectionThread(fdHolder, nullptr, mock_callback), std::runtime_error);
-    EXPECT_THROW(ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback, nullptr), std::runtime_error);
+    EXPECT_THROW(ThreatReporterServerConnectionThread connectionThread(fdHolder, nullptr), std::runtime_error);
 }
 
 TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
@@ -73,7 +72,7 @@ TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback, mock_callback);
+    ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback);
     EXPECT_FALSE(connectionThread.isRunning());
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
@@ -94,7 +93,7 @@ TEST_F(TestThreatReporterServerConnectionThread, eof_while_running) //NOLINT
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback, mock_callback);
+    ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback);
     connectionThread.start();
     waitForLog(expected);
     connectionThread.requestStop();
@@ -112,7 +111,7 @@ TEST_F(TestThreatReporterServerConnectionThread, send_zero_length) //NOLINT
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback, mock_callback);
+    ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback);
     connectionThread.start();
     waitForLog(expected);
     connectionThread.requestStop();
@@ -131,7 +130,7 @@ TEST_F(TestThreatReporterServerConnectionThread, closed_fd) //NOLINT
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     int fd = fdHolder.get();
-    ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback, mock_callback);
+    ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
     waitForLog(expected);

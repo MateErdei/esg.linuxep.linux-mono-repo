@@ -13,7 +13,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace unixsocket
 {
-
     std::string generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection);
-
+    std::string generateThreatDetectedJson(const std::string& threatName, const std::string& threatPath);
 }

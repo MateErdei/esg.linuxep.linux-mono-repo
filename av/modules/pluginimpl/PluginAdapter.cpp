@@ -10,6 +10,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include "datatypes/sophos_filesystem.h"
 #include "modules/common/ThreadRunner.h"
+#include "unixsocket/StringUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
@@ -40,28 +41,17 @@ namespace Plugin
         class ThreatReportCallbacks : public IMessageCallback
         {
         public:
-            explicit ThreatReportCallbacks(PluginAdapter& adapter) : m_adapter(adapter) {}
-
-            void processMessage(const std::string& threatXML) override
-            {
-                m_adapter.processThreatReport(threatXML);
-            }
-
-        private:
-            PluginAdapter& m_adapter;
-        };
-
-        class ThreatEventPublisherCallbacks : public IMessageCallback
-        {
-        public:
-            explicit ThreatEventPublisherCallbacks(PluginAdapter& adapter, const std::string& threatEventPublisherSocketPath)
+            explicit ThreatReportCallbacks(PluginAdapter& adapter, const std::string& threatEventPublisherSocketPath)
                 : m_adapter(adapter)
                 , m_threatEventPublisherSocketPath(threatEventPublisherSocketPath)
             {}
 
-            void processMessage(const std::string& threatJSON) override
+            void processMessage(const scan_messages::ServerThreatDetected& detection) override
             {
-                m_adapter.publishThreatEvent(threatJSON, m_threatEventPublisherSocketPath);
+                m_adapter.processThreatReport(unixsocket::generateThreatDetectedXml(detection));
+                m_adapter.publishThreatEvent(
+                    unixsocket::generateThreatDetectedJson(detection.getThreatName(), detection.getFilePath()),
+                    m_threatEventPublisherSocketPath);
             }
 
         private:
@@ -81,8 +71,7 @@ namespace Plugin
         m_callback(std::move(callback)),
         m_scanScheduler(*this),
         m_threatReporterServer(threat_reporter_socket(), 0600,
-                               std::make_shared<ThreatReportCallbacks>(*this),
-                               std::make_shared<ThreatEventPublisherCallbacks>(*this, threatEventPublisherSocketPath)),
+                               std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath)),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             sophos_threat_detector_launcher())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),

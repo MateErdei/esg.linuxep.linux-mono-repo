@@ -23,7 +23,7 @@ namespace
     class MockIThreatReportCallbacks : public IMessageCallback
     {
     public:
-        MOCK_METHOD1(processMessage, void(const std::string& threatDetectedXML));
+        MOCK_METHOD1(processMessage, void(const scan_messages::ServerThreatDetected& detection));
     };
 
     class TestThreatReporter : public LogInitializedTests
@@ -45,15 +45,13 @@ TEST_F(TestThreatReporter, testReport) // NOLINT
     WaitForEvent serverWaitGuard;
 
     auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
-    auto mockThreatEventPublisherCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 
-    EXPECT_CALL(*mockThreatReportCallback, processMessage(_)).Times(1);
-    EXPECT_CALL(*mockThreatEventPublisherCallback, processMessage(_)).Times(1).WillOnce(
+    EXPECT_CALL(*mockThreatReportCallback, processMessage(_)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
 
     fs::path socket_path = pluginInstall() / "chroot/var/threat_report_socket";
     unixsocket::ThreatReporterServerSocket threatReporterServer(
-        socket_path, 0600, mockThreatReportCallback, mockThreatEventPublisherCallback
+        socket_path, 0600, mockThreatReportCallback
     );
 
     threatReporterServer.start();

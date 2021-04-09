@@ -19,7 +19,7 @@ using namespace scan_messages;
 
 namespace
 {
-    class TestStringUtilsXML : public LogInitializedTests
+    class TestStringUtils : public LogInitializedTests
     {
     public:
         std::string m_englishsXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
@@ -52,7 +52,7 @@ namespace
     std::time_t m_detectionTimeStamp = 123;
 }
 
-TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXml) // NOLINT
+TEST_F(TestStringUtils, TestgenerateThreatDetectedXml) // NOLINT
 {
     std::string threatName = "eicar";
     std::string threatPath = "path/to/threat";
@@ -85,7 +85,7 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXml) // NOLINT
     EXPECT_EQ(result, m_englishsXML);
 }
 
-TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlats) // NOLINT
+TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlatsXML) // NOLINT
 {
     std::string threatName = "Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ";
     std::string threatPath = "/πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·";
@@ -117,7 +117,7 @@ TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlUmlats) // NOLINT
     EXPECT_EQ(result, m_umlatsXML);
 }
 
-TEST_F(TestStringUtilsXML, TestgenerateThreatDetectedXmlJapaneseCharacters) // NOLINT
+TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharactersXML) // NOLINT
 {
     std::string threatName = "ありったけの夢をかき集め";
     std::string threatPath = "/捜し物を探しに行くのさ ONE PIECE";
@@ -176,7 +176,7 @@ static scan_messages::ServerThreatDetected createEvent(
     return scan_messages::ServerThreatDetected(deSerialisedData);
 }
 
-TEST_F(TestStringUtilsXML, TestEmptyPath) // NOLINT
+TEST_F(TestStringUtils, TestEmptyPathXML) // NOLINT
 {
     scan_messages::ServerThreatDetected serverThreatDetectedMessage(createEvent());
     std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
@@ -191,4 +191,26 @@ TEST_F(TestStringUtilsXML, TestEmptyPath) // NOLINT
 </notification>)sophos";
 
     EXPECT_EQ(result, expectedXML);
+}
+
+TEST_F(TestStringUtils, TestEmptyThreatPathJSON) // NOLINT
+{
+    std::string threatName = "EICAR-AV-Test";
+    std::string threatPath = "";
+    std::string result = generateThreatDetectedJson(threatName, threatPath);
+
+    static const std::string expectedJSON = R"sophos({"threatName":"EICAR-AV-Test","threatPath":""})sophos";
+
+    EXPECT_EQ(result, expectedJSON);
+}
+
+TEST_F(TestStringUtils, TestEmptyThreatNameJSON) // NOLINT
+{
+    std::string threatName = "";
+    std::string threatPath = "/tmp/eicar.com";
+    std::string result = generateThreatDetectedJson(threatName, threatPath);
+
+    static const std::string expectedJSON = R"sophos({"threatName":"","threatPath":"/tmp/eicar.com"})sophos";
+
+    EXPECT_EQ(result, expectedJSON);
 }

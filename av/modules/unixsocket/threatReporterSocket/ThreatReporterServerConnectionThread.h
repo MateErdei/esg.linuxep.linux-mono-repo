@@ -26,8 +26,7 @@ namespace unixsocket
         ThreatReporterServerConnectionThread& operator=(const ThreatReporterServerConnectionThread&) = delete;
         explicit ThreatReporterServerConnectionThread(
             datatypes::AutoFd& fd,
-            std::shared_ptr<IMessageCallback> threatReportCallback,
-            std::shared_ptr<IMessageCallback> threatEventPublisherCallback);
+            std::shared_ptr<IMessageCallback> threatReportCallback);
         void run() override;
 
     private:
@@ -35,7 +34,6 @@ namespace unixsocket
 
         datatypes::AutoFd m_fd;
         std::shared_ptr<IMessageCallback> m_threatReportCallback;
-        std::shared_ptr<IMessageCallback> m_threatEventPublisherCallback;
     };
 }
 

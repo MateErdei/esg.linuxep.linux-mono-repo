@@ -15,11 +15,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/Time.h"
 
 #include <boost/locale.hpp>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <openssl/sha.h>
 #include <iomanip>
 #include <common/StringUtils.h>
 
+using json = nlohmann::json;
 namespace fs = sophos_filesystem;
 
 std::string unixsocket::generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection)
@@ -64,4 +66,12 @@ std::string unixsocket::generateThreatDetectedXml(const scan_messages::ServerThr
             });
 
     return result;
+}
+
+std::string unixsocket::generateThreatDetectedJson(const std::string& threatName, const std::string& threatPath)
+{
+    json threatEvent;
+    threatEvent["threatName"] = threatName;
+    threatEvent["threatPath"] = threatPath;
+    return threatEvent.dump();
 }
