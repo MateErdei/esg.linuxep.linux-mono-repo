@@ -41,7 +41,7 @@ namespace queryrunner{
                 if (processStatus != Common::Process::ProcessStatus::FINISHED)
                 {
                     this->m_process->kill();
-                    LOGERROR("Live query process was stopped due to a timeout after "
+                    LOGWARN("Live query process was stopped due to a timeout after "
                              << QUERY_TIMEOUT_MINS << " mins, correlation ID: " << correlationid);
                 }
                 auto output = this->m_process->output();
