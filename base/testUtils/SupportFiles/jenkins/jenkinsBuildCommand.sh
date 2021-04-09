@@ -98,9 +98,9 @@ elif [[ -n "${MDR_COVERAGE:-}" ]]; then
   export COV_HTML_BASE=sspl-mtr-combined
   export BULLSEYE_UPLOAD=1
 elif [[ -n "${EDR_COVERAGE:-}" ]]; then
-  ls $COVERAGE_STAGING
-  ls /tmp/system-product-test-inputs
-  ls /tmp/system-product-test-inputs/sspl-edr-plugin
+#  ls $COVERAGE_STAGING
+#  ls /tmp/system-product-test-inputs
+#  ls /tmp/system-product-test-inputs/sspl-edr-plugin
   mv $COVERAGE_STAGING/sspl-plugin-edr-unit.cov $COVERAGE_STAGING/sspl-plugin-edr-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-plugin-edr-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-plugin-edr-combined
