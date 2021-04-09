@@ -29,7 +29,7 @@ namespace scan_messages
         /*
          * Receiver side interface
          */
-        ScanRequest(Reader& requestMessage);
+        explicit ScanRequest(Reader& requestMessage);
         void resetRequest(Reader& requestMessage);
 
         /**
