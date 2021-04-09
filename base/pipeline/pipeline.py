@@ -92,6 +92,7 @@ def coverage_task(machine: tap.Machine):
 
         # Run component pytest
         # These are disabled for now
+        # todo why is this taptest and not combined?? speak to someone about where tap tests are being run, if these are not run should not the env be set for combined (jenkinsBuildCommand updates that on test run)
         try:
             if machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
                         environment={'COVFILE': COVFILE_TAPTESTS}, return_exit_code=True) ==0:
