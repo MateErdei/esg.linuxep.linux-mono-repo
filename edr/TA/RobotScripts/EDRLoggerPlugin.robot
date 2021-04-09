@@ -415,25 +415,8 @@ EDR Plugin Runs Next Scheduled Queries When Flags Configured To Do So
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   next_mtr_query  ${mark}
 
 EDR Plugin Hits Data Limit And Queries Resume After Period
-    [Setup]  Uninstall All
-    [Timeout]  600
-
-    Install Base For Component Tests
-    Create Debug Level Logger Config File
-    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit_with_MTR.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-
-    # Create specific EDR dirs to drop in files before running installer.
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr
-    Create Directory  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/
-
-    # These are not included in the build output of EDR, they are supplements so must be manually copied into place
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-
-    # Inject query pack and initial data limit period into SDDS
-    Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   120
-
-    Install EDR Directly from SDDS  10
+    [Setup]  Data Limit Test Setup  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit_with_MTR.xml  180
+    [Teardown]  Data Limit Test Teardown
 
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -533,7 +516,7 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     Sleep  20
     File Should Contain Only  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${empty_marker}
 
-    # Wait until the 2 mins data limit period rolls over
+    # Wait until the data limit period rolls over
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
@@ -568,18 +551,8 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     File Should Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  Executing query
 
 OSQuery Does Not Restart After Period Elapses If Data Limit Not Hit
-    [Setup]  Uninstall All
-    Install Base For Component Tests
-    Create Debug Level Logger Config File
-    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-
-    # Inject query pack and initial data limit period into SDDS
-    Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   20
-
-    Install EDR Directly from SDDS
-
-    #Change period back to 120 post-install
-    Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   120
+    [Setup]  Data Limit Test Setup  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml  20
+    [Teardown]  Data Limit Test Teardown
 
     Wait Until Keyword Succeeds
     ...  5 secs
@@ -604,7 +577,7 @@ OSQuery Does Not Restart After Period Elapses If Data Limit Not Hit
 
     EDR Plugin Log Contains X Times  Sending LiveQuery Status  1
 
-    # Wait until the 2 mins data limit period rolls over
+    # Wait until the data limit period rolls over
     Wait Until Keyword Succeeds
     ...  35 secs
     ...  5 secs
@@ -894,3 +867,27 @@ Apply Live Query Policy And Expect Folding Rules To Have Changed
 
 Create Debug Level Logger Config File
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+
+Data Limit Test Setup
+    [Arguments]  ${live_query_policy}  ${period}
+    Uninstall All
+    Install Base For Component Tests
+    Create Debug Level Logger Config File
+    Move File Atomically  ${live_query_policy}  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+
+    # Create specific EDR dirs to drop in files before running installer.
+    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr
+    Create Directory  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/
+
+    # These are not included in the build output of EDR, they are supplements so must be manually copied into place
+    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
+
+    # Inject query pack and initial data limit period into SDDS
+    Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   ${period}
+
+    Install EDR Directly from SDDS  10
+
+Data Limit Test Teardown
+    Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   86400
+    Test Teardown
