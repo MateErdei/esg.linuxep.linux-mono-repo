@@ -86,7 +86,6 @@ if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
 fi
 
 if [[ -n "${BASE_COVERAGE:-}" ]]; then
-# todo is this supposed to be unittest or sspl-base-taptest.cov???
   mv $COVERAGE_STAGING/sspl-base-unittest.cov $COVERAGE_STAGING/sspl-base-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-base-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-base-combined
@@ -99,9 +98,9 @@ elif [[ -n "${MDR_COVERAGE:-}" ]]; then
   export COV_HTML_BASE=sspl-mtr-combined
   export BULLSEYE_UPLOAD=1
 elif [[ -n "${EDR_COVERAGE:-}" ]]; then
-#  ls $COVERAGE_STAGING
-#  ls /tmp/system-product-test-inputs
-#  ls /tmp/system-product-test-inputs/sspl-edr-plugin
+  ls $COVERAGE_STAGING
+  ls /tmp/system-product-test-inputs
+  ls /tmp/system-product-test-inputs/sspl-edr-plugin
 # todo find a way to get the sspl-plugin-tap.cov instead of unit
   #mv $COVERAGE_STAGING/sspl-plugin-edr-unit.cov $COVERAGE_STAGING/sspl-plugin-edr-combined.cov
   mv /mnt/filer6/linux/SSPL/coverage/sspl-plugin-edr-tap.cov $COVERAGE_STAGING/sspl-plugin-edr-combined.cov
@@ -116,6 +115,8 @@ elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   export COV_HTML_BASE=sspl-liveresponse-combined
   export BULLSEYE_UPLOAD=1
 fi
+
+#todo add env here aswell????
 
 bash ${JENKINS_DIR}/install_dependencies.sh
 
