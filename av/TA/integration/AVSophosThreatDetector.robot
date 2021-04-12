@@ -3,6 +3,7 @@ Documentation    Product tests of sophos_threat_detector
 Force Tags       INTEGRATION  SOPHOS_THREAT_DETECTOR
 
 Resource    ../shared/ComponentSetup.robot
+Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 
 Library         ../Libs/OnFail.py
@@ -12,6 +13,10 @@ Suite Teardown  AVSophosThreatDetector Suite TearDown
 
 Test Setup      AVSophosThreatDetector Test Setup
 Test Teardown   AVSophosThreatDetector Test TearDown
+
+*** Variables ***
+${CLEAN_STRING}     not an eicar
+${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
 
 *** Test Cases ***
 Test Global Rep works in chroot
@@ -70,6 +75,50 @@ Threat detector aborts if logging symlink cannot be created
     Threat Detector Log Contains   LogSetup <> Failed to create symlink for logs at
     Threat Detector Does Not Log Contain   LogSetup <> Create symlink for logs at
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
+
+
+#TODO: Uncomment and finish once LINUXDAR-2907 is fixed
+#SUSI Is Given Empty CustomerId
+#    Stop AV Plugin
+#    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt
+#    Start AV Plugin
+#    sleep  5m
+#   #verifying SUSI didin't crash
+
+#SUSI Is Given Non-hex CustomerId
+#    Stop AV Plugin
+#    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt    GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
+#    Start AV Plugin
+#    sleep  5m
+#
+#SUSI Is Given Non-hex CustomerId
+#    Stop AV Plugin
+#    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt    GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
+#    Start AV Plugin
+#    sleep  5m
+
+SUSI Is Given Long And Short CustomerIds
+    Stop AV Plugin
+    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt    d22829d94b76c016ec4e04b08baeffaaa
+    Start AV Plugin
+    Log to console  starting sleep
+
+    wait until threat detector running
+
+    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+
+#SUSI Is Given A New Line as CustomerIds
+#    Stop AV Plugin
+#    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt    \n
+#    Start AV Plugin
+#    sleep  5m
+
 
 
 *** Keywords ***
