@@ -81,6 +81,10 @@ def robot_task_with_env(machine: tap.Machine, test_type=None, environment=None, 
     if machine_name is None:
         machine_name = machine.template
     try:
+        # Exclude OSTIA on TAP, since we are testing builds immediately, before they are put in warehouses
+        # Exclude MANUAL on TAP
+        # Exclude DISABLED on TAP
+        # Exclude STRESS on TAP; as some of the tests here will not be appropriate
         robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS', 'VQA', 'PRODUCT', 'INTEGRATION']
 
         if test_type == "product" or test_type == "coverage":

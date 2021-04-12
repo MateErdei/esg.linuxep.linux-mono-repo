@@ -6,9 +6,7 @@ from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 
 def main(argv):
-    # Exclude OSTIA on TAP, since we are testing builds immediately, before they have a chance to be put in warehouses
-    # Exclude MANUAL on TAP
-    # Exclude STRESS on TAP; as some of the tests here will not be appropriate
+    # Exclusions are added in pipeline.py and passed in through args
     exclude = []
     for arg in argv:
         exclude.append(arg)
