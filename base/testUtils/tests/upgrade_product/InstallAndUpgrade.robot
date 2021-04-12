@@ -144,6 +144,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
+    Trigger Update Now
 
     Log To Console  Started waiting for upgrade
     Wait Until Keyword Succeeds
