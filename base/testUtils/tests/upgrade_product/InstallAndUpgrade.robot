@@ -150,7 +150,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
     Log To Console  Upgrade is good?
 
     #confirm that the warehouse flags supplement is installed when upgrading
