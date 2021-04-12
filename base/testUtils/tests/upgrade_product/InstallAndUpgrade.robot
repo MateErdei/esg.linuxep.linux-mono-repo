@@ -170,7 +170,8 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Check Mtr Reconnects To Management Agent After Upgrade
     Log To Console  MTR reconnects
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
-    Log To Console  CHeck for management agent
+    Log To Console  Check for management agent
+
     Check All Product Logs Do Not Contain Error
     Log To Console  No errors
     Check All Product Logs Do Not Contain Critical

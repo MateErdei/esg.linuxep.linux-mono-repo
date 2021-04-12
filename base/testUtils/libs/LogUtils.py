@@ -246,6 +246,7 @@ class LogUtils(object):
             if num_occurence > 0:
                 list_of_logs_containing_string.append("{} - {} times".format(filepath, num_occurence))
         if list_of_logs_containing_string:
+            logger.error("These program logs contain {}:\n {}".format(string_to_find, list_of_logs_containing_string))
             raise AssertionError("These program logs contain {}:\n {}".format(string_to_find, list_of_logs_containing_string))
 
     def check_all_product_logs_do_not_contain_error(self):
@@ -661,6 +662,11 @@ class LogUtils(object):
 
         num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain)
         if num_occurences != int(expected_occurence):
+            logger.error(
+                "{} Contains: \"{}\" - {} times not the requested {} times".format(log_name,
+                                                                                   string_to_contain,
+                                                                                   num_occurences,
+                                                                                   expected_occurence))
             raise AssertionError(
                 "{} Contains: \"{}\" - {} times not the requested {} times".format(log_name,
                                                                                    string_to_contain,
