@@ -9,7 +9,7 @@ import requests
 SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Base-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
 
 COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-base-unittest.cov'
-COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-base-taptests.cov'
+COVFILE_COMBINED = '/opt/test/inputs/coverage/sspl-base-combined.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 
 RESULTS_DIR = '/opt/test/results'
@@ -87,15 +87,10 @@ def coverage_task(machine: tap.Machine):
         machine.run('cp', "-r", unitest_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
-        # run component pytests and integration robot tests with coverage file to get combined coverage
-        machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS)
-
-        # Run component pytest
-        # These are disabled for now
-        # todo why is this taptest and not combined?? speak to someone about where tap tests are being run, if these are not run should not the env be set for combined (jenkinsBuildCommand updates that on test run)
+        # Run system tests
         try:
             if machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
-                        environment={'COVFILE': COVFILE_TAPTESTS}, return_exit_code=True) ==0:
+                        environment={'COVFILE': COVFILE_COMBINED}, return_exit_code=True) ==0:
                 #start systemtest coverage in jenkins
                 run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
 
@@ -104,13 +99,13 @@ def coverage_task(machine: tap.Machine):
 
 
         # generate combined coverage html results and upload to allegro
-        taptest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-base-taptests')
+        combined_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-base-combined')
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': taptest_htmldir})
+                    environment={'COVFILE': COVFILE_COMBINED, 'BULLSEYE_UPLOAD': '1', 'htmldir': combined_htmldir})
 
         # publish combined html results and coverage file to artifactory
-        machine.run('mv', taptest_htmldir, coverage_results_dir)
-        machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
+        machine.run('mv', combined_htmldir, coverage_results_dir)
+        machine.run('cp', COVFILE_COMBINED, coverage_results_dir)
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')

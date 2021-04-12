@@ -116,7 +116,6 @@ elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   export BULLSEYE_UPLOAD=1
 fi
 
-#todo add env here aswell????
 
 bash ${JENKINS_DIR}/install_dependencies.sh
 
