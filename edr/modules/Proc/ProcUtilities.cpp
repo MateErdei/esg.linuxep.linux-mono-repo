@@ -329,3 +329,9 @@ bool Proc::CommMatcher::operator()(const std::string& comm) const
 
     return false;
 }
+
+int Proc::getNumberOfOwnFileDescriptors()
+{
+    int numberOfFileDescriptors = Common::FileSystem::fileSystem()->listFiles("/proc/self/fdinfo").size();
+    return numberOfFileDescriptors;
+}

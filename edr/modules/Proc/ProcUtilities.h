@@ -90,4 +90,6 @@ namespace Proc
         const std::string& partOfComm,
         const std::string& requiresFullPathContainsPath);
 
+    int getNumberOfOwnFileDescriptors();
+
 } // namespace Proc

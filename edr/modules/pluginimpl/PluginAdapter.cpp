@@ -334,6 +334,15 @@ namespace Plugin
                                 std::chrono::seconds(delay), [this]() { this->m_queueTask->pushStartOsquery(); }));
                 }
             }
+
+            int fdCount = Proc::getNumberOfOwnFileDescriptors();
+            LOGDEBUG("Number of File Descriptors EDR has: " << fdCount);
+            if (fdCount > 500)
+            {
+                LOGWARN("Restarting due to having too many file descriptors");
+                throw DetectRequestToStop("");
+            }
+
         }
     }
 
