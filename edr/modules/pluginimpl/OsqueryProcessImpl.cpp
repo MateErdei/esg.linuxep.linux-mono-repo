@@ -114,9 +114,16 @@ namespace Plugin
             // this will trigger osquery_started
 
             auto fs = Common::FileSystem::fileSystem();
-            while(!fs->exists(Plugin::osquerySocket()))
+            int osquerySocketWaitLoopCount = 0;
+            const int  osquerySocketWaitMaxLoopCount = 600;  //0.1 of a second * 600 = 60 seconds.
+            while(!fs->exists(Plugin::osquerySocket()) && osquerySocketWaitLoopCount < osquerySocketWaitMaxLoopCount)
             {
-                usleep(100000);
+                usleep(100000); // 0.1 of a second
+                osquerySocketWaitLoopCount++;
+            }
+            if (osquerySocketWaitLoopCount >= osquerySocketWaitMaxLoopCount)
+            {
+                LOGWARN("Timed out waiting for osquery socket file to be created");
             }
         }
 
