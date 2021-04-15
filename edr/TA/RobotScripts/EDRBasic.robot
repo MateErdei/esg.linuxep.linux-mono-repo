@@ -65,7 +65,7 @@ EDR Plugin Does Not Hang When OSQuery Socket Is Not Created
 
     # Check edr.log file to ensure EDR will retry to restart OSQUery if OSQuery has not started correctly.
     Wait Until Keyword Succeeds
-    ...   90 secs
+    ...   200 secs
     ...   2 secs
     ...   Check Log Contains In Order   ${EDR_PLUGIN_PATH}/log/edr.log   edr.log  ${ExpectedLogMessages}
 
