@@ -187,3 +187,8 @@ std::string Plugin::mtrFlagsFile()
         Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
         "plugins/mtr/dbos/data/osquery.flags");
 }
+
+std::string Plugin::edrBinaryPath()
+{
+    return fromRelative("bin/edr");
+}

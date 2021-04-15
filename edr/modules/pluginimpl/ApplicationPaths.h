@@ -41,4 +41,5 @@ namespace Plugin
     std::string etcDir();
     std::string varDir();
     std::string mtrFlagsFile();
+    std::string edrBinaryPath();
 } // namespace Plugin
