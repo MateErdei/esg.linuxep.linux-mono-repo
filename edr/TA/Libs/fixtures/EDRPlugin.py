@@ -191,6 +191,22 @@ class EDRPlugin:
         log_content = self.log()
         return content in log_content
 
+
+    def get_log_contents(self, path_to_log):
+        with open(path_to_log, "r") as log:
+            contents = log.read()
+        return contents
+
+    def check_log_contains_in_order(self, log_location, log_name, args):
+        contents = self.get_log_contents(log_location)
+        index = 0
+        for string in args:
+            index = contents.find(string, index)
+            if index != -1:
+                index = index + len(string)
+            else:
+                raise AssertionError("Remainder of {} log doesn't contain {}".format(log_name, string))
+
     def wait_log_contains(self, content, timeout=10):
         """Wait for up to timeout seconds for the log_contains to report true"""
         for i in range(timeout):

@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/UserUtils.py
+Library         ../Libs/fixtures/EDRPlugin.py
 
 Resource    ComponentSetup.robot
 Resource    EDRResources.robot
@@ -42,3 +43,36 @@ EDR plugin Can Send Status
 
     ${result} =   Terminate Process  ${handle}
 
+EDR Plugin Does Not Hang When OSQuery Socket Is Not Created
+    [Documentation]  This test will replace osquery with a simple bash script to ensure that EDR does not hang
+    ...  if OSQUery fails to start-up properly.
+    [Teardown]  EDR Hanging TearDown
+
+    create_users_and_group
+
+    Move File  ${EDR_PLUGIN_PATH}/bin/osqueryd  ${EDR_PLUGIN_PATH}/bin/osqueryd.bak
+    Create File   ${EDR_PLUGIN_PATH}/bin/osqueryd   echo starting
+    Run Process  chmod  +x  ${EDR_PLUGIN_PATH}/bin/osqueryd
+
+    ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
+    Check EDR Plugin Installed
+
+    ${ExpectedLogMessages}=  Create List
+            ...  Run osquery process
+            ...  Timed out waiting for osquery socket file to be created
+            ...  The osquery process finished
+            ...  Restarting osquery
+
+    # Check edr.log file to ensure EDR will retry to restart OSQUery if OSQuery has not started correctly.
+    Wait Until Keyword Succeeds
+    ...   90 secs
+    ...   2 secs
+    ...   Check Log Contains In Order   ${EDR_PLUGIN_PATH}/log/edr.log   edr.log  ${ExpectedLogMessages}
+
+
+*** Keywords ***
+
+EDR Hanging TearDown
+    Remove File   ${EDR_PLUGIN_PATH}/bin/osqueryd
+    Move File  ${EDR_PLUGIN_PATH}/bin/osqueryd.bak  ${EDR_PLUGIN_PATH}/bin/osqueryd
+    Component Test TearDown
