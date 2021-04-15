@@ -86,6 +86,30 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     Run Keyword If   ${result.rc}==1
     ...   Check Rsyslog Started Without Error
 
+EDR Restarts If File Descriptor Limit Hit
+
+    Check EDR Plugin Installed With Base
+
+    Remove File  ${SOPHOS_INSTALL}/plugins/edr/bin/sophos_livequery
+    create File  ${SOPHOS_INSTALL}/plugins/edr/bin/sophos_livequery    \#!/bin/bash\nsleep 100000
+    Log File  ${SOPHOS_INSTALL}/plugins/edr/bin/sophos_livequery
+    Run Process  chmod  +x   ${SOPHOS_INSTALL}/plugins/edr/bin/sophos_livequery
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Restart EDR
+
+    ${actionContent} =  Set Variable  '{"type": "sophos.mgt.action.RunLiveQuery", "name": "test_query", "query": "select * from users;"}'
+
+    Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${120}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  EDR Plugin Log Contains X Times  Received new Action   120
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  20 secs
+    ...  EDR Plugin Log Contains X Times   Early request to stop found.  1
+
 
 *** Keywords ***
 Run Non-UTF8 Query

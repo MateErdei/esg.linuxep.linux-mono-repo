@@ -141,6 +141,12 @@ class FakeManagement(object):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
         plugin.action(appid, correlation, content)
 
+    def send_plugin_actions(self, plugin_name, appid, correlation, content, count):
+        for i in range(count):
+            plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
+            plugin.action(appid, correlation, content)
+            time.sleep(0.001)
+
     def get_plugin_status(self, plugin_name, appid):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
         return plugin.get_status(appid)
