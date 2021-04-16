@@ -156,6 +156,12 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
 
+    Log To Console  Passed base check?
+    Check Mtr Reconnects To Management Agent After Upgrade
+    Log To Console  MTR reconnects
+    Check for Management Agent Failing To Send Message To MTR And Check Recovery
+    Log To Console  Check for management agent
+
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
     # This is only an issue with versions of base before we started using boost process
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
@@ -169,12 +175,6 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-
-    Log To Console  Passed base check?
-    Check Mtr Reconnects To Management Agent After Upgrade
-    Log To Console  MTR reconnects
-    Check for Management Agent Failing To Send Message To MTR And Check Recovery
-    Log To Console  Check for management agent
 
     Check All Product Logs Do Not Contain Error
     Log To Console  No errors
@@ -753,6 +753,11 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
     Should Be Equal As Integers  ${rc}  0
     Should Be Empty  ${output}
 
+    Create File     /tmp/clean_file    ${CLEAN_STRING}
+    Create File     /tmp/dirty_file    ${EICAR_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file /tmp/dirty_file
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 *** Keywords ***
 
