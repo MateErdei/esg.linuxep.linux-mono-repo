@@ -25,7 +25,7 @@ BRANCH_NAME = "master"
 
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
-    return branch_name in ('master', "develop") or branch_name.endswith('coverage') or "release/" in branch_name
+    return branch_name in ('master', "develop") or branch_name.endswith('coverage') or "release" in branch_name
 
 def is_debian_based(machine: tap.Machine):
     return machine.template.startswith("ubuntu")
