@@ -1380,3 +1380,18 @@ CLS Can Append Summary To Log When SigTerm Occurs
 
     Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
+
+CLS Can Append Summary To Log When SIGHUP Is Received
+    ${SCAN_LOG} =    Set Variable    /tmp/sighup_test.log
+    ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
+
+    Wait Until File exists  ${SCAN_LOG}
+
+    ${ScanLogFileContentsBeforeKill} =  Get File    ${SCAN_LOG}
+    Log     ${ScanLogFileContentsBeforeKill}
+
+    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep avscanner
+    Run Process   /bin/kill   -SIGHUP   ${pid}
+
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}
+    Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
