@@ -53,7 +53,30 @@ Successful Registration With New Token Gives New Machine ID
     ...  16 secs
     ...  2 secs
     ...  check_mcsenvelope_log_contains  ThisIsAnMCSID+1002
-	
+
+We Re-register Sucessfully When MCSID Goes Missing
+    Start System Watchdog
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  check_mcsenvelope_log_contains  ThisIsAnMCSID+1001
+
+    Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${result} =  Run Process  chown  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Kill Mcsrouter
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check MCS Router Not Running
+
+    Wait Until Keyword Succeeds
+    ...  40 secs
+    ...  5 secs
+    ...  Check MCS Router Log Contains In Order
+            ...      Re-registering with MCS
+            ...      Successfully directly connected
 Successful Registration From Different Directories
     Register Different Working Directories   /tmp
     Cleanup Mcsrouter Directories
