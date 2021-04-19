@@ -60,7 +60,7 @@ common::SigHupMonitor::~SigHupMonitor()
     // clear signal handler
     SIGHUP_MONITOR_PIPE = -1;
     struct sigaction action{};
-    action.sa_handler = SIG_DFL;
+    action.sa_handler = SIG_IGN;
     action.sa_flags = 0;
     int ret = ::sigaction(SIGHUP, &action, nullptr);
     if (ret != 0)

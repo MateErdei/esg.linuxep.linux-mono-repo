@@ -55,7 +55,7 @@ common::SigIntMonitor::~SigIntMonitor()
     // clear signal handler
     SIGINT_MONITOR_PIPE = -1;
     struct sigaction action{};
-    action.sa_handler = SIG_DFL;
+    action.sa_handler = SIG_IGN;
     action.sa_flags = 0;
     int ret = ::sigaction(SIGINT, &action, nullptr);
     if (ret != 0)

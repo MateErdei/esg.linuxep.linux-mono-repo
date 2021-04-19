@@ -97,17 +97,6 @@ void unixsocket::ScanningClientSocket::checkIfScanAborted()
     if (m_sigTermMonitor->triggered())
     {
         LOGDEBUG("Received SIGTERM");
-        //wait a couple of seconds as we might receive a SIGHUP for shutdown
-        for (int attempt=0; attempt < 5; attempt++)
-        {
-            if (m_sigHupMonitor->triggered())
-            {
-                LOGDEBUG("Received SIGHUP");
-                throw ScanInterruptedException("Scan aborted due to environment interruption");
-            }
-            nanosleep(&m_sleepTime, nullptr);
-        }
-
         throw ScanInterruptedException("Scan aborted due to environment interruption");
     }
 
