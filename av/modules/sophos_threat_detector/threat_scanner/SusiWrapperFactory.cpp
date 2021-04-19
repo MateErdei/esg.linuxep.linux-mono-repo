@@ -50,10 +50,6 @@ namespace threat_scanner
                     {
                         LOGERROR("EndpointID cannot be empty");
                     }
-                    else if (endpointIdContents.str().length() != 32)
-                    {
-                        LOGERROR("EndpointID should be 32 hex characters");
-                    }
                     else if (common::contains(endpointIdContents.str(),"\n"))
                     {
                         LOGERROR("EndpointID cannot contain a new line");
@@ -61,6 +57,10 @@ namespace threat_scanner
                     else if (common::contains(endpointIdContents.str()," "))
                     {
                         LOGERROR("EndpointID cannot contain a empty space");
+                    }
+                    else if (endpointIdContents.str().length() != 32)
+                    {
+                        LOGERROR("EndpointID should be 32 hex characters");
                     }
                         //also covers the case where characters are non-utf8
                     else if (!common::isStringHex(endpointIdContents.str()))
@@ -100,10 +100,6 @@ namespace threat_scanner
                     {
                         LOGERROR("CustomerID cannot be empty");
                     }
-                    else if (customerId.str().length() != 32)
-                    {
-                        LOGERROR("CustomerID should be 32 hex characters");
-                    }
                     else if (common::contains(customerId.str(),"\n"))
                     {
                         LOGERROR("CustomerID cannot contain a new line");
@@ -111,6 +107,10 @@ namespace threat_scanner
                     else if (common::contains(customerId.str()," "))
                     {
                         LOGERROR("CustomerID cannot contain a empty space");
+                    }
+                    else if (customerId.str().length() != 32)
+                    {
+                        LOGERROR("CustomerID should be 32 hex characters");
                     }
                     //also covers the case where characters are non-utf8
                     else if (!common::isStringHex(customerId.str()))

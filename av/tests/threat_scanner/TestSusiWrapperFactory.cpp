@@ -147,6 +147,24 @@ TEST_F(TestSusiWrapperFactory, getEndpointIdReturnsId) // NOLINT
     EXPECT_EQ(getEndpointId(),"ab7b6758a3ab11ba8a51d25aa06d1cf4");
 }
 
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithEmptyFile) // NOLINT
+{
+    setupFilesForTestingGlobalRep("","");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+}
+
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithNewLine) // NOLINT
+{
+    setupFilesForTestingGlobalRep("","c1cfcf69a42311a\n084bcefe8af02c8a");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+}
+
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithEmptySpace) // NOLINT
+{
+    setupFilesForTestingGlobalRep("","ab7b6758a3ab1 ba8a51d25aa06d1cf4");
+    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
+}
+
 TEST_F(TestSusiWrapperFactory, getEndpointIdOfWrongSize) // NOLINT
 {
     setupFilesForTestingGlobalRep("","ab7b6758a3ab11ba8a51d25aa06d1cf4 \n d22829d94b76c016ec4e04b08baeffaa");
@@ -159,9 +177,9 @@ TEST_F(TestSusiWrapperFactory, getEndpointIdOfWrongSize) // NOLINT
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
-TEST_F(TestSusiWrapperFactory, getEndpointIdWithEmptyFile) // NOLINT
+TEST_F(TestSusiWrapperFactory, getEndpointIdWithNonHex) // NOLINT
 {
-    setupFilesForTestingGlobalRep("","");
+    setupFilesForTestingGlobalRep("","GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg");
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
@@ -177,28 +195,29 @@ TEST_F(TestSusiWrapperFactory, getEndpointIdWithNonUTF8)
     EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
 }
 
-TEST_F(TestSusiWrapperFactory, getEndpointIdWithNewLine) // NOLINT
-{
-    setupFilesForTestingGlobalRep("","c1cfcf69a42311a\n084bcefe8af02c8a");
-    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
-}
-
-TEST_F(TestSusiWrapperFactory, getEndpointIdWithNonHex) // NOLINT
-{
-    setupFilesForTestingGlobalRep("","GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg");
-    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
-}
-
-TEST_F(TestSusiWrapperFactory, getEndpointIdWithEmptySpace) // NOLINT
-{
-    setupFilesForTestingGlobalRep("","ab7b6758a3ab1 ba8a51d25aa06d1cf4");
-    EXPECT_EQ(getEndpointId(),"66b8fd8b39754951b87269afdfcb285c");
-}
-
 TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsId) // NOLINT
 {
     setupFilesForTestingGlobalRep();
     EXPECT_EQ(getCustomerId(),"d22829d94b76c016ec4e04b08baeffaa");
+}
+
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithEmptyFile) // NOLINT
+{
+    setupFilesForTestingGlobalRep("");
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
+}
+
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithNewLine) // NOLINT
+{
+    setupFilesForTestingGlobalRep("c1cfcf69a42311a\n084bcefe8af02c8a");
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
+}
+
+
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithEmptySpace) // NOLINT
+{
+    setupFilesForTestingGlobalRep("d22829d94b76c 16ec4e04b08baeffaa");
+    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 
 TEST_F(TestSusiWrapperFactory, getCustomerIdOfWrongSize) // NOLINT
@@ -213,9 +232,9 @@ TEST_F(TestSusiWrapperFactory, getCustomerIdOfWrongSize) // NOLINT
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 
-TEST_F(TestSusiWrapperFactory, getCustomerIdWithEmptyFile) // NOLINT
+TEST_F(TestSusiWrapperFactory, getCustomerIdWithNonHex) // NOLINT
 {
-    setupFilesForTestingGlobalRep("");
+    setupFilesForTestingGlobalRep("GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg");
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 
@@ -228,24 +247,6 @@ TEST_F(TestSusiWrapperFactory, getCustomerIdWithNonUTF8)
     std::string nonUTF8CustomerId(threatPathBytes.begin(), threatPathBytes.end());
 
     setupFilesForTestingGlobalRep(nonUTF8CustomerId);
-    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
-}
-
-TEST_F(TestSusiWrapperFactory, getCustomerIdWithNewLine) // NOLINT
-{
-    setupFilesForTestingGlobalRep("c1cfcf69a42311a\n084bcefe8af02c8a");
-    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
-}
-
-TEST_F(TestSusiWrapperFactory, getCustomerIdWithNonHex) // NOLINT
-{
-    setupFilesForTestingGlobalRep("GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg");
-    EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
-}
-
-TEST_F(TestSusiWrapperFactory, getCustomerIdWithEmptySpace) // NOLINT
-{
-    setupFilesForTestingGlobalRep("d22829d94b76c 16ec4e04b08baeffaa");
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");
 }
 

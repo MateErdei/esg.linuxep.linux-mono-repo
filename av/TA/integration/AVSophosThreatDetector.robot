@@ -77,33 +77,13 @@ Threat detector aborts if logging symlink cannot be created
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
 
 
-#TODO: Uncomment and finish once LINUXDAR-2907 is fixed
-#SUSI Is Given Empty CustomerId
-#    Stop AV Plugin
-#    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt
-#    Start AV Plugin
-#    sleep  5m
-#   #verifying SUSI didin't crash
-
-#SUSI Is Given Non-hex CustomerId
-#    Stop AV Plugin
-#    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt    GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
-#    Start AV Plugin
-#    sleep  5m
-#
-#SUSI Is Given Non-hex CustomerId
-#    Stop AV Plugin
-#    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt    GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
-#    Start AV Plugin
-#    sleep  5m
-
-SUSI Is Given Long And Short CustomerIds
+SUSI Is Given Empty CustomerId
+    Mark Sophos Threat Detector Log
     Stop AV Plugin
-    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt    d22829d94b76c016ec4e04b08baeffaaa
+    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt
     Start AV Plugin
-    Log to console  starting sleep
 
-    wait until threat detector running
+    Wait until threat detector running
 
     Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
@@ -111,15 +91,110 @@ SUSI Is Given Long And Short CustomerIds
 
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Sophos Threat Detector Log Contains With Offset  CustomerID cannot be empty
 
 
-#SUSI Is Given A New Line as CustomerIds
-#    Stop AV Plugin
-#    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt    \n
-#    Start AV Plugin
-#    sleep  5m
+SUSI Is Given A New Line As CustomerId
+    Mark Sophos Threat Detector Log
+    Stop AV Plugin
+    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt  \n
+    Start AV Plugin
+
+    Wait until threat detector running
+
+    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Sophos Threat Detector Log Contains With Offset  CustomerID cannot contain a new line
 
 
+SUSI Is Given An Empty Space As CustomerId
+    Mark Sophos Threat Detector Log
+    Stop AV Plugin
+    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt  ${SPACE}
+    Start AV Plugin
+
+    Wait until threat detector running
+
+    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Sophos Threat Detector Log Contains With Offset  CustomerID cannot contain a empty space
+
+
+SUSI Is Given Short CustomerId
+    Mark Sophos Threat Detector Log
+    Stop AV Plugin
+    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt    d22829d94b76c016ec4e04b08baef
+    Start AV Plugin
+
+    Wait until threat detector running
+
+    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
+
+
+SUSI Is Given Long CustomerId
+    Mark Sophos Threat Detector Log
+    Stop AV Plugin
+    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt    d22829d94b76c016ec4e04b08baefaaaaaaaaaaaaaaa
+    Start AV Plugin
+
+    Wait until threat detector running
+
+    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
+
+
+SUSI Is Given Non-hex CustomerId
+    Mark Sophos Threat Detector Log
+    Stop AV Plugin
+    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt  GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
+    Start AV Plugin
+
+    Wait until threat detector running
+
+    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Sophos Threat Detector Log Contains With Offset  CustomerID must be in hex format
+
+
+SUSI Is Given Non-UTF As CustomerId
+    Mark Sophos Threat Detector Log
+    Stop AV Plugin
+    ${nonUTFstring} = 0xcc 0xbe 0xc1 0xb0 0xa4 0xce 0xc9 0xd5 0xa4 0xa4 0xa4 0xbf 0xa5 0xaa 0xa5 0xf3 0xa5 0xc7 0xa5 0xde 0xa5 0xf3 0xa5 0xc9 0xb8 0xa1 0xba 0xf7 0xa4 0xce 0xc0 0xc0
+    Create File  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt  ${nonUTFstring}
+    Start AV Plugin
+
+    Wait until threat detector running
+
+    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Sophos Threat Detector Log Contains With Offset  CustomerID must be in hex format
 
 *** Keywords ***
 
