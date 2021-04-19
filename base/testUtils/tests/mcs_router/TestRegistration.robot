@@ -54,7 +54,7 @@ Successful Registration With New Token Gives New Machine ID
     ...  2 secs
     ...  check_mcsenvelope_log_contains  ThisIsAnMCSID+1002
 
-We Re-register Sucessfully When MCSID Goes Missing
+Successful Re-Registration When MCSID is Missing
     Start System Watchdog
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
@@ -77,6 +77,7 @@ We Re-register Sucessfully When MCSID Goes Missing
     ...  Check MCS Router Log Contains In Order
             ...      Re-registering with MCS
             ...      Successfully directly connected
+
 Successful Registration From Different Directories
     Register Different Working Directories   /tmp
     Cleanup Mcsrouter Directories

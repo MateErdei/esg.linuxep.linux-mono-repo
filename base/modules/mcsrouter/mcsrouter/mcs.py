@@ -460,18 +460,19 @@ class MCS:
         # pylint: disable=too-many-locals, too-many-branches, too-many-statements
 
         config = self.__m_config
-        configerror = False
-        if config.get_default("MCSID") is None:
+        config_error = False
+        if not config.get_default("MCSID"):
             LOGGER.critical("Not registered: MCSID is not present")
             if os.path.isfile(path_manager.root_config()):
                 LOGGER.debug("MCS root config file exists so we will re-register with the stored token and url")
-                configerror = True
+                config_error = True
             else:
                 return 1
-        if config.get_default("MCSPassword") is None:
+        if not config.get_default("MCSPassword"):
             LOGGER.critical("Not registered: MCSPassword is not present")
             if os.path.isfile(path_manager.root_config()):
-                configerror = True
+                LOGGER.debug("MCS root config file exists so we will re-register with the stored token and url")
+                config_error = True
             else:
                 return 2
 
@@ -559,8 +560,8 @@ class MCS:
         reregister = False
         error_count = 0
 
-        # see if register_central.py --reregister has been called
-        if config.get_default("MCSID") == "reregister" or configerror == True:
+        # see if register_central.py --reregister has been called or if we have lost either the MCSID or MCSpassword
+        if config.get_default("MCSID") == "reregister" or config_error:
             reregister = True
 
         # pylint: disable=too-many-nested-blocks
