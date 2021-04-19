@@ -318,6 +318,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...  10 secs
     ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
+    Check for Management Agent Failing To Send Message To MTR And Check Recovery
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
     # This is only an issue with versions of base before we started using boost process
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl \<\> The PID \-1 does not exist or is not a child of the calling process\.
