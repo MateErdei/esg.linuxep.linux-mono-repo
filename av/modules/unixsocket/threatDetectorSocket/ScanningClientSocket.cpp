@@ -93,7 +93,6 @@ void unixsocket::ScanningClientSocket::checkIfScanAborted()
         throw ScanInterruptedException("Scan manually aborted");
     }
 
-
     if (m_sigTermMonitor->triggered())
     {
         LOGDEBUG("Received SIGTERM");
