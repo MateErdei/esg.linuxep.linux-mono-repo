@@ -213,6 +213,38 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigEmptyFile) // NOLINT
     }
 }
 
+TEST_F(TestNamedScanRunner, TestNamedScanConfigIncompleteConfig) // NOLINT
+{
+    std::string filename = "namedScanConfig";
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Builder requestBuilder =
+        message.initRoot<Sophos::ssplav::NamedScan>();
+    requestBuilder.setName(filename);
+    requestBuilder.setScanHardDrives(m_scanHardDisc);
+    requestBuilder.setScanNetworkDrives(m_scanNetwork);
+    requestBuilder.setScanCDDVDDrives(m_scanOptical);
+    requestBuilder.setScanRemovableDrives(m_scanRemovable);
+
+    fs::path filePath = m_testDir / filename;
+    std::ofstream fileHandle(filePath);
+    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+    std::string dataAsString(bytes.begin(), bytes.end());
+    // Write only half of the config to disk
+    fileHandle << dataAsString.substr(0, dataAsString.size() / 2);
+    fileHandle.close();
+
+    try
+    {
+        NamedScanRunner runner(filePath);
+        FAIL() << "Expected runtime exception";
+    }
+    catch (const std::runtime_error& e)
+    {
+        EXPECT_EQ(std::string(e.what()), "Aborting: Config file cannot be parsed");
+    }
+}
+
 TEST_F(TestNamedScanRunner, TestNamedScanConfigNonUTF8fileName) // NOLINT
 {
     // echo -n "名前の付いたオンデマンド検索の設定" | iconv -f utf-8 -t euc-jp | hexdump -C
