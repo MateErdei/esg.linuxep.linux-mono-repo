@@ -10,10 +10,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "common/SigIntMonitor.h"
 #include "common/SigTermMonitor.h"
+#include "common/SigHupMonitor.h"
 #include "scan_messages/ClientScanRequest.h"
 #include "scan_messages/ScanResponse.h"
 
 #include <string>
+
 
 namespace unixsocket
 {
@@ -35,6 +37,7 @@ namespace unixsocket
 
         std::shared_ptr<common::SigIntMonitor> m_sigIntMonitor;
         std::shared_ptr<common::SigTermMonitor> m_sigTermMonitor;
+        std::shared_ptr<common::SigHupMonitor> m_sigHupMonitor;
         int m_reconnectAttempts;
         std::string m_socketPath;
         datatypes::AutoFd m_socket_fd;

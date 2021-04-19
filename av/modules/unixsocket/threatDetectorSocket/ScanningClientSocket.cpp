@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ReconnectScannerException.h"
 
 #include "common/AbortScanException.h"
+#include "common/ScanInterruptedException.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
 #include "scan_messages/ClientScanRequest.h"
@@ -38,6 +39,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 unixsocket::ScanningClientSocket::ScanningClientSocket(std::string socket_path, const struct timespec& sleepTime)
     : m_sigIntMonitor(common::SigIntMonitor::getSigIntMonitor())
     , m_sigTermMonitor(common::SigTermMonitor::getSigTermMonitor())
+    , m_sigHupMonitor(common::SigHupMonitor::getSigHupMonitor())
     , m_reconnectAttempts(0)
     , m_socketPath(std::move(socket_path))
     , m_sleepTime(sleepTime)
@@ -88,13 +90,31 @@ void unixsocket::ScanningClientSocket::checkIfScanAborted()
     if (m_sigIntMonitor->triggered())
     {
         LOGDEBUG("Received SIGINT");
-        throw AbortScanException("Scan manually aborted");
+        throw ScanInterruptedException("Scan manually aborted");
     }
+
 
     if (m_sigTermMonitor->triggered())
     {
         LOGDEBUG("Received SIGTERM");
-        throw ScanInterruptedException("Scan aborted due to environment interruption ");
+        //wait a couple of seconds as we might receive a SIGHUP for shutdown
+        for (int attempt=0; attempt < 5; attempt++)
+        {
+            if (m_sigHupMonitor->triggered())
+            {
+                LOGDEBUG("Received SIGHUP");
+                throw ScanInterruptedException("Scan aborted due to environment interruption");
+            }
+            nanosleep(&m_sleepTime, nullptr);
+        }
+
+        throw ScanInterruptedException("Scan aborted due to environment interruption");
+    }
+
+    if (m_sigHupMonitor->triggered())
+    {
+        LOGDEBUG("Received SIGHUP");
+        throw ScanInterruptedException("Scan aborted due to environment interruption");
     }
 }
 
