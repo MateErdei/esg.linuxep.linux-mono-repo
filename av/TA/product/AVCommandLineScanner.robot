@@ -1369,6 +1369,7 @@ CLS Return Codes Are Correct
 CLS Can Append Summary To Log When SigTerm Occurs
     ${SCAN_LOG} =    Set Variable    /tmp/sigterm_test.log
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
+    Register cleanup  Terminate Process  handle=${cls_handle}  kill=True
 
     Wait Until File exists  ${SCAN_LOG}
 
@@ -1384,6 +1385,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
 CLS Can Append Summary To Log When SIGHUP Is Received
     ${SCAN_LOG} =    Set Variable    /tmp/sighup_test.log
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
+    Register cleanup  Terminate Process  handle=${cls_handle}  kill=True
 
     Wait Until File exists  ${SCAN_LOG}
 
