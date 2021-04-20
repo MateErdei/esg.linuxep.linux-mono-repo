@@ -30,10 +30,7 @@ def safe_delete(p):
 
 def safe_hardlink(source, target):
     safe_delete(target)
-    try:
-        os.link(source, target)
-    except OSError:
-        shutil.copy(source, target)
+    os.link(source, target)
 
 
 def main(argv):
@@ -43,7 +40,6 @@ def main(argv):
     touchedFiles = []
 
     for t in targets:
-        print("Target: {}".format(t))
         assert os.path.isfile(t)
         base = os.path.basename(t)
         target_dest = os.path.join(dest, base)
