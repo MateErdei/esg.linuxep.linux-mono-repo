@@ -45,7 +45,7 @@ namespace Plugin
         int shutdownTimeout = 30;
         while(isRunning() && timeoutCounter < shutdownTimeout)
         {
-            LOGSUPPORT("Shutdown waiting for EDR processes to complete");
+            LOGSUPPORT("Shutdown waiting for all processes to complete");
             sleep(1);
             timeoutCounter++;
         }
