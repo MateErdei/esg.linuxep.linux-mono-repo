@@ -139,7 +139,7 @@ class TestMCS(unittest.TestCase):
         config = mcsrouter.utils.config.Config()
         config.set("MCSToken","MCSTOKEN")
         config.set("MCSID","reregister")
-        config.set("MCSPassword","")
+        config.set("MCSPassword","password")
         m = self.createMCS(config)
         try:
             ret = m.run()
