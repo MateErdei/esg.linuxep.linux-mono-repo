@@ -66,9 +66,8 @@ def combined_task(machine: tap.Machine):
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
 
-        # upload unit test coverage html results to allegro
+        # upload unit test coverage html results to allegro (and the .cov file which is in unitest_htmldir)
         unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-plugin-edr-unittest")
-        machine.run('ls', str(machine.inputs.coverage_unittest))
         machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
         machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
 
@@ -78,8 +77,6 @@ def combined_task(machine: tap.Machine):
         machine.run('mkdir', coverage_results_dir)
         machine.run('cp', "-r", unitest_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
-
-        # upload unit-test .cov file to allegro
 
         # run component pytests and integration robot tests with coverage file to get tap coverage
         machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS)
@@ -100,7 +97,7 @@ def combined_task(machine: tap.Machine):
         # finally:
         #     machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
-        # generate tap (tap tests + unit tests) coverage html results and upload to allegro
+        # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
         tap_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-taptest')
         machine.run('bash', '-x', UPLOAD_SCRIPT,
                     environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir})
@@ -108,9 +105,6 @@ def combined_task(machine: tap.Machine):
         # publish tap (tap tests + unit tests) html results and coverage file to artifactory
         machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
-
-        # upload tap tests + unit tests .cov file to allegro
-
 
         #trigger system test coverage job on jenkins - this will also upload to allegro
         run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)

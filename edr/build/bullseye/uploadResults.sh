@@ -61,10 +61,6 @@ else
   BULLSEYE_UPLOAD=1
 fi
 
-ls "$htmldir"
-
-cp "$COVFILE" "$htmldir"
-
 chmod -R a+rX "$htmldir"
 
 if [[ ${BULLSEYE_UPLOAD} == 1 ]]
