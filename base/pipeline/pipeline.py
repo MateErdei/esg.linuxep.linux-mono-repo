@@ -75,9 +75,10 @@ def coverage_task(machine: tap.Machine):
             package_install(machine, 'python3.7-dev')
         install_requirements(machine)
 
-        # upload unit test coverage html results to allegro
+        # upload unit test coverage-html and the unit-tests cov file to allegro
         unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-base-unittest")
         machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
+        machine.run('cp', COVFILE_UNITTEST, unitest_htmldir)
         machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
 
         # publish unit test coverage file and results to artifactory results/coverage
@@ -90,27 +91,35 @@ def coverage_task(machine: tap.Machine):
         # run component pytests and integration robot tests with coverage file to get combined coverage
         machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS)
 
-        # Run component pytest
-        # These are disabled for now
-        try:
-            if machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
-                        environment={'COVFILE': COVFILE_TAPTESTS}, return_exit_code=True) ==0:
-                #start systemtest coverage in jenkins
-                # todo in this system test run we are updating unit test cov file without the tap. make sure to upload tap tests and get them like EDR
-                run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
+        # "/tmp/BullseyeCoverageEnv.txt" is a special location that bullseye checks for config values
+        # We can set the COVFILE env var here so that all instrumented processes know where it is.
+        machine.run("echo", f"COVFILE={COVFILE_TAPTESTS}", ">", "/tmp/BullseyeCoverageEnv.txt")
 
+        # Make sure that any product process can update the cov file, no matter the running user.
+        machine.run("chmod", "666", COVFILE_TAPTESTS)
+
+        # run component pytest -- these are disabled
+        # run tap-tests
+        try:
+            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
+                        environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
-
-        # generate combined coverage html results and upload to allegro
-        taptest_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-base-taptests')
+        # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
+        tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-base-taptest')
+        machine.run ('mkdir', tap_htmldir)
+        machine.run('cp', COVFILE_TAPTESTS, tap_htmldir)
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': taptest_htmldir})
+                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir})
 
-        # publish combined html results and coverage file to artifactory
-        machine.run('mv', taptest_htmldir, coverage_results_dir)
+        # publish tap (tap tests + unit tests) html results and coverage file to artifactory
+        machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
+
+        #start systemtest coverage in jenkins (these include tap-tests)
+        run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
+
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')

@@ -86,7 +86,10 @@ if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
 fi
 
 if [[ -n "${BASE_COVERAGE:-}" ]]; then
-  mv $COVERAGE_STAGING/sspl-base-unittest.cov $COVERAGE_STAGING/sspl-base-combined.cov
+  # download tap + unit test cov file from Allegro, and use it to get combined (tap + unit + system tests)
+  export FILESTODOWNLOAD=sspl-base-taptests/sspl-base-taptests.cov
+  bash -x $WORKSPACE/build/bullseye/downloadFromAllegro.sh || fail "ERROR failed to download cov file, exit code:"$?
+  mv /tmp/allegro/sspl-base-taptests.cov $COVERAGE_STAGING/sspl-base-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-base-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-base-combined
   export COV_HTML_BASE=sspl-base-combined
