@@ -78,6 +78,8 @@ def combined_task(machine: tap.Machine):
         machine.run('cp', "-r", unitest_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
+        # upload unit-test .cov file to allegro
+
         # run component pytests and integration robot tests with coverage file to get tap coverage
         machine.run('mv', COVFILE_UNITTEST, COVFILE_TAPTESTS)
 
@@ -102,9 +104,12 @@ def combined_task(machine: tap.Machine):
         machine.run('bash', '-x', UPLOAD_SCRIPT,
                     environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir})
 
-        # publish tap (tap tests + unit tests) html results and coverage file to artifactory and ....
+        # publish tap (tap tests + unit tests) html results and coverage file to artifactory
         machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
+
+        # upload tap tests + unit tests .cov file to allegro
+
 
         #trigger system test coverage job on jenkins - this will also upload to allegro
         run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
