@@ -96,6 +96,7 @@ def coverage_task(machine: tap.Machine):
             if machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
                         environment={'COVFILE': COVFILE_TAPTESTS}, return_exit_code=True) ==0:
                 #start systemtest coverage in jenkins
+                # todo in this system test run we are updating unit test cov file without the tap. make sure to upload tap tests and get them like EDR
                 run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
 
         finally:
