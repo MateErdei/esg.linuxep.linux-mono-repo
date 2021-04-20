@@ -25,6 +25,7 @@ namespace Plugin
 
     void PluginAdapter::mainLoop()
     {
+        m_callback->setRunning(true);
         LOGINFO("Entering the main loop");
 
         // If the plugin requires a mcs policy the plugin needs to explicitly request the policy on start-up
@@ -32,8 +33,6 @@ namespace Plugin
         // the try catch code below uses the ALC policy as an example.
         try
         {
-            m_callback->setRunning(true);
-
             // Request required policies for plugin.
             m_baseService->requestPolicies("ALC");
         }
