@@ -396,13 +396,12 @@ function build()
     # Run the unit tests unless we are doing bullseye system tests then don't run unit test first
     elif (( ${UNITTEST} == 1 ))
     then
-      echo "tests skipped"
-#        make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
-#            local EXITCODE=$?
-#            echo "Unit tests failed with $EXITCODE"
-#            cat Testing/Temporary/LastTest.log || true
-#            exitFailure $FAILURE_UNIT_TESTS "Unit tests failed for $PRODUCT"
-#        }
+        make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
+            local EXITCODE=$?
+            echo "Unit tests failed with $EXITCODE"
+            cat Testing/Temporary/LastTest.log || true
+            exitFailure $FAILURE_UNIT_TESTS "Unit tests failed for $PRODUCT"
+        }
     fi
     make install CXX=$CXX CC=$CC || exitFailure 17 "Failed to install $PRODUCT"
     make dist CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
