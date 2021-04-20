@@ -68,6 +68,7 @@ def combined_task(machine: tap.Machine):
 
         # upload unit test coverage html results to allegro
         unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-plugin-edr-unittest")
+        machine.run('ls', str(machine.inputs.coverage_unittest))
         machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
         machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
 
