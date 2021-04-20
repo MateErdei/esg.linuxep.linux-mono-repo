@@ -10,10 +10,15 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/IPluginCallbackApi.h>
 
+#include <atomic>
+
 namespace Plugin
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
+        std::shared_ptr<QueueTask> m_task;
+        Common::PluginApi::StatusInfo m_statusInfo;
+
     public:
         explicit PluginCallback(std::shared_ptr<QueueTask> task);
 
@@ -23,21 +28,14 @@ namespace Plugin
 
         void onShutdown() override;
         Common::PluginApi::StatusInfo getStatus(const std::string& appId) override;
+        void setStatus(Common::PluginApi::StatusInfo statusInfo);
 
         std::string getTelemetry() override;
 
-        void sendStatus(const std::string& revID);
+        void setRunning(bool running);
+        bool isRunning();
 
     private:
-        std::string generateSAVStatusXML();
-        unsigned long getIdeCount();
-        std::string getLrDataHash();
-        std::string getMlLibHash();
-        std::string getMlModelVersion();
-        std::string getVirusDataVersion();
-
-        std::shared_ptr<QueueTask> m_task;
-        Common::PluginApi::StatusInfo m_statusInfo;
-        std::string m_revID;
+        std::atomic_bool m_running = false;
     };
 }; // namespace Plugin

@@ -12,6 +12,8 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
+#include <unistd.h>
+
 namespace Plugin
 {
     PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) : m_task(std::move(task))
@@ -39,6 +41,14 @@ namespace Plugin
     {
         LOGSUPPORT("Shutdown signal received");
         m_task->pushStop();
+        int timeoutCounter = 0;
+        int shutdownTimeout = 30;
+        while(isRunning() && timeoutCounter < shutdownTimeout)
+        {
+            LOGSUPPORT("Shutdown waiting for EDR processes to complete");
+            sleep(1);
+            timeoutCounter++;
+        }
     }
 
     Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /* appId */)
@@ -67,6 +77,16 @@ namespace Plugin
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 
         return telemetryJson;
+    }
+
+    void PluginCallback::setRunning(bool running)
+    {
+        m_running = running;
+    }
+
+    bool PluginCallback::isRunning()
+    {
+        return m_running;
     }
 
 } // namespace Plugin
