@@ -89,13 +89,13 @@ def combined_task(machine: tap.Machine):
         machine.run("chmod", "666", COVFILE_TAPTESTS)
 
         # run component pytest
-        # args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
-        # machine.run(*args, environment={'COVFILE': COVFILE_TAPTESTS})
-        # try:
-        #     machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
-        #                 environment={'COVFILE': COVFILE_TAPTESTS})
-        # finally:
-        #     machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
+        args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
+        machine.run(*args, environment={'COVFILE': COVFILE_TAPTESTS})
+        try:
+            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
+                        environment={'COVFILE': COVFILE_TAPTESTS})
+        finally:
+            machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
         # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
         tap_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-taptest')
