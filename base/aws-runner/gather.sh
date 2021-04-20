@@ -42,7 +42,7 @@ echo "Copying testAndSendResults.sh"
 cp testAndSendResults.sh $CREATE_DIR/testAndSendResults.sh
 
 echo "Creating tarfile"
-tar czf /tmp/sspl-test.tgz -C "$CREATE_DIR" . || failure 18 "Failed to create archive of build"
+tar czf ${TEST_TAR} -C "$CREATE_DIR" . || failure 18 "Failed to create archive of build"
 
 rm -rf "${CREATE_DIR}" || failure 20 "Failed to delete new $CREATE_DIR"
 

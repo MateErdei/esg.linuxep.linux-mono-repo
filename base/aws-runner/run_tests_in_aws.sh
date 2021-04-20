@@ -47,12 +47,13 @@ cd $SCRIPT_DIR
 ## Start deleting old stacks
 aws cloudformation delete-stack --stack-name $STACK --region eu-west-1 || failure "Unable to delete-stack: $?"
 
+export TEST_TAR=/tmp/sspl-test-$STACK.tgz
+TAR_BASENAME=$(basename ${TEST_TAR})
 ## Gather files
 if [[ -z "$SKIP_GATHER" ]]
 then
-    bash ./gather.sh $@|| failure "Failed to gather test files: $?"
+    bash ./gather.sh $@ || failure "Failed to gather test files: $?"
 fi
-TEST_TAR=/tmp/sspl-test.tgz
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
 
 ## Create template
@@ -71,10 +72,11 @@ aws s3 cp template.temp "s3://sspl-testbucket/templates/$STACK.template" \
     || failure "Unable to copy $TEMPLATE to s3"
 rm -f template.temp
 
+TAR_DESTINATION_FOLDER="s3://sspl-testbucket/sspl"
 ## Upload test tarfile to s3
 if [[ -z "$SKIP_TAR_COPY" ]]
 then
-    aws s3 cp "$TEST_TAR" s3://sspl-testbucket/sspl/sspl-test.tgz || failure "Unable to copy test tarfile to s3"
+    aws s3 cp "$TEST_TAR" ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME} || failure "Unable to copy test tarfile to s3"
 fi
 
 function delete_stack()
@@ -315,5 +317,6 @@ rm -rf ./results
 mkdir ./results
 aws s3 cp --recursive "s3://sspl-testbucket/test-results/${IDENTITFIER}/" ./results
 python3 delete_old_results.py ${IDENTITFIER}
+aws s3 rm ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME}
 ## exit
 exit 0
