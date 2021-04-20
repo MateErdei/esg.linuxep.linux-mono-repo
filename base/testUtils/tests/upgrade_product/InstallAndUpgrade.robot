@@ -126,14 +126,12 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
 
-    Log To Console  Checking if EAP release installed correctly
     Check EAP Release With AV Installed Correctly
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndAvVUTPolicy}
-
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
@@ -181,10 +179,6 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
-
-    #Log SSPLAV logs to the test report
-    Log File      ${AV_LOG_FILE}
-    Log File      ${THREAT_DETECTOR_LOG_PATH}
 
     Check Update Reports Have Been Processed
 
@@ -368,10 +362,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Exist  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_after_query_pack_restored} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
-
-    #Log SSPLAV logs to the test report
-    Log File      ${AV_LOG_FILE}
-    Log File      ${THREAT_DETECTOR_LOG_PATH}
 
 Verify Upgrading Will Remove Files Which Are No Longer Required
     [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
