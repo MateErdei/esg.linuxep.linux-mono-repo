@@ -61,7 +61,7 @@ else
   BULLSEYE_UPLOAD=1
 fi
 
-ll "$htmldir"
+ls "$htmldir"
 
 cp "$COVFILE" "$htmldir"
 
