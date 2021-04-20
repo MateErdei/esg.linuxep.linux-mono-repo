@@ -114,14 +114,12 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndAvReleasePolicy}
     Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
-    Log To Console  Preparing to install EAP
 
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
-    Log To Console  Installed EAP
     Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
     Override LogConf File as Global Level  DEBUG
     Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
@@ -135,7 +133,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndAvVUTPolicy}
-    Log To Console  Prepare for Upgrade
+
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
@@ -146,21 +144,16 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Mark Managementagent Log
     Trigger Update Now
 
-    Log To Console  Started waiting for upgrade
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
-    Log To Console  Upgrade is good?
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
 
-    Log To Console  Passed base check?
     Check Mtr Reconnects To Management Agent After Upgrade
-    Log To Console  MTR reconnects
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
-    Log To Console  Check for management agent
 
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
     # This is only an issue with versions of base before we started using boost process
@@ -177,12 +170,9 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
 
     Check All Product Logs Do Not Contain Error
-    Log To Console  No errors
     Check All Product Logs Do Not Contain Critical
-    Log To Console  No critical
 
     Check Current Release With AV Installed Correctly
-    Log To Console  Current AV Release Installed Correctly
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -191,13 +181,12 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
-    Log To console  Version check passed
+
     #Log SSPLAV logs to the test report
     Log File      ${AV_LOG_FILE}
     Log File      ${THREAT_DETECTOR_LOG_PATH}
 
     Check Update Reports Have Been Processed
-    Log To Console  finished running test
 
 VersionCopy File in the Wrong Location Is Removed
     [Timeout]  10 minutes

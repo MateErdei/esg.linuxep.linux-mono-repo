@@ -263,7 +263,6 @@ class LogUtils(object):
         n = int(n)
         occurances = self.get_number_of_occurences_of_substring_in_string(string_to_check, string_to_check_for)
         if occurances != n:
-            logger.error(f"expected '{string_to_check}' to contain '{string_to_check_for}' {n} times, found {occurances}")
             raise AssertionError()
 
     def get_number_of_occurences_of_substring_in_string(self, string, substring, use_regex=False):
