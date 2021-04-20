@@ -10,6 +10,8 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/IPluginCallbackApi.h>
 
+#include <atomic>
+
 namespace Plugin
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
@@ -29,5 +31,11 @@ namespace Plugin
         void setStatus(Common::PluginApi::StatusInfo statusInfo);
 
         std::string getTelemetry() override;
+
+        void setRunning(bool running);
+        bool isRunning();
+
+    private:
+        std::atomic_bool m_running = false;
     };
 }; // namespace Plugin

@@ -52,6 +52,7 @@ int main()
         LOGERROR("Plugin threw an exception at top level: " << ex.what());
         ret = 40;
     }
+    sharedPluginCallBack->setRunning(false);
     LOGINFO("Plugin Finished.");
     return ret;
 }

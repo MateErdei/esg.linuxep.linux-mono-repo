@@ -32,6 +32,8 @@ namespace Plugin
         // the try catch code below uses the ALC policy as an example.
         try
         {
+            m_callback->setRunning(true);
+
             // Request required policies for plugin.
             m_baseService->requestPolicies("ALC");
         }
