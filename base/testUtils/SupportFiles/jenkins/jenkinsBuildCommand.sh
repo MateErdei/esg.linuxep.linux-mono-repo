@@ -98,12 +98,10 @@ elif [[ -n "${MDR_COVERAGE:-}" ]]; then
   export COV_HTML_BASE=sspl-mtr-combined
   export BULLSEYE_UPLOAD=1
 elif [[ -n "${EDR_COVERAGE:-}" ]]; then
-  ls $COVERAGE_STAGING
-  ls /tmp/system-product-test-inputs
-  ls /tmp/system-product-test-inputs/sspl-edr-plugin
-# todo find a way to get the sspl-plugin-tap.cov instead of unit
-  #mv $COVERAGE_STAGING/sspl-plugin-edr-unit.cov $COVERAGE_STAGING/sspl-plugin-edr-combined.cov
-  mv /mnt/filer6/linux/SSPL/coverage/sspl-plugin-edr-tap.cov $COVERAGE_STAGING/sspl-plugin-edr-combined.cov
+  # download tap + unit test cov file from Allegro, and use it to get combined (tap + unit + system tests)
+  export FILESTODOWNLOAD=sspl-plugin-edr-taptest/sspl-plugin-edr-tap.cov
+  bash -x $WORKSPACE/build/bullseye/downloadFromAllegro.sh || fail "ERROR failed to download cov file, exit code:"$?
+  mv /tmp/allegro/sspl-plugin-edr-tap.cov $COVERAGE_STAGING/sspl-plugin-edr-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-plugin-edr-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-plugin-edr-combined
   export COV_HTML_BASE=sspl-plugin-edr-combined

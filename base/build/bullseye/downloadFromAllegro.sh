@@ -2,7 +2,7 @@
 echo "Download specified file/folder from Allegro in /tmp/allegro"
 
 #sspl-plugin-edr-taptest/sspl-plugin-edr-tap.cov
-[[ -n ${FILESTODOWNLOAD} ]] || exitFailure 3 "Files to download not specified"
+[[ -n ${FILESTODOWNLOAD} ]] || exitFailure 4 "Files to download not specified"
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=${BASE}/build/bullseye/private.key
