@@ -79,6 +79,25 @@ Check Message Relay Structure Is Correct And Contains Port
 
 *** Test Cases ***
 
+MTR Fails To Add Message Relay Information When MCS Config Files Are Missing But Recovers
+    Start Simple Proxy Server    3000
+
+    Start Watchdog
+
+    Install MDR Directly
+    Check MDR Plugin Installed
+
+    Check Log Does Not Contain    selectedMessageRelay    ${MTR_MESSAGE_RELAY_CONFIG_FILE}    MessageRelayConfig.xml
+
+    ${EXPECTED_ERROR}=     Set Variable    Failed to read mcs config file(s): ${MCS_CONFIG} ${MCS_POLICY_CONFIG}
+    Check Log Contains    ${EXPECTED_ERROR}    ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log    mtr.log
+
+    Register With Local Cloud Server
+
+    Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3000' address='localhost' id='no_auth_proxy'/>
+
+    Wait Message Relay Structure Is Correct And Contains Port    3000
+
 MTR Has No Message Relay Configured If Not Defined In MCS Config Files
     Register With Local Cloud Server
 
@@ -201,23 +220,4 @@ MTR Removes Message Relay When Deregistering And Adds It When Reregistering
     Wait Message Relay Structure Is Correct And Contains Port    3000    1002
 
 
-
-MTR Fails To Add Message Relay Information When MCS Config Files Are Missing But Recovers
-    Start Simple Proxy Server    3000
-
-    Start Watchdog
-
-    Install MDR Directly
-    Check MDR Plugin Installed
-
-    Check Log Does Not Contain    selectedMessageRelay    ${MTR_MESSAGE_RELAY_CONFIG_FILE}    MessageRelayConfig.xml
-
-    ${EXPECTED_ERROR}=     Set Variable    Failed to read mcs config file(s): ${MCS_CONFIG} ${MCS_POLICY_CONFIG}
-    Check Log Contains    ${EXPECTED_ERROR}    ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log    mtr.log
-
-    Register With Local Cloud Server
-
-    Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3000' address='localhost' id='no_auth_proxy'/>
-
-    Wait Message Relay Structure Is Correct And Contains Port    3000
 
