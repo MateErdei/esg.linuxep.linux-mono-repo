@@ -453,6 +453,14 @@ class MCS:
                     return False
         return True
 
+    def token_and_url_are_set(self):
+        if os.path.isfile(path_manager.root_config()):
+            token = self.__m_policy_config.get("MCSToken")
+            url = self.__m_policy_config.get("MCSURL")
+            if token and url:
+                return True
+        return False
+
     def run(self):
         """
         run
@@ -463,14 +471,14 @@ class MCS:
         config_error = False
         if not config.get_default("MCSID"):
             LOGGER.critical("Not registered: MCSID is not present")
-            if os.path.isfile(path_manager.root_config()):
+            if self.token_and_url_are_set():
                 LOGGER.debug("MCS root config file exists so we will re-register with the stored token and url")
                 config_error = True
             else:
                 return 1
         if not config.get_default("MCSPassword"):
             LOGGER.critical("Not registered: MCSPassword is not present")
-            if os.path.isfile(path_manager.root_config()):
+            if self.token_and_url_are_set():
                 LOGGER.debug("MCS root config file exists so we will re-register with the stored token and url")
                 config_error = True
             else:
