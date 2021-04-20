@@ -88,7 +88,7 @@ def combined_task(machine: tap.Machine):
         # Make sure that any product process can update the cov file, no matter the running user.
         machine.run("chmod", "666", COVFILE_TAPTESTS)
 
-        # run component pytest
+        # run component pytest and tap-tests
         args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
         machine.run(*args, environment={'COVFILE': COVFILE_TAPTESTS})
         try:
