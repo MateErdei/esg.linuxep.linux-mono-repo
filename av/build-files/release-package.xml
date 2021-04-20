@@ -16,7 +16,7 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
 
-        <package name="boostlinux11" version="1-72-0-39/220673/output" dest="input">
+        <package name="boostlinux11" version="1-75-0-4/222018/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
