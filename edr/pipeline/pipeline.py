@@ -92,7 +92,7 @@ def combined_task(machine: tap.Machine):
         args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
         machine.run(*args, environment={'COVFILE': COVFILE_TAPTESTS})
         try:
-            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
+            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
                         environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
