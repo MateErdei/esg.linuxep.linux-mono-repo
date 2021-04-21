@@ -22,12 +22,10 @@ fi
 # undo set -eu because venv/bin/activate script produces errors.
 VENV=/tmp/venv-for-ci
 set +e
-python3 -m venv ${VENV}
-source ${VENV}/bin/activate
+[[ -z $NO_VENV ]] && python3 -m venv ${VENV} && source ${VENV}/bin/activate
   [[ -z $NO_VENV ]] && $TEST_UTILS/SupportFiles/jenkins/SetupCIBuildScripts.sh || fail "Error: Failed to get CI scripts"
   export BUILD_JWT=$(cat $TEST_UTILS/SupportFiles/jenkins/jwt_token.txt)
   python3 -m build_scripts.artisan_fetch $TEST_UTILS/$TEST_PACKAGE_XML || fail "Error: Failed to fetch inputs"
-deactivate
-rm -rf ${VENV}
+[[ -z $NO_VENV ]] && deactivate && rm -rf ${VENV}
 # restore bash strictness (for scripts that source this one)
 set -e
