@@ -16,6 +16,6 @@ chmod 600 ${PRIVATE_KEY}
 
 mkdir /tmp/allegro
 
-rsync -va --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" \
+rsync -va --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" --delete \
     upload@allegro.eng.sophos:public_html/bullseye/"${FILESTODOWNLOAD}" \
     /tmp/allegro
