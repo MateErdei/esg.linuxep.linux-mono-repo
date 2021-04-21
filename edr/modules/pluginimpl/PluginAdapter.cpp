@@ -33,8 +33,6 @@ namespace Plugin
         try
         {
             m_callback->setRunning(true);
-
-            // Request required policies for plugin.
             m_baseService->requestPolicies("ALC");
         }
         catch (const Common::PluginApi::NoPolicyAvailableException&)
