@@ -132,6 +132,3 @@ Test Uninstall Script Gives Return Code Zero
 
     ${result} =  Run Process  ${SOPHOS_INSTALL}/bin/uninstall.sh  --force
     Should Be Equal As Strings  ${result.rc}  0  "Return code was not 0, instead: ${result.rc}\nstdout: ${result.stdout}\nstderr: ${result.stderr}
-
-
-

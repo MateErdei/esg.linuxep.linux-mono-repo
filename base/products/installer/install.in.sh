@@ -111,12 +111,12 @@ EOF
           failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl service"
       fi
 
-current_service_content=""
+    current_service_content=""
 
-if [[ -f ${STARTUP_DIR}/sophos-spl.service ]]
-then
-  current_service_content=$(<${STARTUP_DIR}/sophos-spl.service)
-fi
+    if [[ -f ${STARTUP_DIR}/sophos-spl.service ]]
+    then
+      current_service_content=$(<${STARTUP_DIR}/sophos-spl.service)
+    fi
 
     if [[ "${service_content}" != "${current_service_content}" ]]
     then
