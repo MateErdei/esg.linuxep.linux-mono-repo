@@ -4,11 +4,8 @@ echo "Download specified file/folder from Allegro in /tmp/allegro"
 #sspl-plugin-edr-taptest/sspl-plugin-edr-tap.cov
 [[ -n ${FILESTODOWNLOAD} ]] || exitFailure 4 "Files to download not specified"
 
-ls "$WORKSPACE"/build/bullseye
-ls /opt/test/inputs/bullseye_files
-ls /opt/test/inputs
-
-
+SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
+[[ -n ${BASE} ]] || BASE=${SCRIPT_DIR}/../..
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=${BASE}/build/bullseye/private.key
