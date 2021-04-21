@@ -26,7 +26,7 @@ echo $@ > ${CREATE_DIR}/robotArgs
 
 
 
-sudo -H ${CREATE_DIR}/SupportFiles/jenkins/SetupCIBuildScripts.sh || failure 210 "Failed to install CI scripts"
+flock -w 60 /tmp/aws-pip-lock -c "sudo -H ${CREATE_DIR}/SupportFiles/jenkins/SetupCIBuildScripts.sh || failure 210 'Failed to install CI scripts'"
 export TEST_UTILS=${CREATE_DIR}
 export SYSTEMPRODUCT_TEST_INPUT=./system-product-test-inputs
 #pushd ${CREATE_DIR}
@@ -39,6 +39,7 @@ source ${TEST_UTILS}/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || fail
 #popd
 
 ([[ -d ${SYSTEMPRODUCT_TEST_INPUT} ]] && tar czf ${CREATE_DIR}/SystemProductTestInputs.tgz ${SYSTEMPRODUCT_TEST_INPUT}) || failure 212 "Failed to tar inputs"
+rm -rf "${SYSTEMPRODUCT_TEST_INPUT}" || failure 21 "Failed to delete new ${SYSTEMPRODUCT_TEST_INPUT}"
 
 echo "Copying test.sh"
 cp test.sh $CREATE_DIR/test.sh
