@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-SYSTEMPRODUCT_TEST_INPUT=/tmp/system-product-test-inputs
+[[ -z $SYSTEMPRODUCT_TEST_INPUT ]] && SYSTEMPRODUCT_TEST_INPUT=/tmp/system-product-test-inputs
 if [[  -n $COVERAGE_BASE_BUILD ]]; then
   export BASE_DIST=$COVERAGE_BASE_BUILD
 else

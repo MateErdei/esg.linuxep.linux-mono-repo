@@ -1,7 +1,8 @@
 #!/bin/bash
 
 IDENTITFIER=`hostname`-`date +%F`-`date +%H``date +%M`
-[[ -n $STACK ]] || STACK=sspl-system-tests-${IDENTITFIER}-${RANDOM}-$(echo "$@" | sed -e s/\ /-/g)
+[[ -n $STACK ]] || STACK=sspl-system-tests-${IDENTITFIER}-$(echo "$@"-${RANDOM} | md5sum | cut -f 1 -d " " )
+
 function failure()
 {
     echo "$@"
@@ -46,7 +47,7 @@ cd $SCRIPT_DIR
 ## Start deleting old stacks
 aws cloudformation delete-stack --stack-name $STACK --region eu-west-1 || failure "Unable to delete-stack: $?"
 
-export TEST_TAR=/tmp/sspl-test-$STACK.tgz
+export TEST_TAR=./sspl-test-$STACK.tgz
 TAR_BASENAME=$(basename ${TEST_TAR})
 ## Gather files
 if [[ -z "$SKIP_GATHER" ]]
@@ -77,6 +78,7 @@ if [[ -z "$SKIP_TAR_COPY" ]]
 then
     aws s3 cp "$TEST_TAR" ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME} || failure "Unable to copy test tarfile to s3"
 fi
+rm $TEST_TAR
 
 function delete_stack()
 {

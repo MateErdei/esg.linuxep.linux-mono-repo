@@ -8,7 +8,7 @@ cd $SCRIPT_DIR
 
 
 
-CREATE_DIR=/tmp/testUtils
+CREATE_DIR=./testUtils
 
 function failure()
 {
@@ -28,13 +28,17 @@ echo $@ > ${CREATE_DIR}/robotArgs
 
 sudo -H ${CREATE_DIR}/SupportFiles/jenkins/SetupCIBuildScripts.sh || failure 210 "Failed to install CI scripts"
 export TEST_UTILS=${CREATE_DIR}
-pushd ${CREATE_DIR}
-source ${CREATE_DIR}/SupportFiles/jenkins/gatherTestInputs.sh || failure 211 "Failed to gather inputs"
-source ${CREATE_DIR}/SupportFiles/jenkins/exportInputLocations.sh
-source ${CREATE_DIR}/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 211 "Failed to gather inputs"
-popd
+export SYSTEMPRODUCT_TEST_INPUT=./system-product-test-inputs
+#pushd ${CREATE_DIR}
+# this changes the working directory of the gather process to a relative path to the job so that we can run
+# multiple jobs on the same machine
+sed -i s:/tmp/system-product-test-inputs:${SYSTEMPRODUCT_TEST_INPUT}:g ${TEST_UTILS}/system-product-test-release-package.xml
+source ${TEST_UTILS}/SupportFiles/jenkins/gatherTestInputs.sh || failure 211 "Failed to gather inputs"
+source ${TEST_UTILS}/SupportFiles/jenkins/exportInputLocations.sh
+source ${TEST_UTILS}/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 211 "Failed to gather inputs"
+#popd
 
-([[ -d /tmp/system-product-test-inputs ]] && tar czf ${CREATE_DIR}/SystemProductTestInputs.tgz -C /tmp system-product-test-inputs/) || failure 212 "Failed to tar inputs"
+([[ -d ${SYSTEMPRODUCT_TEST_INPUT} ]] && tar czf ${CREATE_DIR}/SystemProductTestInputs.tgz ${SYSTEMPRODUCT_TEST_INPUT}) || failure 212 "Failed to tar inputs"
 
 echo "Copying test.sh"
 cp test.sh $CREATE_DIR/test.sh
