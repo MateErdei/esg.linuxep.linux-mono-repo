@@ -182,7 +182,7 @@ do
                      ParameterKey=RunCloud,ParameterValue="$RUN_CLOUD" \
                      ParameterKey=RunSome,ParameterValue="$RUN_SOME" \
                      ParameterKey=RunOne,ParameterValue="$RUN_ONE" \
-                     ParameterKey=StackName,ParameterValue="${IDENTITFIER}" \
+                     ParameterKey=StackName,ParameterValue="${STACK}" \
                      --output=text 2>&1)
 
     echo "Stack ID == ${stack_id}"
@@ -315,8 +315,8 @@ cleanupStack
 # Get results back from the AWS test run and save them locally.
 rm -rf ./results
 mkdir ./results
-aws s3 cp --recursive "s3://sspl-testbucket/test-results/${IDENTITFIER}/" ./results
-python3 delete_old_results.py ${IDENTITFIER}
+aws s3 cp --recursive "s3://sspl-testbucket/test-results/${STACK}/" ./results
+python3 delete_old_results.py ${STACK}
 aws s3 rm ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME}
 ## exit
 exit 0
