@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IDENTITFIER=`hostname`-`date +%F`-`date +%H``date +%M`
-[[ -n $STACK ]] || STACK=sspl-system-tests-${IDENTITFIER}-$(echo "$@" | sed -e s/\ /_/g)
+[[ -n $STACK ]] || STACK=sspl-system-tests-${IDENTITFIER}$(echo "$@" | sed -e s/\ /_/g)
 function failure()
 {
     echo "$@"
