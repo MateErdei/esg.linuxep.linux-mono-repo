@@ -2,10 +2,9 @@
 # Copyright 2020 Sophos Limited. All rights reserved.
 #
 #------------------------------------------------------------------------------
+@0xdb58d64963179a7d;
 
 # For more information on what each field means check: LINUXDAR-1472
-
-@0xc889ef5d8e672583;
 
 using Cxx = import "capnp/c++.capnp";
 

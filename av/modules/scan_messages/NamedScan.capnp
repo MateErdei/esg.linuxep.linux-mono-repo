@@ -2,7 +2,7 @@
 # Copyright 2020 Sophos Limited. All rights reserved.
 #
 #------------------------------------------------------------------------------
-@0x8bf3416dfec66ed9;
+@0x913548128bca14cd;
 
 using Cxx = import "capnp/c++.capnp";
 

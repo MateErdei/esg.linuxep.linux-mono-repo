@@ -42,6 +42,11 @@ target_link_libraries(unixsocket  PUBLIC
         ${STD_FILESYSTEM_IF_REQUIRED}
         ${pluginapilib}
         ${Boost_LIBRARIES}
+        "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"
+        "${CAPNPROTO_LIBRARY_DIR}/libcapnp-rpc.a"
+        "${CAPNPROTO_LIBRARY_DIR}/libcapnp.a"
+        "${CAPNPROTO_LIBRARY_DIR}/libkj-async.a"
+        "${CAPNPROTO_LIBRARY_DIR}/libkj.a"
         )
 
 target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)
