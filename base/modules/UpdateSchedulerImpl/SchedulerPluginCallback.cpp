@@ -13,6 +13,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 #include <utility>
+#include <unistd.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -52,6 +53,16 @@ namespace UpdateSchedulerImpl
         LOGSUPPORT("Shutdown signal received");
         m_shutdownReceived = true;
         m_task->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
+
+        int timeoutCounter = 0;
+        int shutdownTimeout = 30;
+        while(isRunning() && timeoutCounter < shutdownTimeout)
+        {
+            LOGSUPPORT("Shutdown waiting for all processes to complete");
+            sleep(1);
+            timeoutCounter++;
+        }
+
     }
 
     Common::PluginApi::StatusInfo SchedulerPluginCallback::getStatus(const std::string& /*appId*/)
@@ -83,4 +94,14 @@ namespace UpdateSchedulerImpl
     }
 
     bool SchedulerPluginCallback::shutdownReceived() { return m_shutdownReceived; }
+
+    void SchedulerPluginCallback::setRunning(bool running)
+    {
+        m_running = running;
+    }
+
+    bool SchedulerPluginCallback::isRunning()
+    {
+        return m_running;
+    }
 } // namespace UpdateSchedulerImpl

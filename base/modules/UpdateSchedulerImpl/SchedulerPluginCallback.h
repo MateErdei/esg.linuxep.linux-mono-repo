@@ -32,5 +32,11 @@ namespace UpdateSchedulerImpl
 
         std::string getTelemetry() override;
         bool shutdownReceived();
+
+        void setRunning(bool running);
+        bool isRunning();
+
+    private:
+        std::atomic_bool m_running = false;
     };
 } // namespace UpdateSchedulerImpl

@@ -59,6 +59,7 @@ namespace UpdateSchedulerImpl
         UpdateSchedulerProcessor updateScheduler(
             queueTask, std::move(baseService), sharedPluginCallBack, std::move(cronThread), std::move(runner));
         updateScheduler.mainLoop();
+        sharedPluginCallBack->setRunning(false);
         LOGINFO("Update Scheduler Finished.");
         return 0;
     }

@@ -165,7 +165,7 @@ namespace UpdateSchedulerImpl
     void UpdateSchedulerProcessor::mainLoop()
     {
         LOGINFO("Update Scheduler Starting");
-
+        m_callback->setRunning(true);
         waitForSulDownloaderToFinish(600);
 
         m_cronThread->start();
