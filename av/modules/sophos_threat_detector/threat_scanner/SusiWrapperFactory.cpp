@@ -110,7 +110,7 @@ namespace threat_scanner
                     }
                     else if (customerId.str().length() != 32)
                     {
-                        LOGERROR("CustomerID should be 32 hex characters");
+                        LOGERROR("CustomerID should be 32 hex characters (read " << customerId.str().length() << " characters)");
                     }
                     //also covers the case where characters are non-utf8
                     else if (!common::isStringHex(customerId.str()))
