@@ -45,31 +45,32 @@ namespace threat_scanner
                 {
                     std::stringstream endpointIdContents;
                     endpointIdContents << fs.rdbuf();
+                    auto endpointIdString = endpointIdContents.str();
 
-                    if (endpointIdContents.str().empty())
+                    if (endpointIdString.empty())
                     {
                         LOGERROR("EndpointID cannot be empty");
                     }
-                    else if (common::contains(endpointIdContents.str(),"\n"))
+                    else if (common::contains(endpointIdString,"\n"))
                     {
                         LOGERROR("EndpointID cannot contain a new line");
                     }
-                    else if (common::contains(endpointIdContents.str()," "))
+                    else if (common::contains(endpointIdString," "))
                     {
                         LOGERROR("EndpointID cannot contain a empty space");
                     }
-                    else if (endpointIdContents.str().length() != 32)
+                    else if (endpointIdString.length() != 32)
                     {
-                        LOGERROR("EndpointID should be 32 hex characters");
+                        LOGERROR("EndpointID should be 32 hex characters (read " << endpointIdString.length() << " characters)");
                     }
                         //also covers the case where characters are non-utf8
-                    else if (!common::isStringHex(endpointIdContents.str()))
+                    else if (!common::isStringHex(endpointIdString))
                     {
                         LOGERROR("EndpointID must be in hex format");
                     }
                     else
                     {
-                        return endpointIdContents.str();
+                        return endpointIdString;
                     }
                 }
                 catch (const std::exception& e)
@@ -94,32 +95,32 @@ namespace threat_scanner
                 {
                     std::stringstream customerId;
                     customerId << fs.rdbuf();
-                    auto x = customerId.str();
+                    auto custIdString = customerId.str();
 
-                    if (customerId.str().empty())
+                    if (custIdString.empty())
                     {
                         LOGERROR("CustomerID cannot be empty");
                     }
-                    else if (common::contains(customerId.str(),"\n"))
+                    else if (common::contains(custIdString,"\n"))
                     {
                         LOGERROR("CustomerID cannot contain a new line");
                     }
-                    else if (common::contains(customerId.str()," "))
+                    else if (common::contains(custIdString," "))
                     {
                         LOGERROR("CustomerID cannot contain a empty space");
                     }
-                    else if (customerId.str().length() != 32)
+                    else if (custIdString.length() != 32)
                     {
-                        LOGERROR("CustomerID should be 32 hex characters (read " << customerId.str().length() << " characters)");
+                        LOGERROR("CustomerID should be 32 hex characters (read " << custIdString.length() << " characters)");
                     }
                     //also covers the case where characters are non-utf8
-                    else if (!common::isStringHex(customerId.str()))
+                    else if (!common::isStringHex(custIdString))
                     {
                         LOGERROR("CustomerID must be in hex format");
                     }
                     else
                     {
-                        return customerId.str();
+                        return custIdString;
                     }
                 }
                 catch (const std::exception& e)
