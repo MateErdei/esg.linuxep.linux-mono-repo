@@ -3,8 +3,6 @@ add_library(common SHARED
         ErrorCodes.h
         Logger.cpp
         Logger.h
-        SigHupMonitor.cpp
-        SigHupMonitor.h
         SigIntMonitor.cpp
         SigIntMonitor.h
         SigTermMonitor.cpp
@@ -14,7 +12,8 @@ add_library(common SHARED
         PathUtils.cpp
         PathUtils.h
         PluginUtils.cpp
-        PluginUtils.h)
+        PluginUtils.h
+        ScanInterruptedException.h)
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
@@ -40,5 +39,6 @@ install(TARGETS common
 SET_TARGET_PROPERTIES(common
         PROPERTIES
         BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN"
         )
+configure_file(config.h.in config.h )

@@ -29,15 +29,23 @@ add_library(unixsocket SHARED
         threatReporterSocket/ThreatReporterClient.h
         threatDetectorSocket/Reloader.cpp threatDetectorSocket/Reloader.h)
 
+SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
+SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
+SET (BOOST_ROOT ${BOOSTPATH}/boost)
+
+find_package( Boost REQUIRED COMPONENTS locale)
+
 target_link_libraries(unixsocket  PUBLIC
+        common
         datatypes
         scanmessages
         ${STD_FILESYSTEM_IF_REQUIRED}
         ${pluginapilib}
-        ${CRYPTO_LIBRARY}
+        ${Boost_LIBRARIES}
         )
 
-target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${OPENSSL_INCLUDE_DIR})
+target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(unixsocket SYSTEM PRIVATE ${BOOSTPATH})
 
 install(TARGETS unixsocket
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
@@ -45,5 +53,5 @@ install(TARGETS unixsocket
 SET_TARGET_PROPERTIES(unixsocket
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN"
         )

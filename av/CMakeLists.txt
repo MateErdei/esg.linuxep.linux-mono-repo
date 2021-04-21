@@ -144,7 +144,7 @@ find_library(CRYPTO_LIBRARY
         NO_DEFAULT_PATH
         )
 
-set(OPENSSLCRYPTO_LIBRARY ${CRYPTO_LIBRARY})
+GET_FILENAME_COMPONENT(OPENSSLCRYPTO_LIBRARY_ABSOLUTE ${CRYPTO_LIBRARY} REALPATH)
 
 add_subdirectory(modules)
 add_subdirectory(products)

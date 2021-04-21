@@ -14,7 +14,7 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
         OUTPUT_VARIABLE libgcc_s_path)
 string(STRIP "${libgcc_s_path}" libgcc_s_path )
 
-set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${pluginapilib} ${zmqlib} ${log4cpluslib} ${protobuflib})
+set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${pluginapilib} ${zmqlib} ${log4cpluslib} ${protobuflib} ${OPENSSLCRYPTO_LIBRARY_ABSOLUTE})
 
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)

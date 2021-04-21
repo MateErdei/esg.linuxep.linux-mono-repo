@@ -25,7 +25,7 @@ target_include_directories(obfuscationimpl PUBLIC
         ${OPENSSL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR}
         )
 
-target_link_libraries(obfuscationimpl PUBLIC ${OPENSSLCRYPTO_LIBRARY} )
+target_link_libraries(obfuscationimpl PUBLIC ${CRYPTO_LIBRARY} )
 
 SET_TARGET_PROPERTIES( obfuscationimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
