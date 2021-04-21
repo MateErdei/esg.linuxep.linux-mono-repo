@@ -98,7 +98,7 @@ def combined_task(machine: tap.Machine):
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
         # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
-        tap_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-taptest')
+        tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-plugin-edr-taptest')
         machine.run ('mkdir', tap_htmldir)
         machine.run('cp', COVFILE_TAPTESTS, tap_htmldir)
         machine.run('bash', '-x', UPLOAD_SCRIPT,
