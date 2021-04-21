@@ -99,6 +99,8 @@ def combined_task(machine: tap.Machine):
 
         # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
         tap_htmldir = os.path.join(INPUTS_DIR, 'edr', 'coverage', 'sspl-plugin-edr-taptest')
+        machine.run ('mkdir', tap_htmldir)
+        machine.run('cp', COVFILE_TAPTESTS, tap_htmldir)
         machine.run('bash', '-x', UPLOAD_SCRIPT,
                     environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir})
 
