@@ -8,7 +8,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-namespace unixsocket
+namespace sspl::sophosthreatdetectorimpl
 {
     class IReloadable
     {

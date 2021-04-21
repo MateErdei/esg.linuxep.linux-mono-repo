@@ -6,13 +6,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "IMonitorable.h"
 #include "IReloadable.h"
-
-#include <unixsocket/IMonitorable.h>
 
 #include <Common/Threads/NotifyPipe.h>
 
-namespace unixsocket
+namespace sspl::sophosthreatdetectorimpl
 {
     class SigUSR1Monitor : public IMonitorable
     {

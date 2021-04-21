@@ -525,8 +525,8 @@ AV Plugin requests policies at startup
 
 
 AV Plugin restarts threat detector on customer id change
-    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
     Register Cleanup   Terminate Process  ${handle}
     Check AV Plugin Installed
 

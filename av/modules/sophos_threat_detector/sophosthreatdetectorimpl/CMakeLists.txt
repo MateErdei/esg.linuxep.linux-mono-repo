@@ -11,6 +11,12 @@ add_library(sophosthreatdetectorimpl SHARED
         SophosThreatDetectorMain.h
         Logger.cpp
         Logger.h
+        Reloader.cpp
+        Reloader.h
+        IMonitorable.h
+        IReloadable.h
+        SigUSR1Monitor.cpp
+        SigUSR1Monitor.h
         ThreatReporter.cpp
         ThreatReporter.h)
 

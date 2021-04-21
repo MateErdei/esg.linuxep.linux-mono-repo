@@ -6,9 +6,9 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <unixsocket/IMonitorable.h>
-
 #include <Common/Threads/NotifyPipe.h>
+
+#include <memory>
 
 namespace common
 {

@@ -3,6 +3,8 @@ include(GoogleTest)
 SophosAddTest(TestThreatReporter
         ../../common/LogInitializedTests.cpp
         ../../common/LogInitializedTests.h
+        TestReloader.cpp
+        TestSigUSR1Monitor.cpp
         TestThreatReporter.cpp
         PROJECTS sophosthreatdetectorimpl
         INC_DIRS

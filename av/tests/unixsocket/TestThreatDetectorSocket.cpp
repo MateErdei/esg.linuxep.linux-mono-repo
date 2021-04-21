@@ -11,14 +11,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "tests/common/WaitForEvent.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
-#include <unixsocket/SocketUtils.h>
-#include <unixsocket/threatDetectorSocket/Reloader.h>
-#include <unixsocket/threatDetectorSocket/SigUSR1Monitor.h>
 
 #include "common/AbortScanException.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <sophos_threat_detector/sophosthreatdetectorimpl/Reloader.h>
+#include <sophos_threat_detector/sophosthreatdetectorimpl/SigUSR1Monitor.h>
+#include <unixsocket/SocketUtils.h>
 
 #include <list>
 #include <memory>
@@ -65,17 +65,11 @@ namespace
     };
 }
 
-static unixsocket::IMonitorablePtr makeUSR1Monitor(const threat_scanner::IThreatScannerFactorySharedPtr& scannerFactory)
-{
-    return unixsocket::makeUSR1Monitor(scannerFactory);
-}
-
 TEST_F(TestThreatDetectorSocket, test_construction) //NOLINT
 {
     std::string socketPath = "scanning_socket";
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    EXPECT_NO_THROW(unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory,
-                        makeUSR1Monitor(scannerFactory)));
+    EXPECT_NO_THROW(unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory));
 }
 
 TEST_F(TestThreatDetectorSocket, test_running) // NOLINT
@@ -83,7 +77,7 @@ TEST_F(TestThreatDetectorSocket, test_running) // NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::string socketPath = "scanning_socket";
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory, makeUSR1Monitor(scannerFactory));
+    unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
     server.start();
     server.requestStop();
     server.join();
@@ -115,7 +109,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
 
-    unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory, makeUSR1Monitor(scannerFactory));
+    unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
     server.start();
 
     // Create client connection
@@ -146,7 +140,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
 
-    unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory, makeUSR1Monitor(scannerFactory));
+    unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
     server.start();
 
     // Create client connection
@@ -176,7 +170,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillRepeatedly(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
 
-    unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory, makeUSR1Monitor(scannerFactory));
+    unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
     server.start();
 
     // Create client connection
@@ -213,7 +207,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws) // NOLINT
             .WillOnce(Return(ByMove(std::move(scanner))))
             .WillRepeatedly([](bool)->threat_scanner::IThreatScannerPtr{ return nullptr; });
 
-    unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory, makeUSR1Monitor(scannerFactory));
+    unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory);
     server.start();
 
     // Create client connection
@@ -240,12 +234,12 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLIN
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     static const std::string THREAT_PATH = "/dev/null";
-    std::string socketPath = "scanning_socket";
+    std::string socketPath = "/tmp/scanning_socket";
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     EXPECT_CALL(*scannerFactory, createScanner(false))
         .WillRepeatedly([](bool)->threat_scanner::IThreatScannerPtr { return std::make_unique<StrictMock<MockScanner>>(); } );
 
-    unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory, makeUSR1Monitor(scannerFactory));
+    unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory);
     server.start();
 
     struct timespec clientSleepTime={0, 10'000};

@@ -299,86 +299,86 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
 }
 
-TEST_F(TestPluginAdapter, testProcessUpdatePolicy) //NOLINT
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    // Setup Mock filesystem
-    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
-
-    fs::path testDir = tmpdir();
-    const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
-    const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
-    const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
-    Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
-    EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).WillOnce(QueueStopTask(m_queueTask));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
-
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-
-    std::string policyRevID = "12345678901";
-    std::string policyXml = generateUpdatePolicyXML(policyRevID);
-
-    Task policyTask = {Task::TaskType::Policy, policyXml};
-    m_queueTask->push(policyTask);
-
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    pluginAdapter.mainLoop();
-
-    EXPECT_TRUE(appenderContains("Received Policy"));
-    EXPECT_TRUE(appenderContains("Processing policy: " + policyXml));
-}
-
-TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID) //NOLINT
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    // Setup Mock filesystem
-    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
-
-    fs::path testDir = tmpdir();
-    const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
-    const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
-    const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
-    Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
-    EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).WillOnce(QueueStopTask(m_queueTask));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
-
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-
-    std::string policy1revID = "12345678901";
-    std::string policy2revID = "12345678902";
-    std::string policy1Xml = generateUpdatePolicyXML(policy1revID, "2");
-    std::string policy2Xml = generateUpdatePolicyXML(policy2revID);
-
-    Task policy1Task = {Task::TaskType::Policy, policy1Xml};
-    Task policy2Task = {Task::TaskType::Policy, policy2Xml};
-    m_queueTask->push(policy1Task);
-    m_queueTask->push(policy2Task);
-
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    pluginAdapter.mainLoop();
-
-    EXPECT_TRUE(appenderContains("Received Policy"));
-    EXPECT_TRUE(appenderContains("Ignoring policy of incorrect type: 2"));
-    EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
-}
+//TEST_F(TestPluginAdapter, testProcessUpdatePolicy) //NOLINT
+//{
+//    UsingMemoryAppender memoryAppenderHolder(*this);
+//
+//    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
+//    MockBase* mockBaseServicePtr = mockBaseService.get();
+//    ASSERT_NE(mockBaseServicePtr, nullptr);
+//
+//    // Setup Mock filesystem
+//    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+//
+//    fs::path testDir = tmpdir();
+//    const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
+//    const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
+//    const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
+//    Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
+//    EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
+//    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
+//    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).WillOnce(QueueStopTask(m_queueTask));
+//
+//    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+//
+//    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+//
+//    std::string policyRevID = "12345678901";
+//    std::string policyXml = generateUpdatePolicyXML(policyRevID);
+//
+//    Task policyTask = {Task::TaskType::Policy, policyXml};
+//    m_queueTask->push(policyTask);
+//
+//    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+//    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+//    pluginAdapter.mainLoop();
+//
+//    EXPECT_TRUE(appenderContains("Received Policy"));
+//    EXPECT_TRUE(appenderContains("Processing policy: " + policyXml));
+//}
+//
+//TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID) //NOLINT
+//{
+//    UsingMemoryAppender memoryAppenderHolder(*this);
+//
+//    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
+//    MockBase* mockBaseServicePtr = mockBaseService.get();
+//    ASSERT_NE(mockBaseServicePtr, nullptr);
+//
+//    // Setup Mock filesystem
+//    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+//
+//    fs::path testDir = tmpdir();
+//    const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
+//    const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
+//    const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
+//    Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
+//    EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
+//    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
+//    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).WillOnce(QueueStopTask(m_queueTask));
+//
+//    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+//
+//    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+//
+//    std::string policy1revID = "12345678901";
+//    std::string policy2revID = "12345678902";
+//    std::string policy1Xml = generateUpdatePolicyXML(policy1revID, "2");
+//    std::string policy2Xml = generateUpdatePolicyXML(policy2revID);
+//
+//    Task policy1Task = {Task::TaskType::Policy, policy1Xml};
+//    Task policy2Task = {Task::TaskType::Policy, policy2Xml};
+//    m_queueTask->push(policy1Task);
+//    m_queueTask->push(policy2Task);
+//
+//    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+//    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+//    pluginAdapter.mainLoop();
+//
+//    EXPECT_TRUE(appenderContains("Received Policy"));
+//    EXPECT_TRUE(appenderContains("Ignoring policy of incorrect type: 2"));
+//    EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
+//}
 
 TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
 {

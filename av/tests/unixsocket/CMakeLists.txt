@@ -48,8 +48,6 @@ SophosAddTest(TestThreatDetectorSocket
         ../common/LogInitializedTests.cpp
         TestScanningServerConnectionThread.cpp
         TestThreatDetectorSocket.cpp
-        TestSigUSR1Monitor.cpp
-        TestReloader.cpp
         PROJECTS unixsocket
         INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
         )

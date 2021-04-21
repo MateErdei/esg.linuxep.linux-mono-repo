@@ -9,7 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define AUTO_FD_IMPLICIT_INT
 
 #include "IMessageCallback.h"
-#include "IMonitorable.h"
 
 #include "datatypes/AutoFd.h"
 #include "datatypes/sophos_filesystem.h"
@@ -40,7 +39,7 @@ namespace unixsocket
          * @param mode
          * @param monitorable Optional object to monitor and trigger in pselect
          */
-        explicit BaseServerSocket(const sophos_filesystem::path& path, mode_t mode, IMonitorablePtr monitorable = nullptr);
+        explicit BaseServerSocket(const sophos_filesystem::path& path, mode_t mode);
 
     public:
         void run() override;
@@ -56,7 +55,6 @@ namespace unixsocket
 
     private:
         std::string m_socketPath;
-        IMonitorablePtr m_monitorable;
         int m_returnCode = common::E_CLEAN_SUCCESS;
 
     protected:

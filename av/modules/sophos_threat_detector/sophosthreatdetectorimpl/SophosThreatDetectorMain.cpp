@@ -6,8 +6,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SophosThreatDetectorMain.h"
 #include "Logger.h"
+#include "Reloader.h"
+#include "SigUSR1Monitor.h"
+#include "ThreatReporter.h"
 
 #include "common/Define.h"
+#include "common/FDUtils.h"
+#include "common/SigTermMonitor.h"
 #ifdef USE_SUSI
 #include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
 #else
@@ -22,9 +27,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
 #include <linux/securebits.h>
-#include <sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h>
-#include <unixsocket/threatDetectorSocket/Reloader.h>
-#include <unixsocket/threatDetectorSocket/SigUSR1Monitor.h>
 
 #include <fstream>
 #include <string>
@@ -251,10 +253,6 @@ static fs::path threat_reporter_socket(const fs::path& pluginInstall)
 
 static int inner_main()
 {
-    auto reloader = std::make_shared<unixsocket::Reloader>();
-    LOGINFO("Starting USR1 monitor");
-    auto usr1Monitor =  std::make_shared<unixsocket::SigUSR1Monitor>(reloader); // Create monitor before loading SUSI
-
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
     fs::path chrootPath = pluginInstall / "chroot";
@@ -338,14 +336,70 @@ static int inner_main()
 
     scannerFactory->update(); // always force an update during start-up
 
-    reloader->reset(scannerFactory); // Actually use the scannerFactory for updates
-    reloader.reset(); // Don't need to keep a reference to the reloader any more
+    auto reloader = std::make_shared<Reloader>(scannerFactory);
 
     // Don't keep references to the scannerFactory or use1Monitor any longer than required
-    unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, std::move(scannerFactory), std::move(usr1Monitor));
-    server.run();
+    unixsocket::ScanningServerSocket server(
+        scanningSocketPath, 0666, std::move(scannerFactory));
+    server.start();
 
-    if (server.getReturnCode() == common::E_SIGTERM)
+    common::SigTermMonitor sigTermMonitor;
+    LOGINFO("Starting USR1 monitor");
+    SigUSR1Monitor usr1Monitor(reloader); // Create monitor before loading SUSI
+
+    int returnCode = common::E_CLEAN_SUCCESS;
+
+    fd_set readFDs;
+    FD_ZERO(&readFDs);
+    int max = -1;
+
+    max = FDUtils::addFD(&readFDs, sigTermMonitor.monitorFd(), max);
+    max = FDUtils::addFD(&readFDs, usr1Monitor.monitorFd(), max);
+
+    while (true)
+    {
+        if (sigTermMonitor.triggered())
+        {
+            LOGERROR("Sophos Threat Detector received SIGTERM");
+            returnCode = common::E_SIGTERM;
+            break;
+        }
+
+        fd_set tempRead = readFDs;
+
+        //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
+
+        if (activity < 0)
+        {
+            int error = errno;
+            if (error == EINTR)
+            {
+                LOGDEBUG("Ignoring EINTR from pselect");
+                continue;
+            }
+
+            LOGERROR("Failed socket, closing. Error: " << strerror(error)<< " (" << error << ')');
+            server.requestStop();
+            break;
+        }
+
+//        if (FDUtils::fd_isset(exitFD, &tempRead))
+//        {
+//            LOGDEBUG("Closing socket");
+//            server.requestStop();
+//            break;
+//        }
+
+        if (FDUtils::fd_isset(usr1Monitor.monitorFd(), &tempRead))
+        {
+            usr1Monitor.triggered(); // Responsible for clearing monitorFd...
+            server.requestStop();
+            break;
+        }
+    }
+
+    if (returnCode == common::E_SIGTERM)
     {
         LOGINFO("Sophos Threat Detector is exiting because it received signal SIGTERM");
     }

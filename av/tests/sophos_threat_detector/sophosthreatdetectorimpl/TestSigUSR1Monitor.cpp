@@ -4,9 +4,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "UnixSocketMemoryAppenderUsingTests.h"
-
-#include "unixsocket/threatDetectorSocket/SigUSR1Monitor.h"
+#include "sophos_threat_detector/sophosthreatdetectorimpl/SigUSR1Monitor.h"
+#include "../../common/LogInitializedTests.h"
 
 #include <gtest/gtest.h>
 
@@ -25,10 +24,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    class TestSigUSR1Monitor: public UnixSocketMemoryAppenderUsingTests
+    class TestSigUSR1Monitor : public LogInitializedTests
     {};
 
-    class FakeReloadable : public unixsocket::IReloadable
+    class FakeReloadable : public sspl::sophosthreatdetectorimpl::IReloadable
     {
     public:
         int m_reloadCount = 0;
@@ -42,13 +41,13 @@ namespace
 TEST_F(TestSigUSR1Monitor, testConstruction) // NOLINT
 {
     auto reloadable = std::make_shared<FakeReloadable>();
-    unixsocket::SigUSR1Monitor monitor(reloadable);
+    sspl::sophosthreatdetectorimpl::SigUSR1Monitor monitor(reloadable);
 }
 
 TEST_F(TestSigUSR1Monitor, testSignal) // NOLINT
 {
     auto reloadable = std::make_shared<FakeReloadable>();
-    unixsocket::SigUSR1Monitor monitor(reloadable);
+    sspl::sophosthreatdetectorimpl::SigUSR1Monitor monitor(reloadable);
     ::kill(::getpid(), SIGUSR1);
     // notify pipe not exposed so need to check the fd
     int readFd = monitor.monitorFd();
@@ -70,7 +69,7 @@ TEST_F(TestSigUSR1Monitor, testSignal) // NOLINT
 TEST_F(TestSigUSR1Monitor, triggerCallsReload) // NOLINT
 {
     auto reloadable = std::make_shared<FakeReloadable>();
-    unixsocket::SigUSR1Monitor monitor(reloadable);
+    sspl::sophosthreatdetectorimpl::SigUSR1Monitor monitor(reloadable);
     monitor.triggered();
     EXPECT_EQ(reloadable->m_reloadCount, 1);
 }

@@ -9,7 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <common/FDUtils.h>
-#include <common/SigTermMonitor.h>
 
 #include <stdexcept>
 
@@ -37,8 +36,8 @@ static void throwIfBadFd(int fd, const std::string& message)
     throw std::runtime_error(message);
 }
 
-unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, const mode_t mode, IMonitorablePtr monitorable)
-    : m_socketPath(path), m_monitorable(std::move(monitorable))
+unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, const mode_t mode)
+    : m_socketPath(path)
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
     throwIfBadFd(m_socket_fd, "Failed to create socket");
@@ -65,19 +64,12 @@ unixsocket::BaseServerSocket::~BaseServerSocket()
 void unixsocket::BaseServerSocket::run()
 {
     int exitFD = m_notifyPipe.readFd();
-    common::SigTermMonitor sigTermMonitor;
 
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
     max = FDUtils::addFD(&readFDs, exitFD, max);
     max = FDUtils::addFD(&readFDs, m_socket_fd, max);
-    max = FDUtils::addFD(&readFDs, sigTermMonitor.monitorFd(), max);
-
-    if (m_monitorable)
-    {
-        max = FDUtils::addFD(&readFDs, m_monitorable->monitorFd(), max);
-    }
 
     int ret = ::listen(m_socket_fd, 2);
     if (ret != 0)
@@ -93,13 +85,6 @@ void unixsocket::BaseServerSocket::run()
 
     while (!terminate)
     {
-        if (sigTermMonitor.triggered())
-        {
-            LOGERROR("Sophos Threat Detector received SIGTERM");
-            m_returnCode = common::E_SIGTERM;
-            break;
-        }
-
         fd_set tempRead = readFDs;
 
         //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
@@ -139,11 +124,6 @@ void unixsocket::BaseServerSocket::run()
             {
                 terminate = handleConnection(client_socket);
             }
-        }
-
-        if (m_monitorable && FDUtils::fd_isset(m_monitorable->monitorFd(), &tempRead))
-        {
-            m_monitorable->triggered(); // Responsible for clearing monitorFd...
         }
     }
 

@@ -6,7 +6,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include "Reloader.h"
 
-void unixsocket::Reloader::reload()
+void sspl::sophosthreatdetectorimpl::Reloader::reload()
 {
     if (!m_scannerFactory)
     {

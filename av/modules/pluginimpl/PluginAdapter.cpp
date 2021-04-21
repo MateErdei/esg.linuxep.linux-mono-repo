@@ -171,6 +171,13 @@ namespace Plugin
 
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
+        auto savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap);
+        if (savPolicyHasChanged)
+        {
+            LOGDEBUG("Reloading susi as startup configuration changed");
+            // TODO: m_threatDetector->configuration_changed();
+        }
+
         std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
         m_callback->sendStatus(revID);
     }

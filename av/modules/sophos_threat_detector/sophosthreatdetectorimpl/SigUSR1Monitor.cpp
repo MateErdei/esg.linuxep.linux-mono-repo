@@ -6,16 +6,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SigUSR1Monitor.h"
 
-#include "../Logger.h"
+#include "Logger.h"
 
 #include <cassert>
 #include <csignal>
 
-int unixsocket::SigUSR1Monitor::monitorFd()
+using namespace sspl::sophosthreatdetectorimpl;
+
+int SigUSR1Monitor::monitorFd()
 {
     return m_pipe.readFd();
 }
-void unixsocket::SigUSR1Monitor::triggered()
+void SigUSR1Monitor::triggered()
 {
     while (m_pipe.notified())
     {
@@ -43,7 +45,7 @@ static void signal_handler(int)
     }
 }
 
-unixsocket::SigUSR1Monitor::SigUSR1Monitor(unixsocket::IReloadablePtr reloadable)
+SigUSR1Monitor::SigUSR1Monitor(IReloadablePtr reloadable)
     : m_reloader(std::move(reloadable))
 {
     // Setup signal handler
@@ -58,7 +60,7 @@ unixsocket::SigUSR1Monitor::SigUSR1Monitor(unixsocket::IReloadablePtr reloadable
     GL_USR1_MONITOR_PIPE = m_pipe.writeFd();
 }
 
-unixsocket::SigUSR1Monitor::~SigUSR1Monitor()
+SigUSR1Monitor::~SigUSR1Monitor()
 {
     // clear signal handler
     GL_USR1_MONITOR_PIPE = -1;

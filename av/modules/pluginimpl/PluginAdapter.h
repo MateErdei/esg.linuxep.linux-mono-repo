@@ -10,7 +10,6 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "PolicyProcessor.h"
 #include "QueueTask.h"
 
-#include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
