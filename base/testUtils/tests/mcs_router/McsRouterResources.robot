@@ -93,12 +93,14 @@ Generate Local Fake Cloud Certificates
     # by default.
     Run Keyword And Ignore Error  Run Process    chmod  a+x  /home/jenkins  #RHEL and CentOS
     Run Keyword And Ignore Error  Run Process    chmod  a+r  -R  /home/bullseye  #RHEL and CentOS
+    Run Keyword And Ignore Error  Run Process    chmod  a+x  /home/bullseye  #RHEL and CentOS
     Run Keyword And Ignore Error  Run Process    chmod  a+x  /root          #Amazon
 
     File Should Exist  ${SUPPORT_FILES}/CloudAutomation/server-private.pem
     File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
     Run Keyword And Ignore Error  Run Process    chmod  a+r  ${SUPPORT_FILES}/CloudAutomation/server-private.pem
     Run Keyword And Ignore Error  Run Process    chmod  a+r  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    Run Keyword And Ignore Error  Run Process    chmod  a+w  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
     Run Keyword And Ignore Error  Run Process    chown  bullseye:bullseye  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
     ${result} =  Run Process    ls  -al  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
     Log 	${result.stdout}
