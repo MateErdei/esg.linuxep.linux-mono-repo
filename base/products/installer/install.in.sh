@@ -83,6 +83,7 @@ function isServiceInstalled()
 
 function createWatchdogSystemdService()
 {
+    echo  "Creating Watchdog service file"
 
     service_content=$(cat <<EOF
 [Service]
@@ -117,9 +118,10 @@ EOF
     then
       current_service_content=$(<${STARTUP_DIR}/sophos-spl.service)
     fi
-
+    echo  "Checking if need to update sophos-spl service file."
     if [[ "${service_content}" != "${current_service_content}" || $FORCE_INSTALL ]]
     then
+        echo "Creating sophos-spl.service file"
         cat > ${STARTUP_DIR}/sophos-spl.service << EOF
 ${service_content}
 EOF
@@ -640,8 +642,11 @@ then
     fi
 fi
 
+echo "Checking if need to generate service files"
+
 if changed_or_added install.sh ${DIST} ${PRODUCT_LINE_ID} || $FORCE_INSALL
 then
+    echo "Generating Systemd service files."
     createUpdaterSystemdService
     createWatchdogSystemdService
 fi
