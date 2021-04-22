@@ -435,7 +435,7 @@
             "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
             "mkdir -p '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
             "cp /opt/sspl/sav* '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
-            "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " ", {"Ref": "RobotArgs"}, " >> /tmp/cloudFormationInit.log 2>&1\n",
+            "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
             "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
             "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
             "poweroff\n"
@@ -505,7 +505,7 @@
           "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
           "mkdir -p '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
           "cp /opt/sspl/sav* '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
-          "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " ", {"Ref": "RobotArgs"}, " >> /tmp/cloudFormationInit.log 2>&1\n",
+          "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
           "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
           "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
           "poweroff\n"
@@ -572,7 +572,7 @@
             "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
             "mkdir -p '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
             "cp /opt/sspl/sav* '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
-            "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " ", {"Ref": "RobotArgs"}, " >> /tmp/cloudFormationInit.log 2>&1\n",
+            "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@  >> /tmp/cloudFormationInit.log 2>&1\n",
             "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
             "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
             "poweroff\n"
@@ -639,7 +639,7 @@
           "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
           "mkdir -p '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
           "cp /opt/sspl/sav* '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
-          "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " ", {"Ref": "RobotArgs"}, " /tmp/cloudFormationInit.log 2>&1\n",
+          "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ /tmp/cloudFormationInit.log 2>&1\n",
           "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
           "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
           "poweroff\n"
@@ -704,7 +704,7 @@
                 "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
                 "mkdir -p '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
                 "cp /opt/sspl/sav* '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
-                "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " ", {"Ref": "RobotArgs"}, " >> /tmp/cloudFormationInit.log 2>&1\n",
+                "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
                 "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
                 "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
                 "poweroff\n"

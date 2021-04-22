@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 JOB_ID=$1
 shift
 
@@ -8,6 +10,12 @@ IDENTITFIER=`hostname`-`date +%F`-`date +%H``date +%M`
 
 ## Start deleting old stacks
 aws cloudformation delete-stack --stack-name $STACK --region eu-west-1 || failure "Unable to delete-stack: $?"
+
+function failure()
+{
+    echo "$@"
+    exit 1
+}
 
 function compress()
 {
@@ -18,7 +26,9 @@ function compress()
 
 TEMPLATE=sspl-system.template
 ## Copy to template to s3
-compress $TEMPLATE template.temp
+ARGS="$@"
+sed "s:@ARGSGOHERE@:${ARGS}:g" $TEMPLATE > $TEMPLATE.with_args
+compress $TEMPLATE.with_args template.temp
 aws s3 cp template.temp "s3://sspl-testbucket/templates/$STACK.template" \
     || failure "Unable to copy $TEMPLATE to s3"
 rm -f template.temp
@@ -128,7 +138,6 @@ do
                      ParameterKey=RunOne,ParameterValue="$RUN_ONE" \
                      ParameterKey=StackName,ParameterValue="${STACK}" \
                      ParameterKey=TarName,ParameterValue="${JOB_ID}" \
-                     "ParameterKey=RobotArgs,ParameterValue=$@" \
                      --output=text 2>&1)
 
     echo "Stack ID == ${stack_id}"
