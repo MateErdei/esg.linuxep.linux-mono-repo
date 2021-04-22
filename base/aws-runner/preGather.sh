@@ -55,12 +55,6 @@ fi
 
 ## Create template
 
-function compress()
-{
-    python -c "import json,sys;i=open(sys.argv[1]);o=open(sys.argv[2],'w');json.dump(json.load(i),o,separators=(',',':'))" \
-        "$1" \
-        "$2" || failure "Unable to compress template $1: $?"
-}
 
 TAR_DESTINATION_FOLDER="s3://sspl-testbucket/sspl"
 ## Upload test tarfile to s3

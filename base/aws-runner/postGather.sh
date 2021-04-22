@@ -9,6 +9,13 @@ IDENTITFIER=`hostname`-`date +%F`-`date +%H``date +%M`
 ## Start deleting old stacks
 aws cloudformation delete-stack --stack-name $STACK --region eu-west-1 || failure "Unable to delete-stack: $?"
 
+function compress()
+{
+    python -c "import json,sys;i=open(sys.argv[1]);o=open(sys.argv[2],'w');json.dump(json.load(i),o,separators=(',',':'))" \
+        "$1" \
+        "$2" || failure "Unable to compress template $1: $?"
+}
+
 TEMPLATE=sspl-system.template
 ## Copy to template to s3
 compress $TEMPLATE template.temp
