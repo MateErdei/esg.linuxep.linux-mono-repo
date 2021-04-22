@@ -63,8 +63,7 @@ function compress()
 
 TEMPLATE=sspl-system.template
 ## Copy to template to s3
-ARGS="$@"
-sed "s:@ARGSGOHERE@:${ARGS}:g" $TEMPLATE > $TEMPLATE.with_args
+python ./combineTemplateJson.py
 compress $TEMPLATE.with_args template.temp
 aws s3 cp template.temp "s3://sspl-testbucket/templates/$STACK.template" \
     || failure "Unable to copy $TEMPLATE to s3"
