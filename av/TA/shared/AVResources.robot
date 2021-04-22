@@ -638,3 +638,16 @@ Get ALC Policy
     ...   </AUConfigurations>
     ${policyContent} =   Replace Variables   ${policyContent}
     [Return]   ${policyContent}
+
+Get SAV Policy
+    [Arguments]  ${revid}=${EMPTY}  ${sxlLookupEnabled}=A
+    ${policyContent} =  Catenate   SEPARATOR=${\n}
+    ...   <?xml version="1.0"?>
+    ...   <config>
+    ...       <csc:Comp RevID="${revid}" policyType="2"/>
+    ...       <detectionFeedback>
+    ...           <sendData>${sxlLookupEnabled}</sendData>
+    ...       </detectionFeedback>
+    ...   </config>
+    ${policyContent} =   Replace Variables   ${policyContent}
+    [Return]   ${policyContent}

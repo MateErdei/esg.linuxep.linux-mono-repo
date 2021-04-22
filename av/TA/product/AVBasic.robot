@@ -451,8 +451,9 @@ AV Plugin Gets Customer ID
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
-    Register Cleanup   Terminate Process  ${handle}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
 
     ${policyContent} =   Get ALC Policy   userpassword=A  username=B
@@ -469,9 +470,6 @@ AV Plugin Gets Customer ID
     ${customerId2} =   Get File   ${customerIdFile2}
     Should Be Equal   ${customerId2}   ${expectedId}
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 
 AV Plugin Gets Customer ID from Obfuscated Creds
     ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
@@ -479,8 +477,9 @@ AV Plugin Gets Customer ID from Obfuscated Creds
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
-    Register Cleanup   Terminate Process  ${handle}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
 
     ${policyContent} =   Get ALC Policy
@@ -501,16 +500,15 @@ AV Plugin Gets Customer ID from Obfuscated Creds
     ${customerId2} =   Get File   ${customerIdFile2}
     Should Be Equal   ${customerId2}   ${expectedId}
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 
 AV Plugin Gets Sxl Lookup Setting From SAV Policy
     ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
     Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
 
-    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
-    Register Cleanup   Terminate Process  ${handle}
+    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
+    ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
 
     ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
@@ -525,8 +523,9 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
 
 AV Plugin requests policies at startup
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
-    Register Cleanup   Terminate Process  ${handle}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
 
     Wait Until Keyword Succeeds
@@ -567,56 +566,6 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
-
-
-AV Plugin restarts threat detector on susi startup settings change
-    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
-    Register Cleanup   Terminate Process  ${handle}
-    Check AV Plugin Installed
-
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    ${pid} =   Record Sophos Threat Detector PID
-
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
-    Log   ${policyContent}
-    Send Plugin Policy  av  sav  ${policyContent}
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
-    Check Sophos Threat Detector has different PID   ${pid}
-
-    # don't change lookup setting, threat_detector should not restart
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    ${pid} =   Record Sophos Threat Detector PID
-
-    ${id2} =   Generate Random String
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
-    Log   ${policyContent}
-    Send Plugin Policy  av  sav  ${policyContent}
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Run Keyword And Expect Error
-    ...   Keyword 'AV Plugin Log Contains With Offset' failed after retrying for 5 seconds.*
-    ...   Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=5
-    Check Sophos Threat Detector has same PID   ${pid}
-
-    # change lookup setting, threat_detector should restart
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    ${pid} =   Record Sophos Threat Detector PID
-
-    ${id3} =   Generate Random String
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
-    Log   ${policyContent}
-    Send Plugin Policy  av  sav  ${policyContent}
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
-    Check Sophos Threat Detector has different PID   ${pid}
 
 
 *** Keywords ***
@@ -679,16 +628,3 @@ Test Remote Share
 
     Terminate Process  ${av_plugin_handle}
     Terminate Process  ${threat_detector_handle}
-
-Get SAV Policy
-    [Arguments]  ${revid}=${EMPTY}  ${sxlLookupEnabled}=A
-    ${policyContent} =  Catenate   SEPARATOR=${\n}
-    ...   <?xml version="1.0"?>
-    ...   <config>
-    ...       <csc:Comp RevID="${revid}" policyType="2"/>
-    ...       <detectionFeedback>
-    ...           <sendData>${sxlLookupEnabled}</sendData>
-    ...       </detectionFeedback>
-    ...   </config>
-    ${policyContent} =   Replace Variables   ${policyContent}
-    [Return]   ${policyContent}

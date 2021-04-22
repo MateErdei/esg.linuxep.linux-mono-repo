@@ -627,3 +627,52 @@ AV Plugin restarts threat detector on customer id change
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
     Check Sophos Threat Detector has different PID   ${pid}
+
+
+AV Plugin restarts threat detector on susi startup settings change
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
+    Log   ${policyContent}
+    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
+    Send Sav Policy To Base  tempSavPolicy.xml
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
+    Check Sophos Threat Detector has different PID   ${pid}
+
+    # don't change lookup setting, threat_detector should not restart
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${id2} =   Generate Random String
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
+    Log   ${policyContent}
+    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
+    Send Sav Policy To Base  tempSavPolicy.xml
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Run Keyword And Expect Error
+    ...   Keyword 'AV Plugin Log Contains With Offset' failed after retrying for 5 seconds.*
+    ...   Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=5
+    Check Sophos Threat Detector has same PID   ${pid}
+
+    # change lookup setting, threat_detector should restart
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${id3} =   Generate Random String
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
+    Log   ${policyContent}
+    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
+    Send Sav Policy To Base  tempSavPolicy.xml
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
+    Check Sophos Threat Detector has different PID   ${pid}
