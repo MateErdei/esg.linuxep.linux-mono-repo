@@ -96,6 +96,8 @@ Generate Local Fake Cloud Certificates
 
     File Should Exist  ${SUPPORT_FILES}/CloudAutomation/server-private.pem
     File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    Run Keyword And Ignore Error  Run Process    chmod  a+r  ${SUPPORT_FILES}/CloudAutomation/server-private.pem
+    Run Keyword And Ignore Error  Run Process    chmod  a+r  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
 
 Check MCS Router Running
     ${pid} =  Check MCS Router Process Running  require_running=True
