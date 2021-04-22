@@ -118,7 +118,7 @@ EOF
       current_service_content=$(<${STARTUP_DIR}/sophos-spl.service)
     fi
 
-    if [[ "${service_content}" != "${current_service_content}" ]]
+    if [[ "${service_content}" != "${current_service_content}" ]] || [[ $FORCE_INSTALL ]]
     then
         cat > ${STARTUP_DIR}/sophos-spl.service << EOF
 ${service_content}
