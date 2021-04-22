@@ -19,6 +19,7 @@ Resource    ../GeneralTeardownResource.robot
 Resource    EDRResources.robot
 
 Default Tags   THIN_INSTALLER  OSTIA  EDR_PLUGIN  FAKE_CLOUD
+Force Tags  LOAD2
 
 *** Variables ***
 ${BaseAndEdrVUTPolicy}                ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml

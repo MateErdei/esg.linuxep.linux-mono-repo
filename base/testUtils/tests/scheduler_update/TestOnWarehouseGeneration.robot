@@ -14,6 +14,7 @@ Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 Default Tags   SULDOWNLOADER
+Force Tags  LOAD6
 
 *** Variables ***
 ${tmpdir}                       ${SOPHOS_INSTALL}/tmp/SDT

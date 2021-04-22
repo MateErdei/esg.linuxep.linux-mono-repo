@@ -1,6 +1,7 @@
 *** Settings ***
 Documentation    Check UpdateScheduler Plugin using real SulDownloader and the Fake Warehouse to prove it works.
 Default Tags   UPDATE_SCHEDULER  OSTIA
+Force Tags  LOAD6
 
 
 Test Setup      Setup For Test

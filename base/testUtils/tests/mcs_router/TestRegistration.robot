@@ -24,6 +24,7 @@ Test Teardown    Run Keywords
 ...              Restore Version Ini
 
 Default Tags  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER
+Force Tags  LOAD3
 
 *** Test Case ***
 Successful Register With Cloud And Correct Status Is Sent Up In Amazon

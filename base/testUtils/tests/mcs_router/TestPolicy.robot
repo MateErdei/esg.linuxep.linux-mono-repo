@@ -11,6 +11,7 @@ Suite Teardown    Run Keywords
 ...               Uninstall SSPL Unless Cleanup Disabled
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  REGISTRATION
+Force Tags  LOAD3
 
 *** Test Case ***
 # Note that our local cloud server does not support fragmented policy.

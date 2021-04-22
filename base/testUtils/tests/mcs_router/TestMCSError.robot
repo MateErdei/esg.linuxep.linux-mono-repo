@@ -11,6 +11,7 @@ Test Teardown    Run Keywords
 ...			     Stop System Watchdog
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
+Force Tags  LOAD3
 
 *** Test Case ***
 MCS responds correctly to empty Cloud Reponse

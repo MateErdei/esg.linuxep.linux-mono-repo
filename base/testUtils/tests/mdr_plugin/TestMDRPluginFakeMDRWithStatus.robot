@@ -13,6 +13,7 @@ Test Setup     MDR Test Setup
 Test Teardown  MDR Status Test Teardown
 
 Default Tags   MDR_PLUGIN
+Force Tags  LOAD4
 
 *** Variables ***
 

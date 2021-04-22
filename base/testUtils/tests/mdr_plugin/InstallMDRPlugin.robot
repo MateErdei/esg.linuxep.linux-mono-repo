@@ -20,6 +20,7 @@ Test Setup     MDR Test Setup
 Test Teardown  Test Teardown
 
 Default Tags   MDR_PLUGIN
+Force Tags  LOAD4
 
 
 *** Test Cases ***

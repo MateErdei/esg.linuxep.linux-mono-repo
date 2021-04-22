@@ -18,6 +18,7 @@ Test Teardown    Run Keywords
 ...              Remove Environment Variable    http_proxy
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
+Force Tags  LOAD3
 
 *** Variables ***
 ${push_server_address}  localhost:4443

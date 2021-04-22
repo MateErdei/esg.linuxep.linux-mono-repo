@@ -21,6 +21,7 @@ Suite Setup   EDR Telemetry Suite Setup
 Suite Teardown   EDR Telemetry Suite Teardown
 
 Default Tags   EDR_PLUGIN  TELEMETRY
+Force Tags  LOAD2
 
 
 *** Test Cases ***

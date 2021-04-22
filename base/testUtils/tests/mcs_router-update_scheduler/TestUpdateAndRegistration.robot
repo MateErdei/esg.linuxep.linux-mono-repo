@@ -26,6 +26,7 @@ Suite Setup    Local Suite Setup
 Suite Teardown  Local Suite Teardown
 
 Default Tags  MCS  FAKE_CLOUD  UPDATE_SCHEDULER  MCS_ROUTER  OSTIA
+Force Tags  LOAD4
 
 *** Variables ***
 ${tmpdir}                       ${SOPHOS_INSTALL}/tmp/SDT

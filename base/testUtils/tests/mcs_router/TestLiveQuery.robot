@@ -18,6 +18,7 @@ Suite Teardown    Run Keywords
 
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS
+Force Tags  LOAD3
 
 *** Test Case ***
 Query can be Sent From Fake Cloud and Received by MCS Router

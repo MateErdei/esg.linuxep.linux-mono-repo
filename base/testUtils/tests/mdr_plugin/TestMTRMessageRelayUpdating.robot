@@ -22,6 +22,7 @@ Test Setup       Setup MTR Message Relay Updating Test
 Test Teardown    Teardown MTR Message Relay Updating Test
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  MDR_PLUGIN  REGISTRATION
+Force Tags  LOAD6
 
 
 

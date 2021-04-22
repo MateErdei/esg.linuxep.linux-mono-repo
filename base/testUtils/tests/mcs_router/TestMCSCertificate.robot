@@ -9,6 +9,7 @@ Test Teardown  Run Keywords
 ...            MCSRouter Default Test Teardown
 
 Default Tags   MCS_ROUTER
+Force Tags  LOAD3
 
 *** Keywords ***
 Setup

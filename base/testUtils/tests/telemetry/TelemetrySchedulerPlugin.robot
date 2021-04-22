@@ -10,6 +10,7 @@ Test Setup       Telemetry Scheduler Plugin Test Setup
 Test Teardown    Telemetry Scheduler Plugin Test Teardown
 
 Default Tags  TELEMETRY SCHEDULER
+Force Tags  LOAD6
 
 *** Keywords ***
 ### Suite Cleanup

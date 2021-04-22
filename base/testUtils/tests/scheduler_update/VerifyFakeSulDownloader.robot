@@ -13,6 +13,7 @@ Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 
 Default Tags  SULDOWNLOADER
+Force Tags  LOAD6
 
 *** Test Cases ***
 FakeSulDownloader Setup Done File

@@ -7,6 +7,7 @@ Library    Process
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/SulDownloader.py
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Force Tags  LOAD6
 
 *** Keywords ***
 

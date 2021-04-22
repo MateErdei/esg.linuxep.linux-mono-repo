@@ -13,6 +13,8 @@ Test Teardown    Registration 401 Test Teardown
 Suite Setup      Setup MCS Tests
 Suite Teardown   Uninstall SSPL Unless Cleanup Disabled
 
+Force Tags  LOAD2
+
 *** Keywords ***
 Registration 401 Test Teardown
     Stop 401 Server  ${serverHandle}

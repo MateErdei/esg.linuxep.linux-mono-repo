@@ -15,6 +15,8 @@ Resource    EDRResources.robot
 Resource    ../mdr_plugin/MDRResources.robot
 
 Default Tags   EDR_PLUGIN  FAKE_CLOUD
+Force Tags  LOAD1
+
 *** Test Cases ***
 Flags Are Only Sent To EDR and Not MTR
     Install MDR Directly

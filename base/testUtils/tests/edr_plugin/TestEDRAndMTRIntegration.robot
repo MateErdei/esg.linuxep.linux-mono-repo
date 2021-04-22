@@ -8,6 +8,7 @@ Library     ${LIBS_DIRECTORY}/MTRService.py
 Resource    EDRResources.robot
 
 Default Tags   EDR_PLUGIN   MDR_PLUGIN
+Force Tags  LOAD1
 
 Test Timeout    10 minutes
 

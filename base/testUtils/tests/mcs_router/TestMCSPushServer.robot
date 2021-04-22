@@ -10,6 +10,7 @@ Resource  ../GeneralTeardownResource.robot
 Test Teardown  Push Server Test Teardown
 
 Default Tags  FAKE_CLOUD
+Force Tags  LOAD3
 
 *** Test Case ***
 MCSPushServer Can Be Used To Send Push Server Message

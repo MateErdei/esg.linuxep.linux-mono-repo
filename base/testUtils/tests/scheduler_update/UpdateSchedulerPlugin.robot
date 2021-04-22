@@ -21,6 +21,8 @@ Resource  SchedulerUpdateResources.robot
 Resource  ../GeneralTeardownResource.robot
 
 Default Tags  UPDATE_SCHEDULER
+Force Tags  LOAD5
+
 
 
 *** Variables ***

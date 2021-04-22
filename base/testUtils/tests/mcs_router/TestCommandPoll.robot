@@ -16,6 +16,7 @@ Suite Teardown    Run Keywords
 
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
+Force Tags  LOAD2
 
 *** Test Case ***
 Command Poll Sent

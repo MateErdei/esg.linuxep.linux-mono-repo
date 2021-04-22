@@ -17,6 +17,7 @@ Suite Setup   Setup Ostia Warehouse Environment
 Suite Teardown   Teardown Ostia Warehouse Environment
 
 Default Tags   MDR_PLUGIN   MANAGEMENT_AGENT  OSTIA  WAREHOUSE_SYNC
+Force Tags  LOAD4
 
 *** Variables ***
 ${MDR_PLUGIN_PATH}  ${SOPHOS_INSTALL}/plugins/mtr/

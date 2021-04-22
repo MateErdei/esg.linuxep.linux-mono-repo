@@ -21,6 +21,7 @@ Test Setup       Telemetry Test Setup
 Test Teardown    Telemetry Test Teardown
 
 Default Tags  TELEMETRY
+Force Tags  LOAD7
 
 
 *** Keywords ***

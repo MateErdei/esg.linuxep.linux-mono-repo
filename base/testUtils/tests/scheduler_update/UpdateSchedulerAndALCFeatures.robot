@@ -18,6 +18,7 @@ Resource  ../scheduler_update/SchedulerUpdateResources.robot
 
 
 Default Tags   SULDOWNLOADER  UPDATE_SCHEDULER
+Force Tags  LOAD6
 
 *** Variables ***
 ${MDR_RIGID_NAME}   ServerProtectionLinux-Plugin-MDR

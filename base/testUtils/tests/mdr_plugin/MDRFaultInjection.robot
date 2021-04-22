@@ -20,6 +20,7 @@ Test Setup     Local Test Setup
 Test Teardown  Test Teardown
 
 Default Tags   MDR_PLUGIN  FAULTINJECTION
+Force Tags  LOAD4
 
 *** Variables ***
 

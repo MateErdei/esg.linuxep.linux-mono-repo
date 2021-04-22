@@ -19,6 +19,7 @@ Test Teardown    Run Keywords
 ...              Override LogConf File as Global Level  INFO
 
 Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER
+Force Tags  LOAD3
 
 *** Test Case ***
 MCS policy Can Control Server URL

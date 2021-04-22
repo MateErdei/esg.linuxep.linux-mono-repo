@@ -12,6 +12,7 @@ Suite Setup  Setup Ostia Warehouse Environment
 Suite Teardown  Teardown Ostia Warehouse Environment
 
 Default Tags   FAULTINJECTION   OSTIA   MDR_PLUGIN
+Force Tags  LOAD4
 
 *** Variables ***
 ${MDR_PLUGIN_POLICY_PATH}   ${SOPHOS_INSTALL}/plugins/mtr/var/policy/mtr.xml

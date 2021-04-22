@@ -12,3 +12,5 @@ Library    OperatingSystem
 
 Resource    ManagementAgentResources.robot
 Resource    ../GeneralTeardownResource.robot
+
+Force Tags  LOAD2

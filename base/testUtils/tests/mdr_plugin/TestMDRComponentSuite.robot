@@ -12,6 +12,7 @@ Test Setup     Test Setup
 Test Teardown  Test Teardown
 
 Default Tags   MDR_PLUGIN   MANAGEMENT_AGENT
+Force Tags  LOAD4
 
 *** Variables ***
 ${OSQUERYPATH}        ${MDR_PLUGIN_PATH}/osquery/bin/osquery

@@ -16,6 +16,7 @@ Test Teardown    Run Keywords
 ...              Override LogConf File as Global Level  INFO
 
 Default Tags  FAKE_CLOUD  MCS  MCS_ROUTER  TAP_TESTS
+Force Tags  LOAD3
 
 *** Test Case ***
 MCS creates and updates flags file

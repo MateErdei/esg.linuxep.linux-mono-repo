@@ -18,6 +18,7 @@ Suite Teardown    Run Keywords
 ...               Uninstall SSPL Unless Cleanup Disabled
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS
+Force Tags  LOAD3
 
 *** Test Cases ***
 Basic EDR Response Sent

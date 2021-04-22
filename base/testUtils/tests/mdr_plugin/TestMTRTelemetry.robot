@@ -18,6 +18,7 @@ Suite Setup   MTR Telemetry Suite Setup
 Suite Teardown   MTR Telemetry Suite Teardown
 
 Default Tags   MDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
+Force Tags  LOAD6
 
 *** Variables ***
 ${PURGE_DATABASE_FILE_CONTENT} =  {"caller":"osquery.go:186","component":"dbos","level":"info","msg":"Osquery database watcher purge completed","publisher":"sophos","timestamp":"2019-10-09T10:09:35.535726746Z"}

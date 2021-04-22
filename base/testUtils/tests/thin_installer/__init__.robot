@@ -13,6 +13,7 @@ Suite Setup      Setup Update Tests
 Suite Teardown   Cleanup Update Tests
 
 Test Teardown    Thin installer test teardown
+Force Tags  LOAD7
 
 *** Keywords ***
 
