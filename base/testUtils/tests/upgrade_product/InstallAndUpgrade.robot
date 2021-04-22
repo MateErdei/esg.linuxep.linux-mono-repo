@@ -703,6 +703,9 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
 
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    #TODO LINUXDAR-2339 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndAVVUTPolicy}
 
@@ -734,7 +737,7 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
 
     Check Update Reports Have Been Processed
 
-    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
+    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print    timeout=60 seconds
     Should Be Equal As Integers  ${rc}  0
     Should Be Empty  ${output}
 

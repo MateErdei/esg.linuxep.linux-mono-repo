@@ -98,16 +98,32 @@ Reset Sophos Install Environment Variable Cache Exists
     ...         ELSE  Set Environment Variable  SOPHOS_INSTALL  ${SOPHOS_INSTALL_ENVIRONMENT_CACHE}
 
 Display All SSPL Files Installed
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses | grep -v sophos-spl-comms | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    ${result}=  Run Process  find ${SOPHOS_INSTALL}/base -not -type d | grep -v python | grep -v primarywarehouse | grep -v primary | grep -v temp_warehouse | grep -v TestInstallFiles | xargs ls -l  shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${result}=  Run Process  find ${SOPHOS_INSTALL}/logs -not -type d | xargs ls -l  shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${result}=  Run Process  find ${SOPHOS_INSTALL}/var -not -type d | grep -v sophos-spl-comms | xargs ls -l  shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${result}=  Run Process  find ${SOPHOS_INSTALL}/bin -not -type d | xargs ls -l  shell=True
     Log  ${result.stdout}
     Log  ${result.stderr}
 
 Display All SSPL Plugins Files Installed
-    ${handle}=  Start Process  find   ${SOPHOS_INSTALL}/plugins
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/av -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/mtr -not -type d | grep -v lenses | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/edr -not -type d | grep -v lenses | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/liveresponse -not -type d | grep -v lenses | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
 Display List Files Dash L in Directory 
    [Arguments]  ${DirPath}
    ${result}=    Run Process  ls -l ${DirPath}  shell=True
