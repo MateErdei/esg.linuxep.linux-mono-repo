@@ -4,8 +4,10 @@ set -x
 
 # Set this variable to true if you want reruns on failed tests
 RERUNFAILED=${RERUNFAILED:-false}
+STACKNAME=$1
+shift
 
-/opt/sspl/test.sh
+/opt/sspl/test.sh "$@"
 RESULT=$?
 
 ## Upload results to s3
