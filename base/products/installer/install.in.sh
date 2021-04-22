@@ -642,11 +642,8 @@ then
     fi
 fi
 
-echo "Checking if need to generate service files"
-
-if changed_or_added install.sh ${DIST} ${PRODUCT_LINE_ID} || $FORCE_INSALL
+if changed_or_added install.sh ${DIST} ${PRODUCT_LINE_ID}
 then
-    echo "Generating Systemd service files."
     createUpdaterSystemdService
     createWatchdogSystemdService
 fi
