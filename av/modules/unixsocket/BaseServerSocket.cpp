@@ -81,7 +81,7 @@ void unixsocket::BaseServerSocket::run()
 
     // Announce after we have started listening
     announceThreadStarted();
-    LOGSUPPORT("Starting listening on socket");
+    LOGSUPPORT("Starting listening on socket: " << m_socketPath);
 
     while (!terminate)
     {

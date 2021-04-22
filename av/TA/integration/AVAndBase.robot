@@ -576,3 +576,54 @@ AV Runs Scan With SXL Lookup Disabled
 
     Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central
     SUSI Debug Log Does Not Contain With Offset   Post-scan lookup succeeded
+
+
+AV Plugin restarts threat detector on customer id change
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${id1} =   Generate Random String
+    ${policyContent} =   Get ALC Policy   revid=${id1}  userpassword=${id1}  username=${id1}
+    Log   ${policyContent}
+    Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
+    Send Alc Policy To Base  tempAlcPolicy.xml
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
+    #Sleep  120s
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
+    Check Sophos Threat Detector has different PID   ${pid}
+
+    # change revid only, threat_detector should not restart
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${id2} =   Generate Random String
+    ${policyContent} =   Get ALC Policy   revid=${id2}  userpassword=${id1}  username=${id1}
+    Log   ${policyContent}
+    Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
+    Send Alc Policy To Base  tempAlcPolicy.xml
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Run Keyword And Expect Error
+    ...   Keyword 'AV Plugin Log Contains With Offset' failed after retrying for 5 seconds.*
+    ...   Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=5
+    Check Sophos Threat Detector has same PID   ${pid}
+
+    # change credentials, threat_detector should restart
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    ${pid} =   Record Sophos Threat Detector PID
+
+    ${id3} =   Generate Random String
+    ${policyContent} =   Get ALC Policy   revid=${id3}  userpassword=${id3}  username=${id3}
+    Log   ${policyContent}
+    Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
+    Send Alc Policy To Base  tempAlcPolicy.xml
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
+    Check Sophos Threat Detector has different PID   ${pid}

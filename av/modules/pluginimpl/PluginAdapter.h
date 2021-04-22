@@ -55,5 +55,7 @@ namespace Plugin
 
         std::string waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
                                           const std::string& policyAppId, const std::string& policyName);
+
+        void requestShutdownOfThreatDetector();
     };
 } // namespace Plugin

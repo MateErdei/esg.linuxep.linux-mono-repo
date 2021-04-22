@@ -1,0 +1,33 @@
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+
+******************************************************************************************************/
+
+#pragma once
+
+#include "ScanType.h"
+
+#include <string>
+
+namespace scan_messages
+{
+    enum E_COMMAND_TYPE: int
+    {
+        E_SHUTDOWN = 1
+    };
+
+    class ProcessControlSerialiser
+    {
+    public:
+        explicit ProcessControlSerialiser();
+
+        void setCommandType(E_COMMAND_TYPE commandType);
+
+        [[nodiscard]] std::string serialise() const;
+
+    protected:
+        E_COMMAND_TYPE m_commandType;
+    };
+}

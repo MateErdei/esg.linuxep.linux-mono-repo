@@ -7,12 +7,16 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "PluginAdapter.h"
 
 #include "Logger.h"
+#include "StringUtils.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "modules/common/ThreadRunner.h"
 
+#include "unixsocket/processControllerSocket/ProcessControllerClient.h"
+
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Common/ZeroMQWrapper/IIPCException.h>
 
 namespace fs = sophos_filesystem;
 
@@ -31,18 +35,35 @@ namespace Plugin
             return pluginInstall() / "chroot/var/threat_report_socket";
         }
 
+        fs::path process_controller_socket()
+        {
+            return pluginInstall() / "chroot/var/process_control_socket";
+        }
+
+//        fs::path sophos_threat_detector_launcher()
+//        {
+//            return pluginInstall() / "sbin/sophos_threat_detector_launcher";
+//        }
+
         class ThreatReportCallbacks : public IMessageCallback
         {
         public:
-            explicit ThreatReportCallbacks(PluginAdapter& adapter) : m_adapter(adapter) {}
+            explicit ThreatReportCallbacks(PluginAdapter& adapter, const std::string& threatEventPublisherSocketPath)
+                : m_adapter(adapter)
+                , m_threatEventPublisherSocketPath(threatEventPublisherSocketPath)
+            {}
 
-            void processMessage(const std::string& threatXML) override
+            void processMessage(const scan_messages::ServerThreatDetected& detection) override
             {
-                m_adapter.processThreatReport(threatXML);
+                m_adapter.processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
+                m_adapter.publishThreatEvent(
+                    pluginimpl::generateThreatDetectedJson(detection.getThreatName(), detection.getFilePath()),
+                    m_threatEventPublisherSocketPath);
             }
 
         private:
             PluginAdapter& m_adapter;
+            std::string m_threatEventPublisherSocketPath;
         };
     }
 
@@ -50,13 +71,17 @@ namespace Plugin
         std::shared_ptr<QueueTask> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback,
+        const std::string& threatEventPublisherSocketPath,
         int waitForPolicyTimeout) :
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(*this),
-        m_threatReporterServer(threat_reporter_socket(), 0660, std::make_shared<ThreatReportCallbacks>(*this)),
-        m_waitForPolicyTimeout(waitForPolicyTimeout)
+        m_threatReporterServer(threat_reporter_socket(), 0600,
+                               std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath)),
+        m_waitForPolicyTimeout(waitForPolicyTimeout),
+        m_zmqContext(Common::ZMQWrapperApi::createContext()),
+        m_threatEventPublisher(m_zmqContext->getPublisher())
     {
     }
 
@@ -130,6 +155,21 @@ namespace Plugin
         }
     }
 
+    void PluginAdapter::requestShutdownOfThreatDetector()
+    {
+        try
+        {
+            LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");
+            unixsocket::ProcessControllerClientSocket processController(process_controller_socket());
+            scan_messages::ProcessControlSerialiser processControlRequest;
+            processController.sendProcessControlRequest(processControlRequest);
+        }
+        catch (const std::exception& e)
+        {
+            LOGERROR("Failed to send shutdown request: " << e.what());
+        }
+    }
+
     void PluginAdapter::processPolicy(const std::string& policyXml)
     {
         LOGINFO("Received Policy");
@@ -145,10 +185,10 @@ namespace Plugin
                 // ALC policy
                 LOGINFO("Processing ALC Policy");
                 LOGDEBUG("Processing policy: " << policyXml);
-                bool updated = m_updatePolicyProcessor.processAlcPolicy(attributeMap);
+                bool updated = m_policyProcessor.processAlcPolicy(attributeMap);
                 if (updated)
                 {
-                    // TODO: Restart sophos_threat_detector
+                    requestShutdownOfThreatDetector();
                 }
             }
             else
@@ -174,8 +214,7 @@ namespace Plugin
         auto savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap);
         if (savPolicyHasChanged)
         {
-            LOGDEBUG("Reloading susi as startup configuration changed");
-            // TODO: m_threatDetector->configuration_changed();
+            requestShutdownOfThreatDetector();
         }
 
         std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
@@ -262,6 +301,20 @@ namespace Plugin
         auto attributeMap = Common::XmlUtilities::parseXml(threatDetectedXML);
         incrementTelemetryThreatCount(attributeMap.lookupMultiple("notification/threat")[0].value("name"));
         m_queueTask->push(Task { .taskType = Task::TaskType::ThreatDetected, .Content = threatDetectedXML });
+    }
+
+    void PluginAdapter::publishThreatEvent(const std::string& threatDetectedJSON, const std::string& threatEventPublisherSocketPath)
+    {
+        try
+        {
+            m_threatEventPublisher->connect("ipc://" + threatEventPublisherSocketPath);
+            LOGDEBUG("Publishing threat detection event: " << threatDetectedJSON);
+            m_threatEventPublisher->write({ "threatEvents", threatDetectedJSON });
+        }
+        catch (const Common::ZeroMQWrapper::IIPCException& e)
+        {
+            LOGERROR("Failed to send subscription data: " << e.what());
+        }
     }
 
     void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName)

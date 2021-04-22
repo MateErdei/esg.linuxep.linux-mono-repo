@@ -209,6 +209,7 @@ AV Plugin Scans local secondary mount only once
     ${source} =       Set Variable  /tmp_test/ext2.fs
     ${destination} =  Set Variable  /mnt/ext2mnt
     Create Directory  ${destination}
+    Create Directory  /tmp_test/
     Create ext2 mount   ${source}   ${destination}
     Register Cleanup  Remove ext2 mount   ${source}   ${destination}
     Create File       ${destination}/eicar.com    ${EICAR_STRING}
@@ -504,6 +505,24 @@ AV Plugin Gets Customer ID from Obfuscated Creds
     Terminate Process  ${threat_detector_handle}
 
 
+AV Plugin Gets Sxl Lookup Setting From SAV Policy
+    ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
+    Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
+
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${handle}
+    Check AV Plugin Installed
+
+    ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
+    Log    ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
+
+    Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
+    ${susiStartupSettings} =   Get File   ${SUSI_STARTUP_SETTINGS_FILE}
+    Should Be Equal   ${susiStartupSettings}   ${expectedSusiStartupSettings}
+
 AV Plugin requests policies at startup
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
@@ -524,9 +543,34 @@ AV Plugin requests policies at startup
     Terminate Process  ${threat_detector_handle}
 
 
-AV Plugin restarts threat detector on customer id change
-    ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
-    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+Sophos Threat Detector sets default if susi startup settings permissions incorrect
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${handle}
+    Check AV Plugin Installed
+
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
+    Log   ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+
+    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
+    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+
+    Mark Sophos Threat Detector Log
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+    Run Process   /bin/kill   -9   ${output}
+
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+    Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
+
+
+AV Plugin restarts threat detector on susi startup settings change
+    ${handle} =   Start Process  ${AV_PLUGIN_BIN}
     Register Cleanup   Terminate Process  ${handle}
     Check AV Plugin Installed
 
@@ -534,25 +578,24 @@ AV Plugin restarts threat detector on customer id change
     Mark Sophos Threat Detector Log
     ${pid} =   Record Sophos Threat Detector PID
 
-    ${id1} =   Generate Random String
-    ${policyContent} =   Get ALC Policy   revid=${id1}  userpassword=${id1}  username=${id1}
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
     Log   ${policyContent}
-    Send Plugin Policy  av  alc  ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
     Check Sophos Threat Detector has different PID   ${pid}
 
-    # change revid only, threat_detector should not restart
+    # don't change lookup setting, threat_detector should not restart
     Mark AV Log
     Mark Sophos Threat Detector Log
     ${pid} =   Record Sophos Threat Detector PID
 
     ${id2} =   Generate Random String
-    ${policyContent} =   Get ALC Policy   revid=${id2}  userpassword=${id1}  username=${id1}
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
     Log   ${policyContent}
-    Send Plugin Policy  av  alc  ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Run Keyword And Expect Error
@@ -560,23 +603,20 @@ AV Plugin restarts threat detector on customer id change
     ...   Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=5
     Check Sophos Threat Detector has same PID   ${pid}
 
-    # change credentials, threat_detector should restart
+    # change lookup setting, threat_detector should restart
     Mark AV Log
     Mark Sophos Threat Detector Log
     ${pid} =   Record Sophos Threat Detector PID
 
     ${id3} =   Generate Random String
-    ${policyContent} =   Get ALC Policy   revid=${id3}  userpassword=${id3}  username=${id3}
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
     Log   ${policyContent}
-    Send Plugin Policy  av  alc  ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
     Check Sophos Threat Detector has different PID   ${pid}
-
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
 
 
 *** Keywords ***
@@ -640,17 +680,15 @@ Test Remote Share
     Terminate Process  ${av_plugin_handle}
     Terminate Process  ${threat_detector_handle}
 
-Get ALC Policy
-    [Arguments]  ${revid}=${EMPTY}  ${algorithm}=Clear  ${username}=B  ${userpassword}=A
+Get SAV Policy
+    [Arguments]  ${revid}=${EMPTY}  ${sxlLookupEnabled}=A
     ${policyContent} =  Catenate   SEPARATOR=${\n}
     ...   <?xml version="1.0"?>
-    ...   <AUConfigurations xmlns:csc="com.sophos\\msys\\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-    ...     <csc:Comp RevID="${revid}" policyType="1"/>
-    ...     <AUConfig>
-    ...       <primary_location>
-    ...         <server Algorithm="${algorithm}" UserPassword="${userpassword}" UserName="${username}"/>
-    ...       </primary_location>
-    ...     </AUConfig>
-    ...   </AUConfigurations>
+    ...   <config>
+    ...       <csc:Comp RevID="${revid}" policyType="2"/>
+    ...       <detectionFeedback>
+    ...           <sendData>${sxlLookupEnabled}</sendData>
+    ...       </detectionFeedback>
+    ...   </config>
     ${policyContent} =   Replace Variables   ${policyContent}
     [Return]   ${policyContent}

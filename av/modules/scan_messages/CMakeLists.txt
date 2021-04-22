@@ -2,6 +2,7 @@ CAPN_GENERATE_CPP(CapNGeneratedFilesSrcs CapNGeneratedFilesHeaders
         ScanRequest.capnp
         ScanResponse.capnp
         NamedScan.capnp
+        ProcessControl.capnp
         ThreatDetected.capnp)
 
 add_library(scanmessages SHARED
@@ -16,6 +17,10 @@ add_library(scanmessages SHARED
         ScanType.h
         ClientScanRequest.cpp
         ClientScanRequest.h
+        ProcessControlSerialiser.cpp
+        ProcessControlSerialiser.h
+        ProcessControlDeserialiser.cpp
+        ProcessControlDeserialiser.h
         ServerThreatDetected.cpp
         ServerThreatDetected.h
         ThreatDetected.cpp

@@ -19,6 +19,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
 #endif
 #include "datatypes/sophos_filesystem.h"
+#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
@@ -347,6 +348,10 @@ static int inner_main()
     LOGINFO("Starting USR1 monitor");
     SigUSR1Monitor usr1Monitor(reloader); // Create monitor before loading SUSI
 
+    fs::path processControllerSocketPath = "/var/process_control_socket";
+    unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0777);
+    processController.start();
+
     int returnCode = common::E_CLEAN_SUCCESS;
 
     fd_set readFDs;
@@ -355,16 +360,10 @@ static int inner_main()
 
     max = FDUtils::addFD(&readFDs, sigTermMonitor.monitorFd(), max);
     max = FDUtils::addFD(&readFDs, usr1Monitor.monitorFd(), max);
+    max = FDUtils::addFD(&readFDs, processController.monitorFd(), max);
 
     while (true)
     {
-        if (sigTermMonitor.triggered())
-        {
-            LOGERROR("Sophos Threat Detector received SIGTERM");
-            returnCode = common::E_SIGTERM;
-            break;
-        }
-
         fd_set tempRead = readFDs;
 
         //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
@@ -379,33 +378,37 @@ static int inner_main()
                 continue;
             }
 
-            LOGERROR("Failed socket, closing. Error: " << strerror(error)<< " (" << error << ')');
-            server.requestStop();
+            LOGERROR("Failed to read from socket - shutting down. Error: " << strerror(error)<< " (" << error << ')');
             break;
         }
-
-//        if (FDUtils::fd_isset(exitFD, &tempRead))
-//        {
-//            LOGDEBUG("Closing socket");
-//            server.requestStop();
-//            break;
-//        }
 
         if (FDUtils::fd_isset(usr1Monitor.monitorFd(), &tempRead))
         {
-            usr1Monitor.triggered(); // Responsible for clearing monitorFd...
-            server.requestStop();
+            LOGERROR("Sophos Threat Detector received SIGUSR1 - shutting down");
+            usr1Monitor.triggered();
+            break;
+        }
+
+        if (FDUtils::fd_isset(sigTermMonitor.monitorFd(), &tempRead))
+        {
+            LOGERROR("Sophos Threat Detector received SIGTERM - shutting down");
+            sigTermMonitor.triggered();
+            returnCode = common::E_SIGTERM;
+            break;
+        }
+
+        if (FDUtils::fd_isset(processController.monitorFd(), &tempRead))
+        {
+            LOGINFO("Sophos Threat Detector received shutdown request");
+            processController.triggered();
+            returnCode = common::E_SIGTERM;
             break;
         }
     }
-
-    if (returnCode == common::E_SIGTERM)
-    {
-        LOGINFO("Sophos Threat Detector is exiting because it received signal SIGTERM");
-    }
+    server.requestStop();
 
     LOGINFO("Sophos Threat Detector is exiting");
-    return common::E_CLEAN_SUCCESS;
+    return returnCode;
 }
 
 int sspl::sophosthreatdetectorimpl::sophos_threat_detector_main()

@@ -10,6 +10,12 @@ add_library(unixsocket SHARED
         SocketUtils.h
         SocketUtilsImpl.cpp
         SocketUtilsImpl.h
+        processControllerSocket/ProcessControllerServerSocket.cpp
+        processControllerSocket/ProcessControllerServerSocket.h
+        processControllerSocket/ProcessControllerServerConnectionThread.cpp
+        processControllerSocket/ProcessControllerServerConnectionThread.h
+        processControllerSocket/ProcessControllerClient.cpp
+        processControllerSocket/ProcessControllerClient.h
         threatDetectorSocket/IScanningClientSocket.h
         threatDetectorSocket/ScanningClientSocket.cpp
         threatDetectorSocket/ScanningClientSocket.h

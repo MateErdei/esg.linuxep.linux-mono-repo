@@ -25,6 +25,8 @@ ${SUSI_DEBUG_LOG_PATH}          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
 ${SCANNOW_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Scan Now.log
 ${TELEMETRY_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
 ${CHROOT_LOGGING_SYMLINK}   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
+${SUSI_STARTUP_SETTINGS_FILE}    ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
+${SUSI_STARTUP_SETTINGS_FILE_CHROOT}    ${COMPONENT_ROOT_PATH}/chroot/${AV_PLUGIN_PATH}/var/susi_startup_settings.json
 ${AV_SDDS}         ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
@@ -83,6 +85,16 @@ Mark Susi Debug Log
     ${count} =  Count File Log Lines  ${SUSI_DEBUG_LOG_PATH}
     Set Test Variable   ${SUSI_DEBUG_LOG_MARK}  ${count}
     Log  "SUSI_DEBUG LOG MARK = ${SUSI_DEBUG_LOG_MARK}"
+
+SUSI Debug Log Contains With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SUSI_DEBUG_LOG_MARK}  0
+    File Log Contains With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
+
+SUSI Debug Log Does Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SUSI_DEBUG_LOG_MARK}  0
+    File Log Should Not Contain With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
 
 Mark Scan Now Log
     ${count} =  Count File Log Lines  ${SCANNOW_LOG_PATH}
@@ -154,6 +166,10 @@ Susi Debug Log Contains
     [Arguments]  ${input}
     File Log Contains  ${SUSI_DEBUG_LOG_PATH}   ${input}
 
+SUSI Debug Log Does Not Contain
+    [Arguments]  ${input}
+    check log does not contain  ${input}  ${SUSI_DEBUG_LOG_PATH}   susi_debug_log
+
 Wait Until Sophos Threat Detector Log Contains
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  Threat Detector Log Contains   ${input}   timeout=${timeout}
@@ -208,8 +224,8 @@ Increase Threat Detector Log To Max Size
     increase_threat_detector_log_to_max_size_by_path  ${THREAT_DETECTOR_LOG_PATH}  ${remaining}
 
 Wait Until AV Plugin Log Contains With Offset
-    [Arguments]  ${input}  ${timeout}=15
-    Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}
+    [Arguments]  ${input}  ${timeout}=15    ${interval}=2
+    Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}  interval=${interval}
 
 Wait Until AV Plugin Log Contains
     [Arguments]  ${input}  ${timeout}=15  ${interval}=0
@@ -224,6 +240,11 @@ Wait Until AV Plugin Log Contains
 AV Plugin Log Does Not Contain
     [Arguments]  ${input}
     LogUtils.Over next 15 seconds ensure log does not contain   ${AV_LOG_PATH}  ${input}
+
+AV Plugin Log Does Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
+    File Log Should Not Contain With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
 
 Plugin Log Contains
     [Arguments]  ${input}
@@ -262,11 +283,11 @@ Check Plugin Installed and Running
 Wait until AV Plugin running
     Wait Until Keyword Succeeds
     ...  15 secs
-    ...  3 secs
+    ...  2 secs
     ...  Check Plugin Running
     Wait Until Keyword Succeeds
     ...  15 secs
-    ...  3 secs
+    ...  2 secs
     ...  Plugin Log Contains  ${COMPONENT} <> Starting the main program loop
 
 Wait until threat detector running
@@ -336,10 +357,26 @@ AV And Base Teardown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SUSI_DEBUG_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
+
+Restart AV Plugin And Clear The Logs
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check AV Plugin Not Running
+
+    Log  Backup logs before removing them
+    Log  ${AV_LOG_PATH}
+    Log  ${THREAT_DETECTOR_LOG_PATH}
+    Log  ${SUSI_DEBUG_LOG_PATH}
+
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
+    Remove File    ${SUSI_DEBUG_LOG_PATH}
+
     Empty Directory  /opt/sophos-spl/base/mcs/event/
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop threat_detector   OnError=failed to start sophos_threat_detector
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
@@ -378,6 +415,10 @@ Wait Until Threat Detector Log exists
 Wait until scheduled scan updated
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans  timeout=240
+
+Wait until scheduled scan updated With Offset
+    Wait Until AV Plugin Log exists  timeout=30
+    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=240
 
 Configure Scan Exclusions Everything Else
     [Arguments]  ${inclusion}
@@ -570,3 +611,30 @@ Check file clean
      Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
      Should Contain   ${output}    0 files out of 1 were infected.
 
+Wait For File With Particular Contents
+    [Arguments]     ${expectedContent}  ${filePath}
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  Check Specific File Content  ${expectedContent}  ${filePath}
+    Log File  ${filePath}
+
+Check Specific File Content
+    [Arguments]     ${expectedContent}  ${filePath}
+    ${FileContents} =  Get File  ${filePath}
+    Should Contain    ${FileContents}   ${expectedContent}
+
+Get ALC Policy
+    [Arguments]  ${revid}=${EMPTY}  ${algorithm}=Clear  ${username}=B  ${userpassword}=A
+    ${policyContent} =  Catenate   SEPARATOR=${\n}
+    ...   <?xml version="1.0"?>
+    ...   <AUConfigurations xmlns:csc="com.sophos\\msys\\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+    ...     <csc:Comp RevID="${revid}" policyType="1"/>
+    ...     <AUConfig>
+    ...       <primary_location>
+    ...         <server Algorithm="${algorithm}" UserPassword="${userpassword}" UserName="${username}"/>
+    ...       </primary_location>
+    ...     </AUConfig>
+    ...   </AUConfigurations>
+    ${policyContent} =   Replace Variables   ${policyContent}
+    [Return]   ${policyContent}
