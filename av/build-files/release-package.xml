@@ -29,7 +29,7 @@
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
         <!-- Need to compile our own messages -->
-        <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest="input">
+        <package name="capnprotolinux11" version="0-8-0-3/222233/output" dest="input">
             <include src="capnproto.tar" dest="."/>
         </package>
         <package name="openssllinux11" branch="LINUXEP" version="1-1-1k-2/222232/output" dest="input">
