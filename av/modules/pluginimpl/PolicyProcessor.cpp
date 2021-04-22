@@ -15,6 +15,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <pluginimpl/ObfuscationImpl/Obfuscate.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
+#include <sys/stat.h>
+
 using json = nlohmann::json;
 
 namespace Plugin
@@ -82,6 +84,7 @@ namespace Plugin
         auto chroot = pluginInstall + "/chroot";
         dest = chroot + dest;
         fs->writeFile(dest, m_customerId);
+        ::chmod(dest.c_str(), 0640);
 
         return true; // Only restart sophos_threat_detector if it changes
     }

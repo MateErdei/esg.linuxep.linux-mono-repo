@@ -349,7 +349,7 @@ static int inner_main()
     SigUSR1Monitor usr1Monitor(reloader); // Create monitor before loading SUSI
 
     fs::path processControllerSocketPath = "/var/process_control_socket";
-    unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0777);
+    unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0660);
     processController.start();
 
     int returnCode = common::E_CLEAN_SUCCESS;

@@ -591,7 +591,6 @@ AV Plugin restarts threat detector on customer id change
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
-    #Sleep  120s
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
     Check Sophos Threat Detector has different PID   ${pid}
 
