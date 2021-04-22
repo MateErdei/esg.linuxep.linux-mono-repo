@@ -37,7 +37,7 @@ def main():
     for arguments in args():
         print("Adding templates with args for: " + arguments)
         for template_name, template_json_str in instances.items():
-            unique_template_name = template_name + "-" + str(n)
+            unique_template_name = template_name + str(n)
             json_with_args = json.loads(template_json_str.replace("@ARGSGOHERE@", arguments).replace("@HOSTNAMEGOESHERE@", unique_template_name))
             main_template_json["Resources"][unique_template_name] = json_with_args
         n+=1
