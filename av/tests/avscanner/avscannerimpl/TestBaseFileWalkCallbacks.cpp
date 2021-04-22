@@ -309,7 +309,7 @@ TEST_F(TestBaseFileWalkCallbacks, excludeFileSymlinkTargetByUser) // NOLINT
     callback.processFile(fs::path(".") / symlink, true);
 
     EXPECT_TRUE(appenderContains("Skipping the scanning of symlink target"));
-    EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: /testfile"));
+    EXPECT_TRUE(appenderContains("which is excluded by user defined exclusion: testfile"));
     EXPECT_EQ(callback.returnCode(), E_CLEAN);
 }
 

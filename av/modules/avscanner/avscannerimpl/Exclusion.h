@@ -30,6 +30,7 @@ namespace avscanner::avscannerimpl
 
         [[nodiscard]] bool appliesToPath(const std::string& path, bool ignoreFilenameExclusion=false) const;
         [[nodiscard]] std::string path() const;
+        [[nodiscard]] std::string displayPath() const;
         [[nodiscard]] ExclusionType type() const;
 
     private:
@@ -37,6 +38,7 @@ namespace avscanner::avscannerimpl
         static void escapeRegexMetaCharacters(std::string& text);
 
         std::string m_exclusionPath;
+        std::string m_exclusionDisplayPath;
         std::regex m_pathRegex;
         ExclusionType m_type;
     };

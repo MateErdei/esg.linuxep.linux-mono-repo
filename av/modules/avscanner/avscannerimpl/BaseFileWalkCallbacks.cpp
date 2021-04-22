@@ -51,7 +51,7 @@ bool BaseFileWalkCallbacks::excludeSymlink(const fs::path& path)
             LOGINFO(
                 "Skipping the scanning of symlink target (\"" << escapedTarget
                                                               << "\") which is excluded by user defined exclusion: "
-                                                              << common::escapePathForLogging(exclusion.path()));
+                                                              << common::escapePathForLogging(exclusion.displayPath()));
             return true;
         }
     }
@@ -164,7 +164,7 @@ bool BaseFileWalkCallbacks::userDefinedExclusionCheck(const sophos_filesystem::p
                 LOGINFO(
                     "Skipping the scanning of symlink target (\"" << common::escapePathForLogging(fs::canonical(path))
                                                                   << "\") which is excluded by user defined exclusion: "
-                                                                  << common::escapePathForLogging(exclusion.path()));
+                                                                  << common::escapePathForLogging(exclusion.displayPath()));
             }
             else
             {

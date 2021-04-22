@@ -15,6 +15,7 @@ using namespace avscanner::avscannerimpl;
 
 Exclusion::Exclusion(const std::string& path)
 {
+    m_exclusionDisplayPath = path;
     std::string exclusionPath(path);
 
     if (exclusionPath.empty())
@@ -152,6 +153,11 @@ bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
 std::string Exclusion::path() const
 {
     return m_exclusionPath;
+}
+
+std::string Exclusion::displayPath() const
+{
+    return m_exclusionDisplayPath;
 }
 
 ExclusionType Exclusion::type() const
