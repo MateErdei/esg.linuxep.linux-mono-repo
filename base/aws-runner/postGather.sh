@@ -1,9 +1,14 @@
 #!/bin/bash
 
 #set -x
+SCRIPT_DIR="${0%/*}"
+[[ $SCRIPT_DIR == $0 ]] && SCRIPT_DIR=.
+cd $SCRIPT_DIR
 
 JOB_ID=$1
 shift
+# remove fake results so we don't get any misleading results
+rm -rf ./results
 
 IDENTITFIER=`hostname`-`date +%F`-`date +%H``date +%M`
 [[ -n $STACK ]] || STACK=sspl-system-tests-${IDENTITFIER}-$(echo "$@"-${RANDOM} | md5sum | cut -f 1 -d " " )
@@ -293,7 +298,7 @@ cleanupStack() {
         || failure "Unable to delete-stack for $STACK: $?"
 
     echo "Delete unused volumes for $STACK:" >&2
-    python $SCRIPT_DIR/DeleteUnusedVolumes.py \
+    python "$SCRIPT_DIR/DeleteUnusedVolumes.py" \
         || failure "Unable to delete unused volumes for $STACK: $?"
 }
 
@@ -301,7 +306,7 @@ cleanupStack
 
 # TODO - think about what to clear up
 # Get results back from the AWS test run and save them locally.
-rm -rf ./results
+
 mkdir ./results
 aws s3 cp --recursive "s3://sspl-testbucket/test-results/${STACK}/" ./results
 python3 delete_old_results.py ${STACK}
