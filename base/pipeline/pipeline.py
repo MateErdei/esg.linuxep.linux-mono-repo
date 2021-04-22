@@ -192,7 +192,7 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     if mode == ANALYSIS_MODE:
         return
-    return
+
     test_inputs = get_inputs(context, base_build, mode)
     machines = (
         ("ubuntu1804",
