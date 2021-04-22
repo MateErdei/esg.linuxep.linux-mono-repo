@@ -68,7 +68,7 @@ function compress()
 TEMPLATE=sspl-system.template
 ## Copy to template to s3
 python ./combineTemplateJson.py
-compress $TEMPLATE template.temp
+compress $TEMPLATE.with_args template.temp
 aws s3 cp template.temp "s3://sspl-testbucket/templates/$STACK.template" \
     || failure "Unable to copy $TEMPLATE to s3"
 rm -f template.temp
