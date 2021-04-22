@@ -23,6 +23,9 @@ rm -rf "${CREATE_DIR}" || failure 20 "Failed to delete old $CREATE_DIR"
 # Assume (for jenkins job) that Everest-Base is already present in the directory above SSPL-AWS-Runner
 cp -r ../testUtils ${CREATE_DIR}
 echo $@ > ${CREATE_DIR}/robotArgs
+cat > ${CREATE_DIR}/robotArgs << EOF
+$@
+EOF
 
 
 
