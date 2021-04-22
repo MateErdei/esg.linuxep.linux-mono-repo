@@ -118,7 +118,7 @@ EOF
       current_service_content=$(<${STARTUP_DIR}/sophos-spl.service)
     fi
 
-    if [[ "${service_content}" != "${current_service_content}" ]] || [[ $FORCE_INSTALL ]]
+    if [[ "${service_content}" != "${current_service_content}" || $FORCE_INSTALL ]]
     then
         cat > ${STARTUP_DIR}/sophos-spl.service << EOF
 ${service_content}
@@ -640,7 +640,7 @@ then
     fi
 fi
 
-if changed_or_added install.sh ${DIST} ${PRODUCT_LINE_ID}
+if changed_or_added install.sh ${DIST} ${PRODUCT_LINE_ID} || $FORCE_INSALL
 then
     createUpdaterSystemdService
     createWatchdogSystemdService
