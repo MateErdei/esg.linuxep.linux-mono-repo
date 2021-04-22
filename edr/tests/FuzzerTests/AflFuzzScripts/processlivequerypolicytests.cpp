@@ -93,7 +93,7 @@ public:
 
     void processLiveQueryPolicy(const std::string& policy)
     {
-        Plugin::PluginAdapter::processLiveQueryPolicy(policy);
+        Plugin::PluginAdapter::processLiveQueryPolicy(policy, true);
     }
 
     void setScheduleEpoch(time_t scheduleEpoch)
