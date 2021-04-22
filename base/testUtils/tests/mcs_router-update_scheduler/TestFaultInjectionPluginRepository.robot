@@ -105,7 +105,7 @@ Status File Contain RevId
 
 Wait For Update Status File To Contain RevId
     Wait Until Keyword Succeeds
-    ...  2 min
+    ...  3 min
     ...  10 secs
     ...  Status File Contain RevId
 
