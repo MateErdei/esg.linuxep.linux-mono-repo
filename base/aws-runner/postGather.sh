@@ -128,7 +128,7 @@ do
                      ParameterKey=RunOne,ParameterValue="$RUN_ONE" \
                      ParameterKey=StackName,ParameterValue="${STACK}" \
                      ParameterKey=TarName,ParameterValue="${JOB_ID}" \
-                     ParameterKey=RobotArgs,ParameterValue="$@" \
+                     "ParameterKey=RobotArgs,ParameterValue=$@" \
                      --output=text 2>&1)
 
     echo "Stack ID == ${stack_id}"
