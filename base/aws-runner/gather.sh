@@ -26,14 +26,13 @@ echo $@ > ${CREATE_DIR}/robotArgs
 
 
 
-flock -w 60 /tmp/aws-pip-lock -c "sudo -H ${CREATE_DIR}/SupportFiles/jenkins/SetupCIBuildScripts.sh || failure 210 'Failed to install CI scripts'"
 export TEST_UTILS=${CREATE_DIR}
 export SYSTEMPRODUCT_TEST_INPUT=./system-product-test-inputs
 #pushd ${CREATE_DIR}
 # this changes the working directory of the gather process to a relative path to the job so that we can run
 # multiple jobs on the same machine
 sed -i s:/tmp/system-product-test-inputs:${SYSTEMPRODUCT_TEST_INPUT}:g ${TEST_UTILS}/system-product-test-release-package.xml
-NO_VENV=1 source ${TEST_UTILS}/SupportFiles/jenkins/gatherTestInputs.sh || failure 211 "Failed to gather inputs"
+source ${TEST_UTILS}/SupportFiles/jenkins/gatherTestInputs.sh || failure 211 "Failed to gather inputs"
 source ${TEST_UTILS}/SupportFiles/jenkins/exportInputLocations.sh
 source ${TEST_UTILS}/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 211 "Failed to gather inputs"
 #popd
