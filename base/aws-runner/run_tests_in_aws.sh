@@ -54,7 +54,6 @@ if [[ -z "$SKIP_GATHER" ]]
 then
     bash ./gather.sh $@ || failure "Failed to gather test files: $?"
 fi
-exit
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
 
 ## Create template
