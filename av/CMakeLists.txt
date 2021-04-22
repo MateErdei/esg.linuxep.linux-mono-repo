@@ -129,6 +129,11 @@ INCLUDE(CAPN)
 set(CAPNPROTO_INPUT ${INPUT}/capnproto )
 set(CAPNPROTO_INCLUDE_DIR ${CAPNPROTO_INPUT}/include)
 set(CAPNPROTO_LIBRARY_DIR ${CAPNPROTO_INPUT}/lib64)
+set(CAPNPROTO_LIBRARIES "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"
+                        "${CAPNPROTO_LIBRARY_DIR}/libcapnp-rpc.a"
+                        "${CAPNPROTO_LIBRARY_DIR}/libcapnp.a"
+                        "${CAPNPROTO_LIBRARY_DIR}/libkj-async.a"
+                        "${CAPNPROTO_LIBRARY_DIR}/libkj.a")
 set(CAPNPROTO_EXECUTABLE_DIR ${CAPNPROTO_INPUT}/bin)
 set(CAPNPROTO_EXECUTABLE ${CAPNPROTO_INPUT}/bin/capnp)
 set(CAPNPROTO_LD_LIBRARY_PATH ${CAPNPROTO_LIBRARY_DIR}:$ENV{LD_LIBRARY_PATH} )

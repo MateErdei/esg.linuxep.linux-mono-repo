@@ -11,15 +11,7 @@ SophosAddTest(TestScheduledScan
         TestScheduledScanConfiguration.cpp
         TestTimeSet.cpp
         PROJECTS scanscheduler common
-        LIBS
-        ${pluginapilib}
-        ${testhelperslib}
-        rt
-        "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libcapnp-rpc.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libcapnp.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libkj-async.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libkj.a"
+        LIBS ${pluginapilib} ${testhelperslib} rt ${CAPNPROTO_LIBRARIES}
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
             ${CMAKE_SOURCE_DIR}/modules
         )

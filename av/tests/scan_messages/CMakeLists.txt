@@ -7,11 +7,7 @@ SophosAddTest(TestScanMessages
         TestScanResponseMessages.cpp
         PROJECTS scanmessages
         LIBS
-        "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libcapnp-rpc.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libcapnp.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libkj-async.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libkj.a"
+        ${CAPNPROTO_LIBRARIES}
         INC_DIRS
         "${CAPNPROTO_INCLUDE_DIR}"
         ${CMAKE_CURRENT_BINARY_DIR}
