@@ -1,0 +1,1791 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 3.1.2 (Python 3.7.5 on linux)" generated="20210422 15:15:38.824" rpa="false">
+<suite id="s1" name="testUtils" source="/vagrant/everest-base/testUtils">
+<suite id="s1-s1" name="Tests" source="/vagrant/everest-base/testUtils/tests">
+<kw name="Global Setup Tasks" type="setup">
+<kw name="Get Environment Variable" library="OperatingSystem">
+<doc>Returns the value of an environment variable with the given name.</doc>
+<arguments>
+<arg>SOPHOS_INSTALL</arg>
+<arg>default=/opt/sophos-spl</arg>
+</arguments>
+<assign>
+<var>${placeholder}</var>
+</assign>
+<msg timestamp="20210422 15:15:39.173" level="INFO">${placeholder} = /opt/sophos-spl</msg>
+<status status="PASS" starttime="20210422 15:15:39.172" endtime="20210422 15:15:39.173"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${SOPHOS_INSTALL}</arg>
+<arg>${placeholder}</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.174" level="INFO">${SOPHOS_INSTALL} = /opt/sophos-spl</msg>
+<status status="PASS" starttime="20210422 15:15:39.173" endtime="20210422 15:15:39.174"></status>
+</kw>
+<kw name="Get Central Ip" library="CentralUtils">
+<assign>
+<var>${CLOUD_IP}</var>
+</assign>
+<msg timestamp="20210422 15:15:39.175" level="INFO">${CLOUD_IP} = 10.55.36.78</msg>
+<status status="PASS" starttime="20210422 15:15:39.175" endtime="20210422 15:15:39.175"></status>
+</kw>
+<kw name="Set Suite Variable" library="BuiltIn">
+<doc>Makes a variable available everywhere within the scope of the current suite.</doc>
+<arguments>
+<arg>${CLOUD_IP}</arg>
+<arg>${CLOUD_IP}</arg>
+<arg>children=true</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.176" level="INFO">${CLOUD_IP} = 10.55.36.78</msg>
+<status status="PASS" starttime="20210422 15:15:39.175" endtime="20210422 15:15:39.176"></status>
+</kw>
+<kw name="Get Environment Variable" library="OperatingSystem">
+<doc>Returns the value of an environment variable with the given name.</doc>
+<arguments>
+<arg>CAPNP_INPUT</arg>
+<arg>default=/uk-filer5/prodro/bir/capnprotolinux11/0-7-0-29/213995/output</arg>
+</arguments>
+<assign>
+<var>${placeholder}</var>
+</assign>
+<msg timestamp="20210422 15:15:39.177" level="INFO">${placeholder} = /uk-filer5/prodro/bir/capnprotolinux11/0-7-0-29/213995/output</msg>
+<status status="PASS" starttime="20210422 15:15:39.176" endtime="20210422 15:15:39.177"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${CAPNP_INPUT}</arg>
+<arg>${placeholder}</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.178" level="INFO">${CAPNP_INPUT} = /uk-filer5/prodro/bir/capnprotolinux11/0-7-0-29/213995/output</msg>
+<status status="PASS" starttime="20210422 15:15:39.177" endtime="20210422 15:15:39.178"></status>
+</kw>
+<kw name="Get Environment Variable" library="OperatingSystem">
+<doc>Returns the value of an environment variable with the given name.</doc>
+<arguments>
+<arg>SAV_INPUT</arg>
+<arg>default=/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package</arg>
+</arguments>
+<assign>
+<var>${placeholder}</var>
+</assign>
+<msg timestamp="20210422 15:15:39.179" level="INFO">${placeholder} = /uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package</msg>
+<status status="PASS" starttime="20210422 15:15:39.178" endtime="20210422 15:15:39.179"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${SAV_INPUT}</arg>
+<arg>${placeholder}</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.180" level="INFO">${SAV_INPUT} = /uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package</msg>
+<status status="PASS" starttime="20210422 15:15:39.179" endtime="20210422 15:15:39.180"></status>
+</kw>
+<kw name="Get Environment Variable" library="OperatingSystem">
+<doc>Returns the value of an environment variable with the given name.</doc>
+<arguments>
+<arg>OPENSSL_INPUT</arg>
+<arg>default=/uk-filer5/prodro/bir/openssllinux11/1-1-1c-16/216598/output</arg>
+</arguments>
+<assign>
+<var>${placeholder}</var>
+</assign>
+<msg timestamp="20210422 15:15:39.181" level="INFO">${placeholder} = /uk-filer5/prodro/bir/openssllinux11/1-1-1c-16/216598/output</msg>
+<status status="PASS" starttime="20210422 15:15:39.180" endtime="20210422 15:15:39.181"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${OPENSSL_INPUT}</arg>
+<arg>${placeholder}</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.182" level="INFO">${OPENSSL_INPUT} = /uk-filer5/prodro/bir/openssllinux11/1-1-1c-16/216598/output</msg>
+<status status="PASS" starttime="20210422 15:15:39.181" endtime="20210422 15:15:39.182"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${SUL_DOWNLOADER}</arg>
+<arg>${SOPHOS_INSTALL}/base/bin/SulDownloader</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.183" level="INFO">${SUL_DOWNLOADER} = /opt/sophos-spl/base/bin/SulDownloader</msg>
+<status status="PASS" starttime="20210422 15:15:39.182" endtime="20210422 15:15:39.183"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${VERSIGPATH}</arg>
+<arg>${SOPHOS_INSTALL}/base/update/versig</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.184" level="INFO">${VERSIGPATH} = /opt/sophos-spl/base/update/versig</msg>
+<status status="PASS" starttime="20210422 15:15:39.184" endtime="20210422 15:15:39.185"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${MCS_ROUTER}</arg>
+<arg>${SOPHOS_INSTALL}/base/bin/mcsrouter</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.186" level="INFO">${MCS_ROUTER} = /opt/sophos-spl/base/bin/mcsrouter</msg>
+<status status="PASS" starttime="20210422 15:15:39.185" endtime="20210422 15:15:39.186"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${REGISTER_CENTRAL}</arg>
+<arg>${SOPHOS_INSTALL}/base/bin/registerCentral</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.187" level="INFO">${REGISTER_CENTRAL} = /opt/sophos-spl/base/bin/registerCentral</msg>
+<status status="PASS" starttime="20210422 15:15:39.186" endtime="20210422 15:15:39.187"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${MANAGEMENT_AGENT}</arg>
+<arg>${SOPHOS_INSTALL}/base/bin/sophos_managementagent</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.188" level="INFO">${MANAGEMENT_AGENT} = /opt/sophos-spl/base/bin/sophos_managementagent</msg>
+<status status="PASS" starttime="20210422 15:15:39.187" endtime="20210422 15:15:39.188"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${COMMS_COMPONENT}</arg>
+<arg>${SOPHOS_INSTALL}/base/bin/CommsComponent</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.189" level="INFO">${COMMS_COMPONENT} = /opt/sophos-spl/base/bin/CommsComponent</msg>
+<status status="PASS" starttime="20210422 15:15:39.189" endtime="20210422 15:15:39.190"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${ETC_DIR}</arg>
+<arg>${SOPHOS_INSTALL}/base/etc</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.191" level="INFO">${ETC_DIR} = /opt/sophos-spl/base/etc</msg>
+<status status="PASS" starttime="20210422 15:15:39.190" endtime="20210422 15:15:39.191"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${MCS_DIR}</arg>
+<arg>${SOPHOS_INSTALL}/base/mcs</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.194" level="INFO">${MCS_DIR} = /opt/sophos-spl/base/mcs</msg>
+<status status="PASS" starttime="20210422 15:15:39.192" endtime="20210422 15:15:39.194"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${BASE_LOGS_DIR}</arg>
+<arg>${SOPHOS_INSTALL}/logs/base</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.195" level="INFO">${BASE_LOGS_DIR} = /opt/sophos-spl/logs/base</msg>
+<status status="PASS" starttime="20210422 15:15:39.194" endtime="20210422 15:15:39.195"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${PLUGIN_REGISTRY_DIR}</arg>
+<arg>${SOPHOS_INSTALL}/base/pluginRegistry</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.196" level="INFO">${PLUGIN_REGISTRY_DIR} = /opt/sophos-spl/base/pluginRegistry</msg>
+<status status="PASS" starttime="20210422 15:15:39.195" endtime="20210422 15:15:39.196"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${UPDATE_DIR}</arg>
+<arg>${SOPHOS_INSTALL}/base/update</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.198" level="INFO">${UPDATE_DIR} = /opt/sophos-spl/base/update</msg>
+<status status="PASS" starttime="20210422 15:15:39.196" endtime="20210422 15:15:39.198"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${MTR_DIR}</arg>
+<arg>${SOPHOS_INSTALL}/plugins/mtr</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.199" level="INFO">${MTR_DIR} = /opt/sophos-spl/plugins/mtr</msg>
+<status status="PASS" starttime="20210422 15:15:39.198" endtime="20210422 15:15:39.199"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${EDR_DIR}</arg>
+<arg>${SOPHOS_INSTALL}/plugins/edr</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.200" level="INFO">${EDR_DIR} = /opt/sophos-spl/plugins/edr</msg>
+<status status="PASS" starttime="20210422 15:15:39.199" endtime="20210422 15:15:39.200"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${AV_DIR}</arg>
+<arg>${SOPHOS_INSTALL}/plugins/av</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.202" level="INFO">${AV_DIR} = /opt/sophos-spl/plugins/av</msg>
+<status status="PASS" starttime="20210422 15:15:39.201" endtime="20210422 15:15:39.202"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${LIVERESPONSE_DIR}</arg>
+<arg>${SOPHOS_INSTALL}/plugins/liveresponse</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.203" level="INFO">${LIVERESPONSE_DIR} = /opt/sophos-spl/plugins/liveresponse</msg>
+<status status="PASS" starttime="20210422 15:15:39.202" endtime="20210422 15:15:39.203"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${UPDATE_CONFIG}</arg>
+<arg>${UPDATE_DIR}/var/updatescheduler/update_config.json</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.205" level="INFO">${UPDATE_CONFIG} = /opt/sophos-spl/base/update/var/updatescheduler/update_config.json</msg>
+<status status="PASS" starttime="20210422 15:15:39.204" endtime="20210422 15:15:39.205"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${UPDATECACHE_CERT_PATH}</arg>
+<arg>${UPDATE_DIR}/updatecachecerts/cache_certificates.crt</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.206" level="INFO">${UPDATECACHE_CERT_PATH} = /opt/sophos-spl/base/update/updatecachecerts/cache_certificates.crt</msg>
+<status status="PASS" starttime="20210422 15:15:39.205" endtime="20210422 15:15:39.206"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${UPDATE_ROOTCERT_DIR}</arg>
+<arg>${UPDATE_DIR}/rootcerts</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.207" level="INFO">${UPDATE_ROOTCERT_DIR} = /opt/sophos-spl/base/update/rootcerts</msg>
+<status status="PASS" starttime="20210422 15:15:39.206" endtime="20210422 15:15:39.207"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${WATCHDOG_SERVICE}</arg>
+<arg>sophos-spl</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.209" level="INFO">${WATCHDOG_SERVICE} = sophos-spl</msg>
+<status status="PASS" starttime="20210422 15:15:39.207" endtime="20210422 15:15:39.209"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${UPDATE_SERVICE}</arg>
+<arg>sophos-spl-update</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.210" level="INFO">${UPDATE_SERVICE} = sophos-spl-update</msg>
+<status status="PASS" starttime="20210422 15:15:39.209" endtime="20210422 15:15:39.210"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${BASE_RIGID_NAME}</arg>
+<arg>ServerProtectionLinux-Base</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.211" level="INFO">${BASE_RIGID_NAME} = ServerProtectionLinux-Base</msg>
+<status status="PASS" starttime="20210422 15:15:39.210" endtime="20210422 15:15:39.212"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${EXAMPLE_PLUGIN_RIGID_NAME}</arg>
+<arg>ServerProtectionLinux-Plugin-Example</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.213" level="INFO">${EXAMPLE_PLUGIN_RIGID_NAME} = ServerProtectionLinux-Plugin-Example</msg>
+<status status="PASS" starttime="20210422 15:15:39.212" endtime="20210422 15:15:39.213"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${TEMPORARY_DIRECTORIES}</arg>
+<arg>/tmp</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.214" level="INFO">${TEMPORARY_DIRECTORIES} = /tmp</msg>
+<status status="PASS" starttime="20210422 15:15:39.213" endtime="20210422 15:15:39.214"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${TEST_TEMP_DIR}</arg>
+<arg>/vagrant/everest-base/testUtils/tests/temp</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.215" level="INFO">${TEST_TEMP_DIR} = /vagrant/everest-base/testUtils/tests/temp</msg>
+<status status="PASS" starttime="20210422 15:15:39.214" endtime="20210422 15:15:39.215"></status>
+</kw>
+<kw name="Get Support File Path" library="PathManager">
+<assign>
+<var>${placeholder}</var>
+</assign>
+<msg timestamp="20210422 15:15:39.216" level="INFO">${placeholder} = /vagrant/everest-base/testUtils/SupportFiles</msg>
+<status status="PASS" starttime="20210422 15:15:39.216" endtime="20210422 15:15:39.216"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${SUPPORT_FILES}</arg>
+<arg>${placeholder}</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.218" level="INFO">${SUPPORT_FILES} = /vagrant/everest-base/testUtils/SupportFiles</msg>
+<status status="PASS" starttime="20210422 15:15:39.216" endtime="20210422 15:15:39.218"></status>
+</kw>
+<kw name="Get Robot Tests Path" library="PathManager">
+<assign>
+<var>${placeholder}</var>
+</assign>
+<msg timestamp="20210422 15:15:39.218" level="INFO">${placeholder} = /vagrant/everest-base/testUtils/tests</msg>
+<status status="PASS" starttime="20210422 15:15:39.218" endtime="20210422 15:15:39.218"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${ROBOT_TESTS_DIR}</arg>
+<arg>${placeholder}</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.220" level="INFO">${ROBOT_TESTS_DIR} = /vagrant/everest-base/testUtils/tests</msg>
+<status status="PASS" starttime="20210422 15:15:39.219" endtime="20210422 15:15:39.220"></status>
+</kw>
+<kw name="Get Libs Path" library="PathManager">
+<assign>
+<var>${placeholder}</var>
+</assign>
+<msg timestamp="20210422 15:15:39.221" level="INFO">${placeholder} = /vagrant/everest-base/testUtils/libs</msg>
+<status status="PASS" starttime="20210422 15:15:39.221" endtime="20210422 15:15:39.221"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${LIBS_DIRECTORY}</arg>
+<arg>${placeholder}</arg>
+</arguments>
+<msg timestamp="20210422 15:15:39.223" level="INFO">${LIBS_DIRECTORY} = /vagrant/everest-base/testUtils/libs</msg>
+<status status="PASS" starttime="20210422 15:15:39.221" endtime="20210422 15:15:39.223"></status>
+</kw>
+<kw name="Unpack Openssl" library="UpdateServer">
+<arguments>
+<arg>${TEMPORARY_DIRECTORIES}</arg>
+</arguments>
+<assign>
+<var>${OPENSSL_FOLDER}</var>
+</assign>
+<msg timestamp="20210422 15:15:42.123" level="INFO">${OPENSSL_FOLDER} = /tmp/openssl</msg>
+<status status="PASS" starttime="20210422 15:15:39.223" endtime="20210422 15:15:42.123"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${OPENSSL_BIN_PATH}</arg>
+<arg>${TEMPORARY_DIRECTORIES}/openssl/bin64</arg>
+</arguments>
+<msg timestamp="20210422 15:15:42.126" level="INFO">${OPENSSL_BIN_PATH} = /tmp/openssl/bin64</msg>
+<status status="PASS" starttime="20210422 15:15:42.124" endtime="20210422 15:15:42.126"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${OPENSSL_LIB_PATH}</arg>
+<arg>${TEMPORARY_DIRECTORIES}/openssl/lib64</arg>
+</arguments>
+<msg timestamp="20210422 15:15:42.127" level="INFO">${OPENSSL_LIB_PATH} = /tmp/openssl/lib64</msg>
+<status status="PASS" starttime="20210422 15:15:42.126" endtime="20210422 15:15:42.127"></status>
+</kw>
+<kw name="Directory Should Exist" library="OperatingSystem">
+<doc>Fails unless the given path points to an existing directory.</doc>
+<arguments>
+<arg>${OPENSSL_BIN_PATH}</arg>
+</arguments>
+<msg timestamp="20210422 15:15:42.128" level="INFO" html="yes">Directory '&lt;a href="file:///tmp/openssl/bin64"&gt;/tmp/openssl/bin64&lt;/a&gt;' exists.</msg>
+<status status="PASS" starttime="20210422 15:15:42.128" endtime="20210422 15:15:42.128"></status>
+</kw>
+<kw name="Directory Should Exist" library="OperatingSystem">
+<doc>Fails unless the given path points to an existing directory.</doc>
+<arguments>
+<arg>${OPENSSL_LIB_PATH}</arg>
+</arguments>
+<msg timestamp="20210422 15:15:42.129" level="INFO" html="yes">Directory '&lt;a href="file:///tmp/openssl/lib64"&gt;/tmp/openssl/lib64&lt;/a&gt;' exists.</msg>
+<status status="PASS" starttime="20210422 15:15:42.128" endtime="20210422 15:15:42.129"></status>
+</kw>
+<kw name="Install System Product Test Output" library="SystemProductTestOutputInstall">
+<arguments>
+<arg>${CAPNP_INPUT}</arg>
+</arguments>
+<assign>
+<var>${system_product_test_tar_path}</var>
+<var>${system_product_test_output_path}</var>
+</assign>
+<msg timestamp="20210422 15:15:42.132" level="INFO">/vagrant/everest-base/testUtils</msg>
+<msg timestamp="20210422 15:15:42.134" level="INFO">Attempt to detect path of systemproducttest in the following order ['/vagrant/everest-base/output', '/vagrant/everest-base/cmake-build-debug/SystemProductTestOutput', '/vagrant/everest-base/build64/SystemProductTestOutput']</msg>
+<msg timestamp="20210422 15:15:42.135" level="INFO">checking /vagrant/everest-base/output</msg>
+<msg timestamp="20210422 15:15:42.136" level="INFO">stat file /vagrant/everest-base/output/SystemProductTestOutput.tar.gz</msg>
+<msg timestamp="20210422 15:15:42.136" level="INFO">file found /vagrant/everest-base/output/SystemProductTestOutput.tar.gz</msg>
+<msg timestamp="20210422 15:15:42.137" level="INFO">Untaring System Product Test Output from /vagrant/everest-base/output/SystemProductTestOutput.tar.gz to /vagrant/everest-base/testUtils</msg>
+<msg timestamp="20210422 15:16:31.995" level="INFO">capn tar path: /uk-filer5/prodro/bir/capnprotolinux11/0-7-0-29/213995/output/capnproto.tar</msg>
+<msg timestamp="20210422 15:16:31.995" level="INFO">/vagrant/everest-base/testUtils/SystemProductTestOutput</msg>
+<msg timestamp="20210422 15:16:32.252" level="INFO">/vagrant/everest-base/testUtils
+/vagrant/everest-base
+/vagrant</msg>
+<msg timestamp="20210422 15:16:32.253" level="INFO">${system_product_test_tar_path} = /vagrant/everest-base/output/SystemProductTestOutput.tar.gz</msg>
+<msg timestamp="20210422 15:16:32.253" level="INFO">${system_product_test_output_path} = /vagrant/everest-base/testUtils/SystemProductTestOutput</msg>
+<status status="PASS" starttime="20210422 15:15:42.129" endtime="20210422 15:16:32.253"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}</arg>
+<arg>${system_product_test_output_path}</arg>
+</arguments>
+<msg timestamp="20210422 15:16:32.255" level="INFO">${SYSTEM_PRODUCT_TEST_OUTPUT_PATH} = /vagrant/everest-base/testUtils/SystemProductTestOutput</msg>
+<status status="PASS" starttime="20210422 15:16:32.254" endtime="20210422 15:16:32.255"></status>
+</kw>
+<kw name="Evaluate" library="BuiltIn">
+<doc>Evaluates the given expression in Python and returns the results.</doc>
+<arguments>
+<arg>"\\033[33mUsing the following for system product test output ${system_product_test_tar_path}\\033[0m"</arg>
+</arguments>
+<assign>
+<var>${colored_message}</var>
+</assign>
+<msg timestamp="20210422 15:16:32.256" level="INFO">${colored_message} = [33mUsing the following for system product test output /vagrant/everest-base/output/SystemProductTestOutput.tar.gz[0m</msg>
+<status status="PASS" starttime="20210422 15:16:32.255" endtime="20210422 15:16:32.256"></status>
+</kw>
+<kw name="Copy File" library="OperatingSystem">
+<doc>Copies the source file into the destination.</doc>
+<arguments>
+<arg>${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/libcrypto.so.1.1</arg>
+<arg>${SUPPORT_FILES}/warehouseGeneration/lib</arg>
+</arguments>
+<msg timestamp="20210422 15:16:32.560" level="INFO" html="yes">Copied file from '&lt;a href="file:///vagrant/everest-base/testUtils/SystemProductTestOutput/libcrypto.so.1.1"&gt;/vagrant/everest-base/testUtils/SystemProductTestOutput/libcrypto.so.1.1&lt;/a&gt;' to '&lt;a href="file:///vagrant/everest-base/testUtils/SupportFiles/warehouseGeneration/lib/libcrypto.so.1.1"&gt;/vagrant/everest-base/testUtils/SupportFiles/warehouseGeneration/lib/libcrypto.so.1.1&lt;/a&gt;'.</msg>
+<status status="PASS" starttime="20210422 15:16:32.256" endtime="20210422 15:16:32.561"></status>
+</kw>
+<kw name="Copy File" library="OperatingSystem">
+<doc>Copies the source file into the destination.</doc>
+<arguments>
+<arg>${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/libssl.so.1.1</arg>
+<arg>${SUPPORT_FILES}/warehouseGeneration/lib</arg>
+</arguments>
+<msg timestamp="20210422 15:16:32.640" level="INFO" html="yes">Copied file from '&lt;a href="file:///vagrant/everest-base/testUtils/SystemProductTestOutput/libssl.so.1.1"&gt;/vagrant/everest-base/testUtils/SystemProductTestOutput/libssl.so.1.1&lt;/a&gt;' to '&lt;a href="file:///vagrant/everest-base/testUtils/SupportFiles/warehouseGeneration/lib/libssl.so.1.1"&gt;/vagrant/everest-base/testUtils/SupportFiles/warehouseGeneration/lib/libssl.so.1.1&lt;/a&gt;'.</msg>
+<status status="PASS" starttime="20210422 15:16:32.561" endtime="20210422 15:16:32.640"></status>
+</kw>
+<kw name="Copy File" library="OperatingSystem">
+<doc>Copies the source file into the destination.</doc>
+<arguments>
+<arg>${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/libssp.so.0.0.0</arg>
+<arg>${SUPPORT_FILES}/warehouseGeneration/lib/libssp.so.0</arg>
+</arguments>
+<msg timestamp="20210422 15:16:32.663" level="INFO" html="yes">Copied file from '&lt;a href="file:///vagrant/everest-base/testUtils/SystemProductTestOutput/libssp.so.0.0.0"&gt;/vagrant/everest-base/testUtils/SystemProductTestOutput/libssp.so.0.0.0&lt;/a&gt;' to '&lt;a href="file:///vagrant/everest-base/testUtils/SupportFiles/warehouseGeneration/lib/libssp.so.0"&gt;/vagrant/everest-base/testUtils/SupportFiles/warehouseGeneration/lib/libssp.so.0&lt;/a&gt;'.</msg>
+<status status="PASS" starttime="20210422 15:16:32.640" endtime="20210422 15:16:32.663"></status>
+</kw>
+<kw name="Copy File" library="OperatingSystem">
+<doc>Copies the source file into the destination.</doc>
+<arguments>
+<arg>${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/openssl</arg>
+<arg>${SUPPORT_FILES}/warehouseGeneration/bin/openssl</arg>
+</arguments>
+<msg timestamp="20210422 15:16:32.737" level="INFO" html="yes">Copied file from '&lt;a href="file:///vagrant/everest-base/testUtils/SystemProductTestOutput/openssl"&gt;/vagrant/everest-base/testUtils/SystemProductTestOutput/openssl&lt;/a&gt;' to '&lt;a href="file:///vagrant/everest-base/testUtils/SupportFiles/warehouseGeneration/bin/openssl"&gt;/vagrant/everest-base/testUtils/SupportFiles/warehouseGeneration/bin/openssl&lt;/a&gt;'.</msg>
+<status status="PASS" starttime="20210422 15:16:32.663" endtime="20210422 15:16:32.737"></status>
+</kw>
+<kw name="Log To Console" library="BuiltIn">
+<doc>Logs the given message to the console.</doc>
+<arguments>
+<arg>\n${colored_message} \n</arg>
+</arguments>
+<status status="PASS" starttime="20210422 15:16:32.737" endtime="20210422 15:16:32.738"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${PUB_SUB_LOGGING}</arg>
+<arg>${False}</arg>
+</arguments>
+<msg timestamp="20210422 15:16:32.739" level="INFO">${PUB_SUB_LOGGING} = False</msg>
+<status status="PASS" starttime="20210422 15:16:32.738" endtime="20210422 15:16:32.740"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>${PUB_SUB_LOGGING}</arg>
+<arg>Create Full Installer With Pub Sub Logging</arg>
+</arguments>
+<status status="PASS" starttime="20210422 15:16:32.740" endtime="20210422 15:16:32.740"></status>
+</kw>
+<kw name="Generate Real Warehouse Alc Files" library="WarehouseUtils">
+<doc>Entry function used to generate the set of ALC policy files used for end-to-end testing with
+Real production or Ostia warehouses.</doc>
+<msg timestamp="20210422 15:16:32.743" level="INFO">returning 'https://localhost:4233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.744" level="INFO">returning 'https://localhost:4233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.744" level="INFO">
+                    Wrote real warehouse policy "base_and_mtr_0_6_0.xml" with:
+                    username: mtr_user_0_6_0
+                    password: password
+                    connection address: https://localhost:4233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="mtr_user_0_6_0" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:4233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.747" level="INFO">returning 'https://localhost:7233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.748" level="INFO">returning 'https://localhost:7233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.749" level="INFO">
+                    Wrote real warehouse policy "base_and_edr_999.xml" with:
+                    username: edr_user_999
+                    password: password
+                    connection address: https://localhost:7233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="edr_user_999" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:7233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.752" level="INFO">returning 'https://localhost:7237' as connection address</msg>
+<msg timestamp="20210422 15:16:32.753" level="INFO">returning 'https://localhost:7237' as connection address</msg>
+<msg timestamp="20210422 15:16:32.753" level="INFO">
+                    Wrote real warehouse policy "base_edr_vut_and_mtr_999.xml" with:
+                    username: mtr_user_999
+                    password: password
+                    connection address: https://localhost:7237
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="mtr_user_999" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:7237" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.757" level="INFO">returning 'https://localhost:7233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.759" level="INFO">returning 'https://localhost:7233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.759" level="INFO">
+                    Wrote real warehouse policy "base_mtr_vut_and_edr_999.xml" with:
+                    username: user_mtr_vut_edr_999
+                    password: password
+                    connection address: https://localhost:7233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="user_mtr_vut_edr_999" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:7233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.762" level="INFO">returning 'https://localhost:7240' as connection address</msg>
+<msg timestamp="20210422 15:16:32.763" level="INFO">returning 'https://localhost:7240' as connection address</msg>
+<msg timestamp="20210422 15:16:32.763" level="INFO">
+                    Wrote real warehouse policy "base_vut_and_mtr_edr_999.xml" with:
+                    username: mtr_and_edr_user_999
+                    password: password
+                    connection address: https://localhost:7240
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="mtr_and_edr_user_999" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:7240" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.769" level="INFO">returning 'https://localhost:7240' as connection address</msg>
+<msg timestamp="20210422 15:16:32.771" level="INFO">returning 'https://localhost:7240' as connection address</msg>
+<msg timestamp="20210422 15:16:32.771" level="INFO">
+                    Wrote real warehouse policy "base_vut_and_mtr_edr_av_999.xml" with:
+                    username: av_user_999
+                    password: password
+                    connection address: https://localhost:7240
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="av_user_999" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:7240" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+        &lt;Feature id="AV"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.773" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.774" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.774" level="INFO">
+                    Wrote real warehouse policy "base_and_mtr_VUT.xml" with:
+                    username: mtr_user_vut
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="mtr_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="BETA"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.779" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.780" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.781" level="INFO">
+                    Wrote real warehouse policy "base_and_mtr_VUT-1.xml" with:
+                    username: CSP7I0S0GZZE
+                    password: CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=
+                    connection address: https://dci.sophosupd.com/cloudupdate
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=" UserName="CSP7I0S0GZZE" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.784" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.785" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.785" level="INFO">
+                    Wrote real warehouse policy "base_and_av_VUT.xml" with:
+                    username: av_user_vut
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="av_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+            &lt;subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="BETA"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="AV"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.788" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.789" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.789" level="INFO">
+                    Wrote real warehouse policy "base_and_av_VUT-1.xml" with:
+                    username: CSP7I0S0GZZE
+                    password: CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=
+                    connection address: https://dci.sophosupd.com/cloudupdate
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=" UserName="CSP7I0S0GZZE" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="AV"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.792" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.793" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.793" level="INFO">
+                    Wrote real warehouse policy "base_and_mtr_and_av_VUT.xml" with:
+                    username: av_user_vut
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="av_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="BETA"/&gt;
+            &lt;subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="BETA"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+        &lt;Feature id="AV"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.797" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.798" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.798" level="INFO">
+                    Wrote real warehouse policy "base_and_mtr_and_av_VUT-1.xml" with:
+                    username: CSP7I0S0GZZE
+                    password: CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=
+                    connection address: https://dci.sophosupd.com/cloudupdate
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=" UserName="CSP7I0S0GZZE" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+        &lt;Feature id="AV"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.801" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.804" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.804" level="INFO">
+                    Wrote real warehouse policy "base_edr_and_mtr_and_av_VUT.xml" with:
+                    username: av_user_vut
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="av_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="BETA"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="BETA"/&gt;
+            &lt;subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="BETA"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+        &lt;Feature id="AV"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.807" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.808" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.808" level="INFO">
+                    Wrote real warehouse policy "base_edr_and_mtr_and_av_VUT-1.xml" with:
+                    username: CSP7I0S0GZZE
+                    password: CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=
+                    connection address: https://dci.sophosupd.com/cloudupdate
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=" UserName="CSP7I0S0GZZE" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+        &lt;Feature id="AV"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.811" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.812" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.812" level="INFO">
+                    Wrote real warehouse policy "base_edr_and_mtr_VUT-1.xml" with:
+                    username: CSP7I0S0GZZE
+                    password: CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=
+                    connection address: https://dci.sophosupd.com/cloudupdate
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=" UserName="CSP7I0S0GZZE" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.815" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.817" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.817" level="INFO">
+                    Wrote real warehouse policy "base_and_edr_VUT.xml" with:
+                    username: base_user_vut
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="BETA"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.819" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.821" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.821" level="INFO">
+                    Wrote real warehouse policy "base_edr_and_mtr.xml" with:
+                    username: mtr_user_vut
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="mtr_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="BETA"/&gt;
+            &lt;subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="BETA"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="MDR"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.824" level="INFO">returning 'https://localhost:4233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.826" level="INFO">returning 'https://localhost:4233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.826" level="INFO">
+                    Wrote real warehouse policy "base_only_0_6_0.xml" with:
+                    username: base_user_0_6_0
+                    password: password
+                    connection address: https://localhost:4233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_0_6_0" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:4233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.828" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.829" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.829" level="INFO">
+                    Wrote real warehouse policy "base_only_VUT.xml" with:
+                    username: base_user_vut
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.834" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.837" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.837" level="INFO">
+                    Wrote real warehouse policy "base_only_weeklyScheduleVUT.xml" with:
+                    username: base_user_vut
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+        &lt;delay_updating Day="Wednesday" Time="03:00:00"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.840" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.843" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.843" level="INFO">
+                    Wrote real warehouse policy "base_only_VUT_no_ballista_override.xml" with:
+                    username: base_user_vut
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.846" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.848" level="INFO">returning 'https://dci.sophosupd.com/cloudupdate' as connection address</msg>
+<msg timestamp="20210422 15:16:32.848" level="INFO">
+                    Wrote real warehouse policy "base_only_VUT-1.xml" with:
+                    username: CSP7I0S0GZZE
+                    password: CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=
+                    connection address: https://dci.sophosupd.com/cloudupdate
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=" UserName="CSP7I0S0GZZE" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.850" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.852" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.852" level="INFO">
+                    Wrote real warehouse policy "base_VUT_and_fake_plugins.xml" with:
+                    username: fake_plugin_user
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="fake_plugin_user" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="SENSORS" RigidName="ServerProtectionLinux-Plugin-AuditPlugin" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="SENSORS" RigidName="ServerProtectionLinux-Plugin-EventProcessor" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="SENSORS" RigidName="ServerProtectionLinux-Plugin-Example" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="SENSORS"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.855" level="INFO">returning 'https://localhost:6233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.857" level="INFO">returning 'https://localhost:6233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.857" level="INFO">
+                    Wrote real warehouse policy "base_paused_update_VUT-1.xml" with:
+                    username: base_user_paused
+                    password: password
+                    connection address: https://localhost:6233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+&lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+&lt;AUConfig platform="Linux"&gt;
+    &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+    &lt;primary_location&gt;
+        &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_paused" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:6233" AllowLocalConfig="false"/&gt;
+        &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+    &lt;/primary_location&gt;
+    &lt;secondary_location&gt;
+        &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+        &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+    &lt;/secondary_location&gt;
+    &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+    &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+    &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+    &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="1.0.1"/&gt;
+    &lt;cloud_subscriptions&gt;
+        &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="1.0.1"/&gt;
+    &lt;/cloud_subscriptions&gt;
+    &lt;delay_supplements enabled="true"/&gt;
+&lt;/AUConfig&gt;
+&lt;Features&gt;
+    &lt;Feature id="CORE"/&gt;
+    &lt;Feature id="SDU"/&gt;
+&lt;/Features&gt;
+&lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+&lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.860" level="INFO">returning 'https://localhost:6233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.863" level="INFO">returning 'https://localhost:6233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.863" level="INFO">
+                    Wrote real warehouse policy "base_paused_update_VUT.xml" with:
+                    username: base_user_paused
+                    password: password
+                    connection address: https://localhost:6233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_paused" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:6233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="1.1.0"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="1.1.0"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.868" level="INFO">returning 'https://localhost:6233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.869" level="INFO">returning 'https://localhost:6233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.869" level="INFO">
+                    Wrote real warehouse policy "base_paused_update_999.xml" with:
+                    username: base_user_paused
+                    password: password
+                    connection address: https://localhost:6233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_paused" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:6233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.873" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.874" level="INFO">returning 'https://localhost:2233' as connection address</msg>
+<msg timestamp="20210422 15:16:32.874" level="INFO">
+                    Wrote real warehouse policy "base_only_VUT_without_SDU_Feature.xml" with:
+                    username: base_user_vut
+                    password: password
+                    connection address: https://localhost:2233
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:2233" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.877" level="INFO">returning 'https://localhost:7244' as connection address</msg>
+<msg timestamp="20210422 15:16:32.878" level="INFO">returning 'https://localhost:7244' as connection address</msg>
+<msg timestamp="20210422 15:16:32.878" level="INFO">
+                    Wrote real warehouse policy "base_beta_only.xml" with:
+                    username: base_user_vut
+                    password: password
+                    connection address: https://localhost:7244
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:7244" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="BETA"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<msg timestamp="20210422 15:16:32.882" level="INFO">returning 'https://localhost:7245' as connection address</msg>
+<msg timestamp="20210422 15:16:32.884" level="INFO">returning 'https://localhost:7245' as connection address</msg>
+<msg timestamp="20210422 15:16:32.884" level="INFO">
+                    Wrote real warehouse policy "base_edr_old_wh_format.xml" with:
+                    username: base_user_vut
+                    password: password
+                    connection address: https://localhost:7245
+                    full contents:
+                    &lt;?xml version="1.0"?&gt;
+&lt;AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"&gt;
+    &lt;csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/&gt;
+    &lt;AUConfig platform="Linux"&gt;
+        &lt;sophos_address address="http://es-web.sophos.com/update"/&gt;
+        &lt;primary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="base_user_vut" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="https://localhost:7245" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/primary_location&gt;
+        &lt;secondary_location&gt;
+            &lt;server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/&gt;
+            &lt;proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/&gt;
+        &lt;/secondary_location&gt;
+        &lt;schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/&gt;
+        &lt;logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/&gt;
+        &lt;bootstrap Location="" UsePrimaryServerAddress="true"/&gt;
+        &lt;cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+        &lt;cloud_subscriptions&gt;
+            &lt;subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/&gt;
+            &lt;subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/&gt;
+        &lt;/cloud_subscriptions&gt;
+        &lt;delay_supplements enabled="true"/&gt;
+    &lt;/AUConfig&gt;
+    &lt;Features&gt;
+        &lt;Feature id="CORE"/&gt;
+        &lt;Feature id="LIVEQUERY"/&gt;
+        &lt;Feature id="SDU"/&gt;
+    &lt;/Features&gt;
+    &lt;intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/&gt;
+    &lt;customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/&gt;
+&lt;/AUConfigurations&gt;
+                    
+                    </msg>
+<status status="PASS" starttime="20210422 15:16:32.740" endtime="20210422 15:16:32.884"></status>
+</kw>
+<kw name="Set Global Variable" library="BuiltIn">
+<doc>Makes a variable available globally in all tests and suites.</doc>
+<arguments>
+<arg>${GeneratedWarehousePolicies}</arg>
+<arg>${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies</arg>
+</arguments>
+<msg timestamp="20210422 15:16:32.886" level="INFO">${GeneratedWarehousePolicies} = /vagrant/everest-base/testUtils/SupportFiles/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies</msg>
+<status status="PASS" starttime="20210422 15:16:32.885" endtime="20210422 15:16:32.886"></status>
+</kw>
+<status status="PASS" starttime="20210422 15:15:39.172" endtime="20210422 15:16:32.886"></status>
+</kw>
+<suite id="s1-s1-s1" name="Test" source="/vagrant/everest-base/testUtils/tests/test.robot">
+<test id="s1-s1-s1-t1" name="Test">
+<kw name="Log" library="BuiltIn">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>Successfully uploaded tarfile to s3</arg>
+</arguments>
+<msg timestamp="20210422 15:16:32.892" level="INFO">Successfully uploaded tarfile to s3</msg>
+<status status="PASS" starttime="20210422 15:16:32.891" endtime="20210422 15:16:32.892"></status>
+</kw>
+<kw name="Log" library="BuiltIn" type="teardown">
+<doc>Logs the given message with the given level.</doc>
+<arguments>
+<arg>Teardown</arg>
+</arguments>
+<msg timestamp="20210422 15:16:32.892" level="INFO">Teardown</msg>
+<status status="PASS" starttime="20210422 15:16:32.892" endtime="20210422 15:16:32.893"></status>
+</kw>
+<timeout value="5 minutes"></timeout>
+<status status="PASS" starttime="20210422 15:16:32.890" endtime="20210422 15:16:32.893" critical="yes"></status>
+</test>
+<status status="PASS" starttime="20210422 15:16:32.887" endtime="20210422 15:16:32.893"></status>
+</suite>
+<kw name="Global Cleanup Tasks" type="teardown">
+<kw name="Clean Up System Product Test Output" library="SystemProductTestOutputInstall">
+<status status="PASS" starttime="20210422 15:16:32.895" endtime="20210422 15:16:33.460"></status>
+</kw>
+<kw name="Run Keyword If" library="BuiltIn">
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<arguments>
+<arg>${PUB_SUB_LOGGING}</arg>
+<arg>Clean Up Full Installer With Pub Sub Logging</arg>
+</arguments>
+<status status="PASS" starttime="20210422 15:16:33.460" endtime="20210422 15:16:33.460"></status>
+</kw>
+<kw name="Cleanup Temporary Folders" library="TemporaryDirectoryManager">
+<status status="PASS" starttime="20210422 15:16:33.461" endtime="20210422 15:16:33.461"></status>
+</kw>
+<status status="PASS" starttime="20210422 15:16:32.894" endtime="20210422 15:16:33.461"></status>
+</kw>
+<status status="PASS" starttime="20210422 15:15:38.864" endtime="20210422 15:16:33.461"></status>
+</suite>
+<status status="PASS" starttime="20210422 15:15:38.828" endtime="20210422 15:16:33.463"></status>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0">Critical Tests</stat>
+<stat pass="1" fail="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" id="s1" name="testUtils">testUtils</stat>
+<stat pass="1" fail="0" id="s1-s1" name="Tests">testUtils.Tests</stat>
+<stat pass="1" fail="0" id="s1-s1-s1" name="Test">testUtils.Tests.Test</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
