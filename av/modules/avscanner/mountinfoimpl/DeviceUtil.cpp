@@ -240,7 +240,8 @@ bool DeviceUtil::isSystem(
         filesystemType == "pipefs" ||
         filesystemType == "sockfs" ||
         filesystemType == "usbfs" ||
-        filesystemType == "tracefs")
+        filesystemType == "tracefs" ||
+        filesystemType == "fuse.lxcfs")
     {
         return true;
     }

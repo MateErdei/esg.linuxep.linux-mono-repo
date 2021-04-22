@@ -167,7 +167,8 @@ INSTANTIATE_TEST_CASE_P(TestDeviceUtil, DeviceUtilParameterizedTest, ::testing::
     std::make_tuple("pipefs", SYSTEM),
     std::make_tuple("sockfs", SYSTEM),
     std::make_tuple("usbfs", SYSTEM),
-    std::make_tuple("tracefs", SYSTEM)
+    std::make_tuple("tracefs", SYSTEM),
+    std::make_tuple("fuse.lxcfs", SYSTEM)
 )); // NOLINT
 
 TEST_P(DeviceUtilParameterizedTest, TestDeviceType) // NOLINT
