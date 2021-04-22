@@ -15,9 +15,9 @@ python3 -m pip install --upgrade build_scripts ${PIP_ARGS}  || failure "Unable t
 python3 -m pip install --upgrade keyrings.alt ${PIP_ARGS} || failure "Unable to install dependency"
 
 #Update the hardcoded paths to filer 5 and filer 6 in the build scripts to work on dev machines
-BUILD_SCRIPT_INSTALL_DIR="$(python3 -m pip show build_scripts | grep "Location" | cut -d" " -f2)/build_scripts"
+BUILD_SCRIPT_INSTALL_DIR="$(python3 -m pip show build_scripts | grep "Location" | sed s/Location:\ //)/build_scripts"
 
-[[ -d ${BUILD_SCRIPT_INSTALL_DIR} ]] || failure "Unable to find build_scripts install location"
+[[ -d "${BUILD_SCRIPT_INSTALL_DIR}" ]] || failure "Unable to find build_scripts install location"
 
 echo "Patch before:"
 grep "mnt/filer" ${BUILD_SCRIPT_INSTALL_DIR}/build_context.py
