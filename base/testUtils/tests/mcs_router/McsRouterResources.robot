@@ -100,7 +100,7 @@ Generate Local Fake Cloud Certificates
     Run Keyword And Ignore Error  Run Process    chmod  a+r  ${SUPPORT_FILES}/CloudAutomation/server-private.pem
     Run Keyword And Ignore Error  Run Process    chmod  a+r  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
     Run Keyword And Ignore Error  Run Process    chown  bullseye:bullseye  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
-    Run Keyword And Ignore Error  ${result} =  Run Process    ls  -al  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    ${result} =  Run Process    ls  -al  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
     Log 	${result.stdout}
 
 Check MCS Router Running
