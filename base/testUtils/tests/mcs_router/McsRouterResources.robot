@@ -92,12 +92,14 @@ Generate Local Fake Cloud Certificates
     # This makes the necessary folder on jenkins and amazon have the correct permissions. Ubuntu has a+x on home folders
     # by default.
     Run Keyword And Ignore Error  Run Process    chmod  a+x  /home/jenkins  #RHEL and CentOS
+    Run Keyword And Ignore Error  Run Process    chmod  a+r  -R  /home/bullseye  #RHEL and CentOS
     Run Keyword And Ignore Error  Run Process    chmod  a+x  /root          #Amazon
 
     File Should Exist  ${SUPPORT_FILES}/CloudAutomation/server-private.pem
     File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
     Run Keyword And Ignore Error  Run Process    chmod  a+r  ${SUPPORT_FILES}/CloudAutomation/server-private.pem
     Run Keyword And Ignore Error  Run Process    chmod  a+r  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    Run Keyword And Ignore Error  Run Process    ls  -al  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
 
 Check MCS Router Running
     ${pid} =  Check MCS Router Process Running  require_running=True
