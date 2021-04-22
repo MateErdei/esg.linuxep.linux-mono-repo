@@ -737,7 +737,7 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
 
     Check Update Reports Have Been Processed
 
-    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print    timeout=60 seconds
+    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
     Should Be Equal As Integers  ${rc}  0
     Should Be Empty  ${output}
 

@@ -98,16 +98,20 @@ Reset Sophos Install Environment Variable Cache Exists
     ...         ELSE  Set Environment Variable  SOPHOS_INSTALL  ${SOPHOS_INSTALL_ENVIRONMENT_CACHE}
 
 Display All SSPL Files Installed
-    ${result}=  Run Process  find ${SOPHOS_INSTALL}/base -not -type d | grep -v python | grep -v primarywarehouse | grep -v primary | grep -v temp_warehouse | grep -v TestInstallFiles | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/base -not -type d | grep -v python | grep -v primarywarehouse | grep -v primary | grep -v temp_warehouse | grep -v TestInstallFiles | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${result}=  Run Process  find ${SOPHOS_INSTALL}/logs -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/logs -not -type d | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${result}=  Run Process  find ${SOPHOS_INSTALL}/var -not -type d | grep -v sophos-spl-comms | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/var -not -type d | grep -v sophos-spl-comms | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${result}=  Run Process  find ${SOPHOS_INSTALL}/bin -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/bin -not -type d | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
 
