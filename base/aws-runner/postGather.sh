@@ -1,5 +1,8 @@
 #!/bin/bash
 
+JOB_ID=$1
+shift
+
 IDENTITFIER=`hostname`-`date +%F`-`date +%H``date +%M`
 [[ -n $STACK ]] || STACK=sspl-system-tests-${IDENTITFIER}-$(echo "$@"-${RANDOM} | md5sum | cut -f 1 -d " " )
 

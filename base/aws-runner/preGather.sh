@@ -1,6 +1,7 @@
 #!/bin/bash
 
-
+JOB_ID=$1
+shift
 function failure()
 {
     echo "$@"
@@ -48,7 +49,7 @@ TAR_BASENAME=$(basename ${TEST_TAR})
 ## Gather files
 if [[ -z "$SKIP_GATHER" ]]
 then
-    bash ./gather.sh $@ || failure "Failed to gather test files: $?"
+    bash ./gather.sh || failure "Failed to gather test files: $?"
 fi
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
 
