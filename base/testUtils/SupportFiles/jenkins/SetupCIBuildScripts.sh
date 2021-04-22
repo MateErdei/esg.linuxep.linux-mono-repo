@@ -20,11 +20,11 @@ BUILD_SCRIPT_INSTALL_DIR="$(python3 -m pip show build_scripts | grep "Location" 
 [[ -d "${BUILD_SCRIPT_INSTALL_DIR}" ]] || failure "Unable to find build_scripts install location"
 
 echo "Patch before:"
-grep "mnt/filer" ${BUILD_SCRIPT_INSTALL_DIR}/build_context.py
-sed -i "s_'/mnt/filer6'_'/mnt/filer6/bfr'_g" ${BUILD_SCRIPT_INSTALL_DIR}/build_context.py
-sed -i 's/\/mnt\/filer\/bir/\/uk-filer5\/prodro\/bir/g' ${BUILD_SCRIPT_INSTALL_DIR}/build_context.py
+grep "mnt/filer" "${BUILD_SCRIPT_INSTALL_DIR}/build_context.py"
+sed -i "s_'/mnt/filer6'_'/mnt/filer6/bfr'_g" "${BUILD_SCRIPT_INSTALL_DIR}/build_context.py"
+sed -i 's/\/mnt\/filer\/bir/\/uk-filer5\/prodro\/bir/g' "${BUILD_SCRIPT_INSTALL_DIR}/build_context.py"
 echo "Patch after:"
-grep "mnt/filer" ${BUILD_SCRIPT_INSTALL_DIR}/build_context.py
+grep "mnt/filer" "${BUILD_SCRIPT_INSTALL_DIR}/build_context.py"
 
 #Create temporary location used by scripts
 sudo mkdir -p /SophosPackages
