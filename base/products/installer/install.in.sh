@@ -83,47 +83,31 @@ function isServiceInstalled()
 
 function createWatchdogSystemdService()
 {
-    echo  "Creating Watchdog service file"
+    if ! isServiceInstalled sophos-spl.service || $FORCE_INSTALL
+    then
 
-    service_content=$(cat <<EOF
+        if [[ -d /lib/systemd/system ]]
+        then
+            STARTUP_DIR="/lib/systemd/system"
+        elif [[ -d /usr/lib/systemd/system ]]
+        then
+            STARTUP_DIR="/usr/lib/systemd/system"
+        else
+            failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl service"
+        fi
+
+        cat > ${STARTUP_DIR}/sophos-spl.service << EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 ExecStart=${SOPHOS_INSTALL}/base/bin/sophos_watchdog
 Restart=always
-KillMode=mixed
 
 [Install]
 WantedBy=multi-user.target
 
 [Unit]
 Description=Sophos Linux Protection
-
 RequiresMountsFor=${SOPHOS_INSTALL}
-EOF
-)
-
-      if [[ -d /lib/systemd/system ]]
-      then
-          STARTUP_DIR="/lib/systemd/system"
-      elif [[ -d /usr/lib/systemd/system ]]
-      then
-          STARTUP_DIR="/usr/lib/systemd/system"
-      else
-          failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl service"
-      fi
-
-    current_service_content=""
-
-    if [[ -f ${STARTUP_DIR}/sophos-spl.service ]]
-    then
-      current_service_content=$(<${STARTUP_DIR}/sophos-spl.service)
-    fi
-    echo  "Checking if need to update sophos-spl service file."
-    if [[ "${service_content}" != "${current_service_content}" || $FORCE_INSTALL ]]
-    then
-        echo "Creating sophos-spl.service file"
-        cat > ${STARTUP_DIR}/sophos-spl.service << EOF
-${service_content}
 EOF
         chmod 644 ${STARTUP_DIR}/sophos-spl.service
         systemctl daemon-reload
