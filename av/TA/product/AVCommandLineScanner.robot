@@ -582,16 +582,18 @@ CLS Encoded Eicars
     Stop AV
     Remove File  ${THREAT_DETECTOR_LOG_PATH}
     Start AV
+    Mark AV Log
 
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
     Should Be Equal As Integers  ${result.rc}  0
+    Wait Until AV Plugin Log Contains With Offset  Starting listening on socket: ${COMPONENT_ROOT_PATH}/chroot/var/threat_report_socket
     ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp_test/encoded_eicars/  timeout=120s
     Log   ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
 
     # Once CORE-1517 has been fixed, uncomment the check below
-    #Threat Detector Does Not Log Contain  Failed to parse response from SUSI
+    Threat Detector Does Not Log Contain  Failed to parse response from SUSI
     AV Plugin Log Contains  Sending threat detection notification to central
 
     ${FILE_CONTENT}=    Get File  ${SUPPORT_FILES_PATH}/list_of_expected_encoded_eicars

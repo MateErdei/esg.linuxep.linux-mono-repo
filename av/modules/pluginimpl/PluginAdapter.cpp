@@ -12,8 +12,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "datatypes/sophos_filesystem.h"
 #include "modules/common/ThreadRunner.h"
 
-#include "unixsocket/processControllerSocket/ProcessControllerClient.h"
-
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
@@ -39,11 +37,6 @@ namespace Plugin
         {
             return pluginInstall() / "chroot/var/process_control_socket";
         }
-
-//        fs::path sophos_threat_detector_launcher()
-//        {
-//            return pluginInstall() / "sbin/sophos_threat_detector_launcher";
-//        }
 
         class ThreatReportCallbacks : public IMessageCallback
         {
@@ -77,8 +70,10 @@ namespace Plugin
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(*this),
-        m_threatReporterServer(threat_reporter_socket(), 0600,
+        m_threatReporterServer(threat_reporter_socket(), 0660,
                                std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath)),
+        m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
+            process_controller_socket())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher())
@@ -122,6 +117,7 @@ namespace Plugin
         ThreadRunner scheduler(
             m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
         ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
+        ThreadRunner sophos_threat_detector(*m_threatDetector, "threatDetector");
         innerLoop();
     }
 
@@ -155,21 +151,6 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::requestShutdownOfThreatDetector()
-    {
-        try
-        {
-            LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");
-            unixsocket::ProcessControllerClientSocket processController(process_controller_socket());
-            scan_messages::ProcessControlSerialiser processControlRequest;
-            processController.sendProcessControlRequest(processControlRequest);
-        }
-        catch (const std::exception& e)
-        {
-            LOGERROR("Failed to send shutdown request: " << e.what());
-        }
-    }
-
     void PluginAdapter::processPolicy(const std::string& policyXml)
     {
         LOGINFO("Received Policy");
@@ -188,7 +169,7 @@ namespace Plugin
                 bool updated = m_policyProcessor.processAlcPolicy(attributeMap);
                 if (updated)
                 {
-                    requestShutdownOfThreatDetector();
+                    m_threatDetector->configuration_changed();
                 }
             }
             else
@@ -214,8 +195,11 @@ namespace Plugin
         auto savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap);
         if (savPolicyHasChanged)
         {
-            requestShutdownOfThreatDetector();
+            LOGDEBUG("Reloading susi as startup configuration changed");
+            m_threatDetector->configuration_changed();
         }
+
+        m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
         std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
         m_callback->sendStatus(revID);

@@ -10,7 +10,9 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include "PolicyProcessor.h"
 #include "QueueTask.h"
 
+#include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
+#include "modules/manager/scanprocessmonitor/ConfigMonitor.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include <Common/PluginApi/ApiException.h>
@@ -28,6 +30,7 @@ namespace Plugin
         std::shared_ptr<PluginCallback> m_callback;
         manager::scheduler::ScanScheduler m_scanScheduler;
         unixsocket::ThreatReporterServerSocket m_threatReporterServer;
+        std::unique_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_threatDetector;
         int m_waitForPolicyTimeout = 0;
 
         Common::ZMQWrapperApi::IContextSharedPtr m_zmqContext;
@@ -55,7 +58,5 @@ namespace Plugin
 
         std::string waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
                                           const std::string& policyAppId, const std::string& policyName);
-
-        void requestShutdownOfThreatDetector();
     };
 } // namespace Plugin

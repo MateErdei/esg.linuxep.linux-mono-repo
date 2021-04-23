@@ -75,6 +75,24 @@ Threat detector aborts if logging symlink cannot be created
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
 
 
+Threat Detector Restarts When /etc/hosts changed
+    register cleanup   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    Wait Until AV Plugin Log Contains With Offset  Starting sophos_threat_detector monitor
+    Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120
+    Alter Hosts
+
+    # wait for AV log
+    Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system configuration has changed
+    Mark Sophos Threat Detector Log
+    Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+
+    Wait until threat detector running
+    Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+
 *** Keywords ***
 
 set sophos_threat_detector log level
@@ -116,3 +134,12 @@ AVSophosThreatDetector Test TearDown
     Log  AVSophosThreatDetector Test TearDown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
     run teardown functions
+
+Alter Hosts
+    ## Back up /etc/hosts
+    ## Register cleanup function
+    alter etc hosts
+    register cleanup  Restore hosts
+
+Restore hosts
+    restore etc hosts

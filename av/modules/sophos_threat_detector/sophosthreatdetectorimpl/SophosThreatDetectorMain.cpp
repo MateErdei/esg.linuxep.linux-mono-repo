@@ -406,6 +406,7 @@ static int inner_main()
         }
     }
     server.requestStop();
+    server.join();
 
     LOGINFO("Sophos Threat Detector is exiting");
     return returnCode;
