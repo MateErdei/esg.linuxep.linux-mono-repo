@@ -13,9 +13,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace avscanner::avscannerimpl;
 
 
-Exclusion::Exclusion(const std::string& path)
+Exclusion::Exclusion(const std::string& path):
+    m_exclusionDisplayPath(path)
 {
-    m_exclusionDisplayPath = path;
     std::string exclusionPath(path);
 
     if (exclusionPath.empty())
