@@ -23,6 +23,9 @@ def args():
         with open("argFile") as arg_file:
             arg_lines = arg_file.readlines()
         for arg_line in arg_lines:
+            if '"' in arg_line or "'" in arg_line:
+                raise AssertionError('We DO NOT support quotes in these args. If you MUST use a robot argument which \
+                                      contains whitespace, please swap it for underscores as robot treats them equally')
             yield arg_line.rstrip()
     else:
         yield ""
