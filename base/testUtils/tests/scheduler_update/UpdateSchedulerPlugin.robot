@@ -23,8 +23,6 @@ Resource  ../GeneralTeardownResource.robot
 Default Tags  UPDATE_SCHEDULER
 Force Tags  LOAD5
 
-
-
 *** Variables ***
 ${TELEMETRY_SUCCESS}    0
 ${TELEMETRY_JSON_FILE}              ${SOPHOS_INSTALL}/base/telemetry/var/telemetry.json
@@ -390,35 +388,6 @@ UpdateScheduler SulDownloader Report Sync With Warehouse Success Via Update Cach
 
     Check Event Source  ${eventPath}  <updateSource>4092822d-0925-4deb-9146-fbc8532f8c55</updateSource>
 
-
-UpdateScheduler Periodically Run SulDownloader
-    [Tags]  SLOW  UPDATE_SCHEDULER
-    [Timeout]    35 minutes
-    Set Log Level For Component And Reset and Return Previous Log  updatescheduler   DEBUG
-    Setup Plugin Install Failed
-    # status is to be created in start up - regardless of running update or not.
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  File Should Exist  ${statusPath}
-    #Remove noref status
-    Remove File  ${statusPath}
-
-    ${eventPath} =  Check Status and Events Are Created  waitTime=30 minutes  attemptsTime=2 minutes
-    Check Event Report Install Failed   ${eventPath}
-
-    Remove File  ${eventPath}
-    #Remove status with the products in
-    Remove File  ${statusPath}
-
-    Setup Base and Plugin Upgraded  startTime=3  syncTime=3
-    #Wait for up to 30 mins for the update
-
-    ${eventPath} =  Check Event File Generated   1800
-    Check Event Report Success  ${eventPath}
-
-    # After first succesful update feature codes are added to the ALC status
-    File Should Exist  ${statusPath}
 
 UpdateScheduler Sends A Default Status If Its Status Is Requested Before An Update Completes
     ${ErrorMessage} =  Set Variable  Failed to get plugin status for: updatescheduler, with errorStatus not set yet.

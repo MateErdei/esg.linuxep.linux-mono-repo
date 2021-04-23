@@ -462,3 +462,93 @@ Teardown For Test
     Run Keyword If Test Failed   Log Settings Files
     Teardown Servers For Update Scheduler
     Remove Directory   ${tmpdir}    recursive=True
+
+
+Check Event Source
+    [Arguments]   ${eventPath}   ${expectedSource}
+    ${fileContent}  Get File  ${eventPath}
+    Should Contain  ${fileContent}  ${expectedSource}  msg="Event does not report Source: ${expectedSource}"
+
+Check Update Scheduler Run as Sophos-spl-user
+    ${Pid} =   Run Process   pidof UpdateScheduler   shell=yes
+    ${UpdateSchedulerProcess} =  Run Process   ps -o user\= -p ${Pid.stdout}    shell=yes
+    Should Contain   ${UpdateSchedulerProcess.stdout}   sophos-spl-updatescheduler   msg="Failed to detect process ownership of UpdateScheduler. Expected it to run as sophos-spl-updatescheduler. ${UpdateSchedulerProcess.stdout}. Err: ${UpdateSchedulerProcess.stderr}"
+
+
+Management Agent Contains
+    [Arguments]  ${Contents}
+    ${ManagementAgentLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log
+    Should Contain  ${ManagementAgentLog}  ${Contents}
+
+Configure Hosts File
+    Copy File  /etc/hosts  /etc/hosts.bk
+    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
+    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
+    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
+
+
+
+Check report was a product update
+    [Arguments]  ${reportPath}
+    ${contents} =    Get File  ${reportPath}
+    Should Contain  ${contents}  "supplementOnlyUpdate": false
+
+Check report was supplement-only update
+    [Arguments]  ${reportPath}
+    ${contents} =    Get File  ${reportPath}
+    Should Contain  ${contents}  "supplementOnlyUpdate": true
+
+Check Sul Downloader log contains
+    [Arguments]  ${contents}
+    Check Log Contains   ${contents}    ${SULDOWNLOADER_LOG_PATH}   ${SULDOWNLOADER_LOG_PATH}
+
+Fail Update Install And Check Status Shows Good Install State
+    Remove File    ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Setup Plugin Install Failed  startTime=2
+    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Should Exist  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+
+    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
+    Should Contain  ${StatusContent}  <installState><state>good</state><lastGood>
+    Should Contain  ${StatusContent}  </lastGood></installState>
+    Should Not Contain  ${StatusContent}  <installState><state>bad</state><failedSince>
+
+Fail Update Install And Check Status Not ReGenerated
+    Remove File    ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Setup Plugin Install Failed  startTime=2
+    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Simulate Update Now
+    Sleep  5
+    Should Not Exist   ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+
+Fail Update Install And Check Status Shows Bad Install State
+    Setup Plugin Install Failed  startTime=2
+    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Contains Bad State
+
+
+Check Status Contains Bad State
+    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
+    Should Not Contain  ${StatusContent}  <installState><state>good</state><lastGood>
+    Should Contain  ${StatusContent}  <installState><state>bad</state><failedSince>
+    # not checking actual value of lastGood because this is a time stamp that will change.
+    Should Contain  ${StatusContent}   </failedSince></installState>
+
+Convert report to success
+    [Arguments]  ${reportPath}
+    ${contents} =    Get File  ${reportPath}
+    ${contents} =  Replace String  ${contents}  "status": "CONNECTIONERROR",  "status": "SUCCESS",
+    ${contents} =  Replace String  ${contents}  "errorDescription": "Failed to connect to warehouse",  "errorDescription": "",
+    Create File   ${reportPath}  ${contents}

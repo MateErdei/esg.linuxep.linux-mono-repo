@@ -101,3 +101,4 @@ The following tags can be used to select which tests can be run, using the inclu
 * WATCHDOG - Tests that exercise the Watchdog
 * WAREHOUSE_SYNC - Test that fail if the warehouse and base build are out of sync
 * WDCTL - Tests that exercise WDCTL, Watchdog Control
+* LOAD${N} - Tags used to roughly balance the load of test jobs which can run in parallel
