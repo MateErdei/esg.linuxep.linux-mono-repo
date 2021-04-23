@@ -21,6 +21,7 @@ Resource  ../GeneralTeardownResource.robot
 ${UPDATE_SCHEDULER_BINARY_NAME}  UpdateScheduler
 ${tmpdir}                       tmp/SDT
 ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 
 *** Keywords ***
