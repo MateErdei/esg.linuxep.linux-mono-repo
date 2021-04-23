@@ -57,11 +57,6 @@
               "Description" : "name of folder to dump tests into",
               "Type": "String",
               "Default": ""
-            },
-            "TarName": {
-              "Description" : "name of tar on s3",
-              "Type": "String",
-              "Default": ""
             }
   },
 
