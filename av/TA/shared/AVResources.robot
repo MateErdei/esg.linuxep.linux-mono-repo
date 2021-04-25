@@ -282,7 +282,7 @@ Check Plugin Installed and Running
 
 Wait until AV Plugin running
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  30 secs
     ...  2 secs
     ...  Check Plugin Running
     Wait Until Keyword Succeeds
