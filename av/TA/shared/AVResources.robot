@@ -49,6 +49,8 @@ ${AVSCANNER}        /usr/local/bin/avscanner
 *** Keywords ***
 Check Plugin Running
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
+    ${rc}   ${output} =    Run And Return Rc And Output    ps -ef | grep sophos
+    Log  ${output}
 
 Check AV Plugin Running
     Check Plugin Running
