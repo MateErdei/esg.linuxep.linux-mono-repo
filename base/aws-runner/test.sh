@@ -61,8 +61,6 @@ source $SCRIPT_DIR/SupportFiles/jenkins/exportInputLocations.sh || failure 21 "f
 [[ -d /tmp/system-product-test-inputs ]] ||  tar xzf $SCRIPT_DIR/SystemProductTestInputs.tgz -C /tmp/
 source $SCRIPT_DIR/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 22 "failed to validate input locations"
 
-cp $SCRIPT_DIR/SupportFiles/jenkins/auditdConfig.txt /etc/audit/auditd.conf
-service auditd restart
 
 bash $SCRIPT_DIR/SupportFiles/jenkins/install_dependencies.sh
 
