@@ -48,8 +48,6 @@ ${AVSCANNER}        /usr/local/bin/avscanner
 
 *** Keywords ***
 Check Plugin Running
-    ${rc}   ${output} =    Run And Return Rc And Output    ps -ef | grep sophos
-    Log  ${output}
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
 
 Check AV Plugin Running
@@ -351,12 +349,6 @@ Display All SSPL Files Installed
 AV And Base Teardown
     Run Teardown Functions
     Run Keyword If Test Failed   Display All SSPL Files Installed
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop threat_detector   OnError=failed to stop sophos_threat_detector
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check AV Plugin Not Running
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
