@@ -6,6 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "PassOnCapability.h"
 
+#include "common/ErrorCodesC.h"
+
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -16,7 +18,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 static int cap_set_ambient(cap_value_t cap, cap_flag_value_t set)
 {
-    int result, val;
+    int val;
     switch (set)
     {
         case CAP_SET:
@@ -29,7 +31,7 @@ static int cap_set_ambient(cap_value_t cap, cap_flag_value_t set)
             errno = EINVAL;
             return -1;
     }
-    result = prctl(PR_CAP_AMBIENT, pr_arg(val), pr_arg(cap),  pr_arg(0), pr_arg(0));
+    int result = prctl(PR_CAP_AMBIENT, pr_arg(val), pr_arg(cap),  pr_arg(0), pr_arg(0));
     return result;
 }
 
@@ -41,26 +43,26 @@ int pass_on_capability(cap_value_t cap)
     if (caps == NULL)
     {
         perror("Failed to get caps");
-        return 30;
+        return E_CAP_GET_PROC;
     }
     cap_value_t newcaps[1] = { cap, };
     ret = cap_set_flag(caps, CAP_INHERITABLE, 1, newcaps, CAP_SET);
     if (ret != 0)
     {
         perror("Failed to cap_set_flag");
-        return 31;
+        return E_CAP_SET_FLAG;
     }
     ret = cap_set_proc(caps);
     if (ret != 0)
     {
         perror("Failed to cap_set_proc");
-        return 32;
+        return E_CAP_SET_PROC;
     }
     ret = cap_free(caps);
     if (ret != 0)
     {
         perror("Failed to free cap");
-        return 33;
+        return E_CAP_FREE;
     }
 
     errno = 0;
@@ -68,7 +70,7 @@ int pass_on_capability(cap_value_t cap)
     if (ret != 0)
     {
         perror("cap_set_ambient fails");
-        return 34;
+        return E_CAP_SET_AMBIENT;
     }
 
     return 0;

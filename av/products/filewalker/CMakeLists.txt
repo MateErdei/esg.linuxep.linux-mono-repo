@@ -54,6 +54,7 @@ add_executable(scheduled_file_walker_launcher
         ../capability/PassOnCapability.c)
 
 target_link_libraries(scheduled_file_walker_launcher  PUBLIC cap)
+target_include_directories(scheduled_file_walker_launcher PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
 install(TARGETS scheduled_file_walker_launcher
         DESTINATION files/plugins/${PLUGIN_NAME}/sbin

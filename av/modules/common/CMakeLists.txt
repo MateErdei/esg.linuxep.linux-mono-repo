@@ -1,6 +1,7 @@
 add_library(common SHARED
         AbortScanException.h
         ErrorCodes.h
+        ErrorCodesC.h
         Logger.cpp
         Logger.h
         SigIntMonitor.cpp

@@ -15,6 +15,7 @@ add_executable(sophos_threat_detector_launcher
         sophos_threat_detector_launcher.c
         ../capability/PassOnCapability.c)
 target_link_libraries(sophos_threat_detector_launcher  PUBLIC cap)
+target_include_directories(sophos_threat_detector_launcher PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
 install(TARGETS sophos_threat_detector sophos_threat_detector_launcher
         DESTINATION files/plugins/${PLUGIN_NAME}/sbin
