@@ -7,6 +7,7 @@ add_custom_target(echogTest
         COMMAND ls -l ${gtest_SOURCE_DIR}/include/gtest/gtest.h
         )
 add_subdirectory(avscanner)
+add_subdirectory(capability)
 add_subdirectory(commonTest)
 add_subdirectory(datatypes)
 add_subdirectory(FDTransfer)
