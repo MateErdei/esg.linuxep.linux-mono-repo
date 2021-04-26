@@ -403,18 +403,18 @@ AV Plugin Reports encoded eicars To Base
 
 
 AV Plugin uninstalls
+    Register Cleanup  Install With Base SDDS
     Check avscanner in /usr/local/bin
     Run plugin uninstaller
     Check avscanner not in /usr/local/bin
     Check AV Plugin Not Installed
-    [Teardown]   Install AV Directly from SDDS
 
 AV Plugin Saves Logs On Downgrade
+    Register Cleanup  Install With Base SDDS
     Check AV Plugin Running
     Run plugin uninstaller with downgrade flag
     Check AV Plugin Not Installed
     Check Logs Saved On Downgrade
-    [Teardown]   Install AV Directly from SDDS
 
 AV Plugin Can Send Telemetry
     Prepare To Run Telemetry Executable

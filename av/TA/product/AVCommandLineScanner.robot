@@ -215,7 +215,7 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout
     sleep  1s
     Send Signal To Process  2
-    ${result} =  Wait For Process  timeout=10s
+    ${result} =  Wait For Process  timeout=20s
     Process Should Be Stopped
 
     Should Not Contain  ${result.stdout}  Reached total maximum number of reconnection attempts. Aborting scan.

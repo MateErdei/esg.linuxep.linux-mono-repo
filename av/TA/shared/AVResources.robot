@@ -33,6 +33,7 @@ ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
 ${SOPHOS_THREAT_DETECTOR_BINARY}    ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector
 ${SOPHOS_THREAT_DETECTOR_LAUNCHER}  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 ${EXPORT_FILE}     /etc/exports
+${AV_INSTALL_LOG}  /tmp/avplugin_install.log
 
 ${EICAR_STRING}  X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 ${EICAR_PUA_STRING}  X5]+)D:)D<5N*PZ5[/EICAR-POTENTIALLY-UNWANTED-OBJECT-TEST!$*M*L
@@ -332,7 +333,7 @@ Install Base For Component Tests
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install AV Directly from SDDS
-    ${install_log} =  Set Variable   /tmp/avplugin_install.log
+    ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
     ${log_contents} =  Get File  ${install_log}
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\noutput: \n${log_contents}"
@@ -355,6 +356,7 @@ AV And Base Teardown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SUSI_DEBUG_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_INSTALL_LOG}  encoding_errors=replace
 
 Restart AV Plugin And Clear The Logs
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
