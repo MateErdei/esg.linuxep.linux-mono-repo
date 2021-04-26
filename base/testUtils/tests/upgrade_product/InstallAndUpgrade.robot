@@ -145,7 +145,13 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    # Make sure the second update performs an upgrade.
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Base-component Upgraded  1
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-liveresponse Upgraded  1
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-MDR Upgraded  1
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-AV Upgraded  1
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -697,6 +703,8 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
     Override LogConf File as Global Level  DEBUG
     Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
 
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
+
     Check AV Plugin Installed
     ${BaseReleaseVersion} =      Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
@@ -722,9 +730,18 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  2
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    # Make sure the second update performs an upgrade.
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Base-component Upgraded  1
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-liveresponse Upgraded  1
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-AV Upgraded  1
 
     Check AV Plugin Installed
+
+    #TODO LINUXDAR-2881 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
