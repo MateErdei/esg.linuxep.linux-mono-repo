@@ -363,6 +363,11 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...  5 secs
     ...  Component Version has changed  ${EdrReleaseVersion}    ${InstalledEDRPluginVersionFile}
 
+    #wait for AV plugin to be running before attempting uninstall
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  10 secs
+    ...  File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/av.log
 
     #the query pack should have been re-installed
     Should Exist  ${Sophos_Scheduled_Query_Pack}
