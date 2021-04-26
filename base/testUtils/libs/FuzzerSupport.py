@@ -176,10 +176,13 @@ class FuzzerSupport( object):
                 poll_return, logs))
 
     def wait_for_mcs_fuzzer(self, timeout=600):
-        self.mcs_fuzz_runner_process.wait(timeout=int(timeout))
-        if self.mcs_fuzz_runner_process.returncode != 0:
-            logs = self.mcs_fuzz_logs()
-            raise AssertionError("MCS Fuzzer found errors: {}".format(logs))
+        try:
+            self.mcs_fuzz_runner_process.wait(timeout=int(timeout))
+            if self.mcs_fuzz_runner_process.returncode != 0:
+                logs = self.mcs_fuzz_logs()
+                raise AssertionError("MCS Fuzzer found errors: {}".format(logs))
+        except subprocess.TimeoutExpired:
+            print("hit timeout")
 
     def kill_mcs_fuzzer(self):
         if self.mcs_fuzz_runner_process.returncode is None:
