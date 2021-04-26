@@ -607,9 +607,9 @@ Check file clean
      Should Contain   ${output}    0 files out of 1 were infected.
 
 Wait For File With Particular Contents
-    [Arguments]     ${expectedContent}  ${filePath}
+    [Arguments]     ${expectedContent}  ${filePath}  ${timeout}=20
     Wait Until Keyword Succeeds
-    ...  20 secs
+    ...  ${timeout} secs
     ...  5 secs
     ...  Check Specific File Content  ${expectedContent}  ${filePath}
     Log File  ${filePath}

@@ -492,7 +492,7 @@ AV Plugin Gets Customer ID from Obfuscated Creds
     # md5(md5("ABC123:password"))
     ${expectedId} =   Set Variable   f5c33e370714d94e1d967e53ac4f0437
 
-    Wait Until Created   ${customerIdFile1}   timeout=5sec
+    Wait Until Created   ${customerIdFile1}   timeout=10sec
     ${customerId1} =   Get File   ${customerIdFile1}
     Should Be Equal   ${customerId1}   ${expectedId}
 

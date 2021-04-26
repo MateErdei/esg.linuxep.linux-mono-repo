@@ -1385,7 +1385,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep avscanner
     Run Process   /bin/kill   -SIGTERM   ${pid}
 
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=60
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
 CLS Can Append Summary To Log When SIGHUP Is Received
@@ -1401,5 +1401,5 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep avscanner
     Run Process   /bin/kill   -SIGHUP   ${pid}
 
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=60
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
