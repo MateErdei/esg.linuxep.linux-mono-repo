@@ -309,7 +309,9 @@ def Send_Query_From_Fake_Cloud(name, query, command_id="correlation-id"):
     CloudAutomation.SendToFakeCloud.sendLiveQueryToFakeCloud(json.dumps(query_dict), command_id=command_id)
 
 def Set_Local_CA_Environment_Variable():
-    MCS_CA = os.path.join("/tmp", "root-ca.crt.pem")
+    MCS_CA = os.path.join(PathManager.get_support_file_path(), "CloudAutomation", "root-ca.crt.pem")
+    if os.path.exists("/home/bullseye"):
+        MCS_CA = os.path.join("/tmp", "root-ca.crt.pem")
     Set_MCS_CA_Environment_Variable(MCS_CA)
 
 def getSophosGID():
