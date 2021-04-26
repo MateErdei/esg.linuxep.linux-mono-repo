@@ -86,6 +86,11 @@ namespace Plugin
         return true; // Only restart sophos_threat_detector if it changes
     }
 
+    bool PolicyProcessor::getSXL4LookupsEnabled()
+    {
+        return m_lookupEnabled;
+    }
+
     std::string PolicyProcessor::getCustomerId(const Common::XmlUtilities::AttributesMap& policy)
     {
         auto primaryLocation = policy.lookup("AUConfigurations/AUConfig/primary_location/server");

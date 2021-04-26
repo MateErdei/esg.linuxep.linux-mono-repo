@@ -146,7 +146,8 @@ namespace
             vdlVersionFileStream.close();
         }
 
-        void writeHexStringToFile(const std::string &hexString, const fs::path &filePath){
+        void writeHexStringToFile(const std::string &hexString, const fs::path &filePath)
+        {
             std::ofstream datafile(filePath, std::ios_base::binary | std::ios_base::out);
 
             char buf[3];
@@ -350,4 +351,26 @@ TEST_F(TestPluginCallback, getTelemetry_vdlVersion_fileDoesNotExist) //NOLINT
     json telemetry = json::parse(m_pluginCallback->getTelemetry());
 
     EXPECT_EQ(telemetry["vdl-version"], "unknown");
+}
+
+TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup) //NOLINT
+{
+    m_pluginCallback->setSXL4Lookups(true);
+
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(initialTelemetry["sxl4-lookup"], true);
+
+    m_pluginCallback->setSXL4Lookups(false);
+
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(modifiedTelemetry["sxl4-lookup"], false);
+}
+
+TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup_fileDoesNotExist) //NOLINT
+{
+    json telemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(telemetry["sxl4-lookup"], true);
 }

@@ -15,7 +15,6 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <sophos_threat_detector/threat_scanner/SusiWrapperFactory.cpp>
 
 #include <fstream>
 #include <unistd.h>
@@ -73,6 +72,11 @@ namespace Plugin
         return m_statusInfo;
     }
 
+    void PluginCallback::setSXL4Lookups(bool sxl4Lookup)
+    {
+        m_lookupEnabled = sxl4Lookup;
+    }
+
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
@@ -83,7 +87,7 @@ namespace Plugin
         telemetry.set("vdl-ide-count", getIdeCount());
         telemetry.set("vdl-version", getVirusDataVersion());
         telemetry.set("version", common::getPluginVersion());
-        telemetry.set("sxl4-lookup", threat_scanner::isSxlLookupEnabled());
+        telemetry.set("sxl4-lookup", m_lookupEnabled);
 
         return telemetry.serialiseAndReset();
     }

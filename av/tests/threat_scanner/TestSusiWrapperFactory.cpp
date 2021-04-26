@@ -26,7 +26,6 @@ namespace
         void writeLargeSusiStartupFile();
         void writeToSusiStartupFile(const std::string& susiStartupContents);
 
-        fs::path getSusiStartupPath() { return m_susiStartupPath; }
     protected:
         void SetUp() override
         {

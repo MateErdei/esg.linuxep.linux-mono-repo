@@ -456,6 +456,12 @@ TEST_F(TestPolicyProcessor, processSavPolicy) // NOLINT
     EXPECT_FALSE(changed);
 }
 
+TEST_F(TestPolicyProcessor, defaultSXL4lookupValueIsTrue)
+{
+    Plugin::PolicyProcessor proc;
+    EXPECT_TRUE(proc.getSXL4LookupsEnabled());
+}
+
 TEST_F(TestPolicyProcessor, processSavPolicyChanged) // NOLINT
 {
     // Setup Mock filesystem
@@ -490,7 +496,9 @@ TEST_F(TestPolicyProcessor, processSavPolicyChanged) // NOLINT
     auto attributeMapTrue = Common::XmlUtilities::parseXml(policyXmlTrue);
     auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
     proc.processSavPolicy(attributeMapTrue);
+    EXPECT_TRUE(proc.getSXL4LookupsEnabled());
     bool changed = proc.processSavPolicy(attributeMapFalse);
+    EXPECT_FALSE(proc.getSXL4LookupsEnabled());
     EXPECT_TRUE(changed);
 }
 

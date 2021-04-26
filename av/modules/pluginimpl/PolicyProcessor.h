@@ -30,8 +30,10 @@ namespace Plugin
 
         static std::string getCustomerId(const Common::XmlUtilities::AttributesMap& policy);
         static bool isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy);
+        bool getSXL4LookupsEnabled();
+        bool m_lookupEnabled = true;
+
     private:
         std::string m_customerId;
-        bool m_lookupEnabled = true;
     };
 }

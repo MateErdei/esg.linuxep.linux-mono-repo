@@ -34,8 +34,10 @@ namespace Plugin
 
         void setRunning(bool running);
         bool isRunning();
+        void setSXL4Lookups(bool sxl4Lookup);
 
     private:
         std::atomic_bool m_running = false;
+        bool m_lookupEnabled = true;
     };
 }; // namespace Plugin
