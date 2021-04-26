@@ -99,7 +99,8 @@ set sophos_threat_detector log level
     Set Log Level  DEBUG
 
 Restart sophos_threat_detector
-    Kill sophos_threat_detector
+    Stop sophos_threat_detector
+    Start sophos_threat_detector
     Mark AV Log
     wait for sophos_threat_detector to be running
 
@@ -109,6 +110,14 @@ wait for sophos_threat_detector to be running
 Kill sophos_threat_detector
    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
    Run Process   /bin/kill   -9   ${output}
+
+Stop sophos_threat_detector
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   threat_detector
+    Should Be Equal As Integers    ${result.rc}    0
+
+Start sophos_threat_detector
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  threat_detector
+    Should Be Equal As Integers    ${result.rc}    0
 
 scan GR test file
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/gui.exe

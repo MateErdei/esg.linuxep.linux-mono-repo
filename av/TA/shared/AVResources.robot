@@ -294,7 +294,7 @@ Wait until AV Plugin running
 Wait until threat detector running
     # wait for AV Plugin to initialize
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  30 secs
     ...  3 secs
     ...  Check Sophos Threat Detector Running
     Wait Until Keyword Succeeds

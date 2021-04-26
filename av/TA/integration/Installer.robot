@@ -88,11 +88,17 @@ Update then Restart Sophos Threat Detector
 
 
 Scanner works after upgrade
+    Mark Sophos Threat Detector Log
+
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
     Run Installer From Install Set
 
-    Check Plugin Installed and Running With Offset
+    # Existing robot functions don't check marked logs, so we do our own log check instead
+    # Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=60
 
     Mark AV Log
     Mark Sophos Threat Detector Log
@@ -114,6 +120,8 @@ AV Plugin gets customer id after upgrade
     ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
 
+    Mark Sophos Threat Detector Log
+
     Send Alc Policy
 
     ${expectedId} =   Set Variable   a1c0f318e58aad6bf90d07cabda54b7d
@@ -127,7 +135,7 @@ AV Plugin gets customer id after upgrade
     ${customerId2} =   Get File   ${customerIdFile2}
     Should Be Equal   ${customerId2}   ${expectedId}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket  timeout=30
 
     # force an upgrade, check that customer id is set
     Mark Sophos Threat Detector Log
@@ -148,7 +156,7 @@ AV Plugin gets customer id after upgrade
     ${customerId2} =   Get File   ${customerIdFile2}
     Should Be Equal   ${customerId2}   ${expectedId}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
+    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket  timeout=30
 
 
 IDE can be removed
@@ -373,9 +381,9 @@ Installer Test Setup
     Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
+    Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Check AV Plugin Installed With Base
     Mark AV Log
-    Mark Sophos Threat Detector Log
 
 Installer Test TearDown
     Run Teardown Functions
@@ -398,9 +406,14 @@ Kill sophos_threat_detector
     Run Process   /bin/kill   -${signal}   ${output}
 
 Restart sophos_threat_detector
-    Mark Sophos Threat Detector Log
+    Mark AV Log
     Kill sophos_threat_detector
-    Wait until threat detector running with offset
+
+    # Existing robot functions don't check marked logs, so we do our own log check instead
+    # Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=40
 
 Modify manifest
     Append To File   ${COMPONENT_ROOT_PATH}/var/manifest.dat   "junk"
