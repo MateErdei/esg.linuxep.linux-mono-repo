@@ -42,6 +42,9 @@ Reset AVCommandLineScanner Suite
 AVCommandLineScanner Test Setup
     Create Directory     ${NORMAL_DIRECTORY}
     Check Sophos Threat Detector Running
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    Mark Susi Debug Log
 
 AVCommandLineScanner Test TearDown
     Run Teardown Functions
@@ -119,7 +122,7 @@ CLS Can Scan Relative Path
     Log  output is ${output}
     Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/testdir/clean_file was aborted
     Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/testdir/naughty_eicar was aborted
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/testdir/naughty_eicar
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/testdir/naughty_eicar
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 
@@ -140,7 +143,7 @@ CLS Can Scan Infected File
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
 
 
 CLS Can Scan Shallow Archive But not Deep Archive
@@ -232,8 +235,8 @@ CLS Does not request TFTClassification from SUSI
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
-    Should Not Contain  ${THREAT_DETECTOR_LOG_PATH}  TFTClassifications
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
+    Threat Detector Log Should Not Contain With Offset  TFTClassifications
 
 
 CLS Can Evaluate High Ml Score As A Threat
@@ -255,7 +258,7 @@ CLS Can Evaluate High Ml Score As A Threat
 
 CLS Can Evaluate Low Ml Score As A Clean File
     Copy File  ${RESOURCES_PATH}/file_samples/MLengLowScore.exe  ${NORMAL_DIRECTORY}
-    Mark Sophos Threat Detector Log
+
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengLowScore.exe
 
     Log  return code is ${rc}
@@ -379,8 +382,6 @@ CLS Can Report Scan Error And Detection For Archive
 
 
 AV Log Contains No Errors When Scanning File
-    Mark AV Log
-
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
@@ -389,7 +390,6 @@ AV Log Contains No Errors When Scanning File
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
     Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central
-
     AV Plugin Log Should Not Contain With Offset  ERROR
 
 
@@ -517,8 +517,6 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
 
 
 CLS Creates Threat Report
-    Mark AV Log
-
     Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
@@ -542,7 +540,6 @@ CLS Creates Threat Report
 
 
 CLS simple encoded eicar
-    Mark AV Log
     Create File  ${NORMAL_DIRECTORY}/脅威    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}
     Log  ${output}
@@ -553,7 +550,6 @@ CLS simple encoded eicar
 
 
 CLS simple encoded eicar in archive
-    Mark AV Log
     Create File  ${NORMAL_DIRECTORY}/脅威    ${EICAR_STRING}
     Run Process     tar  -cf  ${NORMAL_DIRECTORY}/test.tar  -C  ${NORMAL_DIRECTORY}  脅威
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.tar --scan-archives
@@ -565,7 +561,6 @@ CLS simple encoded eicar in archive
 
 
 CLS simple eicar in encoded archive
-    Mark AV Log
     Create File  ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
     Run Process     tar  -cf  ${NORMAL_DIRECTORY}/脅威.tar  -C  ${NORMAL_DIRECTORY}  eicar
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/脅威.tar --scan-archives
@@ -736,8 +731,6 @@ CLS Folder Name Exclusion
 
 
 CLS Absolute Folder Exclusion And Filename Exclusion
-    Mark AV Log
-
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
@@ -914,7 +907,7 @@ CLS Can Scan Infected File Via Symlink To Directory
     Should Contain       ${output.replace("\n", " ")}  Detected "${sourceDir}/b/eicar.com" (symlinked to ${targetDir}/eicar.com) is infected with EICAR-AV-Test
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
 
 
 CLS Does Not Backtrack Through Symlinks
@@ -933,7 +926,7 @@ CLS Does Not Backtrack Through Symlinks
     Should Contain       ${output.replace("\n", " ")}  Directory already scanned: "${targetDir}"
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
 
 
 CLS Can Scan Infected File Via Symlink To File
@@ -945,7 +938,7 @@ CLS Can Scan Infected File Via Symlink To File
     Log  output is ${output}
     Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToEicar" (symlinked to ${NORMAL_DIRECTORY}/eicar.com) is infected with EICAR-AV-Test
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToEicar
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToEicar
 
 
 CLS Can Scan Infected File Via Symlink To Directory Containing File
@@ -958,7 +951,7 @@ CLS Can Scan Infected File Via Symlink To Directory Containing File
     Log  output is ${output}
     Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToDir/eicar.com" (symlinked to ${NORMAL_DIRECTORY}/a/eicar.com) is infected with EICAR-AV-Test
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToDir/eicar.com
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToDir/eicar.com
 
 
 CLS Skips The Scanning Of Symlink Targets On Special Mount Points

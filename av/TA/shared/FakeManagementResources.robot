@@ -47,12 +47,12 @@ Run Scan Now Scan For Excluded Files Test
 Run Scan Now Scan With No Exclusions
     ${policy_contents} =  Get Sav Policy With No Exclusions  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
     Send Plugin Policy  av  sav  ${policy_contents}
-    Wait until scheduled scan updated
+    Wait until scheduled scan updated With Offset
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 
 # list of exclusions: https://wiki.sophos.net/display/SAVLU/Exclusions
 Run Scan Now Scan With All Types of Exclusions
     ${policy_contents} =  Get File  ${RESOURCES_PATH}/${SAV_POLICY_FOR_EXCLUSION_TYPE_TEST}
     Send Plugin Policy  av  sav  ${policy_contents}
-    Wait until scheduled scan updated
+    Wait until scheduled scan updated With Offset
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}

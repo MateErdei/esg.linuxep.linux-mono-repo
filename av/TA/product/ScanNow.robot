@@ -38,8 +38,8 @@ Scan Now Honours Exclusions
     Register Cleanup    Remove File  /eicar.question_mark
 
     Run Scan Now Scan With All Types of Exclusions
-    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=10
-    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=20
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=20
 
     Dump Log  ${SCANNOW_LOG_PATH}
     ${scan_now_contents} =  Get File    ${SCANNOW_LOG_PATH}
@@ -64,9 +64,9 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
     # Start scan now - abort or timeout...
     Run Scan Now Scan With No Exclusions
-    AV Plugin Log Contains  Received new Action
-    Wait Until AV Plugin Log Contains  Evaluating Scan Now
-    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=10
+    AV Plugin Log Contains With Offset  Received new Action
+    Wait Until AV Plugin Log Contains With Offset  Evaluating Scan Now
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
 
     # Rename the sophos threat detector launcher so that it cannot be restarted
     Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
@@ -127,6 +127,8 @@ ScanNow Test Setup
     Check Sophos Threat Detector Running
     register cleanup  Delete Eicars From Tmp
     Check AV Plugin Log exists
+    Mark AV Log
+    Mark Sophos Threat Detector Log
 
 ScanNow Test Teardown
     Dump Log On Failure   ${AV_LOG_PATH}
