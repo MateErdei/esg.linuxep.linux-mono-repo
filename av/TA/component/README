@@ -12,7 +12,7 @@ In order to run them in Vagrant box:
     d) ln -s /vagrant/sspl-plugin-anti-virus/output/SDDS-COMPONENT/  /opt/test/inputs/av/SDDS-COMPONENT
     e) ln -s /vagrant/sspl-plugin-anti-virus/output/componenttests/  /opt/test/inputs/av/componenttests
 
-  3) cd /vagrant/sspl-plugin-anti-virus/TA/opt/test/inputs/av/
+  3) cd /vagrant/sspl-plugin-anti-virus/TA/
   4) pip install -r requirements.txt
   5) python3.7 -u -m pytest
   6) Result files can be seen at: /var/tmp/pytest-of-vagrant/pytest-current/sophos-splcurrent
