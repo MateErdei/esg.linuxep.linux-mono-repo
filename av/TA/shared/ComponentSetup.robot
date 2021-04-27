@@ -9,7 +9,6 @@ Resource    GlobalSetup.robot
 *** Keywords ***
 
 Component Test Setup
-    Run Keyword And Ignore Error   Empty Directory   ${COMPONENT_ROOT_PATH}/log
     Run Keyword And Ignore Error   Empty Directory   ${SOPHOS_INSTALL}/tmp
     Start Fake Management If Required
 

@@ -34,14 +34,14 @@ Trigger Scan Now Scan
 Run Scan Now Scan
     ${policy_contents} =  Get Complete Sav Policy
     Send Plugin Policy  av  sav  ${policy_contents}
-    Wait until scheduled scan updated
+    Wait until scheduled scan updated With Offset
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan For Excluded Files Test
     ${policy_contents} =  Replace Exclusions For Exclusion Test  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
 
     Send Plugin Policy  av  sav  ${policy_contents}
-    Wait until scheduled scan updated
+    Wait until scheduled scan updated With Offset
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan With No Exclusions
