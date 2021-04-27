@@ -384,7 +384,7 @@ static int inner_main()
 
         if (FDUtils::fd_isset(usr1Monitor.monitorFd(), &tempRead))
         {
-            LOGERROR("Sophos Threat Detector received SIGUSR1 - shutting down");
+            LOGERROR("Sophos Threat Detector received SIGUSR1 - reloading");
             usr1Monitor.triggered();
             continue;
         }

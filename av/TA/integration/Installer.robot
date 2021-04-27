@@ -53,7 +53,11 @@ IDE update only copies updated ide
 
 
 Restart then Update Sophos Threat Detector
-    Kill sophos_threat_detector  TERM
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=60
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Install IDE without reload check  ${IDE_NAME}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
@@ -218,6 +222,8 @@ Check permissions after upgrade
     END
     Log List   ${files}
     ${files_as_args} =   Catenate   @{files}
+
+    Change Owner   ${COMPONENT_ROOT_PATH}/chroot/log/test_file  sophos-spl-threat-detector   sophos-spl-group
 
     # store current permissions for our files
     ${rc}   ${output} =    Run And Return Rc And Output
