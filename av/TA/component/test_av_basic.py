@@ -43,5 +43,5 @@ def test_av_can_send_telemetry(sspl_mock, av_plugin_instance):
     assert av_dict["ml-pe-model-version"] is not "unknown"
     assert av_dict["vdl-ide-count"] is not "unknown"
     assert av_dict["vdl-version"] is not "unknown"
-    assert av_dict["sxl4-lookup"] is 1
+    assert av_dict["sxl4-lookup"] is True
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)
