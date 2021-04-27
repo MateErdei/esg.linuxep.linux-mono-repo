@@ -67,36 +67,6 @@ MDR In Subscription And In Feature List But Missing From Warehouse Should Log Er
     Check MDR Plugin uninstalled
     Check Report For Missing Package  ServerProtectionLinux-Plugin-FDR
 
-No Base Or MDR Component In Warehouse Should Report Error And Fail Update
-    [Documentation]  When no Base or MDR component in warehouse product should report error and fail update
-    [Tags]  MDR_PLUGIN   MANAGEMENT_AGENT  EVENT_PLUGIN  AUDIT_PLUGIN  OSTIA
-    Require Fresh Install
-    Check SSPL Installed
-    Block Connection Between EndPoint And FleetManager
-
-    # Warehouse without Base
-    Setup For Test With Warehouse Containing Sensors
-    Send Policy With Host Redirection And Run Update  remove_subscriptions=SENSORS
-
-    #Verify Update report error related to missing product (No core base available)
-    Check Report For Missing Package  ServerProtectionLinux-Base;ServerProtectionLinux-Plugin-MDR
-
-Test MDR Uninstalled Correctly
-    [Tags]   MDR_PLUGIN   MANAGEMENT_AGENT  OSTIA  WAREHOUSE_SYNC
-    Block Connection Between EndPoint And FleetManager
-    Check MDR Plugin uninstalled
-    Check SSPL Installed
-
-    # MDR feature and MDR subscription in ALC policy (MDR gets installed)
-    Simulate Send Policy And Run Update  ${MDR_VUT_POLICY}
-    Check SSPL Installed
-    Check MDR Plugin Installed
-
-    # No MDR feature but with MDR subscription in ALC policy (MDR does not get installed)
-    Simulate Send Policy And Run Update  ${MDR_VUT_POLICY}    remove_features=MDR
-    Wait Until MDR Uninstalled
-
-
 *** Keywords ***
 Test Teardown
     Stop Update Server

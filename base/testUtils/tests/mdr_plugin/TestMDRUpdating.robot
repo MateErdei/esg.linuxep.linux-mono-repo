@@ -25,57 +25,6 @@ ${MDR_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedA
 
 
 *** Test Cases ***
-
-Test MDR Plugin Can Be Installed Removed and ReInstalled From Central
-    [Documentation]  Address bug found LINUXEP-8233
-    [Timeout]  10 minutes
-    Create File  ${UPDATE_CONFIG}
-    Block Connection Between EndPoint And FleetManager
-
-    ${currentStatus} =  Get File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
-    Simulate Send Policy And Simulate Update Now  ${MDR_VUT_POLICY}
-
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Check Status Has Changed   ${currentStatus}
-
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  Check MDR Installed
-
-    Set Log Level For Component And Reset and Return Previous Log  suldownloader  DEBUG
-
-    ${currentStatus} =  Get File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
-
-    Simulate Send Policy And Simulate Update Now   ${MDR_VUT_POLICY}   remove_features=MDR   remove_subscriptions=MDR
-
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Check Status Has Changed   ${currentStatus}
-
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  Check MDR Uninstalled
-
-    ${currentStatus} =  Get File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
-
-    Simulate Send Policy And Simulate Update Now  ${MDR_VUT_POLICY}
-
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Check Status Has Changed   ${currentStatus}
-
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   2 secs
-    ...   Check MDR Installed
-
-
 Test MDR Plugin When Installed Emit Status With The Components Of The Warehouse Installed
     Create File  ${UPDATE_CONFIG}
     Block Connection Between EndPoint And FleetManager
