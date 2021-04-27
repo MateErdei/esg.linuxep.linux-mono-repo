@@ -25,7 +25,7 @@ BRANCH_NAME = "master"
 
 def has_coverage_build(branch_name):
     """If the branch name does an analysis mode build"""
-    return branch_name in ('master', "develop") or branch_name.endswith('coverage')
+    return branch_name in ('master', "develop") or branch_name.endswith('coverage') or "release" in branch_name
 
 def is_debian_based(machine: tap.Machine):
     return machine.template.startswith("ubuntu")
@@ -77,18 +77,29 @@ def get_suffix():
     return "-" + BRANCH_NAME
 
 
-def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=None):
+def robot_task_with_env(machine: tap.Machine, test_type=None, environment=None, machine_name=None):
     if machine_name is None:
         machine_name = machine.template
     try:
-        robot_exclusion_tags = ['OSTIA', 'MANUAL', 'STRESS', 'VQA']
+        # Exclude OSTIA on TAP, since we are testing builds immediately, before they are put in warehouses
+        # Exclude MANUAL on TAP
+        # Exclude DISABLED on TAP
+        # Exclude STRESS on TAP; as some of the tests here will not be appropriate
+        robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS', 'VQA', 'PRODUCT', 'INTEGRATION']
 
-        if BRANCH_NAME == "master" or "vqa" in BRANCH_NAME:
-            robot_exclusion_tags.remove('VQA')
+        if test_type == "product" or test_type == "coverage":
+            robot_exclusion_tags.remove('PRODUCT')
+            #run VQA only with product tests
+            if BRANCH_NAME == "develop" or "vqa" in BRANCH_NAME:
+                robot_exclusion_tags.remove('VQA')
+
+        if test_type == "integration" or test_type == "coverage":
+            robot_exclusion_tags.remove('INTEGRATION')
 
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
-        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', *robot_exclusion_tags, environment=environment,
-                    timeout=3600)
+        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', *robot_exclusion_tags,
+                    environment=environment,
+                    timeout=5400)
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -98,11 +109,15 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/report.html",
                     "robot" + get_suffix() + "_" + machine_name + "-report.html")
 
-
-def robot_task(machine: tap.Machine):
+@tap.timeout(task_timeout=5400)
+def robot_task_product(machine: tap.Machine):
     install_requirements(machine)
-    robot_task_with_env(machine)
+    robot_task_with_env(machine, "product")
 
+@tap.timeout(task_timeout=5400)
+def robot_task_integration(machine: tap.Machine):
+    install_requirements(machine)
+    robot_task_with_env(machine, "integration")
 
 def pytest_task_with_env(machine: tap.Machine, environment=None):
     try:
@@ -156,7 +171,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         test_inputs['bazel_tools'] = unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
     return test_inputs
 
-
+@tap.timeout(task_timeout=5400)
 def bullseye_coverage_task(machine: tap.Machine):
     suffix = get_suffix()
 
@@ -215,6 +230,7 @@ def bullseye_coverage_task(machine: tap.Machine):
         # don't abort immediately if robot tests fail, generate the coverage report, then re-raise the exception
         try:
             robot_task_with_env(machine,
+                                test_type="coverage",
                                 environment={
                                     'COVFILE': COVFILE_ROBOT,
                                     'COVSRCDIR': COVSRCDIR,
@@ -282,14 +298,19 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     BRANCH_NAME = context.branch
     do_coverage = parameters.run_tests_on_coverage == 'yes' or has_coverage_build(BRANCH_NAME)
     coverage_build = context.artifact.build()
+    nine_nine_nine_mode = '999'
 
     # section include to allow classic build to continue to work. To run unified pipeline local because of this check
     # export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     if parameters.mode:
-        component = tap.Component(name='sspl-plugin-anti-virus', base_version='1.0.0')
+        component = tap.Component(name='sspl-plugin-anti-virus', base_version='1.0.1')
         build_image = 'JenkinsLinuxTemplate5'
         release_package = "./build-files/release-package.xml"
         with stage.parallel('build'):
+            av_cpp_check = stage.artisan_build(name="cpp-check", component=component, image=build_image,
+                                               mode="cppcheck", release_package=release_package)
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
+                                                       mode=nine_nine_nine_mode, release_package=release_package)
             av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
                                            mode=parameters.mode, release_package=release_package)
             if do_coverage:
@@ -301,24 +322,35 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     with stage.parallel('testing'):
         test_inputs = get_inputs(context, av_build)
-        ubuntu1804_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-        ubuntu2004_machine = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-        centos7_machine = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        ubuntu1804_machine_component = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        ubuntu2004_machine_component = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        centos7_machine_component = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
 
-        with stage.parallel('component'):
-            stage.task(task_name='ubuntu1804_x64', func=pytest_task, machine=ubuntu1804_machine)
-            stage.task(task_name='ubuntu2004_x64', func=pytest_task, machine=ubuntu2004_machine)
-            stage.task(task_name='centos77_x64',   func=pytest_task, machine=centos7_machine)
+        ubuntu1804_machine_product = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        ubuntu2004_machine_product = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        centos7_machine_product = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
 
-        with stage.parallel('integration'):
-            stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
-            stage.task(task_name='ubuntu2004_x64', func=robot_task, machine=ubuntu2004_machine)
-            stage.task(task_name='centos77_x64',   func=robot_task, machine=centos7_machine)
+        ubuntu1804_machine_integration = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        ubuntu2004_machine_integration = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        centos7_machine_integration = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
 
-        if do_coverage:
-            with stage.parallel('coverage'):
-                coverage_inputs = get_inputs(context, coverage_build, coverage=True)
-                machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
-                                                    inputs=coverage_inputs,
-                                                    platform=tap.Platform.Linux)
-                stage.task(task_name='ubuntu1804_x64_combined', func=bullseye_coverage_task, machine=machine_bullseye_test)
+        # with stage.parallel('TA'):
+        #     stage.task(task_name='ubuntu1804_machine_component', func=pytest_task, machine=ubuntu1804_machine_component)
+        #     stage.task(task_name='ubuntu2004_machine_component', func=pytest_task, machine=ubuntu2004_machine_component)
+        #     stage.task(task_name='centos77_machine_component',   func=pytest_task, machine=centos7_machine_component)
+        #
+        #     stage.task(task_name='ubuntu1804_x64_product', func=robot_task_product, machine=ubuntu1804_machine_product)
+        #     stage.task(task_name='ubuntu2004_x64_product', func=robot_task_product, machine=ubuntu2004_machine_product)
+        #     stage.task(task_name='centos77_x64_product',   func=robot_task_product, machine=centos7_machine_product)
+        #
+        #     stage.task(task_name='ubuntu1804_machine_integration', func=robot_task_integration, machine=ubuntu1804_machine_integration)
+        #     stage.task(task_name='ubuntu2004_machine_integration', func=robot_task_integration, machine=ubuntu2004_machine_integration)
+        #     stage.task(task_name='centos77_machine_integration',   func=robot_task_integration, machine=centos7_machine_integration)
+        #
+        # if do_coverage:
+        #     with stage.parallel('coverage'):
+        #         coverage_inputs = get_inputs(context, coverage_build, coverage=True)
+        #         machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
+        #                                             inputs=coverage_inputs,
+        #                                             platform=tap.Platform.Linux)
+        #         stage.task(task_name='ubuntu1804_x64_combined', func=bullseye_coverage_task, machine=machine_bullseye_test)
