@@ -291,9 +291,7 @@ AV Plugin Scan Now with Bind Mount
     Run Scan Now Scan
     Wait Until AV Plugin Log Contains With Offset   Completed scan Scan Now   timeout=240   interval=5
 
-    ${content} =      Get File   ${AV_LOG_PATH}   encoding_errors=replace
-    ${lines} =        Get Lines Containing String    ${content}   Found 'EICAR-AV-Test'
-    ${count} =        Get Line Count   ${lines}
+    ${count} =        Count Lines In Log With Offset   ${AV_LOG_PATH}  Found 'EICAR-AV-Test'  ${AV_LOG_MARK}
     Should Be Equal As Integers  ${1}  ${count}
 
 
