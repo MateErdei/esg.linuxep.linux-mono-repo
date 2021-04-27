@@ -42,6 +42,7 @@ Reset AVCommandLineScanner Suite
 AVCommandLineScanner Test Setup
     Create Directory     ${NORMAL_DIRECTORY}
     Check Sophos Threat Detector Running
+    Clear AV Plugin Logs If They Are Close To Rotating
     Mark AV Log
     Mark Sophos Threat Detector Log
     Mark Susi Debug Log

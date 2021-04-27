@@ -30,10 +30,8 @@ ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}    ${COMPONENT_ROOT_PATH}/chroot/${AV_PLUGI
 ${AV_SDDS}         ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}     ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
-${SOPHOS_THREAT_DETECTOR_BINARY}    ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector
-${SOPHOS_THREAT_DETECTOR_LAUNCHER}  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
+${SOPHOS_THREAT_DETECTOR_BINARY}  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector
 ${EXPORT_FILE}     /etc/exports
-${AV_INSTALL_LOG}  /tmp/avplugin_install.log
 
 ${EICAR_STRING}  X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 ${EICAR_PUA_STRING}  X5]+)D:)D<5N*PZ5[/EICAR-POTENTIALLY-UNWANTED-OBJECT-TEST!$*M*L
@@ -281,14 +279,9 @@ Check Plugin Installed and Running
     Wait until AV Plugin running
     Wait until threat detector running
 
-Check Plugin Installed and Running With Offset
-    File Should Exist   ${PLUGIN_BINARY}
-    Wait until AV Plugin running with offset
-    Wait until threat detector running with offset
-
 Wait until AV Plugin running
     Wait Until Keyword Succeeds
-    ...  30 secs
+    ...  15 secs
     ...  2 secs
     ...  Check Plugin Running
     Wait Until Keyword Succeeds
@@ -296,32 +289,16 @@ Wait until AV Plugin running
     ...  2 secs
     ...  Plugin Log Contains  ${COMPONENT} <> Starting the main program loop
 
-Wait until AV Plugin running with offset
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  2 secs
-    ...  Check Plugin Running
-    Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting the main program loop  timeout=40
-
 Wait until threat detector running
     # wait for AV Plugin to initialize
     Wait Until Keyword Succeeds
-    ...  30 secs
+    ...  15 secs
     ...  3 secs
     ...  Check Sophos Threat Detector Running
     Wait Until Keyword Succeeds
     ...  40 secs
     ...  2 secs
-    ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
-
-Wait until threat detector running with offset
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  3 secs
-    ...  Check Sophos Threat Detector Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...  UnixSocket <> Starting listening on socket: /var/process_control_socket
-    ...  timeout=40
+    ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
 
 Check AV Plugin Installed
     Check Plugin Installed and Running
@@ -348,13 +325,12 @@ Uninstall and full reinstall
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}install.sh
     Run Process  chmod  +x  ${BASE_SDDS}install.sh
-    Run Process  chmod  +x  ${BASE_SDDS}/files/base/bin/*
     ${result} =   Run Process   bash  ${BASE_SDDS}install.sh  timeout=600s    stderr=STDOUT
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install base.\noutput: \n${result.stdout}"
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install AV Directly from SDDS
-    ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
+    ${install_log} =  Set Variable   /tmp/avplugin_install.log
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
     ${log_contents} =  Get File  ${install_log}
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\noutput: \n${log_contents}"
@@ -377,7 +353,6 @@ AV And Base Teardown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SUSI_DEBUG_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_INSTALL_LOG}  encoding_errors=replace
 
 Restart AV Plugin And Clear The Logs
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
@@ -395,10 +370,8 @@ Restart AV Plugin And Clear The Logs
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
 
-    Empty Directory  /opt/sophos-spl/base/mcs/event/
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start threat_detector   OnError=failed to start sophos_threat_detector
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
-    Wait until AV Plugin running with offset
+    Wait until AV Plugin running
 
 Create Install Options File With Content
     [Arguments]  ${installFlags}
@@ -558,7 +531,7 @@ Run IDE update
     Mark Sophos Threat Detector Log
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
     Run installer from install set
-    Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1  timeout=60
+    Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1
     Wait Until Sophos Threat Detector Log Contains With Offset  Threat scanner successfully updated  timeout=120
     Threat Detector Log Should Not Contain With Offset    Current version matches that of the update source. Nothing to do.
     Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
@@ -631,9 +604,9 @@ Check file clean
      Should Contain   ${output}    0 files out of 1 were infected.
 
 Wait For File With Particular Contents
-    [Arguments]     ${expectedContent}  ${filePath}  ${timeout}=20
+    [Arguments]     ${expectedContent}  ${filePath}
     Wait Until Keyword Succeeds
-    ...  ${timeout} secs
+    ...  20 secs
     ...  5 secs
     ...  Check Specific File Content  ${expectedContent}  ${filePath}
     Log File  ${filePath}
@@ -643,30 +616,13 @@ Check Specific File Content
     ${FileContents} =  Get File  ${filePath}
     Should Contain    ${FileContents}   ${expectedContent}
 
-Get ALC Policy
-    [Arguments]  ${revid}=${EMPTY}  ${algorithm}=Clear  ${username}=B  ${userpassword}=A
-    ${policyContent} =  Catenate   SEPARATOR=${\n}
-    ...   <?xml version="1.0"?>
-    ...   <AUConfigurations xmlns:csc="com.sophos\\msys\\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-    ...     <csc:Comp RevID="${revid}" policyType="1"/>
-    ...     <AUConfig>
-    ...       <primary_location>
-    ...         <server Algorithm="${algorithm}" UserPassword="${userpassword}" UserName="${username}"/>
-    ...       </primary_location>
-    ...     </AUConfig>
-    ...   </AUConfigurations>
-    ${policyContent} =   Replace Variables   ${policyContent}
-    [Return]   ${policyContent}
 
-Get SAV Policy
-    [Arguments]  ${revid}=${EMPTY}  ${sxlLookupEnabled}=A
-    ${policyContent} =  Catenate   SEPARATOR=${\n}
-    ...   <?xml version="1.0"?>
-    ...   <config>
-    ...       <csc:Comp RevID="${revid}" policyType="2"/>
-    ...       <detectionFeedback>
-    ...           <sendData>${sxlLookupEnabled}</sendData>
-    ...       </detectionFeedback>
-    ...   </config>
-    ${policyContent} =   Replace Variables   ${policyContent}
-    [Return]   ${policyContent}
+Clear AV Plugin Logs If They Are Close To Rotating
+    ${AV_LOG_SIZE}=  Get File Size   ${AV_LOG_PATH}
+    ${THREAT_DETECTOR_LOG_SIZE}=  Get File Size   ${THREAT_DETECTOR_LOG_PATH}
+    ${SUSI_DEBUG_LOG_SIZE}=  Get File Size   ${SUSI_DEBUG_LOG_PATH}
+    ${av_evaluation}=  Evaluate  ${AV_LOG_SIZE} / ${1000000} > ${9}
+    ${susi_evaluation}=  Evaluate  ${SUSI_DEBUG_LOG_SIZE} / ${1000000} > ${9}
+    ${threat_detector_evaluation}=  Evaluate  ${THREAT_DETECTOR_LOG_SIZE} / ${1000000} > ${9}
+
+    run keyword if  ${av_evaluation} or ${susi_evaluation} or ${threat_detector_evaluation}  Restart AV Plugin And Clear The Logs
