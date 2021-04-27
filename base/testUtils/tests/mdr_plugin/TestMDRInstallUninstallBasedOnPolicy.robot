@@ -58,14 +58,6 @@ Test MDR Installed Based On MDR Feature And Subscription In ALC Policy With Comb
     Check MDR Plugin Installed
     Check MDR Plugin Installed
 
-MDR In Subscription And In Feature List But Missing From Warehouse Should Log Error
-    [Documentation]  When MDR in subscription and in feature list but missing from warehouse product should log error
-    Block Connection Between EndPoint And FleetManager
-    Check MDR Plugin uninstalled
-    Check SSPL Installed
-    Simulate Send Policy And Run Update  ${BASE_VUT_POLICY}    add_features=FDR    add_subscriptions=ServerProtectionLinux-Plugin-FDR
-    Check MDR Plugin uninstalled
-    Check Report For Missing Package  ServerProtectionLinux-Plugin-FDR
 
 *** Keywords ***
 Test Teardown

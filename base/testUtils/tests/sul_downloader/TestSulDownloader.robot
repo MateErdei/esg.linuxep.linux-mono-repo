@@ -1666,6 +1666,26 @@ Test Suldownloader Can Download A Component Suite And Component From A Multiple 
 
     Stop Update Server
 
+Test Suldownloader Logs Warning When Plugin In Subscription And In Feature List But Missing From Warehouse
+    Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
+    Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}
+
+    Generate Warehouse
+    Require Update Server
+
+    Recreate Installation In Temp Dir
+    ${config} =    Create JSON Config    include_plugins=${TRUE}
+    Create File    ${tmpdir}/update_config.json    content=${config}
+
+    Setup Tmpdir Install
+
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
+
+    ${report_contents} =   Get File   ${tmpdir}/update_report.json
+    Should Contain  ${report_contents}  PACKAGESOURCEMISSING
+
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
+    Should Contain  ${log_contents}  Product missing from warehouse: ServerProtectionLinux-Plugin-Example
 
 Suldownloader Should Keep Reporting Failure While Verification Fails
     Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
