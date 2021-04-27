@@ -73,7 +73,7 @@ Threat detector aborts if logging symlink cannot be created
     Run Process   chmod   g-rwx    ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log
     Restart sophos_threat_detector and mark log
 
-    Threat Detector Log Contains With Offset   LogSetup <> Failed to create symlink for logs at
+    Sophos Threat Detector Log Contains With Offset   LogSetup <> Failed to create symlink for logs at
     Threat Detector Log Should Not Contain With Offset   LogSetup <> Create symlink for logs at
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
 

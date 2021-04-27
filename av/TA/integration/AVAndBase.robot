@@ -161,15 +161,16 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Validate latest Event  ${now}
 
 AV Gets SAV Policy When Plugin Restarts
+    # Doesn't mark AV log since it removes it
     Send Sav Policy With No Scheduled Scans
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Stop AV Plugin
-    Mark AV Log
+    Remove File    ${AV_LOG_PATH}
     Start AV Plugin
-    Wait Until AV Plugin Log Contains With Offset  SAV policy received for the first time.
-    Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 0
+    Wait Until AV Plugin Log Contains  SAV policy received for the first time.
+    Wait Until AV Plugin Log Contains  Processing SAV Policy
+    Wait until scheduled scan updated
+    Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans: 0
 
 AV Gets ALC Policy When Plugin Restarts
     # Doesn't mark AV log since it removes it
@@ -178,13 +179,11 @@ AV Gets ALC Policy When Plugin Restarts
     Stop AV Plugin
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
-    Mark AV Log
-    Mark Sophos Threat Detector Log
     Start AV Plugin
-    Wait Until AV Plugin Log Contains With Offset  ALC policy received for the first time.
-    Wait Until AV Plugin Log Contains With Offset  Processing ALC Policy
-    Threat Detector Log Should Not Contain With Offset   Failed to read customerID - using default value
-    Wait Until AV Plugin Log Contains WIth Offset  Received policy from management agent for AppId: ALC
+    Wait Until AV Plugin Log Contains  ALC policy received for the first time.
+    Wait Until AV Plugin Log Contains  Processing ALC Policy
+    Threat Detector Log Should Not Contain  Failed to read customerID - using default value
+    Wait Until AV Plugin Log Contains  Received policy from management agent for AppId: ALC
 
 AV Configures No Scheduled Scan Correctly
     Mark AV Log

@@ -299,7 +299,7 @@ Wait until AV Plugin running with offset
     ...  15 secs
     ...  2 secs
     ...  Check Plugin Running
-    Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting the main program loop
+    Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting the main program loop  timeout=40
 
 Wait until threat detector running
     # wait for AV Plugin to initialize
@@ -389,9 +389,6 @@ Restart AV Plugin And Clear The Logs
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
-
-    Mark AV Log
-    Mark Sophos Threat Detector Log
 
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
     Wait until AV Plugin running with offset
