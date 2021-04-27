@@ -432,7 +432,7 @@ UpdateScheduler Performs Update After Receiving Policy For The First Time
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
 
-UpdateScheduler sends a status after reciedving a policy that does not change feature list
+UpdateScheduler sends a status after recieving a policy that does not change feature list
     [Setup]  Setup Current Update Scheduler Environment Without Policy
     Configure Hosts File
     Remove File  ${statusPath}
@@ -440,8 +440,7 @@ UpdateScheduler sends a status after reciedving a policy that does not change fe
     Start Update Scheduler
     Start Management Agent Via WDCTL
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
-    ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
-    Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
+
     Wait Until Keyword Succeeds
     ...  90 secs
     ...  10 secs
