@@ -536,7 +536,7 @@ Run IDE update
     Mark Sophos Threat Detector Log
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
     Run installer from install set
-    Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1
+    Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1  timeout=60
     Wait Until Sophos Threat Detector Log Contains With Offset  Threat scanner successfully updated  timeout=120
     Threat Detector Log Should Not Contain With Offset    Current version matches that of the update source. Nothing to do.
     Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
