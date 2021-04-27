@@ -371,6 +371,8 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     ...  20 secs
     ...  1 secs
     ...  Check MTR Osquery Executable Running
+    Check MDR and Base Components Inside The ALC Status
+
     EDR Plugin Is Running
     Wait Until Keyword Succeeds
     ...  20 secs

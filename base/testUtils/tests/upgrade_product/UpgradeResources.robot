@@ -113,6 +113,18 @@ Wait For Initial Update To Fail
     Remove File  ${SOPHOS_INSTALL}/logs/base/updatescheduler.log
     Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 
+Check MDR and Base Components Inside The ALC Status
+    ${statusContent} =  Get File  ${statusPath}
+    Should Contain  ${statusContent}  ServerProtectionLinux-MDR-DBOS-Component
+    Should Contain  ${statusContent}  ServerProtectionLinux-MDR-Control-Component
+    Should Contain  ${statusContent}  ServerProtectionLinux-Base
+    Should Contain  ${statusContent}  ServerProtectionLinux-MDR-osquery-Component
+
+Check Status Has Changed
+     [Arguments]  ${status1}
+     ${status2} =  Get File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
+     Should Not Be Equal As Strings  ${status1}  ${status2}
+
 
 Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s   ${expectedExitCode}=0
