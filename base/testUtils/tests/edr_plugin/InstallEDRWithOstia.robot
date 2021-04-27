@@ -429,7 +429,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
 
 Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
-    Log File  /etc/hosts
+    ${statusPath}=  Set Variable  ${MCS_DIR}/status/ALC_status.xml
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}
 
     # Install EDR
@@ -437,7 +437,13 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Trigger Update Now
 
     Wait for first update
-
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Should Exist    ${statusPath}
+    #Remove status file and expect that it will not be regenerated until a change in policy
+    Remove File  ${statusPath}
+    Should Not Exist    ${statusPath}
     # ensure EDR plugin is installed and running
     Wait For EDR to be Installed
 
@@ -471,7 +477,10 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     ...  20 secs
     ...  1 secs
     ...  Check EDR Osquery Executable Running
-
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Should Exist    ${statusPath}
 
 Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}

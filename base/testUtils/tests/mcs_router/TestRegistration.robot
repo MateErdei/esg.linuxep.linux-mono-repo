@@ -39,7 +39,7 @@ Successful Registration With Correct Log Permissions
     Check Correct MCS Password And ID For Local Cloud Saved
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/register_central.log  root  root  -rw-------
 
-Successful Registration With New Token Gives New Machine ID
+Successful Registration With New Token Gives New Machine ID and resends existing status and event
     Start System Watchdog
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
@@ -47,6 +47,15 @@ Successful Registration With New Token Gives New Machine ID
     ...  2 secs
     ...  check_mcsenvelope_log_contains  ThisIsAnMCSID+1001
 
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  check_marked_mcsrouter_log_contains_string_n_times    Sending status for ALC adapter  1
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  check_marked_mcsrouter_log_contains_string_n_times    queuing event for ALC  1
+    Mark mcsrouter log
 	Register With New Token Local Cloud Server
 
     # Wait for ThisIsAnMCSID+1002 in MCS logs, showing we've registered again.
@@ -54,7 +63,14 @@ Successful Registration With New Token Gives New Machine ID
     ...  16 secs
     ...  2 secs
     ...  check_mcsenvelope_log_contains  ThisIsAnMCSID+1002
-
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  check_marked_mcsrouter_log_contains_string_n_times    Sending status for ALC adapter  1
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  check_marked_mcsrouter_log_contains_string_n_times    queuing event for ALC  1
 Successful Re-Registration When MCSID is Missing
     Start System Watchdog
     Register With Local Cloud Server
