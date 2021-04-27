@@ -162,10 +162,12 @@ namespace Plugin
             // Write settings to file
             auto dest = getSusiStartupSettingsPath();
             fs->writeFile(dest, susiStartupSettings.dump());
+            ::chmod(dest.c_str(), 0640);
 
             // Write a copy to chroot
             dest = Plugin::getPluginInstall() + "/chroot" + dest;
             fs->writeFile(dest, susiStartupSettings.dump());
+            ::chmod(dest.c_str(), 0640);
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {

@@ -167,6 +167,10 @@ function install_product()
         "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
         # Wait up to 10 seconds for AV Plugin to stop before changing ownership of log files etc
         timeout 10 tail --pid=$(pgrep -G ${GROUP_NAME} av) -f /dev/null 2> /dev/null
+
+        "${SOPHOS_INSTALL}/bin/wdctl" stop "threat_detector" &>/dev/null || echo Failed to stop the threat detector
+        # Wait up to 10 seconds for threat_detector to stop before changing ownership of log files etc
+        timeout 10 tail --pid=$(pgrep -G ${GROUP_NAME} sophos_threat_d) -f /dev/null 2> /dev/null
     fi
 
     #Create plugin registration file
@@ -272,7 +276,7 @@ function install_product()
 
     mkdir -p "${CHROOT}/log"
     chmod 0770 "${CHROOT}/log"
-    chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/log"
+    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${CHROOT}/log"
     chown root:${GROUP_NAME} "${CHROOT}/log"
 
     chmod 0750 ${CHROOT}/susi
@@ -344,6 +348,7 @@ function update_supplement()
         kill -SIGUSR1 $PID
     else
         echo "sophos_threat_detector not running"
+        "${SOPHOS_INSTALL}/bin/wdctl" start threat_detector || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos_threat_detector"
     fi
 }
 

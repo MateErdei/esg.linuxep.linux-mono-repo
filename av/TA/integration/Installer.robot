@@ -95,7 +95,7 @@ Scanner works after upgrade
     Run Installer From Install Set
 
     # Existing robot functions don't check marked logs, so we do our own log check instead
-    # Check Plugin Installed and Running
+    Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket
     ...   timeout=60
