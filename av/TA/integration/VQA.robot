@@ -58,17 +58,13 @@ SUSI config can scan zip file as web archive
 SUSI config can scan a media file
     Mark Susi Debug Log
     Check File Clean  test.gif
-    ${contents}  Get File Contents From Offset   ${SUSI_DEBUG_LOG_PATH}   ${SUSI_DEBUG_LOG_MARK}
-    Log  ${contents}
-    Should Contain  ${contents}  Classifn: 0x93  #TFT Classification ID for grpClean/media
+    SUSI Debug Log Contains With Offset  Classifn: 0x93  #TFT Classification ID for grpClean/media
 
 
 SUSI config can scan a selfextractor file
     Mark Susi Debug Log
     Check File Clean  Firefox.exe
-    ${contents}  Get File Contents From Offset   ${SUSI_DEBUG_LOG_PATH}   ${SUSI_DEBUG_LOG_MARK}
-    Log  ${contents}
-    Should Contain  ${contents}  Classifn: 0x58  #TFT Classification ID for grpselfExtractor/selfextractor
+    SUSI Debug Log Contains With Offset  Classifn: 0x58  #TFT Classification ID for grpselfExtractor/selfextractor
 
 
 *** Variables ***

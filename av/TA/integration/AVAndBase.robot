@@ -132,8 +132,10 @@ AV plugin fails scan now if no policy
     Stop AV Plugin
     Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Start AV Plugin
+    Mark AV Log
+    Mark Sophos Threat Detector Log
 
-    Wait until AV Plugin running
+    Wait until AV Plugin running with offset
 
     Mark AV Log
     Send Sav Action To Base  ScanNow_Action.xml

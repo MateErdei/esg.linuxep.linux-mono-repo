@@ -88,17 +88,11 @@ Update then Restart Sophos Threat Detector
 
 
 Scanner works after upgrade
-    Mark Sophos Threat Detector Log
-
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
     Run Installer From Install Set
 
-    # Existing robot functions don't check marked logs, so we do our own log check instead
-    # Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
-    ...   timeout=40
+    Check Plugin Installed and Running With Offset
 
     Mark AV Log
     Mark Sophos Threat Detector Log
@@ -119,8 +113,6 @@ AV Plugin gets customer id after upgrade
     ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
     ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
-
-    Mark Sophos Threat Detector Log
 
     Send Alc Policy
 
@@ -383,6 +375,7 @@ Installer Test Setup
     Register On Fail  dump log  ${AV_LOG_PATH}
     Check AV Plugin Installed With Base
     Mark AV Log
+    Mark Sophos Threat Detector Log
 
 Installer Test TearDown
     Run Teardown Functions
@@ -406,13 +399,9 @@ Kill sophos_threat_detector
 
 Restart sophos_threat_detector
     Mark AV Log
+    Mark Sophos Threat Detector Log
     Kill sophos_threat_detector
-
-    # Existing robot functions don't check marked logs, so we do our own log check instead
-    # Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
-    ...   timeout=40
+    Check Plugin Installed and Running With Offset
 
 Modify manifest
     Append To File   ${COMPONENT_ROOT_PATH}/var/manifest.dat   "junk"

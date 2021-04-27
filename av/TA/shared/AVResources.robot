@@ -274,31 +274,27 @@ Wait Until SAV Status XML Contains
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  SAV Status XML Contains   ${input}   timeout=${timeout}
 
-Check Plugin Installed and Running
+Check Plugin Installed and Running With Offset
     File Should Exist   ${PLUGIN_BINARY}
-    Wait until AV Plugin running
-    Wait until threat detector running
+    Wait until AV Plugin running with offset
+    Wait until threat detector running with offset
 
-Wait until AV Plugin running
+
+Wait until AV Plugin running with offset
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  2 secs
     ...  Check Plugin Running
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  2 secs
-    ...  Plugin Log Contains  ${COMPONENT} <> Starting the main program loop
+    Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting the main program loop
 
-Wait until threat detector running
+
+Wait until threat detector running with offset
     # wait for AV Plugin to initialize
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  3 secs
     ...  Check Sophos Threat Detector Running
-    Wait Until Keyword Succeeds
-    ...  40 secs
-    ...  2 secs
-    ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
+    Wait Until Sophos Threat Detector Log Contains With Offset  UnixSocket <> Starting listening on socket  timeout=40
 
 Check AV Plugin Installed
     Check Plugin Installed and Running
@@ -370,8 +366,11 @@ Restart AV Plugin And Clear The Logs
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
 
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
-    Wait until AV Plugin running
+    Wait until AV Plugin running with offset
 
 Create Install Options File With Content
     [Arguments]  ${installFlags}
