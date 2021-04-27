@@ -196,7 +196,11 @@ sophos_threat_detector can start after multiple IDE updates
     Install IDE  ${IDE3_NAME}
     File Should Not Exist   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/libsusi.so
     Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-    Force Sophos Threat Detector to restart
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=60
 
 
 Check install permissions
@@ -414,9 +418,6 @@ Debug install set
     Log  INSTALLATION= ${result.stdout}
     ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/distribution_version   stdout=/tmp/proc.out    stderr=STDOUT
     Log  INSTALLATION= ${result.stdout}
-
-Force Sophos Threat Detector to restart
-    Restart sophos_threat_detector
 
 Kill sophos_threat_detector
     [Arguments]  ${signal}=9
