@@ -274,11 +274,25 @@ Wait Until SAV Status XML Contains
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  SAV Status XML Contains   ${input}   timeout=${timeout}
 
+Check Plugin Installed and Running
+    File Should Exist   ${PLUGIN_BINARY}
+    Wait until AV Plugin running
+    Wait until threat detector running
+
 Check Plugin Installed and Running With Offset
     File Should Exist   ${PLUGIN_BINARY}
     Wait until AV Plugin running with offset
     Wait until threat detector running with offset
 
+Wait until AV Plugin running
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  2 secs
+    ...  Check Plugin Running
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  2 secs
+    ...  Plugin Log Contains  ${COMPONENT} <> Starting the main program loop
 
 Wait until AV Plugin running with offset
     Wait Until Keyword Succeeds
@@ -287,6 +301,16 @@ Wait until AV Plugin running with offset
     ...  Check Plugin Running
     Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting the main program loop
 
+Wait until threat detector running
+    # wait for AV Plugin to initialize
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  3 secs
+    ...  Check Sophos Threat Detector Running
+    Wait Until Keyword Succeeds
+    ...  40 secs
+    ...  2 secs
+    ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
 
 Wait until threat detector running with offset
     # wait for AV Plugin to initialize
