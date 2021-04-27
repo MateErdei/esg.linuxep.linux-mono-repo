@@ -3,6 +3,7 @@ Documentation    Product tests of sophos_threat_detector
 Force Tags       INTEGRATION  SOPHOS_THREAT_DETECTOR
 
 Resource    ../shared/ComponentSetup.robot
+Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 
 Library         ../Libs/OnFail.py

@@ -581,8 +581,8 @@ CLS Encoded Eicars
     # Reset AVCommandLineScanner Suite
     Stop AV
     Remove File  ${THREAT_DETECTOR_LOG_PATH}
-    Start AV
     Mark AV Log
+    Start AV
 
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
