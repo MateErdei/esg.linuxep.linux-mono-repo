@@ -279,7 +279,7 @@ function install_product()
 
     mkdir -p ${CHROOT}/etc
     chmod 0770 ${CHROOT}/etc
-    chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/etc"
+    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${CHROOT}/etc"
     chown root:${GROUP_NAME} "${CHROOT}/etc"
 
     mkdir -p "${CHROOT}/log"

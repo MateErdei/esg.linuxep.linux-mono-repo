@@ -3,6 +3,7 @@ Documentation    Integration tests of Installer
 Force Tags       INTEGRATION  INSTALLER
 
 Resource    ../shared/ComponentSetup.robot
+Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/BaseResources.robot
 
@@ -53,6 +54,7 @@ IDE update only copies updated ide
 
 
 Restart then Update Sophos Threat Detector
+    Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
@@ -76,9 +78,14 @@ Restart then Update Sophos Threat Detector
 
 Update then Restart Sophos Threat Detector
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    Mark Sophos Threat Detector Log
     Install IDE without reload check  ${IDE_NAME}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-    Kill sophos_threat_detector  TERM
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=60
 
     # Check we can detect PEEND following update
     Wait Until Keyword Succeeds
@@ -92,6 +99,7 @@ Update then Restart Sophos Threat Detector
 
 
 Scanner works after upgrade
+    Mark AV Log
     Mark Sophos Threat Detector Log
 
     # modify the manifest to force the installer to perform a full product update
@@ -102,6 +110,9 @@ Scanner works after upgrade
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket
+    ...   timeout=60
+    Wait Until AV Plugin Log Contains With Offset
+    ...   Starting threatReporter
     ...   timeout=60
 
     Mark AV Log
@@ -224,6 +235,7 @@ Check permissions after upgrade
     ${files_as_args} =   Catenate   @{files}
 
     Change Owner   ${COMPONENT_ROOT_PATH}/chroot/log/test_file  sophos-spl-threat-detector   sophos-spl-group
+    Change Owner   ${COMPONENT_ROOT_PATH}/chroot/etc/test_file  sophos-spl-threat-detector   sophos-spl-group
 
     # store current permissions for our files
     ${rc}   ${output} =    Run And Return Rc And Output
@@ -410,16 +422,6 @@ Kill sophos_threat_detector
     [Arguments]  ${signal}=9
     ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
     Run Process   /bin/kill   -${signal}   ${output}
-
-Restart sophos_threat_detector
-    Mark AV Log
-    Kill sophos_threat_detector
-
-    # Existing robot functions don't check marked logs, so we do our own log check instead
-    # Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
-    ...   timeout=40
 
 Modify manifest
     Append To File   ${COMPONENT_ROOT_PATH}/var/manifest.dat   "junk"

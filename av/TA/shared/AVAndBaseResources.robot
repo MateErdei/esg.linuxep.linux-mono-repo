@@ -73,3 +73,16 @@ Create Encoded Eicars
    ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh  stderr=STDOUT
    Should Be Equal As Integers  ${result.rc}  0
    Log  ${result.stdout}
+
+Stop sophos_threat_detector
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   threat_detector
+    Should Be Equal As Integers    ${result.rc}    0
+
+Start sophos_threat_detector
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  threat_detector
+    Should Be Equal As Integers    ${result.rc}    0
+
+Restart sophos_threat_detector
+    Stop sophos_threat_detector
+    Start sophos_threat_detector
+    Wait until threat detector running

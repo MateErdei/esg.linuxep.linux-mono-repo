@@ -82,6 +82,8 @@ namespace Plugin
 
     void PluginAdapter::mainLoop()
     {
+        m_callback->setRunning(true);
+        ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
         LOGSUPPORT("Starting the main program loop");
         try
         {
@@ -116,7 +118,6 @@ namespace Plugin
 
         ThreadRunner scheduler(
             m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
-        ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
         ThreadRunner sophos_threat_detector(*m_threatDetector, "threatDetector");
         innerLoop();
     }
