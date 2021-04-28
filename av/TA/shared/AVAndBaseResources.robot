@@ -80,7 +80,6 @@ Configure and check scan now with lookups disabled
 
 Configure scan now
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
-    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
     Wait until scheduled scan updated
 
 Configure scan now with lookups disabled
