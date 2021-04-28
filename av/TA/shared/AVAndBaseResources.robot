@@ -6,7 +6,7 @@ Resource    BaseResources.robot
 
 AV and Base Setup
     Check AV Plugin Installed With Base
-    Clear AV Plugin Logs If They Are Close To Rotating
+    Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     Remove Directory  /tmp/DiagnoseOutput  true
 
 Check avscanner in /usr/local/bin

@@ -41,8 +41,10 @@ Reset AVCommandLineScanner Suite
 
 AVCommandLineScanner Test Setup
     Create Directory     ${NORMAL_DIRECTORY}
+    ${result} =     Check If The Logs Are Close To Rotating
+    run keyword if  ${result}   Clear logs
+    check av plugin running
     Check Sophos Threat Detector Running
-    Clear AV Plugin Logs If They Are Close To Rotating
     Mark AV Log
     Mark Sophos Threat Detector Log
     Mark Susi Debug Log
@@ -55,24 +57,30 @@ AVCommandLineScanner Test TearDown
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
 
-Clear threat detector log
-    Remove File   ${THREAT_DETECTOR_LOG_PATH}
-
 Clear logs
-    Clear threat detector log
+    Stop AV
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check AV Plugin Not Running
+
+    Log  Backup logs before removing them
+    Log  ${AV_LOG_PATH}
+    Log  ${THREAT_DETECTOR_LOG_PATH}
+    Log  ${SUSI_DEBUG_LOG_PATH}
+
+    Remove File    ${AV_LOG_PATH}
+    Remove File    ${THREAT_DETECTOR_LOG_PATH}
+    Remove File    ${SUSI_DEBUG_LOG_PATH}
+    Start AV
 
 Start AV
-    Clear logs
-    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
-    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
-    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
 
 Stop AV
-    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
     Log  ${result.stderr}
     Log  ${result.stdout}
@@ -197,7 +205,7 @@ CLS Summary in Less Than a Second
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file -x ${NORMAL_DIRECTORY}/clean_file
 
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Contain   ${output}  0 files scanned in less than a second
+    Should Contain   ${output}  0 files scanned in less than a second.
     Should Contain   ${output}  0 files out of 0 were infected.
 
 
@@ -219,7 +227,7 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout
     sleep  1s
     Send Signal To Process  2
-    ${result} =  Wait For Process  timeout=20s
+    ${result} =  Wait For Process  timeout=10s
     Process Should Be Stopped
 
     Should Not Contain  ${result.stdout}  Reached total maximum number of reconnection attempts. Aborting scan.
@@ -336,7 +344,7 @@ CLS Can Scan Multiple Archive Files
     Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
 
-CLS Abort Scanning of Zip Bomb
+CLS Reports Reason for Scan Error on Zip Bomb
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zipbomb.zip --scan-archives
@@ -577,19 +585,17 @@ CLS Encoded Eicars
     # Reset AVCommandLineScanner Suite
     Stop AV
     Remove File  ${THREAT_DETECTOR_LOG_PATH}
-    Mark AV Log
     Start AV
 
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
     Should Be Equal As Integers  ${result.rc}  0
-    Wait Until AV Plugin Log Contains With Offset  Starting listening on socket: ${COMPONENT_ROOT_PATH}/chroot/var/threat_report_socket
     ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp_test/encoded_eicars/  timeout=120s
     Log   ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
 
     # Once CORE-1517 has been fixed, uncomment the check below
-    Threat Detector Does Not Log Contain  Failed to parse response from SUSI
+    #Threat Detector Does Not Log Contain  Failed to parse response from SUSI
     AV Plugin Log Contains  Sending threat detection notification to central
 
     ${FILE_CONTENT}=    Get File  ${SUPPORT_FILES_PATH}/list_of_expected_encoded_eicars
@@ -1379,7 +1385,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep avscanner
     Run Process   /bin/kill   -SIGTERM   ${pid}
 
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=60
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
 CLS Can Append Summary To Log When SIGHUP Is Received
@@ -1395,5 +1401,5 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep avscanner
     Run Process   /bin/kill   -SIGHUP   ${pid}
 
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=60
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}

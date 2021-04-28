@@ -531,12 +531,36 @@ Start AV
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
 
+Stop AV
+    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
+    Log  ${result.stderr}
+    Log  ${result.stdout}
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
+
 AVBasic Suite Setup
     Start Fake Management If Required
 
+Clear Logs
+    Stop AV
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check AV Plugin Not Running
+
+    Log  Backup logs before removing them
+    Log  ${AV_LOG_PATH}
+    Log  ${THREAT_DETECTOR_LOG_PATH}
+    Log  ${SUSI_DEBUG_LOG_PATH}
+
+    Remove File    ${AV_LOG_PATH}
+    Remove File    ${THREAT_DETECTOR_LOG_PATH}
+    Remove File    ${SUSI_DEBUG_LOG_PATH}
+    Start AV
+
 Product Test Setup
     Start AV
-    Clear AV Plugin Logs If They Are Close To Rotating
+    ${result} =   Check If The Logs Are Close To Rotating
+    run keyword if  ${result}   Clear Logs
     Component Test Setup
     Delete Eicars From Tmp
     mark av log

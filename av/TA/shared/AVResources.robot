@@ -362,7 +362,7 @@ AV And Base Teardown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
 
-Restart AV Plugin And Clear The Logs
+Restart AV Plugin And Clear The Logs For Integration Tests
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -624,8 +624,7 @@ Check Specific File Content
     ${FileContents} =  Get File  ${filePath}
     Should Contain    ${FileContents}   ${expectedContent}
 
-
-Clear AV Plugin Logs If They Are Close To Rotating
+Check If The Logs Are Close To Rotating
     ${AV_LOG_SIZE}=  Get File Size   ${AV_LOG_PATH}
     ${THREAT_DETECTOR_LOG_SIZE}=  Get File Size   ${THREAT_DETECTOR_LOG_PATH}
     ${SUSI_DEBUG_LOG_SIZE}=  Get File Size   ${SUSI_DEBUG_LOG_PATH}
@@ -633,4 +632,8 @@ Clear AV Plugin Logs If They Are Close To Rotating
     ${susi_evaluation}=  Evaluate  ${SUSI_DEBUG_LOG_SIZE} / ${1000000} > ${9}
     ${threat_detector_evaluation}=  Evaluate  ${THREAT_DETECTOR_LOG_SIZE} / ${1000000} > ${9}
 
-    run keyword if  ${av_evaluation} or ${susi_evaluation} or ${threat_detector_evaluation}  Restart AV Plugin And Clear The Logs
+    [return]  ${av_evaluation} or ${susi_evaluation} or ${threat_detector_evaluation}
+
+Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
+    ${result} =     Check If The Logs Are Close To Rotating
+    run keyword if  ${result}  Restart AV Plugin And Clear The Logs For Integration Tests
