@@ -180,9 +180,11 @@ AV Gets ALC Policy When Plugin Restarts
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Start AV Plugin
+    Wait Until AV Plugin Log exists   timeout=30
+    Wait Until Threat Detector Log exists
     Wait Until AV Plugin Log Contains  ALC policy received for the first time.
     Wait Until AV Plugin Log Contains  Processing ALC Policy
-    Threat Detector Log Should Not Contain  Failed to read customerID - using default value
+    Threat Detector Does Not Log Contain  Failed to read customerID - using default value
     Wait Until AV Plugin Log Contains  Received policy from management agent for AppId: ALC
 
 AV Configures No Scheduled Scan Correctly
