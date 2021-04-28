@@ -151,8 +151,13 @@ class FuzzerSupport( object):
         return failures
 
     def mcs_fuzz_logs(self):
-        with open(self._mcs_fuzz_logger_path(), 'r') as file_handler:
-            return file_handler.read()[:-10000]
+        try:
+            with open(self._mcs_fuzz_logger_path(), 'rb') as file_handler:
+                # return the last 10000 character
+                file_handler.seek(-10000, 2)
+                return file_handler.read().decode()
+        except Exception as e:
+            logger.info(f"Failed to get Fuzzer logs: {e}")
 
     def start_mcs_fuzzer(self, mcs_fuzzer_path, suite, range = 1):
         #range == 1 will run all mutations produced by fuzzer

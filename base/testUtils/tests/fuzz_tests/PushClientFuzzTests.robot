@@ -57,21 +57,17 @@ Run MCS Router Fuzzer
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Should Exist  ${REGISTER_CENTRAL}
 
-#    Register With Local Cloud Server And Wait Until Registration Completed Successfully
-#    { # which does
-#        Register With Local Cloud Server
-#        # tinimg fix here
-#        Check Correct MCS Password And ID For Local Cloud Saved
-#    }
+    Register And Wait For Registration With Local Cloud Server
 
+    Wait For Mcs Fuzzer   ${MCS_FUZZER_TIMEOUT}
+
+Register And Wait For Registration With Local Cloud Server
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...  5s
     ...  1s
     ...  Check Register Central Log Contains  Now managed by Sophos Central
     Check Correct MCS Password And ID For Local Cloud Saved
-
-    Wait For Mcs Fuzzer   ${MCS_FUZZER_TIMEOUT}
 
 Kill Push Fuzzer
     Run Process  pgrep runner.py | xargs kill -9  shell=true
