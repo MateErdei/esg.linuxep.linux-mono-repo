@@ -299,7 +299,7 @@ Wait until AV Plugin running with offset
     ...  15 secs
     ...  2 secs
     ...  Check Plugin Running
-    Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting the main program loop  timeout=40
+    Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting the main program loop  timeout=120
 
 Wait until threat detector running
     # wait for AV Plugin to initialize
@@ -318,7 +318,7 @@ Wait until threat detector running with offset
     ...  15 secs
     ...  3 secs
     ...  Check Sophos Threat Detector Running
-    Wait Until Sophos Threat Detector Log Contains With Offset  UnixSocket <> Starting listening on socket  timeout=40
+    Wait Until Sophos Threat Detector Log Contains With Offset  UnixSocket <> Starting listening on socket  timeout=120
 
 Check AV Plugin Installed
     Check Plugin Installed and Running
