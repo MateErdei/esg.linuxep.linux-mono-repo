@@ -1020,8 +1020,8 @@ Check Update Reports Have Been Processed
 
     ${ProcessedFileCountDir}=  Get length   ${files_in_processed_dir}
     Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
+    ...  30 secs
+    ...  2 secs
     ...  Should Be Equal As Numbers  ${ProcessedFileCountDir}     2
 
     Should Contain  ${files_in_processed_dir}[0]  update_report
