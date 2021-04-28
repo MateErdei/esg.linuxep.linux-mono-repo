@@ -637,6 +637,12 @@ AV Plugin restarts threat detector on customer id change
 
 
 AV Plugin restarts threat detector on susi startup settings change
+    Mark Sophos Threat Detector Log
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   timeout=60
     Mark AV Log
     Mark Sophos Threat Detector Log
     ${pid} =   Record Sophos Threat Detector PID
