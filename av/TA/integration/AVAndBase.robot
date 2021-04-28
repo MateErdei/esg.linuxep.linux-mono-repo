@@ -563,18 +563,23 @@ AV Runs Scan With SXL Lookup Enable
     Configure and check scan now
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
-    Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central
+    Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central   timeout=60
     SUSI Debug Log Contains With Offset  Post-scan lookup succeeded
 
 
 AV Runs Scan With SXL Lookup Disabled
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=60
     Mark AV Log
     Mark Susi Debug Log
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
     Configure and check scan now with lookups disabled
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
-    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central
+    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central   timeout=60
     SUSI Debug Log Does Not Contain With Offset   Post-scan lookup succeeded
 
 
@@ -639,8 +644,10 @@ AV Plugin restarts threat detector on susi startup settings change
     Send Sav Policy To Base  tempSavPolicy.xml
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
+    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=60
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   timeout=120
     Check Sophos Threat Detector has different PID   ${pid}
 
     # don't change lookup setting, threat_detector should not restart
@@ -672,12 +679,17 @@ AV Plugin restarts threat detector on susi startup settings change
     Send Sav Policy To Base  tempSavPolicy.xml
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
+    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=60
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
     Check Sophos Threat Detector has different PID   ${pid}
 
 
 Sophos Threat Detector sets default if susi startup settings permissions incorrect
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=60
     Mark AV Log
     Mark Sophos Threat Detector Log
 
