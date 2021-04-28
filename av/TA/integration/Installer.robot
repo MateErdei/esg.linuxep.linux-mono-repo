@@ -277,10 +277,11 @@ Check logging symlink
     Should exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
 
 Check no duplicate virus data files
+    Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=60
     ${rc}   ${susiHash} =    Run And Return Rc And Output   head -n 1 ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/package_manifest.txt
     Should Be Equal As Integers  ${rc}  ${0}

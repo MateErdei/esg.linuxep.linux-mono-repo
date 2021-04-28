@@ -568,19 +568,22 @@ AV Runs Scan With SXL Lookup Enable
 
 
 AV Runs Scan With SXL Lookup Disabled
+    Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=60
     Mark AV Log
     Mark Susi Debug Log
+    Mark Sophos Threat Detector Log
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
     Configure and check scan now with lookups disabled
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
     Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central   timeout=60
     SUSI Debug Log Does Not Contain With Offset   Post-scan lookup succeeded
+    AV Plugin Log Does Not Contain   Failed to send shutdown request: Failed to connect to unix socket
 
 
 AV Plugin restarts threat detector on customer id change
@@ -645,6 +648,8 @@ AV Plugin restarts threat detector on susi startup settings change
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=60
+    AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
+    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be disabled   timeout=180
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=120
@@ -680,7 +685,11 @@ AV Plugin restarts threat detector on susi startup settings change
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=60
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
+    AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
+    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled   timeout=180
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   timeout=120
     Check Sophos Threat Detector has different PID   ${pid}
 
 
@@ -688,7 +697,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=60
     Mark AV Log
     Mark Sophos Threat Detector Log
@@ -699,7 +708,9 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Send Sav Policy To Base  tempSavPolicy.xml
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   timeout=120
 
     Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
     Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
@@ -708,5 +719,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
     Run Process   /bin/kill   -9   ${output}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=120
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found

@@ -147,7 +147,14 @@ namespace threat_scanner
                     settingsString << fs.rdbuf();
 
                     auto settingsJson = json::parse(settingsString.str());
-
+                    if (settingsJson["enableSxlLookup"])
+                    {
+                        LOGDEBUG("SXL Lookups will be enabled");
+                    }
+                    else
+                    {
+                        LOGDEBUG("SXL Lookups will be disabled");
+                    }
                     return settingsJson["enableSxlLookup"];
                 }
                 catch (const std::exception& e)
