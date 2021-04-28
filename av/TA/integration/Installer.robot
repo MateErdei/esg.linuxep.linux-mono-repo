@@ -401,7 +401,10 @@ Restart sophos_threat_detector
     Mark AV Log
     Mark Sophos Threat Detector Log
     Kill sophos_threat_detector
-    Check Plugin Installed and Running With Offset
+    # TODO LINUXDAR-2677  This is the one line I've changed. Before it was checking that the av plugin was running, but
+    # succeeding based on outdated log lines. Now it's failing to find the threat detector running at all, even though
+    # when I was manual testing, it did seem to be restarting...
+    Wait until threat detector running with offset
 
 Modify manifest
     Append To File   ${COMPONENT_ROOT_PATH}/var/manifest.dat   "junk"
