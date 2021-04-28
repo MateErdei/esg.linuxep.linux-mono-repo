@@ -637,6 +637,10 @@ AV Plugin restarts threat detector on customer id change
 
 
 AV Plugin restarts threat detector on susi startup settings change
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
+    Log   ${policyContent}
+    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
+    Send Sav Policy To Base  tempSavPolicy.xml
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
