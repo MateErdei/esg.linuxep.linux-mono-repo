@@ -54,7 +54,7 @@ Threat detector recreates logging symlink if missing
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
     Restart sophos_threat_detector and mark log
 
-    Threat Detector Log Contains With Offset   LogSetup <> Create symlink for logs at
+    Sophos Threat Detector Log Contains With Offset   LogSetup <> Create symlink for logs at
     Threat Detector Log Should Not Contain With Offset   LogSetup <> Failed to create symlink for logs at
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}/sophos_threat_detector.log
