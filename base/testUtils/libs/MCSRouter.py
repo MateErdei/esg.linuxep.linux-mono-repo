@@ -436,6 +436,8 @@ class MCSRouter(object):
             raise AssertionError("No MCS Config - registration failed.")
 
         config_dict = self.read_mcs_config()
+        logger.info(f"config_dict:\n{config_dict}")
+
         expected_password = "ThisIsThePassword"
         expected_id = "ThisIsAnMCSID+1"
 
