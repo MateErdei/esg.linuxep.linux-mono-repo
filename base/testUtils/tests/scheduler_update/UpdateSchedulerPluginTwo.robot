@@ -17,7 +17,6 @@ Resource  ../watchdog/LogControlResources.robot
 Resource  ../installer/InstallerResources.robot
 Resource  ../telemetry/TelemetryResources.robot
 Resource  SchedulerUpdateResources.robot
-Resource  UpdateSchedulerPlugin.robot
 Resource  ../GeneralTeardownResource.robot
 
 Default Tags  SLOW  UPDATE_SCHEDULER
