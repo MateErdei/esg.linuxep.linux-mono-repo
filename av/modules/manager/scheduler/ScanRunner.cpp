@@ -72,6 +72,7 @@ void ScanRunner::run()
 
     // Start file walker process
     Common::Process::IProcessPtr process(Common::Process::createProcess());
+    process->setOutputLimit(512);
     process->exec(m_scanExecutable, {m_scanExecutable, "--config", config_file});
 
     // TODO: Wait for stop request or file walker process exit, which ever comes first

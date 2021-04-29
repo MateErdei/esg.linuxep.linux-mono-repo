@@ -12,7 +12,6 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
-#include "modules/manager/scanprocessmonitor/ConfigMonitor.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include <Common/PluginApi/ApiException.h>

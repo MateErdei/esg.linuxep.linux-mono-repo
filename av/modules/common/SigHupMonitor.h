@@ -8,6 +8,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/Threads/NotifyPipe.h>
 
+#include <memory>
+
 namespace common
 {
     class SigHupMonitor
