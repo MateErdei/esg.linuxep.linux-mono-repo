@@ -690,7 +690,7 @@ Test That Only Subscriptions Appear As Subscriptions In ALC Status File
 
     Only Subscriptions In Policy Are In Alc Status Subscriptions
 
-We Can Upgrade AV A Release To VUT Without Unexpected Errors
+We Can Upgrade AV From A Release To VUT Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
@@ -757,17 +757,8 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
 
-    Check Update Reports Have Been Processed
-
-    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
-    Should Be Equal As Integers  ${rc}  0
-    Should Be Empty  ${output}
-
-    Create File     /tmp/clean_file    ${CLEAN_STRING}
-    Create File     /tmp/dirty_file    ${EICAR_STRING}
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file /tmp/dirty_file
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Check AV Plugin Permissions
+    Check AV Plugin Can Scan Files
 
 *** Keywords ***
 

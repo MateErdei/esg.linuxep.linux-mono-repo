@@ -56,3 +56,15 @@ Wait until threat detector running
     ...  40 secs
     ...  2 secs
     ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
+
+Check AV Plugin Permissions
+    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
+    Should Be Equal As Integers  ${rc}  0
+    Should Be Empty  ${output}
+
+Check AV Plugin Can Scan Files
+    Create File     /tmp/clean_file    ${CLEAN_STRING}
+    Create File     /tmp/dirty_file    ${EICAR_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file /tmp/dirty_file
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
