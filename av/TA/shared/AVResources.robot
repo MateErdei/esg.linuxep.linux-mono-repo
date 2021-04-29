@@ -313,8 +313,6 @@ Wait until threat detector running
     ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
 
 Wait until threat detector running with offset
-    # wait for threat detector to initialize
-    # TODO LINUXDAR-2677  This is the keyword that's failing. I have no idea why...
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  3 secs
