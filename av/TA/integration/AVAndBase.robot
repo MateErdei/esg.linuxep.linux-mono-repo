@@ -131,9 +131,9 @@ AV plugin runs scheduled scan after restart
 AV plugin fails scan now if no policy
     Stop AV Plugin
     Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
-    Start AV Plugin
     Mark AV Log
     Mark Sophos Threat Detector Log
+    Start AV Plugin
 
     Wait until AV Plugin running with offset
 
