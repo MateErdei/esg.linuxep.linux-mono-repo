@@ -52,13 +52,12 @@ Test Push Livequery Response Fuzz
 *** Keywords ***
 Run MCS Router Fuzzer
     [Arguments]   ${Suite}   ${MutationsToTestRatio}=1
-    Start Mcs Fuzzer   ${MCS_FUZZER_PATH}   ${Suite}  ${MutationsToTestRatio}
 
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Should Exist  ${REGISTER_CENTRAL}
-
     Register And Wait For Registration With Local Cloud Server
 
+    Start Mcs Fuzzer   ${MCS_FUZZER_PATH}   ${Suite}  ${MutationsToTestRatio}
     Wait For Mcs Fuzzer   ${MCS_FUZZER_TIMEOUT}
 
 Register And Wait For Registration With Local Cloud Server
