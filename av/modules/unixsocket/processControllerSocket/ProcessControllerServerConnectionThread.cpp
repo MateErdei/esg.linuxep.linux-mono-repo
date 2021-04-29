@@ -36,7 +36,7 @@ ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread
 }
 
 /**
- * Parse a detection.
+ * Parse a control request.
  *
  * Placed in a function to ensure the MessageReader and view are deleted before the buffer might become invalid.
  *
