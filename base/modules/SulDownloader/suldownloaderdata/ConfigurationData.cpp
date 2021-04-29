@@ -13,10 +13,12 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
-#include <google/protobuf/util/json_util.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <google/protobuf/util/json_util.h>
+
 #include <ConfigurationSettings.pb.h>
 #include <iostream>
+#include <thread>
 
 namespace
 {
@@ -303,14 +305,29 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     JsonParseOptions jsonParseOptions;
     jsonParseOptions.ignore_unknown_fields = true; 
 
-    auto status = JsonStringToMessage(settingsString, &settings, jsonParseOptions);
-    if (!status.ok())
-    {
-        LOGERROR("Failed to process input settings");
-        LOGSUPPORT(status.ToString());
-        throw SulDownloaderException("Failed to process json message");
-    }
+    // Try to read config file up-to-3 times
+    // There is a small windows where a race condition can occur between update scheduler creating the
+    // update_config.json file and suldownloader reading the file.
 
+    int readAttempt = 0;
+    int maxReadAttempt = 3;
+    Status status;
+
+    while (readAttempt != maxReadAttempt)
+    {
+        readAttempt++;
+        status = JsonStringToMessage(settingsString, &settings, jsonParseOptions);
+        if (!status.ok() && (readAttempt == maxReadAttempt))
+        {
+            LOGERROR("Failed to process input settings");
+            LOGSUPPORT(status.ToString());
+            throw SulDownloaderException("Failed to process json message");
+        }
+        else
+        {
+            std::this_thread::sleep_for (std::chrono::seconds(1));
+        }
+    }
     // load input string (json) into the configuration data
     // run runSULDownloader
     // and serialize the DownloadReport into json and give the error code/or success
