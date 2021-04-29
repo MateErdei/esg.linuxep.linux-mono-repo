@@ -593,7 +593,7 @@ CLS Encoded Eicars
 
     # Once CORE-1517 has been fixed, uncomment the check below
     #Threat Detector Does Not Log Contain  Failed to parse response from SUSI
-    AV Plugin Log Contains  Sending threat detection notification to central
+    AV Plugin Log Contains With Offset  Sending threat detection notification to central
 
     ${FILE_CONTENT}=    Get File  ${SUPPORT_FILES_PATH}/list_of_expected_encoded_eicars
     @{eicar_names_list}=    Split to lines  ${FILE_CONTENT}
@@ -601,10 +601,10 @@ CLS Encoded Eicars
         Wait Until AV Plugin Log Contains With Offset  ${item}
     END
 
-    wait until sophos threat detector log contains with offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
-    wait until sophos threat detector log contains with offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
-    wait until sophos threat detector log contains with offset  Scan requested of /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
-    wait until sophos threat detector log contains with offset  Scan requested of /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+    Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+    Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
+    Sophos Threat Detector Log Contains With Offset  Scan requested of /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
+    Sophos Threat Detector Log Contains With Offset  Scan requested of /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
 
 
 CLS Handles Wild Card Eicars

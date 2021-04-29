@@ -197,14 +197,6 @@ Count Lines In Log
     ${lines_count} =  Get Line Count  ${lines}
     [Return]  ${lines_count}
 
-Count Lines In Log With Offset
-    [Arguments]  ${log_file}  ${line_to_count}  ${offset}
-    ${content} =  Get File Contents From Offset  ${log_file}  ${offset}
-    ${lines} =  Get Lines Containing String  ${content}  ${line_to_count}
-    ${lines_count} =  Get Line Count  ${lines}
-
-    [Return]  ${lines_count}
-
 Check Threat Detector Copied Files To Chroot
     Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/logger.conf" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf"
     Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/machine_id.txt" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/machine_id.txt"
