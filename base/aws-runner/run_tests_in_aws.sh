@@ -317,8 +317,24 @@ cleanupStack
 # Get results back from the AWS test run and save them locally.
 rm -rf ./results
 mkdir ./results
-aws s3 cp --recursive "s3://sspl-testbucket/test-results/${STACK}/" ./results
+aws s3 cp --recursive --exclude "*" --include "*-output.xml" "s3://sspl-testbucket/test-results/${STACK}/" ./results
 python3 delete_old_results.py ${STACK}
 aws s3 rm ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME}
+
+combineResults()
+{
+  python3 -m pip install --upgrade robotframework
+
+  rm -rf results-combine-workspace
+  mkdir results-combine-workspace
+  rebot --merge -o ./results-combine-workspace/amazonlinux2x64-output.xml -l none -r none -N amazonlinux2x64  ./results/amazonlinux2x64*
+  rebot --merge -o ./results-combine-workspace/centosstreamx64-output.xml -l none -r none -N centosstreamx64  ./results/centosstreamx64*
+  rebot --merge -o ./results-combine-workspace/rhel78x64-output.xml -l none -r none -N rhel78x64  ./results/rhel78x64*
+  rebot --merge -o ./results-combine-workspace/rhel81x64-output.xml -l none -r none -N rhel81x64  ./results/rhel81x64*
+  rebot --merge -o ./results-combine-workspace/ubuntu1804minimal-output.xml -l none -r none -N ubuntu1804minimal  ./results/ubuntu1804minimal*
+
+  rebot -l ./results/combined-log.html -r ./results/combined-report.html -N combined ./results-combine-workspace/*
+}
+combineResults
 ## exit
 exit 0
