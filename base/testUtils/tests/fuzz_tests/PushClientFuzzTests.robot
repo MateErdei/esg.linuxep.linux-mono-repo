@@ -52,21 +52,13 @@ Test Push Livequery Response Fuzz
 *** Keywords ***
 Run MCS Router Fuzzer
     [Arguments]   ${Suite}   ${MutationsToTestRatio}=1
-
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Should Exist  ${REGISTER_CENTRAL}
-    Register And Wait For Registration With Local Cloud Server
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
 
     Start Mcs Fuzzer   ${MCS_FUZZER_PATH}   ${Suite}  ${MutationsToTestRatio}
     Wait For Mcs Fuzzer   ${MCS_FUZZER_TIMEOUT}
-
-Register And Wait For Registration With Local Cloud Server
-    Register With Local Cloud Server
-    Wait Until Keyword Succeeds
-    ...  5s
-    ...  1s
-    ...  Check Register Central Log Contains  Now managed by Sophos Central
-    Check Correct MCS Password And ID For Local Cloud Saved
 
 Kill Push Fuzzer
     Run Process  pgrep runner.py | xargs kill -9  shell=true
