@@ -356,7 +356,6 @@ function update_supplement()
         kill -SIGUSR1 $PID
     else
         echo "sophos_threat_detector not running"
-        "${SOPHOS_INSTALL}/bin/wdctl" start threat_detector || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos_threat_detector"
     fi
 }
 

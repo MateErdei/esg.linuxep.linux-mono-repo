@@ -470,6 +470,8 @@ AVSophosThreatDetector Test Setup
 AVSophosThreatDetector Test TearDown
     Log  AVSophosThreatDetector Test TearDown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
+    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/wdctl.log  encoding_errors=replace
     run teardown functions
 
 Alter Hosts

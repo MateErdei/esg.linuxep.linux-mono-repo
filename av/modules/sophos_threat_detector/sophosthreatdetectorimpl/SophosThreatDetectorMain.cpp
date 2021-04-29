@@ -401,7 +401,6 @@ static int inner_main()
         {
             LOGINFO("Sophos Threat Detector received shutdown request");
             processController.triggered();
-            returnCode = common::E_SIGTERM;
             break;
         }
     }

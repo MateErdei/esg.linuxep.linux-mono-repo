@@ -30,20 +30,21 @@ ${HANDLE}
 *** Test Cases ***
 AV Plugin Can Receive Actions
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
 
     Check AV Plugin Installed
     ${actionContent} =  Set Variable  This is an action test
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains  Received new Action
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 AV plugin Can Send Status
     [Tags]    PRODUCT  AV_BASIC_STATUS
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
     ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
 
@@ -57,13 +58,12 @@ AV plugin Can Send Status
 
     Wait For Plugin Status  av  SAV  RevID="123"  Res="Same"  <product-version>${version}</product-version>
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 
 AV Plugin Can Process Scan Now
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
@@ -76,13 +76,12 @@ AV Plugin Can Process Scan Now
     AV Plugin Log Contains  Starting scan Scan Now
     Check ScanNow Log Exists
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 
 AV Plugin Scan Now Updates Telemetry Count
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
 
     # reset telemetry count
@@ -106,32 +105,27 @@ AV Plugin Scan Now Updates Telemetry Count
 
     Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   1
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 
 Scan Now Configuration Is Correct
     Use Fake AVScanner
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
     Run Scan Now Scan
     Check Scan Now Configuration File is Correct
-
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
 
 
 Scheduled Scan Configuration Is Correct
     Use Fake AVScanner
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
     Run Scheduled Scan
     Check Scheduled Scan Configuration File is Correct
-
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
 
 
 Scan Now Excludes Files And Directories As Expected
@@ -146,7 +140,9 @@ Scan Now Excludes Files And Directories As Expected
     Register Cleanup  Remove Files  /eicar.com  /directory_excluded/eicar.com  /file_excluded/eicar.com
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
     Run Scan Now Scan For Excluded Files Test
 
@@ -158,9 +154,6 @@ Scan Now Excludes Files And Directories As Expected
     File Log Should Not Contain   ${SCANNOW_LOG_PATH}        "/directory_excluded/eicar.com" is infected with EICAR-AV-Test
     File Log Should Not Contain   ${SCANNOW_LOG_PATH}        Excluding file: /directory_excluded/eicar.com
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 
 Scan Now Logs Should Be As Expected
     Create Directory  /file_excluded/
@@ -170,7 +163,9 @@ Scan Now Logs Should Be As Expected
     Register Cleanup  Remove Directory  /file_excluded  recursive=True
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
     Run Scan Now Scan For Excluded Files Test
 
@@ -185,24 +180,20 @@ Scan Now Logs Should Be As Expected
     File Log Contains             ${SCANNOW_LOG_PATH}        1 EICAR-AV-Test infection discovered.
     File Log Should Not Contain   ${AV_LOG_PATH}             Notify trimmed output
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 
 AV Plugin Will Fail Scan Now If No Policy
     Register Cleanup  Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains  Refusing to run invalid scan: INVALID
     AV Plugin Log Contains  Received new Action
     AV Plugin Log Contains  Evaluating Scan Now
-
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
 
 
 AV Plugin Scans local secondary mount only once
@@ -221,7 +212,9 @@ AV Plugin Scans local secondary mount only once
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
 
     ${currentTime} =  Get Current Date
@@ -241,9 +234,6 @@ AV Plugin Scans local secondary mount only once
     ${lines} =  Get Lines Containing String     ${content}  "${destination}/eicar.com" is infected with EICAR
     ${count} =  Get Line Count   ${lines}
     Should Be Equal As Integers  ${count}  ${1}
-
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
 
 
 AV Plugin Can Disable Scanning Of Mounted NFS Shares
@@ -288,7 +278,9 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${myscan_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/MyScan.log
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
 
     run_on_failure  dump_scheduled_scan_log
@@ -310,9 +302,6 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     File Log Should Not Contain  ${myscan_log}  "${eicar_path4}" is infected with EICAR-AV-Test
     File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 
 AV Plugin Scan of Infected File Increases Threat Eicar Count
     Create File      /tmp_test/eicar.com    ${EICAR_STRING}
@@ -320,7 +309,9 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
     Remove Files      /file_excluded/eicar.com  /tmp_test/smbshare/eicar.com
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
 
     # Run telemetry to reset counters to 0
@@ -336,15 +327,14 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
     Log   ${telemetryJson}
     Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   1
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 
 AV Plugin Scan Now Does Not Detect PUA
     Create File      /tmp_test/eicar_pua.com    ${EICAR_PUA_STRING}
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
 
     Run Scan Now Scan
@@ -354,9 +344,6 @@ AV Plugin Scan Now Does Not Detect PUA
     AV Plugin Log Does Not Contain  /tmp_test/eicar_pua.com
 
     File Log Should Not Contain  ${AV_PLUGIN_PATH}/log/Scan Now.log  "/tmp_test/eicar_pua.com" is infected
-
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
 
 
 AV Plugin Scan Now with Bind Mount
@@ -374,7 +361,9 @@ AV Plugin Scan Now with Bind Mount
     Should Exist      ${destination}/eicar.com
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
     Run Scan Now Scan
     Wait Until AV Plugin Log Contains   Completed scan Scan Now   timeout=240   interval=5
@@ -383,9 +372,6 @@ AV Plugin Scan Now with Bind Mount
     ${lines} =        Get Lines Containing String    ${content}   Found 'EICAR-AV-Test'
     ${count} =        Get Line Count   ${lines}
     Should Be Equal As Integers  ${1}  ${count}
-
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
 
 
 AV Plugin Scan Now with ISO mount
@@ -400,14 +386,13 @@ AV Plugin Scan Now with ISO mount
     Should Exist      ${destination}/directory/subdir/eicar.com
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
     Run Scan Now Scan
     Wait Until AV Plugin Log Contains   Completed scan Scan Now   timeout=240   interval=5
     AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/directory/subdir/eicar.com'
-
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
 
 
 AV Plugin Scan two mounts same inode numbers
@@ -434,15 +419,14 @@ AV Plugin Scan two mounts same inode numbers
     Should Exist      ${destination2}/directory/subdir/eicar.com
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
     Run Scan Now Scan
     Wait Until AV Plugin Log Contains   Completed scan Scan Now   timeout=240   interval=5
     AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/directory/subdir/eicar.com'
     AV Plugin Log Contains   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount2/directory/subdir/eicar.com'
-
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
 
 
 AV Plugin Gets Customer ID
@@ -538,9 +522,6 @@ AV Plugin requests policies at startup
     ...  1 secs
     ...  FakeManagement Log Contains   Received policy request: APPID=ALC
 
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
-
 
 *** Keywords ***
 
@@ -573,7 +554,9 @@ Test Remote Share
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
 
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
     ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${av_plugin_handle}
     Check AV Plugin Installed
 
     ${currentTime} =  Get Current Date
@@ -599,6 +582,3 @@ Test Remote Share
     AV Plugin Log Contains  Starting scan ${remoteFSscanningEnabled}
     File Should Exist  ${remoteFSscanningEnabled_log}
     File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR
-
-    Terminate Process  ${av_plugin_handle}
-    Terminate Process  ${threat_detector_handle}
