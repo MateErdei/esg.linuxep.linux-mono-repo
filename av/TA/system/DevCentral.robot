@@ -180,6 +180,8 @@ SAV and ALC Policy Arrives And Is Handled Correctly
     Wait for ALC policy on endpoint
     Wait for SAV policy on endpoint
 
+    Run  ls -l  ${av_plugin_path}/var/
+
     Stop AV Plugin
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
@@ -193,4 +195,5 @@ SAV and ALC Policy Arrives And Is Handled Correctly
     Wait Until AV Plugin Log Contains  Processing SAV Policy
     Wait Until AV Plugin Log Contains  Received policy from management agent for AppId: ALC
     Wait until scheduled scan updated
+    Run  ls -l  ${av_plugin_path}/var/
     Threat Detector Does Not Log Contain  Failed to read customerID - using default value
