@@ -21,27 +21,23 @@ Suite Setup   EDR Telemetry Suite Setup
 Suite Teardown   EDR Telemetry Suite Teardown
 
 Default Tags   EDR_PLUGIN  TELEMETRY
-Force Tags  LOAD2
 
 
 *** Test Cases ***
 EDR Plugin Produces Telemetry When XDR is enabled
-    [Tags]  MCSROUTER  FAKE_CLOUD  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
+    [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
     [Setup]  EDR Telemetry Test Setup With Cloud
     [Teardown]  EDR Telemetry Test Teardown With Cloud
-    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    Should Be Equal As Strings  0  ${result.rc}
-    Register With Fake Cloud
+    Drop LiveQuery Policy Into Place
 
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   5 secs
-    ...   Check EDR Log Contains  Flags have changed so restarting osquery
+    ...   Check EDR Log Contains  Updating running_mode flag settings to: 1
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   5 secs
-    ...   Check EDR Log Contains  Process task OSQUERYPROCESSFINISHED
+    ...   Check EDR Log Contains  Process task OSQUERY_PROCESS_FINISHED
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
     Prepare To Run Telemetry Executable
@@ -78,23 +74,28 @@ EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0
 
 EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In Telemetry
-    [Tags]  MCSROUTER  FAKE_CLOUD  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
-    [Setup]  EDR Telemetry Test Setup With Cloud
+    [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
+    [Setup]  EDR Telemetry Test Setup With Cloud And Debug Logging
     [Teardown]  EDR Telemetry Test Teardown With Cloud
     Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    Should Be Equal As Strings  0  ${result.rc}
-    Register With Fake Cloud
+    Drop LiveQuery Policy Into Place
 
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   5 secs
     ...   Check Log Contains In Order
             ...  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-            ...  Flags have changed so restarting osquery
+            ...  Updating running_mode flag settings to: 1
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log   OSQUERY_PROCESS_FINISHED  1
+
+    # sleep to give osquery a chance to stabilise so this test doesn't flake
+    # TODO - LINUXDAR-2839 Use new logline to replace this sleep with a smarter wait
+    Sleep  10s
 
     Kill OSQuery
     Wait Until OSQuery Running  20
@@ -245,9 +246,22 @@ EDR Telemetry Test Setup
     Create Directory   ${COMPONENT_TEMP_DIR}
     Wait Until OSQuery Running  20
 
+EDR Telemetry Test Setup With Debug Logging
+    Require Installed
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Install EDR Directly
+    Create Directory   ${COMPONENT_TEMP_DIR}
+    Wait Until OSQuery Running  20
+
 EDR Telemetry Test Setup With Cloud
     Start Local Cloud Server   --initial-alc-policy  ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
     EDR Telemetry Test Setup
+    Regenerate Certificates
+    Set Local CA Environment Variable
+
+EDR Telemetry Test Setup With Cloud And Debug Logging
+    Start Local Cloud Server   --initial-alc-policy  ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
+    EDR Telemetry Test Setup With Debug Logging
     Regenerate Certificates
     Set Local CA Environment Variable
 

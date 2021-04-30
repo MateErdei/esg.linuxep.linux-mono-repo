@@ -192,3 +192,6 @@ Drop ALC Policy With Fixed Version Into Place
 
 Drop MCS Config Into Place
     Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/base_data/mcs.config  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+
+Drop LiveQuery Policy Into Place
+    Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_LiveQuery_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/LiveQuery-1_policy.xml
