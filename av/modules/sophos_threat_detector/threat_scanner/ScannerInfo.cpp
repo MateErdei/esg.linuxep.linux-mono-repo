@@ -26,18 +26,21 @@ std::string threat_scanner::create_scanner_info(bool scanArchives)
                 "webArchive": @@WEB_ARCHIVES@@,
                 "webEncoding": true,
                 "media": true,
-                "macintosh": true
+                "macintosh": true,
+                "discImage": @@DISC_IMAGE@@
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true
+                "stopOnArchiveBombs": true,
+                "submitToAnalysis": false
             }
         }
     })sophos", {
                              {"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"},
                              {"@@WEB_ARCHIVES@@",  scanArchives?"true":"false"},
+                             {"@@DISC_IMAGE@@",  scanArchives?"true":"false"},
                          });
 
     return scannerInfo;

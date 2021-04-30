@@ -69,13 +69,15 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesFalse) 
                 "webArchive": false,
                 "webEncoding": true,
                 "media": true,
-                "macintosh": true
+                "macintosh": true,
+                "discImage": false
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true
+                "stopOnArchiveBombs": true,
+                "submitToAnalysis": false
             }
         }
     }})sophos";
@@ -105,13 +107,15 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue) /
                 "webArchive": true,
                 "webEncoding": true,
                 "media": true,
-                "macintosh": true
+                "macintosh": true,
+                "discImage": true
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true
+                "stopOnArchiveBombs": true,
+                "submitToAnalysis": false
             }
         }
     }})sophos";
