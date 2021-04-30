@@ -127,3 +127,10 @@ Restart sophos_threat_detector
     Stop sophos_threat_detector
     Start sophos_threat_detector
     Wait until threat detector running
+
+Restart sophos_threat_detector and mark logs
+    Stop sophos_threat_detector
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    Start sophos_threat_detector
+    Wait until threat detector running

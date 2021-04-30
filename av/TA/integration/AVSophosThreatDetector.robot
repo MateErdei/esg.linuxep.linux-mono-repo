@@ -15,14 +15,18 @@ Test Setup      AVSophosThreatDetector Test Setup
 Test Teardown   AVSophosThreatDetector Test TearDown
 
 *** Variables ***
-${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
+${CLEAN_STRING}     not an eicar
+${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
+${CUSTOMERID_FILE}  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
+${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
+
 
 *** Test Cases ***
 Test Global Rep works in chroot
     run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
     run on failure  dump log   ${THREAT_DETECTOR_LOG_PATH}
     set sophos_threat_detector log level
-    Restart sophos_threat_detector
+    Restart sophos_threat_detector and mark logs
     scan GR test file
     check sophos_threat_dector log for successful global rep lookup
 
@@ -37,9 +41,9 @@ Threat detector does not recreate logging symlink if present
     Should Exist   ${THREAT_DETECTOR_LOG_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}/sophos_threat_detector.log
-    Restart sophos_threat_detector
-    Threat Detector Does Not Log Contain   LogSetup <> Create symlink for logs at
-    Threat Detector Does Not Log Contain   LogSetup <> Failed to create symlink for logs at
+    Restart sophos_threat_detector and mark logs
+    Threat Detector Log Should Not Contain With Offset   LogSetup <> Create symlink for logs at
+    Threat Detector Log Should Not Contain With Offset   LogSetup <> Failed to create symlink for logs at
 
 Threat detector recreates logging symlink if missing
     register cleanup   Install With Base SDDS
@@ -48,11 +52,10 @@ Threat detector recreates logging symlink if missing
 
     Run Process   rm   ${CHROOT_LOGGING_SYMLINK}
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
-    Create File   ${THREAT_DETECTOR_LOG_PATH}   # truncate the log
-    Restart sophos_threat_detector
+    Restart sophos_threat_detector and mark logs
 
-    Threat Detector Log Contains   LogSetup <> Create symlink for logs at
-    Threat Detector Does Not Log Contain   LogSetup <> Failed to create symlink for logs at
+    Wait Until Sophos Threat Detector Log Contains With Offset  LogSetup <> Create symlink for logs at
+    Threat Detector Log Should Not Contain With Offset   LogSetup <> Failed to create symlink for logs at
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
     Should Exist   ${CHROOT_LOGGING_SYMLINK}/sophos_threat_detector.log
 
@@ -68,11 +71,10 @@ Threat detector aborts if logging symlink cannot be created
     Run Process   rm   ${CHROOT_LOGGING_SYMLINK}
     # stop sophos_threat_detector from creating the link, by denying group access to the directory
     Run Process   chmod   g-rwx    ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log
-    Create File   ${THREAT_DETECTOR_LOG_PATH}   # truncate the log
-    Restart sophos_threat_detector
+    Restart sophos_threat_detector and mark logs
 
-    Threat Detector Log Contains   LogSetup <> Failed to create symlink for logs at
-    Threat Detector Does Not Log Contain   LogSetup <> Create symlink for logs at
+    Sophos Threat Detector Log Contains With Offset   LogSetup <> Failed to create symlink for logs at
+    Threat Detector Log Should Not Contain With Offset   LogSetup <> Create symlink for logs at
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
 
 
