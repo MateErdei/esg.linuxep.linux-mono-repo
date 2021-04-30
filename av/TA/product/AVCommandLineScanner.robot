@@ -75,12 +75,16 @@ Clear logs
     Start AV
 
 Start AV
+    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
+    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
+    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
 
 Stop AV
+    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
     Log  ${result.stderr}
     Log  ${result.stdout}
@@ -227,7 +231,7 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout
     sleep  1s
     Send Signal To Process  2
-    ${result} =  Wait For Process  timeout=10s
+    ${result} =  Wait For Process  timeout=20s
     Process Should Be Stopped
 
     Should Not Contain  ${result.stdout}  Reached total maximum number of reconnection attempts. Aborting scan.
@@ -391,6 +395,8 @@ CLS Can Report Scan Error And Detection For Archive
 
 
 AV Log Contains No Errors When Scanning File
+    Mark AV Log
+
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
@@ -581,12 +587,10 @@ CLS simple eicar in encoded archive
 
 
 CLS Encoded Eicars
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
     Should Be Equal As Integers  ${result.rc}  0
+
     ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp_test/encoded_eicars/  timeout=120s
     Log   ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
@@ -1382,7 +1386,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep avscanner
     Run Process   /bin/kill   -SIGTERM   ${pid}
 
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=60
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
 CLS Can Append Summary To Log When SIGHUP Is Received
@@ -1398,5 +1402,5 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep avscanner
     Run Process   /bin/kill   -SIGHUP   ${pid}
 
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=60
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
