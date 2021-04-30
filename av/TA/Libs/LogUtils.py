@@ -57,11 +57,15 @@ class LogUtils(object):
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
+        self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "chroot", "log", "sophos_threat_detector.log")
+        self.av_log = os.path.join(self.install_path, "plugins", "av", "log", "av.log")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.marked_mcsrouter_logs = 0
         self.marked_mcs_envelope_logs = 0
         self.marked_watchdog_logs = 0
         self.marked_managementagent_logs = 0
+        self.marked_av_log = 0
+        self.marked_sophos_threat_detector_log = 0
 
     def log_contains_in_order(self, log_location, log_name, args, log_finds=True):
         return _log_contains_in_order(log_location, log_name, args, log_finds)
@@ -484,6 +488,40 @@ File Log Contains
         managementagent_log = self.managementagent_log()
         contents = _get_log_contents(managementagent_log)
         self.marked_managementagent_logs = len(contents)
+
+    def mark_av_log(self):
+        av_log = self.av_log
+        contents = _get_log_contents(av_log)
+        self.marked_av_log = len(contents)
+
+    def mark_sophos_threat_detector_log(self):
+        sophos_threat_detector_log = self.sophos_threat_detector_log
+        contents = _get_log_contents(sophos_threat_detector_log)
+        self.marked_sophos_threat_detector_log = len(contents)
+
+    def check_marked_av_log_contains(self, string_to_contain, mark):
+        av_log = self.av_log
+        contents = _get_log_contents(av_log)
+        logger.info("reeee {}".format(len(contents)))
+
+        contents = contents[self.marked_av_log:]
+        self.dump_log(av_log)
+        logger.info("CCCCCCCCCCC")
+        logger.info(contents)
+        logger.info("String to contain: {} mark: {}".format(string_to_contain, mark))
+        if string_to_contain not in contents:
+            self.dump_log(av_log)
+            raise AssertionError("av.log log did not contain: " + string_to_contain)
+
+    def check_marked_sophos_threat_detector_log_contains(self, string_to_contain, mark):
+        sophos_threat_detector_log = self.sophos_threat_detector_log
+        contents = _get_log_contents(sophos_threat_detector_log)
+
+        contents = contents[self.sophos_threat_detector_log:]
+
+        if string_to_contain not in contents:
+            self.dump_log(sophos_threat_detector_log)
+            raise AssertionError("sophos_threat_detector.log log did not contain: " + string_to_contain)
 
     def check_marked_mcs_envelope_log_contains(self, string_to_contain):
         mcs_envelope_log = self.mcs_envelope_log()

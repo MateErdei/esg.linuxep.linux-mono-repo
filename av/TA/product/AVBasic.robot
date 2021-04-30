@@ -97,6 +97,7 @@ Scheduled Scan Configuration Is Correct
 
 
 Scan Now Excludes Files And Directories As Expected
+    Mark AV Log
     Create Directory  /directory_excluded/
     Create Directory  /file_excluded/
 
@@ -126,11 +127,11 @@ Scan Now Logs Should Be As Expected
 
     Run Scan Now Scan For Excluded Files Test
 
-    AV Plugin Log Contains  Received new Action
-    Wait Until AV Plugin Log Contains  Evaluating Scan Now
-    Wait Until AV Plugin Log Contains  Starting scan Scan Now  timeout=10
+    AV Plugin Log Contains With Offset  Received new Action
+    Wait Until AV Plugin Log Contains With Offset  Evaluating Scan Now
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
 
-    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=240  interval=5
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240  interval=5
 
     File Log Contains             ${SCANNOW_LOG_PATH}        End of Scan Summary:
     File Log Contains             ${SCANNOW_LOG_PATH}        1 file out of

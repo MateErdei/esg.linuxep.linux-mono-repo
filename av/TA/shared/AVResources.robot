@@ -71,8 +71,11 @@ Count AV Log Lines
 
 Mark AV Log
     ${count} =  Count AV Log Lines
+    #Marks the lines in the log, used for log splitting
     Set Test Variable   ${AV_LOG_MARK}  ${count}
     Log  "AV LOG MARK = ${AV_LOG_MARK}"
+    #Marks characters in the log, used for log checking
+    LogUtils.Mark AV Log
 
 Mark Sophos Threat Detector Log
     [Arguments]  ${mark}=""
@@ -142,7 +145,7 @@ File Log Does Not Contain
 AV Plugin Log Contains With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    File Log Contains With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
+    LogUtils.Check Marked AV Log Contains   ${input}    ${offset}
 
 AV Plugin Log Should Not Contain With Offset
     [Arguments]  ${input}

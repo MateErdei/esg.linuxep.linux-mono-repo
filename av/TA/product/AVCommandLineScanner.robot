@@ -581,11 +581,8 @@ CLS simple eicar in encoded archive
 
 
 CLS Encoded Eicars
-    # TODO  Fix "Wait Until AV Plugin Log Contains With Offset" to match UTF-8 strings, then use "Mark AV Log" instead of resetting AVCommandLineScanner Suite LINUXDAR-2677
-    # Reset AVCommandLineScanner Suite
-    Stop AV
-    Remove File  ${THREAT_DETECTOR_LOG_PATH}
-    Start AV
+    Mark AV Log
+    Mark Sophos Threat Detector Log
 
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
@@ -601,13 +598,13 @@ CLS Encoded Eicars
     ${FILE_CONTENT}=    Get File  ${SUPPORT_FILES_PATH}/list_of_expected_encoded_eicars
     @{eicar_names_list}=    Split to lines  ${FILE_CONTENT}
     FOR  ${item}  IN  @{eicar_names_list}
-        Wait Until AV Plugin Log Contains  ${item}
+        Wait Until AV Plugin Log Contains With Offset  ${item}
     END
 
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
-    File Log Contains   ${THREAT_DETECTOR_LOG_PATH}  Scan requested of /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+    wait until sophos threat detector log contains with offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+    wait until sophos threat detector log contains with offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
+    wait until sophos threat detector log contains with offset  Scan requested of /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
+    wait until sophos threat detector log contains with offset  Scan requested of /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
 
 
 CLS Handles Wild Card Eicars
