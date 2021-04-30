@@ -409,7 +409,7 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     Empty Directory  /opt/sophos-spl/base/mcs/event/
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start threat_detector   OnError=failed to start sophos_threat_detector
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
-    Wait until AV Plugin running with offset
+    Wait until AV Plugin running
 
 Create Install Options File With Content
     [Arguments]  ${installFlags}
