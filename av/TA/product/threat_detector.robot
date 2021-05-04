@@ -106,8 +106,7 @@ Threat detector is killed gracefully
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector received SIGTERM - shutting down
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting
     Wait Until Sophos Threat Detector Log Contains  Closing scanning socket thread
-    # TODO: Uncomment once LINUXDAR-2644 is fixed
-    #Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result =0
+    Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result =0
 
     Terminate Process  ${cls_handle}
     Stop AV

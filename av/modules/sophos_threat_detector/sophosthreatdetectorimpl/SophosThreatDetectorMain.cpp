@@ -404,6 +404,8 @@ static int inner_main()
             break;
         }
     }
+    processController.requestStop();
+    processController.join();
     server.requestStop();
     server.join();
 
