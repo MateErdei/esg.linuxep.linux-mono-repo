@@ -50,6 +50,10 @@ Restart EDR Plugin
     ...   1 secs
     ...   EDR Plugin Is Not Running
     Wdctl Start Plugin  edr
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   1 secs
+    ...   EDR Plugin Is Running
 
 Install EDR
     [Arguments]  ${policy}  ${args}=${None}

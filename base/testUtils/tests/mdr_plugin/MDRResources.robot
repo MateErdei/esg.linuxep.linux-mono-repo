@@ -206,6 +206,7 @@ Kill SophosMTR Executable
 
 Kill OSQuery
     ${result} =  Run Process  pgrep osquery | xargs kill -9  shell=true
+    Should Be Equal As Strings  ${result.rc}  0
     Wait Until Keyword Succeeds
     ...  3 secs
     ...  1 secs

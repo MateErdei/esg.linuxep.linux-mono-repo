@@ -26,6 +26,13 @@ Default Tags   EDR_PLUGIN  TELEMETRY
 *** Test Cases ***
 EDR Plugin Produces Telemetry When XDR is enabled
     [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
+    [Teardown]  EDR Telemetry Test Teardown With Policy Cleanup
+
+    # make sure osquery has restarted so the new policy is guaranteed to cause a restart
+    Wait Until Keyword Succeeds
+    ...  20s
+    ...  2s
+    ...  Check EDR Log Contains   LiveQuery policy has not been sent to the plugin
     Drop LiveQuery Policy Into Place
 
     Wait Until Keyword Succeeds
@@ -74,7 +81,14 @@ EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
 EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In Telemetry
     [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
     [Setup]  EDR Telemetry Test Setup With Debug Logging
+    [Teardown]  EDR Telemetry Test Teardown With Policy Cleanup
     Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+
+    # make sure osquery has restarted so the new policy is guaranteed to cause a restart
+    Wait Until Keyword Succeeds
+    ...  20s
+    ...  2s
+    ...  Check EDR Log Contains   LiveQuery policy has not been sent to the plugin
     Drop LiveQuery Policy Into Place
 
     Wait Until Keyword Succeeds
@@ -250,18 +264,6 @@ EDR Telemetry Test Setup With Debug Logging
     Create Directory   ${COMPONENT_TEMP_DIR}
     Wait Until OSQuery Running  20
 
-EDR Telemetry Test Setup With Cloud
-    Start Local Cloud Server   --initial-alc-policy  ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
-    EDR Telemetry Test Setup
-    Regenerate Certificates
-    Set Local CA Environment Variable
-
-EDR Telemetry Test Setup With Cloud And Debug Logging
-    Start Local Cloud Server   --initial-alc-policy  ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
-    EDR Telemetry Test Setup With Debug Logging
-    Regenerate Certificates
-    Set Local CA Environment Variable
-
 EDR Telemetry Test Teardown
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
@@ -273,19 +275,11 @@ EDR Telemetry Test Teardown
     Remove File  ${EXE_CONFIG_FILE}
     Uninstall EDR Plugin
 
-EDR Telemetry Test Teardown With Cloud
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log  ${telemetryFileContents}
-    MCSRouter Default Test Teardown
-    Remove file  ${TELEMETRY_OUTPUT_JSON}
-    Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
-    Cleanup Telemetry Server
-    Remove Directory   ${COMPONENT_TEMP_DIR}  recursive=true
-    Remove File  ${EXE_CONFIG_FILE}
-    Uninstall EDR Plugin
-    Stop Local Cloud Server
-    Unset CA Environment Variable
-    Cleanup Certificates
+EDR Telemetry Test Teardown With Policy Cleanup
+    EDR Telemetry Test Teardown
+    Cleanup MCSRouter Directories
+
+
 
 Trigger EDR Osquery Database Purge
     Should Exist  /opt/sophos-spl/plugins/edr/var/osquery.db
