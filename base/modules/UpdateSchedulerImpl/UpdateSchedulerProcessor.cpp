@@ -632,10 +632,9 @@ namespace UpdateSchedulerImpl
     void UpdateSchedulerProcessor::writeConfigurationData(
         const SulDownloader::suldownloaderdata::ConfigurationData& configurationData)
     {
-        std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         std::string serializedConfigData =
             SulDownloader::suldownloaderdata::ConfigurationData::toJsonSettings(configurationData);
-        Common::FileSystem::fileSystem()->writeFileAtomically(m_configfilePath, serializedConfigData, tempPath);
+        Common::FileSystem::fileSystem()->writeFile(m_configfilePath, serializedConfigData);
     }
 
     std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerProcessor::
