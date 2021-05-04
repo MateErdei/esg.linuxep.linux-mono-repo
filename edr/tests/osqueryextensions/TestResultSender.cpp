@@ -397,7 +397,7 @@ TEST_F(TestResultSender, addingInvalidJsonLogsErrorButNoExceptionThrown) // NOLI
         PERIOD_IN_SECONDS,
         [&callbackCalled]()mutable{callbackCalled = true;});
     EXPECT_CALL(*mockFileSystem, appendFile(_, _)).Times(0);
-    EXPECT_NO_THROW(resultsSender.Add(R"(not json)"));
+    EXPECT_NO_THROW(resultsSender.PrepareSingleResult(R"(not json)"));
 }
 
 TEST_F(TestResultSender, addThrowsWhenAppendThrows) // NOLINT
@@ -605,7 +605,6 @@ TEST_F(TestResultSender, dataLimitHitInSingleResultInvokesCallback)  // NOLINT
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
-    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "{\"name\":\"\",\"test\":\"value\"}")).Times(1);
     std::string testResult = R"({"name":"","test":"value"})";
     bool callbackCalled = false;
     ResultsSender resultsSender(
@@ -619,7 +618,7 @@ TEST_F(TestResultSender, dataLimitHitInSingleResultInvokesCallback)  // NOLINT
         PERIOD_IN_SECONDS,
         [&callbackCalled]()mutable{callbackCalled = true;});
 
-    resultsSender.Add(testResult);
+    EXPECT_EQ(resultsSender.PrepareSingleResult(testResult), testResult);
 
     ASSERT_TRUE(callbackCalled);
 }
@@ -651,7 +650,7 @@ TEST_F(TestResultSender, dataLimitHitGraduallyInvokesCallback)  // NOLINT
 
     while (timesToAddResult>0)
     {
-        resultsSender.Add(testResult);
+        resultsSender.Add(resultsSender.PrepareSingleResult(testResult));
         timesToAddResult--;
     }
 
@@ -698,7 +697,7 @@ TEST_F(TestResultSender, fuzzSamples) // NOLINT
             PERIOD_IN_SECONDS,
             [&callbackCalled]()mutable{callbackCalled = true;});
 
-        EXPECT_NO_THROW(resultsSender.Add(sample));
+        EXPECT_NO_THROW(resultsSender.PrepareSingleResult(sample));
     }
 }
 
@@ -717,12 +716,10 @@ TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
     std::string testResult = R"({"name":"pack_mtr_pack_query"})";
     std::string correctedNameResult = "{\"name\":\"pack_query\",\"tag\":\"stream\"}";
     std::string testResult1 = R"({"name":"pack_mtr_pack_query_no_tag"})";
-    std::string correctedNameResult1 = ",{\"name\":\"pack_query_no_tag\"}";
-    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, correctedNameResult)).Times(1);
+    std::string correctedNameResult1 = "{\"name\":\"pack_query_no_tag\"}";
 
-    resultsSender.Add(testResult);
-    EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, correctedNameResult1)).Times(1);
-    resultsSender.Add(testResult1);
+    EXPECT_EQ(resultsSender.PrepareSingleResult(testResult), correctedNameResult);
+    EXPECT_EQ(resultsSender.PrepareSingleResult(testResult1), correctedNameResult1);
 }
 
 TEST_F(TestResultSender, prepareBatchResultsAppendsBracketAndReturnsJsonObject) // NOLINT

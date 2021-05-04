@@ -32,6 +32,7 @@ public:
         unsigned int periodInSeconds
         ,std::function<void(void)> dataExceededCallback
         );
+    std::string PrepareSingleResult(const std::string& result) override;
     void Add(const std::string& result) override;
     // cppcheck-suppress virtualCallInConstructor
     void Send() override;

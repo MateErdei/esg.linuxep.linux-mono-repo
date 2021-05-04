@@ -56,28 +56,10 @@ ResultsSender::ResultsSender(
     LOGDEBUG("Initial XDR data limit roll over timestamp: " << m_periodStartTimestamp.getValue());
 }
 
-void ResultsSender::Add(const std::string& result)
+std::string ResultsSender::PrepareSingleResult(const std::string& result)
 {
     LOGDEBUG("Adding XDR results to intermediary file: " << result);
     auto& telemetryHelper = Common::Telemetry::TelemetryHelper::getInstance();
-
-    // The total data usage if we were to add this result
-    unsigned int incrementedDataUsage = m_currentDataUsage.getValue() + result.length();
-
-    // Record that this data has caused us to go over limit.
-    if (incrementedDataUsage > m_dataLimit && !m_hitLimitThisPeriod.getValue())
-    {
-        LOGWARN("XDR data limit for this period exceeded");
-        m_hitLimitThisPeriod.setValue(true);
-        try
-        {
-            m_dataExceededCallback();
-        }
-        catch (const std::exception& ex)
-        {
-            LOGERROR("Data exceeded callback threw an exception: " << ex.what());
-        }
-    }
 
     Json::Value logLine;
     std::string queryName;
@@ -102,7 +84,7 @@ void ResultsSender::Add(const std::string& result)
     catch (const std::exception& e)
     {
         LOGERROR("Invalid JSON log message. " << e.what());
-        return;
+        return "";
     }
 
     std::stringstream key;
@@ -116,7 +98,33 @@ void ResultsSender::Add(const std::string& result)
     Json::StreamWriterBuilder writerBuilder;
     writerBuilder["indentation"] = "";
     ss << Json::writeString(writerBuilder, logLine);
-    auto taggedResult = ss.str();
+
+    m_currentDataUsage.setValue(m_currentDataUsage.getValue() + ss.str().length());
+
+    // Record that this data has caused us to go over limit.
+    if (m_currentDataUsage.getValue() > m_dataLimit && !m_hitLimitThisPeriod.getValue())
+    {
+        LOGWARN("XDR data limit for this period exceeded");
+        m_hitLimitThisPeriod.setValue(true);
+        try
+        {
+            m_dataExceededCallback();
+        }
+        catch (const std::exception& ex)
+        {
+            LOGERROR("Data exceeded callback threw an exception: " << ex.what());
+        }
+    }
+
+    return ss.str();
+}
+
+void ResultsSender::Add(const std::string& result)
+{
+    if (result.empty())
+    {
+        return;
+    }
 
     std::string stringToAppend;
     if (!m_firstEntry)
@@ -124,12 +132,10 @@ void ResultsSender::Add(const std::string& result)
         stringToAppend = ",";
     }
 
-    stringToAppend.append(taggedResult);
+    stringToAppend.append(result);
     auto filesystem = Common::FileSystem::fileSystem();
     filesystem->appendFile(m_intermediaryPath, stringToAppend);
     m_firstEntry = false;
-
-    m_currentDataUsage.setValue(incrementedDataUsage);
 }
 
 void ResultsSender::Send()
