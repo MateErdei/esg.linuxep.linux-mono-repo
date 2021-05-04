@@ -14,7 +14,7 @@
         </build-asset>
         <build-asset project="winep" repo="livequery">
             <release-version branch="release/2021.13" build-id="20210318090337-4b3737d8aa1985d8a4d07f3d812b5a989b0281bc-kIwLrv"/>
-            <development-version branch="develop"/>
+            <development-version branch="bugfix/WINEP-33483"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <build-asset project="winep" repo="dbos">
