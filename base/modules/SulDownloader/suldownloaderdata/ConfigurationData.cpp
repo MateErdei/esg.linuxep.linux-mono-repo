@@ -311,17 +311,20 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     int readAttempt = 0;
     int maxReadAttempt = 3;
-    Status status;
 
     while (readAttempt != maxReadAttempt)
     {
         readAttempt++;
-        status = JsonStringToMessage(settingsString, &settings, jsonParseOptions);
+        auto status = JsonStringToMessage(settingsString, &settings, jsonParseOptions);
         if (!status.ok() && (readAttempt == maxReadAttempt))
         {
             LOGERROR("Failed to process input settings");
             LOGSUPPORT(status.ToString());
             throw SulDownloaderException("Failed to process json message");
+        }
+        else if (status.ok())
+        {
+            break;
         }
         else
         {
