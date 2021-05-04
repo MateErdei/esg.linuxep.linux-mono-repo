@@ -273,7 +273,7 @@ function install_product()
     done
 
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
-    chown -R ${USER_NAME}:${GROUP_NAME} ${CHROOT}/${SOPHOS_INSTALL}
+    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} ${CHROOT}/${SOPHOS_INSTALL}
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
     find ${CHROOT}/${SOPHOS_INSTALL} -type d -exec chown root:${GROUP_NAME} {} \;
 
@@ -284,7 +284,7 @@ function install_product()
 
     mkdir -p "${CHROOT}/log"
     chmod 0770 "${CHROOT}/log"
-    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${CHROOT}/log"
+    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${CHROOT}/log"git pull
     chown root:${GROUP_NAME} "${CHROOT}/log"
 
     chmod 0750 ${CHROOT}/susi
