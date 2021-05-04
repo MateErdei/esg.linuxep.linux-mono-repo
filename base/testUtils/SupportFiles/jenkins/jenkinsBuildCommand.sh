@@ -81,9 +81,9 @@ source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh 
 #setup coverage inputs and exports
 COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
 
-if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
-  sudo cp "$COVERAGE_STAGING/covfile/liveterminal_unittests.cov" /mnt/filer6/linux/SSPL/coverage/
-fi
+#if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
+#  sudo cp "$COVERAGE_STAGING/covfile/liveterminal_unittests.cov" /mnt/filer6/linux/SSPL/coverage/
+#fi
 
 if [[ -n "${BASE_COVERAGE:-}" ]]; then
   # download tap + unit test cov file from Allegro, and use it to get combined (tap + unit + system tests)
@@ -110,6 +110,13 @@ elif [[ -n "${EDR_COVERAGE:-}" ]]; then
   export COV_HTML_BASE=sspl-plugin-edr-combined
   export BULLSEYE_UPLOAD=1
 elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
+  # Upload unit-test html coverage (liveterminal repo does not have the scripts)
+  export COVFILE=$COVERAGE_STAGING/liveterminal_unittests.cov
+  export htmldir=$COVERAGE_STAGING/sspl-liveresponse-unittest
+  export COV_HTML_BASE=sspl-liveresponse-unittest
+  export BULLSEYE_UPLOAD=1
+  bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
+  # Begin merging the combined coverage with the unit-test coverage
   mv $COVERAGE_STAGING/covfile/liveterminal_unittests.cov $COVERAGE_STAGING/sspl-liveresponse-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-liveresponse-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-liveresponse-combined
@@ -154,15 +161,10 @@ if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
 fi
 
 #upload coverage results
-if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" || -n "${EDR_COVERAGE:-}" ]]; then
+if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" || -n "${EDR_COVERAGE:-}" || -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
 fi
 
-# Don't upload the liveresponse coverage file, move it to the filer so that the bullseye machine with covhtml can
-# pull in this file on a seperate sspl jenkins job.
-if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
-  sudo cp "$COVFILE" /mnt/filer6/linux/SSPL/coverage/
-fi
 
 if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]
 then
