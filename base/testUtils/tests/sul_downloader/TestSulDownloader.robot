@@ -33,9 +33,9 @@ Recreate Installation In Temp Dir
     Create Directory    ${tmpdir}/tmp
     Create Directory    ${tmpdir}/sspl/base/update
     Should Exist        ${SOPHOS_INSTALL}
-    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.0   [suldownloader]\nVERBOSITY=DEBUG\n
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [suldownloader]\nVERBOSITY=DEBUG\n
     Run Process         ln  -snf  ${VERSIGPATH}   ${tmpdir}/sspl/base/update/versig
-    Run Process         ln  -snf  ${SOPHOS_INSTALL}/base/update/updatecachecerts/cache_certificates.crt {tmpdir}/sspl/base/update/updatecachecerts/cache_certificates.crt
+    Run Process         ln  -snf  ${SOPHOS_INSTALL}/base/update/updatecachecerts/cache_certificates.crt ${tmpdir}/sspl/base/update/updatecachecerts/cache_certificates.crt
     Create Directory    ${tmpdir}/sspl/base/update/cache/primarywarehouse
     Create Directory    ${tmpdir}/sspl/base/update/cache/primary
     Create Directory    ${tmpdir}/sspl/base/update/cache/primary
@@ -1665,6 +1665,41 @@ Test Suldownloader Can Download A Component Suite And Component From A Multiple 
     File Should Exist  ${tmpdir}/sspl/base/update/cache/primary/${EXAMPLE_PLUGIN_RIGID_NAME}/install.sh
 
     Stop Update Server
+
+Test Suldownloader Does Not Install MDR When Features And Subscription Do Not Match
+    [Tags]  SULDOWNLOADER  MDR_PLUGIN
+    Setup Warehouse For MDR
+    Setup Environment After Warehouse Generation
+    Check MDR Plugin Uninstalled
+    Check SSPL Installed
+
+    # MDR feature but no MDR subscription in ALC policy (MDR does not get installed)
+    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Copy File   ${SUPPORT_FILES}/update_config/update_config_MDR_BASE_features_only.json  ${tmpdir}/update_config.json
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    ${log_contents} =   Get File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Should Contain  ${log_contents}  Update success
+    Check MDR Plugin Uninstalled
+
+    # No MDR feature but with MDR subscription in ALC policy (MDR does not get installed)
+    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Copy File   ${SUPPORT_FILES}/update_config/update_config_MDR_BASE_subscriptions_only.json  ${tmpdir}/update_config.json
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt     ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    ${log_contents} =   Get File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Should Contain  ${log_contents}  Update success
+    Check MDR Plugin Uninstalled
+
+    # MDR feature and MDR subscription in ALC policy (MDR does get installed)
+    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Copy File   ${SUPPORT_FILES}/update_config/update_config_MDR_BASE_features_and_subscriptions.json  ${tmpdir}/update_config.json
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt     ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    ${log_contents} =   Get File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Should Contain  ${log_contents}  Update success
+    Check MDR Plugin Installed
 
 Test Suldownloader Logs Warning When Plugin In Subscription And In Feature List But Missing From Warehouse
     Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}

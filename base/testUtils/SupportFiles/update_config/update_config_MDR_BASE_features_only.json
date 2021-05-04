@@ -1,0 +1,24 @@
+{
+  "sophosURLs": [
+    "https://localhost:1233"
+  ],
+  "credential": {
+    "username": "regruser",
+    "password": "regrABC123pass"
+  },
+  "proxy": {
+    "url": "noproxy:",
+    "credential": {
+      "username": "",
+      "password": "",
+      "proxyType": ""
+    }
+  },
+  "primarySubscription": {
+    "rigidName": "ServerProtectionLinux-Base",
+    "tag": "RECOMMENDED"
+  },
+  "products": [],
+  "features": ["CORE", "MDR", "SENSORS"],
+  "logLevel": "VERBOSE"
+}

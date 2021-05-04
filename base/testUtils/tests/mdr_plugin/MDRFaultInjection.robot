@@ -178,6 +178,26 @@ MTR Plugin Reports Overflow of Standard Output from SophosMTR
 
     Check Intended Fault Injection Argument Was Used  ${numberSpam}
 
+Preventing MDR From Creating Config File Generates An Error In The MTR Log
+    [Tags]   FAULTINJECTION  MDR_PLUGIN
+    Create Fake Sophos MDR Executable With Pick Your Poison  ${run}
+    Wait for MDR Executable To Be Running
+
+    # Remove MTR file and place directory there instead
+    Remove File  ${SOPHOS_INSTALL}/plugins/mtr/var/policy/mtr.xml
+    Create Directory  ${SOPHOS_INSTALL}/plugins/mtr/var/policy/mtr.xml
+
+    # Simulate Updating MDR Policy
+    Copy File   ${SUPPORT_FILES}/CentralXml/MDR_policy.xml  ${SOPHOS_INSTALL}/tmp
+    Move File   ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/MDR_policy.xml
+
+    Wait Until Keyword Succeeds
+        ...   30 secs
+        ...   1 sec
+        ...   MDR Plugin Log Contains   Policy writing failed with exception: Could not move /opt/sophos-spl/tmp/mtr.xml_tmp to /opt/sophos-spl/plugins/mtr/var/policy/mtr.xml: Is a directory
+
+    Check Intended Fault Injection Argument Was Used  ${run}
+
 *** Keywords ***
 
 Create Executable Text File
