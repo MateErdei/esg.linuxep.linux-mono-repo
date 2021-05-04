@@ -26,8 +26,8 @@ Default Tags   EDR_PLUGIN  TELEMETRY
 *** Test Cases ***
 EDR Plugin Produces Telemetry When XDR is enabled
     [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
-    [Setup]  EDR Telemetry Test Setup With Cloud
-    [Teardown]  EDR Telemetry Test Teardown With Cloud
+    [Setup]  EDR Telemetry Test Setup
+    [Teardown]  EDR Telemetry Test Teardown
     Drop LiveQuery Policy Into Place
 
     Wait Until Keyword Succeeds
@@ -75,8 +75,8 @@ EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
 
 EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In Telemetry
     [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
-    [Setup]  EDR Telemetry Test Setup With Cloud And Debug Logging
-    [Teardown]  EDR Telemetry Test Teardown With Cloud
+    [Setup]  EDR Telemetry Test Setup With Debug Logging
+    [Teardown]  EDR Telemetry Test Teardown
     Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Drop LiveQuery Policy Into Place
 
