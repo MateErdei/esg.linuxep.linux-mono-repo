@@ -81,9 +81,6 @@ source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh 
 #setup coverage inputs and exports
 COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
 
-#if [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
-#  sudo cp "$COVERAGE_STAGING/covfile/liveterminal_unittests.cov" /mnt/filer6/linux/SSPL/coverage/
-#fi
 
 if [[ -n "${BASE_COVERAGE:-}" ]]; then
   # download tap + unit test cov file from Allegro, and use it to get combined (tap + unit + system tests)
