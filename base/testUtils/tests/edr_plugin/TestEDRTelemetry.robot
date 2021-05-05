@@ -28,7 +28,7 @@ EDR Plugin Produces Telemetry When XDR is enabled
     [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
     [Teardown]  EDR Telemetry Test Teardown With Policy Cleanup
 
-    # make sure osquery has restarted so the new policy is guaranteed to cause a restart
+    # make sure osquery has started so the new policy is guaranteed to cause a restart
     Wait Until Keyword Succeeds
     ...  20s
     ...  2s
@@ -84,7 +84,7 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     [Teardown]  EDR Telemetry Test Teardown With Policy Cleanup
     Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
-    # make sure osquery has restarted so the new policy is guaranteed to cause a restart
+    # make sure osquery has started so the new policy is guaranteed to cause a restart
     Wait Until Keyword Succeeds
     ...  20s
     ...  2s
