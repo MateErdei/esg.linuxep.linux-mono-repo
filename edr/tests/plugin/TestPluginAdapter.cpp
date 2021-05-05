@@ -611,7 +611,9 @@ TEST_F(PluginAdapterWithMockFileSystem, testHasScheduleEpochEnded)
     time_t scheduleEpochDuration = pluginAdapter.getScheduleEpochDuration();
 
     EXPECT_TRUE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+500000000));
-    EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp-500000000));
+    EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp));
+    EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+1));
+    EXPECT_THROW(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp-1), Plugin::EpochTimeInFuture);
     EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+scheduleEpochDuration));
     EXPECT_TRUE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+scheduleEpochDuration+1));
     EXPECT_FALSE(pluginAdapter.hasScheduleEpochEnded(scheduleEpochTimestamp+scheduleEpochDuration-1));

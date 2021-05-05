@@ -325,6 +325,39 @@ EDR Plugin Does Not Roll ScheduleEpoch Over When The Previous One Has Not Elapse
     ...  EDR Plugin Log Does Not Contain   Starting new schedule_epoch
     Osquery Flag File Should Contain  --schedule_epoch=${currentEpochTimeMinus3Days}
 
+EDR Plugin Recovers When ScheduleEpoch Is In The Future
+    [Documentation]  To test scenario reported in this: LINUXDAR-2973
+    [Setup]  No Operation
+    Install Base For Component Tests
+    Create Debug Level Logger Config File
+    Install EDR Directly from SDDS
+    Enable XDR
+    ${oldScheduleEpochTimestamp} =  Set Variable  3472328296227742266
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${oldScheduleEpochTimestamp}
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${oldScheduleEpochTimestamp}
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Run Keywords
+    ...  EDR Plugin Log Contains   Schedule Epoch time: ${oldScheduleEpochTimestamp} should never be in the future  AND
+    ...  EDR Plugin Log Contains   Resetting schedule_epoch to current time:
+
+    ${scheduleEpoch} =  ScheduleEpoch Should Be Recent
+    Should Not Be Equal As Strings  ${scheduleEpoch}  ${oldScheduleEpochTimestamp}
+    EDR Plugin Log Contains   Starting new schedule_epoch: ${scheduleEpoch}
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${scheduleEpoch}
+    Osquery Flag File Should Contain  --schedule_epoch=${scheduleEpoch}
+
 Check XDR Results Contain Correct ScheduleEpoch Timestamp
     [Setup]  No Operation
     Install Base For Component Tests

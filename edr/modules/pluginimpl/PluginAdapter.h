@@ -33,6 +33,12 @@ namespace Plugin
         using std::runtime_error::runtime_error;
     };
 
+    class EpochTimeInFuture : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
+
     class PluginAdapter
     {
         std::shared_ptr<QueueTask> m_queueTask;
@@ -137,6 +143,8 @@ namespace Plugin
         static bool pluginMemoryAboveThreshold();
         void dataFeedExceededCallback();
         void telemetryResetCallback(Common::Telemetry::TelemetryHelper&);
+        void rolloverScheduleEpochAndRestartOsquery(time_t now);
+
 
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
