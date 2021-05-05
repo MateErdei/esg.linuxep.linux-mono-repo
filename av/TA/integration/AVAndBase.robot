@@ -10,6 +10,7 @@ Library         ../Libs/fixtures/AVPlugin.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/ThreatReportUtils.py
+Library         ../Libs/Telemetry.py
 
 Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
@@ -427,7 +428,7 @@ AV Plugin Can Send Telemetry
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
-
+    Check Telemetry  ${telemetryFileContents}
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 

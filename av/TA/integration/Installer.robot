@@ -13,6 +13,7 @@ Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
 Library         ../Libs/ProcessUtils.py
+Library         ../Libs/Telemetry.py
 
 Suite Setup     Installer Suite Setup
 Suite Teardown  Installer Suite TearDown
@@ -381,6 +382,32 @@ Check installer can handle versioned copied Virus Data from 1.0.0
 
     ${number_of_VDL_files}   Count Files In Directory   ${AV_PLUGIN_PATH}/chroot/susi/update_source/vdl
     Should Be True   ${number_of_VDL_files} > 1
+
+AV Plugin Can Send Telemetry After IDE Update
+    Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source/*
+    ${AVPLUGIN_PID} =  Record AV Plugin PID
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Install IDE  ${IDE_NAME}
+    Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     ls -l ${AV_PLUGIN_PATH}/chroot/susi/update_source/
+    Log To Console  ${output}
+    Prepare To Run Telemetry Executable
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
+    Wait Until Keyword Succeeds
+             ...  10 secs
+             ...  1 secs
+             ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log  ${telemetryFileContents}
+    Check Telemetry  ${telemetryFileContents}
+    ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
+    Should Contain   ${telemetryLogContents}    Gathered telemetry for av
+
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
