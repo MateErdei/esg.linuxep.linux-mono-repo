@@ -111,6 +111,9 @@ elif [[ -n "${EDR_COVERAGE:-}" ]]; then
   export BULLSEYE_UPLOAD=1
 elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   # Upload unit-test html coverage (liveterminal repo does not have the scripts)
+  ls $COVERAGE_STAGING
+  ls $COVERAGE_STAGING/linux
+  ls $COVERAGE_STAGING/linux/bullseye
   export COVFILE=$COVERAGE_STAGING/liveterminal_unittests.cov
   export htmldir=$COVERAGE_STAGING/sspl-liveresponse-unittest
   export COV_HTML_BASE=sspl-liveresponse-unittest
