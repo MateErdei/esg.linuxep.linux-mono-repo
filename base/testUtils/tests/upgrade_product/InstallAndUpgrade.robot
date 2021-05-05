@@ -291,7 +291,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    #TODO LINUXDAR-2881 remove sleep when this defect is fixed - provide a time space if suldownloader is kicked off again by policy change.
+    #TODO LINUXDAR-2881 remove sleep when this defect is fixed in downgrade version- provide a time space if suldownloader is kicked off again by policy change.
     Sleep  10
     Trigger Update Now
 
@@ -306,6 +306,9 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+     #TODO LINUXDAR-2881 remove when this defect is fixed in downgrade version
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     #TODO LINUXDAR-2339 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -350,11 +353,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...  5 secs
     ...  Component Version has changed  ${EdrReleaseVersion}    ${InstalledEDRPluginVersionFile}
 
-    #wait for AV plugin to be running before attempting uninstall
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Component Version has changed  ${AVReleaseVersion}    ${InstalledAVPluginVersionFile}
 
     #the query pack should have been re-installed
     Should Exist  ${Sophos_Scheduled_Query_Pack}
@@ -674,7 +672,7 @@ Test That Only Subscriptions Appear As Subscriptions In ALC Status File
 
     Only Subscriptions In Policy Are In Alc Status Subscriptions
 
-We Can Upgrade AV From A Release To VUT Without Unexpected Errors
+We Can Upgrade AV A Release To VUT Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
@@ -737,8 +735,17 @@ We Can Upgrade AV From A Release To VUT Without Unexpected Errors
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
 
-    Check AV Plugin Permissions
-    Check AV Plugin Can Scan Files
+    Check Update Reports Have Been Processed
+
+    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
+    Should Be Equal As Integers  ${rc}  0
+    Should Be Empty  ${output}
+
+    Create File     /tmp/clean_file    ${CLEAN_STRING}
+    Create File     /tmp/dirty_file    ${EICAR_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file /tmp/dirty_file
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 *** Keywords ***
 
