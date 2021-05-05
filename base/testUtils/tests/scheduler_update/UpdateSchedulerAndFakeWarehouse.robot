@@ -28,56 +28,6 @@ ${logpath}              ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${BasePolicy}           ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_only_VUT.xml
 
 *** Test Cases ***
-UpdateScheduler Update Against Ostia
-    [Tags]   UPDATE_SCHEDULER  OSTIA  WAREHOUSE_SYNC
-    Set Log Level For Component And Reset and Return Previous Log  suldownloader  DEBUG
-
-    Simulate Send Policy And Run Update  ${BasePolicy}
-
-    ${eventPath} =  Check Status and Events Are Created  waitTime=120 secs
-    Log File  /opt/sophos-spl/logs/base/suldownloader.log
-    Check Event Report Success  ${eventPath}
-
-    File Should Exist    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check Log Contains String N Times   ${logpath}   SULDownloader Log   suldownloaderdata <> Installing product: ServerProtectionLinux-Base-component version:   1
-
-UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
-    Register Current Sul Downloader Config Time
-    Simulate Send Policy   ALC_policy_invalid.xml
-
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Log Contains   Invalid policy: Username is empty    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
-
-    ${File}=  Get File   ${UPDATE_CONFIG}
-    Should not Contain   ${File}  UserPassword="NotARealPassword"
-
-    Check Update Scheduler Running
-
-UpdateScheduler Status No Longer Contains Deprecated Fields
-    [Tags]   UPDATE_SCHEDULER  OSTIA  WAREHOUSE_SYNC
-    [Documentation]  Checks fix from LINUXEP-8108
-    Set Log Level For Component And Reset and Return Previous Log  suldownloader  DEBUG
-
-    Remove File   ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Remove File   ${SOPHOS_INSTALL}/base/mcs/status/cache/ALC.xml
-    Simulate Send Policy And Run Update  ${BasePolicy}
-    ${eventPath} =  Check Status and Events Are Created  waitTime=120 secs
-    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-
-    Should Not Contain  ${StatusContent}  <lastBootTime>
-    Should Not Contain  ${StatusContent}  <lastStartedTime>
-    Should Not Contain  ${StatusContent}  <lastSyncTime>
-    Should Not Contain  ${StatusContent}  <lastInstallStartedTime>
-    Should Not Contain  ${StatusContent}  <lastFinishedTime>
-    Should Not Contain  ${StatusContent}  <lastResult>
-
-
 UpdateScheduler Report Failure On Versig Error
     [Tags]  UPDATE_SCHEDULER
     [Documentation]  Reproduces the error reported in LINUXEP-8012
@@ -179,46 +129,6 @@ Update Scheduler Ignores Non Report Files When Processing Reports
     Check Event Report Success  ${eventPath}
     Check Log Does Not Contain   Failed to process file: /opt/sophos-spl/base/update/var/config.json  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
 
-UpdateScheduler Can Detect SulDownloader Service Error
-    # After install replace Sul Downloader with a fake version for test, then run SulDownloader in the same way UpdateScheduler does
-    # Check if the expected return code is given.
-
-    # Test is designed to prove the contract for the check will work across all platforms.
-
-    Replace Sul Downloader With Fake Broken Version
-    Run Process   /bin/systemctl  start  sophos-spl-update.service
-    ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
-    Should Be Equal As Integers  ${result.rc}  0  msg="Failed to detect sophos-spl-update.service error"
-
-UpdateScheduler Can Detect SulDownloader Service Runs Without Error
-    # After install directly run SulDownloader in the same way UpdateScheduler does
-    # Check if the expected return code is given.
-
-    # Test is designed to prove the contract for the check will work across all platforms.
-
-    Run Process   /bin/systemctl  start  sophos-spl-update.service
-    ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
-    Should Be Equal As Integers  ${result.rc}  1  msg="Failed to detect sophos-spl-update.service error"
-
-UpdateScheduler Can Detect SulDownloader Service Runs Without Error After Error Reported
-    # After install replace Sul Downloader with a fake version for test, then run SulDownloader in the same way UpdateScheduler does
-    # Check if the expected return code is given.
-
-    # Test is designed to prove the contract for the check will work across all platforms.
-
-    Copy File  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0.bak
-
-    Replace Sul Downloader With Fake Broken Version
-    ${startresult} =  Run Process   /bin/systemctl  start  sophos-spl-update.service
-    ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
-    Should Be Equal As Integers  ${result.rc}  0  msg="Detected error in sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
-
-    Replace Original Sul Downloader
-
-    ${startresult} =  Run Process   /bin/systemctl  start  sophos-spl-update.service
-    ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
-    Should Be Equal As Integers  ${result.rc}  1  msg="Failed to detect sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
-
 *** Keywords ***
 
 Test Teardown With Cert Replacement
@@ -246,6 +156,4 @@ Teardown For Test
     Run Keyword If Test Failed   Display Permissions of SulDownloader Files
     Teardown Servers For Update Scheduler
 
-Replace Original Sul Downloader
-    Remove File  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0
-    Copy File  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0.bak  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0
+

@@ -50,6 +50,57 @@ UpdateScheduler SulDownloader Report Sync With Warehouse Success
     Cleanup Telemetry Server
     Check Update Scheduler Run as Sophos-spl-user
 
+UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
+    Simulate Send Policy   ALC_policy_invalid.xml
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Log Contains   Invalid policy: Username is empty    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
+
+    ${File}=  Get File   ${UPDATE_CONFIG}
+    Should not Contain   ${File}  UserPassword="NotARealPassword"
+    Check Update Scheduler Running
+
+UpdateScheduler Can Detect SulDownloader Service Error
+    # After install replace Sul Downloader with a fake version for test, then run SulDownloader in the same way UpdateScheduler does
+    # Check if the expected return code is given.
+
+    # Test is designed to prove the contract for the check will work across all platforms.
+
+    Replace Sul Downloader With Fake Broken Version
+    Run Process   /bin/systemctl  start  sophos-spl-update.service
+    ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
+    Should Be Equal As Integers  ${result.rc}  0  msg="Failed to detect sophos-spl-update.service error"
+
+UpdateScheduler Can Detect SulDownloader Service Runs Without Error
+    # After install directly run SulDownloader in the same way UpdateScheduler does
+    # Check if the expected return code is given.
+
+    # Test is designed to prove the contract for the check will work across all platforms.
+
+    Run Process   /bin/systemctl  start  sophos-spl-update.service
+    ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
+    Should Be Equal As Integers  ${result.rc}  1  msg="Failed to detect sophos-spl-update.service error"
+
+UpdateScheduler Can Detect SulDownloader Service Runs Without Error After Error Reported
+    # After install replace Sul Downloader with a fake version for test, then run SulDownloader in the same way UpdateScheduler does
+    # Check if the expected return code is given.
+
+    # Test is designed to prove the contract for the check will work across all platforms.
+
+    Copy File  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0.bak
+
+    Replace Sul Downloader With Fake Broken Version
+    ${startresult} =  Run Process   /bin/systemctl  start  sophos-spl-update.service
+    ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
+    Should Be Equal As Integers  ${result.rc}  0  msg="Detected error in sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
+
+    Replace Original Sul Downloader
+
+    ${startresult} =  Run Process   /bin/systemctl  start  sophos-spl-update.service
+    ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
+    Should Be Equal As Integers  ${result.rc}  1  msg="Failed to detect sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
 
 UpdateScheduler Regenerates The Config File If It Does Not Exist
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
@@ -736,4 +787,9 @@ Teardown For Test
     Run Keyword If Test Failed  Dump Mcs Router Dir Contents
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
     General Test Teardown
+
+
+Replace Original Sul Downloader
+    Remove File  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0
+    Copy File  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0.bak  ${SOPHOS_INSTALL}/base/bin/SulDownloader.0
 
