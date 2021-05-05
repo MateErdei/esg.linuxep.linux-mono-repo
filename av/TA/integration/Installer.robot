@@ -384,6 +384,12 @@ Check installer can handle versioned copied Virus Data from 1.0.0
     Should Be True   ${number_of_VDL_files} > 1
 
 AV Plugin Can Send Telemetry After IDE Update
+    Mark Sophos Threat Detector Log
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   timeout=60
     Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source/*
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
@@ -408,6 +414,34 @@ AV Plugin Can Send Telemetry After IDE Update
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
+AV Plugin Can Send Telemetry After Upgrade
+    Mark Sophos Threat Detector Log
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   timeout=60
+    Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source/*
+
+    Modify manifest
+    Install AV Directly from SDDS
+
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     ls -l ${AV_PLUGIN_PATH}/chroot/susi/update_source/
+    Log To Console  ${output}
+    Prepare To Run Telemetry Executable
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
+    Wait Until Keyword Succeeds
+             ...  10 secs
+             ...  1 secs
+             ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log  ${telemetryFileContents}
+    Check Telemetry  ${telemetryFileContents}
+    ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
+    Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 *** Variables ***
 ${IDE_NAME}         peend.ide

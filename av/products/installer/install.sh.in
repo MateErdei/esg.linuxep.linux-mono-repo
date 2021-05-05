@@ -148,6 +148,11 @@ function generate_susi_package_manifest()
 function bootstrap_susi_from_update_source()
 {
     chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
+    # AV Plugin needs to be able to read files in the following directories for telemetry
+    chmod -R g+rx "${SUSI_UPDATE_SRC}/vdl/"
+    chmod -R g+rx "${SUSI_UPDATE_SRC}/reputation/"
+    chmod -R g+rx "${SUSI_UPDATE_SRC}/model/"
+    chmod -R g+rx "${SUSI_UPDATE_SRC}/mllib/"
     ${PLUGIN_INSTALL}/sbin/susi_bootstrapper
     chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_DIST_VERS}"
 }
