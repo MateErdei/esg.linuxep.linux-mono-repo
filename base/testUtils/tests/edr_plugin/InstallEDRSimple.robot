@@ -60,6 +60,115 @@ EDR Removes Ipc And Status Files When Uninstalled
     File Should Not Exist   ${EDR_STATUS_XML}
     File Should Not Exist   ${CACHED_STATUS_XML}
 
+EDR Installer Directories And Files
+## -------------------------------------READ----ME------------------------------------------------------
+## Please note that these tests rely on the files in InstallSet being upto date. To regenerate these run
+## an install manually and run the generateFromInstallDir.sh from InstallSet directory.
+## WARNING
+## If you generate this from a local build please make sure that you have blatted the distribution
+## folder before remaking it. Otherwise old content can slip through to new builds and corrupt the
+## fileset.
+## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
+## -----------------------------------------------------------------------------------------------------
+    Run Full Installer
+    Install EDR Directly
+    Wait Until OSQuery Running
+
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # workaround for directory permissions
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Run Process  chmod  700  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d
+    Run Process  chmod  700  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs
+    Run Process  chmod  700  ${SOPHOS_INSTALL}/plugins/edr/log
+    Run Process  chmod  700  ${SOPHOS_INSTALL}/plugins/edr/var
+
+    # Install query packs
+    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
+    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
+    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
+    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
+
+    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =  get file info for installation  edr
+    Set Test Variable  ${FileInfo}
+    Set Test Variable  ${DirectoryInfo}
+    Set Test Variable  ${SymbolicLinkInfo}
+
+    # Check Directory Structure
+    Log  ${DirectoryInfo}
+    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/DirectoryInfo
+    Should Be Equal As Strings  ${ExpectedDirectoryInfo}  ${DirectoryInfo}
+
+    # Check File Info
+    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/FileInfo
+    Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
+
+    # Check Symbolic Links
+    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SymbolicLinkInfo
+    Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
+
+    # Check systemd files
+    ${SystemdInfo}=  get systemd file info
+    ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SystemdInfo
+    Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
+
+EDR Handles Live Query
+    Start Local Cloud Server  --initial-alc-policy  ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
+    Regenerate Certificates
+    Set Local CA Environment Variable
+
+    Run Full Installer
+    Install EDR Directly
+    Wait Until OSQuery Running
+
+    Wdctl Stop Plugin  edr
+    Override LogConf File as Global Level  DEBUG
+    Wdctl Start Plugin  edr
+
+    Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
+    Register With Fake Cloud
+
+    Send Query From Fake Cloud  Test Query Special  select name from processes  command_id=firstcommand
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  10 secs
+    ...  Check Envelope Log Contains  /commands/applications/MCS;ALC;LiveQuery
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  10 secs
+    ...  Check Envelope Log Contains  Test Query Special
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  2 secs
+    ...  Check Livequery Log Contains  Executing query name: Test Query Special and corresponding id: firstcommand
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Livequery Log Contains  Successfully executed query with name: Test Query Special and corresponding id: firstcommand
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Livequery Log Contains  Query result: {
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check Cloud Server Log Contains  cloudServer: LiveQuery response (firstcommand) = {  1
+    Check Cloud Server Log Contains  "type": "sophos.mgt.response.RunLiveQuery",  1
+
+    ${fake_cloud_log}=  Get Fake Cloud Log File Path
+    Check String Matching Regex In File  ${fake_cloud_log}  \"queryMetaData\": {\"durationMillis\":[0-9]+,\"errorCode\":0,\"errorMessage\":\"OK\",\"rows\":[0-9]+,\"sizeBytes\":[0-9]+},
+
+    Check Cloud Server Log Contains  "columnMetaData": [{"name":"name","type":"TEXT"}],  1
+    Check Cloud Server Log Contains  "columnData": [["systemd"],  1
+
 EDR Does Not Trigger Query On Update Now Action
     [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT
     Run Full Installer
