@@ -6,6 +6,7 @@ Library           OperatingSystem
 Library           Collections
 
 Library           ${LIBS_DIRECTORY}/SulDownloader.py
+Library           ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library           ${LIBS_DIRECTORY}/UpdateServer.py
 Library           ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library           ${LIBS_DIRECTORY}/LogUtils.py
@@ -203,8 +204,10 @@ Wrong Signature warehouse
 
     Check SulDownloader Report Contains
     ...     failed signature verification
-
-
+    Check SulDownloader Report Contains
+    ...     INSTALLFAILED
+    Check SulDownloader Report Contains
+    ...     VERIFYFAILED
 Test warehouse
     ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json
 
