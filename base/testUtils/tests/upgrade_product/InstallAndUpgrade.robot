@@ -294,18 +294,14 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
-
-    Wait Until Keyword Succeeds
-    ...   180 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
+    #TODO LINUXDAR-2881 remove sleep when this defect is fixed in downgrade version- provide a time space if suldownloader is kicked off again by policy change.
+    Sleep  10
     Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs
-    ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
+    ...  Check Log Contains String At Least N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
@@ -313,7 +309,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-    #TODO LINUXDAR-2881 remove when this defect is fixed
+     #TODO LINUXDAR-2881 remove when this defect is fixed in downgrade version
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     #TODO LINUXDAR-2339 remove when this defect is fixed
@@ -321,7 +317,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -339,8 +334,6 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Not Be Equal As Strings  ${EdrReleaseVersion}  ${EdrDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
 
-    #the query pack should have been removed with a down grade to a version that does not have it as a supplement
-    Should Not Exist  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
 
@@ -363,6 +356,11 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...  5 secs
     ...  Component Version has changed  ${EdrReleaseVersion}    ${InstalledEDRPluginVersionFile}
 
+    #wait for AV plugin to be running before attempting uninstall
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Component Version has changed  ${AVReleaseVersion}    ${InstalledAVPluginVersionFile}
 
     #the query pack should have been re-installed
     Should Exist  ${Sophos_Scheduled_Query_Pack}
