@@ -179,6 +179,7 @@ SAV and ALC Policy Arrives And Is Handled Correctly
 
     Wait for ALC policy on endpoint
     Wait for SAV policy on endpoint
+    wait until file exists  ${av_plugin_path}/var/customer_id.txt
 
     ${rc}   ${output} =    Run And Return Rc And Output  ls -l ${av_plugin_path}/var/
     Log to console  ${output}
@@ -197,6 +198,6 @@ SAV and ALC Policy Arrives And Is Handled Correctly
     Wait until scheduled scan updated
     ${rc}   ${output} =    Run And Return Rc And Output  ls -l ${av_plugin_path}/var/
     Log to console  ${output}
-    ${rc}   ${output} =    Run And Return Rc And Output  ls -l ${av_plugin_path}/var/customer_id.txt
+    ${rc}   ${output} =    Run And Return Rc And Output  cat ${av_plugin_path}/var/customer_id.txt
     Log to console  ${output}
     Threat Detector Does Not Log Contain  Failed to read customerID - using default value
