@@ -164,6 +164,9 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+    #TODO LINUXDAR-2881 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     #TODO LINUXDAR-2339 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -291,14 +294,18 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
 
     Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    #TODO LINUXDAR-2881 remove sleep when this defect is fixed in downgrade version- provide a time space if suldownloader is kicked off again by policy change.
-    Sleep  10
+
+    Wait Until Keyword Succeeds
+    ...   180 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
     Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs
-    ...  Check Log Contains String At Least N Times   ${SULDownloaderLog}  Update Log  Update success  1
+    ...  Check Log Contains String N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
@@ -306,7 +313,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-     #TODO LINUXDAR-2881 remove when this defect is fixed in downgrade version
+    #TODO LINUXDAR-2881 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     #TODO LINUXDAR-2339 remove when this defect is fixed
@@ -314,6 +321,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -331,6 +339,8 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Should Not Be Equal As Strings  ${EdrReleaseVersion}  ${EdrDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
 
+    #the query pack should have been removed with a down grade to a version that does not have it as a supplement
+    Should Not Exist  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
 
@@ -493,6 +503,9 @@ Version Copy Versions All Changed Files When Upgrading
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+    #TODO LINUXDAR-2881 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     # FIXME LINUXDAR-2136 remove this line
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to connect to the warehouse
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
@@ -696,12 +709,6 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
     ${BaseReleaseVersion} =      Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
 
-    #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-    #TODO LINUXDAR-2339 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-
     Send ALC Policy And Prepare For Upgrade  ${BaseAndAVVUTPolicy}
 
     Wait Until Keyword Succeeds
@@ -725,6 +732,16 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
     Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-AV Upgraded  1
 
     Check AV Plugin Installed
+
+    #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    #TODO LINUXDAR-2339 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+
+    #TODO LINUXDAR-2881 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
