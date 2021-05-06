@@ -62,28 +62,7 @@ UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
     Should not Contain   ${File}  UserPassword="NotARealPassword"
     Check Update Scheduler Running
 
-UpdateScheduler Can Detect SulDownloader Service Error
-    # After install replace Sul Downloader with a fake version for test, then run SulDownloader in the same way UpdateScheduler does
-    # Check if the expected return code is given.
-
-    # Test is designed to prove the contract for the check will work across all platforms.
-
-    Replace Sul Downloader With Fake Broken Version
-    Run Process   /bin/systemctl  start  sophos-spl-update.service
-    ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
-    Should Be Equal As Integers  ${result.rc}  0  msg="Failed to detect sophos-spl-update.service error"
-
-UpdateScheduler Can Detect SulDownloader Service Runs Without Error
-    # After install directly run SulDownloader in the same way UpdateScheduler does
-    # Check if the expected return code is given.
-
-    # Test is designed to prove the contract for the check will work across all platforms.
-
-    Run Process   /bin/systemctl  start  sophos-spl-update.service
-    ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
-    Should Be Equal As Integers  ${result.rc}  1  msg="Failed to detect sophos-spl-update.service error"
-
-UpdateScheduler Can Detect SulDownloader Service Runs Without Error After Error Reported
+Systemctl Can Detect SulDownloader Service Runs Without Error After Error Reported
     # After install replace Sul Downloader with a fake version for test, then run SulDownloader in the same way UpdateScheduler does
     # Check if the expected return code is given.
 
