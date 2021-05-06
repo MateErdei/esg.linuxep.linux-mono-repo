@@ -17,13 +17,6 @@ Test Teardown   EDR And Base Teardown
 
 
 *** Test Cases ***
-EDR By Default Will Configure Audit Option
-    Check EDR Plugin Installed With Base
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check Osquery Configured To Collect Audit Data
-
 EDR Does Not Configure Audit If MTR Is Supposed To Be Installed
     Check MTR in ALC Policy Forces Disable Audit Data Collection
 
