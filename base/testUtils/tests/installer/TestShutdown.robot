@@ -8,12 +8,17 @@ Resource  ../mdr_plugin/MDRResources.robot
 Resource  ../liveresponse_plugin/LiveResponseResources.robot
 Resource  ../GeneralTeardownResource.robot
 
-Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN MDR_PLUGIN UPDATE_SCHEDULER TAP_TESTS
+Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  MDR_PLUGIN  UPDATE_SCHEDULER  TAP_TESTS
 
 *** Test Cases ***
 Test Components Shutdown Cleanly
      Require Fresh Install
-     Check Expected Base Processes Are Running
+     Override LogConf File as Global Level  DEBUG
+     Run Process   systemctl  restart  sophos-spl
+     Wait Until Keyword Succeeds
+     ...  10 secs
+     ...  1 secs
+     ...  Check Expected Base Processes Are Running
 
      Install EDR Directly
      Wait For EDR to be Installed
