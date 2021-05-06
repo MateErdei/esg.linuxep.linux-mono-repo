@@ -1019,15 +1019,19 @@ Check Update Reports Have Been Processed
     Log  ${filesInUpdateVar}
     ${UpdateReportCount} =  Count Files In Directory  ${SOPHOS_INSTALL}/base/update/var/updatescheduler  update_report[0-9]*.json
 
-    ${ProcessedFileCountDir}=  Get length   ${files_in_processed_dir}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Should Be Equal As Numbers  ${ProcessedFileCountDir}     ${UpdateReportCount}
+    ...  Check N Update Reports Processed  ${UpdateReportCount}
 
     Should Contain  ${files_in_processed_dir}[0]  update_report
     Should Not Contain  ${files_in_processed_dir}[0]  update_report.json
     Should Contain  ${filesInUpdateVar}   ${files_in_processed_dir}[0]
+
+Check N Update Reports Processed
+    [Arguments]  ${update_report_count}
+    ${processed_file_count} =  Count Files In Directory  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
+    Should Be Equal As Integers  ${processed_file_count}  ${update_report_count}
 
 Get Pid Of Process
     [Arguments]  ${process_name}
