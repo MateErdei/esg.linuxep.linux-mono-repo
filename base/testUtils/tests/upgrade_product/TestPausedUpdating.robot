@@ -15,32 +15,43 @@ Test Teardown    Test Teardown
 
 
 *** Variables ***
-${PausedBaseVUTPrevPolicy}    ${GeneratedWarehousePolicies}/base_paused_update_VUT-1.xml
-${PausedBaseVUTPolicy}    ${GeneratedWarehousePolicies}/base_paused_update_VUT.xml
-${PausedBase999Policy}    ${GeneratedWarehousePolicies}/base_paused_update_999.xml
+${BaseOnlyVUTPolicy}                  ${GeneratedWarehousePolicies}/base_only_VUT.xml
+${BaseOnlyFixedVersionVUTPolicy}      ${GeneratedWarehousePolicies}/base_only_fixed_version_VUT.xml
+${BaseOnlyFixedVersion999Policy}      ${GeneratedWarehousePolicies}/base_only_fixed_version_999.xml
 
 *** Test Cases ***
+
 Test SSPL Will Updated To A Fixed Version When Paused Updating Is Activated And Updating Will Resolve To Recommended When It Is Deactivated
-    [Tags]  PAUSED_UPDATE  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20  TESTFAILURE
-    # TODO LINUXDAR-1932 ..  Fix or remove this test. as it is flaky the moment.
-    Start Local Cloud Server  --initial-alc-policy  ${PausedBaseVUTPrevPolicy}
+     [Tags]  PAUSED_UPDATE  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
+     Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${PausedBaseVUTPrevPolicy}
+     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
 
-    Override LogConf File as Global Level  DEBUG
-    # Ensure VUT -1 has successfully installed.
-    # Updating to VUT -1 using FixedVersion policy
-    Perform Update And Check Expected Version Is Installed  ${PausedBaseVUTPrevPolicy}  1
+     Override Local LogConf File for a component   DEBUG  global
 
+     Run Process  systemctl  restart  sophos-spl
 
-    # Uppgrade to VUT using FixedVersion policy
-    Perform Update And Check Expected Version Is Installed    ${PausedBaseVUTPolicy}  2
+     # update via fixed version 999 which does not exist in the given warehouse so expecting this to fail the update
+     # this is to prove the product is updating based in fixed version settings.
+     Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+     # clear log
+     Remove File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+     Perform Update And Check Expected Version Is Installed  ${BaseOnlyFixedVersion999Policy}   1  Product missing from warehouse: ServerProtectionLinux-Base
 
-    # Ensure version does not upgrade to RECOMMENDED when using FixedVersion policy
-    Perform Update And Check Expected Version Is Installed    ${PausedBaseVUTPolicy}  2
+     # update using fixed version
+     Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+     # clear log
+     Remove File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+     # update via fixed version
+     Perform Update And Check Expected Version Is Installed  ${BaseOnlyFixedVersionVUTPolicy}   1
 
-    # Ensure upgrade to RECOMMENDED when using Non FixedVersion policy
-    Perform Update And Check Expected Version Is Installed    ${PausedBase999Policy}  3
+     # update using release tag.
+     Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+     # clear log
+     Remove File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+     # update via fixed version
+     Perform Update And Check Expected Version Is Installed  ${BaseOnlyVUTPolicy}   1
+
 
 *** Keywords ***
 Check Expected Version Is Installed
@@ -55,7 +66,7 @@ Check Update Config Contains Expected Version Value
     Should Contain  ${updateConfigJson}   fixedVersion": "${expectedVersion}
 
 Perform Update And Check Expected Version Is Installed
-    [Arguments]   ${policyFile}  ${updateSuccessLogCount}
+    [Arguments]   ${policyFile}  ${updateSuccessLogCount}  ${updateResult}=Update success
     Send ALC Policy And Prepare For Upgrade  ${policyFile}
 
     # Check installed version matches version from policy
@@ -71,12 +82,11 @@ Perform Update And Check Expected Version Is Installed
     Wait Until Keyword Succeeds
     ...   240 secs
     ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   ${updateSuccessLogCount}
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   ${updateResult}   ${updateSuccessLogCount}
 
-    ${length} =    Get Length    ${version}
+    #  This is to make sure the update has finished in case the previous report check is does not match a string that is produced at end of the update process.
+    Wait Until Keyword Succeeds
+    ...   240 secs
+    ...   2 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file   ${updateSuccessLogCount}
 
-    ${version} =   Set Variable If
-    ...  ${length} > 0  ${version}
-    ...  ${length} == 0  99.9.9
-
-    Check Expected Version Is Installed   ${version}

@@ -352,6 +352,8 @@ class WarehouseUtils(object):
         "base_edr_and_mtr.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_0_6_0.xml": TemplateConfig("BASE_ONLY_0_6_0", "base_user_0_6_0", PROD_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
         "base_only_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_only_fixed_version_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_only_fixed_version_999.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_weeklyScheduleVUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_VUT_no_ballista_override.xml": TemplateConfig("NO_OVERRIDE", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_VUT-1.xml": TemplateConfig("VUT_PREV", "base_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
