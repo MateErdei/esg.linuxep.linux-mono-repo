@@ -544,52 +544,6 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     ...  1 secs
     ...  Check EDR Osquery Executable Running
 
-Install Then Restart With master of base and edr and mtr and check EDR OSQuery Flags File Is Correct For AuditD
-    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
-
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version
-
-    Check Log Does Not Contain    Policy has not been sent to the plugin     ${EDR_DIR}/log/edr.log   EDR
-
-    ${LogContents} =  Get File  ${EDR_DIR}/etc/osquery.flags
-    Should Contain  ${LogContents}  --disable_audit=true
-
-    Run Process    systemctl   stop   sophos-spl
-    Remove File    ${EDR_DIR}/etc/osquery.flags
-    Should Not Exist  ${EDR_DIR}/etc/osquery.flags
-    Run Process    systemctl   start   sophos-spl
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Should Exist  ${EDR_DIR}/etc/osquery.flags
-
-    ${OSQueryFlagsContentsAfterRestart} =  Get File  ${EDR_DIR}/etc/osquery.flags
-    Should Contain  ${OSQueryFlagsContentsAfterRestart}  --disable_audit=true
-
-
-Install Then Restart With master of base and edr and check EDR OSQuery Flags File Is Correct For AuditD
-    Install EDR  ${BaseAndEdrVUTPolicy}
-
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version
-
-    Check Log Does Not Contain    Policy has not been sent to the plugin     ${EDR_DIR}/log/edr.log   EDR
-
-    ${OSQueryFlagsContents} =  Get File  ${EDR_DIR}/etc/osquery.flags
-    Should Contain  ${OSQueryFlagsContents}  --disable_audit=false
-
-    Run Process    systemctl   stop   sophos-spl
-    Remove File    ${EDR_DIR}/etc/osquery.flags
-    Should Not Exist  ${EDR_DIR}/etc/osquery.flags
-    Run Process    systemctl   start   sophos-spl
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Should Exist  ${EDR_DIR}/etc/osquery.flags
-
-    ${OSQueryFlagsContentsAfterRestart} =  Get File  ${EDR_DIR}/etc/osquery.flags
-    Should Contain  ${OSQueryFlagsContentsAfterRestart}  --disable_audit=false
 
 *** Keywords ***
 EDR Tests Teardown With Installed File Replacement
