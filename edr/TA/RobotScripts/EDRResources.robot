@@ -254,7 +254,7 @@ Common Teardown
     Run Keyword If Test Failed  Display All SSPL Files Installed
 
 EDR And Base Teardown
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
