@@ -11,7 +11,6 @@ Test Setup       Telemetry Save Restore Test Setup
 Test Teardown    Telemetry Save Restore Test Teardown
 
 Default Tags  TELEMETRY  WATCHDOG
-Force Tags  LOAD7
 
 *** Variables ***
 ${TELEMETRY_CACHE_DIR}  ${SOPHOS_INSTALL}/base/telemetry/cache

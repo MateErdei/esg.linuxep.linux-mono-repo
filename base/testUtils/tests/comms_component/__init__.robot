@@ -1,3 +1,3 @@
 *** Settings ***
 
-Force Tags  LOAD1
+Force Tags  LOAD2
