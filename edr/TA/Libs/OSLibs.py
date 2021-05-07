@@ -27,15 +27,18 @@ def is_package_installed(package_name):
         print("ERROR, could not determine whether machine uses apt or yum")
 
 
-def install_package(pkg_name):
+def get_pkg_manager():
     if os_uses_apt():
         package_manager = "apt"
     elif os_uses_yum():
         package_manager = "yum"
     else:
-        print("ERROR, could not determine whether machine uses apt or yum")
-        return
+        raise AssertionError("Could not determine whether machine uses apt or yum")
+    return package_manager
 
+
+def install_package(pkg_name):
+    package_manager = get_pkg_manager()
     for _ in range(30):
         if subprocess.run([package_manager, "-y", "install", pkg_name]).returncode == 0:
             break
@@ -44,14 +47,7 @@ def install_package(pkg_name):
 
 
 def remove_package(pkg_name):
-    if os_uses_apt():
-        package_manager = "apt"
-    elif os_uses_yum():
-        package_manager = "yum"
-    else:
-        print("ERROR, could not determine whether machine uses apt or yum")
-        return
-
+    package_manager = get_pkg_manager()
     for _ in range(30):
         if subprocess.run([package_manager, "-y", "remove", pkg_name]).returncode == 0:
             break
