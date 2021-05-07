@@ -13,7 +13,7 @@ Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  MDR_PLUGIN  UPDATE_SCH
 *** Test Cases ***
 Test Components Shutdown Cleanly
      Require Fresh Install
-     Override LogConf File as Global Level  DEBUG
+     Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mtr]\nVERBOSITY=DEBUG\n[watchdog]\nVERBOSITY=DEBUG\n
      Run Process   systemctl  restart  sophos-spl
      Wait Until Keyword Succeeds
      ...  10 secs
@@ -51,5 +51,6 @@ Test Components Shutdown Cleanly
       ...  30 secs
       ...  1 secs
       ...  Check Log Contains   Update Scheduler Finished   ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   UpdateSchedulerLog
+
 
 
