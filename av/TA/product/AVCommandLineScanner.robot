@@ -112,14 +112,25 @@ CLS No args
     Should Not Contain  ${result.stdout.replace("\n", " ")}  "failed to execute"
 
 
-CLS Can Scan Clean File
+CLS Can Scan Clean File Twice Faster Second time
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${before} =  Get Time  epoch
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file
+    ${after1} =  Get Time  epoch
+    ${rc2}   ${output2} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file
+    ${after2} =  Get Time  epoch
 
     Log  return code is ${rc}
     Log  output is ${output}
     Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/clean_file was aborted
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Be Equal As Integers  ${rc2}  ${CLEAN_RESULT}
+    ${duration1} =  Evaluate  ${after1} - ${before}
+    ${duration2} =  Evaluate  ${after2} - ${after1}
+    Log  First duration is ${duration1}
+    Log  Second duration is ${duration2}
+    Run Keyword if  ${duration1} < ${duration2}  Fail  First scan quicker ${duration1} than second scan ${duration2}
+
 
 
 CLS Can Scan Relative Path
