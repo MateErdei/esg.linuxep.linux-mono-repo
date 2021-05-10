@@ -69,6 +69,7 @@ SusiGlobalHandler::~SusiGlobalHandler()
     }
 
     auto res = SUSI_SetLogCallback(&GL_fallback_log_callback);
+    static_cast<void>(res); // Ignore res for non-debug builds (since we can't throw an exception in destructors)
     assert(res == SUSI_S_OK);
 }
 
