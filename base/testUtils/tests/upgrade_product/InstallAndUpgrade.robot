@@ -173,6 +173,9 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
 
+    #this is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/plugins/av/log/av.log   av.log   Exiting sophos_threat_detector with code: 15  1
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
