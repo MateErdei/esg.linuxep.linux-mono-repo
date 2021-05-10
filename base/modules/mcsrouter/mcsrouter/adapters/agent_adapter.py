@@ -72,6 +72,7 @@ class ComputerCommonStatus:
         self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
         # The group that was passed into the thin installer with --group=<group> during installation
         self.install_time_central_group = get_installation_device_group()
+        self.selected_products = get_installation_products()
 
         mac_addresses = []
         try:
@@ -133,6 +134,13 @@ class ComputerCommonStatus:
             for ip_addr in self.ipv6s:
                 result.append("<ipv6>%s</ipv6>" % ip_addr)
             result.append("</ipAddresses>")
+
+        if self.selected_products:
+            result.append("<productsToInstall>")
+            for product in self.selected_products:
+                result.append("<product>%s</product>" % product)
+            result.append("</productsToInstall>")
+
         if self.mac_addresses:
             result.append("<macAddresses>")
             for mac_address in self.mac_addresses:
@@ -163,44 +171,63 @@ def get_version():
         LOGGER.error("Insufficient permissions to read VERSION.ini file: Reporting softwareVersion=0 to Central")
     return 0
 
-def is_device_group_valid(group: str):
+def is_string_xml_valid(string: str):
     # Empty is invalid
-    if group == '':
+    if string == '' or string is None:
         return False
 
     # These characters are invalid and would break XML: <, &, >, ', "
     invalid_chars = ['<', '&', '>', "'", '"']
     for invalid_char in invalid_chars:
-        if invalid_char in group:
+        if invalid_char in string:
             return False
     return True
 
-def get_installation_device_group():
+def get_installation_argument(argument):
     """
-    get_installation_device_group
-    Extract the group to which the endpoint was installed, if present, from the install_options file
+    get_installation_argument
+    Extract the argument from the install_options file
     """
+    argument_line_prefix = argument+"="
     install_options_path = path_manager.install_options_file()
     try:
         if os.path.isfile(install_options_path):
             with open(install_options_path) as install_options_file:
                 for line in install_options_file.readlines():
                     line = line.strip()
-                    if "--group=" in line:
-                        group = line.split("--group=")[-1]
-                        if is_device_group_valid(group):
-                            LOGGER.debug(f"Central installation group found: {group}")
-                            return group
-                        else:
-                            LOGGER.error("Malformed --group= option, device group will not be set.")
+                    if line.startswith(argument_line_prefix):
+                        return line[len(argument_line_prefix):]
     except UnicodeDecodeError:
-        LOGGER.error("Group cannot be decoded please run installer from a UTF-8 locale")
+        LOGGER.error("Argument cannot be decoded. Please run installer from a UTF-8 locale.")
     except PermissionError:
-        LOGGER.error(f"Insufficient permissions to read {install_options_path} file, device group will not be set.")
-    except IndexError:
-        LOGGER.error("Malformed --group= option, device group will not be set.")
+        LOGGER.error(f"Insufficient permissions to read {install_options_path} file.")
     return None
 
+def get_installation_device_group():
+    """
+    get_installation_device_group
+    Extract the group to which the endpoint was installed, if present, from the install_options file
+    """
+    group = get_installation_argument("--group")
+    if is_string_xml_valid(group):
+        LOGGER.debug(f"Central installation group found: {group}")
+        return group
+    else:
+        LOGGER.error("Malformed --group= option, device group will not be set.")
+        return None
+
+def get_installation_products():
+    """
+    get_installation_products
+    Extract the components to be installed to the endpoint, if present, from the install_options file
+    """
+    products = get_installation_argument("--products")
+    if is_string_xml_valid(products):
+        LOGGER.debug(f"Central installation products requested: {products}")
+    else:
+        LOGGER.error("Malformed --products= option, custom products will not be set.")
+        return None
+    return [product for product in products.split(',') if product is not '']
 
 class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
     """
