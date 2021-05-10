@@ -16,6 +16,7 @@ def os_uses_apt() -> bool:
 
 
 def is_package_installed(package_name: str) -> bool:
+    print(f"Checking if package is installed: {package_name}")
     if os_uses_apt():
         output = subprocess.run(["apt", "list", "--installed", package_name],
                                 text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.split("\n")
