@@ -46,7 +46,7 @@ Test 404 From Central Is handled correctly
     Check MCS Router Running
 
 
-Test 403 From Central Is handled correctly
+Test 403 From Central Is Handled Correctly
     Install Register And Wait First MCS Policy
     Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true", "mcs.v2.data_feed.available": "true"}
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
@@ -84,7 +84,7 @@ Test 403 From Central Is handled correctly
     ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log     Request JWT token from   2
     Check MCS Router Running
 
-Test 413 From Central Is handled correctly
+Test 413 From Central Is Handled Correctly
     Install Register And Wait First MCS Policy
     Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true", "mcs.v2.data_feed.available": "true"}
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
