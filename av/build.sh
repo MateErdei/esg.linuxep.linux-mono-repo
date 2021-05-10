@@ -417,7 +417,7 @@ function build()
     echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
 
     BUILD_DIR=build${BITS}
-    export LD_LIBRARY_PATH=$(pwd)/${BUILD_DIR}/libs
+    export LD_LIBRARY_PATH=${LIBRARY_PATH}:$(pwd)/${BUILD_DIR}/libs
     echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
 
     [[ -n $CC ]] || CC=$(which gcc)
