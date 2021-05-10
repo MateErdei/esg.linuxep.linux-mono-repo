@@ -141,7 +141,14 @@ namespace Plugin
               return p.extension() == ".ide";
             };
 
-            ideCount = std::count_if(fs::directory_iterator(vdbDir), fs::directory_iterator{}, static_cast<bool(*)(const fs::path&)>(ide_filter) );
+            try
+            {
+                ideCount = std::count_if(fs::directory_iterator(vdbDir), fs::directory_iterator{}, static_cast<bool(*)(const fs::path&)>(ide_filter) );
+            }
+            catch (const fs::filesystem_error& e)
+            {
+                LOGERROR("Failed to count the number of IDES: " << e.what());
+            }
         }
 
         return ideCount;

@@ -149,6 +149,7 @@ function bootstrap_susi_from_update_source()
 {
     chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
     # AV Plugin needs to be able to read files in the following directories for telemetry
+    chmod g+x "${SUSI_UPDATE_SRC}"
     chmod -R g+rx "${SUSI_UPDATE_SRC}/vdl/"
     chmod -R g+rx "${SUSI_UPDATE_SRC}/reputation/"
     chmod -R g+rx "${SUSI_UPDATE_SRC}/model/"
@@ -351,6 +352,7 @@ function update_supplement()
     cp -auv "$DIST/files/$UPDATE_SRC/reputation/"* "$SOPHOS_INSTALL/$UPDATE_SRC/reputation/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Local reputation data to installation"
     cp -auv "$DIST/files/$UPDATE_SRC/rules/"* "$SOPHOS_INSTALL/$UPDATE_SRC/rules/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy LUA files to installation"
     # AV Plugin needs to be able to read files in the following directories for telemetry
+    chmod g+x "$SOPHOS_INSTALL/$UPDATE_SRC"
     chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/vdl/"
     chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/reputation/"
     chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/model/"
