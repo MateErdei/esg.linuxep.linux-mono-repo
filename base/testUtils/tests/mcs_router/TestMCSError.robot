@@ -73,11 +73,11 @@ Test 403 From Central Is Handled Correctly
     ...  15s
     ...  2s
     ...  Check MCSRouter Log Contains  Purging all datafeed files due to 403 code from Sophos Central
-
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
     ...  Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+    Check Mcsrouter Log Does Not Contain   Sent result, datafeed ID: scheduled_query
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
