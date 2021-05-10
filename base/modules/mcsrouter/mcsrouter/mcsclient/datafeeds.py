@@ -35,19 +35,9 @@ class Datafeed(object):
             except Exception as ex:
                 LOGGER.error("Could not remove datafeed file: {}".format(self.m_file_path))
 
-    def get_command_path_v1(self, endpoint_id):
+    def get_command_path(self, device_id):
         """
-        get_command_path_v1
-        :param endpoint_id:
-        :return: command_path as string
-        """
-        if self.m_datafeed_id:
-            return "/data_feed/endpoint/{}/feed_id/{}".format(endpoint_id, self.m_datafeed_id)
-        return None
-
-    def get_command_path_v2(self, device_id):
-        """
-        get_command_path_v2
+        get_command_path
         :param device_id:
         :return: command_path as string
         """
@@ -213,14 +203,14 @@ class Datafeeds(object):
         return len(self.__m_datafeeds) > 0
 
     @staticmethod
-    def send_datafeed_files(v2_datafeed_available, all_datafeeds, comms):
+    def send_datafeed_files(all_datafeeds, comms):
         total_size = 0
         for datafeed in all_datafeeds:
             total_size += datafeed.get_total_size()
             if datafeed.has_results():
                 LOGGER.debug(f"Datafeed results present for datafeed ID: {datafeed.get_feed_id()}")
                 try:
-                    comms.send_datafeeds(datafeed, v2_datafeed_available)
+                    comms.send_datafeeds(datafeed)
                 except Exception as df_exception:
                     LOGGER.error(
                         f"Failed to send datafeed results, datafeed ID: {datafeed.get_feed_id()}, error: {str(df_exception)}")

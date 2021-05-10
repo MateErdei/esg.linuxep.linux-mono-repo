@@ -441,10 +441,8 @@ class MCS:
             last_time_checked = time.time()
         return last_time_checked
 
-    def should_generate_new_jwt_token(self, jwt_tokens_available):
+    def should_generate_new_jwt_token(self):
         # If the flag is not set
-        if not jwt_tokens_available:
-            return False
         if self.__m_comms:
             # If we already have a JWT token
             if self.__m_comms.m_jwt_token and self.__m_comms.m_device_id and self.__m_comms.m_tenant_id:
@@ -534,8 +532,8 @@ class MCS:
             else:
                 LOGGER.debug("No datafeed result files")
 
-        def send_datafeed_files(v2_datafeed_available):
-            datafeeds_module.Datafeeds.send_datafeed_files(v2_datafeed_available, all_datafeeds, comms)
+        def send_datafeed_files():
+            datafeeds_module.Datafeeds.send_datafeed_files(all_datafeeds, comms)
 
         def status_updated(reason=None):
             """
@@ -685,9 +683,10 @@ class MCS:
                     last_flag_time_check = self.get_flags(last_flag_time_check)
                     flags.combine_flags_files()
 
-                    jwt_tokens_available, v2_datafeed_available = flags.get_mcs_relevant_flags()
+                    #Uncomment this line if we add endpoint flags that are MCS-relevant
+                    #flags.get_mcs_relevant_flags()
 
-                    if self.should_generate_new_jwt_token(jwt_tokens_available):
+                    if self.should_generate_new_jwt_token():
                         self.__m_comms.set_jwt_token_settings()
 
                     # get all pending datafeeds
@@ -738,7 +737,7 @@ class MCS:
                                 LOGGER.error("Failed to send responses: {}".format(str(exception)))
 
                         # Send datafeed results
-                        send_datafeed_files(v2_datafeed_available)
+                        send_datafeed_files()
 
                     # reset command poll
                 except socket.error as ex:

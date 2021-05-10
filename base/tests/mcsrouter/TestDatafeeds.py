@@ -186,6 +186,5 @@ class TestDatafeeds(unittest.TestCase):
 
         comms = mock.Mock()
         comms.send_datafeeds = lambda x, y: True
-        v2_datafeed_available = mock.Mock()
-        mcsrouter.mcsclient.datafeeds.Datafeeds.send_datafeed_files(v2_datafeed_available, mocked_datafeeds, comms)
+        mcsrouter.mcsclient.datafeeds.Datafeeds.send_datafeed_files(mocked_datafeeds, comms)
         mcsrouter.utils.handle_json.update_datafeed_size.assert_called_with(size_total)

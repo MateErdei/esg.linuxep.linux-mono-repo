@@ -133,16 +133,15 @@ def combine_flags_files():
     else:
         LOGGER.debug("Flags.json file already up-to-date")
 
-def get_mcs_relevant_flags():
-    """
-    get_mcs_relevant_flags()
-    :return: Boolean values for flags that MCS cares about
-    """
-    flags_content = read_flags_file(path_manager.combined_flags_file())
-    jwt_tokens_available = False
-    v2_datafeed_available = False
-    if "jwt-token.available" in flags_content:
-        jwt_tokens_available = flags_content["jwt-token.available"]
-    if "mcs.v2.data_feed.available" in flags_content:
-        v2_datafeed_available = flags_content["mcs.v2.data_feed.available"]
-    return jwt_tokens_available, v2_datafeed_available
+# def get_mcs_relevant_flags():
+#     """
+#     get_mcs_relevant_flags()
+#     :return: Boolean values for flags that MCS cares about
+#     """
+#     flags_content = read_flags_file(path_manager.combined_flags_file())
+#     flag_one = False
+#
+#     if "flag_one" in flags_content:
+#         flag_one = flags_content["flag_one"]
+#
+#     return flag_one

@@ -200,26 +200,23 @@ class TestFlags(unittest.TestCase):
         self.assertTrue(mcsrouter.utils.flags.read_flags_file.called)
         self.assertFalse(mcsrouter.utils.flags.file_is_group_readable.called)
 
-    @mock.patch('mcsrouter.utils.flags.read_flags_file', return_value={"mcs.v2.data_feed.available": True, "jwt-token.available": True})
-    def test_get_mcs_relevant_flags_returns_true_and_true_when_both_flags_are_set(self, *mockargs):
-        jwt, v2 = flags.get_mcs_relevant_flags()
-        self.assertTrue(jwt)
-        self.assertTrue(v2)
-        self.assertTrue(mcsrouter.utils.flags.read_flags_file.called)
-
-    @mock.patch('mcsrouter.utils.flags.read_flags_file', return_value={"mcs.v2.data_feed.available": False, "jwt-token.available": True})
-    def test_get_mcs_relevant_flags_returns_true_and_false_when_only_one_flag_is_set(self, *mockargs):
-        jwt, v2 = flags.get_mcs_relevant_flags()
-        self.assertTrue(jwt)
-        self.assertFalse(v2)
-        self.assertTrue(mcsrouter.utils.flags.read_flags_file.called)
-
-    @mock.patch('mcsrouter.utils.flags.read_flags_file', return_value={})
-    def test_get_mcs_relevant_flags_returns_false_and_false_when_fails_to_read_file(self, *mockargs):
-        jwt, v2 = flags.get_mcs_relevant_flags()
-        self.assertFalse(jwt)
-        self.assertFalse(v2)
-        self.assertTrue(mcsrouter.utils.flags.read_flags_file.called)
+    # @mock.patch('mcsrouter.utils.flags.read_flags_file', return_value={"flag_one": True})
+    # def test_get_mcs_relevant_flags_returns_true_when_flag_is_set(self, *mockargs):
+    #     flag_one = flags.get_mcs_relevant_flags()
+    #     self.assertTrue(flag_one)
+    #     self.assertTrue(mcsrouter.utils.flags.read_flags_file.called)
+    #
+    # @mock.patch('mcsrouter.utils.flags.read_flags_file', return_value={"flag_one": False})
+    # def test_get_mcs_relevant_flags_returns_false_when_flag_is_not_set(self, *mockargs):
+    #     flag_one = flags.get_mcs_relevant_flags()
+    #     self.assertFalse(flag_one)
+    #     self.assertTrue(mcsrouter.utils.flags.read_flags_file.called)
+    #
+    # @mock.patch('mcsrouter.utils.flags.read_flags_file', return_value={})
+    # def test_get_mcs_relevant_flags_returns_false_when_fails_to_read_file(self, *mockargs):
+    #     flag_one = flags.get_mcs_relevant_flags()
+    #     self.assertFalse(flag_one)
+    #     self.assertTrue(mcsrouter.utils.flags.read_flags_file.called)
 
 if __name__ == '__main__':
     unittest.main()

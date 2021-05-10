@@ -1064,7 +1064,7 @@ class MCSConnection:
             except Exception as exception:
                 log_exception_error(response.m_app_id, response.m_correlation_id, exception)
 
-    def send_datafeeds(self, datafeeds: datafeeds.Datafeeds, v2_datafeed_available=False):
+    def send_datafeeds(self, datafeeds: datafeeds.Datafeeds):
         """
         This method is used in mcs.py to trigger the processing and sending of datafeed results.
         """
@@ -1110,10 +1110,7 @@ class MCSConnection:
                 LOGGER.debug("Can't send anymore datafeed results, at limit for now. Limit: {}".format(max_upload_at_once))
                 break
             try:
-                if v2_datafeed_available:
-                    self.send_datafeed_result_v2(datafeed_result)
-                else:
-                    self.send_datafeed_result_v1(datafeed_result)
+                self.send_datafeed_result(datafeed_result)
                 LOGGER.debug(f"Sent result, datafeed ID: {datafeeds.get_feed_id()}, file: {datafeed_result.m_file_path}")
                 LOGGER.debug(
                     f"Result content for datafeed ID: {datafeeds.get_feed_id()}, content: {datafeed_result.m_json_body}")
@@ -1149,6 +1146,10 @@ class MCSConnection:
                     LOGGER.warning("Failed read Retry-After in response headers from datafeed when handling {} code".format(exception_429.error_code()))
 
                 break
+            except MCSHttpUnauthorizedException as exception:
+                LOGGER.error("Failed to send datafeed: {}".format(exception))
+                self.m_jwt_token = None
+                break
             except Exception as exception:
                 LOGGER.error("Failed to send datafeed: {}".format(exception))
                 break
@@ -1162,35 +1163,13 @@ class MCSConnection:
         if next_normal_send_at > datafeeds.get_backoff_until_time():
             datafeeds.set_backoff_until_time(next_normal_send_at)
 
-    def send_datafeed_result_v1(self, datafeed):
-        """
-        prepare a HTTP request to send to central containing a data feed result
-        :param datafeed: A Datafeed object (datafeeds.py) which contains data, e.g. a scheduled query.
-        :return: The compressed body of the datafeed file
-        """
-        command_path = datafeed.get_command_path_v1(self.get_id())
-
-        headers = {
-            "Authorization": self._get_basic_authorization_header(),
-            "Accept": "application/json",
-            "Content-Length": datafeed.m_compressed_body_size,
-            "Content-Encoding": "deflate",
-            "X-Uncompressed-Content-Length": datafeed.m_json_body_size
-        }
-        LOGGER.debug(
-            "MCS request url={} body size={}".format(
-                command_path,
-                datafeed.m_compressed_body_size))
-        (headers, body) = self.__request(command_path, headers, datafeed.m_compressed_body, "POST")
-        return body
-
-    def send_datafeed_result_v2(self, datafeed):
+    def send_datafeed_result(self, datafeed):
         """
         prepare a HTTP request to send to central containing a data feed result using the new method with jwt tokens
         :param datafeed: A Datafeed object (datafeeds.py) which contains data, e.g. a scheduled query.
         :return: The compressed body of the datafeed file
         """
-        command_path = datafeed.get_command_path_v2(self.m_device_id)
+        command_path = datafeed.get_command_path(self.m_device_id)
         headers = {
             "Authorization": "Bearer {}".format(self.m_jwt_token),
             "Accept": "application/json",

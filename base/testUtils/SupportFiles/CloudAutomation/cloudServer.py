@@ -1599,7 +1599,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         logger.debug("Received and processed data via the v1 method")
         return self.ret("")
 
-    def datafeed_v2(self):
+    def datafeed(self):
         match_object = re.match(r"^/mcs/v2/data_feed/device/([^/]*)/feed_id/([^/]*)$", self.path)
         if not match_object:
             return self.ret("Bad response path", 400)
@@ -1642,7 +1642,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path.startswith("/mcs/data_feed/endpoint"):
             return self.datafeed_v1()
         elif self.path.startswith("/mcs/v2/data_feed/device"):
-            return self.datafeed_v2()
+            return self.datafeed()
         elif self.path.startswith("/mcs/authenticate/endpoint/"):
             return self.mcs_jwt_token()
 
