@@ -115,9 +115,8 @@ Store Whether Auditd Is Running
 
 Get Audit Package Name
     # On different distros pkg names differ, on ubuntu it's auditd and on centos it's audit
-    ${audit_pkg_name} =  Set Variable  auditd
     ${uses_yum}=  os_uses_yum
-    Run Keyword If  ${uses_yum}   ${audit_pkg_name} =  Set Variable  audit
+    ${audit_pkg_name}=  Set Variable If   ${uses_yum}  audit  auditd
     [Return]  ${audit_pkg_name}
 
 Start Auditd
