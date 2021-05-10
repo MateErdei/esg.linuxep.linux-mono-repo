@@ -49,7 +49,7 @@
         </build-asset>
 
         <build-asset project="ec" repo="liblocalrep">
-            <release-version branch="release/2.1" build-id="20210301101017-60a36e2833987642eec49d48837d30a9cd0e28bd-xUPUun"/>
+            <release-version branch="release/2.2" build-id="20210503095748-c7f51f30f6b74388b2c15efbbbd810c85de6bb09-KJUTud"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
@@ -58,7 +58,7 @@
         </package>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="release/1.2" build-id="20210302074219-81fd472580f019cdd6cbe3c23e95bead5e9117f2-41jFyh"/>
+            <release-version branch="release/1.3" build-id="20210504141521-c14b3408cd955f8c39ac33ac3e6a94a34a0233f7-13iN5x"/>
             <include artifact-path="release/centos7/libsusi" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/updater" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/interface" dest-dir="input/susi_input/susi/include" />
@@ -66,7 +66,7 @@
         </build-asset>
 
         <build-asset project="core" repo="httpsrequester">
-            <release-version branch="release/1.2" build-id="20210224162322-ffb88bba84d861e9f683249a72e08a397cb4bbb4-36lvY3"/>
+            <release-version branch="release/1.2" build-id="20210503132603-d9ecd51f629ca35b20d5aee8a882fc9879eef919-sp7kkw"/>
             <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 
