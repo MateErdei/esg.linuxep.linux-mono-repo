@@ -120,6 +120,10 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
+    Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
+    Override LogConf File as Global Level  DEBUG
+    Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
+
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
 
     Check EAP Release With AV Installed Correctly
@@ -170,6 +174,10 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
     #avp tries to pick up the policy after it starts, if the policy is not there it logs the error and then waits 10s for the policy to show up.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
+    #this is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
+    Run Keyword And Expect Error  *
+    ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -697,6 +705,10 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
+    Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
+    Override LogConf File as Global Level  DEBUG
+    Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
+
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
 
     Check AV Plugin Installed
@@ -734,6 +746,10 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     #avp tries to pick up the policy after it starts, if the policy is not there it logs the error and then waits 10s for the policy to show up.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
+    #this is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
+    Run Keyword And Expect Error  *
+    ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
     #TODO LINUXDAR-2881 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
