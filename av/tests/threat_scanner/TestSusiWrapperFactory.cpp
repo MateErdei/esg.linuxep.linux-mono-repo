@@ -20,7 +20,7 @@ namespace
     {
     public:
 
-        void setupFilesForTestingGlobalRep(const std::string customerId, const std::string machineId);
+        void setupFilesForTestingGlobalRep(const std::string& customerId, const std::string& machineId);
         void setupEmptySusiStartupFile();
         void writeBinaryToSusiStartupFile();
         void writeLargeSusiStartupFile();
@@ -77,7 +77,7 @@ namespace
     };
 }
 
-void TestSusiWrapperFactory::setupFilesForTestingGlobalRep(const std::string customerId="d22829d94b76c016ec4e04b08baeffaa", const std::string machineId="ab7b6758a3ab11ba8a51d25aa06d1cf4")
+void TestSusiWrapperFactory::setupFilesForTestingGlobalRep(const std::string& customerId="d22829d94b76c016ec4e04b08baeffaa", const std::string& machineId="ab7b6758a3ab11ba8a51d25aa06d1cf4")
 {
     createTestFolderAndSetupPaths();
 

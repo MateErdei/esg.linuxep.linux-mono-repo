@@ -13,6 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <iostream>
 #include <cassert>
+#include <utility>
 
 using namespace threat_scanner;
 
@@ -50,41 +51,35 @@ static const SusiLogCallback GL_fallback_log_callback{
     .minLogLevel = SUSI_LOG_LEVEL_INFO
 };
 
-SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
+SusiGlobalHandler::SusiGlobalHandler()
 {
     my_susi_callbacks.token = this;
 
     auto res = SUSI_SetLogCallback(&GL_log_callback);
     throwIfNotOk(res, "Failed to set log callback");
-
-    res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
-    if (res != SUSI_S_OK)
-    {
-        // This can fail for reasons outside the programs control, therefore is an exception
-        // rather then an assert
-        std::ostringstream ost;
-        ost << "Failed to initialise SUSI: 0x" << std::hex << res << std::dec;
-        LOGERROR(ost.str());
-        throw std::runtime_error(ost.str());
-    }
-    else
-    {
-        LOGSUPPORT("Initialising Global Susi successful");
-    }
 }
 
 SusiGlobalHandler::~SusiGlobalHandler()
 {
-    SusiResult res = SUSI_Terminate();
-    LOGSUPPORT("Exiting Global Susi result =" << std::hex << res << std::dec);
-    assert(res == SUSI_S_OK);
+    if (m_susiInitialised)
+    {
+        auto res = SUSI_Terminate();
+        LOGSUPPORT("Exiting Global Susi result =" << std::hex << res << std::dec);
+        assert(res == SUSI_S_OK);
+    }
 
-    res = SUSI_SetLogCallback(&GL_fallback_log_callback);
+    auto res = SUSI_SetLogCallback(&GL_fallback_log_callback);
     assert(res == SUSI_S_OK);
 }
 
 bool SusiGlobalHandler::update(const std::string& path)
 {
+    if (!m_susiInitialised)
+    {
+        m_updatePending = true;
+        m_updatePath = path;
+        return true;
+    }
     SusiResult res = SUSI_Update(path.c_str());
     if (res == SUSI_I_UPTODATE)
     {
@@ -100,5 +95,34 @@ bool SusiGlobalHandler::update(const std::string& path)
         ost << "Failed to update SUSI: 0x" << std::hex << res << std::dec;
         LOGERROR(ost.str());
     }
+    m_updatePending = false;
     return res == SUSI_S_OK || res == SUSI_I_UPTODATE;
+}
+
+bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
+{
+    if (m_susiInitialised)
+    {
+        return false;
+    }
+    auto res = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
+    if (res != SUSI_S_OK)
+    {
+        // This can fail for reasons outside the programs control, therefore is an exception
+        // rather then an assert
+        std::ostringstream ost;
+        ost << "Failed to initialise SUSI: 0x" << std::hex << res << std::dec;
+        LOGERROR(ost.str());
+        throw std::runtime_error(ost.str());
+    }
+    else
+    {
+        LOGSUPPORT("Initialising Global Susi successful");
+        m_susiInitialised = true;
+        if (m_updatePending)
+        {
+            update(m_updatePath);
+        }
+    }
+    return true;
 }

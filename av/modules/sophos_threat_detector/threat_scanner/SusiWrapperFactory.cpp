@@ -209,15 +209,16 @@ namespace threat_scanner
 
     std::shared_ptr<ISusiWrapper> SusiWrapperFactory::createSusiWrapper(const std::string& scannerConfig)
     {
+        std::string scannerInfo = create_scanner_info(false);
+        std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId(), isSxlLookupEnabled());
+        m_globalHandler->initializeSusi(runtimeConfig);
         return std::make_shared<SusiWrapper>(m_globalHandler, scannerConfig);
     }
 
     // make a method that reads ALC-policy to get the Customer ID
     SusiWrapperFactory::SusiWrapperFactory()
+        : m_globalHandler(std::make_shared<SusiGlobalHandler>())
     {
-        std::string scannerInfo = create_scanner_info(false);
-        std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId(), isSxlLookupEnabled());
-        m_globalHandler = std::make_shared<SusiGlobalHandler>(runtimeConfig);
     }
 
     bool SusiWrapperFactory::update()
