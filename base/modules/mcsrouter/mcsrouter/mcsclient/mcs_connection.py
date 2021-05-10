@@ -1120,7 +1120,8 @@ class MCSConnection:
                     f"Result content for datafeed ID: {datafeeds.get_feed_id()}, content: {datafeed_result.m_json_body}")
                 sent_so_far += datafeed_result.m_json_body_size
                 datafeed_result.remove_datafeed_file()
-
+            except MCSHttpPayloadException:
+                datafeed_result.remove_datafeed_file()
             # Handle HTTP 429 (too many requests) from central
             except MCSHttpTooManyRequestsException as exception_429:
 

@@ -416,6 +416,23 @@ class TestMCSConnection(unittest.TestCase):
             mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertEqual(os.remove.call_count, 1)
 
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v2")
+    @mock.patch("os.remove")
+    def test_mcs_purges_datafeed_after_receiving_413_from_central(self, *mockargs):
+
+        side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpPayloadException(413, {}, '{}')
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v2.side_effect=side_effects
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = "2601033100"
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
+
+        with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
+            datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        self.assertEqual(os.remove.call_count, 1)
+
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result_v1")
     @mock.patch("os.remove")
