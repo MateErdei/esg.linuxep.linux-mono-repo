@@ -9,8 +9,8 @@ import sys
 
 
 ec2 = boto.ec2.connect_to_region("eu-west-1",
-        aws_access_key_id="AKIAIF23TRE42IG5IH4Q",
-        aws_secret_access_key="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")
+        aws_access_key_id="AKIAWR523TF7XZPL2C7H",
+        aws_secret_access_key="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")
 
 volumes = ec2.get_all_volumes(filters={
     "status" : "available"

@@ -22,8 +22,8 @@ TEST_PASS_UUID = os.environ.get("TEST_PASS_UUID",None)
 def checkMachinesAllTerminated(stack, uuid=TEST_PASS_UUID):
     conn = boto.ec2.connect_to_region(
         "eu-west-1",
-        aws_access_key_id="AKIAIF23TRE42IG5IH4Q",
-        aws_secret_access_key="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"
+        aws_access_key_id="AKIAWR523TF7XZPL2C7H",
+        aws_secret_access_key="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"
         )
     instances = conn.get_only_instances(filters={
         "tag:TestPassUUID": TEST_PASS_UUID,
