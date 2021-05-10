@@ -213,6 +213,7 @@ SERVER_500 = False
 SERVER_504 = False
 SERVER_404 = False
 SERVER_403 = False
+SERVER_413 = False
 
 
 def readCert(basename):
@@ -1299,6 +1300,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         global SERVER_504
         global SERVER_404
         global SERVER_403
+        global SERVER_413
         global NULL_NEXT
 
         if self.path == "/error":
@@ -1319,6 +1321,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/error/server500":
             logger.info("SENDING 500")
             SERVER_500 = True
+            return self.ret("")
+        elif self.path == "/error/server413":
+            logger.info("SENDING 413")
+            SERVER_413 = True
             return self.ret("")
         elif self.path == "/error/server504":
             logger.info("SENDING 504")
@@ -1605,7 +1611,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
         if SERVER_500:
             return self.ret("Internal Server Error", 500)
-
+        if SERVER_413:
+            return self.ret("Payload too large", 413)
         datafeed_body = self.getBody()
         try:
             decompressed_body = zlib.decompress(datafeed_body)

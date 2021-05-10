@@ -83,6 +83,37 @@ Test 403 From Central Is handled correctly
     ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log     Request JWT token from   2
     Check MCS Router Running
 
+Test 413 From Central Is handled correctly
+    Install Register And Wait First MCS Policy
+    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true", "mcs.v2.data_feed.available": "true"}
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
+    Stop Mcsrouter If Running
+    Start MCSRouter
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCS Router Running
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCSRouter Log Contains  Request JWT token from
+
+    Create File  /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1730641639.json  {"content" : "NotEmpty"}
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCSRouter Log Contains  Sent result, datafeed ID: scheduled_query, file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1730641639.json
+
+    Send Command From Fake Cloud    error/server413
+    Create File  /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1730641657.json  {"content" : "NotEmpty"}
+    Wait Until Keyword Succeeds
+    ...  30s
+    ...  2s
+    ...  Check MCSRouter Log Contains  HTTP Payload Too Large (413)
+
+    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+    Check MCS Router Running
+
 Test 504 From Central Is handled correctly
     Install Register And Wait First MCS Policy
     Send Command From Fake Cloud    error/server504
