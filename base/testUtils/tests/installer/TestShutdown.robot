@@ -8,7 +8,7 @@ Resource  ../mdr_plugin/MDRResources.robot
 Resource  ../liveresponse_plugin/LiveResponseResources.robot
 Resource  ../GeneralTeardownResource.robot
 
-Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  MDR_PLUGIN  UPDATE_SCHEDULER  TAP_TESTS
+Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  MDR_PLUGIN  UPDATE_SCHEDULER
 
 *** Test Cases ***
 Test Components Shutdown Cleanly
