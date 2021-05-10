@@ -84,26 +84,6 @@ TEST_F(TestOsqueryConfigurator, InvalidALCPolicyShouldBeConsideredToHaveNoMTRFea
     EXPECT_THAT(logMessage, ::testing::HasSubstr("WARN Failed to parse ALC policy"));
 }
 
-TEST_F(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeature) // NOLINT
-{
-    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
-    testing::internal::CaptureStderr();
-    TestableOsqueryConfigurator enabledOption(true);
-    enabledOption.loadALCPolicy(PolicyWithMTRFeature());
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Detected MTR is enabled"));
-}
-
-TEST_F(TestOsqueryConfigurator, OsqueryConfiguratorLogsTheMTRBoundedFeatureWhenNotPresent) // NOLINT
-{
-    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
-    testing::internal::CaptureStderr();
-    TestableOsqueryConfigurator enabledOption(true);
-    enabledOption.loadALCPolicy(PolicyWithoutMTRFeatureOrSubscription());
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO No MTR Detected"));
-}
-
 TEST_F(TestOsqueryConfigurator, BeforeALCPolicyIsGivenOsQueryConfiguratorShouldConsideredToBeMTRBounded) // NOLINT
 {
     TestableOsqueryConfigurator disabledOption(false);

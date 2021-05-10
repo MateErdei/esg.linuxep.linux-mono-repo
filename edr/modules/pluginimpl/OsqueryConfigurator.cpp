@@ -271,14 +271,6 @@ namespace Plugin
     void OsqueryConfigurator::loadALCPolicy(const std::string& alcPolicy)
     {
         m_mtrInAlcPolicy = ALCContainsMTRFeature(alcPolicy);
-        if (m_mtrInAlcPolicy)
-        {
-            LOGINFO("Detected MTR is enabled");
-        }
-        else
-        {
-            LOGINFO("No MTR Detected");
-        }
     }
 
     bool OsqueryConfigurator::getPresenceOfMtrInAlcPolicy() const

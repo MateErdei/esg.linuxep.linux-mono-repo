@@ -55,7 +55,6 @@ EDR Is Stable When Changing Osquery Configurations As Per ALC Policy Changes
     ...  1 secs
     ...  Check Osquery Configured To Collect Audit Data
 
-    Wait For EDR Log   edr <> No MTR Detected
     Wait For EDR Log   edr <> Run osquery process
 
     #give osquery time to run
@@ -67,7 +66,6 @@ EDR Is Stable When Changing Osquery Configurations As Per ALC Policy Changes
     ...  5 secs
     ...  Check Running Instance of Osquery Configured To Not Collect Audit Data
 
-    Wait For EDR Log  edr <> Detected MTR is enabled
     Wait For EDR Log  edr <> Restarting osquery
     Wait For EDR Log  Issue request to stop to osquery
 
