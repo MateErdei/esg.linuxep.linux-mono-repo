@@ -88,13 +88,15 @@ Suite Setup For EDR And Auditd
     Store Whether Auditd Installed
     Store Whether Auditd Is Running
     # If no auitd, install it
-    Run Keyword Unless  ${auditd_already_installed_when_suite_started}  install_package  auditd
+    ${auditd_name}=  Get Audit Package Name
+    Run Keyword Unless  ${auditd_already_installed_when_suite_started}  install_package  ${auditd_name}
 
 Suite Teardown For EDR And Auditd
     # Start up auditd if it was already running when the suite started
     Run Keyword If  ${auditd_already_running_when_suite_started}  Start Auditd
     # Remove auitd if we had to install it for this test suite
-    Run Keyword Unless  ${auditd_already_installed_when_suite_started}  remove_package  auditd
+    ${auditd_name}=  Get Audit Package Name
+    Run Keyword Unless  ${auditd_already_installed_when_suite_started}  remove_package  ${auditd_name}
     Uninstall All
 
 Test Teardown For EDR And Auditd
@@ -102,13 +104,21 @@ Test Teardown For EDR And Auditd
     Uninstall All
 
 Store Whether Auditd Installed
-    ${auditd_already_installed_when_suite_started}=  is_package_installed  auditd
+    ${auditd_name}=  Get Audit Package Name
+    ${auditd_already_installed_when_suite_started}=  is_package_installed  ${auditd_name}
     Set suite variable  ${auditd_already_installed_when_suite_started}
 
 Store Whether Auditd Is Running
     ${status} =   Run Process  systemctl  is-active  auditd
     ${auditd_already_running_when_suite_started}=  Evaluate  ${status.rc} == 0
     Set suite variable  ${auditd_already_running_when_suite_started}
+
+Get Audit Package Name
+    # On different distros pkg names differ, on ubuntu it's auditd and on centos it's audit
+    ${audit_pkg_name} =  Set Variable  auditd
+    ${uses_yum}=  os_uses_yum
+    Run Keyword If  os_uses_yum   ${audit_pkg_name} =  Set Variable  audit
+    [Return]  ${audit_pkg_name}
 
 Start Auditd
     Run Shell Process  systemctl unmask auditd  OnError=failed to unmask auditd   timeout=60s
