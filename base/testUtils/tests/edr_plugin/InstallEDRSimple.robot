@@ -74,14 +74,6 @@ EDR Installer Directories And Files
     Install EDR Directly
     Wait Until OSQuery Running
 
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # workaround for directory permissions
-    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    Run Process  chmod  700  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d
-    Run Process  chmod  700  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs
-    Run Process  chmod  700  ${SOPHOS_INSTALL}/plugins/edr/log
-    Run Process  chmod  700  ${SOPHOS_INSTALL}/plugins/edr/var
-
     # Install query packs
     Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
