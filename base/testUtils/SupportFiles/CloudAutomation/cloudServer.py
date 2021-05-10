@@ -1377,7 +1377,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
     def do_GET_mcs(self):
         global ERROR_NEXT
         global SERVER_504
-        global SERVER_403
         global SERVER_404
         global REREGISTER_NEXT
         global NULL_NEXT
@@ -1402,9 +1401,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif SERVER_504 and not self.path.startswith('/mcs/push/endpoint/'):
             SERVER_504 = False
             return self.send_error_code(504, "Gateway Timeout")
-        elif SERVER_403 and not self.path.startswith('/mcs/push/endpoint/'):
-            SERVER_403 = False
-            return self.send_error_code(403, "Forbidden")
         elif SERVER_404 and not self.path.startswith('/mcs/push/endpoint/'):
             SERVER_404 = False
             return self.send_error_code(404, "Not Found")
@@ -1613,6 +1609,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("Internal Server Error", 500)
         if SERVER_413:
             return self.ret("Payload too large", 413)
+        if SERVER_403:
+            return self.ret("Forbidden", 403)
         datafeed_body = self.getBody()
         try:
             decompressed_body = zlib.decompress(datafeed_body)

@@ -48,7 +48,7 @@ Test 404 From Central Is handled correctly
 
 Test 403 From Central Is handled correctly
     Install Register And Wait First MCS Policy
-    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true"}
+    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true", "mcs.v2.data_feed.available": "true"}
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
     Stop Mcsrouter If Running
     Start MCSRouter
@@ -62,7 +62,8 @@ Test 403 From Central Is handled correctly
     ...  Check MCSRouter Log Contains  Request JWT token from
     Send Command From Fake Cloud    error/server403
 
-    Create File  /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1620641657.json  {"content" : "NotEmpty"}
+    Create File  /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1720641657.json  {"content" : "NotEmpty"}
+    Create File  /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1770641657.json  {"content" : "NotEmpty"}
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
@@ -71,12 +72,12 @@ Test 403 From Central Is handled correctly
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
-    ...  Check MCSRouter Log Contains  Deleting existing datafeeds
+    ...  Check MCSRouter Log Contains  Purging all datafeed files due to 403 code from Sophos Central
+
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
-    ...  Check MCSRouter Log Contains  Removing datafeed file
-    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+    ...  Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
