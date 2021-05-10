@@ -213,7 +213,6 @@ SERVER_500 = False
 SERVER_504 = False
 SERVER_404 = False
 SERVER_403 = False
-SERVER_413 = False
 
 
 def readCert(basename):
@@ -1299,7 +1298,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         global SERVER_500
         global SERVER_504
         global SERVER_404
-        global SERVER_413
         global SERVER_403
         global NULL_NEXT
 
@@ -1317,10 +1315,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/error/server403":
             logger.info("SENDING 403s")
             SERVER_403 = True
-            return self.ret("")
-        elif self.path == "/error/server413":
-            logger.info("SENDING 413s")
-            SERVER_413 = True
             return self.ret("")
         elif self.path == "/error/server500":
             logger.info("SENDING 500")
@@ -1362,58 +1356,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         else:
             return self.ret("Unknown Action command path, should be /action/*", code=500)
 
-    def send_error_503(self):
-        action_log.debug("503")
-        logger.debug("Sending 503 for %s", self.path)
-        self.send_response(503, "HTTP Service Unavailable")
-        self.send_header("Content-Length", "0")
-        ## reset the cookie (this will be ignored by the client in this response)
-        reset_cookies()
-        self.sendAWSCookie()
-        self.send_cookie()
-        self.end_headers()
-        return True
-    
-    def send_error_504(self):
-        action_log.debug("504")
-        logger.debug("Sending 504 for %s", self.path)
-        self.send_response(504, "Gateway Timeout")
-        self.send_header("Content-Length", "0")
-        ## reset the cookie (this will be ignored by the client in this response)
-        reset_cookies()
-        self.sendAWSCookie()
-        self.send_cookie()
-        self.end_headers()
-        return True
-
-    def send_error_404(self):
-        action_log.debug("404")
-        logger.debug("Sending 404 for %s", self.path)
-        self.send_response(404, "Not Found")
-        self.send_header("Content-Length", "0")
-        ## reset the cookie (this will be ignored by the client in this response)
-        reset_cookies()
-        self.sendAWSCookie()
-        self.send_cookie()
-        self.end_headers()
-        return True
-
-    def send_error_403(self):
-        action_log.debug("403")
-        logger.debug("Sending 403 for %s", self.path)
-        self.send_response(403, "Forbidden")
-        self.send_header("Content-Length", "0")
-        ## reset the cookie (this will be ignored by the client in this response)
-        reset_cookies()
-        self.sendAWSCookie()
-        self.send_cookie()
-        self.end_headers()
-        return True
-
-    def send_error_413(self):
-        action_log.debug("413")
-        logger.debug("Sending 413 for %s", self.path)
-        self.send_response(413, "Payload too large")
+    def send_error_code(self, code, message):
+        action_log.debug(code)
+        logger.debug("Sending %s for %s", code, self.path)
+        self.send_response(code, message)
         self.send_header("Content-Length", "0")
         ## reset the cookie (this will be ignored by the client in this response)
         reset_cookies()
@@ -1427,7 +1373,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         global SERVER_504
         global SERVER_403
         global SERVER_404
-        global SERVER_413
         global REREGISTER_NEXT
         global NULL_NEXT
 
@@ -1447,19 +1392,16 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.send_401()
         elif ERROR_NEXT and not self.path.startswith('/mcs/push/endpoint/'):
             ERROR_NEXT = False
-            return self.send_error_503()
+            return self.send_error_code(503, "HTTP Service Unavailable")
         elif SERVER_504 and not self.path.startswith('/mcs/push/endpoint/'):
             SERVER_504 = False
-            return self.send_error_504()
+            return self.send_error_code(504, "Gateway Timeout")
         elif SERVER_403 and not self.path.startswith('/mcs/push/endpoint/'):
             SERVER_403 = False
-            return self.send_error_403()
+            return self.send_error_code(403, "Forbidden")
         elif SERVER_404 and not self.path.startswith('/mcs/push/endpoint/'):
             SERVER_404 = False
-            return self.send_error_404()
-        elif SERVER_413 and not self.path.startswith('/mcs/push/endpoint/'):
-            SERVER_413 = False
-            return self.send_error_413()
+            return self.send_error_code(404, "Not Found")
         elif self.path.startswith("/mcs/commands/applications/"):
             if NULL_NEXT:
                 NULL_NEXT = False
