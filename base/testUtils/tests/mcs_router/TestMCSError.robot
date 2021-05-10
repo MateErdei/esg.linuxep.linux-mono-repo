@@ -45,6 +45,16 @@ Test 404 From Central Is handled correctly
     ...  Check MCSRouter Log Contains  Bad response from server 404: Not Found
     Check MCS Router Running
 
+Test 403 From Central Is handled correctly
+    Install Register And Wait First MCS Policy
+    Send Command From Fake Cloud    error/server403
+
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCSRouter Log Contains  HTTP Forbidden (403)
+    Check MCS Router Running
+
 Test 504 From Central Is handled correctly
     Install Register And Wait First MCS Policy
     Send Command From Fake Cloud    error/server504

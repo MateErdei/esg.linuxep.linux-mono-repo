@@ -212,6 +212,8 @@ NULL_NEXT = False
 SERVER_500 = False
 SERVER_504 = False
 SERVER_404 = False
+SERVER_403 = False
+SERVER_413 = False
 
 
 def readCert(basename):
@@ -1297,6 +1299,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         global SERVER_500
         global SERVER_504
         global SERVER_404
+        global SERVER_413
+        global SERVER_403
         global NULL_NEXT
 
         if self.path == "/error":
@@ -1309,6 +1313,14 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/error/server404":
             logger.info("SENDING 404s")
             SERVER_404 = True
+            return self.ret("")
+        elif self.path == "/error/server403":
+            logger.info("SENDING 403s")
+            SERVER_403 = True
+            return self.ret("")
+        elif self.path == "/error/server413":
+            logger.info("SENDING 413s")
+            SERVER_413 = True
             return self.ret("")
         elif self.path == "/error/server500":
             logger.info("SENDING 500")
@@ -1386,10 +1398,36 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         self.end_headers()
         return True
 
+    def send_error_403(self):
+        action_log.debug("403")
+        logger.debug("Sending 403 for %s", self.path)
+        self.send_response(403, "Forbidden")
+        self.send_header("Content-Length", "0")
+        ## reset the cookie (this will be ignored by the client in this response)
+        reset_cookies()
+        self.sendAWSCookie()
+        self.send_cookie()
+        self.end_headers()
+        return True
+
+    def send_error_413(self):
+        action_log.debug("413")
+        logger.debug("Sending 413 for %s", self.path)
+        self.send_response(413, "Payload too large")
+        self.send_header("Content-Length", "0")
+        ## reset the cookie (this will be ignored by the client in this response)
+        reset_cookies()
+        self.sendAWSCookie()
+        self.send_cookie()
+        self.end_headers()
+        return True
+
     def do_GET_mcs(self):
         global ERROR_NEXT
         global SERVER_504
+        global SERVER_403
         global SERVER_404
+        global SERVER_413
         global REREGISTER_NEXT
         global NULL_NEXT
 
@@ -1413,9 +1451,15 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif SERVER_504 and not self.path.startswith('/mcs/push/endpoint/'):
             SERVER_504 = False
             return self.send_error_504()
+        elif SERVER_403 and not self.path.startswith('/mcs/push/endpoint/'):
+            SERVER_403 = False
+            return self.send_error_403()
         elif SERVER_404 and not self.path.startswith('/mcs/push/endpoint/'):
             SERVER_404 = False
             return self.send_error_404()
+        elif SERVER_413 and not self.path.startswith('/mcs/push/endpoint/'):
+            SERVER_413 = False
+            return self.send_error_413()
         elif self.path.startswith("/mcs/commands/applications/"):
             if NULL_NEXT:
                 NULL_NEXT = False
