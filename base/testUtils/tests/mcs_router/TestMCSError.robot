@@ -62,7 +62,7 @@ Test 403 From Central Is handled correctly
     ...  Check MCSRouter Log Contains  Request JWT token from
     Send Command From Fake Cloud    error/server403
 
-    Create File  /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1620641657.json  {"jwt-token.available" : "true"}
+    Create File  /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1620641657.json  {"content" : "NotEmpty"}
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
