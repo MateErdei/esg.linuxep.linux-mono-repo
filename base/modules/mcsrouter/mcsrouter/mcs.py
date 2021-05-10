@@ -764,6 +764,9 @@ class MCS:
                     # already logged in mcs_connection when error raised
                     error_count += 1
                     self.on_error(push_client, error_count)
+                except mcs_connection.MCSHttpForbiddenException as exception:
+                    # already logged in mcs_connection when error raised
+                    logging.info("Deleting existing datafeeds")
                 except mcs_connection.MCSHttpException as exception:
                     error_count += 1
                     transient = True

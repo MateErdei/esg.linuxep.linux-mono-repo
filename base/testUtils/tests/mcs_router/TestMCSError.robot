@@ -47,12 +47,28 @@ Test 404 From Central Is handled correctly
 
 Test 403 From Central Is handled correctly
     Install Register And Wait First MCS Policy
+    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true"}
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
+    Stop Mcsrouter If Running
+    Start MCSRouter
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCS Router Running
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCSRouter Log Contains  Request JWT token from
     Send Command From Fake Cloud    error/server403
 
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
     ...  Check MCSRouter Log Contains  HTTP Forbidden (403)
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log     Request JWT token from   2
     Check MCS Router Running
 
 Test 504 From Central Is handled correctly

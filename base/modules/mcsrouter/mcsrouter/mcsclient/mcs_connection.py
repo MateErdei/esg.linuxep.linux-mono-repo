@@ -152,6 +152,17 @@ class MCSHttpTooManyRequestsException(MCSHttpException):
     """
     pass
 
+class MCSHttpForbiddenException(MCSHttpException):
+    """
+    403 JWT token expired
+    """
+    pass
+
+class MCSHttpPayloadException(MCSHttpException):
+    """
+    413 Payload too large
+    """
+    pass
 
 MCS_DEFAULT_RESPONSE_SIZE_MIB = 10
 
@@ -665,6 +676,11 @@ class MCSConnection:
             LOGGER.warning("HTTP Internal Server Error (500): {} ({})".format(
                 response.reason, body))
             raise MCSHttpInternalServerErrorException(response.status, response_headers, body)
+        if response.status == http.client.FORBIDDEN:
+            LOGGER.warning("HTTP Forbidden (403): {} ({})".format(
+                response.reason, body))
+            self.m_jwt_token = None
+            raise MCSHttpForbiddenException(response.status, response_headers, body)
         if response.status == http.client.TOO_MANY_REQUESTS:
             LOGGER.warning("HTTP Too Many Requests (429): {} ({})".format(response.reason, body))
             raise MCSHttpTooManyRequestsException(response.status, response_headers, body)
