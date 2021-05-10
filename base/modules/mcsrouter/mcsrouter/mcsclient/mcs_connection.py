@@ -681,6 +681,10 @@ class MCSConnection:
                 response.reason, body))
             self.m_jwt_token = None
             raise MCSHttpForbiddenException(response.status, response_headers, body)
+        if response.status == http.client.REQUEST_ENTITY_TOO_LARGE:
+            LOGGER.warning("HTTP Payload Too Large (413): {} ({})".format(
+                response.reason, body))
+            raise MCSHttpPayloadException(response.status, response_headers, body)
         if response.status == http.client.TOO_MANY_REQUESTS:
             LOGGER.warning("HTTP Too Many Requests (429): {} ({})".format(response.reason, body))
             raise MCSHttpTooManyRequestsException(response.status, response_headers, body)
