@@ -61,10 +61,21 @@ Test 403 From Central Is handled correctly
     ...  Check MCSRouter Log Contains  Request JWT token from
     Send Command From Fake Cloud    error/server403
 
+    Create File  /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1620641657.json  {"jwt-token.available" : "true"}
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
     ...  Check MCSRouter Log Contains  HTTP Forbidden (403)
+
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCSRouter Log Contains  Deleting existing datafeeds
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCSRouter Log Contains  Removing datafeed file
+    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s

@@ -461,6 +461,16 @@ class MCS:
                 return True
         return False
 
+    def purge_all_datafeeds(self):
+        for filename in os.listdir(path_manager.datafeed_dir()):
+            file_path = os.path.join(path_manager.datafeed_dir(), filename)
+            try:
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                    LOGGER.debug("Removing datafeed file {}".format(file_path))
+            except PermissionError as e:
+                LOGGER.warning(f"Unable to remove file {file_path} with error : {e}")
+
     def run(self):
         """
         run
@@ -767,6 +777,7 @@ class MCS:
                 except mcs_connection.MCSHttpForbiddenException as exception:
                     # already logged in mcs_connection when error raised
                     logging.info("Deleting existing datafeeds")
+                    self.purge_all_datafeeds()
                 except mcs_connection.MCSHttpException as exception:
                     error_count += 1
                     transient = True
