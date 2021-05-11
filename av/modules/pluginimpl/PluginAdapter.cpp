@@ -104,22 +104,34 @@ namespace Plugin
             LOGERROR("Failed to get ALC policy at startup (" << e.what() << ")");
         }
 
-        auto policySAVXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "2", "SAV");
-        if (!policySAVXml.empty())
-        {
-            processPolicy(policySAVXml);
-        }
-
-        auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "1", "ALC");
-        if (!policyALCXml.empty())
-        {
-            processPolicy(policyALCXml);
-        }
+        startupPolicyProcessing();
 
         ThreadRunner scheduler(
             m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
         ThreadRunner sophos_threat_detector(*m_threatDetector, "threatDetector");
         innerLoop();
+    }
+
+    void PluginAdapter::startupPolicyProcessing()
+    {
+        auto policySAVXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "2", "SAV");
+        if (!policySAVXml.empty())
+        {
+            m_restartSophosThreatDetector = processPolicy(policySAVXml);
+        }
+
+        auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "1", "ALC");
+        if (!policyALCXml.empty())
+        {
+            if(m_restartSophosThreatDetector)
+            {
+                processPolicy(policyALCXml);
+            }
+            else
+            {
+                m_restartSophosThreatDetector = processPolicy(policyALCXml);
+            }
+        }
     }
 
     void PluginAdapter::innerLoop()

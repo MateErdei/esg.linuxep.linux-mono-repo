@@ -65,5 +65,7 @@ namespace Plugin
 
         PolicyProcessor m_policyProcessor;
         bool m_restartSophosThreatDetector = false;
+
+        void startupPolicyProcessing();
     };
 } // namespace Plugin
