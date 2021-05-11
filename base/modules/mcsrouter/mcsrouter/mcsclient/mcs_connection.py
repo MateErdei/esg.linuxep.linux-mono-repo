@@ -679,7 +679,6 @@ class MCSConnection:
         if response.status == http.client.FORBIDDEN:
             LOGGER.warning("HTTP Forbidden (403): {} ({})".format(
                 response.reason, body))
-            self.m_jwt_token = None
             raise MCSHttpForbiddenException(response.status, response_headers, body)
         if response.status == http.client.REQUEST_ENTITY_TOO_LARGE:
             LOGGER.warning("HTTP Payload Too Large (413): {} ({})".format(
@@ -1124,6 +1123,7 @@ class MCSConnection:
             except MCSHttpPayloadException:
                 datafeed_result.remove_datafeed_file()
             except MCSHttpForbiddenException:
+                self.m_jwt_token = None
                 LOGGER.warning("Purging all datafeed files due to 403 code from Sophos Central")
                 datafeeds.purge()
             except MCSHttpTooManyRequestsException as exception_429:
