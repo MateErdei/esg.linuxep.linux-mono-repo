@@ -302,7 +302,7 @@ public:
         EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/VERSION.ini"))
                 .WillRepeatedly(Return(true));
         EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/VERSION.ini"))
-            .WillOnce(Return(currentVersionContents));
+            .WillRepeatedly(Return(currentVersionContents));
 
     }
 
@@ -318,7 +318,7 @@ public:
         EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
                 .WillRepeatedly(Return(true));
         EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
-            .WillOnce(Return(currentVersionContents));
+            .WillRepeatedly(Return(currentVersionContents));
     }
 
     void setupExpectanceWriteProductUpdate(MockFileSystem& mockFileSystem)
@@ -551,6 +551,8 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
     timeTracker.setFinishedTime(std::time_t(0));
@@ -570,8 +572,6 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
 
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
-
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
@@ -609,6 +609,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
     timeTracker.setFinishedTime(std::time_t(0));
@@ -631,7 +633,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
 
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
@@ -658,7 +659,6 @@ TEST_F( // NOLINT
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked();
-
     auto products = defaultProducts();
     products[0].setProductHasChanged(false);
     products[1].setProductHasChanged(false);
@@ -678,6 +678,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/productRemove1.ini")).WillOnce(Return(false));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
@@ -719,7 +721,6 @@ TEST_F( // NOLINT
     });
 
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
-
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
@@ -747,6 +748,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/productRemove1.ini")).WillOnce(Return(false));
 
     TimeTracker timeTracker;
     timeTracker.setStartTime(std::time_t(0));
@@ -925,7 +928,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_WarehouseSynchronizationFailureShouldCreateValidSyncronizationFailureReport)
 {
-    setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked();
     SulDownloader::suldownloaderdata::WarehouseError wError;
     wError.Description = "Error description";
@@ -947,6 +950,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, dumpLogs());
 
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
+        .WillRepeatedly(Return(true));
+
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
     ConfigurationData configurationData = configData(defaultSettings());
@@ -965,7 +971,7 @@ TEST_F( // NOLINT
  */
 TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
 {
-    setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked();
     SulDownloader::suldownloaderdata::WarehouseError wError;
     wError.Description = "Error description";
@@ -1004,6 +1010,11 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
     EXPECT_CALL(mock, dumpLogs());
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
+
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/VERSION.ini"))
+        .WillRepeatedly(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
+        .WillRepeatedly(Return(false));
 
     ConfigurationData configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;

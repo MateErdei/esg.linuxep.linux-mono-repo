@@ -253,7 +253,7 @@ TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
         <subscription rigidName="ComponentSuite" version="v1" displayVersion="v1" />
     </subscriptions>
     <products>
-        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="" />
     </products>
     <Features>
     </Features>
@@ -273,6 +273,50 @@ TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
     runTest(goodStatusXML, getGoodStatus(), stateMachineData);
 
     runTest(normalStatusWithDefinedSubscription, collectionResult.SchedulerStatus, stateMachineData, {"ComponentSuite"});
+}
+
+TEST_F(TestSerializeStatus, SuccessStatusWithCorrectInstalledVersionValues) // NOLINT
+{
+    static const std::string normalStatusWithDefinedSubscription{ R"sophos(<?xml version="1.0" encoding="utf-8" ?>
+<status xmlns="com.sophos\mansys\status" type="sau">
+    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="GivenRevId" policyType="1" />
+    <autoUpdate xmlns="http://www.sophos.com/xml/mansys/AutoUpdateStatus.xsd" version="GivenVersion">
+        <endpoint id="thisMachineID" />
+        <rebootState>
+            <required>no</required>
+        </rebootState>
+        <downloadState>
+            <state>good</state>
+        </downloadState>
+        <installState>
+            <state>good</state>
+            <lastGood>1970-01-01T03:25:45.000Z</lastGood>
+        </installState>
+    </autoUpdate>
+    <subscriptions>
+        <subscription rigidName="BaseRigidName" version="v1" displayVersion="v1" />
+    </subscriptions>
+    <products>
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
+    </products>
+    <Features>
+    </Features>
+</status>)sophos" };
+    DownloadReportsAnalyser::DownloadReportVector singleReport{
+        DownloadReportTestBuilder::goodReportWithBaseRigidNameSubscriptions()
+    };
+    ReportCollectionResult collectionResult = DownloadReportsAnalyser::processReports(singleReport);
+
+    UpdateSchedulerImpl::StateData::StateMachineData stateMachineData;
+    stateMachineData.setDownloadState("0");
+    stateMachineData.setDownloadFailedSinceTime("0");
+    stateMachineData.setInstallState("0");
+    stateMachineData.setLastGoodInstallTime("12345"); // will be converted to '1970-01-01T03:25:45.000Z'
+    stateMachineData.setInstallFailedSinceTime("0");
+
+    runTest(goodStatusXML, getGoodStatus(), stateMachineData);
+
+    runTest(normalStatusWithDefinedSubscription, collectionResult.SchedulerStatus, stateMachineData, {"BaseRigidName"});
 }
 
 TEST_F(TestSerializeStatus, serializeStatusXmlCorrectlyFilteresOutRigidNamesNotInSubscriptionList) // NOLINT

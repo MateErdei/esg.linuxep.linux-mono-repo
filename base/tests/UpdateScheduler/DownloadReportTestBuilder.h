@@ -38,7 +38,7 @@ namespace SulDownloader
                 report.name = "BaseName";
                 report.rigidName = "BaseRigidName";
                 report.downloadedVersion = "0.5.0";
-                report.installedVersion = "666";
+                report.installedVersion = "0.5.0";
                 report.errorDescription.clear();
                 report.productStatus = suldownloaderdata::ProductReport::ProductStatus::Upgraded;
                 return report;
@@ -50,7 +50,7 @@ namespace SulDownloader
                 report.name = "PluginName";
                 report.rigidName = "PluginRigidName";
                 report.downloadedVersion = "0.5.0";
-                report.installedVersion = "666";
+                report.installedVersion = "0.5.0";
                 report.errorDescription.clear();
                 report.productStatus = suldownloaderdata::ProductReport::ProductStatus::Upgraded;
                 return report;
@@ -124,6 +124,20 @@ namespace SulDownloader
                 ProductReport compSuite;
                 compSuite.rigidName = "ComponentSuite";
                 compSuite.downloadedVersion = "v1";
+                compSuite.installedVersion="0.5.0";
+                products.push_back(compSuite);
+                report.m_productReport = products;
+                return report;
+            }
+
+            static SulDownloader::suldownloaderdata::DownloadReport goodReportWithBaseRigidNameSubscriptions()
+            {
+                auto report = goodReport();
+                std::vector<ProductReport> products;
+                ProductReport compSuite;
+                compSuite.rigidName = "BaseRigidName";
+                compSuite.downloadedVersion = "v1";
+                compSuite.installedVersion="0.5.0";
                 products.push_back(compSuite);
                 report.m_productReport = products;
                 return report;

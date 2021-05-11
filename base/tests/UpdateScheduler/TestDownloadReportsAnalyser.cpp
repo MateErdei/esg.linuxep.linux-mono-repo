@@ -208,8 +208,8 @@ public:
         status.LastInstallStartedTime = StartTimeTest;
         status.LastResult = 0;
         status.FirstFailedTime.clear();
-        status.Products = { {"BaseRigidName", "BaseName", "0.5.0", "666"},
-                            { "PluginRigidName", "PluginName", "0.5.0", "666"} };
+        status.Products = { {"BaseRigidName", "BaseName", "0.5.0", "0.5.0"},
+                            { "PluginRigidName", "PluginName", "0.5.0", "0.5.0"} };
         // Products
         //        std::string RigidName;
         //        std::string ProductName;
