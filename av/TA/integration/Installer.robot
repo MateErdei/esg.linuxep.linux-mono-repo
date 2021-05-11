@@ -26,7 +26,7 @@ Test Teardown   Installer Test TearDown
 IDE update doesnt restart av processes
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Install IDE  ${IDE_NAME}
+    Install IDE without SUSI loaded  ${IDE_NAME}
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
@@ -176,7 +176,7 @@ IDE can be removed
     File should not exist  ${INSTALL_IDE_DIR}/${ide_name}
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
 
-    Install IDE  ${IDE_NAME}
+    Install IDE without SUSI loaded  ${IDE_NAME}
     File should exist  ${INSTALL_IDE_DIR}/${ide_name}
 
     Uninstall IDE  ${IDE_NAME}
