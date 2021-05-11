@@ -78,7 +78,11 @@ Configure scan now with lookups disabled
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
     Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system configuration has changed
     AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
-    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be disabled   timeout=180
+
+    # Force SUSI to be loaded:
+    Check avscanner can detect eicar
+
+    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be disabled   timeout=10
     Wait until scheduled scan updated
 
 Check scan now

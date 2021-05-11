@@ -578,9 +578,11 @@ AV Runs Scan With SXL Lookup Disabled
     Mark AV Log
     Mark Susi Debug Log
     Mark Sophos Threat Detector Log
+
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
-    Configure and check scan now with lookups disabled
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+
+    Configure and check scan now with lookups disabled
 
     Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central   timeout=60
     SUSI Debug Log Does Not Contain With Offset   Post-scan lookup succeeded
