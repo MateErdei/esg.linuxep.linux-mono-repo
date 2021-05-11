@@ -1580,25 +1580,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         endpoint.handle_response(app_id, correlation_id, response_body)
         return self.ret("")
 
-    def datafeed_v1(self):
-        match_object = re.match(r"^/mcs/data_feed/endpoint/([^/]*)/feed_id/([^/]*)$", self.path)
-        if not match_object:
-            return self.ret("Bad response path", 400)
-
-        endpoint_id = match_object.group(1)
-        feed_id = match_object.group(2)
-
-        endpoint = GL_ENDPOINTS.getEndpointByID(endpoint_id)
-        if endpoint is None:
-            return self.ret("Response for unknown endpoint", 400)
-        if SERVER_500:
-            return self.ret("Internal Server Error", 500)
-
-        datafeed_body = self.getBody()
-        endpoint.handle_datafeed_ep(feed_id, datafeed_body)
-        logger.debug("Received and processed data via the v1 method")
-        return self.ret("")
-
     def datafeed(self):
         match_object = re.match(r"^/mcs/v2/data_feed/device/([^/]*)/feed_id/([^/]*)$", self.path)
         if not match_object:
@@ -1639,8 +1620,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.mcs_event()
         elif self.path.startswith("/mcs/responses/endpoint"):
             return self.edr_response()
-        elif self.path.startswith("/mcs/data_feed/endpoint"):
-            return self.datafeed_v1()
         elif self.path.startswith("/mcs/v2/data_feed/device"):
             return self.datafeed()
         elif self.path.startswith("/mcs/authenticate/endpoint/"):

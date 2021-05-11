@@ -127,7 +127,7 @@ Check Cloud Server Log For Scheduled Query
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
-    ...  Check Cloud Server Log Contains    POST - /mcs/data_feed/endpoint/ThisIsAnMCSID+1001/feed_id/${feed_id}    ${occurrence}
+    ...  Check Cloud Server Log Contains    POST - /mcs/v2/data_feed/device/example-device-id/feed_id/${feed_id}    ${occurrence}
 
 Check Cloud Server Log For Scheduled Query Body
     [Arguments]    ${feed_id}    ${expected_body}

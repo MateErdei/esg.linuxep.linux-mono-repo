@@ -75,7 +75,6 @@ Invalid Datafeed Filename Not Sent But Does not Block Other Datafeed Files
     Directory Should Be Empty  ${MCS_DIR}/datafeed
 
 Retrieve JWT Tokens from Central
-    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true"}
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
@@ -88,7 +87,6 @@ Retrieve JWT Tokens from Central
     Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: PLACEHOLDER  1
 
 Retrieve JWT Tokens from Central only once per connection
-    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true"}
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
@@ -109,7 +107,6 @@ Retrieve JWT Tokens from Central only once per connection
     Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Tenant ID: example-tenant-id   1
 
 JWT Tokens expire and a new token is requested
-    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true"}
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
@@ -249,7 +246,7 @@ Ensure correct sending protocol handles all possible datafeed states at same tim
 
     Check MCS Router Log Contains  mcsrouter.mcsclient.mcs_connection <> Sorting datafeed files oldest to newest ready for sending, datafeed ID: scheduled_query
     Check MCS Router Log Contains  mcsrouter.mcsclient.mcs_connection <> Maximum single batch upload size is 100 bytes, datafeed ID: scheduled_query
-    Check MCS Router Log Contains  mcsrouter.mcsclient.mcs_connection <> MCS request url=/data_feed/endpoint/ThisIsAnMCSID+1001/feed_id/scheduled_query
+    Check MCS Router Log Contains  mcsrouter.mcsclient.mcs_connection <> MCS request url=/v2/data_feed/device/example-device-id/feed_id/scheduled_query
     Check MCS Router Log Contains  Sent result, datafeed ID: scheduled_query, file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-2900000006.json
     Check MCS Router Log Contains  Sent result, datafeed ID: scheduled_query, file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-2900000007.json
     Check MCS Router Log Contains  Sent result, datafeed ID: scheduled_query, file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-2900000008.json
@@ -285,8 +282,8 @@ Ensure correct sending protocol handles all possible datafeed states at same tim
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-2900000015.json
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-3000000001.json
 
-MCS Reads Flags Policy And Has Correct
-    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true", "mcs.v2.data_feed.available": "true"}
+MCS Sends Data Using V2 Method Regardless of Policy
+    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "false", "mcs.v2.data_feed.available": "false"}
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
@@ -294,16 +291,21 @@ MCS Reads Flags Policy And Has Correct
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  Check MCS Router Log Contains  'mcs.v2.data_feed.available': True
-    Check MCS Router Log Contains  'jwt-token.available': True
+    ...  Check MCS Router Log Contains  'mcs.v2.data_feed.available': False
+    Check MCS Router Log Contains  'jwt-token.available': False
 
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
-    Check Cloud Server Log For Scheduled Query   scheduled_query
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Cloud Server Log Contains    POST - /mcs/v2/data_feed/device/example-device-id/feed_id/scheduled_query
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send}
     Cloud Server Log Should Not Contain  Failed to decompress response body content
-    # TODO LINUXDAR-2380 Adapt this test for 2380 and remove the check for this log message
-    Check MCS Router Log Contains  Attempting use of V2 datafeed method
+    Cloud Server Log Should Contain  Received and processed data via the v2 method
+    Check MCS Router Log Contains  MCS request url=/v2/data_feed/device/example-device-id/feed_id/scheduled_query body size=24
+    Check Mcsrouter Log Does Not Contain  MCS request url=/data_feed/endpoint/ThisIsAnMCSID+1001/feed_id/scheduled_query
+
 
 *** Keywords ***
 Test Teardown

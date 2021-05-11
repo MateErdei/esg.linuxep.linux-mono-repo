@@ -323,6 +323,20 @@ class TestMCSConnection(unittest.TestCase):
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
+    def test_send_datafeeds_resets_jwt_token_when_401_is_thrown(self, *mockargs):
+        side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpUnauthorizedException(401, {}, '')
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect = side_effects
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        feed_id = "feed_id"
+        content = '{key1: "value1", key2: "value2"}'
+        some_time_in_the_future = "2601033100"
+        datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
+        datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
+        self.assertIsNone(mcs_connection.m_jwt_token)
+
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
     @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeeds._datafeed_result_is_alive", return_value=False)
     def test_send_datafeeds_does_not_send_old_result_files(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
