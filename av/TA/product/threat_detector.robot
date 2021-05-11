@@ -64,7 +64,7 @@ Threat Detector Log Rotates
     Increase Threat Detector Log To Max Size
     Start AV
     Wait Until Created   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1   timeout=10s
-    Wait Until Sophos Threat Detector Log Contains   ThreatScanner
+    Wait Until Sophos Threat Detector Log Contains   UnixSocket
     Stop AV
 
     ${result} =  Run Process  ls  -altr  ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
