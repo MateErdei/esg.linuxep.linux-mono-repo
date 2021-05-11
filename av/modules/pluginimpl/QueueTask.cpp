@@ -5,7 +5,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "QueueTask.h"
-#include <algorithm>
+
 namespace Plugin
 {
     void QueueTask::push(Task task)
