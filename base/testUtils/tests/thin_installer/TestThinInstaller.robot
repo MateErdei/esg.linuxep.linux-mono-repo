@@ -100,6 +100,17 @@ Get System Path
     ${PATH} =  Get Environment Variable  PATH
     [Return]  ${PATH}
 
+Run Thin Installer And Check Argument Is Saved To Install Options File
+    [Arguments]  ${argument}
+    ${install_location}=  get_default_install_script_path
+    ${thin_installer_cmd}=  Create List    ${install_location}   ${argument}
+    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
+    Run Thin Installer  ${thin_installer_cmd}   expected_return_code=3  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
+    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
+    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
+    ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
+    Should Contain  ${contents}  ${argument}
+
 *** Variables ***
 ${CUSTOM_DIR_BASE} =  /CustomPath
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
@@ -311,3 +322,9 @@ Thin Installer Creates Install Options File
     ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
     Should Contain  ${contents}  --group=group name
     Should Contain  ${contents}  --some other arg with spaces
+
+Disable Auditd Argument Saved To Install Options
+    Run Thin Installer And Check Argument Is Saved To Install Options File  --disable-auditd
+
+Do Not Disable Auditd Argument Saved To Install Options
+    Run Thin Installer And Check Argument Is Saved To Install Options File  --do-not-disable-auditd
