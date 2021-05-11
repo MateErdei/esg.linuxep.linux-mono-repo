@@ -20,12 +20,16 @@ namespace unixsocket
     public:
         ProcessControllerClientSocket& operator=(const ProcessControllerClientSocket&) = delete;
         ProcessControllerClientSocket(const ProcessControllerClientSocket&) = delete;
-        explicit ProcessControllerClientSocket(const std::string& socket_path);
+        explicit ProcessControllerClientSocket(std::string  socket_path, const struct timespec& sleepTime={1,0});
         ~ProcessControllerClientSocket() = default;
 
         void sendProcessControlRequest(const scan_messages::ProcessControlSerialiser& processControl);
     private:
-        datatypes::AutoFd m_socket_fd;
+        int attemptConnect();
+        void connect();
 
+        datatypes::AutoFd m_socket_fd;
+        std::string m_socketPath;
+        const timespec &m_sleepTime;
     };
 }

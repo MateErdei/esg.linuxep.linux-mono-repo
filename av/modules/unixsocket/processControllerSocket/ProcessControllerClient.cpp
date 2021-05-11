@@ -14,11 +14,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
+#include <utility>
 
 #include <sys/socket.h>
 #include <sys/un.h>
 
-unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(const std::string& socket_path)
+#define MAX_CONN_RETRIES 5
+
+int unixsocket::ProcessControllerClientSocket::attemptConnect()
 {
     m_socket_fd.reset(socket(AF_UNIX, SOCK_STREAM, 0));
     assert(m_socket_fd >= 0);
@@ -26,14 +29,39 @@ unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(const s
     struct sockaddr_un addr = {};
 
     addr.sun_family = AF_UNIX;
-    ::strncpy(addr.sun_path, socket_path.c_str(), sizeof(addr.sun_path));
+    ::strncpy(addr.sun_path, m_socketPath.c_str(), sizeof(addr.sun_path));
     addr.sun_path[sizeof(addr.sun_path) - 1] = '\0';
 
-    int ret = connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
-    if (ret != 0)
+    return ::connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
+}
+
+void unixsocket::ProcessControllerClientSocket::connect()
+{
+    int count = 0;
+    int ret = attemptConnect();
+
+    while (ret != 0)
     {
-        throw std::runtime_error("Failed to connect to unix socket");
+        if (++count >= MAX_CONN_RETRIES)
+        {
+            LOGDEBUG("Reached total maximum number of connection attempts.");
+            return;
+        }
+
+        LOGDEBUG("Failed to connect to Sophos Threat Detector Controller - retrying after sleep");
+        nanosleep(&m_sleepTime, nullptr);
+
+        ret = attemptConnect();
     }
+
+    assert(ret == 0);
+}
+
+unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::string socket_path, const struct timespec& sleepTime)
+        : m_socketPath(std::move(socket_path))
+        , m_sleepTime(sleepTime)
+{
+    connect();
 }
 
 void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const scan_messages::ProcessControlSerialiser& processControl)
