@@ -208,6 +208,7 @@ POLICY_BASE = r"""<policy RevID="">
 HEARTBEAT_ENABLED = True
 ERROR_NEXT = False
 SERVER_401 = False
+SERVER_XDR_401 = False
 NULL_NEXT = False
 SERVER_500 = False
 SERVER_504 = False
@@ -1296,6 +1297,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
     def do_GET_error(self):
         global ERROR_NEXT
         global SERVER_401
+        global SERVER_XDR_401
         global SERVER_500
         global SERVER_504
         global SERVER_404
@@ -1309,6 +1311,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/error/server401":
             logger.info("SENDING 401s")
             SERVER_401 = True
+            return self.ret("")
+        elif self.path == "/error/serverXdr401":
+            logger.info("SENDING 401s for Datafeed")
+            SERVER_XDR_401 = True
             return self.ret("")
         elif self.path == "/error/server404":
             logger.info("SENDING 404s")
@@ -1592,6 +1598,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("Payload too large", 413)
         if SERVER_403:
             return self.ret("Forbidden", 403)
+        if SERVER_XDR_401:
+            return self.ret("Unauthorized", 401)
         datafeed_body = self.getBody()
         try:
             decompressed_body = zlib.decompress(datafeed_body)

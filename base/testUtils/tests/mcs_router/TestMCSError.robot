@@ -24,8 +24,6 @@ MCS responds correctly to empty Cloud Reponse
     ...  Check Mcsrouter Log Contains       Failed to parse commands
     Check MCS Router Running
 
-
-
 MCS responds correctly to single 401
     Install Register And Wait First MCS Policy
     Send Command From Fake Cloud    controller/reregisterNext
@@ -45,6 +43,41 @@ Test 404 From Central Is handled correctly
     ...  Check MCSRouter Log Contains  Bad response from server 404: Not Found
     Check MCS Router Running
 
+Test 401 From Central When Sending XDR Data Is Handled Correctly
+    Install Register And Wait First MCS Policy
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
+    Stop Mcsrouter If Running
+    Start MCSRouter
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCS Router Running
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCSRouter Log Contains  Request JWT token from
+    Send Command From Fake Cloud    error/serverXdr401
+
+    Create File  /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1720641657.json  {"content" : "NotEmpty"}
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCSRouter Log Contains  UNAUTHORIZED from server
+
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCSRouter Log Contains  Failed to send datafeed
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+    Check Mcsrouter Log Does Not Contain   Sent result, datafeed ID: scheduled_query
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log     Request JWT token from   2
+    Check MCS Router Running
 
 Test 403 From Central Is Handled Correctly
     Install Register And Wait First MCS Policy
