@@ -703,38 +703,6 @@ AV Plugin restarts threat detector on susi startup settings change
     ...   timeout=120
     Check Sophos Threat Detector has different PID   ${pid}
 
-
-Sophos Threat Detector sets default if susi startup settings permissions incorrect
-    Restart sophos_threat_detector
-    Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
-    ...   timeout=60
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
-    Log   ${policyContent}
-    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
-    Send Sav Policy To Base  tempSavPolicy.xml
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
-    ...   timeout=120
-
-    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
-    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
-
-    Mark Sophos Threat Detector Log
-    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
-    Run Process   /bin/kill   -9   ${output}
-
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
-    ...   timeout=120
-    Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
-
 AV Plugin tries to restart threat detector on susi startup settings change
     ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
     Log   ${policyContent}
@@ -783,3 +751,34 @@ AV Plugin tries to restart threat detector on susi startup settings change
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=120
     Check Sophos Threat Detector has different PID   ${pid}
+
+Sophos Threat Detector sets default if susi startup settings permissions incorrect
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   timeout=60
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
+    Log   ${policyContent}
+    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
+    Send Sav Policy To Base  tempSavPolicy.xml
+
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   timeout=120
+
+    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
+    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+
+    Mark Sophos Threat Detector Log
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+    Run Process   /bin/kill   -9   ${output}
+
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
