@@ -59,6 +59,8 @@ namespace Plugin
         Task pop();
         bool pop(Task&, int timeout);
         void pushStop();
+        bool empty();
+        bool queueContainsPolicyTask();
     };
 
 } // namespace Plugin

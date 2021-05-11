@@ -48,14 +48,22 @@ namespace Plugin
         void publishThreatEvent(const std::string& threatDetectedJSON, const std::string& threatEventPublisherSocketPath);
 
     private:
-        void processPolicy(const std::string& policyXml);
+        /**
+         *
+         * @param policyXml
+         * @return true if a new policy has arrived false otherwise
+         */
+        bool processPolicy(const std::string& policyXml);
         void processAction(const std::string& actionXml);
         void innerLoop();
-
+        void processSUSIRestartRequest();
         void incrementTelemetryThreatCount(const std::string &threatName);
-        PolicyProcessor m_policyProcessor;
+
 
         std::string waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
                                           const std::string& policyAppId, const std::string& policyName);
+
+        PolicyProcessor m_policyProcessor;
+        bool m_restartSophosThreatDetector = false;
     };
 } // namespace Plugin

@@ -133,7 +133,13 @@ namespace Plugin
                     return;
 
                 case Task::TaskType::Policy:
-                    processPolicy(task.Content);
+                    //don't override m_restartSophosThreatDetector if it's set to true
+                    if (m_restartSophosThreatDetector)
+                    {
+                        processPolicy(task.Content);
+                        break;
+                    }
+                    m_restartSophosThreatDetector = processPolicy(task.Content);
                     break;
 
                 case Task::TaskType::Action:
@@ -149,10 +155,26 @@ namespace Plugin
                     m_baseService->sendStatus("SAV", task.Content, task.Content);
                     break;
             }
+
+            processSUSIRestartRequest();
         }
     }
 
-    void PluginAdapter::processPolicy(const std::string& policyXml)
+    void PluginAdapter::processSUSIRestartRequest()
+    {
+        if (m_restartSophosThreatDetector)
+        {
+            LOGDEBUG("Processing request to restart sophos threat detector");
+            if(!m_queueTask->queueContainsPolicyTask())
+            {
+                LOGINFO("Reloading susi as configuration changed");
+                m_threatDetector->configuration_changed();
+                m_restartSophosThreatDetector = false;
+            }
+        }
+    }
+
+    bool PluginAdapter::processPolicy(const std::string& policyXml)
     {
         LOGINFO("Received Policy");
         auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
@@ -168,16 +190,14 @@ namespace Plugin
                 LOGINFO("Processing ALC Policy");
                 LOGDEBUG("Processing policy: " << policyXml);
                 bool updated = m_policyProcessor.processAlcPolicy(attributeMap);
-                if (updated)
-                {
-                    m_threatDetector->configuration_changed();
-                }
+
+                return updated;
             }
             else
             {
                 LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
             }
-            return;
+            return false;
         }
 
         // SAV policy
@@ -185,7 +205,7 @@ namespace Plugin
         if (policyType != "2")
         {
             LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
-            return;
+            return false;
         }
 
         LOGINFO("Processing SAV Policy");
@@ -194,16 +214,12 @@ namespace Plugin
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
         auto savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap);
-        if (savPolicyHasChanged)
-        {
-            LOGDEBUG("Reloading susi as startup configuration changed");
-            m_threatDetector->configuration_changed();
-        }
 
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
         std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
         m_callback->sendStatus(revID);
+        return savPolicyHasChanged;
     }
 
     std::string PluginAdapter::waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS,

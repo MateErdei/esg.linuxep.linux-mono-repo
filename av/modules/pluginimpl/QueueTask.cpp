@@ -5,6 +5,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "QueueTask.h"
+#include <algorithm>
 namespace Plugin
 {
     void QueueTask::push(Task task)
@@ -45,5 +46,31 @@ namespace Plugin
         m_list.pop_front();
         task =  val;
         return true;
+    }
+
+    bool QueueTask::empty()
+    {
+        std::unique_lock<std::mutex> lck(m_mutex);
+        if (m_list.empty())
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    bool QueueTask::queueContainsPolicyTask()
+    {
+        std::unique_lock<std::mutex> lck(m_mutex);
+
+        for (const auto &item : m_list)
+        {
+            if (item.taskType == Plugin::Task::TaskType::Policy)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 } // namespace Plugin

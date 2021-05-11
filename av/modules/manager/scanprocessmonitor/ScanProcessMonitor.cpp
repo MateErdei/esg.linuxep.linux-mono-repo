@@ -89,7 +89,6 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         if (FDUtils::fd_isset(m_config_changed.readFd(), &tempReadfds))
         {
             clearPipe(m_config_changed);
-            LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");
             requestShutdownOfThreatDetector();
         }
     }
