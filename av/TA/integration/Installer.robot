@@ -304,7 +304,7 @@ Check no duplicate virus data files
     Check no duplicate files in directory  ${vdlInUse}
     Check no duplicate files in directory  ${vdlUpdate}
 
-    Install IDE  ${IDE_NAME}
+    Install IDE without SUSI loaded  ${IDE_NAME}
 
     # Check there are still no symlinks or .0 duplicate files
     Check no symlinks in directory  ${vdlUpdate}

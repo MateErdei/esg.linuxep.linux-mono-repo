@@ -570,45 +570,45 @@ Run installer from install set and wait for reload trigger
     Run installer from install set
     Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1  timeout=60
 
-Run IDE update
+Run IDE update with expected text
+    [Arguments]  ${expected_update_text}  ${timeout}=120
     # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
     Mark Sophos Threat Detector Log
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
     Run installer from install set and wait for reload trigger
-    # Require that SUSI has been initialized
-    Wait Until Sophos Threat Detector Log Contains With Offset  Threat scanner successfully updated  timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset  ${expected_update_text}  timeout=${timeout}
     Threat Detector Log Should Not Contain With Offset    Current version matches that of the update source. Nothing to do.
     Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
 
+Run IDE update with SUSI loaded
+    # Require that SUSI has been initialized
+    Run IDE update with expected text  Threat scanner successfully updated  timeout=120
+
+Run IDE update
+    Run IDE update with SUSI loaded
+
 Run IDE update without SUSI loaded
-    # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
-    Mark Sophos Threat Detector Log
-    ${threat_detector_pid} =  Record Sophos Threat Detector PID
-    Run installer from install set and wait for reload trigger
     # Require SUSI hasn't been initialized, so won't actually update
-    Wait Until Sophos Threat Detector Log Contains With Offset  Threat scanner update is pending  timeout=10
-    Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
+    Run IDE update with expected text  Threat scanner update is pending  timeout=10
+
+Install IDE with install func
+    [Arguments]  ${ide_name}  ${ide_update_func}
+    Register cleanup  Uninstall IDE  ${ide_name}  ${ide_update_func}
+    Add IDE to install set  ${ide_name}
+    Run Keyword  ${ide_update_func}
+    Check IDE present in installation  ${ide_name}
 
 Install IDE
     [Arguments]  ${ide_name}
-    Register cleanup  Uninstall IDE  ${ide_name}  Run IDE update
-    Add IDE to install set  ${ide_name}
-    Run IDE update
-    Check IDE present in installation  ${ide_name}
+    Install IDE with install func  ${ide_name}  Run IDE update with SUSI loaded
 
 Install IDE without SUSI loaded
     [Arguments]  ${ide_name}
-    Register cleanup  Uninstall IDE  ${ide_name}  Run IDE update without SUSI loaded
-    Add IDE to install set  ${ide_name}
-    Run IDE update without SUSI loaded
-    Check IDE present in installation  ${ide_name}
+    Install IDE with install func  ${ide_name}  Run IDE update without SUSI loaded
 
 Install IDE without reload check
     [Arguments]  ${ide_name}
-    Register cleanup  Uninstall IDE  ${ide_name}  Run installer from install set
-    Add IDE to install set  ${ide_name}
-    Run installer from install set
-    Check IDE present in installation  ${ide_name}
+    Install IDE with install func  ${ide_name}  Run installer from install set
 
 Uninstall IDE
     [Arguments]  ${ide_name}  ${ide_update_func}=Run IDE update
