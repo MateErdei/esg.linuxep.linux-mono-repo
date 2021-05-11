@@ -394,7 +394,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Install IDE  ${IDE_NAME}
+    Install IDE without SUSI loaded  ${IDE_NAME}
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 

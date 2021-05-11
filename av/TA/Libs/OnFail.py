@@ -1,4 +1,5 @@
 from robot.libraries.BuiltIn import BuiltIn
+from robot.api import logger
 
 
 class OnFail(object):
@@ -19,7 +20,16 @@ class OnFail(object):
         self.__m_cleanup_actions.append((keyword, args))
 
     def deregister_cleanup(self, keyword, *args):
-        self.__m_cleanup_actions.remove((keyword, args))
+        try:
+            self.__m_cleanup_actions.remove((keyword, args))
+        except ValueError:
+            logger.debug("Cleanup action: %s not present" % (str((keyword, args))))
+
+    def deregister_optional_cleanup(self, keyword, *args):
+        try:
+            self.__m_cleanup_actions.remove((keyword, args))
+        except ValueError:
+            pass
 
     def __run_actions(self, builtin, actions, if_failed=True):
         for (keyword, args) in reversed(actions):
