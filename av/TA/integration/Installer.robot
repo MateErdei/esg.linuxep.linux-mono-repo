@@ -31,10 +31,7 @@ IDE update doesnt restart av processes
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
     # Check we can detect EICAR following update
-    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.com
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test
+    Check avscanner can detect eicar
 
     # Check we can detect PEEND following update
     # This test also proves that SUSI is configured to scan executables
@@ -108,7 +105,7 @@ Scanner works after upgrade
     Run Installer From Install Set
 
     # Existing robot functions don't check marked logs, so we do our own log check instead
-    Check Plugin Installed and Running
+    Check Plugin Installed and Running With Offset
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket
     ...   timeout=60
@@ -120,11 +117,7 @@ Scanner works after upgrade
     Mark Sophos Threat Detector Log
 
     # Check we can detect EICAR following upgrade
-    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.com
-    Log   ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test
+    Check avscanner can detect eicar
 
     # check that the logs are still working (LINUXDAR-2535)
     Sophos Threat Detector Log Contains With Offset   EICAR-AV-Test
@@ -135,8 +128,6 @@ AV Plugin gets customer id after upgrade
     ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
     ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
-
-    Mark Sophos Threat Detector Log
 
     Send Alc Policy
 
@@ -176,6 +167,12 @@ AV Plugin gets customer id after upgrade
 
 
 IDE can be removed
+    Mark Sophos Threat Detector Log
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   timeout=60
     File should not exist  ${INSTALL_IDE_DIR}/${ide_name}
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
 
@@ -192,10 +189,13 @@ IDE can be removed
 sophos_threat_detector can start after multiple IDE updates
     Register On Fail  dump log   ${SUSI_DEBUG_LOG_PATH}
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Register Cleanup  Installer Suite Setup
-    Install IDE  ${IDE_NAME}
-    Install IDE  ${IDE2_NAME}
-    Install IDE  ${IDE3_NAME}
+    # force SUSI to be loaded - otherwise reloads won't happen
+    Check avscanner can detect eicar
+
+    Install IDE with SUSI loaded  ${IDE_NAME}
+    Install IDE with SUSI loaded  ${IDE2_NAME}
+    Install IDE with SUSI loaded  ${IDE3_NAME}
+    # We need the updates to have actually updated SUSI
     File Should Not Exist   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/libsusi.so
     Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Restart sophos_threat_detector
@@ -391,7 +391,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=60
-    Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source
+    Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source/*
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Install IDE without SUSI loaded  ${IDE_NAME}
@@ -444,14 +444,6 @@ AV Plugin Can Send Telemetry After Upgrade
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
-AV Plugin Restores Downgrade Logs
-    Run plugin uninstaller with downgrade flag
-    Check AV Plugin Not Installed
-    Install AV Directly from SDDS
-    Directory Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}
-    File Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}/av.log
-    File Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}/sophos_threat_detector.log
-
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE2_NAME}        pemid.ide
@@ -488,6 +480,7 @@ Installer Test Setup
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Check AV Plugin Installed With Base
     Mark AV Log
+    Mark Sophos Threat Detector Log
 
 Installer Test TearDown
     Run Teardown Functions
@@ -526,3 +519,10 @@ Check no duplicate files in directory
     Log    ${output}
     ${count} =   Get Line Count   ${output}
     Should Be Equal As Integers  ${count}  ${0}
+
+Check avscanner can detect eicar
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.com
+    Log   ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test

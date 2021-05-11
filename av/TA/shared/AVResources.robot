@@ -119,6 +119,15 @@ File Log Contains With Offset
     ${content} =  Get File Contents From Offset  ${path}  ${offset}
     Should Contain  ${content}  ${input}
 
+File Log Contains One of
+    [Arguments]  ${path}  ${offset}  @{inputs}
+    ${content} =  Get File Contents From Offset  ${path}  ${offset}
+    FOR   ${input}  IN  @{inputs}
+        ${status} =  Run Keyword And Return Status  Should Contain  ${content}  ${input}
+        Return From Keyword If  ${status}  ${status}
+    END
+    Fail  "None of inputs found in content"
+
 File Log Should Not Contain
     [Arguments]  ${path}  ${input}
     ${content} =  Get File   ${path}  encoding_errors=replace
@@ -128,6 +137,13 @@ File Log Should Not Contain With Offset
     [Arguments]  ${path}  ${input}  ${offset}=0
     ${content} =  Get File Contents From Offset  ${path}  ${offset}
     Should Not Contain  ${content}  ${input}
+
+Wait Until File Log Contains One Of
+    [Arguments]  ${logCheck}  ${timeout}  @{inputs}
+    Wait Until Keyword Succeeds
+    ...  ${timeout} secs
+    ...  1 secs
+    ...  ${logCheck}  @{inputs}
 
 Wait Until File Log Contains
     [Arguments]  ${logCheck}  ${input}  ${timeout}=15  ${interval}=1
@@ -184,6 +200,11 @@ Sophos Threat Detector Log Contains With Offset
     ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
     File Log Contains With Offset  ${THREAT_DETECTOR_LOG_PATH}   ${input}   offset=${offset}
 
+Sophos Threat Detector Log Contains One of
+    [Arguments]  @{inputs}
+    ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
+    File Log Contains One of  ${THREAT_DETECTOR_LOG_PATH}   ${offset}   @{inputs}
+
 Threat Detector Log Should Not Contain With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
@@ -192,6 +213,10 @@ Threat Detector Log Should Not Contain With Offset
 Wait Until Sophos Threat Detector Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  Sophos Threat Detector Log Contains With Offset  ${input}   timeout=${timeout}
+
+Wait Until Sophos Threat Detector Log Contains One of
+    [Arguments]  ${timeout}  @{inputs}
+    Wait Until File Log Contains One Of  Sophos Threat Detector Log Contains One Of  ${timeout}  @{inputs}
 
 Count Lines In Log
     [Arguments]  ${log_file}  ${line_to_count}
@@ -570,6 +595,18 @@ Run installer from install set and wait for reload trigger
     Run installer from install set
     Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1  timeout=60
 
+# Wait Until Sophos Threat Detector Log Contains One of
+
+Run IDE update with expected texts
+    [Arguments]  ${timeout}  @{expected_update_texts}
+    # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
+    Mark Sophos Threat Detector Log
+    ${threat_detector_pid} =  Record Sophos Threat Detector PID
+    Run installer from install set and wait for reload trigger
+    Wait Until Sophos Threat Detector Log Contains One Of  ${timeout}  @{expected_update_texts}
+    Threat Detector Log Should Not Contain With Offset    Current version matches that of the update source. Nothing to do.
+    Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
+
 Run IDE update with expected text
     [Arguments]  ${expected_update_text}  ${timeout}=120
     # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
@@ -585,7 +622,7 @@ Run IDE update with SUSI loaded
     Run IDE update with expected text  Threat scanner successfully updated  timeout=120
 
 Run IDE update
-    Run IDE update with SUSI loaded
+    Run IDE update with expected texts  120  Threat scanner successfully updated  Threat scanner update is pending
 
 Run IDE update without SUSI loaded
     # Require SUSI hasn't been initialized, so won't actually update
@@ -593,12 +630,12 @@ Run IDE update without SUSI loaded
 
 Install IDE with install func
     [Arguments]  ${ide_name}  ${ide_update_func}
-    Register cleanup  Uninstall IDE  ${ide_name}  ${ide_update_func}
+    Register cleanup  Uninstall IDE  ${ide_name}  Run IDE update
     Add IDE to install set  ${ide_name}
     Run Keyword  ${ide_update_func}
     Check IDE present in installation  ${ide_name}
 
-Install IDE
+Install IDE with SUSI loaded
     [Arguments]  ${ide_name}
     Install IDE with install func  ${ide_name}  Run IDE update with SUSI loaded
 
@@ -609,6 +646,10 @@ Install IDE without SUSI loaded
 Install IDE without reload check
     [Arguments]  ${ide_name}
     Install IDE with install func  ${ide_name}  Run installer from install set
+
+Install IDE
+    [Arguments]  ${ide_name}
+    Install IDE with SUSI loaded  ${ide_name}
 
 Uninstall IDE
     [Arguments]  ${ide_name}  ${ide_update_func}=Run IDE update
