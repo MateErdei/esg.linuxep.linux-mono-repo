@@ -165,16 +165,12 @@ namespace
 
         for (const auto& whComponent : report.getWarehouseComponents())
         {
-            std::string installedVersion = "123123";
+            std::string installedVersion = "";
             for(const auto& product : report.getProducts())
             {
                 if (product.rigidName == whComponent.m_rigidName)
                 {
                     installedVersion = product.installedVersion;
-                    if(installedVersion == "")
-                    {
-                        installedVersion = "notfound";
-                    }
                     break;
                 }
             }

@@ -12,6 +12,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "SulDownloaderException.h"
 #include "TimeTracker.h"
 
+#include <ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -233,12 +234,11 @@ namespace SulDownloader
         for (const auto& product : products)
         {
             ProductReport productReportEntry;
-            //add installversion here
             const auto& info = product.getProductMetadata();
             productReportEntry.rigidName = info.getLine();
             productReportEntry.name = info.getName();
             productReportEntry.downloadedVersion = info.getVersion();
-            productReportEntry.installedVersion = "666"; // to change to get
+            productReportEntry.installedVersion = getInstalledVersion(productReportEntry.rigidName);
             auto wError = product.getError();
             productReportEntry.errorDescription = wError.Description;
 
@@ -300,7 +300,7 @@ namespace SulDownloader
                 productReportEntry.rigidName = subscriptionInfo.rigidName;
                 productReportEntry.downloadedVersion = subscriptionInfo.version;
                 productReportEntry.name = subscriptionInfo.rigidName;
-                productReportEntry.installedVersion = "333";
+                productReportEntry.installedVersion = getInstalledVersion( productReportEntry.rigidName);
                 std::string combinedError;
                 ProductReport::ProductStatus combinedStatus{ ProductReport::ProductStatus::UpToDate };
 
@@ -329,7 +329,7 @@ namespace SulDownloader
                                     ProductReport subProductReportEntry;
                                     subProductReportEntry.rigidName = subComp.m_line;
                                     subProductReportEntry.downloadedVersion = subComp.m_version;
-                                    subProductReportEntry.installedVersion = "111"; //check to see if can get own version
+                                    subProductReportEntry.installedVersion = getInstalledVersion(subProductReportEntry.rigidName);
                                     subProductReportEntry.name = subComp.m_line;
                                     subProductReportEntry.productStatus = subComponentProduct->second.productStatus;
                                     subProductReportEntry.errorDescription = product.getError().Description;
@@ -402,13 +402,9 @@ namespace SulDownloader
             SulDownloaderProto::ProductStatusReport* productReport = protoReport.add_products();
             productReport->set_productname(product.name);
             productReport->set_rigidname(product.rigidName);
-            productReport->set_downloadversion("product.downloadedVersion");
-            //productReport->set_downloadversion("product.downloadedVersion");
+            productReport->set_downloadversion(product.downloadedVersion);
             productReport->set_installedversion(product.installedVersion);
-            //productReport->set_installedversion("product.installedversion");
-
             productReport->set_errordescription(product.errorDescription);
-
             productReport->set_productstatus(convert(product.productStatus));
         }
 
@@ -548,6 +544,21 @@ namespace SulDownloader
             default:
                 return "UPTODATE";
         }
+    }
+
+    std::string DownloadReport::getInstalledVersion(const std::string& rigidName)
+    {
+        std::string localVersionIni =
+            Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(rigidName);
+        try
+        {
+            return StringUtils::extractValueFromIniFile(localVersionIni, "PRODUCT_VERSION");
+        }
+        catch (const std::exception& ex)
+        {
+            LOGDEBUG("Unable to read version for \"" << rigidName << "\" err: " << ex.what());
+        }
+        return "";  // return an empty string if installed version not found
     }
 
 } // namespace SulDownloader

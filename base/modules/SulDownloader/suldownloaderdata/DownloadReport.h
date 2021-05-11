@@ -131,6 +131,10 @@ namespace SulDownloader
             }
 
         private:
+            void setError(const WarehouseError& error);
+            void setTimings(const TimeTracker&);
+            static std::string getInstalledVersion(const std::string& rigidName);
+
             WarehouseStatus m_status= WarehouseStatus::UNSPECIFIED;
             std::string m_description;
             std::string m_sulError;
@@ -146,9 +150,6 @@ namespace SulDownloader
             bool m_supplementOnly = false;
             bool m_baseDowngrade = false;
 
-            void setError(const WarehouseError& error);
-
-            void setTimings(const TimeTracker&);
         };
     } // namespace suldownloaderdata
 } // namespace SulDownloader

@@ -45,7 +45,7 @@ namespace
         <subscription rigidName="PluginRigidName" version="0.5.0" displayVersion="0.5.0" />
     </subscriptions>
     <products>
-        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="666" />
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
     </products>
     <Features>
     </Features>
@@ -73,7 +73,7 @@ namespace
         <subscription rigidName="PluginRigidName" version="0.5.0" displayVersion="0.5.0" />
     </subscriptions>
     <products>
-        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="666" />
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
     </products>
     <Features>
     </Features>
@@ -171,7 +171,7 @@ TEST_F(TestSerializeStatus, SuccessStatusWithFeatures) // NOLINT
         <subscription rigidName="PluginRigidName" version="0.5.0" displayVersion="0.5.0" />
     </subscriptions>
     <products>
-        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="666" />
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
     </products>
     <Features>
         <Feature id="FeatureA"/>
@@ -253,7 +253,7 @@ TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
         <subscription rigidName="ComponentSuite" version="v1" displayVersion="v1" />
     </subscriptions>
     <products>
-        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="123123" />
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
     </products>
     <Features>
     </Features>
@@ -297,7 +297,7 @@ TEST_F(TestSerializeStatus, serializeStatusXmlCorrectlyFilteresOutRigidNamesNotI
         <subscription rigidName="BaseRigidName" version="0.5.0" displayVersion="0.5.0" />
     </subscriptions>
     <products>
-        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="666" />
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
     </products>
     <Features>
     </Features>
