@@ -282,7 +282,7 @@ Ensure correct sending protocol handles all possible datafeed states at same tim
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-2900000015.json
     Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Removed scheduled_query datafeed file: /opt/sophos-spl/base/mcs/datafeed/scheduled_query-3000000001.json
 
-MCS Sends Data Using V2 Method Regardless of Policy
+MCS Sends Data Using V2 Method Regardless of Flags
     Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "false", "mcs.v2.data_feed.available": "false"}
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server

@@ -81,7 +81,6 @@ Test 401 From Central When Sending XDR Data Is Handled Correctly
 
 Test 403 From Central Is Handled Correctly
     Install Register And Wait First MCS Policy
-    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true", "mcs.v2.data_feed.available": "true"}
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
     Stop Mcsrouter If Running
     Start MCSRouter
@@ -119,7 +118,6 @@ Test 403 From Central Is Handled Correctly
 
 Test 413 From Central Is Handled Correctly
     Install Register And Wait First MCS Policy
-    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"jwt-token.available" : "true", "mcs.v2.data_feed.available": "true"}
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
     Stop Mcsrouter If Running
     Start MCSRouter
