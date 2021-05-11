@@ -55,15 +55,21 @@ namespace
             fs::remove_all(tmpdir());
         }
 
-        std::string generatePolicyXML(const std::string& revID, const std::string& policyID="2")
+        std::string generatePolicyXML(const std::string& revID, const std::string& policyID="2", const std::string& sxl="false")
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
                     R"sophos(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
   <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="@@REV_ID@@" policyType="@@POLICY_ID@@"/>
+     <detectionFeedback>
+        <sendData>@@SXL@@</sendData>
+        <sendFiles>false</sendFiles>
+        <onDemandEnable>true</onDemandEnable>
+      </detectionFeedback>
 </config>
 )sophos", {{"@@REV_ID@@", revID},
-           {"@@POLICY_ID@@", policyID}});
+           {"@@POLICY_ID@@", policyID},
+           {"@@SXL@@", sxl}});
         }
 
         std::string generateUpdatePolicyXML(const std::string& revID, const std::string& policyID="1")
@@ -197,7 +203,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + susiStartupSettingsPath + "', file does not exist");
 
     EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Throw(ex));
-
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_,_)).WillRepeatedly(Throw(ex));
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
     auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
@@ -208,20 +214,25 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 
     std::string policy1revID = "12345678901";
     std::string policy2revID = "12345678902";
+    std::string policy3revID = "12345678903";
     std::string policy1Xml = generatePolicyXML(policy1revID);
     std::string policy2Xml = generatePolicyXML(policy2revID);
+    std::string policy3Xml = generatePolicyXML(policy3revID, "2", "true");
 
     Task policy1Task = {Task::TaskType::Policy, policy1Xml};
     Task policy2Task = {Task::TaskType::Policy, policy2Xml};
+    Task policy3Task = {Task::TaskType::Policy, policy3Xml};
     m_queueTask->push(policy1Task);
     m_queueTask->push(policy2Task);
+    m_queueTask->push(policy3Task);
 
     std::string initialStatusXml = generateStatusXML("NoRef", "");
     std::string status1Xml = generateStatusXML("Same", policy1revID);
     std::string status2Xml = generateStatusXML("Same", policy2revID);
+    std::string status3Xml = generateStatusXML("Same", policy3revID);
     EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status1Xml, status1Xml)).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status2Xml, status2Xml)).WillOnce(QueueStopTask(m_queueTask));
-
+    EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status2Xml, status2Xml)).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status3Xml, status3Xml)).WillOnce(QueueStopTask(m_queueTask));
     EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
@@ -232,6 +243,8 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_TRUE(appenderContains("Processing policy: " + policy1Xml));
     EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
+    EXPECT_TRUE(appenderContains("Processing request to restart sophos threat detector", 2));
+    EXPECT_TRUE(appenderContains("Reloading susi as configuration changed", 1));
 }
 
 TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPolicy) //NOLINT
