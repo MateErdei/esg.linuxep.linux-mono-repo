@@ -79,6 +79,7 @@ bool SusiGlobalHandler::update(const std::string& path)
     {
         m_updatePending = true;
         m_updatePath = path;
+        LOGDEBUG("Threat scanner update is pending");
         return true;
     }
     SusiResult res = SUSI_Update(path.c_str());
@@ -122,6 +123,7 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
         m_susiInitialised = true;
         if (m_updatePending)
         {
+            LOGDEBUG("Threat scanner triggering pending update");
             update(m_updatePath);
         }
     }
