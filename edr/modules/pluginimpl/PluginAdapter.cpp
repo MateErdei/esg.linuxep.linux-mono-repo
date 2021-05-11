@@ -550,7 +550,7 @@ namespace Plugin
 
     void PluginAdapter::processALCPolicy(const std::string& policy, bool firstTime)
     {
-        LOGSUPPORT("Processing ALC Policy");
+        LOGINFO("Processing ALC Policy");
         m_osqueryConfigurator.loadALCPolicy(policy);
         bool enableAuditDataCollection = m_osqueryConfigurator.enableAuditDataCollection();
         if (firstTime)
