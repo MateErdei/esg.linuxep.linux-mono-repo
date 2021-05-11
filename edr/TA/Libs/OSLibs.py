@@ -27,9 +27,7 @@ def is_package_installed(package_name: str) -> bool:
                 return True
         return False
     elif os_uses_yum():
-        # temp print
-        print (subprocess.check_output(["yum", "list", package_name]))
-        return subprocess.call(["yum", "list", package_name]) == 0
+        return subprocess.call(["yum", "--cacheonly", "installed", "list", package_name]) == 0
     else:
         print("ERROR, could not determine whether machine uses apt or yum")
 
