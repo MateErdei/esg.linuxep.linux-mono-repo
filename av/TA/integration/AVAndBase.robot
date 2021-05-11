@@ -660,10 +660,15 @@ AV Plugin restarts threat detector on susi startup settings change
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=60
     AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
-    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be disabled   timeout=180
+
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
-    ...   timeout=120
+    ...   timeout=60
+
+    # scan eicar to trigger susi to be loaded
+    Check avscanner can detect eicar
+
+    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be disabled   timeout=180
     Check Sophos Threat Detector has different PID   ${pid}
 
     # don't change lookup setting, threat_detector should not restart
@@ -697,10 +702,14 @@ AV Plugin restarts threat detector on susi startup settings change
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=60
     AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
-    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled   timeout=180
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
-    ...   timeout=120
+    ...   timeout=60
+
+    # scan eicar to trigger susi to be loaded
+    Check avscanner can detect eicar
+
+    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled   timeout=180
     Check Sophos Threat Detector has different PID   ${pid}
 
 AV Plugin tries to restart threat detector on susi startup settings change

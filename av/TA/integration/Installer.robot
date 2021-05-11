@@ -519,10 +519,3 @@ Check no duplicate files in directory
     Log    ${output}
     ${count} =   Get Line Count   ${output}
     Should Be Equal As Integers  ${count}  ${0}
-
-Check avscanner can detect eicar
-    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.com
-    Log   ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test

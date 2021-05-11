@@ -759,3 +759,11 @@ Check If The Logs Are Close To Rotating
 Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     ${result} =     Check If The Logs Are Close To Rotating
     run keyword if  ${result}  Restart AV Plugin And Clear The Logs For Integration Tests
+
+
+Check avscanner can detect eicar
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${SCAN_DIRECTORY}/eicar.com
+    Log   ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test
