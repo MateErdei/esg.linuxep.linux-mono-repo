@@ -29,8 +29,7 @@ Check AV Plugin Installed
     ...  AV Plugin Log Contains  av <> Starting scanScheduler
 
 Check AV Plugin Running
-    ${result} =    Run Process  pgrep  av
-    Should Be Equal As Integers    ${result.rc}    0
+    Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
 
 AV Plugin Log Contains
     [Arguments]  ${TextToFind}
@@ -49,13 +48,13 @@ Check Sophos Threat Detector Running
 Wait until threat detector running
     # wait for AV Plugin to initialize
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  30 secs
     ...  3 secs
     ...  Check Sophos Threat Detector Running
     Wait Until Keyword Succeeds
-    ...  40 secs
+    ...  60 secs
     ...  2 secs
-    ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
+    ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
 Check AV Plugin Permissions
     ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
