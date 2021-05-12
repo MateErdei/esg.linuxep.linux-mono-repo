@@ -73,6 +73,7 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     register cleanup  Start AV
     register cleanup  Stop AV
     register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
+    register cleanup  Dump Log  ${SCANNOW_LOG_PATH}
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -82,8 +83,8 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Run Process   /bin/kill   -SIGSEGV   ${output}
     sleep  60  Waiting for the socket to timeout
     Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  10 secs
+    ...  240 secs
+    ...  20 secs
     ...  File Log Contains  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
 
     ${line_count} =  Count Lines In Log  ${SCANNOW_LOG_PATH}  Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
@@ -91,7 +92,7 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
     File Log Contains Once  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
 
-    Dump Log  ${SCANNOW_LOG_PATH}
+
 
 
 Scan Now scans dir with name similar to excluded mount
