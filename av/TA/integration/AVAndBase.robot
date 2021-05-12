@@ -714,54 +714,6 @@ AV Plugin restarts threat detector on susi startup settings change
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled   timeout=180
     Check Sophos Threat Detector has different PID   ${pid}
 
-AV Plugin tries to restart threat detector on susi startup settings change
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
-    Log   ${policyContent}
-    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
-    Send Sav Policy To Base  tempSavPolicy.xml
-    Mark Sophos Threat Detector Log
-    Restart sophos_threat_detector
-    Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
-    ...   timeout=60
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    stop sophos_threat_detector
-
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
-    Log   ${policyContent}
-    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
-    Send Sav Policy To Base  tempSavPolicy.xml
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=60
-    AV Plugin Log Contains With Offset  Failed to connect to Sophos Threat Detector Controller - retrying after sleep
-    Wait Until AV Plugin Log Contains With Offset  Reached total maximum number of connection attempts.
-
-    start sophos_threat_detector
-    Wait until threat detector running with offset
-
-    # change lookup setting, threat_detector should restart
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    ${pid} =   Record Sophos Threat Detector PID
-
-    ${id3} =   Generate Random String
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
-    Log   ${policyContent}
-    Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
-    Send Sav Policy To Base  tempSavPolicy.xml
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=60
-    AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
-    AV Plugin Log Does Not Contain With Offset  Failed to connect to Sophos Threat Detector Controller - retrying after sleep
-    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled   timeout=180
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
-    ...   timeout=120
-    Check Sophos Threat Detector has different PID   ${pid}
 
 Sophos Threat Detector sets default if susi startup settings permissions incorrect
     Restart sophos_threat_detector
@@ -792,4 +744,8 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket
     ...   timeout=120
+
+    # scan eicar to trigger susi to be loaded
+    Check avscanner can detect eicar
+
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
