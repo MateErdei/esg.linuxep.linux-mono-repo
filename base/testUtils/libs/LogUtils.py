@@ -379,6 +379,15 @@ class LogUtils(object):
             self.dump_mcsrouter_log()
             raise AssertionError("MCS Router log did not contain: " + string_to_contain)
 
+    def check_marked_mcsrouter_log_does_not_contain(self, string_not_to_contain):
+        mcsrouter_log = self.mcs_router_log()
+        contents = get_log_contents(mcsrouter_log)
+        contents = contents[self.marked_mcsrouter_logs:]
+
+        if string_not_to_contain in contents:
+            self.dump_mcsrouter_log()
+            raise AssertionError("MCS Router log did not contain: " + string_not_to_contain)
+
     def mark_edr_log(self):
         contents = get_log_contents(self.edr_log)
         self.marked_edr_logs = len(contents)
