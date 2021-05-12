@@ -72,7 +72,7 @@ def install_requirements(machine: tap.Machine):
 
 def get_suffix():
     global BRANCH_NAME
-    if BRANCH_NAME == "master":
+    if BRANCH_NAME == "develop":
         return ""
     return "-" + BRANCH_NAME
 
@@ -105,9 +105,9 @@ def robot_task_with_env(machine: tap.Machine, test_type=None, environment=None, 
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
-                    "robot" + get_suffix() + "_" + machine_name + "-log.html")
+                    "robot" + get_suffix() + "_" + machine_name + "_" + test_type + "-log.html")
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/report.html",
-                    "robot" + get_suffix() + "_" + machine_name + "-report.html")
+                    "robot" + get_suffix() + "_" + machine_name + "_" + test_type + "-report.html")
 
 @tap.timeout(task_timeout=5400)
 def robot_task_product(machine: tap.Machine):
