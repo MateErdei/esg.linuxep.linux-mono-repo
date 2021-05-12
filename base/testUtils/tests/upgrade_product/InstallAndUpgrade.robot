@@ -59,7 +59,8 @@ ${mtr_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+${Sophos_Scheduled_Query_Pack}              ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 *** Test Cases ***
 
@@ -776,6 +777,51 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file /tmp/dirty_file
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+Check Installed Version In Status Message Is Correctly Reported Based On Version Ini File
+    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    # Setup for test.
+    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   5 secs
+    ...   File Should Exist  ${status_file}
+
+    Override Local LogConf File for a component   DEBUG  global
+    Run Process  systemctl  restart  sophos-spl
+
+    # Tigger update to make sure everything has settle down foe test, i.e. we do not want files to be updated
+    # when the actual test update is being performed.
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   240 secs
+    ...   10 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   2
+
+    # Run test to simulate installedVersion content is correctly generated in status file.
+    # First modify Base and live response version ini files
+    # Base is set to an older version (make sure this is never newer than real installed version).
+    #       Or installer will run.  This is to simulate new version failed to install.
+    # Live reponse version.ini file will be removed, to simulate component never installed.
+    Remove File  ${SOPHOS_INSTALL}/base/VERSION.ini
+    Create File   ${SOPHOS_INSTALL}/base/VERSION.ini   PRODUCT_VERSION = 1.0.123.123
+    Run Process  chmod  640   ${SOPHOS_INSTALL}/base/VERSION.ini
+    Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/VERSION.ini
+    Remove File  ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
+
+    #  This update should not install any files.
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...   240 secs
+    ...   10 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   3
+
+    # Check content of ALC_status.xml file contsins the expected installedVersion values.
+    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Base-component  1.0.123.123  ${status_file}
+    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Plugin-liveresponse  ${EMPTY}  ${status_file}
 
 *** Keywords ***
 

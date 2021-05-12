@@ -295,7 +295,6 @@ namespace SulDownloader
             }
             else
             {
-                // add installversion here
                 ProductReport productReportEntry;
                 productReportEntry.rigidName = subscriptionInfo.rigidName;
                 productReportEntry.downloadedVersion = subscriptionInfo.version;
@@ -398,7 +397,6 @@ namespace SulDownloader
 
         for (const auto& product : report.getProducts())
         {
-            //add installversion
             SulDownloaderProto::ProductStatusReport* productReport = protoReport.add_products();
             productReport->set_productname(product.name);
             productReport->set_rigidname(product.rigidName);
@@ -449,7 +447,6 @@ namespace SulDownloader
 
         for (auto& protoProduct : protoReport.products())
         {
-            //add install version
             ProductReport productReport;
             productReport.rigidName = protoProduct.rigidname();
             productReport.name = protoProduct.productname();

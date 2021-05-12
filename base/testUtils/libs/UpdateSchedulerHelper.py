@@ -401,3 +401,19 @@ class UpdateSchedulerHelper(object):
         logUtils.replace_string_in_file(old_version, new_version, sdds_import_path)
         logUtils.replace_string_in_file(old_version, new_version, version_file_path)
 
+    def check_status_file_component_installed_version_is_correct(self, rigidName, version, status_file_path):
+        with open(status_file_path, "r") as status_file:
+            dom = xml.dom.minidom.parseString(status_file.read())
+            products = dom.getElementsByTagName("products")[0].childNodes
+
+            for product in products:
+                rigidNameValue = product.getAttribute("rigidName")
+                if rigidNameValue == rigidName:
+                    versionValue = product.getAttribute("installedVersion")
+                    if versionValue != version:
+                        raise AssertionError("Version for found for {} does not match, expected{}, actual {}".format(rigidName, version, versionValue))
+                    else:
+                        return
+        raise AssertionError("Failed to find product entry for {}".format(rigidName))
+
+

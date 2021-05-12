@@ -156,11 +156,9 @@ namespace
         for (const auto& product : report.getProducts())
         {
             if (product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::Uninstalled)
-                //product.productStatus != SulDownloader::suldownloaderdata::ProductReport::ProductStatus::InstallFailed)
             {
                 status.Subscriptions.emplace_back(product.rigidName, product.name, product.downloadedVersion);
             }
-
         }
 
         for (const auto& whComponent : report.getWarehouseComponents())

@@ -89,8 +89,7 @@ public:
             }
             if (expectedInsert.DownloadedVersion != resultedInsert.DownloadedVersion)
             {
-                return ::testing::AssertionFailure() << s.str() << " DownloadedVersion differ"
-                << expectedInsert.DownloadedVersion << "    " << resultedInsert.DownloadedVersion;
+                return ::testing::AssertionFailure() << s.str() << " DownloadedVersion differ";
             }
         }
         return ::testing::AssertionSuccess();

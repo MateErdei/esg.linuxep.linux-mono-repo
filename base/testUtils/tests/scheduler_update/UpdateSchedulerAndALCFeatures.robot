@@ -53,16 +53,6 @@ UpdateScheduler Install Base and MDR With the ALC Policy With MDR
     Check ALC Status Sent To Central Contains MDR Subscription
 
 
-Demo Test
-    [Tags]  SULDOWNLOADER  UPDATE_SCHEDULER  MDR_PLUGIN
-    [Setup]  Setup For Test With Warehouse Containing Base
-    Remove Files In Directory  /opt/sophos-spl/base/mcs/event/
-    Send Policy With Host Redirection And Run Update And Check Success Of Oldest Event     remove_subscriptions=SENSORS   remove_subscriptions=MDR
-
-    Log To Console  Sleeping
-    Sleep  300
-
-
 *** Keywords ***
 Upgrade Installs Product Twice   
     Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log    Installing product: ServerProtectionLinux-Base   2

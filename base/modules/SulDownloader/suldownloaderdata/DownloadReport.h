@@ -21,7 +21,6 @@ namespace SulDownloader
 
         struct ProductReport
         {
-            // add installed version here
             std::string name;
             std::string rigidName;
             std::string downloadedVersion;

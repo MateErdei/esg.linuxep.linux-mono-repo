@@ -541,12 +541,8 @@ namespace UpdateSchedulerImpl
             writeInstalledFeaturesJsonFile(m_featuresCurrentlyInstalled);
         }
 
-//        auto statusWithSuccessfullyInstalledComponents = reportAndFiles.reportCollectionResult.SchedulerStatus;
-//
-//        for (auto product: statusWithSuccessfullyInstalledComponents.Products)
-//        {
-//            if (reportAndFiles.reportCollectionResult.SchedulerStatus.)
-//        }
+
+
         std::string statusXML = SerializeUpdateStatus(
             reportAndFiles.reportCollectionResult.SchedulerStatus,
             m_policyTranslator.revID(),
