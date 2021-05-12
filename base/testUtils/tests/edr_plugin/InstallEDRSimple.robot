@@ -194,8 +194,13 @@ EDR plugin restarts mtr extension when killed
     ...  20 secs
     ...  2 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log   edr_osquery_log   Created and monitoring extension child  1
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  1
 
     ${result} =  Run Process  pgrep edr | xargs kill -9  shell=true
+
     Wait Until Keyword Succeeds
     ...  70 secs
     ...  10 secs
@@ -221,8 +226,13 @@ EDR Osquery restarts mtr extension when killed
     ...  30 secs
     ...  2 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query  1
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  1
 
     ${result} =  Run Process  pgrep MTR.ext | xargs kill -9  shell=true
+
     Wait Until Keyword Succeeds
     ...  70 secs
     ...  10 secs
@@ -250,6 +260,8 @@ EDR Osquery restarts mtr extension when killed
     ...  30 secs
     ...  2 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query  3
+
+
 *** Keywords ***
 EDR Tests Teardown With Installed File Replacement
     Run Keyword If Test Failed  Save Current EDR InstalledFiles To Local Path
