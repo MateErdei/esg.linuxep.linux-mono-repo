@@ -567,13 +567,11 @@ Product Test Setup
     mark av log
     mark sophos threat detector log
     mark susi debug log
+    register on fail  Dump Log  ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
+    register on fail  Dump Log  ${FAKEMANAGEMENT_AGENT_LOG_PATH}
+    register on fail  Dump Log  ${THREAT_DETECTOR_LOG_PATH}
 
 Product Test Teardown
-    Dump Log On Failure   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
-    Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
-    Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
-    ${usingFakeAVScanner} =  Get Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}
-    Run Keyword If  '${usingFakeAVScanner}'=='true'  Undo Use Fake AVScanner
     Delete Eicars From Tmp
     run teardown functions
     Component Test TearDown
