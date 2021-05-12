@@ -52,9 +52,9 @@ AVCommandLineScanner Test Setup
 AVCommandLineScanner Test TearDown
     Run Teardown Functions
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log  encoding_errors=replace
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}  encoding_errors=replace
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
+    Dump Log On Failure   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
+    Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
+    Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
     Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
 
 Clear logs
