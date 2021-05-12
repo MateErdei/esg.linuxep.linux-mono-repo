@@ -455,10 +455,6 @@ namespace SulDownloader
             productReport.name = protoProduct.productname();
             productReport.downloadedVersion = protoProduct.downloadversion();
             productReport.installedVersion = protoProduct.installedversion();
-            if(productReport.installedVersion == "")
-            {
-                productReport.installedVersion = "productreportempty";
-            }
             productReport.errorDescription = protoProduct.errordescription();
             productReport.productStatus = convert(protoProduct.productstatus());
 
