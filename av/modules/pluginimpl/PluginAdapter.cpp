@@ -123,14 +123,7 @@ namespace Plugin
         auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "1", "ALC");
         if (!policyALCXml.empty())
         {
-            if(m_restartSophosThreatDetector)
-            {
-                processPolicy(policyALCXml);
-            }
-            else
-            {
-                m_restartSophosThreatDetector = processPolicy(policyALCXml);
-            }
+            m_restartSophosThreatDetector = processPolicy(policyALCXml) || m_restartSophosThreatDetector;
         }
     }
 
@@ -145,13 +138,7 @@ namespace Plugin
                     return;
 
                 case Task::TaskType::Policy:
-                    //don't override m_restartSophosThreatDetector if it's set to true
-                    if (m_restartSophosThreatDetector)
-                    {
-                        processPolicy(task.Content);
-                        break;
-                    }
-                    m_restartSophosThreatDetector = processPolicy(task.Content);
+                    m_restartSophosThreatDetector = processPolicy(task.Content) || m_restartSophosThreatDetector;
                     break;
 
                 case Task::TaskType::Action:
