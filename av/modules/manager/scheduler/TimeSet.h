@@ -19,8 +19,9 @@ namespace manager::scheduler
         [[nodiscard]] std::string str() const;
         [[nodiscard]] int hour() const { return m_hour;}
         [[nodiscard]] int minute() const { return m_minute;}
+        [[nodiscard]] int second() const { return m_second;}
         bool operator<(const Time& rhs) const;
-        bool stillDueToday(const struct tm& now) const;
+        [[nodiscard]] bool stillDueToday(const struct tm& now) const;
     private:
         int m_hour;
         int m_minute;

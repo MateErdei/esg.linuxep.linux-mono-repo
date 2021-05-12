@@ -30,9 +30,9 @@ Time::Time(const std::string& time)
     std::stringstream ist(time);
     std::tm time_buffer{};
     ist >> std::get_time(&time_buffer, "%H:%M:%S");
-    m_hour = time_buffer.tm_hour;
-    m_minute = time_buffer.tm_min;
-    m_second = time_buffer.tm_sec;
+    m_hour = time_buffer.tm_hour; // NOLINT(cppcoreguidelines-prefer-member-initializer)
+    m_minute = time_buffer.tm_min; // NOLINT(cppcoreguidelines-prefer-member-initializer)
+    m_second = time_buffer.tm_sec; // NOLINT(cppcoreguidelines-prefer-member-initializer)
 }
 
 std::string Time::str() const
@@ -67,7 +67,9 @@ bool Time::operator<(const Time& rhs) const
 
 bool Time::stillDueToday(const struct tm& now) const
 {
-    return (hour() > now.tm_hour || (hour() == now.tm_hour && minute() > now.tm_min));
+    return hour() > now.tm_hour ||
+           (hour() == now.tm_hour && minute() > now.tm_min) ||
+           (hour() == now.tm_hour && minute() == now.tm_min && second() > now.tm_sec);
 }
 
 TimeSet::TimeSet(Common::XmlUtilities::AttributesMap& savPolicy, const std::string& id)

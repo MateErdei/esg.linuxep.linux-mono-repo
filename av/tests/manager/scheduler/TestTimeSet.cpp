@@ -143,7 +143,7 @@ TEST_F(TestTimeSet, stillDueTodayReturnsTrue)
     ASSERT_TRUE(fakeScanTime.stillDueToday(now_struct));
 }
 
-TEST_F(TestTimeSet, stillDueTodayReturnsFalse)
+TEST_F(TestTimeSet, stillDueTodayReturnsFalse) //NOLINT
 {
     Time fakeScanTime("10:00:00");
     struct tm now_struct{};
@@ -151,7 +151,7 @@ TEST_F(TestTimeSet, stillDueTodayReturnsFalse)
     ASSERT_FALSE(fakeScanTime.stillDueToday(now_struct));
 }
 
-TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsTrue)
+TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsTrue) //NOLINT
 {
     Time fakeScanTime("10:35:00");
     struct tm now_struct{};
@@ -160,11 +160,31 @@ TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsTrue)
     ASSERT_TRUE(fakeScanTime.stillDueToday(now_struct));
 }
 
-TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsFalse)
+TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsFalse) //NOLINT
 {
     Time fakeScanTime("10:35:00");
     struct tm now_struct{};
     now_struct.tm_hour = 10;
     now_struct.tm_min = 35;
+    ASSERT_FALSE(fakeScanTime.stillDueToday(now_struct));
+}
+
+TEST_F(TestTimeSet, stillDueTodaySecondComparisonReturnsTrue) //NOLINT
+{
+    Time fakeScanTime("10:35:54");
+    struct tm now_struct{};
+    now_struct.tm_hour = 10;
+    now_struct.tm_min = 35;
+    now_struct.tm_sec = 53;
+    ASSERT_TRUE(fakeScanTime.stillDueToday(now_struct));
+}
+
+TEST_F(TestTimeSet, stillDueTodaySecondComparisonReturnsFalse) //NOLINT
+{
+    Time fakeScanTime("10:35:54");
+    struct tm now_struct{};
+    now_struct.tm_hour = 10;
+    now_struct.tm_min = 35;
+    now_struct.tm_sec = 54;
     ASSERT_FALSE(fakeScanTime.stillDueToday(now_struct));
 }

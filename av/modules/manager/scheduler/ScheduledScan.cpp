@@ -153,7 +153,7 @@ time_t ScheduledScan::calculateNextTime(time_t now) const
     now_struct.tm_min  = nextTime.minute();
     now_struct.tm_hour = nextTime.hour();
     now_struct.tm_mday += nextDayDelta;
-    now_struct.tm_sec = 0;
+    now_struct.tm_sec = nextTime.second();
 
     return ::mktime(&now_struct);
 }
