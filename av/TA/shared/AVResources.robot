@@ -533,7 +533,7 @@ Check Scheduled Scan Configuration File is Correct
     ${configFilename} =  Set Variable  /tmp/config-files-test/Sophos_Cloud_Scheduled_Scan.config
     Wait Until Keyword Succeeds
         ...    120 secs
-        ...    1 secs
+        ...    5 secs
         ...    File Should Exist  ${configFilename}
     @{exclusions} =  ExclusionHelper.get exclusions to scan tmp test
     CapnpHelper.check named scan object   ${configFilename}
