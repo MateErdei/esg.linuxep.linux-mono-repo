@@ -805,3 +805,69 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Check avscanner can detect eicar
 
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
+
+
+AV Log Cannot Be Written To With Different Permissions
+    Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
+    Mark AV Log
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+
+    Run  chmod 444 ${AV_LOG_PATH}
+
+    ${AV_PID} =  Record AV Plugin PID
+    Log  Initial PID: ${AV_PID}
+    Stop AV Plugin
+    Start AV Plugin
+    ${AV_PID} =  Record AV Plugin PID
+    Log  Restarted PID: ${AV_PID}
+
+    Mark AV Log
+
+    ${result} =  Run Process  ls  -l  ${AV_LOG_PATH}
+    Log  New permissions: ${result.stdout}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    AV Plugin Log Should Not Contain With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+
+    Run  chmod 600 ${AV_LOG_PATH}
+
+
+SUSI Debug Log Cannot Be Written To With Different Permissions
+    Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
+    Mark Susi Debug Log
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    SUSI Debug Log Contains With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Run  chmod 444 ${SUSI_DEBUG_LOG_PATH}
+
+    ${AV_PID} =  Record AV Plugin PID
+    Log  Initial PID: ${AV_PID}
+    Stop AV Plugin
+    Start AV Plugin
+    ${AV_PID} =  Record AV Plugin PID
+    Log  Restarted PID: ${AV_PID}
+
+    Mark Susi Debug Log
+
+    ${result} =  Run Process  ls  -l  ${SUSI_DEBUG_LOG_PATH}
+    Log  New permissions: ${result.stdout}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    SUSI Debug Log Does Not Contain With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Run  chmod 600 ${SUSI_DEBUG_LOG_PATH}

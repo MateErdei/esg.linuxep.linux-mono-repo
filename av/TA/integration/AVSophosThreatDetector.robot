@@ -500,10 +500,7 @@ SUSI Is Given Non-Permission CustomerId
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
 
 
-CLS Cannot Write To Threat Detector Log With Different Permissions
-    ${result} =  Run Process  ls  -l  ${THREAT_DETECTOR_LOG_PATH}
-    Log  Initial permissions: ${result.stdout}
-
+Threat Detector Log Cannot Be Written To With Different Permissions
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     Mark Sophos Threat Detector Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
@@ -535,7 +532,7 @@ CLS Cannot Write To Threat Detector Log With Different Permissions
     Log  output is ${output}
     Threat Detector Log Should Not Contain With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
 
-    Run  chmod 444 ${THREAT_DETECTOR_LOG_PATH}
+    Run  chmod 600 ${THREAT_DETECTOR_LOG_PATH}
 
 
 *** Keywords ***
