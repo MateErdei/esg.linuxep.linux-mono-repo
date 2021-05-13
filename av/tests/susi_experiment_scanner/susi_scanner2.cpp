@@ -134,7 +134,7 @@ namespace
             PRINT("Starting shutdown timer");
         };
 
-        long timeout() override
+        time_t timeout() override
         {
             return 0;
         }

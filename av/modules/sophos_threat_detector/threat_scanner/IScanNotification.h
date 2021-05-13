@@ -16,7 +16,7 @@ namespace threat_scanner
         virtual ~IScanNotification() = default;
 
         virtual void reset() = 0;
-        virtual long timeout() = 0;
+        virtual time_t timeout() = 0;
     };
     using IScanNotificationSharedPtr = std::shared_ptr<IScanNotification>;
 }

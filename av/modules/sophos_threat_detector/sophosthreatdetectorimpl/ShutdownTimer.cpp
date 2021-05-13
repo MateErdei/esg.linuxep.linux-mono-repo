@@ -26,16 +26,16 @@ void ShutdownTimer::reset()
     LOGDEBUG("Reset timer to: " << m_scanStartTime);
 }
 
-long ShutdownTimer::timeout()
+time_t ShutdownTimer::timeout()
 {
-    long shutdownTime = m_scanStartTime + getDefaultTimeout();
+    time_t shutdownTime = m_scanStartTime + getDefaultTimeout();
     LOGDEBUG("Shutdown due at: " << shutdownTime);
     return shutdownTime - getCurrentEpoch();
 }
 
-long ShutdownTimer::getDefaultTimeout()
+time_t ShutdownTimer::getDefaultTimeout()
 {
-    long defaultTimeout = 60 * 60;
+    time_t defaultTimeout = 60 * 60;
     std::ifstream fs(m_configFile, std::ifstream::in);
 
     if (fs.good())
@@ -57,7 +57,7 @@ long ShutdownTimer::getDefaultTimeout()
     return defaultTimeout;
 }
 
-long ShutdownTimer::getCurrentEpoch()
+time_t ShutdownTimer::getCurrentEpoch()
 {
     auto now = std::chrono::system_clock::now().time_since_epoch();
     return std::chrono::duration_cast<std::chrono::seconds>(now).count();

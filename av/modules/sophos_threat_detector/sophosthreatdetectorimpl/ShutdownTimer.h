@@ -20,13 +20,13 @@ namespace sspl::sophosthreatdetectorimpl
     public:
         ShutdownTimer(fs::path configFile);
         void reset() override;
-        long timeout() override;
+        time_t timeout() override;
 
     private:
-        long getDefaultTimeout();
-        long getCurrentEpoch();
+        time_t getDefaultTimeout();
+        time_t getCurrentEpoch();
 
-        std::atomic<long> m_scanStartTime;
+        std::atomic<time_t> m_scanStartTime;
         fs::path m_configFile;
     };
 }

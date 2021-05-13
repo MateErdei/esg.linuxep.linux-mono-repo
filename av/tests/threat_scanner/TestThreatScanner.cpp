@@ -124,7 +124,7 @@ namespace
     {
     public:
         MOCK_METHOD0(reset, void());
-        MOCK_METHOD0(timeout, long());
+        MOCK_METHOD0(timeout, time_t());
     };
 }
 
