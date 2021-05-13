@@ -500,6 +500,44 @@ SUSI Is Given Non-Permission CustomerId
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
 
 
+CLS Cannot Write To Threat Detector Log With Different Permissions
+    ${result} =  Run Process  ls  -l  ${THREAT_DETECTOR_LOG_PATH}
+    Log  Initial permissions: ${result.stdout}
+
+    Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
+    Mark Sophos Threat Detector Log
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Run  chmod 444 ${THREAT_DETECTOR_LOG_PATH}
+
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Log  Initial PID: ${SOPHOS_THREAT_DETECTOR_PID}
+    Stop Sophos_threat_detector
+    Start Sophos_threat_detector
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Log  Restarted PID: ${SOPHOS_THREAT_DETECTOR_PID}
+
+    Mark Sophos Threat Detector Log
+    Threat Detector Log Should Not Contain With Offset  Sophos Threat Detector received SIGTERM - shutting down
+    Threat Detector Log Should Not Contain With Offset  Sophos Threat Detector is exiting
+
+    ${result} =  Run Process  ls  -l  ${THREAT_DETECTOR_LOG_PATH}
+    Log  New permissions: ${result.stdout}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Threat Detector Log Should Not Contain With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Run  chmod 444 ${THREAT_DETECTOR_LOG_PATH}
+
+
 *** Keywords ***
 
 set sophos_threat_detector log level
