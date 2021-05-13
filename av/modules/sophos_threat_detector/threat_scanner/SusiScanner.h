@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "IScanNotification.h"
 #include "ISusiWrapperFactory.h"
 #include "IThreatReporter.h"
 #include "IThreatScanner.h"
@@ -22,7 +23,8 @@ namespace threat_scanner
         explicit SusiScanner(
             const ISusiWrapperFactorySharedPtr& susiWrapperFactory,
             bool scanArchives,
-            IThreatReporterSharedPtr threatReporter);
+            IThreatReporterSharedPtr threatReporter,
+            IScanNotificationSharedPtr shutdownTimer);
 
         scan_messages::ScanResponse scan(
             datatypes::AutoFd& fd,
@@ -43,5 +45,6 @@ namespace threat_scanner
 
         std::shared_ptr<ISusiWrapper> m_susi;
         IThreatReporterSharedPtr m_threatReporter;
+        IScanNotificationSharedPtr m_shutdownTimer;
     };
 }

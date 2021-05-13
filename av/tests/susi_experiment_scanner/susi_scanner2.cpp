@@ -4,7 +4,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
+#include "sophos_threat_detector/threat_scanner/SusiScannerFactory.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Print.h"
@@ -125,6 +125,20 @@ namespace
                 PRINT("Reporting threat");
         };
     };
+
+    class FakeShutdownTimer : public threat_scanner::IScanNotification
+    {
+    public:
+        void reset() override
+        {
+            PRINT("Starting shutdown timer");
+        };
+
+        long timeout() override
+        {
+            return 0;
+        }
+    };
 }
 
 static int scan(const char* filename, const char* chroot)
@@ -166,9 +180,10 @@ static int scan(const char* filename, const char* chroot)
     fs::path chrootPath = pluginInstall / "chroot";
 
     auto threatReporter = std::make_shared<FakeThreatReporter>();
+    auto shutdownTimer = std::make_shared<FakeShutdownTimer>();
 
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
-        = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter);
+        = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer);
 
     auto scanner = scannerFactory->createScanner(true);
 

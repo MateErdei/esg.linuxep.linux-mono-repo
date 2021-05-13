@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SophosThreatDetectorMain.h"
 #include "Logger.h"
 #include "Reloader.h"
+#include "ShutdownTimer.h"
 #include "SigUSR1Monitor.h"
 #include "ThreatReporter.h"
 
@@ -252,6 +253,11 @@ static fs::path threat_reporter_socket(const fs::path& pluginInstall)
     return pluginInstall / "chroot/var/threat_report_socket";
 }
 
+static fs::path threat_detector_config(const fs::path& pluginInstall)
+{
+    return pluginInstall / "chroot/etc/threat_detector_config";
+}
+
 static int inner_main()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -332,8 +338,11 @@ static int inner_main()
     threat_scanner::IThreatReporterSharedPtr threatReporter =
         std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>(threat_reporter_socket(pluginInstall));
 
+    threat_scanner::IScanNotificationSharedPtr shutdownTimer =
+        std::make_shared<ShutdownTimer>(threat_detector_config(pluginInstall));
+
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
-        = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter);
+        = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer);
 
     scannerFactory->update(); // always force an update during start-up
 
@@ -366,8 +375,11 @@ static int inner_main()
     {
         fd_set tempRead = readFDs;
 
+        struct timespec timeout{};
+        timeout.tv_sec = shutdownTimer->timeout();
+        LOGDEBUG("Setting shutdown timeout to " << timeout.tv_sec << " seconds");
         //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
-        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
+        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
 
         if (activity < 0)
         {
@@ -380,6 +392,20 @@ static int inner_main()
 
             LOGERROR("Failed to read from socket - shutting down. Error: " << strerror(error)<< " (" << error << ')');
             break;
+        }
+        else if (activity == 0)
+        {
+            long currentTimeout = shutdownTimer->timeout();
+            if (currentTimeout <= 0)
+            {
+                LOGDEBUG("No scans requested for " << timeout.tv_sec << " seconds - shutting down.");
+                break;
+            }
+            else
+            {
+                LOGDEBUG("Scan requested less than " << timeout.tv_sec << " seconds ago - continuing");
+                continue;
+            }
         }
 
         if (FDUtils::fd_isset(usr1Monitor.monitorFd(), &tempRead))

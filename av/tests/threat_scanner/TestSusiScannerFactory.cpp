@@ -17,23 +17,14 @@ using namespace threat_scanner;
 
 TEST(TestSusiScannerFactory, testWithoutPLUGIN_INSTALL) // NOLINT
 {
-    // SUSI initialization config is now deferred, so constructor won't fail.
-    SusiScannerFactory factory(nullptr);
-}
-
-TEST(TestSusiScannerFactory, throwsDuringInitializeWithoutPLUGIN_INSTALL) // NOLINT
-{
-    // SUSI initialization is now deferred, so constructor won't fail.
-    SusiScannerFactory factory(nullptr);
-
     try
     {
-        factory.createScanner(false);
-        FAIL() << "Able to construct scanner without PLUGIN_INSTALL!";
+        SusiScannerFactory factory(nullptr, nullptr);
+        FAIL() << "Able to construct SusiScannerFactory!";
     }
     catch (const std::exception& ex)
     {
-        PRINT("Unable to construct instance: " << ex.what() << '\n');
+        PRINT("Unable to construct factory: " << ex.what() << '\n');
     }
 }
 
@@ -42,39 +33,28 @@ TEST(TestSusiScannerFactory, testConstruction) // NOLINT
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");
 
-    // SUSI initialization is now deferred, so constructor won't fail.
-    SusiScannerFactory factory(nullptr);
-}
-
-TEST(TestSusiScannerFactory, throwsDuringInitialize) //NOLINT
-{
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");
-
-    // SUSI initialization is now deferred, so constructor won't fail.
-    SusiScannerFactory factory(nullptr);
-
     try
     {
-        factory.createScanner(false);
-        FAIL() << "Able to construct scanner!";
+        SusiScannerFactory factory(nullptr, nullptr);
+        FAIL() << "Able to construct SusiScannerFactory!";
     }
     catch (const std::exception& ex)
     {
-        PRINT("Unable to construct instance: " << ex.what() << '\n');
+        PRINT("Unable to construct factory: " << ex.what() << '\n');
     }
 }
+
 
 TEST(TestSusiScannerFactory, testConstructionWithMockSusiWrapper) // NOLINT
 {
     ISusiWrapperFactorySharedPtr wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    EXPECT_NO_THROW(SusiScannerFactory factory(wrapperFactory, nullptr));
+    EXPECT_NO_THROW(SusiScannerFactory factory(wrapperFactory, nullptr, nullptr));
 }
 
 TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesFalse) // NOLINT
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    SusiScannerFactory factory(wrapperFactory, nullptr);
+    SusiScannerFactory factory(wrapperFactory, nullptr, nullptr);
 
     const std::string scannerConfig = R"sophos({"scanner": {
         "signatureBased": {
@@ -89,15 +69,13 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesFalse) 
                 "webArchive": false,
                 "webEncoding": true,
                 "media": true,
-                "macintosh": true,
-                "discImage": false
+                "macintosh": true
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true,
-                "submitToAnalysis": false
+                "stopOnArchiveBombs": true
             }
         }
     }})sophos";
@@ -112,7 +90,7 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesFalse) 
 TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue) // NOLINT
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    SusiScannerFactory factory(wrapperFactory, nullptr);
+    SusiScannerFactory factory(wrapperFactory, nullptr, nullptr);
 
     const std::string scannerConfig = R"sophos({"scanner": {
         "signatureBased": {
@@ -127,15 +105,13 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue) /
                 "webArchive": true,
                 "webEncoding": true,
                 "media": true,
-                "macintosh": true,
-                "discImage": true
+                "macintosh": true
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true,
-                "submitToAnalysis": false
+                "stopOnArchiveBombs": true
             }
         }
     }})sophos";

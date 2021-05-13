@@ -28,8 +28,10 @@ static std::string create_scanner_config(const std::string& scannerInfo)
 SusiScanner::SusiScanner(
     const ISusiWrapperFactorySharedPtr& susiWrapperFactory,
     bool scanArchives,
-    IThreatReporterSharedPtr threatReporter)
+    IThreatReporterSharedPtr threatReporter,
+    IScanNotificationSharedPtr shutdownTimer)
     : m_threatReporter(std::move(threatReporter))
+    , m_shutdownTimer(std::move(shutdownTimer))
 {
     std::string scannerInfo = create_scanner_info(scanArchives);
     std::string scannerConfig = create_scanner_config(scannerInfo);
@@ -101,6 +103,8 @@ SusiScanner::scan(
         int64_t scanType,
         const std::string& userID)
 {
+    m_shutdownTimer->reset();
+
     scan_messages::ScanResponse response;
 
     static const std::string metaDataJson = R"({

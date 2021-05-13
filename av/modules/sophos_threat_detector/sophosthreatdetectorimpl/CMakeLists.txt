@@ -15,6 +15,8 @@ add_library(sophosthreatdetectorimpl SHARED
         Reloader.h
         IMonitorable.h
         IReloadable.h
+        ShutdownTimer.cpp
+        ShutdownTimer.h
         SigUSR1Monitor.cpp
         SigUSR1Monitor.h
         ThreatReporter.cpp

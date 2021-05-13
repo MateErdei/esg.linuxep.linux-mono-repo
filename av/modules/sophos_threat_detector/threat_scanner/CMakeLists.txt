@@ -1,6 +1,7 @@
 add_library(threat_scanner SHARED
         Logger.h
         Logger.cpp
+        IScanNotification.h
         ISusiWrapper.h
         ISusiWrapperFactory.h
         IThreatReporter.h

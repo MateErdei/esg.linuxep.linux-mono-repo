@@ -119,6 +119,13 @@ namespace
             const std::string& userID,
             std::time_t detectionTimeStamp));
     };
+
+    class MockShutdownTimer : public threat_scanner::IScanNotification
+    {
+    public:
+        MOCK_METHOD0(reset, void());
+        MOCK_METHOD0(timeout, long());
+    };
 }
 
 TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
@@ -161,7 +168,7 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, nullptr);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, nullptr, nullptr);
 }
 
 TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
@@ -205,7 +212,7 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, true, nullptr);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, true, nullptr, nullptr);
 }
 
 TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
@@ -214,6 +221,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
 
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     auto susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
+    auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
@@ -223,8 +231,9 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
 
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(Return(susiResult));
     EXPECT_CALL(*susiWrapper, freeResult(scanResult));
+    EXPECT_CALL(*mock_timer, reset()).Times(1);
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, nullptr);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, nullptr, mock_timer);
     datatypes::AutoFd fd(100);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
     static_cast<void>(fd.release()); // not a real file descriptor
@@ -240,11 +249,13 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
     auto mock_reporter = std::make_shared<StrictMock<MockIThreatReporter>>();
+    auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
     EXPECT_CALL(*mock_reporter, sendThreatReport(_, _ ,_ ,_, _)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
+    EXPECT_CALL(*mock_timer, reset()).Times(1);
 
     SusiResult susiResult = SUSI_I_THREATPRESENT;
     SusiScanResult scanResult;
@@ -255,7 +266,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, mock_reporter);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, mock_reporter, mock_timer);
     datatypes::AutoFd fd(101);
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
     static_cast<void>(fd.release()); // Not a real file descriptor
@@ -300,7 +311,7 @@ TEST_P(ThreatScannerParameterizedTest, susiErrorToReadableError) // NOLINT
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, nullptr);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, nullptr, nullptr);
 
     EXPECT_EQ(susiScanner.susiErrorToReadableError("test.file", std::get<0>(GetParam())), std::get<1>(GetParam()));
 }
