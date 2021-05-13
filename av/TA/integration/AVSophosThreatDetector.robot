@@ -535,6 +535,40 @@ Threat Detector Log Cannot Be Written To With Different Permissions
     Run  chmod 600 ${THREAT_DETECTOR_LOG_PATH}
 
 
+
+SUSI Debug Log Cannot Be Written To With Different Permissions
+    Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
+    Mark Susi Debug Log
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    SUSI Debug Log Contains With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Run  chmod 444 ${SUSI_DEBUG_LOG_PATH}
+
+    ${AV_PID} =  Record AV Plugin PID
+    Log  Initial PID: ${AV_PID}
+    Stop AV Plugin
+    Start AV Plugin
+    ${AV_PID} =  Record AV Plugin PID
+    Log  Restarted PID: ${AV_PID}
+
+    Mark Susi Debug Log
+
+    ${result} =  Run Process  ls  -l  ${SUSI_DEBUG_LOG_PATH}
+    Log  New permissions: ${result.stdout}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    SUSI Debug Log Does Not Contain With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Run  chmod 600 ${SUSI_DEBUG_LOG_PATH}
+
+
 *** Keywords ***
 
 set sophos_threat_detector log level
