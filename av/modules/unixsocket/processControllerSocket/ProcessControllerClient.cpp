@@ -19,7 +19,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/socket.h>
 #include <sys/un.h>
 
-#define MAX_CONN_RETRIES 5
+#define MAX_CONN_RETRIES 10
 
 int unixsocket::ProcessControllerClientSocket::attemptConnect()
 {
