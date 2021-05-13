@@ -21,6 +21,7 @@ TA/output.xml
 TA/report.html
 TA/resources/FilledIn.xml
 TA/resources/TempSAVpolicy.xml
+TA/resources/tempSavPolicy.xml
 TA/resources/sophos_certs/local_certs/https/ca/
 TA/resources/sophos_certs/local_certs/https/newcerts/
 TA/resources/sophos_certs/local_certs/https/private/
