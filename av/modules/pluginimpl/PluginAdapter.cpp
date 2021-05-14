@@ -131,6 +131,10 @@ namespace Plugin
     {
         while (true)
         {
+            // Because we wait for policies before starting the main loop, we need to check for a restart immediately.
+            // Otherwise a pending update could wait until the first event is received.
+            processSUSIRestartRequest();
+
             Task task = m_queueTask->pop();
             switch (task.taskType)
             {
@@ -155,7 +159,6 @@ namespace Plugin
                     break;
             }
 
-            processSUSIRestartRequest();
         }
     }
 

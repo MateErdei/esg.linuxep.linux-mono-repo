@@ -34,7 +34,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::requestShutdownOfT
 {
     try
     {
-        LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");
+        LOGINFO("Restarting sophos_threat_detector as the system/susi configuration has changed");
         unixsocket::ProcessControllerClientSocket processController(m_processControllerSocket);
         scan_messages::ProcessControlSerialiser processControlRequest;
         processController.sendProcessControlRequest(processControlRequest);
@@ -47,7 +47,6 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::requestShutdownOfT
 
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 {
-    announceThreadStarted();
     LOGSUPPORT("Starting sophos_threat_detector monitor");
 
     struct timespec restartBackoff{};
@@ -61,6 +60,8 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     max_fd = FDUtils::addFD(&readfds, m_config_changed.readFd(), max_fd);
 
     m_config_monitor.start();
+
+    announceThreadStarted();
 
     while (true)
     {
@@ -100,5 +101,6 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::configuration_changed()
 {
+    LOGDEBUG("External notification of configuration changed");
     m_config_changed.notify();
 }
