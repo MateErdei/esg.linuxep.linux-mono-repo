@@ -88,6 +88,9 @@ Mark Sophos Threat Detector Log
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
     [Return]  ${count}
 
+Get Sophos Threat Detector Log Mark
+    [Return]  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
+
 Mark Susi Debug Log
     ${count} =  Count File Log Lines  ${SUSI_DEBUG_LOG_PATH}
     Set Test Variable   ${SUSI_DEBUG_LOG_MARK}  ${count}
@@ -594,17 +597,16 @@ Check IDE absent from installation
     file should not exist  ${INSTALL_IDE_DIR}/${ide_name}
 
 Run installer from install set and wait for reload trigger
+    [Arguments]  ${threat_detector_pid}  ${mark}
     Run installer from install set
-    Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1  timeout=60
-
-# Wait Until Sophos Threat Detector Log Contains One of
+    Wait Until Sophos Threat Detector Logs Or Restarts  ${threat_detector_pid}  ${mark}  Reload triggered by USR1  timeout=60
 
 Run IDE update with expected texts
     [Arguments]  ${timeout}  @{expected_update_texts}
     # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
-    Mark Sophos Threat Detector Log
+    ${mark} =  Mark Sophos Threat Detector Log
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
-    Run installer from install set and wait for reload trigger
+    Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${mark}
     Wait Until Sophos Threat Detector Log Contains One Of  ${timeout}  @{expected_update_texts}
     Threat Detector Log Should Not Contain With Offset    Current version matches that of the update source. Nothing to do.
     Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
@@ -614,7 +616,7 @@ Run IDE update with expected text
     # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
     ${mark} =  Mark Sophos Threat Detector Log
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
-    Run installer from install set and wait for reload trigger
+    Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${mark}
     Wait Until Sophos Threat Detector Logs Or Restarts  ${threat_detector_pid}  ${mark}  ${expected_update_text}  timeout=${timeout}
     # Wait Until Sophos Threat Detector Log Contains With Offset  ${expected_update_text}  timeout=${timeout}
     Threat Detector Log Should Not Contain With Offset    Current version matches that of the update source. Nothing to do.
