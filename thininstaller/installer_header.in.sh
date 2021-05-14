@@ -19,7 +19,6 @@ then
     echo -e "--force\t\t\t\tForce re-install"
     echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
     echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
-    echo -e "--products='<products>'\t\Comma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr"
     exit 0
 fi
 
@@ -52,13 +51,15 @@ EXITCODE_BAD_INSTALL_PATH=19
 EXITCODE_INSTALLED_BUT_NO_PATH=20
 EXIT_FAIL_WRONG_LIBC_VERSION=21
 EXIT_FAIL_COULD_NOT_FIND_LIBC_VERSION=22
-EXITCODE_BAD_PRODUCT_SELECTED=23
-EXITCODE_DUPLICATE_ARGUMENTS_GIVEN=24
+EXITCODE_UNEXPECTED_ARGUMENT=23
+EXITCODE_BAD_GROUP_NAME=24
+EXITCODE_GROUP_NAME_EXCEEDES_MAX_SIZE=25
 
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
 
-VALID_PRODUCTS=("antivirus" "mdr")
+# TODO: Determine a sensible group name size
+MAX_GROUP_NAME_SIZE=1000
 
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
 system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
@@ -262,13 +263,20 @@ function force_argument()
     echo "$args" | grep -q ".*--force"
 }
 
-function check_selected_products_are_valid()
+function check_for_duplicate_arguments()
 {
-    [ -z "$1" ] && failure ${EXITCODE_BAD_PRODUCT_SELECTED}
-    IFS=',' read -ra PRODUCTS_ARRAY <<< "$1"
-    for product in "${PRODUCTS_ARRAY[@]}"; do
-        [[ ! "${VALID_PRODUCTS[@]}" =~ "$product" ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED}
+    declare -a checked_arguments
+    for argument in "$@"; do
+        argument_name="${argument%=*}"
+        [[ "${checked_arguments[@]}" =~ "$argument_name" ]] && failure ${EXITCODE_DUPLICATE_ARGUMENTS_GIVEN}
+        checked_arguments+=("$argument_name")
     done
+}
+
+function validate_group_name()
+{
+    [ -z "$1" ] && failure ${EXITCODE_BAD_GROUP_NAME}
+    [[ ( ${#1} > MAX_GROUP_NAME_SIZE ) ]] && failure ${EXITCODE_GROUP_NAME_EXCEEDES_MAX_SIZE}
 }
 
 # Check that the OS is Linux
@@ -300,9 +308,9 @@ SWEEP=$(which sweep 2>/dev/null)
 [ -x "$SWEEP" ] && check_SAV_installed "$SWEEP"
 check_SAV_installed '/usr/local/bin/sweep'
 check_SAV_installed '/usr/bin/sweep'
-declare -a UNPROCESSED_ARGS
 declare -a INSTALL_OPTIONS_ARGS
 # Handle arguments
+check_for_duplicate_arguments "$@"
 for i in "$@"
 do
     case $i in
@@ -328,19 +336,17 @@ do
         --proxy-credentials=*)
             export PROXY_CREDENTIALS="${i#*=}"
         ;;
-        --products=*)
-            check_selected_products_are_valid "${i#*=}"
-            PRODUCT_ARGUMENTS="--products ${i}"
-            shift
-        ;;
         --allow-override-mcs-ca)
             ALLOW_OVERRIDE_MCS_CA=--allow-override-mcs-ca
             shift
         ;;
-        *)
-            # Save installer arguments that we don't directly use in the installer so we can write them to a file later
-            UNPROCESSED_ARGS+=("$i")
+        --group=*)
+            validate_group_name "${i#*=}"
+            INSTALL_OPTIONS_ARGS+=("$i")
             shift
+        ;;
+        *)
+            failure ${EXITCODE_UNEXPECTED_ARGUMENT}
         ;;
     esac
 done
@@ -427,12 +433,10 @@ fi
 INSTALL_OPTIONS_FILE="${SOPHOS_TEMP_DIRECTORY}/install_options"
 
 # File format expects the args to be either --option  or --option=value
-combined_options_file_args=("${INSTALL_OPTIONS_ARGS[@]}" "${UNPROCESSED_ARGS[@]}")
-for value in "${combined_options_file_args[@]}"
+for value in "${INSTALL_OPTIONS_ARGS[@]}"
 do
      echo $value >> ${INSTALL_OPTIONS_FILE}
 done
-
 # Read possible Update Caches from credentials file.
 UPDATE_CACHES=$(grep 'UPDATE_CACHES=' credentials.txt | sed 's/UPDATE_CACHES=//')
 if [ -n "$UPDATE_CACHES" ]
@@ -581,7 +585,7 @@ chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base i
 
 echo "Running base installer"
 echo "Product will be installed to: ${SOPHOS_INSTALL}"
-MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" CUSTOMER_TOKEN="$CUSTOMER_TOKEN" PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS" ./install.sh $ALLOW_OVERRIDE_MCS_CA
+MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" ./install.sh $ALLOW_OVERRIDE_MCS_CA
 inst_ret=$?
 if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
 then
