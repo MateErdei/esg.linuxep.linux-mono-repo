@@ -142,11 +142,11 @@ Wait Until File Log Contains One Of
     [Arguments]  ${logCheck}  ${timeout}  @{inputs}
     Wait Until Keyword Succeeds
     ...  ${timeout} secs
-    ...  1 secs
+    ...  3 secs
     ...  ${logCheck}  @{inputs}
 
 Wait Until File Log Contains
-    [Arguments]  ${logCheck}  ${input}  ${timeout}=15  ${interval}=1
+    [Arguments]  ${logCheck}  ${input}  ${timeout}=15  ${interval}=3
     Wait Until Keyword Succeeds
     ...  ${timeout} secs
     ...  ${interval} secs
