@@ -19,7 +19,7 @@ then
     echo -e "--force\t\t\t\tForce re-install"
     echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
     echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
-    echo -e "--products='<products>'\t\Comma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,intercept,mdr"
+    echo -e "--products='<products>'\t\Comma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr"
     exit 0
 fi
 
@@ -264,20 +264,10 @@ function force_argument()
 
 function check_selected_products_are_valid()
 {
-    [ -z "$1" ] && cleanup_and_exit ${EXITCODE_BAD_PRODUCT_SELECTED}
+    [ -z "$1" ] && failure ${EXITCODE_BAD_PRODUCT_SELECTED}
     IFS=',' read -ra PRODUCTS_ARRAY <<< "$1"
     for product in "${PRODUCTS_ARRAY[@]}"; do
         [[ ! "${VALID_PRODUCTS[@]}" =~ "$product" ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED}
-    done
-}
-
-function check_for_duplicate_arguments()
-{
-    declare -a checked_arguments
-    for argument in "$@"; do
-        argument_name="${argument%=*}"
-        [[ "${checked_arguments[@]}" =~ "$argument_name" ]] && failure ${EXITCODE_DUPLICATE_ARGUMENTS_GIVEN}
-        checked_arguments+=("$argument_name")
     done
 }
 
@@ -313,7 +303,6 @@ check_SAV_installed '/usr/bin/sweep'
 declare -a UNPROCESSED_ARGS
 declare -a INSTALL_OPTIONS_ARGS
 # Handle arguments
-check_for_duplicate_arguments "$@"
 for i in "$@"
 do
     case $i in
