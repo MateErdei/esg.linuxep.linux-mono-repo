@@ -19,6 +19,7 @@ then
     echo -e "--force\t\t\t\tForce re-install"
     echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
     echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
+    echo -e "--products='<products>'\t\Comma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,intercept,mdr"
     exit 0
 fi
 
