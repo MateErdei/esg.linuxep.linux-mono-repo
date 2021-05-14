@@ -19,6 +19,13 @@ class OnFail(object):
     def register_cleanup(self, keyword, *args):
         self.__m_cleanup_actions.append((keyword, args))
 
+    def register_cleanup_if_unique(self, keyword, *args):
+        for (k, a) in self.__m_cleanup_actions:
+            if k == keyword and a == args:
+                return False
+        self.__m_cleanup_actions.append((keyword, args))
+        return True
+
     def deregister_cleanup(self, keyword, *args):
         try:
             self.__m_cleanup_actions.remove((keyword, args))
