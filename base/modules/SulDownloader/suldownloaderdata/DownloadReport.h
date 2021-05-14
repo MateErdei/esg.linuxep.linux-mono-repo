@@ -25,7 +25,6 @@ namespace SulDownloader
             std::string rigidName;
             std::string downloadedVersion;
             std::string errorDescription;
-            std::string installedVersion;
             enum class ProductStatus : int
             {
                 UpToDate = 0,
@@ -117,6 +116,8 @@ namespace SulDownloader
 
             void setProcessedReport(bool isProcessed);
 
+            void combinePreviousReportIfRequired(const DownloadReport& previousReport);
+
             [[nodiscard]] bool isSupplementOnlyUpdate() const
             {
                 return m_supplementOnly;
@@ -131,8 +132,12 @@ namespace SulDownloader
 
         private:
             void setError(const WarehouseError& error);
+
             void setTimings(const TimeTracker&);
-            static std::string getInstalledVersion(const std::string& rigidName);
+
+            void setProducts(const std::vector<ProductReport>& products);
+
+            void setWarehouseComponents(const std::vector<ProductInfo>& warehouseComponents);
 
             WarehouseStatus m_status= WarehouseStatus::UNSPECIFIED;
             std::string m_description;
@@ -148,7 +153,6 @@ namespace SulDownloader
             bool m_processedReport = false;
             bool m_supplementOnly = false;
             bool m_baseDowngrade = false;
-
         };
     } // namespace suldownloaderdata
 } // namespace SulDownloader

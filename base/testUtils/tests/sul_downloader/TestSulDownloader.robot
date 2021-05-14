@@ -171,6 +171,34 @@ Unreachable warehouse server
     Check SulDownloader Log Should Not Contain
     ...    SSL connection errors
 
+Update Report Generated With Previous Product Details When Warehouse Server Is Unreachable
+    Create Directory    ${tmpdir}/sspl/base/update/cache/primarywarehouse
+    Create Directory    ${tmpdir}/sspl/base/update/cache/primary
+    ${update_config} =    Create JSON Config
+    Create File    ${tmpdir}/update_config.json    content=${update_config}
+    # The previous download report can be any valid report
+    ${previousDownloadReport} =  Create JSON Download Report  warehouse_status=INSTALLFAILED  product_status=INSTALLFAILED
+    Log   ${previousDownloadReport}
+    Create File   ${tmpdir}/update_report20210514 143208.json   content=${previousDownloadReport}
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/output
+
+    Check SulDownloader Result   ${result}   ${CONNECTIONERROR}
+    ...    Failed to connect to the warehouse
+
+    Check SulDownloader Log Contains
+    ...    Cannot locate server for
+
+    Check SulDownloader Log Should Not Contain
+    ...    SSL connection errors
+
+    # Check to make sure CONNECTION ERROR report contains product info from previous report.
+    # Note Before this was added there was no product information the main point of this check is to insure
+    # product destails are not being included, as they are copied from the previous report.
+    Log File   ${tmpdir}/output
+    ${reportResult} =   Get File  ${tmpdir}/output
+    Should Contain  ${reportResult}  products
+    Should Contain  ${reportResult}  rigidName
+    Should Contain  ${reportResult}  INSTALLFAILED
 
 Empty warehouse
     Create Directory    ${tmpdir}/sspl/base/update/cache/primarywarehouse

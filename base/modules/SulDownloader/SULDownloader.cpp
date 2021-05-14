@@ -58,10 +58,16 @@ namespace SulDownloader
 
     bool forceInstallOfProduct(const DownloadedProduct& product, const DownloadReport& previousDownloadReport)
     {
-        // If the previous install failed with unspecified or download failed we have no clear
+        // If the previous install failed with unspecified or download failedwe have no clear
         // information on the state of the distribution folder. Therefore safest approach is to force a reinstall.
+        // We also need to force re-install if the list of products and warehouse components are empty
+        // this means we are in a state which could result in reporting success, when an install failed previously
+        // due to loosing this information on connection failure.
         if (previousDownloadReport.getStatus() == WarehouseStatus::UNSPECIFIED ||
-            previousDownloadReport.getStatus() == WarehouseStatus::DOWNLOADFAILED)
+            previousDownloadReport.getStatus() == WarehouseStatus::DOWNLOADFAILED ||
+            (previousDownloadReport.getStatus() == WarehouseStatus::CONNECTIONERROR &&
+             previousDownloadReport.getProducts().empty() &&
+             previousDownloadReport.getWarehouseComponents().empty()))
         {
             LOGDEBUG("Force reinstall because previous report failed.");
             return true;
@@ -212,7 +218,14 @@ namespace SulDownloader
         {
             // Failed to download from SDDS
             warehouseRepository->dumpLogs();
-            return DownloadReport::Report(*warehouseRepository, timeTracker);
+            DownloadReport report = DownloadReport::Report(*warehouseRepository, timeTracker);
+            if(report.getProducts().empty() && report.getWarehouseComponents().empty())
+            {
+                // Populate report products arehouse components from previous report, so that any issues from previously update are
+                // carried over into the next update.
+                report.combinePreviousReportIfRequired(previousDownloadReport);
+            }
+            return report;
         }
 
         assert(success);

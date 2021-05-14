@@ -884,6 +884,65 @@ TEST_F( // NOLINT
 // runSULDownloader
 TEST_F( // NOLINT
     SULDownloaderTest,
+    runSULDownloader_WarehouseConnectionFailureShouldCreateValidConnectionFailureReportContainingPreviousReportDFata)
+{
+    setupFileSystemAndGetMock();
+    MockWarehouseRepository& mock = warehouseMocked();
+    SulDownloader::suldownloaderdata::WarehouseError wError;
+    wError.Description = "Error description";
+    wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR;
+    std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
+    DownloadedProductVector emptyProducts;
+    DownloadedProductVector products = defaultProducts();
+    ProductReportVector productReports = defaultProductReports();
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime(std::time_t(0));
+    timeTracker.setFinishedTime(std::time_t(0));
+
+    std::string previousReportAsString{
+        R"sophos({ "startTime": "20190604 144145", "finishTime": "20190604 144155",
+                "syncTime": "20190604 144155", "status": "SUCCESS", "sulError": "", "errorDescription": "",
+                "urlSource": "https://localhost:1233",
+                "products": [
+                { "rigidName": "ServerProtectionLinux-Base-component", "productName": "ServerProtectionLinux-Base-component-Product", "downloadVersion": "10.2.3", "errorDescription": "", "productStatus": "UPTODATE" },
+                { "rigidName": "ServerProtectionLinux-Plugin-EDR", "productName": "ServerProtectionLinux-Plugin-EDR-Product", "downloadVersion": "10.3.5", "errorDescription": "", "productStatus": "UPTODATE" } ] })sophos"
+    };
+    DownloadReport previousDownloadReport = DownloadReport::toReport(previousReportAsString);
+
+    EXPECT_CALL(mock, hasError()).WillOnce(Return(true)).WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, hasImmediateFailError()).WillRepeatedly(Return(true));
+    EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(false)); // failed tryConnect call
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
+    EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
+
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, dumpLogs());
+
+    SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
+
+    ConfigurationData configurationData = configData(defaultSettings());
+    ConfigurationData previousConfigurationData;
+    configurationData.verifySettingsAreValid();
+
+    DownloadReport actualDownloadReport = SulDownloader::runSULDownloader(
+        configurationData, previousConfigurationData, previousDownloadReport,
+        false);
+
+    ASSERT_FALSE(actualDownloadReport.isSupplementOnlyUpdate());
+
+    EXPECT_PRED_FORMAT2(
+        downloadReportSimilar,
+        expectedDownloadReport,
+        actualDownloadReport);
+}
+
+
+
+// runSULDownloader
+TEST_F( // NOLINT
+    SULDownloaderTest,
     runSULDownloader_supplement_only_WarehouseConnectionFailureShouldCreateValidConnectionFailureReport)
 {
     setupFileSystemAndGetMock();

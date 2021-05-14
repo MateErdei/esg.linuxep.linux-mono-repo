@@ -224,6 +224,36 @@ namespace SulDownloader
 
     const std::vector<ProductReport>& DownloadReport::getProducts() const { return m_productReport; }
 
+    void DownloadReport::combinePreviousReportIfRequired(const DownloadReport& previousReport)
+    {
+        setProducts(previousReport.getProducts());
+        setWarehouseComponents(previousReport.getWarehouseComponents());
+    }
+
+    void DownloadReport::setProducts(const std::vector<ProductReport>& products)
+    {
+        // only allow updating of products if the product list is empty.
+        if (m_productReport.empty())
+        {
+            for (auto& product : products)
+            {
+                m_productReport.push_back(product);
+            }
+        }
+    }
+
+    void DownloadReport::setWarehouseComponents(const std::vector<ProductInfo>& warehouseComponents)
+    {
+        // only allow updateing of warehouse components if the list is empty.
+        if (m_warehouseComponents.empty())
+        {
+            for (auto& warehouseComponent : warehouseComponents)
+            {
+                m_warehouseComponents.push_back(warehouseComponent);
+            }
+        }
+    }
+
     std::vector<ProductReport> DownloadReport::combineProductsAndSubscriptions(
         const std::vector<suldownloaderdata::DownloadedProduct>& products,
         const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsInfo,
