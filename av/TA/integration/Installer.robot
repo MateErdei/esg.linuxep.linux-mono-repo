@@ -187,7 +187,6 @@ IDE can be removed
     Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
 sophos_threat_detector can start after multiple IDE updates
-    Register On Fail  dump log   ${SUSI_DEBUG_LOG_PATH}
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     # force SUSI to be loaded - otherwise reloads won't happen
     Check avscanner can detect eicar
