@@ -11,8 +11,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SusiLogger.h"
 #include "ThrowIfNotOk.h"
 
-#include <iostream>
+#include <Common/Logging/LoggerConfig.h>
+
 #include <cassert>
+#include <iostream>
 #include <utility>
 
 using namespace threat_scanner;
@@ -37,7 +39,7 @@ static SusiCallbackTable my_susi_callbacks{ // NOLINT(cppcoreguidelines-avoid-no
         .IsAllowlistedCert = threat_scanner::isAllowlistedCert
 };
 
-static const SusiLogCallback GL_log_callback{
+static SusiLogCallback GL_log_callback{ // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
     .version = SUSI_LOG_CALLBACK_VERSION,
     .token = nullptr,
     .log = threat_scanner::susiLogCallback,
@@ -54,6 +56,16 @@ static const SusiLogCallback GL_fallback_log_callback{
 SusiGlobalHandler::SusiGlobalHandler()
 {
     my_susi_callbacks.token = this;
+    auto log_level = std::min(getThreatScannerLogger().getLogLevel(), getSusiDebugLogger().getLogLevel());
+
+    if (log_level >= Common::Logging::WARN)
+    {
+        GL_log_callback.minLogLevel = SUSI_LOG_LEVEL_WARNING;
+    }
+    else if (log_level >= Common::Logging::INFO)
+    {
+        GL_log_callback.minLogLevel = SUSI_LOG_LEVEL_INFO;
+    }
 
     auto res = SUSI_SetLogCallback(&GL_log_callback);
     throwIfNotOk(res, "Failed to set log callback");
@@ -67,6 +79,7 @@ SusiGlobalHandler::~SusiGlobalHandler()
         LOGSUPPORT("Exiting Global Susi result =" << std::hex << res << std::dec);
         assert(res == SUSI_S_OK);
     }
+
 
     auto res = SUSI_SetLogCallback(&GL_fallback_log_callback);
     static_cast<void>(res); // Ignore res for non-debug builds (since we can't throw an exception in destructors)
@@ -106,6 +119,7 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
     // First check atomic without lock
     if (m_susiInitialised.load(std::memory_order_acquire))
     {
+        LOGDEBUG("SUSI already initialised");
         return false;
     }
 
@@ -114,9 +128,11 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
     // Re-check in protected section
     if (m_susiInitialised.load(std::memory_order_acquire))
     {
+        LOGDEBUG("SUSI already initialised - inside lock");
         return false;
     }
 
+    LOGINFO("Initializing SUSI");
     auto res = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
     if (res != SUSI_S_OK)
     {
