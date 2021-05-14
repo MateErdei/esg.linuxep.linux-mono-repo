@@ -74,6 +74,12 @@ class SophosThreatDetector(object):
     def register_ide_for_uninstall(self, idename):
         self.__m_ides_for_uninstall.append(idename)
 
+    def deregister_ide_for_uninstall(self, idename):
+        try:
+            self.__m_ides_for_uninstall.remove(idename)
+        except ValueError:
+            logger.error("Attempted to remove IDE not on uninstall list")
+
     def cleanup_ides(self):
         """
     # We don't know how the cleanup was registered

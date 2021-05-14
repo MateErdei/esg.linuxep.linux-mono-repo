@@ -661,6 +661,7 @@ Uninstall IDE
     # We don't know how the cleanup was registered
     Deregister Optional Cleanup   Uninstall IDE  ${ide_name}  ${ide_update_func}
     Deregister Optional Cleanup   Uninstall IDE  ${ide_name}
+    SophosThreatDetector.deregister ide for uninstall  ${ide_name}
     Remove IDE From Install Set  ${ide_name}
     Run Keyword  ${ide_update_func}
     Check IDE Absent From Installation  ${ide_name}
