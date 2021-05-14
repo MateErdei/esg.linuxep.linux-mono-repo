@@ -310,20 +310,23 @@ class ThinInstallerUtils(object):
     def run_default_thininstaller(self,
                                   expected_return_code=0,
                                   mcsurl=None,
+                                  mcs_ca=None,
                                   override_location="https://localhost:1233",
                                   certs_dir=None,
                                   force_certs_dir=None,
                                   no_connection_address_override=False,
                                   proxy=None,
                                   installsh_path=None,
-                                  cleanup=True):
+                                  cleanup=True,
+                                  thininstaller_args=[]):
         if no_connection_address_override:
             override_location = None
         if not installsh_path:
             installsh_path = self.default_installsh_path
-        self.run_thininstaller([installsh_path],
+        self.run_thininstaller([installsh_path, *thininstaller_args],
                                expected_return_code,
                                mcsurl,
+                               mcs_ca,
                                force_certs_dir=force_certs_dir,
                                override_location=override_location,
                                certs_dir=certs_dir,

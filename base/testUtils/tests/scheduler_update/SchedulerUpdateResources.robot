@@ -167,9 +167,6 @@ Setup Warehouse For Base
     Copy Directory  ${dist}  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base
     Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = Sophos Server Protection Linux - Base Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
     log file  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini
-#    log to console  now
-#    log to console  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base
-#    sleep  400
 
     Add Component Warehouse Config   ServerProtectionLinux-Base   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ServerProtectionLinux-Base
     Generate Warehouse

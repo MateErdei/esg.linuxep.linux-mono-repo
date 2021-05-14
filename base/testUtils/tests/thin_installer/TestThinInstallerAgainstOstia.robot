@@ -21,7 +21,6 @@ Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Library     Process
-Library     DateTime
 Library     OperatingSystem
 Library     String
 Resource    ../mcs_router/McsRouterResources.robot
@@ -59,14 +58,12 @@ SetupServers
 
 Teardown
     Run Keyword If Test Failed  Dump Thininstaller Log
-    LogUtils.Dump Log  ${PROXY_LOG}
+    Log File  ${PROXY_LOG}
     General Test Teardown
     Stop Update Server
     Stop Proxy Servers
     Stop Proxy If Running
     Stop Local Cloud Server
-    Run Keyword If Test Failed   Dump Cloud Server Log
-    Cleanup Local Cloud Server Logs
     Teardown Reset Original Path
     Run Keyword If Test Failed    Dump Thininstaller Log
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
@@ -94,6 +91,15 @@ Check MCS Config Contains
     ${ret} =  Grep File  ${MCS_CONFIG_FILE}  ${pattern}
     Should Contain  ${ret}  ${pattern}  ${fail_message}
 
+Find IP Address With Distance
+    [Arguments]  ${dist}
+    ${result} =  Run Process  ip  addr
+    ${ipaddresses} =  Get Regexp Matches  ${result.stdout}  inet (10[^/]*)  1
+    ${head} =  Get Regexp Matches  ${ipaddresses[0]}  (10\.[^\.]*\.[^\.]*\.)[^\.]*  1
+    ${tail} =  Get Regexp Matches  ${ipaddresses[0]}  10\.[^\.]*\.[^\.]*\.([^\.]*)  1
+    ${tail_xored} =  Evaluate  ${tail[0]} ^ (2 ** ${dist})
+    [return]  ${head[0]}${tail_xored}
+
 Check All Sophos-spl Services Running
     Check Watchdog Running
     Check Management Agent Running
@@ -116,25 +122,25 @@ Check All Relevant Logs Contain Install Path
     Check Log Contains  ${Install_Path}  ${Install_Path}/sophos-spl/logs/base/sophosspl/mcsrouter.log  MCS Router
 
 *** Test Case ***
-Thin Installer Repairs Broken Existing Installation
-    # Install to default location and break it
-    Create Initial Installation
-    Should Exist  ${REGISTER_CENTRAL}
-    Remove File  ${REGISTER_CENTRAL}
-    Should Not Exist  ${REGISTER_CENTRAL}
-    
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}
-
-    Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
-    Check Thininstaller Log Does Not Contain  ERROR
-    Should Exist  ${REGISTER_CENTRAL}
-    remove_thininstaller_log
-    Check Root Directory Permissions Are Not Changed
-    ${mcsrouter_log} =  Mcs Router Log
-    #there is a race condition where the mcsrouter can restart when
-    #the thinstaller is overwriting the mcsrouter zip this causes an an expected critical exception
-    Remove File  ${mcsrouter_log}
-    Check Expected Base Processes Are Running
+#Thin Installer Repairs Broken Existing Installation
+#    # Install to default location and break it
+#    Create Initial Installation
+#    Should Exist  ${REGISTER_CENTRAL}
+#    Remove File  ${REGISTER_CENTRAL}
+#    Should Not Exist  ${REGISTER_CENTRAL}
+#
+#    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}
+#
+#    Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
+#    Check Thininstaller Log Does Not Contain  ERROR
+#    Should Exist  ${REGISTER_CENTRAL}
+#    remove_thininstaller_log
+#    Check Root Directory Permissions Are Not Changed
+#    ${mcsrouter_log} =  Mcs Router Log
+#    #there is a race condition where the mcsrouter can restart when
+#    #the thinstaller is overwriting the mcsrouter zip this causes an an expected critical exception
+#    Remove File  ${mcsrouter_log}
+#    Check Expected Base Processes Are Running
 
 Thin Installer Installs Base And Services Start
     Should Not Exist    ${SOPHOS_INSTALL}
@@ -172,30 +178,31 @@ Thin Installer Attempts Install And Register Through Message Relays
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
     Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
 
-    # Create Dummy Host
-    #there will be no proxy on port 10000
-    ${dist1} =  Set Variable  127.0.0.1
-
+    # Create Dummy Hosts with certain distances (assume IP address is on eng (starts with 10))
+    ${dist1} =  Find IP Address With Distance  1
+    ${dist3} =  Find IP Address With Distance  3
+    ${dist7} =  Find IP Address With Distance  7
     Copy File  /etc/hosts  /etc/hosts.bk
-    Append To File  /etc/hosts  ${dist1} dummyhost1
+    Append To File  /etc/hosts  ${dist1} dummyhost1\n${dist3} dummyhost3\n${dist7} dummyhost7\n
 
     Install Local SSL Server Cert To System
 
     # Add Message Relays to Thin Installer
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem  message_relays=dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
 
     # Check current proxy file is written with correct content and permissions.
     # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
     Check Current Proxy Is Created With Correct Content And Permissions  localhost:20000
 
     # Check the MCS Capabilities check is performed with the Message Relays in the right order
-    Check Thininstaller Log Contains    Message Relays: dummyhost1:10000,1,2;localhost:20000,2,4
+    Check Thininstaller Log Contains    Message Relays: dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
     # Thininstaller orders only by priority, localhost is only one with low priority
     Log File  /etc/hosts
     Check Thininstaller Log Contains In Order
-    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost1:10000)
+    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost3:10000)
+    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost1:20000)
+    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost7:9999)
     ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via localhost:20000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: localhost:20000\nDEBUG: Successfully got [No error] from Sophos Central
-
 
     Should Exist    ${SOPHOS_INSTALL}
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
@@ -203,16 +210,19 @@ Thin Installer Attempts Install And Register Through Message Relays
     Check MCS Router Running
 
     # Check the message relays made their way through to the registration command in the full installer
+    # Message relays ordered by distance and priority
     Check Register Central Log Contains In Order
-    ...  Trying connection via message relay dummyhost1:10000
+    ...  Trying connection via message relay dummyhost1:20000
+    ...  Trying connection via message relay dummyhost3:10000
+    ...  Trying connection via message relay dummyhost7:9999
     ...  Successfully connected to localhost:4443 via localhost:20000
 
     # Check the message relays made their way through to the MCS Router
     File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
     Wait Until Keyword Succeeds
-    ...  65 secs
-    ...  5 secs
-    ...  Check MCS Router Log Contains  Successfully connected to localhost:4443 via localhost:20000
+        ...  65 secs
+        ...  5 secs
+        ...  Check MCS Router Log Contains  Successfully connected to localhost:4443 via localhost:20000
 
     # Also to prove MCS is working correctly check that we get an ALC policy
     Wait Until Keyword Succeeds
@@ -300,72 +310,25 @@ Thin Installer Parses Update Caches Correctly
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
-Thin Installer Force Works
-    # Install to default location and break it
-    Create Initial Installation
 
-    # Remove install directory
-    Should Exist  ${REGISTER_CENTRAL}
-    Unmount All Comms Component Folders
-    Remove Directory  /opt/sophos-spl  recursive=True
-    Should Not Exist  ${REGISTER_CENTRAL}
-
-    ${time} =  Get Current Date  exclude_millis=true
-    ${message} =  Set Variable  Reloading.
-
-    # Force an installation
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  args=--force
-
-    Check Thininstaller Log Does Not Contain  ERROR
-    Should Exist  ${REGISTER_CENTRAL}
-
-    Should Have A Given Message In Journalctl Since Certain Time  ${message}  ${time}
-    Should Have Set KillMode To Mixed
-
-    remove_thininstaller_log
-    Check Root Directory Permissions Are Not Changed
-
-Thin Installer Registers Existing Installation
-    [Tags]  THIN_INSTALLER  MCS_ROUTER
-    Create Initial Installation
-
-    # Force an installation
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}
-
-    Check Thininstaller Log Does Not Contain  ERROR
-    Check Cloud Server Log Contains  Register with ::ThisIsARegToken\n
-    Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegTokenFromTheDeploymentAPI
-
-    remove_thininstaller_log
-
-Thin Installer Does Not Pass Customer Token Argument To Register Central When No Product Selection Arguments Given
-    [Tags]  THIN_INSTALLER  MCS_ROUTER
-    Create Initial Installation
-    ${registerCentralArgFilePath} =  replace_register_central_with_script_that_echos_args
-
-    # Force an installation
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}
-
-    Check Thininstaller Log Does Not Contain  ERROR
-    ${registerCentralArgs} =  Get File  ${registerCentralArgFilePath}
-    # Register central arguments should not contain --customer-token by default, as older installations may not
-    # Be able to process the argument
-    Should Be Equal As Strings  '${registerCentralArgs.strip()}'   'ThisIsARegToken https://localhost:4443/mcs'
-
-    remove_thininstaller_log
-
-Thin Installer Registers Existing Installation With Product Args
-    [Tags]  THIN_INSTALLER  MCS_ROUTER
-    Create Initial Installation
-
-    # Force an installation
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  args=--products=mdr
-
-    Check Thininstaller Log Does Not Contain  ERROR
-    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
-    Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegToken\n
-
-    remove_thininstaller_log
+#Thin Installer Force Works
+#    # Install to default location and break it
+#    Create Initial Installation
+#
+#    # Remove install directory
+#    Should Exist  ${REGISTER_CENTRAL}
+#    Unmount All Comms Component Folders
+#    Remove Directory  /opt/sophos-spl  recursive=True
+#    Should Not Exist  ${REGISTER_CENTRAL}
+#
+#    # Force an installation
+#    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  args=--force
+#
+#    Check Thininstaller Log Does Not Contain  ERROR
+#    Should Exist  ${REGISTER_CENTRAL}
+#
+#    remove_thininstaller_log
+#    Check Root Directory Permissions Are Not Changed
 
 Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
     [Documentation]  Created for LINUXDAR-2249
@@ -379,14 +342,3 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
 
     Check Thininstaller Log Does Not Contain  ERROR: Installer returned 16
     Check Thininstaller Log Does Not Contain  Failed to create machine id. Error: Calling getGroupId on sophos-spl-group caused this error : Unknown group name
-
-Thin Installer Installs Product Successfully With Product Arguments
-    Should Not Exist    ${SOPHOS_INSTALL}
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem  args=--products=mdr
-
-    Check MCS Router Running
-    Check Correct MCS Password And ID For Local Cloud Saved
-    Check Cloud Server Log Contains  products requested from deployment API: ['mdr']
-    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
-

@@ -16,6 +16,7 @@ Library     OperatingSystem
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
+Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ThinInstallerResources.robot
 
 Default Tags  THIN_INSTALLER
@@ -38,6 +39,9 @@ Setup Thininstaller Test
     Build Default Creds Thininstaller From Sections
 
 
+Teardown With Temporary Directory Clean
+    Teardown
+    Remove Directory   ${tmpdir}  recursive=True
 
 Teardown
     General Test Teardown
@@ -127,6 +131,9 @@ Run Thin Installer And Check Argument Is Saved To Install Options File
 *** Variables ***
 ${CUSTOM_DIR_BASE} =  /CustomPath
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
+@{FORCE_ARGUMENT} =  --force
+${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
+
 
 *** Test Case ***
 Thin Installer can download test file from warehouse and execute it
@@ -311,6 +318,64 @@ Thin Installer Fails When No Path In Systemd File
 
     Check Thininstaller Log Contains  An existing installation of Sophos Linux Protection was found but could not find the installed path.
     Check Thininstaller Log Does Not Contain  ERROR
+    Check Root Directory Permissions Are Not Changed
+
+Thin Installer Repairs Broken Existing Installation
+    [Teardown]  Teardown With Temporary Directory Clean
+    Setup For Test With Warehouse Containing Base
+    # Install to default location and break it
+#    Create Initial Installation
+    Should Exist  ${REGISTER_CENTRAL}
+    Remove File  ${REGISTER_CENTRAL}
+    Should Not Exist  ${REGISTER_CENTRAL}
+
+    Run Default Thininstaller  expected_return_code=0  mcsurl=https://localhost:1233  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
+    Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
+    Check Thininstaller Log Does Not Contain  ERROR
+    Should Exist  ${REGISTER_CENTRAL}
+    Remove Thininstaller Log
+    Check Root Directory Permissions Are Not Changed
+    ${mcsrouter_log} =  Mcs Router Log
+    #there is a race condition where the mcsrouter can restart when
+    #the thinstaller is overwriting the mcsrouter zip this causes an an expected critical exception
+    Remove File  ${mcsrouter_log}
+    Check Expected Base Processes Are Running
+
+Thin Installer Force Works
+    [Teardown]  Teardown With Temporary Directory Clean
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseVUTPolicy}
+
+    # Setup warehouse and install Base
+    Setup For Test With Warehouse Containing Base
+    # Install to default location and break it
+#    Create Initial Installation
+
+    # Remove install directory
+    Should Exist  ${REGISTER_CENTRAL}
+    Unmount All Comms Component Folders
+    Remove Directory  /opt/sophos-spl  recursive=True
+    Should Not Exist  ${REGISTER_CENTRAL}
+
+
+
+#    Run Default Thininstaller    3    https://localhost:4443
+
+
+#    # Run thininstaller without force
+#    Run Default Thininstaller  expected_return_code=20  mcsurl=https://localhost:1233  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+#    Check Thininstaller Log Contains  An existing installation of Sophos Linux Protection was found but could not find the installed path.
+#    Check Thininstaller Log Contains  You could try 'SophosSetup.sh --force' to force the install
+#    Remove Thininstaller Log
+
+    # Force an installation
+    # We expect it to return 18 as it does not register correctly and we only test the installation with --force
+#    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0  mcsurl=https://localhost:4443  override_location=https://localhost:1233  mcs_ca=${SUPPORT_FILES}/sophos_certs/root-ca.crt.pem  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0  mcsurl=https://localhost:4443  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Should Exist  ${REGISTER_CENTRAL}
+    Check Thininstaller Log Contains  Installation complete, performing post install steps
+    Remove Thininstaller Log
     Check Root Directory Permissions Are Not Changed
 
 Thin Installer Help Prints Correct Output
