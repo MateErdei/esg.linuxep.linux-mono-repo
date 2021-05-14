@@ -52,9 +52,13 @@ EXITCODE_BAD_INSTALL_PATH=19
 EXITCODE_INSTALLED_BUT_NO_PATH=20
 EXIT_FAIL_WRONG_LIBC_VERSION=21
 EXIT_FAIL_COULD_NOT_FIND_LIBC_VERSION=22
+EXITCODE_BAD_PRODUCT_SELECTED=23
+EXITCODE_DUPLICATE_ARGUMENTS_GIVEN=24
 
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
+
+VALID_PRODUCTS=("antivirus" "mdr")
 
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
 system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
@@ -258,6 +262,25 @@ function force_argument()
     echo "$args" | grep -q ".*--force"
 }
 
+function check_selected_products_are_valid()
+{
+    [ -z "$1" ] && cleanup_and_exit ${EXITCODE_BAD_PRODUCT_SELECTED}
+    IFS=',' read -ra PRODUCTS_ARRAY <<< "$1"
+    for product in "${PRODUCTS_ARRAY[@]}"; do
+        [[ ! "${VALID_PRODUCTS[@]}" =~ "$product" ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED}
+    done
+}
+
+function check_for_duplicate_arguments()
+{
+    declare -a checked_arguments
+    for argument in "$@"; do
+        argument_name="${argument%=*}"
+        [[ "${checked_arguments[@]}" =~ "$argument_name" ]] && failure ${EXITCODE_DUPLICATE_ARGUMENTS_GIVEN}
+        checked_arguments+=("$argument_name")
+    done
+}
+
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
 if [ $? -eq 1 ] ; then
@@ -288,7 +311,9 @@ SWEEP=$(which sweep 2>/dev/null)
 check_SAV_installed '/usr/local/bin/sweep'
 check_SAV_installed '/usr/bin/sweep'
 declare -a UNPROCESSED_ARGS
+declare -a INSTALL_OPTIONS_ARGS
 # Handle arguments
+check_for_duplicate_arguments "$@"
 for i in "$@"
 do
     case $i in
@@ -313,6 +338,11 @@ do
         ;;
         --proxy-credentials=*)
             export PROXY_CREDENTIALS="${i#*=}"
+        ;;
+        --products=*)
+            check_selected_products_are_valid "${i#*=}"
+            INSTALL_OPTIONS_ARGS+=("$i")
+            shift
         ;;
         --allow-override-mcs-ca)
             ALLOW_OVERRIDE_MCS_CA=--allow-override-mcs-ca
@@ -408,10 +438,12 @@ fi
 INSTALL_OPTIONS_FILE="${SOPHOS_TEMP_DIRECTORY}/install_options"
 
 # File format expects the args to be either --option  or --option=value
-for value in "${UNPROCESSED_ARGS[@]}"
+combined_options_file_args=("${INSTALL_OPTIONS_ARGS[@]}" "${UNPROCESSED_ARGS[@]}")
+for value in "${combined_options_file_args[@]}"
 do
      echo $value >> ${INSTALL_OPTIONS_FILE}
 done
+
 # Read possible Update Caches from credentials file.
 UPDATE_CACHES=$(grep 'UPDATE_CACHES=' credentials.txt | sed 's/UPDATE_CACHES=//')
 if [ -n "$UPDATE_CACHES" ]
