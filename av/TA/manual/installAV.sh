@@ -49,6 +49,9 @@ fi
 chmod 700 "${SDDS_BASE}/install.sh"
 bash "${SDDS_BASE}/install.sh" || failure 5 "Unable to install base SSPL: $?"
 
+mv /opt/sophos-spl/base/bin/SulDownloader.0 /opt/sophos-spl/base/bin/SulDownloader.bk
+mv /opt/sophos-spl/base/bin/UpdateScheduler.0 /opt/sophos-spl/base/bin/UpdateScheduler.bk
+
 ## Install AV
 chmod 700 "${SDDS_AV}/install.sh"
 bash "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
