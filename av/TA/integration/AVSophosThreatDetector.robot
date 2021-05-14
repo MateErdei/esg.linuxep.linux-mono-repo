@@ -115,6 +115,38 @@ Threat Detector restarts if no scans requested within the configured timeout
     Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
 
+Threat Detector prolongs timeout if a scan is requested within the configured timeout
+    Stop sophos_threat_detector
+    Create File  ${AV_PLUGIN_PATH}/chroot/etc/threat_detector_config  {"shutdownTimeout":15}
+    Mark Sophos Threat Detector Log
+    Start sophos_threat_detector
+    Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
+    Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
+
+    Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    ${timeout1} =  Get Shutdown Timeout From Threat Detector Log
+
+    Mark Sophos Threat Detector Log
+    Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested less than ${timeout1} seconds ago - continuing
+    Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
+
+    ${timeout2} =  Get Shutdown Timeout From Threat Detector Log
+
+    Wait Until Sophos Threat Detector Log Contains With Offset  No scans requested for ${timeout2} seconds - shutting down.  timeout=20
+    Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
+    Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+    Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+    Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
+
+
 SUSI Is Given Empty EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin

@@ -18,7 +18,6 @@ using namespace sspl::sophosthreatdetectorimpl;
 ShutdownTimer::ShutdownTimer(fs::path configFile)
 : m_configFile(configFile)
 {
-    // TODO: remove this once LINUXDAR-2998 is implemented
     reset();
 }
 
