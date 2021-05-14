@@ -96,6 +96,25 @@ Threat Detector Restarts When /etc/hosts changed
     Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
 
+Threat Detector restarts if no scans requested within the configured timeout
+    Stop sophos_threat_detector
+    Create File  ${AV_PLUGIN_PATH}/chroot/etc/threat_detector_config  {"shutdownTimeout":15}
+    Mark Sophos Threat Detector Log
+    Start sophos_threat_detector
+    Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
+    Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
+
+    ${timeout} =  Get Shutdown Timeout From Threat Detector Log
+
+    Mark Sophos Threat Detector Log
+    Wait Until Sophos Threat Detector Log Contains With Offset  No scans requested for ${timeout} seconds - shutting down.  timeout=20
+    Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
+    Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+    Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+
 SUSI Is Given Empty EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
@@ -484,3 +503,11 @@ Alter Hosts
 
 Restore hosts
     restore etc hosts
+
+Get Shutdown Timeout From Threat Detector Log
+    ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
+    ${contents} =  Get File Contents From Offset  ${THREAT_DETECTOR_LOG_PATH}  ${offset}
+    ${lines} =  Get Lines Containing String  ${contents}  Setting shutdown timeout to
+    ${split_line} =  Split String From Right  ${lines}
+    ${timeout} =  Strip String  ${split_line}[${10}]
+    [return]  ${timeout}

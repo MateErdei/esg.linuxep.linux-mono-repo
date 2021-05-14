@@ -26,7 +26,7 @@ namespace sspl::sophosthreatdetectorimpl
         time_t getDefaultTimeout();
         time_t getCurrentEpoch();
 
-        std::atomic<time_t> m_scanStartTime;
+        std::atomic<time_t> m_startTime;
         fs::path m_configFile;
     };
 }

@@ -9,6 +9,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <thirdparty/nlohmann-json/json.hpp>
+#include <algorithm>
 #include <fstream>
 
 using json = nlohmann::json;
@@ -17,20 +18,21 @@ using namespace sspl::sophosthreatdetectorimpl;
 ShutdownTimer::ShutdownTimer(fs::path configFile)
 : m_configFile(configFile)
 {
+    // TODO: remove this once LINUXDAR-2998 is implemented
     reset();
 }
 
 void ShutdownTimer::reset()
 {
-    m_scanStartTime = getCurrentEpoch();
-    LOGDEBUG("Reset timer to: " << m_scanStartTime);
+    m_startTime = getCurrentEpoch();
+    LOGDEBUG("Reset timer to: " << m_startTime);
 }
 
 time_t ShutdownTimer::timeout()
 {
-    time_t shutdownTime = m_scanStartTime + getDefaultTimeout();
+    time_t shutdownTime = m_startTime + getDefaultTimeout();
     LOGDEBUG("Shutdown due at: " << shutdownTime);
-    return shutdownTime - getCurrentEpoch();
+    return std::max(0L, shutdownTime - getCurrentEpoch());
 }
 
 time_t ShutdownTimer::getDefaultTimeout()
