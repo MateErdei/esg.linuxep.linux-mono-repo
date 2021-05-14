@@ -89,6 +89,9 @@ class SophosThreatDetector(object):
     Run Keyword  ${ide_update_func}
     Check IDE Absent From Installation  ${ide_name}
     """
+        if len(self.__m_ides_for_uninstall) == 0:
+            return
+
         builtin = BuiltIn()
         for idename in self.__m_ides_for_uninstall:
             builtin.run_keyword("Remove IDE From Install Set", idename)
