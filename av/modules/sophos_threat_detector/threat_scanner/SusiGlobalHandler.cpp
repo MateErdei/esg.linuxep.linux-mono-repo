@@ -61,7 +61,7 @@ SusiGlobalHandler::SusiGlobalHandler()
 
 SusiGlobalHandler::~SusiGlobalHandler()
 {
-    if (m_susiInitialised)
+    if (m_susiInitialised.load(std::memory_order_acquire))
     {
         auto res = SUSI_Terminate();
         LOGSUPPORT("Exiting Global Susi result =" << std::hex << res << std::dec);
@@ -75,10 +75,10 @@ SusiGlobalHandler::~SusiGlobalHandler()
 
 bool SusiGlobalHandler::update(const std::string& path)
 {
-    if (!m_susiInitialised)
+    if (!m_susiInitialised.load(std::memory_order_acquire))
     {
-        m_updatePending = true;
         m_updatePath = path;
+        m_updatePending.store(true, std::memory_order_release);
         LOGDEBUG("Threat scanner update is pending");
         return true;
     }
@@ -97,16 +97,26 @@ bool SusiGlobalHandler::update(const std::string& path)
         ost << "Failed to update SUSI: 0x" << std::hex << res << std::dec;
         LOGERROR(ost.str());
     }
-    m_updatePending = false;
+    m_updatePending.store(false, std::memory_order_release);
     return res == SUSI_S_OK || res == SUSI_I_UPTODATE;
 }
 
 bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
 {
-    if (m_susiInitialised)
+    // First check atomic without lock
+    if (m_susiInitialised.load(std::memory_order_acquire))
     {
         return false;
     }
+
+    std::lock_guard initLock(m_initializeMutex);
+
+    // Re-check in protected section
+    if (m_susiInitialised.load(std::memory_order_acquire))
+    {
+        return false;
+    }
+
     auto res = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
     if (res != SUSI_S_OK)
     {
@@ -120,8 +130,8 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
     else
     {
         LOGSUPPORT("Initialising Global Susi successful");
-        m_susiInitialised = true;
-        if (m_updatePending)
+        m_susiInitialised.store(true, std::memory_order_release); // susi init is now saved
+        if (m_updatePending.load(std::memory_order_acquire))
         {
             LOGDEBUG("Threat scanner triggering pending update");
             update(m_updatePath);

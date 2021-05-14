@@ -6,8 +6,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include <atomic>
 #include <string>
 #include <memory>
+#include <mutex>
 
 namespace threat_scanner
 {
@@ -48,9 +50,10 @@ namespace threat_scanner
         bool susiIsInitialized();
 
     private:
-        bool m_susiInitialised = false;
-        bool m_updatePending = false;
+        std::atomic_bool m_susiInitialised = false;
+        std::atomic_bool m_updatePending = false;
         std::string m_updatePath;
+        std::mutex m_initializeMutex;
     };
     using SusiGlobalHandlerSharePtr = std::shared_ptr<SusiGlobalHandler>;
 }
