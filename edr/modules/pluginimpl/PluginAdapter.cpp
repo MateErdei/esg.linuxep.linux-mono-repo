@@ -217,20 +217,14 @@ namespace Plugin
                     m_restartNoDelay = true;
                 }
 
-                time_t currentTime = Common::UtilityImpl::TimeUtils::getCurrTime();
-                try
+                time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
+                if (hasScheduleEpochEnded(now))
                 {
-                    if (hasScheduleEpochEnded(currentTime))
-                    {
-                        LOGINFO("Previous schedule_epoch: " << m_scheduleEpoch.getValue() << ", has ended. Starting new schedule_epoch: " << currentTime);
-                        rolloverScheduleEpochAndRestartOsquery(currentTime);
-                    }
-                }
-                catch (EpochTimeInFuture& e)
-                {
-                    LOGWARN(e.what());
-                    LOGINFO("Resetting schedule_epoch to current time: " << currentTime);
-                    rolloverScheduleEpochAndRestartOsquery(currentTime);
+                    LOGINFO("Previous schedule_epoch: " << m_scheduleEpoch.getValue() << ", has ended. Starting new schedule_epoch: " << now);
+                    m_scheduleEpoch.setValueAndForceStore(now);
+                    // osquery will automatically be restarted but set this to make sure there is no delay.
+                    m_restartNoDelay = true;
+                    stopOsquery();
                 }
             }
 
@@ -832,22 +826,12 @@ namespace Plugin
     bool PluginAdapter::hasScheduleEpochEnded(time_t now)
     {
         time_t scheduleEpochValue = m_scheduleEpoch.getValue();
-
-        if (scheduleEpochValue > now)
+        if(scheduleEpochValue > now + ONE_DAY_IN_SECONDS)
         {
-            std::stringstream errorMsg;
-            errorMsg << "Schedule Epoch time: " << scheduleEpochValue << " should never be in the future";
-            throw EpochTimeInFuture(errorMsg.str());
+            LOGINFO( "Schedule Epoch time: " << scheduleEpochValue << " is in the future, resetting to current time.");
+            return true;
         }
         return (now - SCHEDULE_EPOCH_DURATION) > scheduleEpochValue;
-    }
-
-    void PluginAdapter::rolloverScheduleEpochAndRestartOsquery(time_t now)
-    {
-        m_scheduleEpoch.setValueAndForceStore(now);
-        // osquery will automatically be restarted but set this to make sure there is no delay.
-        m_restartNoDelay = true;
-        stopOsquery();
     }
 
 } // namespace Plugin

@@ -111,8 +111,8 @@ namespace Plugin
         std::shared_ptr<LoggerExtension> m_loggerExtensionPtr;
 
         Common::PersistentValue<time_t> m_scheduleEpoch;
-        // 6 Days in seconds
-        const time_t SCHEDULE_EPOCH_DURATION = 518400;
+        const time_t ONE_DAY_IN_SECONDS = 86400;
+        const time_t SCHEDULE_EPOCH_DURATION = ONE_DAY_IN_SECONDS * 6;
         static bool isQueryPackEnabled(Path queryPackPathWhenEnabled);
 
     private:
@@ -143,7 +143,6 @@ namespace Plugin
         static bool pluginMemoryAboveThreshold();
         void dataFeedExceededCallback();
         void telemetryResetCallback(Common::Telemetry::TelemetryHelper&);
-        void rolloverScheduleEpochAndRestartOsquery(time_t now);
 
 
         std::future<void> m_monitor;

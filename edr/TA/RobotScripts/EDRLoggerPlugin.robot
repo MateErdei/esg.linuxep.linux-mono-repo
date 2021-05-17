@@ -293,6 +293,7 @@ EDR Plugin Rolls ScheduleEpoch Over When The Previous One Has Elapsed
     ...  5 secs
     ...  1 secs
     ...  EDR Plugin Log Contains   Previous schedule_epoch: ${oldScheduleEpochTimestamp}, has ended.
+
     ${scheduleEpoch} =  ScheduleEpoch Should Be Recent
     Should Not Be Equal As Strings  ${scheduleEpoch}  ${oldScheduleEpochTimestamp}
     EDR Plugin Log Contains   Starting new schedule_epoch: ${scheduleEpoch}
@@ -346,8 +347,8 @@ EDR Plugin Recovers When ScheduleEpoch Is In The Future
     ...  5 secs
     ...  1 secs
     ...  Run Keywords
-    ...  EDR Plugin Log Contains   Schedule Epoch time: ${oldScheduleEpochTimestamp} should never be in the future  AND
-    ...  EDR Plugin Log Contains   Resetting schedule_epoch to current time:
+    ...  EDR Plugin Log Contains   Schedule Epoch time: ${oldScheduleEpochTimestamp} is in the future, resetting to current time  AND
+    ...  EDR Plugin Log Contains   Previous schedule_epoch: ${oldScheduleEpochTimestamp}, has ended. Starting new schedule_epoch:
 
     ${scheduleEpoch} =  ScheduleEpoch Should Be Recent
     Should Not Be Equal As Strings  ${scheduleEpoch}  ${oldScheduleEpochTimestamp}
