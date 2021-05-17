@@ -58,8 +58,7 @@ EXITCODE_GROUP_NAME_EXCEEDES_MAX_SIZE=25
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
 
-# TODO: Determine a sensible group name size
-MAX_GROUP_NAME_SIZE=1000
+MAX_GROUP_NAME_SIZE=1024
 
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
 system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
@@ -277,10 +276,10 @@ function validate_group_name()
 {
     [ -z "$1" ] && failure ${EXITCODE_BAD_GROUP_NAME}
     [[ ( ${#1} > ${MAX_GROUP_NAME_SIZE} ) ]] && failure ${EXITCODE_GROUP_NAME_EXCEEDES_MAX_SIZE} "Group name exceeds max size of: ${MAX_GROUP_NAME_SIZE}"
-    is_string_valid_xml $1 || failure ${EXITCODE_BAD_GROUP_NAME} "Group name contains one of the following invalid characters: <, &, >, ', \""
+    is_string_valid_for_xml $1 || failure ${EXITCODE_BAD_GROUP_NAME} "Group name contains one of the following invalid characters: <, &, >, ', \""
 }
 
-function is_string_valid_xml()
+function is_string_valid_for_xml()
 {
     [[ $1 =~ .*[\>\<\&\'\"].* ]] && return 0
     return 1
