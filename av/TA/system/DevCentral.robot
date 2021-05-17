@@ -179,10 +179,7 @@ SAV and ALC Policy Arrives And Is Handled Correctly
 
     Wait for ALC policy on endpoint
     Wait for SAV policy on endpoint
-    wait until file exists  ${av_plugin_path}/var/customer_id.txt
 
-    ${rc}   ${output} =    Run And Return Rc And Output  ls -l ${av_plugin_path}/var/
-    Log to console  ${output}
     Stop AV Plugin
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
@@ -196,8 +193,5 @@ SAV and ALC Policy Arrives And Is Handled Correctly
     Wait Until AV Plugin Log Contains  Processing SAV Policy
     Wait Until AV Plugin Log Contains  Received policy from management agent for AppId: ALC
     Wait until scheduled scan updated
-    ${rc}   ${output} =    Run And Return Rc And Output  ls -l ${av_plugin_path}/var/
-    Log to console  ${output}
-    ${rc}   ${output} =    Run And Return Rc And Output  cat ${av_plugin_path}/var/customer_id.txt
-    Log to console  ${output}
-    Threat Detector Does Not Log Contain  Failed to read customerID - using default value
+    Wait Until AV Plugin Log Contains   Restarting sophos_threat_detector as the system configuration has changed
+    Log Contains N times  ${THREAT_DETECTOR_LOG_PATH}  Failed to read customerID - using default value  ${1}

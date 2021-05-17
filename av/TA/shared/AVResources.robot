@@ -192,6 +192,11 @@ Wait Until Sophos Threat Detector Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  Sophos Threat Detector Log Contains With Offset  ${input}   timeout=${timeout}
 
+Log Contains N times
+    [Arguments]  ${log_file}  ${line_to_count} ${times_expected}
+    ${times} =  Count Lines In Log  ${log_file}  ${line_to_count}
+    Should Be Equal As Integers  ${times_expected}  ${times}
+
 Count Lines In Log
     [Arguments]  ${log_file}  ${line_to_count}
     ${contents} =  Get File  ${log_file}
