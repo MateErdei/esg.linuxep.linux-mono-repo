@@ -54,6 +54,7 @@ EXIT_FAIL_COULD_NOT_FIND_LIBC_VERSION=22
 EXITCODE_UNEXPECTED_ARGUMENT=23
 EXITCODE_BAD_GROUP_NAME=24
 EXITCODE_GROUP_NAME_EXCEEDES_MAX_SIZE=25
+EXITCODE_DUPLICATE_ARGUMENTS_GIVEN=26
 
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
@@ -267,16 +268,16 @@ function check_for_duplicate_arguments()
     declare -a checked_arguments
     for argument in "$@"; do
         argument_name="${argument%=*}"
-        [[ "${checked_arguments[@]}" =~ "$argument_name" ]] && failure ${EXITCODE_DUPLICATE_ARGUMENTS_GIVEN}
+        [[ "${checked_arguments[@]}" =~ "$argument_name" ]] && failure ${EXITCODE_DUPLICATE_ARGUMENTS_GIVEN} "Error: Duplicate argument given: $argument_name --- aborting install"
         checked_arguments+=("$argument_name")
     done
 }
 
 function validate_group_name()
 {
-    [ -z "$1" ] && failure ${EXITCODE_BAD_GROUP_NAME}
-    [[ ( ${#1} > ${MAX_GROUP_NAME_SIZE} ) ]] && failure ${EXITCODE_GROUP_NAME_EXCEEDES_MAX_SIZE} "Group name exceeds max size of: ${MAX_GROUP_NAME_SIZE}"
-    is_string_valid_for_xml $1 || failure ${EXITCODE_BAD_GROUP_NAME} "Group name contains one of the following invalid characters: <, &, >, ', \""
+    [ -z "$1" ] && failure ${EXITCODE_BAD_GROUP_NAME} "Error: Group name not passed with '--group=' argument --- aborting install"
+    [[ ${#1} -gt ${MAX_GROUP_NAME_SIZE} ]] && failure ${EXITCODE_GROUP_NAME_EXCEEDES_MAX_SIZE} "Error: Group name exceeds max size of: ${MAX_GROUP_NAME_SIZE} --- aborting install"
+    is_string_valid_for_xml "$1" && failure ${EXITCODE_BAD_GROUP_NAME} "Error: Group name contains one of the following invalid characters: < & > ' \"  --- aborting install"
 }
 
 function is_string_valid_for_xml()
@@ -352,7 +353,7 @@ do
             shift
         ;;
         *)
-            failure ${EXITCODE_UNEXPECTED_ARGUMENT}
+            failure ${EXITCODE_UNEXPECTED_ARGUMENT} "Error: Unexpected argument given: $i --- aborting install. Please see '--help' output for list of valid arguments"
         ;;
     esac
 done
