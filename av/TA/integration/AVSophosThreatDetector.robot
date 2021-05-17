@@ -88,7 +88,7 @@ Threat Detector Restarts When /etc/hosts changed
     Alter Hosts
 
     # wait for AV log
-    Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system configuration has changed
+    Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system/susi configuration has changed
     Mark Sophos Threat Detector Log
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
 
