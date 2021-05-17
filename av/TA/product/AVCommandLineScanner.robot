@@ -111,7 +111,7 @@ CLS No args
 
     Should Not Contain  ${result.stdout.replace("\n", " ")}  "failed to execute"
 
-
+# Must be the first test in this file to actually scan a file!
 CLS Can Scan Clean File Twice Faster Second time
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
     ${before} =  Get Time  epoch
@@ -131,6 +131,18 @@ CLS Can Scan Clean File Twice Faster Second time
     Log  Second duration is ${duration2}
     Run Keyword if  ${duration1} < ${duration2}  Fail  First scan quicker ${duration1} than second scan ${duration2}
 
+CLS Can init susi safely in parallel
+    ## Ensure SUSI not initialized
+    register cleanup  dump log   ${THREAT_DETECTOR_LOG_PATH}
+    Stop AV
+    Start AV
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${process1} =   Start Process   ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/clean_file
+    ${process2} =   Start Process   ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/clean_file
+    ${result1} =    Wait For Process   ${process1}  timeout=${60}  on_timeout=kill
+    ${result2} =    Wait For Process   ${process2}  timeout=${60}  on_timeout=kill
+    Should Be equal As Integers  ${result1.rc}  0
+    Should Be equal As Integers  ${result2.rc}  0
 
 
 CLS Can Scan Relative Path
