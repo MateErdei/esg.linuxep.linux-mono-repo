@@ -88,13 +88,29 @@ SusiGlobalHandler::~SusiGlobalHandler()
 
 bool SusiGlobalHandler::update(const std::string& path)
 {
-    if (!m_susiInitialised.load(std::memory_order_acquire))
+    /*
+     * We have to hold the init lock while checking if we have init,
+     * and saving the values if not.
+     *
+     * We don't need to hold the lock afterwards, since init must have completed, and won't be run again.
+     *
+     * We have to hold the lock, otherwise we could get interrupted on the "m_updatePath = path;" line, and
+     * init could finish, causing no-one to complete the update.
+     */
     {
-        m_updatePath = path;
-        m_updatePending.store(true, std::memory_order_release);
-        LOGDEBUG("Threat scanner update is pending");
-        return true;
+        // We assume update is rare enough to just always take the lock
+        std::lock_guard initLock(m_initializeMutex);
+
+        if (!m_susiInitialised.load(std::memory_order_acquire))
+        {
+            m_updatePath = path;
+            m_updatePending.store(true, std::memory_order_release);
+            LOGDEBUG("Threat scanner update is pending");
+            return true;
+        }
     }
+
+    // SUSI is always initialised by the time we get here
     SusiResult res = SUSI_Update(path.c_str());
     if (res == SUSI_I_UPTODATE)
     {
