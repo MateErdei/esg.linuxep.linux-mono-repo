@@ -330,7 +330,7 @@ do
         ;;
         --products=*)
             check_selected_products_are_valid "${i#*=}"
-            INSTALL_OPTIONS_ARGS+=("$i")
+            PRODUCT_ARGUMENTS="--products ${i}"
             shift
         ;;
         --allow-override-mcs-ca)
@@ -581,7 +581,7 @@ chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base i
 
 echo "Running base installer"
 echo "Product will be installed to: ${SOPHOS_INSTALL}"
-MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" ./install.sh $ALLOW_OVERRIDE_MCS_CA
+MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" CUSTOMER_TOKEN="$CUSTOMER_TOKEN" PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS" ./install.sh $ALLOW_OVERRIDE_MCS_CA
 inst_ret=$?
 if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
 then
