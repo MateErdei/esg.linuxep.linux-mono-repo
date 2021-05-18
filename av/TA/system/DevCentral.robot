@@ -98,72 +98,72 @@ Wait for mcsrouter to be running
     Wait Until File Log Contains  mcsrouter Log Contains    mcsrouter.computer <> Adding SAV adapter    timeout=15
 
 *** Test Cases ***
-#
-#Test Time sources
-#    [Tags]  MANUAL
-#    [Documentation]  Investigate Get Current Date - see https://github.com/robotframework/robotframework/issues/3306
-#    ${epoch_utc} =  Get Current Date  UTC  result_format=epoch
-#    ${epoch_local} =  Get Current Date  result_format=epoch
-#    ${current_utc} =  Get Current Date  UTC
-#    ${current_local} =  Get Current Date
-#    Evaluate Time Sources  ${epoch_utc}  ${epoch_local}  ${current_utc}  ${current_local}
-#
-#Scan now from Central and Verify Scan Completed and Eicar Detected
-#    [Tags]  SYSTEM  CENTRAL
-#    [Documentation]  Test that we can perform a scan now from Central (Dev/QA regions)
-#    Select Central Region
-#    log central events
-#    clear alerts in central
-#    Ensure AV Policy Exists
-#    Install Base And Plugin Without Register
-#    # Base will uninstall SSPL-AV if it does an update
-#    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
-#    Register In Central
-#    Wait Until AV Plugin Log Contains  Starting scanScheduler
-#    Wait for computer to appear in Central
-#    Assign AntiVirus Product to Endpoint in Central
-#    Wait for mcsrouter to be running
-#    Configure Exclude everything else in Central  /tmp_test/testeicar/
-#    Register Cleanup  Remove Directory  /tmp_test/testeicar   recursive=True
-#    Create Eicar  /tmp_test/testeicar/eicar.com
-#    Wait For exclusion configuration on endpoint
-#    # See https://github.com/robotframework/robotframework/issues/3306
-#    ${currentTime} =  Get Current Date  result_format=epoch
-#    send scan now in central
-#    Wait For Scan Now to start
-#    Wait For Scan Now to complete
-#    Wait For Scan Completion in central  ${currentTime}
-#    Wait For Eicar Detection in central  /tmp_test/testeicar/eicar.com  ${currentTime}
-#
-#Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
-#    [Tags]  SYSTEM  CENTRAL  MANUAL
-#    [Timeout]    40min
-#    Select Central Region
-#    log central events
-#    clear alerts in central
-#    Ensure AV Policy Exists
-#    Install Base And Plugin Without Register
-#    # Base will uninstall SSPL-AV if it does an update
-#    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
-#    Register In Central
-#    Wait for computer to appear in Central
-#    Assign AntiVirus Product to Endpoint in Central
-#    Register Cleanup  Remove Directory  /tmp_test/testeicar   recursive=True
-#    Create Eicar  /tmp_test/testeicar/eicar.com
-#
-#    # Includes Configure Exclude everything else in Central  /tmp_test/testeicar/
-#    ${scan_time} =  Configure next available scheduled Scan in Central  /tmp_test/testeicar/
-#
-#    ${currentTime} =  Get Current Date  UTC  result_format=epoch
-#    Wait for SAV policy on endpoint
-#    Wait For exclusion configuration on endpoint
-#    Wait For Scan Time configuration on endpoint  ${scan_time}
-#
-#    # Wait up to 30 minutes:
-#    Wait For Central Scheduled Scan to start
-#    Wait For Central Scheduled Scan to complete
-#    Wait For Scheduled Scan Completion in central  ${currentTime}
-#    Wait For Eicar Detection in central  /tmp_test/testeicar/eicar.com  ${currentTime}
+
+Test Time sources
+    [Tags]  MANUAL
+    [Documentation]  Investigate Get Current Date - see https://github.com/robotframework/robotframework/issues/3306
+    ${epoch_utc} =  Get Current Date  UTC  result_format=epoch
+    ${epoch_local} =  Get Current Date  result_format=epoch
+    ${current_utc} =  Get Current Date  UTC
+    ${current_local} =  Get Current Date
+    Evaluate Time Sources  ${epoch_utc}  ${epoch_local}  ${current_utc}  ${current_local}
+
+Scan now from Central and Verify Scan Completed and Eicar Detected
+    [Tags]  SYSTEM  CENTRAL
+    [Documentation]  Test that we can perform a scan now from Central (Dev/QA regions)
+    Select Central Region
+    log central events
+    clear alerts in central
+    Ensure AV Policy Exists
+    Install Base And Plugin Without Register
+    # Base will uninstall SSPL-AV if it does an update
+    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+    Register In Central
+    Wait Until AV Plugin Log Contains  Starting scanScheduler
+    Wait for computer to appear in Central
+    Assign AntiVirus Product to Endpoint in Central
+    Wait for mcsrouter to be running
+    Configure Exclude everything else in Central  /tmp_test/testeicar/
+    Register Cleanup  Remove Directory  /tmp_test/testeicar   recursive=True
+    Create Eicar  /tmp_test/testeicar/eicar.com
+    Wait For exclusion configuration on endpoint
+    # See https://github.com/robotframework/robotframework/issues/3306
+    ${currentTime} =  Get Current Date  result_format=epoch
+    send scan now in central
+    Wait For Scan Now to start
+    Wait For Scan Now to complete
+    Wait For Scan Completion in central  ${currentTime}
+    Wait For Eicar Detection in central  /tmp_test/testeicar/eicar.com  ${currentTime}
+
+Scheduled Scan from Central and Verify Scan Completed and Eicar Detected
+    [Tags]  SYSTEM  CENTRAL  MANUAL
+    [Timeout]    40min
+    Select Central Region
+    log central events
+    clear alerts in central
+    Ensure AV Policy Exists
+    Install Base And Plugin Without Register
+    # Base will uninstall SSPL-AV if it does an update
+    Remove File  ${SOPHOS_INSTALL}/base/update/certs/ps_rootca.crt
+    Register In Central
+    Wait for computer to appear in Central
+    Assign AntiVirus Product to Endpoint in Central
+    Register Cleanup  Remove Directory  /tmp_test/testeicar   recursive=True
+    Create Eicar  /tmp_test/testeicar/eicar.com
+
+    # Includes Configure Exclude everything else in Central  /tmp_test/testeicar/
+    ${scan_time} =  Configure next available scheduled Scan in Central  /tmp_test/testeicar/
+
+    ${currentTime} =  Get Current Date  UTC  result_format=epoch
+    Wait for SAV policy on endpoint
+    Wait For exclusion configuration on endpoint
+    Wait For Scan Time configuration on endpoint  ${scan_time}
+
+    # Wait up to 30 minutes:
+    Wait For Central Scheduled Scan to start
+    Wait For Central Scheduled Scan to complete
+    Wait For Scheduled Scan Completion in central  ${currentTime}
+    Wait For Eicar Detection in central  /tmp_test/testeicar/eicar.com  ${currentTime}
 
 SAV and ALC Policy Arrives And Is Handled Correctly
     [Tags]  SYSTEM  CENTRAL  MANUAL
@@ -179,10 +179,6 @@ SAV and ALC Policy Arrives And Is Handled Correctly
 
     Wait for ALC policy on endpoint
     Wait for SAV policy on endpoint
-
-    #Expect error to show up either 0 times or once
-    Run Keyword And Expect Error  *
-    ...     LogUtils.Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Failed to read customerID - using default value  2
 
     Stop AV Plugin
     Remove File    ${AV_LOG_PATH}
