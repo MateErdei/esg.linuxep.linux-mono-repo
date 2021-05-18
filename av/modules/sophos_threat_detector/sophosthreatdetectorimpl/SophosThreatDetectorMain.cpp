@@ -348,9 +348,8 @@ static int inner_main()
 
     auto reloader = std::make_shared<Reloader>(scannerFactory);
 
-    // Don't keep references to the scannerFactory or use1Monitor any longer than required
     unixsocket::ScanningServerSocket server(
-        scanningSocketPath, 0666, std::move(scannerFactory));
+        scanningSocketPath, 0666, scannerFactory);
     server.start();
 
     common::SigTermMonitor sigTermMonitor;

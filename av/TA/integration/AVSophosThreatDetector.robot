@@ -102,13 +102,21 @@ Threat Detector restarts if no scans requested within the configured timeout
     Mark Sophos Threat Detector Log
     Start sophos_threat_detector
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
+    Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
+    Mark Sophos Threat Detector Log
+
+    # Request a scan in order to load SUSI
+    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
     Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
 
     ${timeout} =  Get Shutdown Timeout From Threat Detector Log
 
-    Mark Sophos Threat Detector Log
     Wait Until Sophos Threat Detector Log Contains With Offset  No scans requested for ${timeout} seconds - shutting down.  timeout=20
     Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
