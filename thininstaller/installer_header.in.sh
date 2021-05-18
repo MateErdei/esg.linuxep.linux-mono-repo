@@ -287,8 +287,9 @@ function check_selected_products_are_valid()
     [[ $1 == ${REQUEST_NO_PRODUCTS} ]] && return 0
     [ ! -z "$1" -a "$1" != " " ] || failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Products not passed with '--products=' argument --- aborting install"
     IFS=',' read -ra PRODUCTS_ARRAY <<< "$1"
-    [ ! -z "$1" -a "$1" != " " ] || failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Products not passed with '--products=' argument --- aborting install"
+    [ ! -z "$PRODUCTS_ARRAY" -a "$PRODUCTS_ARRAY" != " " ] || failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Products not passed with '--products=' argument --- aborting install"
     for product in "${PRODUCTS_ARRAY[@]}"; do
+        [ ! -z "$product" -a "$product" != " " ] || failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Product cannot be whitespace"
         [[ ! "${VALID_PRODUCTS[@]}" =~ "$product" ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Invalid product selected: $product --- aborting install."
     done
 }
@@ -433,8 +434,8 @@ then
     CUSTOMER_ID=$(grep 'CUSTOMER_ID=' credentials.txt | sed 's/CUSTOMER_ID=//')
 else
     CUSTOMER_ID=${OVERRIDE_CUSTOMER_ID}
-    CUSTOMER_TOKEN_ARGUMENT="--customer-token $CUSTOMER_ID"
 fi
+CUSTOMER_TOKEN_ARGUMENT="--customer-token $CUSTOMER_ID"
 
 # Read cloud token from credentials file.
 if [ -z "${OVERRIDE_CLOUD_TOKEN}" ]
@@ -617,12 +618,12 @@ chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base i
 echo "Running base installer"
 echo "Product will be installed to: ${SOPHOS_INSTALL}"
 
-MCS_TOKEN="$CLOUD_TOKEN"
-MCS_URL="$CLOUD_URL"
-MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS"
-INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE"
-CUSTOMER_TOKEN_ARGUMENT="$CUSTOMER_TOKEN_ARGUMENT"
-PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS"
+MCS_TOKEN="$CLOUD_TOKEN" \
+MCS_URL="$CLOUD_URL" \
+MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" \
+INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" \
+CUSTOMER_TOKEN_ARGUMENT="$CUSTOMER_TOKEN_ARGUMENT" \
+PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS" \
 ./install.sh $ALLOW_OVERRIDE_MCS_CA
 inst_ret=$?
 if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
