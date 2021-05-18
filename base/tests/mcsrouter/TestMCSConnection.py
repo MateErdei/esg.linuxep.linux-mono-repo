@@ -20,6 +20,7 @@ import mcsrouter.mcsclient.mcs_connection
 import mcsrouter.mcsclient.mcs_exception
 import mcsrouter.mcsclient.mcs_connection
 from mcsrouter.mcsclient.mcs_connection import EnvelopeHandler
+from mcsrouter.mcs import DeploymentApiException
 import mcsrouter.mcsclient.responses
 import mcsrouter.mcsclient.datafeeds
 
@@ -556,6 +557,23 @@ class TestMCSConnection(unittest.TestCase):
             self.assertEqual(mcs_connection.m_jwt_expiration_timestamp, 1605708424.2720187 + 86400)  # Default value
             self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
             assert_message_in_logs("Failed to set expiration time of JWT token due to error", logs.output, log_level="WARNING")
+
+    def test_build_deployment_headers(self):
+        mcs_connection = FakeMCSConnection("""<command>
+        <id></id>
+        <appId>LiveQuery</appId>
+        <creationTime>FakeTime</creationTime>
+        <ttl>PT10000S</ttl>
+        <body>anybody</body>
+        </command>""")
+        mcs_connection.set_user_agent("user_agent")
+        self.assertRaises(DeploymentApiException, mcs_connection.build_deployment_headers, b"garbage")
+        headers = mcs_connection.build_deployment_headers("e52fbacc-1765-493e-9d1e-32c62aa0596e")
+        expected_headers = {"Authorization": "Basic ZTUyZmJhY2MtMTc2NS00OTNlLTlkMWUtMzJjNjJhYTA1OTZl",
+                            "Content-Type": "application/json;charset=UTF-8",
+                            "User-Agent": "user_agent"}
+        self.assertEqual(expected_headers, headers)
+
 
 if __name__ == '__main__':
     unittest.main()

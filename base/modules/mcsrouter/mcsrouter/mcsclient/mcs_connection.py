@@ -22,6 +22,7 @@ import mcsrouter.mcsclient.mcs_exception
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper
 import mcsrouter.utils.handle_json
+from mcsrouter import mcs
 from mcsrouter import ip_selection
 from mcsrouter import proxy_authorization
 from mcsrouter import sophos_https
@@ -615,6 +616,10 @@ class MCSConnection:
         # currentPath is only defined once we have opened a connection
         base_path = self.__m_current_path
         full_path = base_path + path
+        LOGGER.info(f"full path: {full_path}")
+        LOGGER.info(f"headers: {headers}")
+        LOGGER.info(f"encoded_body: {encoded_body}")
+        LOGGER.info(f"method: {method}")
         conn.request(method, full_path, body=encoded_body, headers=headers)
         response = conn.getresponse()
         response_headers = {
@@ -913,6 +918,7 @@ class MCSConnection:
         __request
         """
         headers.setdefault("User-Agent", self.__m_user_agent)
+        LOGGER.info(f"User-Agent: {self.__m_user_agent}")
 
         if self.__m_cookies:
             cookies = "; ".join(["=".join(cookie)
@@ -933,6 +939,31 @@ class MCSConnection:
         capabilities
         """
         (headers, body) = self.__request("", {})  # pylint: disable=unused-variable
+        return body
+
+
+    def build_deployment_headers(self, user_token):
+        try:
+            headers = {
+                "Authorization": "Basic {}".format(to_utf8(base64.b64encode(user_token.encode('utf-8')))),
+                "Content-Type": "application/json;charset=UTF-8",
+                "User-Agent": self.__m_user_agent
+            }
+            return headers
+        except Exception as exception:
+            raise mcs.DeploymentApiException(f"Failed to build headers for request to deployment api, reason: {exception}")
+
+    def deployment_check(self, user_token, status_xml):
+        """
+        deployment_check
+        """
+        headers = self.build_deployment_headers(user_token)
+        LOGGER.debug(headers)
+        (headers, body) = self.__request(
+            "/install/deployment-info/2", headers, body=status_xml, method="POST")
+        LOGGER.info(body)
+
+        LOGGER.debug(f"Body returned from deployment api: '{body}'")
         return body
 
     def register(self, token, status_xml):

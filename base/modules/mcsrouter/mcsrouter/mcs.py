@@ -16,6 +16,7 @@ import select
 import socket
 import shutil
 import time
+import json
 
 from . import computer
 from . import mcs_push_client
@@ -53,6 +54,10 @@ from .utils.get_ids import get_gid, get_uid
 
 LOGGER = logging.getLogger(__name__)
 
+class DeploymentApiException(RuntimeError):
+    def __init__(self, message):
+        # Call the base class constructor with the parameters it needs
+        super().__init__(message)
 
 class CommandCheckInterval:
     """
@@ -318,7 +323,22 @@ class MCS:
             mcs_connection.create_user_agent(
                 product_version, token))
 
-    def register(self):
+    def process_deployement_response_body(self, body):
+        try:
+            response_json = json.loads(body)
+
+            deployment_registration_token = response_json.get("registrationToken", None)
+            LOGGER.debug(f"Deployment api response: {body}")
+        except json.decoder.JSONDecodeError as exception:
+            raise DeploymentApiException(f"Failed to process response body: {body}, reason: {exception}")
+
+        if not deployment_registration_token:
+            raise DeploymentApiException(f"Could not find registration token in response body: {body}")
+
+        return deployment_registration_token
+        # TODO - validation of the response body for SUPPORTED products/etc so we can log warnings/etc
+
+    def register(self, options=None):
         """
         register
         """
@@ -330,8 +350,20 @@ class MCS:
         assert comms is not None
 
         LOGGER.info("Registering")
-        status = agent.get_status_xml()
+        status = agent.get_status_xml(options)
         token = config.get("MCSToken")
+
+        # pre-registration request to the deployment api
+        if options and options.customer_token:
+            try:
+                response_from_deployment_api = comms.deployment_check(options.customer_token, status)
+                token_from_deployment_api = self.process_deployement_response_body(response_from_deployment_api)
+                if token_from_deployment_api:
+                    token = token_from_deployment_api
+            except DeploymentApiException as exception:
+                LOGGER.error(exception)
+                LOGGER.info(f"Continuing registration with default registration token: {token}")
+
         (endpoint_id, password) = comms.register(token, status)
         self.__m_computer.clear_cache()
         config.set("MCSID", endpoint_id)

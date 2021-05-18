@@ -72,7 +72,6 @@ class ComputerCommonStatus:
         self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
         # The group that was passed into the thin installer with --group=<group> during installation
         self.install_time_central_group = get_installation_device_group()
-        self.selected_products = get_installation_products()
 
         mac_addresses = []
         try:
@@ -104,7 +103,7 @@ class ComputerCommonStatus:
         mac_addresses = stdout.decode().split()
         return mac_addresses
 
-    def to_status_xml(self):
+    def to_status_xml(self, options=None):
         """
         to_status_xml
         """
@@ -116,6 +115,7 @@ class ComputerCommonStatus:
             "<domainName>UNKNOWN</domainName>",
             "<computerName>%s</computerName>" % (self.computer_name),
             "<computerDescription></computerDescription>",
+            "<isServer>true</isServer>",
             "<operatingSystem>%s</operatingSystem>" % self.operating_system,
             "<lastLoggedOnUser>%s</lastLoggedOnUser>" % (self.user),
             "<ipv4>%s</ipv4>" % ipv4,
@@ -135,9 +135,9 @@ class ComputerCommonStatus:
                 result.append("<ipv6>%s</ipv6>" % ip_addr)
             result.append("</ipAddresses>")
 
-        if self.selected_products:
+        if options and options.selected_products:
             result.append("<productsToInstall>")
-            for product in self.selected_products:
+            for product in options.selected_products:
                 result.append("<product>%s</product>" % product)
             result.append("</productsToInstall>")
 
@@ -173,7 +173,7 @@ def get_version():
 
 def is_string_xml_valid(string: str):
     # Empty is invalid
-    if string == '' or string is None:
+    if string == '':
         return False
 
     # These characters are invalid and would break XML: <, &, >, ', "
@@ -190,13 +190,21 @@ def get_installation_argument(argument):
     """
     argument_line_prefix = argument+"="
     install_options_path = path_manager.install_options_file()
+    LOGGER.warning(install_options_path)
     try:
         if os.path.isfile(install_options_path):
             with open(install_options_path) as install_options_file:
                 for line in install_options_file.readlines():
+                    LOGGER.warning(line)
                     line = line.strip()
                     if line.startswith(argument_line_prefix):
+                        LOGGER.warning(line[len(argument_line_prefix):])
                         return line[len(argument_line_prefix):]
+                    else:
+                        LOGGER.warning(f"didn't find {argument_line_prefix}")
+        else:
+            LOGGER.warning("no install options")
+
     except UnicodeDecodeError:
         LOGGER.error("Argument cannot be decoded. Please run installer from a UTF-8 locale.")
     except PermissionError:
@@ -209,11 +217,14 @@ def get_installation_device_group():
     Extract the group to which the endpoint was installed, if present, from the install_options file
     """
     group = get_installation_argument("--group")
-    if is_string_xml_valid(group):
-        LOGGER.debug(f"Central installation group found: {group}")
-        return group
+    if group is not None:
+        if is_string_xml_valid(group):
+            LOGGER.debug(f"Central installation group found: {group}")
+            return group
+        else:
+            LOGGER.error("Malformed --group= option, device group will not be set.")
+            return None
     else:
-        LOGGER.error("Malformed --group= option, device group will not be set.")
         return None
 
 def get_installation_products():
@@ -222,12 +233,15 @@ def get_installation_products():
     Extract the components to be installed to the endpoint, if present, from the install_options file
     """
     products = get_installation_argument("--products")
-    if is_string_xml_valid(products):
-        LOGGER.debug(f"Central installation products requested: {products}")
+    if products is not None:
+        if is_string_xml_valid(products):
+            LOGGER.debug(f"Central installation products requested: {products}")
+        else:
+            LOGGER.error("Malformed --products= option, custom products will not be set.")
+            return None
+        return [product for product in products.split(',') if product is not '']
     else:
-        LOGGER.error("Malformed --products= option, custom products will not be set.")
         return None
-    return [product for product in products.split(',') if product is not '']
 
 class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
     """
@@ -263,13 +277,13 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         return mcsrouter.utils.timestamp.timestamp()
 
-    def get_status_xml(self):
+    def get_status_xml(self, options=None):
         """
         get_status_xml
         """
         return "".join((
             self.get_status_header(),
-            self.get_common_status_xml(),
+            self.get_common_status_xml(options),
             self.get_aws_status(),  # Empty string if not aws
             self.get_platform_status(),
             self.get_policy_status(),
@@ -322,12 +336,12 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
 
         return self.__m_common_status != self.__get_common_status()
 
-    def get_common_status_xml(self):
+    def get_common_status_xml(self, options=None):
         """
         get_common_status_xml
         """
         self.__m_common_status = self.__get_common_status()
-        return self.__m_common_status.to_status_xml()
+        return self.__m_common_status.to_status_xml(options)
 
     def get_platform_status(self):
         """

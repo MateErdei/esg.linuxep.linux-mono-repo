@@ -120,7 +120,7 @@ def safe_delete(path):
 
 
 
-def register(config, inst, logger):
+def register(config, inst, logger, options=None):
     """
     register
     """
@@ -134,7 +134,7 @@ def register(config, inst, logger):
     while True:
         try:
             mcs.startup()
-            mcs.register()
+            mcs.register(options)
             break
         except mcs_exception.MCSCACertificateException as exception:
             LOGGER.fatal(str(exception))
@@ -323,6 +323,16 @@ def inner_main(argv):
         dest="proxycredentials",
         action="store",
         default=None)
+    parser.add_argument(
+        "--central-group",
+        dest="central_group",
+        action="store",
+        default=None)
+    parser.add_argument(
+        "--customer-token",
+        dest="customer_token",
+        action="store",
+        default=None)
     parser.add_argument('token', help='MCS Token to register with Central',
                         nargs='?', default=None)
     parser.add_argument('url', help='MCS URL to use to register with Central',
@@ -416,7 +426,7 @@ def inner_main(argv):
 
     ## register or reregister
     if token is not None and url is not None:
-        ret = register(config, path_manager.install_dir(), LOGGER)
+        ret = register(config, path_manager.install_dir(), LOGGER, options)
 
         if ret != 0:
             LOGGER.fatal("Failed to register with Sophos Central (%d)", ret)

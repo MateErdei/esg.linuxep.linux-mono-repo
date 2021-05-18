@@ -36,6 +36,8 @@ MCS_TOKEN=${MCS_TOKEN:-}
 MCS_URL=${MCS_URL:-}
 MCS_MESSAGE_RELAYS=${MCS_MESSAGE_RELAYS:-}
 MCS_CA=${MCS_CA:-}
+PRODUCT_ARGUMENTS=${PRODUCT_ARGUMENTS:-}
+CUSTOMER_TOKEN=${CUSTOMER_TOKEN:-}
 
 while [[ $# -ge 1 ]] ; do
     case $1 in
@@ -626,7 +628,7 @@ then
     fi
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
     then
-        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $MCS_MESSAGE_RELAYS
+        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN  $MCS_MESSAGE_RELAYS  $PRODUCT_ARGUMENTS
         REGISTER_EXIT=$?
         if [[ "$REGISTER_EXIT" != 0 ]]
         then
