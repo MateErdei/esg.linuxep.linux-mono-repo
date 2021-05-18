@@ -129,3 +129,8 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
     }
     return true;
 }
+
+bool SusiGlobalHandler::susiIsInitialized()
+{
+    return m_susiInitialised;
+}

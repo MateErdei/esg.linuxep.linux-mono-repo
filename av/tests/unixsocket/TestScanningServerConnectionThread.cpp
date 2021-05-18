@@ -45,6 +45,7 @@ namespace
         MOCK_METHOD1(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives));
 
         MOCK_METHOD0(update, bool());
+        MOCK_METHOD0(susiIsInitialized, bool());
     };
 
     class TestScanningServerConnectionThread : public UnixSocketMemoryAppenderUsingTests

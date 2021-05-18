@@ -16,4 +16,5 @@ public:
     MOCK_METHOD1(createSusiWrapper, threat_scanner::ISusiWrapperSharedPtr(const std::string& /*scannerConfig*/));
 
     MOCK_METHOD0(update, bool());
+    MOCK_METHOD0(susiIsInitialized, bool());
 };

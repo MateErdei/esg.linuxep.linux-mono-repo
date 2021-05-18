@@ -24,6 +24,8 @@ namespace threat_scanner
         IThreatScannerPtr createScanner(bool scanArchives) override;
 
         bool update() override;
+        bool susiIsInitialized() override;
+
     private:
         ISusiWrapperFactorySharedPtr m_wrapperFactory;
         IThreatReporterSharedPtr m_reporter;

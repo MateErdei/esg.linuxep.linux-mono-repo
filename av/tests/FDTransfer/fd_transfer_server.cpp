@@ -54,6 +54,11 @@ namespace
         {
             return true;
         }
+
+        bool susiIsInitialized() override
+        {
+            return true;
+        }
     };
 }
 

@@ -19,6 +19,7 @@ namespace threat_scanner
             const std::string& scannerConfig) override;
 
         bool update() override;
+        bool susiIsInitialized() override;
 
     private:
         SusiGlobalHandlerSharePtr m_globalHandler;

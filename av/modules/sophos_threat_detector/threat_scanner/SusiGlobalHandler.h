@@ -41,6 +41,12 @@ namespace threat_scanner
          */
         bool initializeSusi(const std::string& jsonConfig);
 
+        /**
+         * Report whether SUSI is initialized or not
+         * @return true if SUSI is initialized
+         */
+        bool susiIsInitialized();
+
     private:
         bool m_susiInitialised = false;
         bool m_updatePending = false;

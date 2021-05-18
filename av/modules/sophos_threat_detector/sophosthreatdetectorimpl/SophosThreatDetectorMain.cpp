@@ -393,7 +393,7 @@ static int inner_main()
             LOGERROR("Failed to read from socket - shutting down. Error: " << strerror(error)<< " (" << error << ')');
             break;
         }
-        else if (activity == 0)
+        else if (activity == 0 && scannerFactory->susiIsInitialized())
         {
             long currentTimeout = shutdownTimer->timeout();
             if (currentTimeout <= 0)

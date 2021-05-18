@@ -225,4 +225,9 @@ namespace threat_scanner
     {
         return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source");
     }
+
+    bool SusiWrapperFactory::susiIsInitialized()
+    {
+        return m_globalHandler->susiIsInitialized();
+    }
 }
