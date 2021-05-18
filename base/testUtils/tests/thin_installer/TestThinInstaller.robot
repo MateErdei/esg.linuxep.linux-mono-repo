@@ -17,7 +17,6 @@ Library     OperatingSystem
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ThinInstallerResources.robot
-Resource  ../upgrade_product/UpgradeResources.robot
 
 Default Tags  THIN_INSTALLER
 
@@ -347,8 +346,11 @@ Thin Installer Fails With Invalid Group Names
     Remove Thininstaller Log
 
 Thin Installer Fails With Oversized Group Name
-    ${over_sized_group_name}=  Run Shell Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 1025  "Random string generation failed"
-    Run Default Thininstaller With Args  25  --group=${over_sized_group_name}
+    ${max_sized_group_name}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 1024  shell=True
+    Run Default Thininstaller With Args  3  --group=${max_sized_group_name.stdout}
+
+    ${over_sized_group_name}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 1025  shell=True
+    Run Default Thininstaller With Args  25  --group=${over_sized_group_name.stdout}
     Check Thininstaller Log Contains  Error: Group name exceeds max size of: 1024 --- aborting install
     Remove Thininstaller Log
 
