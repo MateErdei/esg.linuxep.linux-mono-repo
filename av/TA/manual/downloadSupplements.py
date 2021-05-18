@@ -20,6 +20,7 @@ if PY2:
 else:
     from urllib.request import urlopen as urllib_urlopen
     from urllib.request import urlretrieve as urllib_urlretrieve
+    from urllib.error import URLError
 
 LOGGER = None
 
@@ -89,12 +90,12 @@ def sha256hash(f):
 def download_url(url, dest):
     log("Getting metadata from", url)
     data = get_json(url)
-    url = data['downloadUri']
     if os.path.isfile(dest):
         if sha256hash(dest) == data['checksums']['sha256']:
             log("Not downloading - already matches sha256: ", data['checksums']['sha256'])
             return False
 
+    url = data['downloadUri']
     log("Downloading from", url, "to", ensure_unicode(dest))
     urllib_urlretrieve(url, dest)
     assert sha256hash(dest) == data['checksums']['sha256']

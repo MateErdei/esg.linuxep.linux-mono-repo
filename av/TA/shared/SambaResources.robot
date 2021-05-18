@@ -2,6 +2,7 @@
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/SambaUtils.py
+Library         ../Libs/OnFail.py
 
 Resource    RunShellProcess.robot
 
@@ -27,7 +28,9 @@ Create Local SMB Share
     Allow Samba To Access Share  ${source}
 
     Restart Samba
-    Run Shell Process   mount -t cifs \\\\\\\\localhost\\\\testSamba ${destination} -o guest   OnError=Failed to mount local SMB share
+    ${result} =  Run Process   mount  -t  cifs  //localhost/testSamba  ${destination}  -o  guest
+    Should Be Equal As Integers  ${result.rc}  ${0}  "Failed to mount local SMB share.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
+    Register Cleanup  Remove Local SMB Share   ${source}   ${destination}
 
 Restore Samba config
     Move File  ${SAMBA_CONFIG}_bkp  ${SAMBA_CONFIG}

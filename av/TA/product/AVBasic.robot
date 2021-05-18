@@ -198,7 +198,10 @@ AV Plugin Can Disable Scanning Of Mounted NFS Shares
 
 
 AV Plugin Can Disable Scanning Of Mounted SMB Shares
+    [Timeout]  10 minutes
     [Tags]  SMB
+    Register On Fail   Dump Log  /var/log/samba/log.smbd
+    Register On Fail   Dump Log  /var/log/samba/log.nmbd
     ${source} =       Set Variable  /tmp_test/smbshare
     ${destination} =  Set Variable  /testmnt/smbshare
     Create Directory  ${source}
@@ -206,7 +209,6 @@ AV Plugin Can Disable Scanning Of Mounted SMB Shares
     Register Cleanup  Remove File      ${source}/eicar.com
     Create Directory  ${destination}
     Create Local SMB Share   ${source}   ${destination}
-    Register Cleanup  Remove Local SMB Share   ${source}   ${destination}
 
     Test Remote Share  ${destination}
 
@@ -591,26 +593,28 @@ Test Remote Share
     Check AV Plugin Installed
 
     ${currentTime} =  Get Current Date
-    ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
+    ${scanTime} =  Add Time To Date  ${currentTime}  30 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
     ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=false
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningDisabled}  timeout=120  interval=5
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningDisabled}  timeout=240  interval=5
-    AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningDisabled}
     File Should Exist  ${remoteFSscanningDisabled_log}
     File Log Should Not Contain  ${remoteFSscanningDisabled_log}  "${destination}/eicar.com" is infected with EICAR
 
+    register on fail  dump log  ${remoteFSscanningEnabled_log}
     ${currentTime} =  Get Current Date
-    ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
+    ${scanTime} =  Add Time To Date  ${currentTime}  30 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
     ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=true
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningEnabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
+
+    Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningEnabled}  timeout=120  interval=5
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningEnabled}  timeout=240  interval=5
-    AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningEnabled}
     File Should Exist  ${remoteFSscanningEnabled_log}
     File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR
 
