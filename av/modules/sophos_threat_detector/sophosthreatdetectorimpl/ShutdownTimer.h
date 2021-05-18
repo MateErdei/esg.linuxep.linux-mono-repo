@@ -18,7 +18,7 @@ namespace sspl::sophosthreatdetectorimpl
     class ShutdownTimer : public threat_scanner::IScanNotification
     {
     public:
-        ShutdownTimer(fs::path configFile);
+        explicit ShutdownTimer(fs::path configFile);
         void reset() override;
         time_t timeout() override;
 
