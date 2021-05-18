@@ -308,9 +308,6 @@ function install_product()
     find "$DIST/files/plugins/av/chroot/susi" -type f -name "*.so.*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"
 
-    #Copy libupdater to lib64 for the boostrapper
-    cp -arfv $SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/libupdater/* "$SOPHOS_INSTALL/plugins/av/lib64/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy libupdater files to lib64"
-
     ln -snf "${PLUGIN_INSTALL}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
     ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 

@@ -55,8 +55,8 @@ int main()
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
     fs::path pluginInstall = sophosInstall / "plugins" / PluginName;
-    fs::path libUpdaterSource = pluginInstall / "lib64";
     fs::path updateSource = pluginInstall / "chroot/susi/update_source";
+    fs::path libUpdaterSource = updateSource / "libupdater";
     fs::path installDest = pluginInstall / "chroot/susi/distribution_version";
 
     auto ret = ::chdir(libUpdaterSource.c_str());
