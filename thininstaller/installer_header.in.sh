@@ -52,12 +52,16 @@ EXITCODE_BAD_INSTALL_PATH=19
 EXITCODE_INSTALLED_BUT_NO_PATH=20
 EXIT_FAIL_WRONG_LIBC_VERSION=21
 EXIT_FAIL_COULD_NOT_FIND_LIBC_VERSION=22
-EXITCODE_BAD_PRODUCT_SELECTED=23
-EXITCODE_DUPLICATE_ARGUMENTS_GIVEN=24
+EXITCODE_UNEXPECTED_ARGUMENT=23
+EXITCODE_BAD_GROUP_NAME=24
+EXITCODE_GROUP_NAME_EXCEEDES_MAX_SIZE=25
+EXITCODE_DUPLICATE_ARGUMENTS_GIVEN=26
+EXITCODE_BAD_PRODUCT_SELECTED=27
 
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
 
+MAX_GROUP_NAME_SIZE=1024
 VALID_PRODUCTS=("antivirus" "mdr")
 
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
@@ -93,14 +97,12 @@ function handle_installer_errorcodes()
     errcode=$1
     if [ ${errcode} -eq 44 ]
     then
-        echo "Cannot connect to Sophos Central - please check your network connections" >&2
-        cleanup_and_exit ${EXITCODE_NO_CENTRAL}
+        failure ${EXITCODE_NO_CENTRAL} "Cannot connect to Sophos Central - please check your network connections"
     elif [ ${errcode} -eq 0 ]
     then
         echo "Finished downloading base installer"
     else
-        echo "Failed to download the base installer! (Error code = $errcode)" >&2
-        cleanup_and_exit ${EXITCODE_DOWNLOAD_FAILED}
+        failure ${EXITCODE_DOWNLOAD_FAILED} "Failed to download the base installer! (Error code = $errcode)"
     fi
 }
 
@@ -118,8 +120,7 @@ function check_free_storage()
 
     if ! echo "$install_path" | grep -q ^/
     then
-        echo "Please specify an absolute path, starting with /"
-        cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+        failure ${EXITCODE_BAD_INSTALL_PATH} "Please specify an absolute path, starting with /"
     fi
 
     # Loop through directory path from right to left, finding the first part of the path that exists.
@@ -145,8 +146,7 @@ function check_free_storage()
     then
         return 0
     fi
-    echo "Not enough space in $mountpoint to install ${PRODUCT_NAME}. You can install elsewhere by re-running this installer with the --instdir argument"
-    cleanup_and_exit ${EXITCODE_NOT_ENOUGH_SPACE}
+    failure ${EXITCODE_NOT_ENOUGH_SPACE} "Not enough space in $mountpoint to install ${PRODUCT_NAME}. You can install elsewhere by re-running this installer with the --instdir argument"
 }
 
 function check_install_path_has_correct_permissions()
@@ -178,8 +178,7 @@ function check_install_path_has_correct_permissions()
         permissions=$(stat -c '%A' ${install_path})
         if [[ ${permissions: -1} != "x" ]]
         then
-            echo "Can not install to ${SOPHOS_INSTALL} because ${install_path} does not have correct execute permissions. Requires execute rights for all users"
-            cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+            failure ${EXITCODE_BAD_INSTALL_PATH} "Can not install to ${SOPHOS_INSTALL} because ${install_path} does not have correct execute permissions. Requires execute rights for all users"
         fi
 
         install_path=${install_path%/*}
@@ -200,8 +199,7 @@ function check_total_mem()
     then
         return 0
     fi
-    echo "This machine does not meet product requirements. The product requires at least 1GB of RAM"
-    cleanup_and_exit ${EXITCODE_NOT_ENOUGH_MEM}
+    failure ${EXITCODE_NOT_ENOUGH_MEM} "This machine does not meet product requirements. The product requires at least 1GB of RAM"
 }
 
 function check_SAV_installed()
@@ -210,8 +208,7 @@ function check_SAV_installed()
     local sav_instdir=`readlink ${path} | sed 's/bin\/savscan//g'`
     if [ "$sav_instdir" != "" ] && [ -d ${sav_instdir} ]
     then
-        echo "Found an existing installation of SAV in $sav_instdir. This product cannot be run alongside Sophos Anti-Virus"
-        cleanup_and_exit ${EXITCODE_SAV_INSTALLED}
+        failure ${EXITCODE_SAV_INSTALLED} "Found an existing installation of SAV in $sav_instdir. This product cannot be run alongside Sophos Anti-Virus"
     fi
 }
 
@@ -262,26 +259,46 @@ function force_argument()
     echo "$args" | grep -q ".*--force"
 }
 
+function check_for_duplicate_arguments()
+{
+    declare -a checked_arguments
+    for argument in "$@"; do
+        argument_name="${argument%=*}"
+        [[ "${checked_arguments[@]}" =~ "$argument_name" ]] && failure ${EXITCODE_DUPLICATE_ARGUMENTS_GIVEN} "Error: Duplicate argument given: $argument_name --- aborting install"
+        checked_arguments+=("$argument_name")
+    done
+}
+
+function validate_group_name()
+{
+    [ -z "$1" ] && failure ${EXITCODE_BAD_GROUP_NAME} "Error: Group name not passed with '--group=' argument --- aborting install"
+    [[ ${#1} -gt ${MAX_GROUP_NAME_SIZE} ]] && failure ${EXITCODE_GROUP_NAME_EXCEEDES_MAX_SIZE} "Error: Group name exceeds max size of: ${MAX_GROUP_NAME_SIZE} --- aborting install"
+    is_string_valid_for_xml "$1" || failure ${EXITCODE_BAD_GROUP_NAME} "Error: Group name contains one of the following invalid characters: < & > ' \" --- aborting install"
+}
+
+function is_string_valid_for_xml()
+{
+    [[ ! $1 =~ .*[\>\<\&\'\"].* ]]
+}
+
 function check_selected_products_are_valid()
 {
-    [ -z "$1" ] && failure ${EXITCODE_BAD_PRODUCT_SELECTED}
+    [ -z "$1" ] && failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Products not passed with '--products=' argument --- aborting install"
     IFS=',' read -ra PRODUCTS_ARRAY <<< "$1"
     for product in "${PRODUCTS_ARRAY[@]}"; do
-        [[ ! "${VALID_PRODUCTS[@]}" =~ "$product" ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED}
+        [[ ! "${VALID_PRODUCTS[@]}" =~ "$product" ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Invalid product selected: $product --- aborting install."
     done
 }
 
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
 if [ $? -eq 1 ] ; then
-    echo "This installer only runs on Linux" >&2
-    cleanup_and_exit ${EXITCODE_NOT_LINUX}
+    failure ${EXITCODE_NOT_LINUX} "This installer only runs on Linux"
 fi
 
 # Check running as root
 if [ $(id -u) -ne 0 ]; then
-    echo "Please run this installer as root" >&2
-    cleanup_and_exit ${EXITCODE_NOT_ROOT}
+    failure ${EXITCODE_NOT_ROOT} "Please run this installer as root"
 fi
 
 # Check machine architecture (only support 64 bit)
@@ -289,8 +306,7 @@ MACHINE_TYPE=`uname -m`
 if [ ${MACHINE_TYPE} = "x86_64" ]; then
     BIN="installer/bin"
 else
-    echo "This product can only be installed on a 64bit system"
-    cleanup_and_exit ${EXITCODE_NOT_64_BIT}
+    failure ${EXITCODE_NOT_64_BIT} "This product can only be installed on a 64bit system"
 fi
 
 # Check if SAV is installed.
@@ -300,9 +316,9 @@ SWEEP=$(which sweep 2>/dev/null)
 [ -x "$SWEEP" ] && check_SAV_installed "$SWEEP"
 check_SAV_installed '/usr/local/bin/sweep'
 check_SAV_installed '/usr/bin/sweep'
-declare -a UNPROCESSED_ARGS
 declare -a INSTALL_OPTIONS_ARGS
 # Handle arguments
+check_for_duplicate_arguments "$@"
 for i in "$@"
 do
     case $i in
@@ -314,13 +330,11 @@ do
             SOPHOS_INSTALL="${i#*=}"
             if ((${#SOPHOS_INSTALL} > 50))
             then
-                echo "The --instdir path provided is too long and needs to be 50 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long"
-                cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+                failure ${EXITCODE_BAD_INSTALL_PATH} "The --instdir path provided is too long and needs to be 50 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long"
             fi
             if [[ ${SOPHOS_INSTALL} == /tmp* ]]
             then
-                echo "The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent"
-                cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+                failure ${EXITCODE_BAD_INSTALL_PATH} "The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent"
             fi
             export SOPHOS_INSTALL="${SOPHOS_INSTALL}/sophos-spl"
             shift
@@ -330,17 +344,32 @@ do
         ;;
         --products=*)
             check_selected_products_are_valid "${i#*=}"
-            PRODUCT_ARGUMENTS="--products ${i}"
+            PRODUCT_ARGUMENTS="--products ${i#*=}"
             shift
         ;;
         --allow-override-mcs-ca)
             ALLOW_OVERRIDE_MCS_CA=--allow-override-mcs-ca
             shift
         ;;
-        *)
-            # Save installer arguments that we don't directly use in the installer so we can write them to a file later
-            UNPROCESSED_ARGS+=("$i")
+        --group=*)
+            validate_group_name "${i#*=}"
+            INSTALL_OPTIONS_ARGS+=("$i")
             shift
+        ;;
+        --disable-auditd)
+            INSTALL_OPTIONS_ARGS+=("$i")
+            shift
+        ;;
+        --do-not-disable-auditd)
+            INSTALL_OPTIONS_ARGS+=("$i")
+            shift
+        ;;
+        --force)
+            # Handled later in the code
+            shift
+        ;;
+        *)
+            failure ${EXITCODE_UNEXPECTED_ARGUMENT} "Error: Unexpected argument given: $i --- aborting install. Please see '--help' output for list of valid arguments"
         ;;
     esac
 done
@@ -348,8 +377,7 @@ done
 # Verify that instdir does not contain special characters that may cause problems.
 if ! echo "$SOPHOS_INSTALL" | grep -q '^[-a-zA-Z0-9\/\_\.]*$'
 then
-    echo "The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted"
-    cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+    failure ${EXITCODE_BAD_INSTALL_PATH} "The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted"
 fi
 
 # Check to see if the Sophos credentials override is being used.
@@ -436,8 +464,7 @@ fi
 INSTALL_OPTIONS_FILE="${SOPHOS_TEMP_DIRECTORY}/install_options"
 
 # File format expects the args to be either --option  or --option=value
-combined_options_file_args=("${INSTALL_OPTIONS_ARGS[@]}" "${UNPROCESSED_ARGS[@]}")
-for value in "${combined_options_file_args[@]}"
+for value in "${INSTALL_OPTIONS_ARGS[@]}"
 do
      echo $value >> ${INSTALL_OPTIONS_FILE}
 done
@@ -483,15 +510,13 @@ then
     # Check we have found the path for the existing installation.
     if [ ! -d "$EXISTING_SSPL_PATH" ]
     then
-        echo "An existing installation of ${PRODUCT_NAME} was found but could not find the installed path. You could try 'SophosSetup.sh --force' to force the install"
-        cleanup_and_exit ${EXITCODE_INSTALLED_BUT_NO_PATH}
+        failure ${EXITCODE_INSTALLED_BUT_NO_PATH} "An existing installation of ${PRODUCT_NAME} was found but could not find the installed path. You could try 'SophosSetup.sh --force' to force the install"
     fi
 
     # If the user specified a different install dir to the existing one then they must remove the old install first.
     if [[ ${SOPHOS_INSTALL} != ${EXISTING_SSPL_PATH} ]]
     then
-        echo "Please uninstall ${PRODUCT_NAME} before using this installer. You can run ${EXISTING_SSPL_PATH}/bin/uninstall.sh" >&2
-        cleanup_and_exit ${EXITCODE_ALREADY_INSTALLED}
+        failure ${EXITCODE_ALREADY_INSTALLED} "Please uninstall ${PRODUCT_NAME} before using this installer. You can run ${EXISTING_SSPL_PATH}/bin/uninstall.sh"
     fi
 
     # Check the existing installation is ok, if it is then register again with the creds from this installer.
@@ -503,8 +528,7 @@ then
             echo "Central token is [$CLOUD_TOKEN], Central URL is [$CLOUD_URL]"
             ${REGISTER_CENTRAL} ${CLOUD_TOKEN} ${CLOUD_URL} ${MESSAGE_RELAYS}
             if [ $? -ne 0 ]; then
-                echo "ERROR: Failed to register with Sophos Central - error $?" >&2
-                cleanup_and_exit ${EXITCODE_FAILED_REGISTER}
+                failure ${EXITCODE_FAILED_REGISTER} "ERROR: Failed to register with Sophos Central - error $?"
             fi
             cleanup_and_exit ${EXITCODE_SUCCESS}
         else
@@ -514,8 +538,7 @@ then
 else  # sspl not installed
     if [ -d ${SOPHOS_INSTALL} ]
     then
-        echo "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location" >&2
-        cleanup_and_exit ${EXITCODE_BAD_INSTALL_PATH}
+        failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location"
     fi
 fi
 # Check there is enough disk space
@@ -590,7 +613,14 @@ chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base i
 
 echo "Running base installer"
 echo "Product will be installed to: ${SOPHOS_INSTALL}"
-MCS_TOKEN="$CLOUD_TOKEN" MCS_URL="$CLOUD_URL" MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" CUSTOMER_TOKEN_ARGUMENT="$CUSTOMER_TOKEN_ARGUMENT" PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS" ./install.sh $ALLOW_OVERRIDE_MCS_CA
+
+MCS_TOKEN="$CLOUD_TOKEN"
+MCS_URL="$CLOUD_URL"
+MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS"
+INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE"
+CUSTOMER_TOKEN_ARGUMENT="$CUSTOMER_TOKEN_ARGUMENT"
+PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS"
+./install.sh $ALLOW_OVERRIDE_MCS_CA
 inst_ret=$?
 if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
 then
