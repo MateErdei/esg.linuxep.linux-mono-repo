@@ -390,7 +390,7 @@ class MCSRouter(object):
         assert result != 0
         logger.info("Registration command output = '{}'".format(stdout))
 
-    def register_with_local_cloud_server(self, token=None, url=None, customer_token=None, product_selection=None):
+    def register_with_local_cloud_server(self, token=None, url=None, customer_token=None, product_selection=""):
         if token is None:
             token = self.local_mcs_token
 
@@ -399,7 +399,11 @@ class MCSRouter(object):
 
         command = [self.register_central_path, token, url]
 
-        if customer_token:
+        # robot treats: product_selection=none as setting it to the python None type
+        if customer_token != "":
+            # hence why we do this
+            if customer_token == None:
+                customer_token = "none"
             command.append("--customer-token")
             command.append(customer_token)
 

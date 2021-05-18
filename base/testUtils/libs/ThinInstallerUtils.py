@@ -132,12 +132,14 @@ class ThinInstallerUtils(object):
         installer_tar_gz = max(list_of_files, key=os.path.getctime)
         os.system("tar xzf {} -C {}".format(installer_tar_gz, self.installer_files))
 
-    def create_credentials_file(self, token, url, update_creds, message_relays, location, update_caches):
+    def create_credentials_file(self, token, url, update_creds, customer_token, message_relays, location, update_caches):
         new_line = '\n'
         with open(location, 'w') as fh:
             fh.write("TOKEN=" + token + new_line)
             fh.write("URL=" + url + new_line)
             fh.write("UPDATE_CREDENTIALS=" + update_creds + new_line)
+            fh.write("CUSTOMER_ID=" + customer_token + new_line)
+            fh.write("PRODUCTS=all" + new_line)
             if message_relays:
                 fh.write("MESSAGE_RELAYS=" + message_relays + new_line)
             if update_caches:
@@ -152,9 +154,10 @@ class ThinInstallerUtils(object):
                                         token="ThisIsARegToken",
                                         url="https://localhost:4443/mcs",
                                         update_creds="9539d7d1f36a71bbac1259db9e868231",
+                                        customer_token="ThisIsACustomerToken",
                                         message_relays=None,
                                         update_caches=None):
-        self.create_credentials_file(token, url, update_creds, message_relays, self.default_credentials_file_location, update_caches)
+        self.create_credentials_file(token, url, update_creds, customer_token, message_relays, self.default_credentials_file_location, update_caches)
 
     def build_thininstaller_from_sections(self, credentials_file, target_path=None):
         if target_path is None:
@@ -421,6 +424,12 @@ class ThinInstallerUtils(object):
             command.append(arg)
 
         self.run_thininstaller(command, expectedReturnCode)
+
+    def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode, mcsurl, force_certs_dir, product_argument):
+        command = [self.default_installsh_path]
+        command.append(product_argument)
+
+        self.run_thininstaller(command, expectedReturnCode, mcsurl=mcsurl, force_certs_dir=force_certs_dir)
 
     def get_and_install_sav(self):
         tar_path = self.get_SAV_installer()

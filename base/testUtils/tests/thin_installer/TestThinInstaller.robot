@@ -100,16 +100,11 @@ Get System Path
     ${PATH} =  Get Environment Variable  PATH
     [Return]  ${PATH}
 
-Run Thin Installer And Check Argument Is Saved To Install Options File
-    [Arguments]  ${argument}
-    ${install_location}=  get_default_install_script_path
-    ${thin_installer_cmd}=  Create List    ${install_location}   ${argument}
-    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
-    Run Thin Installer  ${thin_installer_cmd}   expected_return_code=3  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
-    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
-    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
-    ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
-    Should Contain  ${contents}  ${argument}
+Thin Installer Calls Base Installer With Environment Variables For Product Argument
+    [Arguments]  ${productArgs}
+    ${baseInstallerEnv} =  Get File  /tmp/env_thininstaller_called_base_installer_with
+    Should Contain  ${baseInstallerEnv}  --products ${productArgs}
+    Should Contain  ${baseInstallerEnv}  --customer-token ThisIsACustomerToken
 
 *** Variables ***
 ${CUSTOM_DIR_BASE} =  /CustomPath
@@ -323,8 +318,38 @@ Thin Installer Creates Install Options File
     Should Contain  ${contents}  --group=group name
     Should Contain  ${contents}  --some other arg with spaces
 
-Disable Auditd Argument Saved To Install Options
-    Run Thin Installer And Check Argument Is Saved To Install Options File  --disable-auditd
+Thin Installer With Invalid Product Arguments Fails
+    Run Default Thininstaller With Args  27  --products=unsupported_product
+    Check Thininstaller Log Contains   Error: Invalid product selected: unsupported_product --- aborting install
 
-Do Not Disable Auditd Argument Saved To Install Options
-    Run Thin Installer And Check Argument Is Saved To Install Options File  --do-not-disable-auditd
+Thin Installer With No Product Arguments Fails
+    Run Default Thininstaller With Args  27  --products=
+    Check Thininstaller Log Contains   Error: Products not passed with '--products=' argument --- aborting install
+
+Thin Installer With Only Commas As Product Arguments Fails
+    Run Default Thininstaller With Args  27  --products=,
+    Check Thininstaller Log Contains   Error: Products not passed with '--products=' argument --- aborting install
+
+Thin Installer With Spaces As Args Fails
+    Run Default Thininstaller With Args  27  --products=mdr,\ ,antivirus
+    Check Thininstaller Log Contains   Error: Product cannot be whitespace
+
+Thin Installer Passes MDR Products Arg To Base Installer
+    Setup Warehouse
+    Run Default Thinistaller With Product Args And Central  0  https://localhost:1233  ${SUPPORT_FILES}/sophos_certs  --products=mdr
+    Thin Installer Calls Base Installer With Environment Variables For Product Argument  mdr
+
+Thin Installer Passes AV Products Arg To Base Installer
+    Setup Warehouse
+    Run Default Thinistaller With Product Args And Central  0  https://localhost:1233  ${SUPPORT_FILES}/sophos_certs  --products=antivirus
+    Thin Installer Calls Base Installer With Environment Variables For Product Argument  antivirus
+
+Thin Installer Passes MDR And AV Products Arg To Base Installer
+    Setup Warehouse
+    Run Default Thinistaller With Product Args And Central  0  https://localhost:1233  ${SUPPORT_FILES}/sophos_certs  --products=mdr,antivirus
+    Thin Installer Calls Base Installer With Environment Variables For Product Argument  mdr,antivirus
+
+Thin Installer Passes None Products Arg To Base Installer
+    Setup Warehouse
+    Run Default Thinistaller With Product Args And Central  0  https://localhost:1233  ${SUPPORT_FILES}/sophos_certs  --products=none
+    Thin Installer Calls Base Installer With Environment Variables For Product Argument  none

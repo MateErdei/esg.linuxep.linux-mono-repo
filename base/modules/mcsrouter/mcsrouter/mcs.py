@@ -335,8 +335,17 @@ class MCS:
         if not deployment_registration_token:
             raise DeploymentApiException(f"Could not find registration token in response body: {body}")
 
+        # We don't want to abandon processing the response if this check fails
+        try:
+            products = response_json.get("products", None)
+            if products:
+                for product in products:
+                    if product["supported"] == "false":
+                        LOGGER.warning(f"requested product: {product['product']}, is not supported. Reasons: {product['reasons']}")
+        except Exception as exception:
+            LOGGER.debug(f"Check for unssuported products failed: {exception}")
+
         return deployment_registration_token
-        # TODO - validation of the response body for SUPPORTED products/etc so we can log warnings/etc
 
     def register(self, options=None):
         """

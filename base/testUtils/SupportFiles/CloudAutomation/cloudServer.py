@@ -1552,7 +1552,12 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
     def mcs_deployment(self):
         auth = self.headers['Authorization']
         try:
-            auth = base64.b64decode(auth)
+            logger.info(f"Auth: '{auth}'")
+            auth = base64.b64decode(auth[len("Basic "):])
+            if auth != b"ThisIsACustomerToken":
+                logger.error(f"got auth token: {auth}, expected 'ThisIsACustomerToken'")
+                return self.send_401()
+
         except:
             return self.send_401()
         global REGISTER_401
@@ -1571,22 +1576,17 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.send_400()
         logger.info(f"products requested from deployment API: {products}")
 
-        logger.info("JAKE0")
         template_body = '{"dciFileName":"db55fcf8898da2b3f3c06f26e9246cbb",\
                          "registrationToken":"ThisIsARegTokenFromTheDeploymentAPI",\
                          "products":[]}'
-        logger.info("JAKE1")
         json_dict = json.loads(template_body)
-        logger.info("JAKE2")
         supported_products = "mdr", "antivirus", "none"
-        logger.info("JAKE3")
-        other_products = "intercept"
-        logger.info("JAKE4")
+        unsupported_products = "unsupported_product"
         for product in products:
             if product in supported_products:
                 json_dict["products"].append({"product": product.upper(), "supported": "true", "reasons": []})
             else:
-                if product in other_products:
+                if product in unsupported_products:
                     json_dict["products"].append({"product": product.upper(), "supported": "false", "reasons": ["UNSUPPORTED_PLATFORM"]})
                 else:
                     return self.send_400()

@@ -342,3 +342,14 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
 
     Check Thininstaller Log Does Not Contain  ERROR: Installer returned 16
     Check Thininstaller Log Does Not Contain  Failed to create machine id. Error: Calling getGroupId on sophos-spl-group caused this error : Unknown group name
+
+Thin Installer Installs Product Successfully With Product Arguments
+    Should Not Exist    ${SOPHOS_INSTALL}
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem  args=--products=mdr
+
+    Check MCS Router Running
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Check Cloud Server Log Contains  products requested from deployment API: ['mdr']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+

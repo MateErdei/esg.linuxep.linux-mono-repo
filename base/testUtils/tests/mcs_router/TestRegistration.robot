@@ -231,18 +231,29 @@ Registering With Unicode Group Adds To Group
     Check Register Central Log Contains  <deviceGroup>ümlaut</deviceGroup>
 
 Registering And Asking For Just MDR
-    Register With Local Cloud Server  customer_token=blah  product_selection=mdr
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=mdr
     Check Cloud Server Log Contains  products requested from deployment API: ['mdr']
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
 Registering And Asking For Just Antivirus
-    Register With Local Cloud Server  customer_token=blah  product_selection=antivirus
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=antivirus
     Check Cloud Server Log Contains  products requested from deployment API: ['antivirus']
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
 Registering And Asking For MDR And Antivirus
-    Register With Local Cloud Server  customer_token=blah  product_selection=mdr,antivirus
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=mdr,antivirus
     Check Cloud Server Log Contains  products requested from deployment API: ['mdr', 'antivirus']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
+Registering And Asking For Unsupported Product
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=unsupported_product
+    Check Register Central Log Contains  requested product: UNSUPPORTED_PRODUCT, is not supported. Reasons: ['UNSUPPORTED_PLATFORM']
+    Check Cloud Server Log Contains  products requested from deployment API: ['unsupported_product']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
+Registering And Asking For No Products
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=none
+    Check Cloud Server Log Contains  products requested from deployment API: []
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
 *** Keywords ***

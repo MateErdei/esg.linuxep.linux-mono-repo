@@ -210,6 +210,11 @@ class TestComputer(unittest.TestCase):
                        "</productsToInstall>"),
                       adapter.get_common_status_xml(options_class(selected_products="mdr,antivirus")))
         self.assertIn(("<productsToInstall>"
+                       "<product>antivirus</product>"
+                       "<product>mdr</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products="antivirus,mdr")))
+        self.assertIn(("<productsToInstall>"
                        "<product>mdr</product>"
                        "</productsToInstall>"),
                       adapter.get_common_status_xml(options_class(selected_products="mdr")))
@@ -218,9 +223,13 @@ class TestComputer(unittest.TestCase):
                        "</productsToInstall>"),
                       adapter.get_common_status_xml(options_class(selected_products="antivirus")))
         self.assertIn(("<productsToInstall>"
-                       "<product>none</product>"
                        "</productsToInstall>"),
                       adapter.get_common_status_xml(options_class(selected_products="none")))
+        self.assertIn(("<productsToInstall>"
+                       "<product>mdr</product>"
+                       "<product>antivirus</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products="mdr,antivirus,")))
         self.assertNotIn(("productsToInstall"),
                       adapter.get_common_status_xml(options_class(selected_products="mdr,thisStringShouldBeFilteredOut<")))
         self.assertNotIn(("productsToInstall"),

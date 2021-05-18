@@ -142,6 +142,8 @@ class WarehouseGenerator(object):
         with open(filepath, 'w+') as installfile:
             installfile.write("#!/bin/bash\n"
                               "echo 'INSTALLER EXECUTED'\n"
+                              "echo args: $@ > /tmp/args_thininstaller_called_base_installer_with\n"
+                              "env > /tmp/env_thininstaller_called_base_installer_with\n"
                               "exit 0\n")
 
     def generate_warehouse(self, update_from_sophos_location=True, **kwargs):
