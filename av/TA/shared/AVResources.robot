@@ -88,6 +88,12 @@ Mark Susi Debug Log
     Set Test Variable   ${SUSI_DEBUG_LOG_MARK}  ${count}
     Log  "SUSI_DEBUG LOG MARK = ${SUSI_DEBUG_LOG_MARK}"
 
+Mark Avscanner Log
+    [Arguments]  ${path}
+    ${count} =  Count File Log Lines  ${path}
+    Set Test Variable   ${AVSCANNER_LOG_MARK}  ${count}
+    Log  "AVSCANNER LOG MARK = ${AVSCANNER_LOG_MARK}"
+
 SUSI Debug Log Contains With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${SUSI_DEBUG_LOG_MARK}  0

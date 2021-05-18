@@ -1442,3 +1442,30 @@ CLS Can Append Summary To Log When SIGHUP Is Received
 
     Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=60
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
+
+Avscanner Log Cannot Be Written To With Different Permissions
+    Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar -o /tmp/scan.log
+
+    ${result} =  Run Process  ls  -l  /tmp/scan.log
+    Log  Old permissions: ${result.stdout}
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    File Log Contains  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test
+
+    Mark Avscanner Log  /tmp/scan.log
+    Run  chmod 444 /tmp/scan.log
+
+    ${result} =  Run Process  ls  -l  /tmp/scan.log
+    Log  New permissions: ${result.stdout}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    File Log Should Not Contain With Offset  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${AVSCANNER_LOG_MARK}
+
+    Remove File  /tmp/scan.log
