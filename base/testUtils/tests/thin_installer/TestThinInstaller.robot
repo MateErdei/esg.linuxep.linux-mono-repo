@@ -17,6 +17,7 @@ Library     OperatingSystem
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ThinInstallerResources.robot
+Resource  ../upgrade_product/UpgradeResources.robot
 
 Default Tags  THIN_INSTALLER
 
@@ -78,6 +79,13 @@ Run ThinInstaller Instdir And Check It Fails
     Log  ${path}
     Run Default Thininstaller With Args  19  --instdir=${path}
     Check Thininstaller Log Contains  The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted
+    Remove Thininstaller Log
+
+Run ThinInstaller With Bad Group Name And Check It Fails
+    [Arguments]    ${groupName}
+    Log  ${GroupName}
+    Run Default Thininstaller With Args  24  --group=${groupName}
+    Check Thininstaller Log Contains  Error: Group name contains one of the following invalid characters: < & > ' \" --- aborting install
     Remove Thininstaller Log
 
 Create Fake Ldd Executable With Version As Argument And Add It To Path
@@ -322,16 +330,35 @@ Thin Installer Help Prints Correct Output
     Check Thininstaller Log Contains   --group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified
     Check Thininstaller Log Contains   --group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'
 
-Thin Installer Creates Install Options File
-    ${install_location}=  get_default_install_script_path
-    ${thin_installer_cmd}=  Create List    ${install_location}   --group=group name  --some other arg with spaces
-    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
-    Run Thin Installer  ${thin_installer_cmd}   expected_return_code=3  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
-    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
-    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
-    ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
-    Should Contain  ${contents}  --group=group name
-    Should Contain  ${contents}  --some other arg with spaces
+Thin Installer Fails With Unexpected Argument
+    Run Default Thininstaller With Args  23  --ThisIsUnexpected
+    Check Thininstaller Log Contains  Error: Unexpected argument given: --ThisIsUnexpected --- aborting install. Please see '--help' output for list of valid arguments
+    Remove Thininstaller Log
+
+Thin Installer Fails With Invalid Group Names
+    Run ThinInstaller With Bad Group Name And Check It Fails  te<st
+    Run ThinInstaller With Bad Group Name And Check It Fails  te>st
+    Run ThinInstaller With Bad Group Name And Check It Fails  te&st
+    Run ThinInstaller With Bad Group Name And Check It Fails  te'st
+    Run ThinInstaller With Bad Group Name And Check It Fails  te"st
+
+    Run Default Thininstaller With Args  24  --group=
+    Check Thininstaller Log Contains  Error: Group name not passed with '--group=' argument --- aborting install
+    Remove Thininstaller Log
+
+Thin Installer Fails With Oversized Group Name
+    ${over_sized_group_name}=  Run Shell Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 1025  "Random string generation failed"
+    Run Default Thininstaller With Args  25  --group=${over_sized_group_name}
+    Check Thininstaller Log Contains  Error: Group name exceeds max size of: 1024 --- aborting install
+    Remove Thininstaller Log
+
+Thin Installer Fails With Duplicate Arguments
+    Run Default Thininstaller With Args  26  --duplicate  --duplicate
+    Check Thininstaller Log Contains  Error: Duplicate argument given: --duplicate --- aborting install
+    Remove Thininstaller Log
+
+Thin Installer Saves Group Names To Install Options
+    Run Thin Installer And Check Argument Is Saved To Install Options File  --group=Group Name
 
 Thin Installer With Invalid Product Arguments Fails
     Run Default Thininstaller With Args  27  --products=unsupported_product
