@@ -10,6 +10,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Susi.h>
 
+#include <unistd.h>
+
 namespace fs = sophos_filesystem;
 
 const char* PluginName = PLUGIN_NAME;
@@ -53,8 +55,16 @@ int main()
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
     fs::path pluginInstall = sophosInstall / "plugins" / PluginName;
+    fs::path libUpdaterSource = pluginInstall / "lib64";
     fs::path updateSource = pluginInstall / "chroot/susi/update_source";
     fs::path installDest = pluginInstall / "chroot/susi/distribution_version";
+
+    auto ret = ::chdir(libUpdaterSource.c_str());
+    if (ret != 0)
+    {
+        std::cerr << "Failed to cd to libupdater directory: " << libUpdaterSource.c_str() << std::endl;
+        return ret;
+    }
 
     auto res = SUSI_SetLogCallback(&log_callback);
     if (res != SUSI_S_OK)
