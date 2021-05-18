@@ -98,7 +98,7 @@ namespace Common
             bool callBackRequestedStop = false;
             while (!stopRequested() && !callBackRequestedStop)
             {
-                auto filedescriptors = poller->poll(Common::ZeroMQWrapper::ms(-1));
+                auto filedescriptors = poller->poll(Common::ZeroMQWrapper::ms(100));
 
                 // LOGDEBUG("activity in the file descriptor: " << hasFd->fd());
                 if (monitorForSignalsForShutdown && GL_signalPipe->notified())
