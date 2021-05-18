@@ -348,7 +348,6 @@ do
         --products=*)
             check_selected_products_are_valid "${i#*=}"
             PRODUCT_ARGUMENTS="--products ${i#*=}"
-            exit 0
             shift
         ;;
         --allow-override-mcs-ca)
