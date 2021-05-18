@@ -277,13 +277,12 @@ function validate_group_name()
 {
     [ -z "$1" ] && failure ${EXITCODE_BAD_GROUP_NAME} "Error: Group name not passed with '--group=' argument --- aborting install"
     [[ ${#1} -gt ${MAX_GROUP_NAME_SIZE} ]] && failure ${EXITCODE_GROUP_NAME_EXCEEDES_MAX_SIZE} "Error: Group name exceeds max size of: ${MAX_GROUP_NAME_SIZE} --- aborting install"
-    is_string_valid_for_xml "$1" && failure ${EXITCODE_BAD_GROUP_NAME} "Error: Group name contains one of the following invalid characters: < & > ' \" --- aborting install"
+    is_string_valid_for_xml "$1" || failure ${EXITCODE_BAD_GROUP_NAME} "Error: Group name contains one of the following invalid characters: < & > ' \" --- aborting install"
 }
 
 function is_string_valid_for_xml()
 {
-    [[ $1 =~ .*[\>\<\&\'\"].* ]] && return 0
-    return 1
+    ! [[ $1 =~ .*[\>\<\&\'\"].* ]]
 }
 
 # Check that the OS is Linux
