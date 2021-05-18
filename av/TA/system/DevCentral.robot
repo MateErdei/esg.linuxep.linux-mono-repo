@@ -196,4 +196,4 @@ SAV and ALC Policy Arrives And Is Handled Correctly
     Wait Until AV Plugin Log Contains   Restarting sophos_threat_detector as the system configuration has changed
     #Expect error to show up either 0 times or once
     Run Keyword And Expect Error  *
-    ...     Check Log Contains String N  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Failed to read customerID - using default value  2
+    ...     Check Log Contains String N  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  sophos_threat_detector.log  Failed to read customerID - using default value  2
