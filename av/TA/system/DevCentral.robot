@@ -180,6 +180,10 @@ SAV and ALC Policy Arrives And Is Handled Correctly
     Wait for ALC policy on endpoint
     Wait for SAV policy on endpoint
 
+    #Expect error to show up either 0 times or once
+    Run Keyword And Expect Error  *
+    ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Failed to read customerID - using default value  2
+
     Stop AV Plugin
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
