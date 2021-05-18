@@ -59,8 +59,7 @@ ${mtr_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-${Sophos_Scheduled_Query_Pack}              ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
 *** Test Cases ***
 
@@ -165,10 +164,7 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-    #TODO LINUXDAR-2881 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
-    #TODO LINUXDAR-2339 remove when this defect is fixed
+    #TODO LINUXDAR-2972 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
@@ -320,7 +316,7 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
-    #TODO LINUXDAR-2339 remove when this defect is fixed
+    #TODO LINUXDAR-2972 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
@@ -511,13 +507,10 @@ Version Copy Versions All Changed Files When Upgrading
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-    #TODO LINUXDAR-2881 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     # FIXME LINUXDAR-2136 remove this line
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to connect to the warehouse
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
-    #TODO LINUXDAR-2339 remove when this defect is fixed
+    #TODO LINUXDAR-2972 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
 
@@ -693,7 +686,7 @@ Test That Only Subscriptions Appear As Subscriptions In ALC Status File
 
     Only Subscriptions In Policy Are In Alc Status Subscriptions
 
-We Can Upgrade AV A Release To VUT Without Unexpected Errors
+We Can Upgrade AV From A Release To VUT Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
@@ -743,7 +736,7 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
 
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-    #TODO LINUXDAR-2339 remove when this defect is fixed
+    #TODO LINUXDAR-2972 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     #avp tries to pick up the policy after it starts, if the policy is not there it logs the error and then waits 10s for the policy to show up.
@@ -752,10 +745,6 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
     Run Keyword And Expect Error  *
     ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
-
-    #TODO LINUXDAR-2881 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -766,62 +755,8 @@ We Can Upgrade AV A Release To VUT Without Unexpected Errors
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
 
-    Check Update Reports Have Been Processed
-
-    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
-    Should Be Equal As Integers  ${rc}  0
-    Should Be Empty  ${output}
-
-    Create File     /tmp/clean_file    ${CLEAN_STRING}
-    Create File     /tmp/dirty_file    ${EICAR_STRING}
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file /tmp/dirty_file
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-
-Check Installed Version In Status Message Is Correctly Reported Based On Version Ini File
-    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-    # Setup for test.
-    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...   60 secs
-    ...   5 secs
-    ...   File Should Exist  ${status_file}
-
-    Override Local LogConf File for a component   DEBUG  global
-    Run Process  systemctl  restart  sophos-spl
-
-    # Tigger update to make sure everything has settle down foe test, i.e. we do not want files to be updated
-    # when the actual test update is being performed.
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   240 secs
-    ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   2
-
-    # Run test to simulate installedVersion content is correctly generated in status file.
-    # First modify Base and live response version ini files
-    # Base is set to an older version (make sure this is never newer than real installed version).
-    #       Or installer will run.  This is to simulate new version failed to install.
-    # Live reponse version.ini file will be removed, to simulate component never installed.
-    Remove File  ${SOPHOS_INSTALL}/base/VERSION.ini
-    Create File   ${SOPHOS_INSTALL}/base/VERSION.ini   PRODUCT_VERSION = 1.0.123.123
-    Run Process  chmod  640   ${SOPHOS_INSTALL}/base/VERSION.ini
-    Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/VERSION.ini
-    Remove File  ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
-
-    #  This update should not install any files.
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...   240 secs
-    ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   3
-
-    # Check content of ALC_status.xml file contsins the expected installedVersion values.
-    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Base-component  1.0.123.123  ${status_file}
-    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Plugin-liveresponse  ${EMPTY}  ${status_file}
+    Check AV Plugin Permissions
+    Check AV Plugin Can Scan Files
 
 *** Keywords ***
 
