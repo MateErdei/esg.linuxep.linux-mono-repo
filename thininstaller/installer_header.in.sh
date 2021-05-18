@@ -63,6 +63,7 @@ PROXY_CREDENTIALS=
 
 MAX_GROUP_NAME_SIZE=1024
 VALID_PRODUCTS=("antivirus" "mdr")
+REQUEST_NO_PRODUCTS="none"
 
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
 system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
@@ -283,8 +284,10 @@ function is_string_valid_for_xml()
 
 function check_selected_products_are_valid()
 {
-    [ -z "$1" ] && failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Products not passed with '--products=' argument --- aborting install"
+    [[ $1 == ${REQUEST_NO_PRODUCTS} ]] && return 0
+    [ ! -z "$1" -a "$1" != " " ] || failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Products not passed with '--products=' argument --- aborting install"
     IFS=',' read -ra PRODUCTS_ARRAY <<< "$1"
+    [ ! -z "$1" -a "$1" != " " ] || failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Products not passed with '--products=' argument --- aborting install"
     for product in "${PRODUCTS_ARRAY[@]}"; do
         [[ ! "${VALID_PRODUCTS[@]}" =~ "$product" ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Invalid product selected: $product --- aborting install."
     done
@@ -345,6 +348,7 @@ do
         --products=*)
             check_selected_products_are_valid "${i#*=}"
             PRODUCT_ARGUMENTS="--products ${i#*=}"
+            exit 0
             shift
         ;;
         --allow-override-mcs-ca)
