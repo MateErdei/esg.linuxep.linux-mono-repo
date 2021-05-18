@@ -109,7 +109,12 @@ bool SusiGlobalHandler::update(const std::string& path)
             return true;
         }
     }
+    return internal_update(path);
+}
 
+bool SusiGlobalHandler::internal_update(const std::string& path)
+{
+    assert(m_susiInitialised.load(std::memory_order_acquire));
     // SUSI is always initialised by the time we get here
     SusiResult res = SUSI_Update(path.c_str());
     if (res == SUSI_I_UPTODATE)
@@ -166,7 +171,8 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
         if (m_updatePending.load(std::memory_order_acquire))
         {
             LOGDEBUG("Threat scanner triggering pending update");
-            update(m_updatePath);
+            internal_update(m_updatePath);
+            LOGDEBUG("Threat scanner pending update completed");
         }
     }
     return true;

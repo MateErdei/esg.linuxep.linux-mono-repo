@@ -54,6 +54,14 @@ namespace threat_scanner
         std::atomic_bool m_updatePending = false;
         std::string m_updatePath;
         std::mutex m_initializeMutex;
+
+        /**
+         * Update SUSI. Assumes that SUSI has been initialised
+         *
+         * @param path
+         * @return true if update was successful
+         */
+        bool internal_update(const std::string& path);
     };
     using SusiGlobalHandlerSharePtr = std::shared_ptr<SusiGlobalHandler>;
 }
