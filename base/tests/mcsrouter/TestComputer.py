@@ -13,6 +13,7 @@ import PathManager
 
 import mcsrouter.computer
 import mcsrouter.adapters.agent_adapter
+from collections import namedtuple
 
 def getTargetSystem():
     import mcsrouter.targetsystem
@@ -194,6 +195,42 @@ class TestComputer(unittest.TestCase):
             adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
             status_xml = adapter.get_common_status_xml()
             self.assertIn("<deviceGroup>" + group + "</deviceGroup>", status_xml)
+
+    @mock.patch("subprocess.Popen", return_value=FakePopen())
+    @mock.patch("subprocess.check_output", return_value=b'some-hostname')
+    @mock.patch("mcsrouter.ip_address.get_non_local_ipv6", return_value=[])
+    @mock.patch("mcsrouter.ip_address.get_non_local_ipv4", return_value=[])
+    def test_group_status_xml_with_product_selection(self, mo, *mockarg):
+        options_class = namedtuple('Options', 'selected_products')
+        options = options_class(selected_products="mdr,antivirus")
+        adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
+        self.assertIn(("<productsToInstall>"
+                       "<product>mdr</product>"
+                       "<product>antivirus</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products="mdr,antivirus")))
+        self.assertIn(("<productsToInstall>"
+                       "<product>mdr</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products="mdr")))
+        self.assertIn(("<productsToInstall>"
+                       "<product>antivirus</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products="antivirus")))
+        self.assertIn(("<productsToInstall>"
+                       "<product>none</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products="none")))
+        self.assertNotIn(("productsToInstall"),
+                      adapter.get_common_status_xml(options_class(selected_products="mdr,thisStringShouldBeFilteredOut<")))
+        self.assertNotIn(("productsToInstall"),
+                      adapter.get_common_status_xml(options_class(selected_products="antivirus,thisStringShouldBeFilteredOut>")))
+        self.assertNotIn(("productsToInstall"),
+                      adapter.get_common_status_xml(options_class(selected_products="thisStringShouldBeFilteredOut&")))
+        self.assertNotIn(("productsToInstall"),
+                      adapter.get_common_status_xml(options_class(selected_products="thisStringShouldBeFilteredOut'")))
+        self.assertNotIn(("productsToInstall"),
+                      adapter.get_common_status_xml(options_class(selected_products='thisStringShouldBeFilteredOut"&"')))
 
     def test_get_installation_argument_handles_permissions_error(self):
         def mocked_is_file(path):

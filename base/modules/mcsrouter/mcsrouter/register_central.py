@@ -333,6 +333,11 @@ def inner_main(argv):
         dest="customer_token",
         action="store",
         default=None)
+    parser.add_argument(
+        "--products",
+        dest="selected_products",
+        action="store",
+        default=None)
     parser.add_argument('token', help='MCS Token to register with Central',
                         nargs='?', default=None)
     parser.add_argument('url', help='MCS URL to use to register with Central',

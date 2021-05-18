@@ -354,13 +354,13 @@ class MCS:
         token = config.get("MCSToken")
 
         # pre-registration request to the deployment api
-        if options and options.customer_token:
+        if options and options.customer_token and options.selected_products:
             try:
                 response_from_deployment_api = comms.deployment_check(options.customer_token, status)
                 token_from_deployment_api = self.process_deployement_response_body(response_from_deployment_api)
                 if token_from_deployment_api:
                     token = token_from_deployment_api
-            except DeploymentApiException as exception:
+            except (DeploymentApiException, mcs_connection.MCSHttpException) as exception:
                 LOGGER.error(exception)
                 LOGGER.info(f"Continuing registration with default registration token: {token}")
 

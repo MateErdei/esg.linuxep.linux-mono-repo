@@ -390,7 +390,7 @@ class MCSRouter(object):
         assert result != 0
         logger.info("Registration command output = '{}'".format(stdout))
 
-    def register_with_local_cloud_server(self, token=None, url=None):
+    def register_with_local_cloud_server(self, token=None, url=None, customer_token=None, product_selection=None):
         if token is None:
             token = self.local_mcs_token
 
@@ -398,6 +398,15 @@ class MCSRouter(object):
             url = self.local_mcs_URL
 
         command = [self.register_central_path, token, url]
+
+        if customer_token:
+            command.append("--customer-token")
+            command.append(customer_token)
+
+        if product_selection:
+            command.append("--products")
+            command.append(product_selection)
+
         logger.info("Register command = '{}'".format(command))
         subprocess.check_call(command, stdout=self.devnull)
 

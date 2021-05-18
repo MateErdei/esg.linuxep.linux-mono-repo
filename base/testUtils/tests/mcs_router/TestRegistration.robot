@@ -230,6 +230,21 @@ Registering With Unicode Group Adds To Group
     Register With Local Cloud Server
     Check Register Central Log Contains  <deviceGroup>ümlaut</deviceGroup>
 
+Registering And Asking For Just MDR
+    Register With Local Cloud Server  customer_token=blah  product_selection=mdr
+    Check Cloud Server Log Contains  products requested from deployment API: ['mdr']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
+Registering And Asking For Just Antivirus
+    Register With Local Cloud Server  customer_token=blah  product_selection=antivirus
+    Check Cloud Server Log Contains  products requested from deployment API: ['antivirus']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
+Registering And Asking For MDR And Antivirus
+    Register With Local Cloud Server  customer_token=blah  product_selection=mdr,antivirus
+    Check Cloud Server Log Contains  products requested from deployment API: ['mdr', 'antivirus']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
 *** Keywords ***
 Backup Version Ini
     Copy File  ${SOPHOS_INSTALL}/base/VERSION.ini  /tmp/VERSION.ini.bk

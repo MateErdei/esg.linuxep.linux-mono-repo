@@ -136,10 +136,18 @@ class ComputerCommonStatus:
             result.append("</ipAddresses>")
 
         if options and options.selected_products:
-            result.append("<productsToInstall>")
-            for product in options.selected_products:
-                result.append("<product>%s</product>" % product)
-            result.append("</productsToInstall>")
+            selected_products_elements = []
+            invalid_xml = False
+            selected_products_elements.append("<productsToInstall>")
+            for product in options.selected_products.split(","):
+                if is_string_xml_valid(product):
+                    selected_products_elements.append("<product>%s</product>" % product)
+                else:
+                    invalid_xml = True
+                    LOGGER.warning(f"Product string: {product} is not safe to use as part xml request body")
+            selected_products_elements.append("</productsToInstall>")
+            if not invalid_xml:
+                result.append("".join(selected_products_elements))
 
         if self.mac_addresses:
             result.append("<macAddresses>")

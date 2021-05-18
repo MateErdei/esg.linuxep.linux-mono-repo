@@ -22,6 +22,7 @@ import xml.sax.saxutils
 import io
 import zlib
 import urllib.parse
+import json
 
 import logging
 import logging.handlers
@@ -1280,6 +1281,16 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         self.end_headers()
         return True
 
+    def send_400(self):
+        action_log.debug("400")
+        logger.debug("Sending 400 for %s", self.path)
+        self.send_response(400, "BAD_REQUEST")
+        self.send_header("Content-Length", "0")
+        self.sendAWSCookie()
+        self.send_cookie()
+        self.end_headers()
+        return True
+
     def do_GET_hb(self):
         global HEARTBEAT_ENABLED
 
@@ -1538,6 +1549,58 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         hash = base64.b64encode("{}:ThisIsThePassword".format(eid).encode('utf-8'))
         return self.ret(hash)
 
+    def mcs_deployment(self):
+        auth = self.headers['Authorization']
+        try:
+            auth = base64.b64decode(auth)
+        except:
+            return self.send_401()
+        global REGISTER_401
+        if REGISTER_401:
+            return self.send_401()
+
+        body = self.getBody()
+        products = []
+        logger.info("JAKE-1")
+        try:
+            doc = xml.dom.minidom.parseString(body)
+            for node in doc.getElementsByTagName("product"):
+                products.append(node.firstChild.nodeValue)
+        except Exception as ex:
+            logger.error(f"got error: {ex}")
+            return self.send_400()
+        logger.info(f"products requested from deployment API: {products}")
+
+        logger.info("JAKE0")
+        template_body = '{"dciFileName":"db55fcf8898da2b3f3c06f26e9246cbb",\
+                         "registrationToken":"ThisIsARegTokenFromTheDeploymentAPI",\
+                         "products":[]}'
+        logger.info("JAKE1")
+        json_dict = json.loads(template_body)
+        logger.info("JAKE2")
+        supported_products = "mdr", "antivirus", "none"
+        logger.info("JAKE3")
+        other_products = "intercept"
+        logger.info("JAKE4")
+        for product in products:
+            if product in supported_products:
+                json_dict["products"].append({"product": product.upper(), "supported": "true", "reasons": []})
+            else:
+                if product in other_products:
+                    json_dict["products"].append({"product": product.upper(), "supported": "false", "reasons": ["UNSUPPORTED_PLATFORM"]})
+                else:
+                    return self.send_400()
+        logger.info(f"JAKE5")
+        logger.info(json_dict)
+        try:
+            json_string = json.dumps(json_dict)
+        except Exception as e:
+            logger.error(e)
+        logger.info(f"JAKE6")
+        logger.info(f"returning: {json_string}")
+        logger.info(f"JAKE7")
+        return self.ret(json_string)
+
     def mcs_event(self):
         match_object = re.match(r"/mcs/events/endpoint/([^/]+)", self.path)
         if not match_object:
@@ -1617,6 +1680,9 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.mcs_register()
         elif self.path == "/mcs":
             return self.ret("")
+        elif self.path == "/mcs/install/deployment-info/2":
+            return self.mcs_deployment()
+        logger.info("JAKE?")
 
         user_agent = self.headers.get("User-Agent", "<unknown>").split('/', 1)[0]
         logger.debug("PUT - %s (%s); Cookie=%s", self.path, user_agent,

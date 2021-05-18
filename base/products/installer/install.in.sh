@@ -628,7 +628,7 @@ then
     fi
     if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
     then
-        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN  $MCS_MESSAGE_RELAYS  $PRODUCT_ARGUMENTS
+        ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN_ARGUMENT  $MCS_MESSAGE_RELAYS  $PRODUCT_ARGUMENTS
         REGISTER_EXIT=$?
         if [[ "$REGISTER_EXIT" != 0 ]]
         then
