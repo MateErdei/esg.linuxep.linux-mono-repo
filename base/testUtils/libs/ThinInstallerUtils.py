@@ -541,6 +541,15 @@ class ThinInstallerUtils(object):
                     return version
         raise AssertionError("Installer: {}\nDid not contain line matching: {}".format(installer, regex_pattern))
 
+    def replace_register_central_with_script_that_echos_args(self):
+        register_central = os.path.join("/opt","sophos-spl","base","bin","registerCentral")
+        output_file_path = os.path.join("/tmp","registerCentralArgs")
+        os.remove(register_central)
+        with open(register_central, "w") as file:
+            file.write(f'#!/bin/bash\necho "$@">{output_file_path}')
+        os.chmod(register_central, 0o777)
+        return output_file_path
+
     def validate_env_passed_to_base_installer(self, expected_products, expected_customer_token, expected_mcs_token, expected_mcs_url):
         with open("/tmp/PRODUCT_ARGUMENTS") as file:
             actual = file.read()

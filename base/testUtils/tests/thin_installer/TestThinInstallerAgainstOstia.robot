@@ -64,6 +64,8 @@ Teardown
     Stop Proxy Servers
     Stop Proxy If Running
     Stop Local Cloud Server
+    Run Keyword If Test Failed   Dump Cloud Server Log
+    Cleanup Local Cloud Server Logs
     Teardown Reset Original Path
     Run Keyword If Test Failed    Dump Thininstaller Log
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
@@ -326,6 +328,54 @@ Thin Installer Force Works
 
     Check Thininstaller Log Does Not Contain  ERROR
     Should Exist  ${REGISTER_CENTRAL}
+
+    remove_thininstaller_log
+    Check Root Directory Permissions Are Not Changed
+
+Thin Installer Registers Existing Installation
+    [Tags]  THIN_INSTALLER  MCS_ROUTER
+    Create Initial Installation
+
+    # Force an installation
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}
+
+    Check Thininstaller Log Does Not Contain  ERROR
+    Check Cloud Server Log Contains  Register with ::ThisIsARegToken\n
+    Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
+
+    remove_thininstaller_log
+    Check Root Directory Permissions Are Not Changed
+
+Thin Installer Does Not Pass Customer Token Argument To Register Central When No Product Selection Arguments Given
+    [Tags]  THIN_INSTALLER  MCS_ROUTER
+    Create Initial Installation
+    ${registerCentralArgFilePath} =  replace_register_central_with_script_that_echos_args
+
+    # Force an installation
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}
+
+    Check Thininstaller Log Does Not Contain  ERROR
+    ${registerCentralArgs} =  Get File  ${registerCentralArgFilePath}
+    # Register central arguments should not contain --customer-token by default, as older installations may not
+    # Be able to process the argument
+    Should Be Equal As Strings  '${registerCentralArgs.strip()}'   'ThisIsARegToken https://localhost:4443/mcs'
+
+    remove_thininstaller_log
+    Check Root Directory Permissions Are Not Changed
+
+Thin Installer Registers Existing Installation With Product Args
+    [Tags]  THIN_INSTALLER  MCS_ROUTER
+    Create Initial Installation
+
+    # Force an installation
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  args=--products=mdr
+
+    Check Thininstaller Log Does Not Contain  ERROR
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+    Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegToken\n
+
+    replace_register_central_with_script_that_echos_args
 
     remove_thininstaller_log
     Check Root Directory Permissions Are Not Changed
