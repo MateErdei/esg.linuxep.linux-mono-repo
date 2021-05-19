@@ -323,7 +323,7 @@ class MCS:
             mcs_connection.create_user_agent(
                 product_version, token))
 
-    def process_deployement_response_body(self, body):
+    def process_deployment_response_body(self, body):
         try:
             response_json = json.loads(body)
 
@@ -341,9 +341,10 @@ class MCS:
             if products:
                 for product in products:
                     if not product["supported"]:
-                        LOGGER.warning(f"requested product: {product['product']}, is not supported. Reasons: {product['reasons']}")
+                        LOGGER.warning(f"requested product: {product['product']}, is not supported for this licence and platform. Reasons: {product['reasons']}. "
+                                        "The product will not be assigned in central")
         except Exception as exception:
-            LOGGER.debug(f"Check for unssuported products failed: {exception}")
+            LOGGER.debug(f"Check for unsupported products failed: {exception}")
 
         return deployment_registration_token
 
@@ -366,7 +367,7 @@ class MCS:
         if options and options.customer_token and options.selected_products:
             try:
                 response_from_deployment_api = comms.deployment_check(options.customer_token, status)
-                token_from_deployment_api = self.process_deployement_response_body(response_from_deployment_api)
+                token_from_deployment_api = self.process_deployment_response_body(response_from_deployment_api)
                 if token_from_deployment_api:
                     token = token_from_deployment_api
             except (DeploymentApiException, mcs_connection.MCSHttpException) as exception:

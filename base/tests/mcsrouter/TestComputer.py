@@ -230,16 +230,25 @@ class TestComputer(unittest.TestCase):
                        "<product>antivirus</product>"
                        "</productsToInstall>"),
                       adapter.get_common_status_xml(options_class(selected_products="mdr,antivirus,")))
-        self.assertNotIn(("productsToInstall"),
+        self.assertIn(("<productsToInstall>"
+                       "<product>mdr</product>"
+                       "</productsToInstall>"),
                       adapter.get_common_status_xml(options_class(selected_products="mdr,thisStringShouldBeFilteredOut<")))
-        self.assertNotIn(("productsToInstall"),
+        self.assertIn(("<productsToInstall>"
+                       "<product>antivirus</product>"
+                       "</productsToInstall>"),
                       adapter.get_common_status_xml(options_class(selected_products="antivirus,thisStringShouldBeFilteredOut>")))
-        self.assertNotIn(("productsToInstall"),
+        self.assertIn(("<productsToInstall></productsToInstall>"),
                       adapter.get_common_status_xml(options_class(selected_products="thisStringShouldBeFilteredOut&")))
-        self.assertNotIn(("productsToInstall"),
+        self.assertIn(("<productsToInstall></productsToInstall>"),
                       adapter.get_common_status_xml(options_class(selected_products="thisStringShouldBeFilteredOut'")))
-        self.assertNotIn(("productsToInstall"),
-                      adapter.get_common_status_xml(options_class(selected_products='thisStringShouldBeFilteredOut"&"')))
+        self.assertIn(("<productsToInstall></productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products='thisStringShouldBeFilteredOut"')))
+        self.assertIn(("<productsToInstall>"
+                       "<product>antivirus</product>"
+                       "<product>mdr</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products='thisStringShouldBeFilteredOut",antivirus,mdr')))
 
     def test_get_installation_device_group_handles_permissions_error(self):
         def mocked_is_file(path):

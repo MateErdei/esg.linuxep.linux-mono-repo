@@ -245,7 +245,7 @@ class TestMCS(unittest.TestCase):
                 self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.set_user_agent.call_count, 1)
                 mcsrouter.mcsclient.mcs_connection.MCSConnection.set_user_agent.assert_called_with('Sophos MCS Client/1.1.3.703 Linux sessions regToken')
 
-    def test_process_deployement_response_body(self):
+    def test_process_deployment_response_body(self):
         m = self.createMCS()
 
         GOOD_BODY = """{"dciFileName":"db55fcf8898da2b3f3c06f26e9246cbb",\
@@ -261,12 +261,12 @@ class TestMCS(unittest.TestCase):
         """
 
         # with token
-        self.assertEqual(m.process_deployement_response_body(GOOD_BODY), "9b53995c2efccba4a25a6118f5f0434eb28db001e131c1211a7c15e052faa38f")
-        self.assertEqual(m.process_deployement_response_body(GOOD_BODY_UNSUPPORTED), "5128db71f1f32f095b9c133cac308f78c50516b07d1af5b0a637a891b54ff706")
+        self.assertEqual(m.process_deployment_response_body(GOOD_BODY), "9b53995c2efccba4a25a6118f5f0434eb28db001e131c1211a7c15e052faa38f")
+        self.assertEqual(m.process_deployment_response_body(GOOD_BODY_UNSUPPORTED), "5128db71f1f32f095b9c133cac308f78c50516b07d1af5b0a637a891b54ff706")
         # When not json
-        self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployement_response_body, "garbage")
+        self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployment_response_body, "garbage")
         # When No Token
-        self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployement_response_body, BODY_WITHOUT_TOKEN)
+        self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployment_response_body, BODY_WITHOUT_TOKEN)
 
 class TestCommandCheckInterval(unittest.TestCase):
     def testCreation(self):

@@ -1281,26 +1281,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         self.end_headers()
         return True
 
-    def send_400(self):
-        action_log.debug("400")
-        logger.debug("Sending 400 for %s", self.path)
-        self.send_response(400, "BAD_REQUEST")
-        self.send_header("Content-Length", "0")
-        self.sendAWSCookie()
-        self.send_cookie()
-        self.end_headers()
-        return True
-
-    def send_500(self):
-        action_log.debug("500")
-        logger.debug("Sending 500 for %s", self.path)
-        self.send_response(500, "BAD_REQUEST")
-        self.send_header("Content-Length", "0")
-        self.sendAWSCookie()
-        self.send_cookie()
-        self.end_headers()
-        return True
-
     def do_GET_hb(self):
         global HEARTBEAT_ENABLED
 
@@ -1583,16 +1563,16 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                 if node.firstChild.nodeValue == "none":
                     continue
                 elif node.firstChild.nodeValue == "fail_400":
-                    return self.send_400()
+                    return self.send_error_code(400, "UNAUTHORIZED")
                 elif node.firstChild.nodeValue == "fail_401":
-                    return self.send_401()
+                    return self.send_error_code(401, "BAD_REQUEST")
                 elif node.firstChild.nodeValue == "fail_500":
-                    return self.send_500()
+                    return self.send_error_code(500, "INTERNAL")
 
                 products.append(node.firstChild.nodeValue)
         except Exception as ex:
             logger.error(f"got error: {ex}")
-            return self.send_400()
+            return self.send_error_code(400, "BAD_REQUEST")
         logger.info(f"products requested from deployment API: {products}")
 
         template_body = '{"dciFileName":"db55fcf8898da2b3f3c06f26e9246cbb",\
@@ -1608,7 +1588,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                 if product in unsupported_products:
                     json_dict["products"].append({"product": product.upper(), "supported": False, "reasons": ["UNSUPPORTED_PLATFORM"]})
                 else:
-                    return self.send_400()
+                    return self.send_error_code(400, "product doesn't exist")
         logger.info(json_dict)
         try:
             json_string = json.dumps(json_dict)
