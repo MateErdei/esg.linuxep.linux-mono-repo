@@ -113,9 +113,7 @@ Thin Installer Calls Base Installer With Environment Variables For Product Argum
     Validate Env Passed To Base Installer  --products ${productArgs}   --customer-token ThisIsACustomerToken   ThisIsARegToken   https://localhost:1233
 
 Thin Installer Calls Base Installer Without Environment Variables For Product Argument
-    ${baseInstallerEnv} =  Get File  /tmp/env_thininstaller_called_base_installer_with
-    Should Not Contain  ${baseInstallerEnv}  --products
-    Should Contain  ${baseInstallerEnv}  --customer-token ThisIsACustomerToken
+    Validate Env Passed To Base Installer  ${EMPTY}  --customer-token ThisIsACustomerToken  ThisIsARegToken  https://localhost:1233
 
 Run Thin Installer And Check Argument Is Saved To Install Options File
     [Arguments]  ${argument}
