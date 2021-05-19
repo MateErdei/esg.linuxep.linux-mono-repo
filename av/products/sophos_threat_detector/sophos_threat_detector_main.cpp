@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
+#include <sys/stat.h>
 namespace fs = sophos_filesystem;
 
 const char* PluginName = PLUGIN_NAME;
@@ -25,5 +26,6 @@ int main()
     appConfig.setData("PLUGIN_INSTALL", pluginInstall);
 
     LogSetup logging;
+    ::umask(0750);
     return sspl::sophosthreatdetectorimpl::sophos_threat_detector_main();
 }
