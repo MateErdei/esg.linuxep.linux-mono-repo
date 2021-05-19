@@ -18,17 +18,21 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    struct HoldBody
-    {
-        std::string body;
-    };
-
     size_t write_data(void* buffer, size_t size, size_t nmemb, void* userp) // NOLINT
     {
-        HoldBody* resp = static_cast<HoldBody*>(userp);
-        char* data = static_cast<char*>(buffer);
-        resp->body += std::string{ data, data + (size * nmemb) };
-        return nmemb;
+        ((std::string*)userp)->append((char*)buffer, size * nmemb);
+        return size * nmemb;
+    }
+
+    size_t write_debug(CURL *, curl_infotype type,
+                      char *data, size_t size,
+                      void *userp) // NOLINT
+    {
+        if (type == CURLINFO_TEXT || type == CURLINFO_HEADER_IN || type == CURLINFO_HEADER_OUT )
+        {
+            ((std::string*)userp)->append((char*)data, size);
+        }
+        return 0;
     }
 
 } // namespace
@@ -164,11 +168,17 @@ namespace Common::HttpSenderImpl
             *curlCode = CURLE_FAILED_INIT;
             return HttResponse{ CURLE_FAILED_INIT };
         }
-        HoldBody holdBody;
+
+        std::string holdBody;
+        std::string throwaway;
         if (captureBody)
         {
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &holdBody);
+            curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, write_data);
+            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &throwaway);
+            curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, write_debug);
+            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &holdBody);
         }
 
         CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
@@ -307,7 +317,8 @@ namespace Common::HttpSenderImpl
             if (m_curlWrapper->curlGetResponseCode(curl, &response_code) == CURLE_OK)
             {
                 HttpResponse httpResponse{ static_cast<int>(response_code) };
-                httpResponse.bodyContent = std::move(holdBody.body);
+                httpResponse.bodyContent = holdBody;
+                LOGERROR(holdBody);
                 return httpResponse;
             }
         }
