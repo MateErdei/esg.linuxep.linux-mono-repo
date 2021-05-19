@@ -343,9 +343,7 @@ Thin Installer Registers Existing Installation
     Check Cloud Server Log Contains  Register with ::ThisIsARegToken\n
     Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
-
     remove_thininstaller_log
-    Check Root Directory Permissions Are Not Changed
 
 Thin Installer Does Not Pass Customer Token Argument To Register Central When No Product Selection Arguments Given
     [Tags]  THIN_INSTALLER  MCS_ROUTER
@@ -362,7 +360,6 @@ Thin Installer Does Not Pass Customer Token Argument To Register Central When No
     Should Be Equal As Strings  '${registerCentralArgs.strip()}'   'ThisIsARegToken https://localhost:4443/mcs'
 
     remove_thininstaller_log
-    Check Root Directory Permissions Are Not Changed
 
 Thin Installer Registers Existing Installation With Product Args
     [Tags]  THIN_INSTALLER  MCS_ROUTER
@@ -375,10 +372,7 @@ Thin Installer Registers Existing Installation With Product Args
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
     Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegToken\n
 
-    replace_register_central_with_script_that_echos_args
-
     remove_thininstaller_log
-    Check Root Directory Permissions Are Not Changed
 
 Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
     [Documentation]  Created for LINUXDAR-2249
