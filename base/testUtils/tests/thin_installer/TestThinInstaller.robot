@@ -358,9 +358,9 @@ Thin Installer With Duplicate Product Args Args Fails
     Run Default Thininstaller With Args  27  --products=mdr,antivirus,mdr
     Check Thininstaller Log Contains   Error: Duplicate product given: mdr --- aborting install
 
-Thin Installer With Subset Of Product Args Args Fails
-    Run Default Thininstaller With Args  27  --products=ntivir
-    Check Thininstaller Log Contains   Error: Duplicate product given: mdr --- aborting install
+Thin Installer With Trailing Comma In Product Args Fails
+    Run Default Thininstaller With Args  27  --products=antivirus,
+    Check Thininstaller Log Contains   Error: Products passed with trailing comma --- aborting install
 
 Thin Installer Passes MDR Products Arg To Base Installer
     Setup Warehouse
