@@ -249,8 +249,14 @@ Registering And Asking For MDR And Antivirus
 
 Registering And Asking For Unsupported Product
     Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=unsupported_product
-    Check Register Central Log Contains  requested product: UNSUPPORTED_PRODUCT, is not supported. Reasons: ['UNSUPPORTED_PLATFORM']
+    Check Register Central Log Contains  requested product: UNSUPPORTED_PRODUCT, is not supported for this licence and platform. Reasons: ['UNSUPPORTED_PLATFORM']. The product will not be assigned in central
     Check Cloud Server Log Contains  products requested from deployment API: ['unsupported_product']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
+Register Central Filters Products With Unsafe XML Characters And Logs Warning
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=mdr,unsupported_product>
+    Check Register Central Log Contains  Product string: unsupported_product> is not safe to use as part xml request body
+    Check Cloud Server Log Contains  products requested from deployment API: ['mdr']
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
 Registering And Asking For No Products
