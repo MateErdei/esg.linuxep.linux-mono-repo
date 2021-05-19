@@ -534,7 +534,11 @@ then
         then
             echo "Attempting to register existing installation with Sophos Central"
             echo "Central token is [$CLOUD_TOKEN], Central URL is [$CLOUD_URL]"
-            ${REGISTER_CENTRAL} "${CLOUD_TOKEN}" "${CLOUD_URL}" ${MESSAGE_RELAYS}
+
+            # unset Customer Token if no product selection arguments given, so we don't potentially pass it to
+            # older versions of register central
+            [[ -n $PRODUCT_ARGUMENTS ]] || unset CUSTOMER_TOKEN_ARGUMENT
+            ${REGISTER_CENTRAL} "${CLOUD_TOKEN}" "${CLOUD_URL}" ${MESSAGE_RELAYS} $PRODUCT_ARGUMENTS $CUSTOMER_TOKEN_ARGUMENT
             if [ $? -ne 0 ]; then
                 failure ${EXITCODE_FAILED_REGISTER} "ERROR: Failed to register with Sophos Central - error $?"
             fi
