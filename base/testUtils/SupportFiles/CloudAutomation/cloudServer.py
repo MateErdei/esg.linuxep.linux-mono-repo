@@ -1586,10 +1586,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         unsupported_products = "unsupported_product"
         for product in products:
             if product in supported_products:
-                json_dict["products"].append({"product": product.upper(), "supported": "true", "reasons": []})
+                json_dict["products"].append({"product": product.upper(), "supported": True, "reasons": []})
             else:
                 if product in unsupported_products:
-                    json_dict["products"].append({"product": product.upper(), "supported": "false", "reasons": ["UNSUPPORTED_PLATFORM"]})
+                    json_dict["products"].append({"product": product.upper(), "supported": False, "reasons": ["UNSUPPORTED_PLATFORM"]})
                 else:
                     return self.send_400()
         logger.info(f"JAKE5")
