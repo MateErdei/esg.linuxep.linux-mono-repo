@@ -19,7 +19,7 @@ then
     echo -e "--force\t\t\t\tForce re-install"
     echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
     echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
-    echo -e "--products='<products>'\t\Comma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr"
+    echo -e "--products='<products>'\t\Comma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr | --products=none"
     exit 0
 fi
 
@@ -265,7 +265,7 @@ function check_for_duplicate_arguments()
     declare -a checked_arguments
     for argument in "$@"; do
         argument_name="${argument%=*}"
-        [[ "${checked_arguments[@]}" =~ "$argument_name" ]] && failure ${EXITCODE_DUPLICATE_ARGUMENTS_GIVEN} "Error: Duplicate argument given: $argument_name --- aborting install"
+        [[ "${checked_arguments[@]}" =~ (^| )"$argument_name"($| ) ]] && failure ${EXITCODE_DUPLICATE_ARGUMENTS_GIVEN} "Error: Duplicate argument given: $argument_name --- aborting install"
         checked_arguments+=("$argument_name")
     done
 }
@@ -284,13 +284,17 @@ function is_string_valid_for_xml()
 
 function check_selected_products_are_valid()
 {
+    [[ "${1: -1}" == "," ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Products passed with trailing comma --- aborting install"
     [[ $1 == ${REQUEST_NO_PRODUCTS} ]] && return 0
     [ ! -z "$1" -a "$1" != " " ] || failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Products not passed with '--products=' argument --- aborting install"
+    declare -a selected_products
     IFS=',' read -ra PRODUCTS_ARRAY <<< "$1"
     [ ! -z "$PRODUCTS_ARRAY" -a "$PRODUCTS_ARRAY" != " " ] || failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Products not passed with '--products=' argument --- aborting install"
     for product in "${PRODUCTS_ARRAY[@]}"; do
         [ ! -z "$product" -a "$product" != " " ] || failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Product cannot be whitespace"
-        [[ ! "${VALID_PRODUCTS[@]}" =~ "$product" ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Invalid product selected: $product --- aborting install."
+        [[ ! "${VALID_PRODUCTS[@]}" =~ (^| )"$product"($| ) ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Invalid product selected: $product --- aborting install."
+        [[ "${selected_products[@]}" =~ (^| )"$product"($| ) ]] && failure ${EXITCODE_BAD_PRODUCT_SELECTED} "Error: Duplicate product given: $product --- aborting install."
+        selected_products+=("$product")
     done
 }
 
