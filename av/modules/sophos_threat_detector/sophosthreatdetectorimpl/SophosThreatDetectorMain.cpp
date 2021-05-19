@@ -418,14 +418,14 @@ static int inner_main()
 
         if (FDUtils::fd_isset(usr1Monitor.monitorFd(), &tempRead))
         {
-            LOGERROR("Sophos Threat Detector received SIGUSR1 - reloading");
+            LOGINFO("Sophos Threat Detector received SIGUSR1 - reloading");
             usr1Monitor.triggered();
             continue;
         }
 
         if (FDUtils::fd_isset(sigTermMonitor.monitorFd(), &tempRead))
         {
-            LOGERROR("Sophos Threat Detector received SIGTERM - shutting down");
+            LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
             sigTermMonitor.triggered();
             returnCode = common::E_SIGTERM;
             break;
