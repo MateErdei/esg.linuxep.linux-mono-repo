@@ -425,9 +425,10 @@ class ThinInstallerUtils(object):
 
         self.run_thininstaller(command, expectedReturnCode)
 
-    def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode, mcsurl, force_certs_dir, product_argument):
+    def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode, mcsurl, force_certs_dir, product_argument=""):
         command = [self.default_installsh_path]
-        command.append(product_argument)
+        if product_argument != "":
+            command.append(product_argument)
 
         self.run_thininstaller(command, expectedReturnCode, mcsurl=mcsurl, force_certs_dir=force_certs_dir)
 

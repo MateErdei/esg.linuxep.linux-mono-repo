@@ -106,6 +106,22 @@ Thin Installer Calls Base Installer With Environment Variables For Product Argum
     Should Contain  ${baseInstallerEnv}  --products ${productArgs}
     Should Contain  ${baseInstallerEnv}  --customer-token ThisIsACustomerToken
 
+Thin Installer Calls Base Installer Without Environment Variables For Product Argument
+    ${baseInstallerEnv} =  Get File  /tmp/env_thininstaller_called_base_installer_with
+    Should Not Contain  ${baseInstallerEnv}  --products
+    Should Contain  ${baseInstallerEnv}  --customer-token ThisIsACustomerToken
+
+Run Thin Installer And Check Argument Is Saved To Install Options File
+    [Arguments]  ${argument}
+    ${install_location}=  get_default_install_script_path
+    ${thin_installer_cmd}=  Create List    ${install_location}   ${argument}
+    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
+    Run Thin Installer  ${thin_installer_cmd}   expected_return_code=3  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
+    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
+    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
+    ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
+    Should Contain  ${contents}  ${argument}
+
 *** Variables ***
 ${CUSTOM_DIR_BASE} =  /CustomPath
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
@@ -365,3 +381,14 @@ Thin Installer Passes None Products Arg To Base Installer
     Setup Warehouse
     Run Default Thinistaller With Product Args And Central  0  https://localhost:1233  ${SUPPORT_FILES}/sophos_certs  --products=none
     Thin Installer Calls Base Installer With Environment Variables For Product Argument  none
+
+Thin Installer Passes No Products Args To Base Installer When None Are Given
+    Setup Warehouse
+    Run Default Thinistaller With Product Args And Central  0  https://localhost:1233  ${SUPPORT_FILES}/sophos_certs
+    Thin Installer Calls Base Installer Without Environment Variables For Product Argument
+
+Disable Auditd Argument Saved To Install Options
+    Run Thin Installer And Check Argument Is Saved To Install Options File  --disable-auditd
+
+Do Not Disable Auditd Argument Saved To Install Options
+    Run Thin Installer And Check Argument Is Saved To Install Options File  --do-not-disable-auditd
