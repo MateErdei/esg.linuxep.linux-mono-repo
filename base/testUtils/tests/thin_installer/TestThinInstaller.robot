@@ -322,6 +322,10 @@ Thin Installer With Invalid Product Arguments Fails
     Run Default Thininstaller With Args  27  --products=unsupported_product
     Check Thininstaller Log Contains   Error: Invalid product selected: unsupported_product --- aborting install
 
+Thin Installer With Subset Of Product Args Args Fails
+    Run Default Thininstaller With Args  27  --products=ntivir
+    Check Thininstaller Log Contains   Error: Invalid product selected: ntivir --- aborting install
+
 Thin Installer With No Product Arguments Fails
     Run Default Thininstaller With Args  27  --products=
     Check Thininstaller Log Contains   Error: Products not passed with '--products=' argument --- aborting install
@@ -330,9 +334,17 @@ Thin Installer With Only Commas As Product Arguments Fails
     Run Default Thininstaller With Args  27  --products=,
     Check Thininstaller Log Contains   Error: Products not passed with '--products=' argument --- aborting install
 
-Thin Installer With Spaces As Args Fails
+Thin Installer With Spaces In Product Args Fails
     Run Default Thininstaller With Args  27  --products=mdr,\ ,antivirus
     Check Thininstaller Log Contains   Error: Product cannot be whitespace
+
+Thin Installer With Duplicate Product Args Args Fails
+    Run Default Thininstaller With Args  27  --products=mdr,antivirus,mdr
+    Check Thininstaller Log Contains   Error: Duplicate product given: mdr --- aborting install
+
+Thin Installer With Subset Of Product Args Args Fails
+    Run Default Thininstaller With Args  27  --products=ntivir
+    Check Thininstaller Log Contains   Error: Duplicate product given: mdr --- aborting install
 
 Thin Installer Passes MDR Products Arg To Base Installer
     Setup Warehouse
