@@ -348,7 +348,7 @@ Thin Installer With No Product Arguments Fails
 
 Thin Installer With Only Commas As Product Arguments Fails
     Run Default Thininstaller With Args  27  --products=,
-    Check Thininstaller Log Contains   Error: Products not passed with '--products=' argument --- aborting install
+    Check Thininstaller Log Contains   Error: Products passed with trailing comma --- aborting install
 
 Thin Installer With Spaces In Product Args Fails
     Run Default Thininstaller With Args  27  --products=mdr,\ ,antivirus
