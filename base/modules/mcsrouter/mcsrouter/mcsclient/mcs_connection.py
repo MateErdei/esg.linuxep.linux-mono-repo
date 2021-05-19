@@ -616,10 +616,10 @@ class MCSConnection:
         # currentPath is only defined once we have opened a connection
         base_path = self.__m_current_path
         full_path = base_path + path
-        LOGGER.info(f"full path: {full_path}")
-        LOGGER.info(f"headers: {headers}")
-        LOGGER.info(f"encoded_body: {encoded_body}")
-        LOGGER.info(f"method: {method}")
+        LOGGER.debug(f"full path: {full_path}")
+        LOGGER.debug(f"headers: {headers}")
+        LOGGER.debug(f"encoded_body: {encoded_body}")
+        LOGGER.debug(f"method: {method}")
         conn.request(method, full_path, body=encoded_body, headers=headers)
         response = conn.getresponse()
         response_headers = {
@@ -918,7 +918,6 @@ class MCSConnection:
         __request
         """
         headers.setdefault("User-Agent", self.__m_user_agent)
-        LOGGER.info(f"User-Agent: {self.__m_user_agent}")
 
         if self.__m_cookies:
             cookies = "; ".join(["=".join(cookie)
@@ -961,7 +960,6 @@ class MCSConnection:
         LOGGER.debug(headers)
         (headers, body) = self.__request(
             "/install/deployment-info/2", headers, body=status_xml, method="POST")
-        LOGGER.info(body)
 
         LOGGER.debug(f"Body returned from deployment api: '{body}'")
         return body

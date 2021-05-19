@@ -1576,7 +1576,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
         body = self.getBody()
         products = []
-        logger.info("JAKE-1")
         try:
             doc = xml.dom.minidom.parseString(body)
             for node in doc.getElementsByTagName("product"):
@@ -1609,15 +1608,12 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                     json_dict["products"].append({"product": product.upper(), "supported": False, "reasons": ["UNSUPPORTED_PLATFORM"]})
                 else:
                     return self.send_400()
-        logger.info(f"JAKE5")
         logger.info(json_dict)
         try:
             json_string = json.dumps(json_dict)
         except Exception as e:
             logger.error(e)
-        logger.info(f"JAKE6")
         logger.info(f"returning: {json_string}")
-        logger.info(f"JAKE7")
         return self.ret(json_string)
 
     def mcs_event(self):
@@ -1701,7 +1697,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("")
         elif self.path == "/mcs/install/deployment-info/2":
             return self.mcs_deployment()
-        logger.info("JAKE?")
 
         user_agent = self.headers.get("User-Agent", "<unknown>").split('/', 1)[0]
         logger.debug("PUT - %s (%s); Cookie=%s", self.path, user_agent,
