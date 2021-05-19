@@ -11,6 +11,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Susi.h>
 
 #include <unistd.h>
+#include <sys/stat.h>
 
 namespace fs = sophos_filesystem;
 
@@ -59,6 +60,7 @@ int main()
     fs::path libUpdaterSource = updateSource / "libupdater";
     fs::path installDest = pluginInstall / "chroot/susi/distribution_version";
 
+    ::umask(027);
     auto ret = ::chdir(libUpdaterSource.c_str());
     if (ret != 0)
     {
