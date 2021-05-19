@@ -25,12 +25,12 @@ namespace
     }
 
     size_t write_debug(CURL *, curl_infotype type,
-                      char *data, size_t size,
+                      void *buffer, size_t size,
                       void *userp) // NOLINT
     {
-        if (type == CURLINFO_TEXT || type == CURLINFO_HEADER_IN || type == CURLINFO_HEADER_OUT )
+        if (type == CURLINFO_TEXT || type == CURLINFO_HEADER_OUT )
         {
-            ((std::string*)userp)->append((char*)data, size);
+            ((std::string*)userp)->append((char*)buffer, size);
         }
         return 0;
     }
@@ -176,9 +176,9 @@ namespace Common::HttpSenderImpl
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &holdBody);
             curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, write_data);
-            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &throwaway);
-            curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, write_debug);
             curl_easy_setopt(curl, CURLOPT_HEADERDATA, &holdBody);
+            curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, write_debug);
+            curl_easy_setopt(curl, CURLOPT_DEBUGDATA, &holdBody);
         }
 
         CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
@@ -317,8 +317,10 @@ namespace Common::HttpSenderImpl
             if (m_curlWrapper->curlGetResponseCode(curl, &response_code) == CURLE_OK)
             {
                 HttpResponse httpResponse{ static_cast<int>(response_code) };
-                httpResponse.bodyContent = holdBody;
+                LOGINFO("completed");
                 LOGERROR(holdBody);
+                LOGDEBUG(throwaway);
+                httpResponse.bodyContent = holdBody;
                 return httpResponse;
             }
         }
