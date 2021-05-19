@@ -102,9 +102,8 @@ Get System Path
 
 Thin Installer Calls Base Installer With Environment Variables For Product Argument
     [Arguments]  ${productArgs}
-    ${baseInstallerEnv} =  Get File  /tmp/env_thininstaller_called_base_installer_with
-    Should Contain  ${baseInstallerEnv}  --products ${productArgs}
-    Should Contain  ${baseInstallerEnv}  --customer-token ThisIsACustomerToken
+
+    Validate Env Passed To Base Installer  --products ${productArgs}   --customer-token ThisIsACustomerToken   ThisIsARegToken   https://localhost:1233
 
 Thin Installer Calls Base Installer Without Environment Variables For Product Argument
     ${baseInstallerEnv} =  Get File  /tmp/env_thininstaller_called_base_installer_with

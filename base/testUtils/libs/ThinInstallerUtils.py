@@ -541,3 +541,28 @@ class ThinInstallerUtils(object):
                     return version
         raise AssertionError("Installer: {}\nDid not contain line matching: {}".format(installer, regex_pattern))
 
+    def validate_env_passed_to_base_installer(self, expected_products, expected_customer_token, expected_mcs_token, expected_mcs_url):
+        with open("/tmp/PRODUCT_ARGUMENTS") as file:
+            actual = file.read()
+            logger.info(actual)
+            if expected_products != actual.strip():
+                raise AssertionError(f"expected $PRODUCT_ARGUMENTS to be: '{expected_products}', not '{actual}'")
+
+        with open("/tmp/CUSTOMER_TOKEN_ARGUMENT") as file:
+            actual = file.read()
+            logger.info(actual)
+            logger.info(expected_customer_token)
+            if expected_customer_token != actual.strip():
+                raise AssertionError(f"expected $CUSTOMER_TOKEN_ARGUMENT to be: '{expected_customer_token}', not '{actual}'")
+
+        with open("/tmp/MCS_TOKEN") as file:
+            actual = file.read()
+            logger.info(actual)
+            if expected_mcs_token != actual.strip():
+                raise AssertionError(f"expected $MCS_TOKEN to be: '{expected_mcs_token}', not '{actual}'")
+
+        with open("/tmp/MCS_URL") as file:
+            actual = file.read()
+            logger.info(actual)
+            if expected_mcs_url != actual.strip():
+                raise AssertionError(f"expected $MCS_URL to be: '{expected_mcs_url}', not '{actual}'")

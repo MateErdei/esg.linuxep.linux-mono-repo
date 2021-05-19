@@ -140,11 +140,14 @@ class WarehouseGenerator(object):
             if ex.errno not in [errno.EEXIST, errno.ENOENT]:
                 raise
         with open(filepath, 'w+') as installfile:
-            installfile.write("#!/bin/bash\n"
-                              "echo 'INSTALLER EXECUTED'\n"
-                              "echo args: $@ > /tmp/args_thininstaller_called_base_installer_with\n"
-                              "env > /tmp/env_thininstaller_called_base_installer_with\n"
-                              "exit 0\n")
+            installfile.write('#!/bin/bash\n'
+                              'echo "INSTALLER EXECUTED"\n'
+                              'echo args: "$@" > /tmp/args_thininstaller_called_base_installer_with\n'
+                              'echo "$PRODUCT_ARGUMENTS"> /tmp/PRODUCT_ARGUMENTS\n'
+                              'echo "$CUSTOMER_TOKEN_ARGUMENT"> /tmp/CUSTOMER_TOKEN_ARGUMENT\n'
+                              'echo "$MCS_TOKEN"> /tmp/MCS_TOKEN\n'
+                              'echo "$MCS_URL"> /tmp/MCS_URL\n'
+                              'exit 0\n')
 
     def generate_warehouse(self, update_from_sophos_location=True, **kwargs):
         if kwargs:
