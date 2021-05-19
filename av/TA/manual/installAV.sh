@@ -12,6 +12,13 @@ do
           failure 1;;
     esac
 done
+shift $((OPTIND -1))
+# Allow positional arguments instead
+if (( $# == 2 ))
+then
+    MCS_TOKEN=$1
+    MCS_URL=$2
+fi
 
 STARTINGDIR=$(pwd)
 cd ${0%/*}
