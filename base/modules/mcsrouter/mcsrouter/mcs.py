@@ -340,7 +340,7 @@ class MCS:
             products = response_json.get("products", None)
             if products:
                 for product in products:
-                    if product["supported"] == "false":
+                    if not product["supported"]:
                         LOGGER.warning(f"requested product: {product['product']}, is not supported. Reasons: {product['reasons']}")
         except Exception as exception:
             LOGGER.debug(f"Check for unssuported products failed: {exception}")

@@ -400,10 +400,10 @@ class MCSRouter(object):
         command = [self.register_central_path, token, url]
 
         # robot treats: product_selection=none as setting it to the python None type
-        if customer_token != "":
-            # hence why we do this
-            if customer_token == None:
-                customer_token = "none"
+        if customer_token:
+            # # hence why we do this
+            # if customer_token == None:
+            #     customer_token = "none"
             command.append("--customer-token")
             command.append(customer_token)
 

@@ -27,6 +27,8 @@ import mcsrouter.mcs_push_client
 ORIGINAL_MCS_CONNECTION = mcsrouter.mcsclient.mcs_connection.MCSConnection
 FLAG_FILE = "/tmp/flags-mcs.json"
 import mcsrouter.utils.config
+from TestUtils import assert_message_in_logs
+
 
 class EscapeException(Exception):
     pass
@@ -266,7 +268,6 @@ class TestMCS(unittest.TestCase):
         self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployement_response_body, "garbage")
         # When No Token
         self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployement_response_body, BODY_WITHOUT_TOKEN)
-        # TODO - validation of the response body for SUPPORTED products/etc so we can log warnings/etc
 
 
 

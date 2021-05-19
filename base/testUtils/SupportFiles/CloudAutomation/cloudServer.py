@@ -1570,6 +1570,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         try:
             doc = xml.dom.minidom.parseString(body)
             for node in doc.getElementsByTagName("product"):
+                if node.firstChild.nodeValue == "none":
+                    continue
                 products.append(node.firstChild.nodeValue)
         except Exception as ex:
             logger.error(f"got error: {ex}")
