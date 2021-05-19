@@ -26,6 +26,6 @@ int main()
     appConfig.setData("PLUGIN_INSTALL", pluginInstall);
 
     LogSetup logging;
-    ::umask(027);
+    ::umask(023);
     return sspl::sophosthreatdetectorimpl::sophos_threat_detector_main();
 }

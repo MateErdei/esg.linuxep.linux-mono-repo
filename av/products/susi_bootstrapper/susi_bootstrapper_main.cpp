@@ -60,7 +60,7 @@ int main()
     fs::path libUpdaterSource = updateSource / "libupdater";
     fs::path installDest = pluginInstall / "chroot/susi/distribution_version";
 
-    ::umask(027);
+    ::umask(023);
     auto ret = ::chdir(libUpdaterSource.c_str());
     if (ret != 0)
     {
