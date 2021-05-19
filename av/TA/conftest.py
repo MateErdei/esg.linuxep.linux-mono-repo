@@ -18,6 +18,7 @@ sys.path.append(os.environ['TA_DIR'])
 
 from Libs.fixtures.BaseMockService import BaseMockService, install_component, component_test_setup
 from Libs.fixtures.AVPlugin import AVPlugin
+from Libs.fixtures.SophosThreatDetector import SophosThreatDetector
 from _pytest.runner import runtestprotocol
 from pathlib import Path
 import os
@@ -65,6 +66,13 @@ def av_plugin_instance():
     av = AVPlugin()
     yield av
     av.stop_av()
+
+
+@pytest.fixture(scope="class")
+def sophos_threat_detector():
+    av = SophosThreatDetector()
+    yield av
+    av.stop()
 
 
 def collect_logs(test_name):

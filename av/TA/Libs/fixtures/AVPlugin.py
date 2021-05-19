@@ -46,6 +46,7 @@ def _is_event_xml(path):
     logger.info("%s has root element: %s", path, root.tag)
     return False
 
+
 class AVPlugin(object):
     def __init__(self):
         self._proc = None
