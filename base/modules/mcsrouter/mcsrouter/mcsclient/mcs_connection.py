@@ -940,7 +940,6 @@ class MCSConnection:
         (headers, body) = self.__request("", {})  # pylint: disable=unused-variable
         return body
 
-
     def build_deployment_headers(self, user_token):
         try:
             headers = {

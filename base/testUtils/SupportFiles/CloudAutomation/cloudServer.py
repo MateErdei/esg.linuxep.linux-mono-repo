@@ -1560,6 +1560,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         return self.ret(hash)
 
     def mcs_deployment(self):
+        logger.info("Processing deployment api call")
         auth = self.headers['Authorization']
         try:
             logger.info(f"Auth: '{auth}'")

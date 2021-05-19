@@ -521,6 +521,15 @@ class MCSRouter(object):
             else:
                 raise AssertionError("Expected cloud server log to contain {}".format(expected))
 
+    def check_cloud_server_log_does_not_contain(self, not_expected):
+        import codecs
+        server_log = os.path.join(self.tmp_path, "cloudServer.log")
+        with codecs.open(server_log, "r", 'utf-8') as f:
+            lines = f.readlines()
+            for idx, line in enumerate(lines):
+                if not_expected in line:
+                    raise AssertionError("Expected cloud server log contains {}".format(not_expected))
+
     def check_cloud_server_log_contains_pattern(self, expected, occurs=1):
         import codecs
         import re

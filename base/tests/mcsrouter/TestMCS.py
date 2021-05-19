@@ -29,7 +29,6 @@ FLAG_FILE = "/tmp/flags-mcs.json"
 import mcsrouter.utils.config
 from TestUtils import assert_message_in_logs
 
-
 class EscapeException(Exception):
     pass
 
@@ -269,10 +268,6 @@ class TestMCS(unittest.TestCase):
         # When No Token
         self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployement_response_body, BODY_WITHOUT_TOKEN)
 
-
-
-
-
 class TestCommandCheckInterval(unittest.TestCase):
     def testCreation(self):
         config = mcsrouter.utils.config.Config()
@@ -374,10 +369,6 @@ class TestCommandCheckInterval(unittest.TestCase):
         command_check_interval.set_use_fallback_polling_interval(False)
         command_check_interval.set()
         self.assertEqual(command_check_interval.get(), 53)
-
-
-
-
 
 if __name__ == '__main__':
     import logging

@@ -37,6 +37,8 @@ Successful Registration With Correct Log Permissions
     [Tags]  SMOKE  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER  TAP_TESTS
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
+    Check Cloud Server Log Does Not Contain  Processing deployment api call
+    Check Cloud Server Log Contains  Register with ::ThisIsARegToken
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/register_central.log  root  root  -rw-------
 
 Successful Registration With New Token Gives New Machine ID and resends existing status and event
