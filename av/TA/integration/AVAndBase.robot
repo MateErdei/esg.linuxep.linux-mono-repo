@@ -807,7 +807,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
 
 
-AV Log Cannot Be Written To With Different Permissions
+AV Plugin Can Work Despite Specified Log File Being Read-Only
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     Mark AV Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
@@ -818,6 +818,7 @@ AV Log Cannot Be Written To With Different Permissions
     AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
     Run  chmod 444 ${AV_LOG_PATH}
+    Register Cleanup  Run  chmod 600 ${AV_LOG_PATH}
 
     ${AV_PID} =  Record AV Plugin PID
     Log  Initial PID: ${AV_PID}
@@ -837,10 +838,8 @@ AV Log Cannot Be Written To With Different Permissions
     Log  output is ${output}
     AV Plugin Log Should Not Contain With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
-    Run  chmod 600 ${AV_LOG_PATH}
 
-
-Scan Now Log Cannot Be Written To With Different Permissions
+Scan Now Can Work Despite Specified Log File Being Read-Only
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
     Register Cleanup    Remove File  /tmp_test/naughty_eicar
 
@@ -863,6 +862,7 @@ Scan Now Log Cannot Be Written To With Different Permissions
     Mark Scan Now Log
 
     Run  chmod 444 '${SCANNOW_LOG_PATH}'
+    Register Cleanup  Run  chmod 600 '${SCANNOW_LOG_PATH}'
 
     ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
     Log  New permissions: ${result.stdout}
@@ -878,10 +878,8 @@ Scan Now Log Cannot Be Written To With Different Permissions
     Log File  ${SCANNOW_LOG_PATH}
     File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${SCAN_NOW_LOG_MARK}
 
-    Run  chmod 600 '${SCANNOW_LOG_PATH}'
 
-
-Scheduled Scan Log Cannot Be Written To With Different Permissions
+Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Register Cleanup    Remove File  ${CLOUDSCAN_LOG_PATH}
     Register Cleanup    Remove File  /tmp_test/naughty_eicar
 
@@ -903,6 +901,7 @@ Scheduled Scan Log Cannot Be Written To With Different Permissions
     Mark Log  ${CLOUDSCAN_LOG_PATH}
 
     Run  chmod 444 '${CLOUDSCAN_LOG_PATH}'
+    Register Cleanup  Run  chmod 600 '${CLOUDSCAN_LOG_PATH}'
 
     ${result} =  Run Process  ls  -l  ${CLOUDSCAN_LOG_PATH}
     Log  New permissions: ${result.stdout}
@@ -916,5 +915,3 @@ Scheduled Scan Log Cannot Be Written To With Different Permissions
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=18
     Log File  ${CLOUDSCAN_LOG_PATH}
     File Log Should Not Contain With Offset  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
-
-    Run  chmod 600 '${CLOUDSCAN_LOG_PATH}'

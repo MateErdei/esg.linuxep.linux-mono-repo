@@ -500,7 +500,7 @@ SUSI Is Given Non-Permission CustomerId
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
 
 
-Threat Detector Log Cannot Be Written To With Different Permissions
+Threat Detector Can Work Despite Specified Log File Being Read-Only
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     Mark Sophos Threat Detector Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
@@ -511,6 +511,7 @@ Threat Detector Log Cannot Be Written To With Different Permissions
     Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
 
     Run  chmod 444 ${THREAT_DETECTOR_LOG_PATH}
+    Register Cleanup  Run  chmod 600 ${THREAT_DETECTOR_LOG_PATH}
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Log  Initial PID: ${SOPHOS_THREAT_DETECTOR_PID}
@@ -532,11 +533,8 @@ Threat Detector Log Cannot Be Written To With Different Permissions
     Log  output is ${output}
     Threat Detector Log Should Not Contain With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
 
-    Run  chmod 600 ${THREAT_DETECTOR_LOG_PATH}
 
-
-
-SUSI Debug Log Cannot Be Written To With Different Permissions
+SUSI Can Work Despite Specified Log File Being Read-Only
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     Mark Susi Debug Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
@@ -547,6 +545,7 @@ SUSI Debug Log Cannot Be Written To With Different Permissions
     SUSI Debug Log Contains With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
 
     Run  chmod 444 ${SUSI_DEBUG_LOG_PATH}
+    Register Cleanup  Run  chmod 600 ${SUSI_DEBUG_LOG_PATH}
 
     ${AV_PID} =  Record AV Plugin PID
     Log  Initial PID: ${AV_PID}
@@ -565,8 +564,6 @@ SUSI Debug Log Cannot Be Written To With Different Permissions
     Log  return code is ${rc}
     Log  output is ${output}
     SUSI Debug Log Does Not Contain With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
-
-    Run  chmod 600 ${SUSI_DEBUG_LOG_PATH}
 
 
 *** Keywords ***
