@@ -37,3 +37,5 @@ TA/local_warehouses/
 TA/output.zip
 TA/tmp/
 tmp/
+/TA/manual/sophos_threat_detector/sophos_threat_detector.log
+/TA/sophos_threat_detector/sophos_threat_detector.log
