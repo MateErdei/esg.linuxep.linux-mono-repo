@@ -260,6 +260,7 @@ class MCSRouter(object):
                                            os.path.join(self.sophos_install, "var", "cache", "mcs_fragmented_policies"),
                                            os.path.join(self.sophos_install, "var", "lock-sophosspl")]
         self.mcs_policy_time = None
+        self.register_central_log = os.path.join(self.sophos_install, "logs", "base", "register_central.log")
 
     def __del__(self):
         if self.cloud_std_handler:
@@ -328,6 +329,11 @@ class MCSRouter(object):
     def start_fuzzed_local_cloud_server(self, *args):
         command = [sys.executable, os.path.join(self.support_path, "fuzz_tests", "fuzzed_cloud_server.py")]
         self._launch_local_fake_cloud_process(command, args)
+
+
+    def cleanup_register_central_log(self):
+        if os.path.isfile(self.register_central_log):
+            os.remove(self.register_central_log)
 
     def cleanup_local_cloud_server_logs(self):
         if os.path.exists(self.cloud_std_err):

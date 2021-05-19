@@ -241,7 +241,7 @@ class TestComputer(unittest.TestCase):
         self.assertNotIn(("productsToInstall"),
                       adapter.get_common_status_xml(options_class(selected_products='thisStringShouldBeFilteredOut"&"')))
 
-    def test_get_installation_argument_handles_permissions_error(self):
+    def test_get_installation_device_group_handles_permissions_error(self):
         def mocked_is_file(path):
             return path == '/tmp/sophos-spl/base/etc/install_options'
 
@@ -249,32 +249,33 @@ class TestComputer(unittest.TestCase):
             raise PermissionError()
 
         def check_log(log):
-            assert log == 'Insufficient permissions to read /tmp/sophos-spl/base/etc/install_options file.'
+            assert log == 'Insufficient permissions to read /tmp/sophos-spl/base/etc/install_options file, device group will not be set.'
+
         with mock.patch("mcsrouter.adapters.agent_adapter.os.path.isfile", mocked_is_file):
             with mock.patch("builtins.open", throw_permissions_error):
                 with mock.patch("mcsrouter.adapters.agent_adapter.LOGGER.error", check_log):
-                    argument = mcsrouter.adapters.agent_adapter.get_installation_argument("FalseArg")
-                    self.assertEqual(None, argument)
+                    group = mcsrouter.adapters.agent_adapter.get_installation_device_group()
+                    self.assertEqual(None, group)
 
     @mock.patch("mcsrouter.adapters.agent_adapter.os.path.isfile", return_value=False)
-    def test_get_installation_argument_handles_missing_file(self, *mock_args):
-        argument = mcsrouter.adapters.agent_adapter.get_installation_argument("FalseArg")
-        self.assertEqual(None, argument)
+    def test_get_installation_device_group_handles_missing_file(self, *mock_args):
+        group = mcsrouter.adapters.agent_adapter.get_installation_device_group()
+        self.assertEqual(None, group)
 
     @mock.patch("mcsrouter.adapters.agent_adapter.os.path.isfile", return_value=True)
     @mock.patch("builtins.open", new_callable=mock_open, read_data="")
-    def test_get_installation_argument_handles_empty_file(self, *mock_args):
-        argument = mcsrouter.adapters.agent_adapter.get_installation_argument("FalseArg")
-        self.assertEqual(None, argument)
+    def test_get_installation_device_group_handles_empty_file(self, *mock_args):
+        group = mcsrouter.adapters.agent_adapter.get_installation_device_group()
+        self.assertEqual(None, group)
 
     @mock.patch("mcsrouter.adapters.agent_adapter.path_manager.install_options_file", return_value="/proc/self/exe")
     @mock.patch("mcsrouter.adapters.agent_adapter.os.path.isfile", return_value=True)
-    def test_get_argument_handles_binary_file(self, *mock_args):
+    def test_get_installation_device_group_handles_binary_file(self, *mock_args):
         def check_log(log):
-            assert log == "Argument cannot be decoded. Please run installer from a UTF-8 locale."
+            assert log == "Group cannot be decoded please run installer from a UTF-8 locale"
         with mock.patch("mcsrouter.adapters.agent_adapter.LOGGER.error", check_log):
-            argument = mcsrouter.adapters.agent_adapter.get_installation_argument("FalseArg")
-            self.assertEqual(None, argument)
+            group = mcsrouter.adapters.agent_adapter.get_installation_device_group()
+            self.assertEqual(None, group)
 
     @mock.patch("os.path.isdir", return_value=True)
     @mock.patch("os.listdir", return_value=[])

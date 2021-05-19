@@ -1291,6 +1291,16 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         self.end_headers()
         return True
 
+    def send_500(self):
+        action_log.debug("500")
+        logger.debug("Sending 500 for %s", self.path)
+        self.send_response(500, "BAD_REQUEST")
+        self.send_header("Content-Length", "0")
+        self.sendAWSCookie()
+        self.send_cookie()
+        self.end_headers()
+        return True
+
     def do_GET_hb(self):
         global HEARTBEAT_ENABLED
 
@@ -1572,6 +1582,13 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             for node in doc.getElementsByTagName("product"):
                 if node.firstChild.nodeValue == "none":
                     continue
+                elif node.firstChild.nodeValue == "fail_400":
+                    return self.send_400()
+                elif node.firstChild.nodeValue == "fail_401":
+                    return self.send_401()
+                elif node.firstChild.nodeValue == "fail_500":
+                    return self.send_500()
+
                 products.append(node.firstChild.nodeValue)
         except Exception as ex:
             logger.error(f"got error: {ex}")

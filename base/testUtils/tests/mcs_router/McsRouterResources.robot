@@ -59,6 +59,7 @@ MCSRouter Default Test Teardown
     Cleanup Proxy Logs
 
     Cleanup Local Cloud Server Logs
+    Cleanup Register Central Log
     Deregister From Central
 
     Cleanup MCSRouter Directories

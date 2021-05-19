@@ -370,8 +370,7 @@ class MCS:
                 if token_from_deployment_api:
                     token = token_from_deployment_api
             except (DeploymentApiException, mcs_connection.MCSHttpException) as exception:
-                LOGGER.error(exception)
-                LOGGER.info(f"Continuing registration with default registration token: {token}")
+                LOGGER.error(f"Deployment API call failed: {exception}, Continuing registration with default registration token: {token}")
 
         (endpoint_id, password) = comms.register(token, status)
         self.__m_computer.clear_cache()

@@ -138,7 +138,7 @@ class ThinInstallerUtils(object):
             fh.write("TOKEN=" + token + new_line)
             fh.write("URL=" + url + new_line)
             fh.write("UPDATE_CREDENTIALS=" + update_creds + new_line)
-            fh.write("CUSTOMER_ID=" + customer_token + new_line)
+            fh.write("CUSTOMER_TOKEN=" + customer_token + new_line)
             fh.write("PRODUCTS=all" + new_line)
             if message_relays:
                 fh.write("MESSAGE_RELAYS=" + message_relays + new_line)

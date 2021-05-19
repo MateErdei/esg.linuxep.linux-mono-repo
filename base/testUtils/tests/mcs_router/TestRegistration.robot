@@ -256,6 +256,24 @@ Registering And Asking For No Products
     Check Cloud Server Log Contains  products requested from deployment API: []
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
+Registering Where Deployment API Check Fails with 400 Falls Back To Default Registration Token
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=fail_400
+    Check Cloud Server Log Contains  Register with ::ThisIsARegToken
+    Check Register Central Log Contains  Deployment API call failed: MCS HTTP Error: code=400
+    Check Register Central Log Contains  Continuing registration with default registration token: ThisIsARegToken
+
+Registering Where Deployment API Check Fails with 401 Falls Back To Default Registration Token
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=fail_401
+    Check Cloud Server Log Contains  Register with ::ThisIsARegToken
+    Check Register Central Log Contains  Deployment API call failed: MCS HTTP Error: code=401
+    Check Register Central Log Contains  Continuing registration with default registration token: ThisIsARegToken
+
+Registering Where Deployment API Check Fails with 500 Falls Back To Default Registration Token
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=fail_500
+    Check Cloud Server Log Contains  Register with ::ThisIsARegToken
+    Check Register Central Log Contains  Deployment API call failed: MCS HTTP Error: code=500
+    Check Register Central Log Contains  Continuing registration with default registration token: ThisIsARegToken
+
 *** Keywords ***
 Backup Version Ini
     Copy File  ${SOPHOS_INSTALL}/base/VERSION.ini  /tmp/VERSION.ini.bk
