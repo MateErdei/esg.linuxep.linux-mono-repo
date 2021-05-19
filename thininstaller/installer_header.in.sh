@@ -429,13 +429,13 @@ tail -n+${ARCHIVE} "${INSTALL_FILE}" > ${SOPHOS_TEMP_DIRECTORY}/installer.tar.gz
 cd ${SOPHOS_TEMP_DIRECTORY}
 
 # Read customer token from credentials file.
-if [ -z "${OVERRIDE_CUSTOMER_ID}" ]
+if [ -z "${OVERRIDE_CUSTOMER_TOKEN}" ]
 then
-    CUSTOMER_ID=$(grep 'CUSTOMER_ID=' credentials.txt | sed 's/CUSTOMER_ID=//')
+    CUSTOMER_TOKEN=$(grep 'CUSTOMER_TOKEN=' credentials.txt | sed 's/CUSTOMER_TOKEN=//')
 else
-    CUSTOMER_ID=${OVERRIDE_CUSTOMER_ID}
+    CUSTOMER_TOKEN=${OVERRIDE_CUSTOMER_TOKEN}
 fi
-CUSTOMER_TOKEN_ARGUMENT="--customer-token $CUSTOMER_ID"
+CUSTOMER_TOKEN_ARGUMENT="--customer-token $CUSTOMER_TOKEN"
 
 # Read cloud token from credentials file.
 if [ -z "${OVERRIDE_CLOUD_TOKEN}" ]
