@@ -1445,6 +1445,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received
 
 CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  /tmp/scan.log
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
 
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar -o /tmp/scan.log

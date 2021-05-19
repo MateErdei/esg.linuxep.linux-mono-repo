@@ -501,6 +501,8 @@ SUSI Is Given Non-Permission CustomerId
 
 
 Threat Detector Can Work Despite Specified Log File Being Read-Only
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
+
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     Mark Sophos Threat Detector Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
@@ -535,6 +537,8 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
 
 
 SUSI Can Work Despite Specified Log File Being Read-Only
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
+
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     Mark Susi Debug Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar

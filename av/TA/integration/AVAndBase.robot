@@ -808,6 +808,8 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
+
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     Mark AV Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
