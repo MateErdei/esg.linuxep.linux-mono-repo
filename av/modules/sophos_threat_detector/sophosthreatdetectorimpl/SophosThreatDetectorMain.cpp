@@ -392,17 +392,26 @@ static int inner_main()
             LOGERROR("Failed to read from socket - shutting down. Error: " << strerror(error)<< " (" << error << ')');
             break;
         }
-        else if (activity == 0 && scannerFactory->susiIsInitialized())
+        else if (activity == 0)
         {
-            long currentTimeout = shutdownTimer->timeout();
-            if (currentTimeout <= 0)
+            if (scannerFactory->susiIsInitialized())
             {
-                LOGDEBUG("No scans requested for " << timeout.tv_sec << " seconds - shutting down.");
-                break;
+                long currentTimeout = shutdownTimer->timeout();
+                if (currentTimeout <= 0)
+                {
+                    LOGDEBUG("No scans requested for " << timeout.tv_sec << " seconds - shutting down.");
+                    break;
+                }
+                else
+                {
+                    LOGDEBUG("Scan requested less than " << timeout.tv_sec << " seconds ago - continuing");
+                    continue;
+                }
             }
             else
             {
-                LOGDEBUG("Scan requested less than " << timeout.tv_sec << " seconds ago - continuing");
+                LOGDEBUG("SUSI is not initialised - resetting shutdown timer");
+                shutdownTimer->reset();
                 continue;
             }
         }

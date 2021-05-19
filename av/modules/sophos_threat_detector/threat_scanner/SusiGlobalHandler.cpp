@@ -180,5 +180,5 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
 
 bool SusiGlobalHandler::susiIsInitialized()
 {
-    return m_susiInitialised;
+    return m_susiInitialised.load(std::memory_order_acquire);
 }
