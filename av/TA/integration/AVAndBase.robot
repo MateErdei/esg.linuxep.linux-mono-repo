@@ -842,6 +842,7 @@ AV Log Cannot Be Written To With Different Permissions
 
 Scan Now Log Cannot Be Written To With Different Permissions
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
+    Register Cleanup    Remove File  /tmp_test/naughty_eicar
 
     Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
 
@@ -853,7 +854,7 @@ Scan Now Log Cannot Be Written To With Different Permissions
     Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     Wait Until AV Plugin Log Contains With Offset  Sending scan complete
-    Log file  ${SCANNOW_LOG_PATH}
+    Log File  ${SCANNOW_LOG_PATH}
     File Log Contains  ${SCANNOW_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
 
     ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
@@ -874,7 +875,46 @@ Scan Now Log Cannot Be Written To With Different Permissions
     Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     Wait Until AV Plugin Log Contains With Offset  Sending scan complete
-    Log file  ${SCANNOW_LOG_PATH}
+    Log File  ${SCANNOW_LOG_PATH}
     File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${SCAN_NOW_LOG_MARK}
 
     Run  chmod 600 '${SCANNOW_LOG_PATH}'
+
+
+Scheduled Scan Log Cannot Be Written To With Different Permissions
+    Register Cleanup    Remove File  ${CLOUDSCAN_LOG_PATH}
+    Register Cleanup    Remove File  /tmp_test/naughty_eicar
+
+    Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
+
+    Mark AV Log
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+
+    Wait until scheduled scan updated With Offset
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=250
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=18
+    Log File  ${CLOUDSCAN_LOG_PATH}
+    File Log Contains  ${CLOUDSCAN_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
+
+    ${result} =  Run Process  ls  -l  ${CLOUDSCAN_LOG_PATH}
+    Log  Old permissions: ${result.stdout}
+
+    Mark Log  ${CLOUDSCAN_LOG_PATH}
+
+    Run  chmod 444 '${CLOUDSCAN_LOG_PATH}'
+
+    ${result} =  Run Process  ls  -l  ${CLOUDSCAN_LOG_PATH}
+    Log  New permissions: ${result.stdout}
+
+    Mark AV Log
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+
+    Wait until scheduled scan updated With Offset
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=250
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=18
+    Log File  ${CLOUDSCAN_LOG_PATH}
+    File Log Should Not Contain With Offset  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
+
+    Run  chmod 600 '${CLOUDSCAN_LOG_PATH}'

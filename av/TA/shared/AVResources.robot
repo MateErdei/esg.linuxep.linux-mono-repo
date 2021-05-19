@@ -23,6 +23,7 @@ ${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detec
 ${THREAT_DETECTOR_LOG_SYMLINK}  ${AV_PLUGIN_PATH}/log/sophos_threat_detector.log
 ${SUSI_DEBUG_LOG_PATH}          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
 ${SCANNOW_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Scan Now.log
+${CLOUDSCAN_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Sophos Cloud Scheduled Scan.log
 ${TELEMETRY_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
 ${CHROOT_LOGGING_SYMLINK}   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
 ${SUSI_STARTUP_SETTINGS_FILE}    ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
