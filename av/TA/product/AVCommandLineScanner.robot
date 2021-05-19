@@ -1455,7 +1455,7 @@ Avscanner Log Cannot Be Written To With Different Permissions
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     File Log Contains  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test
 
-    Mark Avscanner Log  /tmp/scan.log
+    Mark Log  /tmp/scan.log
     Run  chmod 444 /tmp/scan.log
 
     ${result} =  Run Process  ls  -l  /tmp/scan.log
@@ -1466,6 +1466,6 @@ Avscanner Log Cannot Be Written To With Different Permissions
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    File Log Should Not Contain With Offset  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${AVSCANNER_LOG_MARK}
+    File Log Should Not Contain With Offset  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
 
     Remove File  /tmp/scan.log

@@ -838,3 +838,43 @@ AV Log Cannot Be Written To With Different Permissions
     AV Plugin Log Should Not Contain With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
     Run  chmod 600 ${AV_LOG_PATH}
+
+
+Scan Now Log Cannot Be Written To With Different Permissions
+    Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
+
+    Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
+
+    Configure scan now
+    Mark AV Log
+
+    Send Sav Action To Base  ScanNow_Action.xml
+
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    Wait Until AV Plugin Log Contains With Offset  Sending scan complete
+    Log file  ${SCANNOW_LOG_PATH}
+    File Log Contains  ${SCANNOW_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
+
+    ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
+    Log  Old permissions: ${result.stdout}
+
+    Mark Scan Now Log
+
+    Run  chmod 444 '${SCANNOW_LOG_PATH}'
+
+    ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
+    Log  New permissions: ${result.stdout}
+
+    Configure scan now
+    Mark AV Log
+
+    Send Sav Action To Base  ScanNow_Action.xml
+
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    Wait Until AV Plugin Log Contains With Offset  Sending scan complete
+    Log file  ${SCANNOW_LOG_PATH}
+    File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${SCAN_NOW_LOG_MARK}
+
+    Run  chmod 600 '${SCANNOW_LOG_PATH}'
