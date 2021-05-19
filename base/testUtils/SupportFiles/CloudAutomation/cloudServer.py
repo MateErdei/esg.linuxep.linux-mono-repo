@@ -1547,13 +1547,13 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             auth = base64.b64decode(auth[len("Basic "):])
             if auth != b"ThisIsACustomerToken":
                 logger.error(f"got auth token: {auth}, expected 'ThisIsACustomerToken'")
-                return self.send_401()
+                return self.send_error_code(401, "BAD_REQUEST")
 
         except:
-            return self.send_401()
+            return self.send_error_code(401, "BAD_REQUEST")
         global REGISTER_401
         if REGISTER_401:
-            return self.send_401()
+            return self.send_error_code(401, "BAD_REQUEST")
 
         body = self.getBody()
         products = []
