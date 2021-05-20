@@ -558,7 +558,7 @@ class TestMCSConnection(unittest.TestCase):
             self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token.called)
             assert_message_in_logs("Failed to set expiration time of JWT token due to error", logs.output, log_level="WARNING")
 
-    def test_build_deployment_headers(self):
+    def test_build_deployment_headers_returns_correct_headers_given_a_user_token(self):
         mcs_connection = FakeMCSConnection("""<command>
         <id></id>
         <appId>LiveQuery</appId>

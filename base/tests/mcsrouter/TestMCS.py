@@ -245,29 +245,39 @@ class TestMCS(unittest.TestCase):
                 self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.set_user_agent.call_count, 1)
                 mcsrouter.mcsclient.mcs_connection.MCSConnection.set_user_agent.assert_called_with('Sophos MCS Client/1.1.3.703 Linux sessions regToken')
 
-    def test_process_deployment_response_body(self):
+    def test_process_deployment_response_body_returns_token_when_product_is_supported(self):
         m = self.createMCS()
 
         GOOD_BODY = """{"dciFileName":"db55fcf8898da2b3f3c06f26e9246cbb",\
         "registrationToken":"9b53995c2efccba4a25a6118f5f0434eb28db001e131c1211a7c15e052faa38f",\
         "products":[{"product":"MDR","supported":true,"reasons":[]},{"product":"ANTIVIRUS","supported":true,"reasons":[]}]}\
         """
+
+        self.assertEqual(m.process_deployment_response_body(GOOD_BODY), "9b53995c2efccba4a25a6118f5f0434eb28db001e131c1211a7c15e052faa38f")
+
+    def test_process_deployment_response_body_returns_token_when_requested_product_is_unsupported(self):
+        m = self.createMCS()
+
         GOOD_BODY_UNSUPPORTED = """{"dciFileName":"db55fcf8898da2b3f3c06f26e9246cbb",
         "products":[{"product":"DEVICE_ENCRYPTION","supported":false,"reasons":["UNSUPPORTED_PLATFORM","UNLICENSED"]}],\
         "registrationToken":"5128db71f1f32f095b9c133cac308f78c50516b07d1af5b0a637a891b54ff706"}\
         """
+
+        self.assertEqual(m.process_deployment_response_body(GOOD_BODY_UNSUPPORTED), "5128db71f1f32f095b9c133cac308f78c50516b07d1af5b0a637a891b54ff706")
+
+    def test_process_deployment_response_body_throws_when_given_invalid_json(self):
+        m = self.createMCS()
+
+        self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployment_response_body, "garbage")
+
+    def test_process_deployment_response_body_throws_given_garbage_input(self):
+        m = self.createMCS()
+
         BODY_WITHOUT_TOKEN = """{"dciFileName":"db55fcf8898da2b3f3c06f26e9246cbb",
         "products":[{"product":"DEVICE_ENCRYPTION","supported":false,"reasons":["UNSUPPORTED_PLATFORM","UNLICENSED"]}]}\
         """
-
-        # with token
-        self.assertEqual(m.process_deployment_response_body(GOOD_BODY), "9b53995c2efccba4a25a6118f5f0434eb28db001e131c1211a7c15e052faa38f")
-        self.assertEqual(m.process_deployment_response_body(GOOD_BODY_UNSUPPORTED), "5128db71f1f32f095b9c133cac308f78c50516b07d1af5b0a637a891b54ff706")
-        # When not json
-        self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployment_response_body, "garbage")
         # When No Token
         self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployment_response_body, BODY_WITHOUT_TOKEN)
-
 class TestCommandCheckInterval(unittest.TestCase):
     def testCreation(self):
         config = mcsrouter.utils.config.Config()
