@@ -110,6 +110,28 @@ EDR Restarts If File Descriptor Limit Hit
     ...  20 secs
     ...  EDR Plugin Log Contains X Times   Early request to stop found.  1
 
+EDR Plugin Can Have Logging Level Changed Individually
+    Check EDR Plugin Installed With Base
+    #setting edr_osquery to DEBUG provides all DEBUG logging (these can be hidden by specifying the component with INFO level)
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [edr_osquery]\nVERBOSITY=DEBUG\n
+    Restart EDR
+    Wait Until Keyword Succeeds
+        ...  15 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains   Logger edr_osquery configured for level: DEBUG
+
+EDR Plugin Can Have Logging Level Changed Based On Components
+    Check EDR Plugin Installed With Base
+    #With edr_osquery being set to INFO, the other sub-components can be set to DEBUG and have the specified logging level
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [edr_osquery]\nVERBOSITY=INFO\n[edr]\nVERBOSITY=DEBUG\n
+    Remove File         ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    Restart EDR
+    Wait Until Keyword Succeeds
+        ...  15 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains   Logger edr_osquery configured for level: INFO
+    EDR Plugin Log Contains   Logger edr configured for level: DEBUG
+
 
 EDR Plugin Stops Without Errors
     Check EDR Plugin Installed With Base
