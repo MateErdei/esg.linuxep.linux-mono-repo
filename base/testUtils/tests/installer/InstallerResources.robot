@@ -222,3 +222,8 @@ Verify Sophos Users And Sophos Groups Are Created
     Verify User Created   sophos-spl-network
     Verify User Created   sophos-spl-local
     Verify User Created   sophos-spl-updatescheduler
+
+Should Not Have A Given Message In Journalctl Since Certain Time
+    [Arguments]  ${message}  ${time}
+    ${result} =  Run Process  journalctl --since "${time}" | grep "${message}"  shell=True  timeout=20
+    Should Be Equal As Integers    ${result.rc}    1

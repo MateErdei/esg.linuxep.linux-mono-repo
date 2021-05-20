@@ -121,8 +121,3 @@ Upgrade Test Teardown
     General Test Teardown
     Remove Directory  /opt/tmp/version2  true
     Require Uninstalled
-
-Should Not Have A Given Message In Journalctl Since Certain Time
-    [Arguments]  ${message}  ${time}
-    ${result} =  Run Process  journalctl --since "${time}" | grep "${message}"  shell=True  timeout=20
-    Should Be Equal As Integers    ${result.rc}    1

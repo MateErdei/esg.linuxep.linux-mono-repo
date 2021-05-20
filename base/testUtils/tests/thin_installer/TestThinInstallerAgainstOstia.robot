@@ -312,7 +312,6 @@ Thin Installer Parses Update Caches Correctly
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
-
 Thin Installer Force Works
     # Install to default location and break it
     Create Initial Installation
@@ -323,11 +322,16 @@ Thin Installer Force Works
     Remove Directory  /opt/sophos-spl  recursive=True
     Should Not Exist  ${REGISTER_CENTRAL}
 
+    ${time} =  Get Current Date
+    ${message} =  Set Variable  : Reloading.
+
     # Force an installation
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  args=--force
 
     Check Thininstaller Log Does Not Contain  ERROR
     Should Exist  ${REGISTER_CENTRAL}
+
+    Should Not Have A Given Message In Journalctl Since Certain Time  ${message}  ${time}
 
     remove_thininstaller_log
     Check Root Directory Permissions Are Not Changed
