@@ -15,9 +15,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <cassert>
 #include <iostream>
-#include <utility>
 
-#include <fcntl.h>
+#include <sys/file.h>
 
 using namespace threat_scanner;
 
@@ -115,23 +114,18 @@ bool SusiGlobalHandler::update(const std::string& path, const std::string& lockf
     return internal_update(path, lockfile);
 }
 
-bool SusiGlobalHandler::acquireLock(const std::string& lockfile)
+bool SusiGlobalHandler::acquireLock(int fd)
 {
-    mode_t mode = S_IRUSR | S_IWUSR;
-    int fd = open(lockfile.c_str(), O_RDWR | O_CREAT, mode);
-    if (fd == -1) {
-        LOGERROR("Failed to open lock file: " << lockfile);
+    if (flock(fd, LOCK_EX | LOCK_NB) != 0)
+    {
         return false;
     }
+    return true;
+}
 
-    struct flock fl = {};
-    fl.l_type = F_WRLCK;
-    fl.l_whence = SEEK_SET;
-    fl.l_start = 0;
-    fl.l_len = 0;
-    fl.l_pid = 0;
-
-    if (fcntl(fd, F_SETLK, &fl) == -1)
+bool SusiGlobalHandler::releaseLock(int fd)
+{
+    if (flock(fd, LOCK_UN | LOCK_NB) != 0)
     {
         return false;
     }
@@ -140,8 +134,16 @@ bool SusiGlobalHandler::acquireLock(const std::string& lockfile)
 
 bool SusiGlobalHandler::internal_update(const std::string& path, const std::string& lockfile)
 {
+    mode_t mode = S_IRUSR | S_IWUSR;
+    int fd = open(lockfile.c_str(), O_RDWR | O_CREAT, mode);
+    if (fd == -1)
+    {
+        std::stringstream errorMsg;
+        errorMsg << "Failed to open lock file: " << lockfile;
+        throw std::runtime_error(errorMsg.str());
+    }
 
-    if (acquireLock(lockfile))
+    if (acquireLock(fd))
     {
         LOGDEBUG("Acquired lock on " << lockfile);
     }
@@ -149,6 +151,7 @@ bool SusiGlobalHandler::internal_update(const std::string& path, const std::stri
     {
         std::stringstream errorMsg;
         errorMsg << "Failed to acquire lock on " << lockfile;
+        LOGERROR(errorMsg.str());
         throw std::runtime_error(errorMsg.str());
     }
 
@@ -170,6 +173,16 @@ bool SusiGlobalHandler::internal_update(const std::string& path, const std::stri
         LOGERROR(ost.str());
     }
     m_updatePending.store(false, std::memory_order_release);
+    if (releaseLock(fd))
+    {
+        LOGDEBUG("Released lock on " << lockfile);
+    }
+    else
+    {
+        std::stringstream errorMsg;
+        errorMsg << "Failed to release lock on " << lockfile;
+        throw std::runtime_error(errorMsg.str());
+    }
     return res == SUSI_S_OK || res == SUSI_I_UPTODATE;
 }
 

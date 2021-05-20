@@ -64,7 +64,8 @@ namespace threat_scanner
          */
         bool internal_update(const std::string& path, const std::string& lockfile);
 
-        bool acquireLock(const std::string& lockfile);
+        bool acquireLock(int fd);
+        bool releaseLock(int fd);
     };
     using SusiGlobalHandlerSharePtr = std::shared_ptr<SusiGlobalHandler>;
 }
