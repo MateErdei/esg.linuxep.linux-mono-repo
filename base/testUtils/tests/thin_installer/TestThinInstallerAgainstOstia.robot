@@ -122,26 +122,6 @@ Check All Relevant Logs Contain Install Path
     Check Log Contains  ${Install_Path}  ${Install_Path}/sophos-spl/logs/base/sophosspl/mcsrouter.log  MCS Router
 
 *** Test Case ***
-#Thin Installer Repairs Broken Existing Installation
-#    # Install to default location and break it
-#    Create Initial Installation
-#    Should Exist  ${REGISTER_CENTRAL}
-#    Remove File  ${REGISTER_CENTRAL}
-#    Should Not Exist  ${REGISTER_CENTRAL}
-#
-#    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}
-#
-#    Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
-#    Check Thininstaller Log Does Not Contain  ERROR
-#    Should Exist  ${REGISTER_CENTRAL}
-#    remove_thininstaller_log
-#    Check Root Directory Permissions Are Not Changed
-#    ${mcsrouter_log} =  Mcs Router Log
-#    #there is a race condition where the mcsrouter can restart when
-#    #the thinstaller is overwriting the mcsrouter zip this causes an an expected critical exception
-#    Remove File  ${mcsrouter_log}
-#    Check Expected Base Processes Are Running
-
 Thin Installer Installs Base And Services Start
     Should Not Exist    ${SOPHOS_INSTALL}
 
