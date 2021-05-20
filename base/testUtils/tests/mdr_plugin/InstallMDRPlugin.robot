@@ -110,6 +110,16 @@ MDR Removes Ipc And Status Files When Uninstalled
     File Should Not Exist   ${MDR_STATUS_XML}
     File Should Not Exist   ${CACHED_STATUS_XML}
 
+MDR Plugin Logging Level Can Be Changed Individually
+    [Tags]  SMOKE  MDR_PLUGIN
+    Install MDR Directly
+    Check MDR Plugin Installed
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mtr]\nVERBOSITY=DEBUG\n
+    Remove File         ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log
+    Stop MDR Plugin
+    Start MDR Plugin
+    MDR Plugin Log Contains   Logger mtr configured for level: DEBUG
+
 *** Keywords ***
 MTR Tests Teardown With Installed File Replacement
     Run Keyword If Test Failed  Save Current MTR InstalledFiles To Local Path

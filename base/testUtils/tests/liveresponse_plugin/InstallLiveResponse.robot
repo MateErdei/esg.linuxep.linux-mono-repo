@@ -3,6 +3,7 @@ Documentation    Suite description
 
 Resource  ../installer/InstallerResources.robot
 Resource  LiveResponseResources.robot
+Resource  ../watchdog/WatchdogResources.robot
 
 Suite Setup     Require Fresh Install
 Suite Teardown  Require Uninstalled
