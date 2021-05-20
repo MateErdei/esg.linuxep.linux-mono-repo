@@ -55,3 +55,12 @@ Teardown Group File With Large Group Creation
     ${content} =  Get File  ${EtcGroupFilePath}
     ${LongLine} =  Get File  ${SUPPORT_FILES}/misc/325CharEtcGroupLine
     Should Not Contain  ${content}  ${LongLine}
+
+Find IP Address With Distance
+    [Arguments]  ${dist}
+    ${result} =  Run Process  ip  addr
+    ${ipaddresses} =  Get Regexp Matches  ${result.stdout}  inet (10[^/]*)  1
+    ${head} =  Get Regexp Matches  ${ipaddresses[0]}  (10\.[^\.]*\.[^\.]*\.)[^\.]*  1
+    ${tail} =  Get Regexp Matches  ${ipaddresses[0]}  10\.[^\.]*\.[^\.]*\.([^\.]*)  1
+    ${tail_xored} =  Evaluate  ${tail[0]} ^ (2 ** ${dist})
+    [return]  ${head[0]}${tail_xored}

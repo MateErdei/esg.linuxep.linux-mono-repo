@@ -17,6 +17,8 @@ Library     OperatingSystem
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
+Resource    ../upgrade_product/UpgradeResources.robot
+Resource    ../mcs_router/McsRouterResources.robot
 Resource  ThinInstallerResources.robot
 
 Default Tags  THIN_INSTALLER
@@ -319,6 +321,78 @@ Thin Installer Fails When No Path In Systemd File
     Check Thininstaller Log Contains  An existing installation of Sophos Linux Protection was found but could not find the installed path.
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
+
+Thin Installer Attempts Install And Register Through Message Relays
+    [Teardown]  Teardown With Temporary Directory Clean
+    Setup For Test With Warehouse Containing Base
+    Require Uninstalled
+    Start Message Relay
+    Should Not Exist    ${SOPHOS_INSTALL}
+    Stop Local Cloud Server
+    Start Local Cloud Server  --initial-alc-policy  ${BaseVUTPolicy}
+    Start Local Cloud Server   --initial-mcs-policy    ${SUPPORT_FILES}/CentralXml/FakeCloudMCS_policy_Message_Relay.xml   --initial-alc-policy    ${BaseVUTPolicy}
+
+    Check MCS Router Not Running
+    ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
+    Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
+
+    # Create Dummy Hosts with certain distances (assume IP address is on eng (starts with 10))
+    ${dist1} =  Find IP Address With Distance  1
+    ${dist3} =  Find IP Address With Distance  3
+    ${dist7} =  Find IP Address With Distance  7
+    Copy File  /etc/hosts  /etc/hosts.bk
+    Append To File  /etc/hosts  ${dist1} dummyhost1\n${dist3} dummyhost3\n${dist7} dummyhost7\n
+
+    Install Local SSL Server Cert To System
+
+    # Add Message Relays to Thin Installer
+    Create Default Credentials File  message_relays=dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
+    #Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem
+    Run Default Thininstaller  expected_return_code=0  mcsurl=https://localhost:1233  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
+    # Check current proxy file is written with correct content and permissions.
+    # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
+    Check Current Proxy Is Created With Correct Content And Permissions  localhost:20000
+
+    # Check the MCS Capabilities check is performed with the Message Relays in the right order
+    Check Thininstaller Log Contains    Message Relays: dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
+    # Thininstaller orders only by priority, localhost is only one with low priority
+    Log File  /etc/hosts
+    Check Thininstaller Log Contains In Order
+    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost3:10000)
+    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost1:20000)
+    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost7:9999)
+    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via localhost:20000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: localhost:20000\nDEBUG: Successfully got [No error] from Sophos Central
+
+    Should Exist    ${SOPHOS_INSTALL}
+    ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
+    Should Be Equal As Integers  ${result.rc}  0  Management Agent not running after installation
+    Check MCS Router Running
+
+    # Check the message relays made their way through to the registration command in the full installer
+    # Message relays ordered by distance and priority
+    Check Register Central Log Contains In Order
+    ...  Trying connection via message relay dummyhost1:20000
+    ...  Trying connection via message relay dummyhost3:10000
+    ...  Trying connection via message relay dummyhost7:9999
+    ...  Successfully connected to localhost:4443 via localhost:20000
+
+    # Check the message relays made their way through to the MCS Router
+    File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    Wait Until Keyword Succeeds
+        ...  65 secs
+        ...  5 secs
+        ...  Check MCS Router Log Contains  Successfully connected to localhost:4443 via localhost:20000
+
+    # Also to prove MCS is working correctly check that we get an ALC policy
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseVUTPolicy}
+
+    Check Thininstaller Log Does Not Contain  ERROR
+    Check Root Directory Permissions Are Not Changed
+
 
 Thin Installer Repairs Broken Existing Installation
     [Teardown]  Teardown With Temporary Directory Clean
