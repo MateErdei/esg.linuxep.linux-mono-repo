@@ -80,26 +80,21 @@ Reset MachineID Permissions
 
 
 *** Test Cases ***
-Telemetry Executable Generates System Telemetry
+Telemetry Executable Generates System Base and Watchdog Telemetry
     [Tags]  SMOKE  TELEMETRY  TAP_TESTS
-    [Documentation]    Telemetry Executable Generates System Telemetry
+    [Documentation]    Telemetry Executable Generates Telemetry
+    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [comms_network]\nVERBOSITY=DEBUG\n
+    Run Process   systemctl  restart  sophos-spl
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Expected Base Processes Are Running
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    log  ${telemetryFileContents}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}
-
-Telemetry Executable Generates Watchdog Telemetry
-    [Tags]  SMOKE  TAP_TESTS   TELEMETRY   WATCHDOG
-    [Documentation]    Telemetry Executable Generates Watchdog Telemetry
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    log  ${telemetryFileContents}
     Check Watchdog Telemetry Json Is Correct  ${telemetryFileContents}
-
-Telemetry Executable Generates Base Telemetry
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check Base Telemetry Json Is Correct  ${telemetryFileContents}
+    Check Comms Component Network Log Contains   Trying 127.0.0.1:443
 
 Telemetry Executable Generates Update Scheduler Telemetry
     # Make sure there are no left over update telemetry items.
