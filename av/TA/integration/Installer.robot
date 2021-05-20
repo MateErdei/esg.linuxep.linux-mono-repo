@@ -13,6 +13,7 @@ Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
 Library         ../Libs/ProcessUtils.py
+Library         ../Libs/LockFile.py
 Library         ../Libs/Telemetry.py
 
 Suite Setup     Installer Suite Setup
@@ -203,6 +204,18 @@ sophos_threat_detector can start after multiple IDE updates
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket
     ...   timeout=60
+
+
+IDE update waits if lock already taken
+    ${lockfile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/var/susi_update.lock
+    ${timeout} =  Set Variable  1
+    Open And Acquire Lock   ${lockfile}
+    Register On Fail  Release Lock
+    Register On Fail  dump log  /tmp/proc.out
+    ${result} =  run process    bash  -x  ${COMPONENT_INSTALL_SET}/install.sh  stdout=/tmp/proc.out  stderr=STDOUT  env:LOCKFILE_TIMEOUT=${timeout}
+    Log  ${result.stdout}
+    Should Contain  ${result.stdout}  Failed to obtain a lock on ${lockfile} within ${timeout} seconds
+    Should Be Equal As Integers  ${result.rc}  ${25}
 
 
 Check install permissions

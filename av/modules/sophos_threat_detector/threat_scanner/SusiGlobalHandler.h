@@ -34,7 +34,7 @@ namespace threat_scanner
          * @param path
          * @return true if the update was successful or wasn't attempted.
          */
-        bool update(const std::string& path);
+        bool update(const std::string& path, const std::string& lockfile);
 
         /**
          * Initialize SUSI if it hasn't been initialized before
@@ -53,6 +53,7 @@ namespace threat_scanner
         std::atomic_bool m_susiInitialised = false;
         std::atomic_bool m_updatePending = false;
         std::string m_updatePath;
+        std::string m_lockFile;
         std::mutex m_initializeMutex;
 
         /**
@@ -61,7 +62,9 @@ namespace threat_scanner
          * @param path
          * @return true if update was successful
          */
-        bool internal_update(const std::string& path);
+        bool internal_update(const std::string& path, const std::string& lockfile);
+
+        bool acquireLock(const std::string& lockfile);
     };
     using SusiGlobalHandlerSharePtr = std::shared_ptr<SusiGlobalHandler>;
 }

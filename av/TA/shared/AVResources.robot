@@ -63,6 +63,10 @@ Check AV Plugin Not Running
     ${result} =   Run Process  pidof  ${PLUGIN_BINARY}  timeout=3
     Should Not Be Equal As Integers  ${result.rc}  ${0}
 
+Check Threat Detector Not Running
+    ${result} =   Run Process  pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}  timeout=3
+    Should Not Be Equal As Integers  ${result.rc}  ${0}
+
 Count File Log Lines
     [Arguments]  ${path}
     ${content} =  Get File   ${path}  encoding_errors=replace

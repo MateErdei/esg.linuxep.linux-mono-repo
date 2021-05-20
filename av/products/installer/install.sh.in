@@ -18,6 +18,7 @@ EXIT_FAIL_INSTALL_PACKAGE=21
 EXIT_FAIL_COPY_MANIFEST=22
 EXIT_FAIL_DELETE_REMOVED_FILES=23
 EXIT_FAIL_NONVERSIONEDCOPY=24
+EXIT_FAIL_ACQUIRE_LOCK_FILE=25
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -30,6 +31,7 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 
 [[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
 [[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
+[[ -n "$LOCKFILE_TIMEOUT" ]] || LOCKFILE_TIMEOUT=60
 
 failure()
 {
@@ -61,6 +63,7 @@ VAR="${PLUGIN_INSTALL}/var"
 SUSI_UPDATE_SRC="$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/"
 SUSI_DIST_VERS="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
 SUSI_V1DIR="${SUSI_DIST_VERS}version1/"
+LOCKFILE="${PLUGIN_INSTALL}/chroot/var/susi_update.lock"
 
 function delete_removed_vdl()
 {
@@ -243,6 +246,7 @@ function apply_permissions()
     chown root:${GROUP_NAME} "${CHROOT}/tmp"
 
     mkdir -p ${CHROOT}/var
+    touch $LOCKFILE
     chmod 0771 ${CHROOT}/var
     chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/var"
     chown root:${GROUP_NAME} "${CHROOT}/var"
@@ -365,18 +369,26 @@ function copy_backed_up_logs()
 function update_supplement()
 {
     # Copy supplement updates
-    UPDATE_SRC="plugins/av/chroot/susi/update_source"
-    cp -auv "$DIST/files/$UPDATE_SRC/vdl/"* "$SOPHOS_INSTALL/$UPDATE_SRC/vdl/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Virus Data to installation"
-    cp -auv "$DIST/files/$UPDATE_SRC/model/"* "$SOPHOS_INSTALL/$UPDATE_SRC/model/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy ML Model to installation"
-    cp -auv "$DIST/files/$UPDATE_SRC/reputation/"* "$SOPHOS_INSTALL/$UPDATE_SRC/reputation/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Local reputation data to installation"
-    cp -auv "$DIST/files/$UPDATE_SRC/rules/"* "$SOPHOS_INSTALL/$UPDATE_SRC/rules/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy LUA files to installation"
-    # AV Plugin needs to be able to read files in the following directories for telemetry
-    chmod g+x "$SOPHOS_INSTALL/$UPDATE_SRC"
-    chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/vdl/"
-    chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/reputation/"
-    chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/model/"
-    chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/mllib/"
-    delete_removed_vdl
+    touch $LOCKFILE
+    exec {FD}<>$LOCKFILE
+
+    if ! flock -x -w $LOCKFILE_TIMEOUT $FD; then
+        failure ${EXIT_FAIL_ACQUIRE_LOCK_FILE} "Failed to obtain a lock on $LOCKFILE within $LOCKFILE_TIMEOUT seconds"
+    else
+        echo "Lock acquired on $LOCKFILE"
+        UPDATE_SRC="plugins/av/chroot/susi/update_source"
+        cp -auv "$DIST/files/$UPDATE_SRC/vdl/"* "$SOPHOS_INSTALL/$UPDATE_SRC/vdl/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Virus Data to installation"
+        cp -auv "$DIST/files/$UPDATE_SRC/model/"* "$SOPHOS_INSTALL/$UPDATE_SRC/model/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy ML Model to installation"
+        cp -auv "$DIST/files/$UPDATE_SRC/reputation/"* "$SOPHOS_INSTALL/$UPDATE_SRC/reputation/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Local reputation data to installation"
+        cp -auv "$DIST/files/$UPDATE_SRC/rules/"* "$SOPHOS_INSTALL/$UPDATE_SRC/rules/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy LUA files to installation"
+        # AV Plugin needs to be able to read files in the following directories for telemetry
+        chmod g+x "$SOPHOS_INSTALL/$UPDATE_SRC"
+        chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/vdl/"
+        chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/reputation/"
+        chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/model/"
+        chmod -R g+rx "$SOPHOS_INSTALL/$UPDATE_SRC/mllib/"
+        delete_removed_vdl
+    fi
 
     generate_susi_package_manifest
 

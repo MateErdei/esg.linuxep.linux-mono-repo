@@ -17,6 +17,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <utility>
 
+#include <fcntl.h>
+
 using namespace threat_scanner;
 
 static bool isAllowlistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
@@ -86,7 +88,7 @@ SusiGlobalHandler::~SusiGlobalHandler()
     assert(res == SUSI_S_OK);
 }
 
-bool SusiGlobalHandler::update(const std::string& path)
+bool SusiGlobalHandler::update(const std::string& path, const std::string& lockfile)
 {
     /*
      * We have to hold the init lock while checking if we have init,
@@ -104,16 +106,50 @@ bool SusiGlobalHandler::update(const std::string& path)
         if (!m_susiInitialised.load(std::memory_order_acquire))
         {
             m_updatePath = path;
+            m_lockFile = lockfile;
             m_updatePending.store(true, std::memory_order_release);
             LOGDEBUG("Threat scanner update is pending");
             return true;
         }
     }
-    return internal_update(path);
+    return internal_update(path, lockfile);
 }
 
-bool SusiGlobalHandler::internal_update(const std::string& path)
+bool SusiGlobalHandler::acquireLock(const std::string& lockfile)
 {
+    int fd = open(lockfile.c_str(), O_RDWR);
+    if (fd == -1) {
+        LOGERROR("Failed to open lock file: " << lockfile);
+        return false;
+    }
+
+    struct flock fl = {};
+    fl.l_type = F_WRLCK;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;
+    fl.l_len = 0;
+
+    if (fcntl(fd, F_SETLKW, &fl) == -1)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool SusiGlobalHandler::internal_update(const std::string& path, const std::string& lockfile)
+{
+
+    if (acquireLock(lockfile))
+    {
+        LOGDEBUG("Acquired lock on " << lockfile);
+    }
+    else
+    {
+        std::stringstream errorMsg;
+        errorMsg << "Failed to acquire lock on " << lockfile;
+        throw std::runtime_error(errorMsg.str());
+    }
+
     assert(m_susiInitialised.load(std::memory_order_acquire));
     // SUSI is always initialised by the time we get here
     SusiResult res = SUSI_Update(path.c_str());
@@ -171,7 +207,7 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
         if (m_updatePending.load(std::memory_order_acquire))
         {
             LOGDEBUG("Threat scanner triggering pending update");
-            internal_update(m_updatePath);
+            internal_update(m_updatePath, m_lockFile);
             LOGDEBUG("Threat scanner pending update completed");
         }
     }

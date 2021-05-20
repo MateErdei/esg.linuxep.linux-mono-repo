@@ -7,6 +7,7 @@ Library         OperatingSystem
 Library         String
 
 Library         ../Libs/AVScanner.py
+Library         ../Libs/LockFile.py
 Library         ../Libs/OnFail.py
 
 Resource    ../shared/ComponentSetup.robot
@@ -111,3 +112,31 @@ Threat detector is killed gracefully
     Terminate Process  ${cls_handle}
     Stop AV
     Process Should Be Stopped
+
+
+Threat detector exits if it cannot acquire the susi update lock
+    Start AV
+    Wait until threat detector running
+    Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120
+    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
+
+    # Request a scan in order to load SUSI
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    ${lockfile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/var/susi_update.lock
+    Open And Acquire Lock   ${lockfile}
+    Register On Fail  Release Lock
+
+    Run Process   /bin/kill   -SIGUSR1   ${pid}
+
+    Wait Until Sophos Threat Detector Log Contains  Reload triggered by USR1
+    Wait Until Sophos Threat Detector Log Contains  Failed to acquire lock on ${lockfile}  timeout=120
+    Wait Until Sophos Threat Detector Log Contains  UnixSocket <> Closing socket
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Threat Detector Not Running
+
+    Stop AV

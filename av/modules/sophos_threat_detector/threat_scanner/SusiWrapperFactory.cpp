@@ -223,7 +223,7 @@ namespace threat_scanner
 
     bool SusiWrapperFactory::update()
     {
-        return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source");
+        return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source", pluginInstall() / "chroot/var/susi_update.lock");
     }
 
     bool SusiWrapperFactory::susiIsInitialized()
