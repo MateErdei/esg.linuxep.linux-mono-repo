@@ -135,7 +135,6 @@ def install_base(sophos_install):
 
 
 def install_component(sophos_install):
-
     # Ensure that appropriate libraries from base are present
     install_base(sophos_install)
 
@@ -148,12 +147,18 @@ def install_component(sophos_install):
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "liblog4cplus-2.0.so.*"))
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libprotobuf.so.*"))
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libzmq.so.*"))
+    create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libsusi.so.*"))
 
     os.makedirs(os.path.join(plugin_dir_path, 'var'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'log'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'etc'), exist_ok=True)
-    os.makedirs(os.path.join(plugin_dir_path, 'chroot'), exist_ok=True)
-    os.makedirs(os.path.join(plugin_dir_path, 'chroot', 'var'), exist_ok=True)
+    CHROOT = os.path.join(plugin_dir_path, 'chroot')
+    os.makedirs(os.path.join(CHROOT, 'var'), exist_ok=True)
+    os.makedirs(os.path.join(CHROOT, 'log'), exist_ok=True)
+
+    CHROOT_LINK_DIR = os.path.join(CHROOT, plugin_dir_path[1:])
+    os.makedirs(CHROOT_LINK_DIR, exist_ok=True)
+    os.symlink("/", os.path.join(CHROOT_LINK_DIR, "chroot"))
 
     sbin = os.path.join(plugin_dir_path, 'sbin')
     for x in os.listdir(sbin):

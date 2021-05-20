@@ -6,20 +6,23 @@ import pwd
 import glob
 import xml.etree.ElementTree
 
+from . import Paths
+from . import TestBase
+
 import logging
 logger = logging.getLogger("AVPlugin")
 logger.setLevel(logging.DEBUG)
 
 
 def _sophos_spl_path():
-    return os.environ['SOPHOS_INSTALL']
+    return Paths.sophos_spl_path()
 
 
 PLUGIN_NAME = "av"
 
 
 def _av_plugin_dir():
-    return os.path.join(_sophos_spl_path(), 'plugins', PLUGIN_NAME)
+    return Paths.av_plugin_dir()
 
 
 def _av_exec_path():
@@ -31,7 +34,7 @@ def _log_path():
 
 
 def _plugin_log_path():
-    return os.path.join(_log_path(), PLUGIN_NAME+'.log')
+    return os.path.join(Paths.log_path(), PLUGIN_NAME+'.log')
 
 
 def _file_content(path):
@@ -47,8 +50,9 @@ def _is_event_xml(path):
     return False
 
 
-class AVPlugin(object):
+class AVPlugin(TestBase.TestBase):
     def __init__(self):
+        super().__init__()
         self._proc = None
         self._failed = False
 
@@ -56,10 +60,10 @@ class AVPlugin(object):
         self._failed = True
 
     def plugin_path(self):
-        return _av_plugin_dir()
+        return Paths.av_plugin_dir()
 
     def log_path(self):
-        return _log_path()
+        return Paths.log_path()
 
     def _ensure_sophos_required_unix_user_and_group_exists(self):
         try:
@@ -128,17 +132,6 @@ class AVPlugin(object):
                 return True
             time.sleep(1)
         raise AssertionError("Log does not contain {}.\nFull log: {}".format(content, self.get_log()))
-
-    def wait_file(self, relative_path, timeout=10):
-        full_path = os.path.join(_sophos_spl_path(), relative_path)
-        for i in range(timeout):
-            if os.path.exists(full_path):
-                return _file_content(full_path)
-            time.sleep(1)
-        dir_path = os.path.dirname(full_path)
-        files_in_dir = os.listdir(dir_path)
-        raise AssertionError("File not found after {} seconds. Path={}.\n Files in Directory {} \n Log:\n {}".
-                             format(timeout, full_path, files_in_dir, self.get_log()))
 
     @staticmethod
     def get_latest_xml_from_events(relative_path):
