@@ -13,7 +13,7 @@ Default Tags  INSTALLER  TAP_TESTS
 Simple Upgrade Test
     Require Fresh Install
     ${time} =  Get Current Date
-    ${message} =  Set Variable  systemd\[1\]: Reloading.
+    ${message} =  Set Variable  : Reloading.
     ${result} =   Get Folder With Installer
     ${BaseDevVersion} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
     Copy Directory  ${result}  /opt/tmp/version2

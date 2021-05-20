@@ -63,6 +63,3 @@ Verify Update Service Installed And Uninstalled Correctly
     Should Contain Any   ${result.stdout}    ${UPDATE_SERVICE}.service could not be found.
     ...    ${UPDATE_SERVICE}.service not found.
     ...    not-found (Reason: No such file or directory)
-
-Check Watchdog Service File Has Correct Contents
-    File Should Exist    /lib/systemd/system/${UPDATE_SERVICE}.service

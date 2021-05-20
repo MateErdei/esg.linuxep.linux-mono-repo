@@ -938,8 +938,8 @@ def check_watchdog_service_file_has_correct_kill_mode():
         raise AssertionError('Watchdog service file not installed')
 
     content = _get_file_content(path)
-    if "killMode=mixed" not in content:
-        raise AssertionError('killMode not set to mixed')
+    if "KillMode=mixed" not in content:
+        raise AssertionError(f'KillMode not set to mixed: {path}: {content}')
 
 def unmount_all_comms_component_folders(skip_stop_proc=False):
     def _umount_path(fullpath):
