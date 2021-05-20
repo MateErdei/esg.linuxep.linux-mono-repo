@@ -6,8 +6,12 @@ import pwd
 import glob
 import xml.etree.ElementTree
 
-from . import Paths
-from . import TestBase
+try:
+    from . import Paths
+    from . import TestBase
+except ImportError:
+    import Paths
+    import TestBase
 
 import logging
 logger = logging.getLogger("AVPlugin")

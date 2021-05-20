@@ -7,7 +7,10 @@ from __future__ import print_function, division, unicode_literals
 import os
 import time
 
-from . import Paths
+try:
+    from . import Paths
+except ImportError:
+    import Paths
 
 def file_content(path):
     with open(path, 'r') as f:
