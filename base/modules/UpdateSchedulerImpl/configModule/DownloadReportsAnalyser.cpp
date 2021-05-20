@@ -172,6 +172,13 @@ namespace
                     break;
                 }
             }
+            if (installedVersion.empty())
+            {
+                // check if version.ini file is available and read version from file instead as a backup
+                // MTR sub components will not be listed in the product list.
+                installedVersion = SulDownloader::suldownloaderdata::DownloadReport::getInstalledVersion(whComponent.m_rigidName);
+            }
+
             status.Products.emplace_back(whComponent.m_rigidName, whComponent.m_productName, whComponent.m_version, installedVersion);
         }
         return status;
