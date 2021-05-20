@@ -873,7 +873,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  Sending scan complete
     Log File  ${SCANNOW_LOG_PATH}
     File Log Contains  ${SCANNOW_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
-    Wait Until AV Plugin Log Contains With Offset  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
 
     ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
     Log  Old permissions: ${result.stdout}
@@ -896,7 +896,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  Sending scan complete
     Log File  ${SCANNOW_LOG_PATH}
     File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${SCAN_NOW_LOG_MARK}
-    Wait Until AV Plugin Log Contains With Offset  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
 
 
 Scheduled Scan Can Work Despite Specified Log File Being Read-Only
@@ -914,7 +914,8 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=18
     Log File  ${CLOUDSCAN_LOG_PATH}
     File Log Contains  ${CLOUDSCAN_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
-    Wait Until AV Plugin Log Contains With Offset  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
+
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
 
     ${result} =  Run Process  ls  -l  ${CLOUDSCAN_LOG_PATH}
     Log  Old permissions: ${result.stdout}
@@ -936,4 +937,4 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=18
     Log File  ${CLOUDSCAN_LOG_PATH}
     File Log Should Not Contain With Offset  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
-    Wait Until AV Plugin Log Contains With Offset  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
