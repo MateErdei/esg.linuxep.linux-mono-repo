@@ -87,7 +87,7 @@ Mark AV Log
 
 Mark Sophos Threat Detector Log
     [Arguments]  ${mark}=""
-    ${count} =  Count File Log Lines  ${THREAT_DETECTOR_LOG_PATH}
+    ${count} =  Count Optional File Log Lines  ${THREAT_DETECTOR_LOG_PATH}
     Set Test Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
     [Return]  ${count}

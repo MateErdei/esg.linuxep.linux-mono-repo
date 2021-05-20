@@ -17,6 +17,8 @@ def _get_log_contents(path_to_log):
             contents = log.read()
     except EnvironmentError:
         return None
+    except FileNotFoundError:
+        return None
     return contents.decode("UTF-8", errors='backslashreplace')
 
 
@@ -473,6 +475,12 @@ File Log Contains
     def dump_scheduled_scan_log(self, scanname="MyScan"):
         scan_log = self.scheduled_scan_log(scanname)
         self.dump_log(scan_log)
+
+    def count_optional_file_log_lines(self, filename):
+        contents = _get_log_contents(filename)
+        if contents is None:
+            return 0
+        return len(contents.splitlines())
 
     def mark_mcs_envelope_log(self):
         mcs_envelope_log = self.mcs_envelope_log()

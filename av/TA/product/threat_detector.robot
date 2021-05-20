@@ -117,12 +117,15 @@ Threat detector is killed gracefully
     Process Should Be Stopped
 
 Threat detector triggers reload on SIGUSR1
+    Mark Sophos Threat Detector Log
     Start AV
     Wait until threat detector running
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
+
+    Wait Until Sophos Threat Detector Log Contains With Offset  Starting USR1 monitor  timeout=60
     Run Process   /bin/kill   -SIGUSR1   ${pid}
 
-    Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector received SIGUSR1 - reloading
+    Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector received SIGUSR1 - reloading  timeout=60
 
     # Verify SIGUSR1 is not logged at error level
     Verify Sophos Threat Detector Log Line is informational   Sophos Threat Detector received SIGUSR1 - reloading
