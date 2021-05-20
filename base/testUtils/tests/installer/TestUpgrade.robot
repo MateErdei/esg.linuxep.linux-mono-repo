@@ -1,6 +1,7 @@
 *** Settings ***
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
+Library    DateTime
 Resource  InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../upgrade_product/UpgradeResources.robot
@@ -11,6 +12,8 @@ Default Tags  INSTALLER  TAP_TESTS
 *** Test Cases ***
 Simple Upgrade Test
     Require Fresh Install
+    ${time} =  Get Current Date
+    ${message} =  Set Variable  systemd\[1\]: Reloading.
     ${result} =   Get Folder With Installer
     ${BaseDevVersion} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
     Copy Directory  ${result}  /opt/tmp/version2
@@ -26,6 +29,8 @@ Simple Upgrade Test
     Should Not Be Equal As Strings  ${BaseDevVersion}  ${BaseDevVersion2}
 
     Check Expected Base Processes Are Running
+
+    Should Not Have A Given Message In Journalctl Since Certain Time  ${message}  ${time}
 
     Mark Expected Critical In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.mcs <> Not registered: MCSID is not present
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
@@ -116,3 +121,8 @@ Upgrade Test Teardown
     General Test Teardown
     Remove Directory  /opt/tmp/version2  true
     Require Uninstalled
+
+Should Not Have A Given Message In Journalctl Since Certain Time
+    [Arguments]  ${message}  ${time}
+    ${result} =  Run Process  journalctl --since "${time}" | grep "${message}"  shell=True  timeout=20
+    Should Be Equal As Integers    ${result.rc}    1

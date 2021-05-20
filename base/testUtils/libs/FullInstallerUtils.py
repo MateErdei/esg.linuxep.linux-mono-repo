@@ -929,6 +929,17 @@ def check_version_files_report_a_valid_upgrade(previous_ini_files, recent_ini_fi
     if not any(upgrades):
         raise AssertionError('No upgrade found in the input VERSION files')
 
+def check_watchdog_service_file_has_correct_kill_mode():
+    if os.path.isfile("/lib/systemd/system/sophos-spl.service"):
+        path = "/lib/systemd/system/sophos-spl.service"
+    elif os.path.isfile("/usr/lib/systemd/system/sophos-spl.service"):
+        path = "/usr/lib/systemd/system/sophos-spl.service"
+    else:
+        raise AssertionError('Watchdog service file not installed')
+
+    content = _get_file_content(path)
+    if "killMode=mixed" not in content:
+        raise AssertionError('killMode not set to mixed')
 
 def unmount_all_comms_component_folders(skip_stop_proc=False):
     def _umount_path(fullpath):

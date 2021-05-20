@@ -156,6 +156,8 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
 
+    Check Watchdog Service File Has Correct Kill Mode
+
     Check Mtr Reconnects To Management Agent After Upgrade
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
@@ -404,8 +406,6 @@ Verify Upgrading Will Remove Files Which Are No Longer Required
     ...  320 secs
     ...  5 secs
     ...  Check Files After Upgrade
-
-
 
 Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA

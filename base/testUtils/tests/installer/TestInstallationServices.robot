@@ -12,6 +12,7 @@ Verify Watchdog Service Installed And Uninstalled Correctly
     [Tags]  INSTALLER  WATCHDOG  UNINSTALL
     Uninstall SSPL
     Run Full Installer
+    Check Watchdog Service File Has Correct Kill Mode
     ${result} =  Run Process    systemctl    is-active    ${WATCHDOG_SERVICE}
     Should Be Equal  ${result.stdout}    active
     ${result} =  Run Process    systemctl    is-enabled    ${WATCHDOG_SERVICE}
@@ -62,3 +63,6 @@ Verify Update Service Installed And Uninstalled Correctly
     Should Contain Any   ${result.stdout}    ${UPDATE_SERVICE}.service could not be found.
     ...    ${UPDATE_SERVICE}.service not found.
     ...    not-found (Reason: No such file or directory)
+
+Check Watchdog Service File Has Correct Contents
+    File Should Exist    /lib/systemd/system/${UPDATE_SERVICE}.service
