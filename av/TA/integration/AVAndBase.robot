@@ -868,7 +868,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
 
     Send Sav Action To Base  ScanNow_Action.xml
 
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=20
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=40
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     Wait Until AV Plugin Log Contains With Offset  Sending scan complete
     Log File  ${SCANNOW_LOG_PATH}
@@ -891,7 +891,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
 
     Send Sav Action To Base  ScanNow_Action.xml
 
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=20
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=40
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     Wait Until AV Plugin Log Contains With Offset  Sending scan complete
     Log File  ${SCANNOW_LOG_PATH}
