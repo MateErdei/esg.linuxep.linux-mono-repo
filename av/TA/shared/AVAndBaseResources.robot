@@ -48,9 +48,9 @@ Check AV Plugin Not Installed
     User Should Not Exist  sophos-spl-threat-detector
 
 Check Logs Saved On Downgrade
-    Directory Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV
-    File Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV/av.log
-    File Should Exist  ${SOPHOS_INSTALL}/logs/plugins/ServerProtectionLinux-Plugin-AV/sophos_threat_detector.log
+    Directory Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/
+    File Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/av.log
+    File Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/sophos_threat_detector.log
 
 Run plugin uninstaller
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh

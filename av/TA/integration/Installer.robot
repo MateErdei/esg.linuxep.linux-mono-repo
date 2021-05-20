@@ -444,6 +444,14 @@ AV Plugin Can Send Telemetry After Upgrade
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
+AV Plugin Restores Downgrade Logs
+    Run plugin uninstaller with downgrade flag
+    Check AV Plugin Not Installed
+    Install AV Directly from SDDS
+    Directory Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}
+    File Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}/av.log
+    File Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}/sophos_threat_detector.log
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE2_NAME}        pemid.ide
