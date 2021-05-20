@@ -111,9 +111,9 @@ EOF
     fi
 
     EXISTING_SERVICE_INFO=""
-    if [[ -f ${STARTUP_DIR}/sophos-spl-service ]]
+    if [[ -f ${STARTUP_DIR}/sophos-spl.service ]]
     then
-        EXISTING_SERVICE_INFO=$(<${STARTUP_DIR}/sophos-spl-service)
+        EXISTING_SERVICE_INFO=$(<${STARTUP_DIR}/sophos-spl.service)
     fi
 
     if [[ ${EXISTING_SERVICE_INFO} != ${NEW_SERVICE_INFO} || $FORCE_INSTALL ]]
