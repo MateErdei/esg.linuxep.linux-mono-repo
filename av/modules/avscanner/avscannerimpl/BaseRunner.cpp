@@ -11,10 +11,13 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "avscanner/mountinfoimpl/Mounts.h"
 #include "avscanner/mountinfoimpl/SystemPathsFactory.h"
 #include "common/AbortScanException.h"
+#include "common/ErrorCodes.h"
+#include "common/ScanInterruptedException.h"
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <common/ScanManuallyInterruptedException.h>
 
 using namespace avscanner::avscannerimpl;
 
@@ -78,10 +81,21 @@ bool BaseRunner::walk(filewalker::FileWalker& filewalker,
         m_scanCallbacks->scanError(errorString);
         m_returnCode = e.code().value();
     }
+    catch (const ScanManuallyInterruptedException& e)
+    {
+        m_returnCode = common::E_EXECUTION_MANUALLY_INTERRUPTED;
+        return false;
+    }
+    catch (const ScanInterruptedException& e)
+    {
+        m_returnCode = common::E_EXECUTION_INTERRUPTED;
+        return false;
+    }
     catch (const AbortScanException& e)
     {
         // Abort scan has already been logged in the genericFailure method
         // genericFailure -> ScanCallbackImpl::scanError(const std::string& errorMsg)
+        m_returnCode = common::E_SCAN_ABORTED;
         return false;
     }
     return true;

@@ -195,7 +195,10 @@ namespace avscanner::avscannerimpl
             }
         }
 
-        if (m_returnCode != common::E_CLEAN_SUCCESS && m_returnCode != common::E_VIRUS_FOUND)
+        bool printErrorMessage = m_returnCode != common::E_CLEAN_SUCCESS
+                                && m_returnCode != common::E_VIRUS_FOUND
+                                && m_returnCode != common::E_EXECUTION_MANUALLY_INTERRUPTED;
+        if (printErrorMessage)
         {
             LOGERROR("Failed to scan one or more files due to an error");
         }

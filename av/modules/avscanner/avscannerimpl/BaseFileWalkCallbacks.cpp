@@ -4,6 +4,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <common/ScanManuallyInterruptedException.h>
 #include "BaseFileWalkCallbacks.h"
 
 #include "Logger.h"
@@ -88,6 +89,11 @@ void BaseFileWalkCallbacks::processFile(const fs::path& path, bool symlinkTarget
     try
     {
         m_scanner->scan(path, symlinkTarget);
+    }
+    catch (const ScanManuallyInterruptedException& e)
+    {
+        LOGWARN(e.what());
+        throw;
     }
     catch (const ScanInterruptedException& e)
     {
