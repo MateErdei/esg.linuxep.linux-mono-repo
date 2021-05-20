@@ -87,6 +87,16 @@ namespace Common
             template<typename Sequence>
             void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
             {
+                // Check if we've inherited unexpected file descriptors
+                const size_t expectedFdCount = m_fds.size() + 2;
+                auto inheritedFds = getFileDescriptorsToCloseAfterFork(std::vector<int>{});
+                if (inheritedFds.size() > expectedFdCount)
+                {
+                    std::string exe = exec.exe ? std::string(exec.exe) : "";
+                    LOGWARN("Inherited " << inheritedFds.size() << " file descriptors from parent process: expected "
+                                         << expectedFdCount << ", child process: " << exe);
+                }
+
                 // Must set groups first whilst still root
                 std::string userName = Common::FileSystem::FilePermissionsImpl().getUserName(m_uid);
 
