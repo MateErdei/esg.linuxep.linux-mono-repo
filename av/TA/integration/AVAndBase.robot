@@ -808,16 +808,26 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
-    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
+    Register Cleanup  Empty Directory  /opt/sophos-spl/base/mcs/event
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naugthy_eicar
 
-    Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
+    Empty Directory  /opt/sophos-spl/base/mcs/event/
+    Create File  ${NORMAL_DIRECTORY}/naugthy_eicar  ${EICAR_STRING}
+
     Mark AV Log
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+    AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+
+    Wait Until Keyword Succeeds
+       ...  60 secs
+       ...  3 secs
+       ...  check threat event received by base  1  naugthyEicarThreatReport
+
+    Empty Directory  /opt/sophos-spl/base/mcs/event/
 
     Run  chmod 444 ${AV_LOG_PATH}
     Register Cleanup  Run  chmod 600 ${AV_LOG_PATH}
@@ -835,11 +845,16 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     ${result} =  Run Process  ls  -l  ${AV_LOG_PATH}
     Log  New permissions: ${result.stdout}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
 
     Log  return code is ${rc}
     Log  output is ${output}
-    AV Plugin Log Should Not Contain With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+    AV Plugin Log Should Not Contain With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+
+    Wait Until Keyword Succeeds
+        ...  60 secs
+        ...  3 secs
+        ...  check threat event received by base  1  naugthyEicarThreatReport
 
 
 Scan Now Can Work Despite Specified Log File Being Read-Only
