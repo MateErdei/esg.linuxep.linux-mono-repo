@@ -54,15 +54,10 @@ umask 077
 
 if [[ ! -x $(which setcap) ]]
 then
-    echo "Installing setcap"
-    if [[ -x $(which apt) ]]
+    echo "Checking if setcap is installed"
+    if [[ ! -x $(which setcap) ]]
     then
-        apt install -y libcap2-bin || failure ${EXIT_FAIL_INSTALL_PACKAGE} "Failed to install libcap2-bin"
-    elif [[ -x $(which yum) ]]
-    then
-        failure ${EXIT_FAIL_INSTALL_PACKAGE} "Unable to install setcap using yum"
-    else
-        failure ${EXIT_FAIL_INSTALL_PACKAGE} "Unable to install setcap"
+        failure ${EXIT_FAIL_INSTALL_PACKAGE} "Unable to install setcap, please see <KBA-LINK>"
     fi
 fi
 PLUGIN_INSTALL="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
