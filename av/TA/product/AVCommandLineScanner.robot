@@ -99,6 +99,7 @@ ${UKNOWN_OPTION_RESULT}      ${2}
 ${FILE_NOT_FOUND_RESULT}     ${2}
 ${PERMISSION_DENIED_RESULT}  ${13}
 ${BAD_OPTION_RESULT}         ${3}
+${MANUAL_INTERUPTION_RESULT}         ${41}
 ${CUSTOM_OUTPUT_FILE}   /home/vagrant/output
 ${PERMISSIONS_TEST}     ${NORMAL_DIRECTORY}/permissions_test
 *** Test Cases ***
@@ -261,10 +262,12 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Should Not Contain  ${result.stdout}  Reconnected to Sophos Threat Detector after
     Should Not Contain  ${result.stdout}  - retrying after sleep
     Should Not Contain  ${result.stdout}  Failed to reconnect to Sophos Threat Detector - retrying...
+    Should Not Contain  ${result.stdout}  Failed to scan one or more files due to an error
     Should Contain   ${result.stdout}  Received SIGINT
     Should Contain   ${result.stdout}  0 files out of
     ${result} =  Get Process Result
     log to console  ${result}
+    Should Be Equal As Integers	${result.rc}  ${MANUAL_INTERUPTION_RESULT}
 
 CLS Does not request TFTClassification from SUSI
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
