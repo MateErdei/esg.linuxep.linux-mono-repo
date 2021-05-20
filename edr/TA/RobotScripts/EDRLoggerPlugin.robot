@@ -773,6 +773,28 @@ EDR Plugin Updates Next Scheduled Queries When Supplement Updated And Flag Alrea
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   latest_xdr_query  ${mark2}
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   latest_mtr_query  ${mark2}
 
+EDR Plugin Can Have Logging Level Changed Individually
+    Check EDR Plugin Installed With Base
+    #setting edr_osquery to DEBUG provides all DEBUG logging (these can be hidden by specifying the component with INFO level)
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [edr_osquery]\nVERBOSITY=DEBUG\n
+    Restart EDR
+    Wait Until Keyword Succeeds
+        ...  15 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains   Logger edr_osquery configured for level: DEBUG
+
+EDR Plugin Can Have Logging Level Changed Based On Components
+    Check EDR Plugin Installed With Base
+    #With edr_osquery being set to INFO, the other sub-components can be set to DEBUG and have the specified logging level
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [edr_osquery]\nVERBOSITY=INFO\n[edr]\nVERBOSITY=DEBUG\n
+    Remove File         ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    Restart EDR
+    Wait Until Keyword Succeeds
+        ...  15 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains   Logger edr_osquery configured for level: INFO
+    EDR Plugin Log Contains   Logger edr configured for level: DEBUG
+
 *** Keywords ***
 Apply Live Query Policy And Wait For Query Pack Changes
     [Arguments]  ${policy}
