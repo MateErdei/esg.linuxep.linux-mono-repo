@@ -28,6 +28,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/un.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <common/ScanManuallyInterruptedException.h>
 
 unixsocket::ScanningClientSocket::ScanningClientSocket(std::string socket_path, const struct timespec& sleepTime)
     : m_sigIntMonitor(common::SigIntMonitor::getSigIntMonitor())
@@ -83,7 +84,7 @@ void unixsocket::ScanningClientSocket::checkIfScanAborted()
     if (m_sigIntMonitor->triggered())
     {
         LOGDEBUG("Received SIGINT");
-        throw ScanInterruptedException("Scan manually aborted");
+        throw ScanManuallyInterruptedException("Scan manually aborted");
     }
 
     if (m_sigTermMonitor->triggered())
