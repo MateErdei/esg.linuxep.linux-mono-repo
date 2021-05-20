@@ -515,16 +515,15 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
     Run  chmod 444 ${THREAT_DETECTOR_LOG_PATH}
     Register Cleanup  Run  chmod 600 ${THREAT_DETECTOR_LOG_PATH}
 
-    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Log  Initial PID: ${SOPHOS_THREAT_DETECTOR_PID}
+    ${INITIAL_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Log  Initial PID: ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}
     Stop Sophos_threat_detector
     Start Sophos_threat_detector
-    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Log  Restarted PID: ${SOPHOS_THREAT_DETECTOR_PID}
+    ${END_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Log  Restarted PID: ${END_SOPHOS_THREAT_DETECTOR_PID}
+    Should Not Be Equal As Integers  ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}  ${END_SOPHOS_THREAT_DETECTOR_PID}
 
     Mark Sophos Threat Detector Log
-    Threat Detector Log Should Not Contain With Offset  Sophos Threat Detector received SIGTERM - shutting down
-    Threat Detector Log Should Not Contain With Offset  Sophos Threat Detector is exiting
 
     ${result} =  Run Process  ls  -l  ${THREAT_DETECTOR_LOG_PATH}
     Log  New permissions: ${result.stdout}
@@ -533,7 +532,11 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
 
     Log  return code is ${rc}
     Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Threat Detector Log Should Not Contain With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Threat Detector Log Should Not Contain With Offset  Sophos Threat Detector received SIGTERM - shutting down
+    Threat Detector Log Should Not Contain With Offset  Sophos Threat Detector is exiting
 
 
 SUSI Can Work Despite Specified Log File Being Read-Only
@@ -551,12 +554,13 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Run  chmod 444 ${SUSI_DEBUG_LOG_PATH}
     Register Cleanup  Run  chmod 600 ${SUSI_DEBUG_LOG_PATH}
 
-    ${AV_PID} =  Record AV Plugin PID
-    Log  Initial PID: ${AV_PID}
+    ${INITIAL_AV_PID} =  Record AV Plugin PID
+    Log  Initial PID: ${INITIAL_AV_PID}
     Stop AV Plugin
     Start AV Plugin
-    ${AV_PID} =  Record AV Plugin PID
-    Log  Restarted PID: ${AV_PID}
+    ${END_AV_PID} =  Record AV Plugin PID
+    Log  Restarted PID: ${END_AV_PID}
+    Should Not Be Equal As Integers  ${INITIAL_AV_PID}  ${END_AV_PID}
 
     Mark Susi Debug Log
 

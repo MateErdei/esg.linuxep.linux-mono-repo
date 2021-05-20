@@ -822,12 +822,13 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     Run  chmod 444 ${AV_LOG_PATH}
     Register Cleanup  Run  chmod 600 ${AV_LOG_PATH}
 
-    ${AV_PID} =  Record AV Plugin PID
-    Log  Initial PID: ${AV_PID}
+    ${INITIAL_AV_PID} =  Record AV Plugin PID
+    Log  Initial PID: ${INITIAL_AV_PID}
     Stop AV Plugin
     Start AV Plugin
-    ${AV_PID} =  Record AV Plugin PID
-    Log  Restarted PID: ${AV_PID}
+    ${END_AV_PID} =  Record AV Plugin PID
+    Log  Restarted PID: ${END_AV_PID}
+    Should Not Be Equal As Integers  ${INITIAL_AV_PID}  ${END_AV_PID}
 
     Mark AV Log
 
