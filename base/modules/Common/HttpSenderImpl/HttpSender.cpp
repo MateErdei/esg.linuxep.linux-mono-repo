@@ -9,6 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/Logging/LoggerConfig.h>
 
 #include <curl.h>
@@ -170,15 +171,15 @@ namespace Common::HttpSenderImpl
         }
 
         std::string holdBody;
-        std::string throwaway;
+        std::string debugLog;
         if (captureBody)
         {
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &holdBody);
             curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, write_data);
-            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &holdBody);
+            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &debugLog);
             curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, write_debug);
-            curl_easy_setopt(curl, CURLOPT_DEBUGDATA, &holdBody);
+            curl_easy_setopt(curl, CURLOPT_DEBUGDATA, &debugLog);
         }
 
         CurlScopeGuard curlScopeGuard(curl, *m_curlWrapper);
@@ -317,9 +318,12 @@ namespace Common::HttpSenderImpl
             if (m_curlWrapper->curlGetResponseCode(curl, &response_code) == CURLE_OK)
             {
                 HttpResponse httpResponse{ static_cast<int>(response_code) };
-                LOGINFO("completed");
-                LOGERROR(holdBody);
-                LOGDEBUG(throwaway);
+                std::vector<std::string> debugLines = Common::UtilityImpl::StringUtils::splitString(debugLog,"\n");
+                for (auto line: debugLines)
+                {
+                    LOGDEBUG(line);
+                }
+
                 httpResponse.bodyContent = holdBody;
                 return httpResponse;
             }
