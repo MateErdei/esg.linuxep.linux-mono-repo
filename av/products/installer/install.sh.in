@@ -346,6 +346,29 @@ function install_product()
     "${SOPHOS_INSTALL}/bin/wdctl" start threat_detector || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos_threat_detector"
 
     cp "$DIST/manifest.dat" "${VAR}/manifest.dat" || failure ${EXIT_FAIL_COPY_MANIFEST} "Failed to copy manifest from install-set to installation"
+    copy_backed_up_logs
+}
+
+function copy_backed_up_logs()
+{
+  SAVE_DIR="${SOPHOS_INSTALL}/tmp/av_downgrade/"
+  RESTORE_DIR="${PLUGIN_INSTALL}/log/downgrade_backup"
+
+  if [[ -e ${SAVE_DIR} ]]
+  then
+      if [[ -e ${RESTORE_DIR} ]];
+      then
+          rm -f "$RESTORE_DIR"/*
+      else
+          mkdir "$RESTORE_DIR"
+      fi
+
+      echo "Restoring downgrade logs"
+      for entry in "$SAVE_DIR"/*
+      do
+          cp -v "$entry"  "$RESTORE_DIR"/"$(basename -- "$entry")"
+      done
+  fi
 }
 
 function update_supplement()
