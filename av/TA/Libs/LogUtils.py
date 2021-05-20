@@ -1,5 +1,10 @@
+#!/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (C) 2021 Sophos Ltd
+# All rights reserved.
 import os
 import glob
+import re
 import subprocess
 import time
 from robot.api import logger
@@ -489,25 +494,56 @@ File Log Contains
         contents = _get_log_contents(managementagent_log)
         self.marked_managementagent_logs = len(contents)
 
+    def mark_av_log(self):
+        av_log = self.av_log
+        contents = _get_log_contents(av_log)
+        self.marked_av_log = len(contents)
+
+    def mark_sophos_threat_detector_log(self):
+        sophos_threat_detector_log = self.sophos_threat_detector_log
+        contents = _get_log_contents(sophos_threat_detector_log)
+        self.marked_sophos_threat_detector_log = len(contents)
+
+    def get_marked_sophos_threat_detector_log(self):
+        sophos_threat_detector_log = self.sophos_threat_detector_log
+        contents = _get_log_contents(sophos_threat_detector_log)
+        return contents[self.marked_sophos_threat_detector_log:]
+
     def check_marked_av_log_contains(self, string_to_contain, mark):
         av_log = self.av_log
         contents = _get_log_contents(av_log)
 
-        contents = contents[mark:]
+        contents = contents[self.marked_av_log:]
 
         if string_to_contain not in contents:
             self.dump_log(av_log)
             raise AssertionError("av.log log did not contain: " + string_to_contain)
 
     def check_marked_sophos_threat_detector_log_contains(self, string_to_contain, mark):
-        sophos_threat_detector_log = self.sophos_threat_detector_log
-        contents = _get_log_contents(sophos_threat_detector_log)
-
-        contents = contents[mark:]
+        contents = self.get_marked_sophos_threat_detector_log()
 
         if string_to_contain not in contents:
-            self.dump_log(sophos_threat_detector_log)
+            self.dump_log(contents)
             raise AssertionError("sophos_threat_detector.log log did not contain: " + string_to_contain)
+
+    def verify_sophos_threat_detector_log_line_is_informational(self, string_to_check):
+        contents = self.get_marked_sophos_threat_detector_log()
+        if string_to_check not in contents:
+            self.dump_log(contents)
+            raise AssertionError("sophos_threat_detector.log log did not contain: " + string_to_check)
+
+        # 13819   [2021-05-20T10:37:39.084]    INFO [6594151360] SophosThreatDetectorImpl <> Sophos Threat Detector received SIGTERM - shutting down
+        line_re = re.compile(r"^\d+\s+\S+\s+(\w+).*?"+re.escape(string_to_check)+r".*?$", flags=re.MULTILINE)
+        found = False
+        for mo in line_re.finditer(contents):
+            found = True
+            logger.info("Found line: %s" % mo.group(0))
+            level = mo.group(1)
+            logger.info("Level: %s" % level)
+            if level not in ("DEBUG", "INFO", "SUPPORT", "SPRT"):
+                raise AssertionError("sophos_threat_detector.log bad level %s in line %s" % (level, mo.group(0)))
+        if not found:
+            raise AssertionError("Regex failed to find %s" % string_to_check)
 
     def check_marked_mcs_envelope_log_contains(self, string_to_contain):
         mcs_envelope_log = self.mcs_envelope_log()
