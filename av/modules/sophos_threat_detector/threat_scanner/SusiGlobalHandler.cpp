@@ -117,7 +117,8 @@ bool SusiGlobalHandler::update(const std::string& path, const std::string& lockf
 
 bool SusiGlobalHandler::acquireLock(const std::string& lockfile)
 {
-    int fd = open(lockfile.c_str(), O_RDWR);
+    mode_t mode = S_IRUSR | S_IWUSR;
+    int fd = open(lockfile.c_str(), O_RDWR | O_CREAT, mode);
     if (fd == -1) {
         LOGERROR("Failed to open lock file: " << lockfile);
         return false;
@@ -128,12 +129,13 @@ bool SusiGlobalHandler::acquireLock(const std::string& lockfile)
     fl.l_whence = SEEK_SET;
     fl.l_start = 0;
     fl.l_len = 0;
+    fl.l_pid = 0;
 
-    if (fcntl(fd, F_SETLKW, &fl) == -1)
+    if (fcntl(fd, F_SETLK, &fl) == -1)
     {
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }
 
 bool SusiGlobalHandler::internal_update(const std::string& path, const std::string& lockfile)

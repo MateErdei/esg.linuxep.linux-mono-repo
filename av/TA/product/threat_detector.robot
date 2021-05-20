@@ -108,6 +108,8 @@ Threat detector is killed gracefully
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting
     Wait Until Sophos Threat Detector Log Contains  Closing scanning socket thread
     Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result =0
+    Threat Detector Does Not Log Contain  Failed to open lock file
+    Threat Detector Does Not Log Contain  Failed to acquire lock
 
     Terminate Process  ${cls_handle}
     Stop AV
@@ -126,7 +128,7 @@ Threat detector exits if it cannot acquire the susi update lock
 
     ${lockfile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/var/susi_update.lock
     Open And Acquire Lock   ${lockfile}
-    Register On Fail  Release Lock
+    Register Cleanup  Release Lock
 
     Run Process   /bin/kill   -SIGUSR1   ${pid}
 

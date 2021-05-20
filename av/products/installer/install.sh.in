@@ -246,10 +246,11 @@ function apply_permissions()
     chown root:${GROUP_NAME} "${CHROOT}/tmp"
 
     mkdir -p ${CHROOT}/var
-    touch $LOCKFILE
     chmod 0771 ${CHROOT}/var
     chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT}/var"
     chown root:${GROUP_NAME} "${CHROOT}/var"
+    touch ${LOCKFILE}
+    chown ${THREAT_DETECTOR_USER}:${GROUP_NAME} ${LOCKFILE}
 
     chmod 0711 ${CHROOT}
     chown root:${GROUP_NAME} "${CHROOT}"

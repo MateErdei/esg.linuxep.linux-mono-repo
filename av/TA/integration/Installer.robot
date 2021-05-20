@@ -210,7 +210,7 @@ IDE update waits if lock already taken
     ${lockfile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/var/susi_update.lock
     ${timeout} =  Set Variable  1
     Open And Acquire Lock   ${lockfile}
-    Register On Fail  Release Lock
+    Register Cleanup  Release Lock
     Register On Fail  dump log  /tmp/proc.out
     ${result} =  run process    bash  -x  ${COMPONENT_INSTALL_SET}/install.sh  stdout=/tmp/proc.out  stderr=STDOUT  env:LOCKFILE_TIMEOUT=${timeout}
     Log  ${result.stdout}
