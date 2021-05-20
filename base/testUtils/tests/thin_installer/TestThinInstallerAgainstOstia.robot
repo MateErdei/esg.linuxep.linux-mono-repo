@@ -21,6 +21,7 @@ Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Library     Process
+Library     DateTime
 Library     OperatingSystem
 Library     String
 Resource    ../mcs_router/McsRouterResources.robot
@@ -331,7 +332,7 @@ Thin Installer Force Works
     Check Thininstaller Log Does Not Contain  ERROR
     Should Exist  ${REGISTER_CENTRAL}
 
-    Should Not Have A Given Message In Journalctl Since Certain Time  ${message}  ${time}
+    Should Have A Given Message In Journalctl Since Certain Time  ${message}  ${time}
 
     remove_thininstaller_log
     Check Root Directory Permissions Are Not Changed

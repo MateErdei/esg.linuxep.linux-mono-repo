@@ -226,4 +226,11 @@ Verify Sophos Users And Sophos Groups Are Created
 Should Not Have A Given Message In Journalctl Since Certain Time
     [Arguments]  ${message}  ${time}
     ${result} =  Run Process  journalctl --since "${time}" | grep "${message}"  shell=True  timeout=20
+    Log  ${result.stdout}
     Should Be Equal As Integers    ${result.rc}    1
+
+Should Have A Given Message In Journalctl Since Certain Time
+    [Arguments]  ${message}  ${time}
+    ${result} =  Run Process  journalctl --since "${time}" | grep "${message}"  shell=True  timeout=20
+    Log  ${result.stdout}
+    Should Be Equal As Integers    ${result.rc}    0
