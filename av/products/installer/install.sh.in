@@ -54,11 +54,7 @@ umask 077
 
 if [[ ! -x $(which setcap) ]]
 then
-    echo "Checking if setcap is installed"
-    if [[ ! -x $(which setcap) ]]
-    then
-        failure ${EXIT_FAIL_INSTALL_PACKAGE} "Unable to install setcap, please see https://support.sophos.com/support/s/article/KB-000041952"
-    fi
+    failure ${EXIT_FAIL_INSTALL_PACKAGE} "Unable to install as setcap is not installed, please see https://support.sophos.com/support/s/article/KB-000041952"
 fi
 PLUGIN_INSTALL="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 VAR="${PLUGIN_INSTALL}/var"
