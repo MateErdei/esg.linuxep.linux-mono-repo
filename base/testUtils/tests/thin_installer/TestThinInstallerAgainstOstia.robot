@@ -182,9 +182,8 @@ Thin Installer Attempts Install And Register Through Message Relays
     Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
 
     # Create Dummy Host
-
-    # This ip address should not be accessiable.
-    ${dist1} =  Set Variable  192.0.0.8
+    #there will be no proxy on port 10000
+    ${dist1} =  Set Variable  127.0.0.1
 
     Copy File  /etc/hosts  /etc/hosts.bk
     Append To File  /etc/hosts  ${dist1} dummyhost1
@@ -192,18 +191,18 @@ Thin Installer Attempts Install And Register Through Message Relays
     Install Local SSL Server Cert To System
 
     # Add Message Relays to Thin Installer
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem  message_relays=dummyhost1:20000,1,2;localhost:20000,2,4
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
 
     # Check current proxy file is written with correct content and permissions.
     # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
     Check Current Proxy Is Created With Correct Content And Permissions  localhost:20000
 
     # Check the MCS Capabilities check is performed with the Message Relays in the right order
-    Check Thininstaller Log Contains    Message Relays: dummyhost1:20000,1,2;localhost:20000,2,4
+    Check Thininstaller Log Contains    Message Relays: dummyhost1:10000,1,2;localhost:20000,2,4
     # Thininstaller orders only by priority, localhost is only one with low priority
     Log File  /etc/hosts
     Check Thininstaller Log Contains In Order
-    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost1:20000)
+    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost1:10000)
     ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via localhost:20000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: localhost:20000\nDEBUG: Successfully got [No error] from Sophos Central
 
 
@@ -214,7 +213,7 @@ Thin Installer Attempts Install And Register Through Message Relays
 
     # Check the message relays made their way through to the registration command in the full installer
     Check Register Central Log Contains In Order
-    ...  Trying connection via message relay dummyhost1:20000
+    ...  Trying connection via message relay dummyhost1:10000
     ...  Successfully connected to localhost:4443 via localhost:20000
 
     # Check the message relays made their way through to the MCS Router
