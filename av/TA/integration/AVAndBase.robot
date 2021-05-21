@@ -80,7 +80,10 @@ AV plugin runs scan now twice consecutively
     Check scan now with Offset
 
 AV plugin attempts to run scan now twice simultaneously
+    Register On Fail  dump log  ${SCANNOW_LOG_PATH}
     Mark AV Log
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/fileMaker.sh  1000  stderr=STDOUT
+    Register Cleanup    Remove Directory    /tmp_test/file_maker/  recursive=True
     Configure scan now
 
     Send Sav Action To Base  ScanNow_Action.xml
