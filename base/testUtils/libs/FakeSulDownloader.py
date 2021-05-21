@@ -147,6 +147,8 @@ class FakeSulDownloader(object):
 
     def create_link(self):
         if self.sul_downloader_link:
+            logger.info(f"aborting creation of fake suldownloader symlink because self.sul_downloader_link is: {self.sul_downloader_link}")
+            logger.info(f"self.sul_downloader_link = {self.sul_downloader_link}")
             return
         write_fake_downloader()
         currdir = os.getcwd()
@@ -154,10 +156,12 @@ class FakeSulDownloader(object):
         try:
             os.unlink("SulDownloader")
             os.symlink(FAKESULNAME, "SulDownloader")
+            logger.info(f"created fake suldownloader symlink")
         except Exception as ex:
             raise AssertionError("Link creation failed: " + str(ex))
         os.chdir(currdir)
         self.sul_downloader_link = True
+        logger.info(f"self.sul_downloader_link = {self.sul_downloader_link}")
 
     def setup_done_file(self):
         try:
