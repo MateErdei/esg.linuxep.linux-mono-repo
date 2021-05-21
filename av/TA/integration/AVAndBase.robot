@@ -806,6 +806,8 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
 
+    Check Plugin Installed and Running
+
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Empty Directory  /opt/sophos-spl/base/mcs/event
@@ -855,6 +857,8 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
         ...  60 secs
         ...  3 secs
         ...  check threat event received by base  1  naugthyEicarThreatReport
+
+    Check Plugin Installed and Running
 
 
 Scan Now Can Work Despite Specified Log File Being Read-Only
