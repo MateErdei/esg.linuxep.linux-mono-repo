@@ -3,15 +3,18 @@
 Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+
 #pragma once
 
+#include <stdexcept>
 #include <string>
+#include <utility>
 
-namespace Common::UtilityImpl
+class ScanInterruptedException : public std::runtime_error
 {
-    class SystemExecutableUtils
+public:
+    explicit ScanInterruptedException(const std::string& errorMsg)
+            : std::runtime_error(errorMsg)
     {
-    public:
-        static std::string getSystemExecutablePath(const std::string& executableName);
-    };
-} // namespace Common::UtilityImpl
+    }
+};
