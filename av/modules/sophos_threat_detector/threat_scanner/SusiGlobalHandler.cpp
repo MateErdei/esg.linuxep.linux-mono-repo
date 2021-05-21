@@ -114,18 +114,18 @@ bool SusiGlobalHandler::update(const std::string& path, const std::string& lockf
     return internal_update(path, lockfile);
 }
 
-bool SusiGlobalHandler::acquireLock(int fd)
+bool SusiGlobalHandler::acquireLock(datatypes::AutoFd& fd)
 {
-    if (flock(fd, LOCK_EX | LOCK_NB) != 0)
+    if (flock(fd.get(), LOCK_EX | LOCK_NB) != 0)
     {
         return false;
     }
     return true;
 }
 
-bool SusiGlobalHandler::releaseLock(int fd)
+bool SusiGlobalHandler::releaseLock(datatypes::AutoFd& fd)
 {
-    if (flock(fd, LOCK_UN | LOCK_NB) != 0)
+    if (flock(fd.get(), LOCK_UN | LOCK_NB) != 0)
     {
         return false;
     }
@@ -135,25 +135,33 @@ bool SusiGlobalHandler::releaseLock(int fd)
 bool SusiGlobalHandler::internal_update(const std::string& path, const std::string& lockfile)
 {
     mode_t mode = S_IRUSR | S_IWUSR;
-    int fd = open(lockfile.c_str(), O_RDWR | O_CREAT, mode);
-    if (fd == -1)
+    datatypes::AutoFd fd(open(lockfile.c_str(), O_RDWR | O_CREAT, mode));
+    if (!fd.valid())
     {
         std::stringstream errorMsg;
         errorMsg << "Failed to open lock file: " << lockfile;
         throw std::runtime_error(errorMsg.str());
     }
 
-    if (acquireLock(fd))
+    // Try up to 20 times 0.5s apart to acquire the file lock
+    int maxRetries = 20;
+    int attempt = 1;
+    struct timespec timeout;
+    timeout.tv_sec  = 0;
+    timeout.tv_nsec = 500000000L;
+
+    while(!acquireLock(fd))
     {
-        LOGDEBUG("Acquired lock on " << lockfile);
+        if (attempt++ >= maxRetries)
+        {
+            std::stringstream errorMsg;
+            errorMsg << "Failed to acquire lock on " << lockfile;
+            LOGERROR(errorMsg.str());
+            throw std::runtime_error(errorMsg.str());
+        }
+        nanosleep(&timeout, nullptr);
     }
-    else
-    {
-        std::stringstream errorMsg;
-        errorMsg << "Failed to acquire lock on " << lockfile;
-        LOGERROR(errorMsg.str());
-        throw std::runtime_error(errorMsg.str());
-    }
+    LOGDEBUG("Acquired lock on " << lockfile);
 
     assert(m_susiInitialised.load(std::memory_order_acquire));
     // SUSI is always initialised by the time we get here

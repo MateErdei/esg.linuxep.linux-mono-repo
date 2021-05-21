@@ -6,10 +6,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "datatypes/AutoFd.h"
+
 #include <atomic>
-#include <string>
 #include <memory>
 #include <mutex>
+#include <string>
 
 namespace threat_scanner
 {
@@ -64,8 +66,8 @@ namespace threat_scanner
          */
         bool internal_update(const std::string& path, const std::string& lockfile);
 
-        bool acquireLock(int fd);
-        bool releaseLock(int fd);
+        bool acquireLock(datatypes::AutoFd& fd);
+        bool releaseLock(datatypes::AutoFd& fd);
     };
     using SusiGlobalHandlerSharePtr = std::shared_ptr<SusiGlobalHandler>;
 }
