@@ -214,7 +214,7 @@ AV plugin runs scheduled scan while CLS is running
 
 AV plugin runs CLS while scheduled scan is running
     [Teardown]  Run Keywords    AV And Base Teardown
-        ...         AND             Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+    Register Cleanup  Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
 
@@ -823,7 +823,7 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
 
     Wait Until Keyword Succeeds
        ...  60 secs
@@ -852,7 +852,8 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
 
     Log  return code is ${rc}
     Log  output is ${output}
-    AV Plugin Log Should Not Contain With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    AV Plugin Log Should Not Contain With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
 
     Wait Until Keyword Succeeds
         ...  60 secs

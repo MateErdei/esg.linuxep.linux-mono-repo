@@ -1447,6 +1447,7 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  /tmp/scan.log
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
 
+    Mark AV Log
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar -o /tmp/scan.log
 
@@ -1457,7 +1458,9 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     File Log Contains  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
+    Mark AV Log
     Mark Log  /tmp/scan.log
     Run  chmod 444 /tmp/scan.log
 
@@ -1470,3 +1473,4 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     File Log Should Not Contain With Offset  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"

@@ -505,6 +505,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Check Sophos Threat Detector Running
 
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
+    Mark AV Log
     Mark Sophos Threat Detector Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
@@ -512,6 +513,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
     Run  chmod 444 ${THREAT_DETECTOR_LOG_PATH}
     Register Cleanup  Run  chmod 600 ${THREAT_DETECTOR_LOG_PATH}
@@ -524,6 +526,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
     Log  Restarted PID: ${END_SOPHOS_THREAT_DETECTOR_PID}
     Should Not Be Equal As Integers  ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}  ${END_SOPHOS_THREAT_DETECTOR_PID}
 
+    Mark AV Log
     Mark Sophos Threat Detector Log
 
     ${result} =  Run Process  ls  -l  ${THREAT_DETECTOR_LOG_PATH}
@@ -539,6 +542,8 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
     Threat Detector Log Should Not Contain With Offset  Sophos Threat Detector received SIGTERM - shutting down
     Threat Detector Log Should Not Contain With Offset  Sophos Threat Detector is exiting
 
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+
     Check Sophos Threat Detector Running
 
 
@@ -547,6 +552,7 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Check Plugin Installed and Running
 
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
+    Mark AV Log
     Mark Susi Debug Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
@@ -554,6 +560,7 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     SUSI Debug Log Contains With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
     Run  chmod 444 ${SUSI_DEBUG_LOG_PATH}
     Register Cleanup  Run  chmod 600 ${SUSI_DEBUG_LOG_PATH}
@@ -566,6 +573,7 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Log  Restarted PID: ${END_AV_PID}
     Should Not Be Equal As Integers  ${INITIAL_AV_PID}  ${END_AV_PID}
 
+    Mark AV Log
     Mark Susi Debug Log
 
     ${result} =  Run Process  ls  -l  ${SUSI_DEBUG_LOG_PATH}
@@ -576,6 +584,7 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Log  return code is ${rc}
     Log  output is ${output}
     SUSI Debug Log Does Not Contain With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
     Check Plugin Installed and Running
 
