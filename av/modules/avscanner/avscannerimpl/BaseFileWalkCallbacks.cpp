@@ -4,13 +4,13 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <common/ScanManuallyInterruptedException.h>
+
 #include "BaseFileWalkCallbacks.h"
 
 #include "Logger.h"
 
 #include "common/AbortScanException.h"
-#include "common/ErrorCodes.h"
+#include "common/ScanManuallyInterruptedException.h"
 #include "common/ScanInterruptedException.h"
 #include "common/StringUtils.h"
 

@@ -11,11 +11,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "common/AbortScanException.h"
 #include "common/ScanInterruptedException.h"
+#include "common/ScanManuallyInterruptedException.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
 #include "scan_messages/ClientScanRequest.h"
-#include <ScanResponse.capnp.h>
 
+#include <ScanResponse.capnp.h>
 #include <capnp/serialize.h>
 #include <common/StringUtils.h>
 
@@ -23,12 +24,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sstream>
 #include <cassert>
 #include <cstring>
-
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <common/ScanManuallyInterruptedException.h>
 
 unixsocket::ScanningClientSocket::ScanningClientSocket(std::string socket_path, const struct timespec& sleepTime)
     : m_sigIntMonitor(common::SigIntMonitor::getSigIntMonitor())

@@ -8,15 +8,15 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include <common/AbortScanException.h>
-#include <common/PathUtils.h>
-#include <common/StringUtils.h>
+#include "common/AbortScanException.h"
+#include "common/PathUtils.h"
+#include "common/StringUtils.h"
+#include "common/ScanInterruptedException.h"
+#include "common/ScanManuallyInterruptedException.h"
 
 #include <cstring>
-
 #include <sys/stat.h>
-#include <common/ScanInterruptedException.h>
-#include <common/ScanManuallyInterruptedException.h>
+
 
 namespace fs = sophos_filesystem;
 

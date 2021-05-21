@@ -12,12 +12,13 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "avscanner/mountinfoimpl/SystemPathsFactory.h"
 #include "common/AbortScanException.h"
 #include "common/ErrorCodes.h"
+#include "common/ScanManuallyInterruptedException.h"
 #include "common/ScanInterruptedException.h"
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <common/ScanManuallyInterruptedException.h>
+
 
 using namespace avscanner::avscannerimpl;
 
