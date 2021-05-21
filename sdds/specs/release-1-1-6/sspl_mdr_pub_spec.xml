@@ -2,6 +2,11 @@
 <publicationspec importspec="sspl_mdr_import_spec.xml">
   <componentsuites>
     <line id="ServerProtectionLinux-Plugin-MDR">
+    <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.9.7">
+        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.9.10" line="ServerProtectionLinux-MDR-Control-Component" mountpoint="."/>
+        <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.1.0.65" line="ServerProtectionLinux-MDR-DBOS-Component" mountpoint="."/>
+        <component importreference="ServerProtectionLinux-MDR-osquery-Component-4.6.0" line="ServerProtectionLinux-MDR-osquery-Component" mountpoint="."/>
+    </componentsuite>
 	  <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.8.15">
         <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.8.18" line="ServerProtectionLinux-MDR-Control-Component" mountpoint="."/>
         <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.1.0.65" line="ServerProtectionLinux-MDR-DBOS-Component" mountpoint="."/>
@@ -37,9 +42,11 @@
    <warehouses>
     <warehouse furcatedentitlement="SSPL_MDR" id="ssplmdr">
       <line id="ServerProtectionLinux-Plugin-MDR">
-	<component importreference="ServerProtectionLinux-Plugin-MDR-1.0.8.15">
+    <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.9.7">
         <releasetag baseversion="" tag="BETA"/>
         <releasetag baseversion="" tag="RECOMMENDED"/>
+    </component>
+	<component importreference="ServerProtectionLinux-Plugin-MDR-1.0.8.15">
     </component>
     <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.7.60">
     </component>
@@ -53,6 +60,7 @@
         </component>
       </line>
       <line id="ServerProtectionLinux-MDR-Control-Component">
+        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.9.10"/>
 		<component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.8.18"/>
         <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.7.60"/>
 		<component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.6.81"/>
