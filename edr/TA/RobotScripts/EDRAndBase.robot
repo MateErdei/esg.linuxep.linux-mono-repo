@@ -124,7 +124,6 @@ EDR Plugin Can Have Logging Level Changed Based On Components
     Check EDR Plugin Installed With Base
     #With edr_osquery being set to INFO, the other sub-components can be set to DEBUG and have the specified logging level
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [edr_osquery]\nVERBOSITY=INFO\n[edr]\nVERBOSITY=DEBUG\n
-    Remove File         ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
     Restart EDR
     Wait Until Keyword Succeeds
         ...  15 secs
