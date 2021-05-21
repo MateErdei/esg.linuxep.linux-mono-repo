@@ -502,6 +502,7 @@ SUSI Is Given Non-Permission CustomerId
 
 Threat Detector Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
+    Register Cleanup  Check Sophos Threat Detector Running
 
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     Mark Sophos Threat Detector Log
@@ -538,9 +539,12 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
     Threat Detector Log Should Not Contain With Offset  Sophos Threat Detector received SIGTERM - shutting down
     Threat Detector Log Should Not Contain With Offset  Sophos Threat Detector is exiting
 
+    Check Sophos Threat Detector Running
+
 
 SUSI Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
+    Register Cleanup  Check Plugin Installed and Running
 
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     Mark Susi Debug Log
@@ -572,6 +576,8 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Log  return code is ${rc}
     Log  output is ${output}
     SUSI Debug Log Does Not Contain With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
+
+    Check Plugin Installed and Running
 
 
 *** Keywords ***

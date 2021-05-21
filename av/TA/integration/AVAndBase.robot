@@ -812,6 +812,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 AV Plugin Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Empty Directory  /opt/sophos-spl/base/mcs/event
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naugthy_eicar
+    Register Cleanup  Check Plugin Installed and Running
 
     Empty Directory  /opt/sophos-spl/base/mcs/event/
     Create File  ${NORMAL_DIRECTORY}/naugthy_eicar  ${EICAR_STRING}
