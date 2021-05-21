@@ -184,7 +184,7 @@ Thin Installer Attempts Install And Register Through Message Relays
     # Create Dummy Host
 
     # This ip address should not be accessiable.
-    ${dist1} =  Set Variable  10.55.38.139
+    ${dist1} =  Set Variable  192.0.0.8
 
     Copy File  /etc/hosts  /etc/hosts.bk
     Append To File  /etc/hosts  ${dist1} dummyhost1
