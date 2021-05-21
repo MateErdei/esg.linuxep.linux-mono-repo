@@ -354,9 +354,9 @@ function copy_backed_up_logs()
   SAVE_DIR="${SOPHOS_INSTALL}/tmp/av_downgrade/"
   RESTORE_DIR="${PLUGIN_INSTALL}/log/downgrade_backup"
 
-  if [[ -e ${SAVE_DIR} ]]
+  if [[ -d ${SAVE_DIR} ]]
   then
-      if [[ -e ${RESTORE_DIR} ]];
+      if [[ -d ${RESTORE_DIR} ]]
       then
           rm -f "$RESTORE_DIR"/*
       else
