@@ -234,3 +234,8 @@ Should Have A Given Message In Journalctl Since Certain Time
     ${result} =  Run Process  journalctl -o verbose --since "${time}"  shell=True  timeout=20
     Log  ${result.stdout}
     Should Contain    ${result.stdout}    ${message}
+
+Should Have Set KillMode To Mixed
+    ${result}=  Run Process  systemctl show sophos-spl | grep KillMode  shell=True
+    Log  ${result.stdout}
+    Should Contain  ${result.stdout}  KillMode=mixed

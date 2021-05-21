@@ -31,16 +31,7 @@ Simple Upgrade Test
     Check Expected Base Processes Are Running
 
     Should Not Have A Given Message In Journalctl Since Certain Time  ${message}  ${time}
-
-    ${result}=  Run Process  systemctl show sophos-spl | grep KillMode  shell=True
-    ${contents1} =  Run Keyword and Ignore Error  Get File  /lib/systemd/system/sophos-spl.service
-    ${contents2} =  Run Keyword and Ignore Error  Get File  /usr/lib/systemd/system/sophos-spl.service
-    Run Keyword and Ignore Error   Log  ${contents1}
-    Run Keyword and Ignore Error   Log  ${contents2}
-    ${inst_dir} =  Get Folder With Installer
-    ${installer_contents} =  Get File  ${inst_dir}/install.sh
-    Log  ${installer_contents}
-    Log  ${result.stdout}
+    Should Have Set KillMode To Mixed
 
     Mark Expected Critical In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.mcs <> Not registered: MCSID is not present
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1

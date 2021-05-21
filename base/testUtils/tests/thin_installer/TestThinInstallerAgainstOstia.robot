@@ -333,17 +333,8 @@ Thin Installer Force Works
     Should Exist  ${REGISTER_CENTRAL}
 
     Should Have A Given Message In Journalctl Since Certain Time  ${message}  ${time}
-    ${result}=  Run Process  systemctl show sophos-spl | grep KillMode  shell=True
-    ${contents1} =  Run Keyword and Ignore Error  Get File  /lib/systemd/system/sophos-spl.service
-    ${contents2} =  Run Keyword and Ignore Error  Get File  /usr/lib/systemd/system/sophos-spl.service
-    Run Keyword and Ignore Error   Log  ${contents1}
-    Run Keyword and Ignore Error   Log  ${contents2}
-    ${inst_dir} =  Get Folder With Installer
-    ${installer_contents} =  Get File  ${inst_dir}/install.sh
-    Log  ${installer_contents}
-    Log  ${result.stdout}
-    # ${asd} =  Get File  /opt/sophos-spl/base/force_install.txt
-    # Log  ${asd}
+    Should Have Set KillMode To Mixed
+
     remove_thininstaller_log
     Check Root Directory Permissions Are Not Changed
 
