@@ -19,6 +19,9 @@ EXIT_FAIL_COPY_MANIFEST=22
 EXIT_FAIL_DELETE_REMOVED_FILES=23
 EXIT_FAIL_NONVERSIONEDCOPY=24
 EXIT_FAIL_ACQUIRE_LOCK_FILE=25
+EXIT_FAIL_MISSING_SUPPLEMENTS=26
+EXIT_FAIL_MISSING_VERSIG=27
+EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL=28
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -53,6 +56,22 @@ THREAT_DETECTOR_USER=sophos-spl-threat-detector
 umask 077
 
 [[ -d $SOPHOS_INSTALL ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find installation directory: $SOPHOS_INSTALL"
+
+# Verify supplements are present
+[[ -d "$DIST/files/plugins/av/chroot/susi/update_source/vdl" ]] || failure ${EXIT_FAIL_MISSING_SUPPLEMENTS} "VDL supplement missing"
+[[ -d "$DIST/files/plugins/av/chroot/susi/update_source/reputation" ]] || failure ${EXIT_FAIL_MISSING_SUPPLEMENTS} "Local Reputation supplement missing"
+[[ -d "$DIST/files/plugins/av/chroot/susi/update_source/model" ]] || failure ${EXIT_FAIL_MISSING_SUPPLEMENTS} "Machine Learning supplement missing"
+
+# Verify supplement manifest files
+VERSIG=$SOPHOS_INSTALL/base/update/versig
+[[ -x $VERSIG ]] || failure ${EXIT_FAIL_MISSING_VERSIG} "Failed to find signature verifier in SSPL"
+ROOT_CA=$SOPHOS_INSTALL/base/update/rootcerts/rootca.crt
+[[ -f $ROOT_CA ]] || failure ${EXIT_FAIL_MISSING_VERSIG} "Failed to find root CA in SSPL"
+SUPPLEMENT_DIR="$DIST/files/plugins/av/chroot/susi/update_source"
+VDL="$SUPPLEMENT_DIR/vdl"
+$VERSIG -c"$ROOT_CA" -f"$VDL/vdlmnfst.dat" -d"$VDL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify VDL supplement"
+ML_MODEL="$SUPPLEMENT_DIR/model"
+$VERSIG -c"$ROOT_CA" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
 
 if [[ ! -x $(which setcap) ]]
 then
