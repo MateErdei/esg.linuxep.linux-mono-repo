@@ -196,10 +196,7 @@ Thin Installer Attempts Install And Register Through Message Relays
 
     # Check current proxy file is written with correct content and permissions.
     # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Current Proxy Is Created With Correct Content And Permissions  localhost:20000
+    Check Current Proxy Is Created With Correct Content And Permissions  localhost:20000
 
     # Check the MCS Capabilities check is performed with the Message Relays in the right order
     Check Thininstaller Log Contains    Message Relays: dummyhost1:20000,1,2;localhost:20000,2,4
