@@ -721,7 +721,6 @@ We Can Upgrade AV From A Release To VUT Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...   300 secs
