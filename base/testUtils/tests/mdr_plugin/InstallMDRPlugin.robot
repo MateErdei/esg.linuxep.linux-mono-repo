@@ -118,7 +118,10 @@ MDR Plugin Logging Level Can Be Changed Individually
     Remove File         ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log
     Stop MDR Plugin
     Start MDR Plugin
-    MDR Plugin Log Contains   Logger mtr configured for level: DEBUG
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  MDR Plugin Log Contains   Logger mtr configured for level: DEBUG
 
 *** Keywords ***
 MTR Tests Teardown With Installed File Replacement

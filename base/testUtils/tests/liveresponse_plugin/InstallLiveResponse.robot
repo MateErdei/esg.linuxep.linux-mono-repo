@@ -56,7 +56,10 @@ Verify That Live Response Logging Can Be Set Individually
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [liveresponse]\nVERBOSITY=DEBUG\n
     Remove File         ${SOPHOS_INSTALL}/plugins/liveresponse/log/liveresponse.log
     Restart Liveresponse Plugin
-    Live Response Plugin Log Contains  Logger liveresponse configured for level: DEBUG
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Live Response Plugin Log Contains  Logger liveresponse configured for level: DEBUG
 
 
 *** Keywords ***
