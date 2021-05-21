@@ -254,7 +254,7 @@ Common Teardown
     Run Keyword If Test Failed  Display All SSPL Files Installed
 
 EDR And Base Teardown
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
+    Stop EDR
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
@@ -285,7 +285,7 @@ Check EDR Executable Not Running
 
 Restart EDR
     ${mark} =  Mark File  ${EDR_LOG_PATH}
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Stop EDR
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
@@ -338,3 +338,6 @@ Is XDR Enabled in Plugin Conf
     sleep  0.1s
     ${EDR_CONFIG_CONTENT}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
     Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=1
+
+Stop EDR
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=40s

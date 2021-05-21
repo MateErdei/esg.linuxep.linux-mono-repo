@@ -25,7 +25,7 @@ LiveQuery is Distributed to EDR Plugin and Its Answer is available to MCSRouter
 LiveQuery Response is Chowned to Sophos Spl Local on EDR Startup
     Check EDR Plugin Installed With Base
     Create File  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_567-8_response.json
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr
+    Stop EDR
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
@@ -109,6 +109,28 @@ EDR Restarts If File Descriptor Limit Hit
     ...  200 secs
     ...  20 secs
     ...  EDR Plugin Log Contains X Times   Early request to stop found.  1
+
+
+EDR Plugin Stops Without Errors
+    Check EDR Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Osquery Running
+    Stop EDR
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check EDR Executable Not Running
+    EDR Plugin Log Does Not Contain  ERROR
+    EDR Plugin Log Does Not Contain  WARN
+    EDR Plugin Log Does Not Contain  Operation canceled
+
+
 
 
 *** Keywords ***
