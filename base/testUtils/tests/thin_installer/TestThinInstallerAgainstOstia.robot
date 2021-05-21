@@ -323,7 +323,7 @@ Thin Installer Force Works
     Remove Directory  /opt/sophos-spl  recursive=True
     Should Not Exist  ${REGISTER_CENTRAL}
 
-    ${time} =  Get Current Date
+    ${time} =  Get Current Date  exclude_millis=true
     ${message} =  Set Variable  : Reloading.
 
     # Force an installation

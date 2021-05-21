@@ -12,7 +12,7 @@ Default Tags  INSTALLER  TAP_TESTS
 *** Test Cases ***
 Simple Upgrade Test
     Require Fresh Install
-    ${time} =  Get Current Date
+    ${time} =  Get Current Date  exclude_millis=true
     ${message} =  Set Variable  : Reloading.
     ${result} =   Get Folder With Installer
     ${BaseDevVersion} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
