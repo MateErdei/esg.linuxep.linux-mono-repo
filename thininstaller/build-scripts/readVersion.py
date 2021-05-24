@@ -63,7 +63,7 @@ def readVersionIniFile(BASE=None):
     else:
         print("Failed to get AutoVersion from {}".format(autoVersionFile))
 
-    if version == "1.0.999":
+    if version == "1.0.10.999":
         print("Ignoring template version {} from {}".format(version, autoVersionFile))
         version = None
 
