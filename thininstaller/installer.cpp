@@ -408,7 +408,8 @@ struct ProductInfo
 {
     SU_PHandle pHandle; 
     bool hasTargetReleaseTag; 
-    std::string rigidName; 
+    std::string rigidName;
+    std::vector<std::string> releaseTags;
     static ProductInfo from(SU_PHandle product)
     {
         ProductInfo productInfo;
@@ -424,9 +425,30 @@ struct ProductInfo
             queryProductMetadata(product, "ReleaseTagsTag");
             printf("\n");
         }
-        // We only ever expect there to be up to 2 tags for a single component. If there is more this should be updated
-        productInfo.hasTargetReleaseTag = (getProductMetadata(product, "ReleaseTagsTag", 0) == g_ReleaseTag 
-                            || getProductMetadata(product, "ReleaseTagsTag", 1) == g_ReleaseTag); 
+
+        // First get the list of available Release Tags
+        int index = 0;
+        while (true)
+        {
+            std::string tag = getProductMetadata(product, "ReleaseTagsTag", index);
+            if (tag.empty())
+            {
+                break;
+            }
+            productInfo.releaseTags.push_back(tag);
+            index++;
+        }
+        // Now that we have the available release tags check to see if one of them matches the target release tag.
+        productInfo.hasTargetReleaseTag = false;
+        for(auto& tag : productInfo.releaseTags)
+        {
+            if(tag == g_ReleaseTag)
+            {
+                productInfo.hasTargetReleaseTag = true;
+                break;
+            }
+        }
+
         productInfo.rigidName =  getProductMetadata(product, "Line", 0); 
         productInfo.pHandle = product; 
         return productInfo;
