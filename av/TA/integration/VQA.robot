@@ -80,6 +80,8 @@ VQA Suite Setup
     ...   ${IDE_DIR}/hfs.ide
     Install With Base SDDS
     Check AV Plugin Installed With Base
+    #Force SUSI to load
+    Check avscanner can detect eicar
 
 VQA Suite TearDown
     No Operation
