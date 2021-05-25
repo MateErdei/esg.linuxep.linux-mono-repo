@@ -9,7 +9,7 @@ VERSION=@PRODUCT_VERSION_REPLACEMENT_STRING@
 PRODUCT_NAME="Sophos Linux Protection"
 INSTALL_FILE=$0
 # Display help
-if [[ "x$args" == *"x--help"* ]] || [[ "x$args" == *"x-h"* ]]
+if [[ "x$args" == *"x--help"* ]] || [[ "x$args" == *"x-h"* ]] || [[ "x$args" == *"x--"*"x--help"* ]]
 then
     echo "${PRODUCT_NAME} Installer, help:"
     echo "Usage: [options]"
@@ -23,7 +23,7 @@ then
     exit 0
 fi
 
-if [[ "x$args" == *"x--version"* ]] || [[ "x$args" == *"x-v"* ]]
+if [[ "x$args" == *"x--version"* ]] || [[ "x$args" == *"x-v"* ]] || [[ "x$args" == *"x--"*"x--version"* ]]
 then
     echo "${PRODUCT_NAME} Installer, version: $VERSION"
     exit 0
