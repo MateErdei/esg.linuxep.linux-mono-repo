@@ -116,6 +116,7 @@ AV plugin runs scheduled scan
 
 AV plugin runs multiple scheduled scans
     Mark AV Log
+    Register Cleanup  Restart AV Plugin And Clear The Logs For Integration Tests
     Send Sav Policy With Multiple Imminent Scheduled Scans To Base
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Wait until scheduled scan updated With Offset
