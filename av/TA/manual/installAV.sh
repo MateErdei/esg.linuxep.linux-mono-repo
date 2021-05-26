@@ -40,7 +40,7 @@ AV_ROOT=/opt/test/inputs/av
 [[ -f ${AV_ROOT}/SDDS-COMPONENT/manifest.dat ]] || failure 1 "Can't find SDDS-COMPONENT: ${AV_ROOT}/SDDS-COMPONENT/manifest.dat"
 TEST_SUITE=${BASE}/..
 
-export MCS_CA=${MCS_CA:-${TEST_SUITE}/resources/certs/hmr-dev-sha1.pem}
+export MCS_CA=${MCS_CA:-${TEST_SUITE}/resources/certs/hmr-dev-combined.pem}
 
 SDDS_BASE=${AV_ROOT}/base-sdds
 [[ -d $SDDS_BASE ]] || failure 1 "Can't find SDDS_BASE: $SDDS_BASE"
