@@ -9,8 +9,16 @@ import sys
 import urllib.request
 import xml.dom.minidom
 
+def is_md5(s):
+    if len(s) != 32:
+        return False
+    return True
+
 def h(external_creds):
-    if ":" not in external_creds:
+    # pass md5 directly back
+    if is_md5(external_creds):
+        return external_creds
+    elif ":" not in external_creds:
         external_creds += ":54m5ung"
     m = hashlib.md5(external_creds.encode("UTF-8"))
     return m.hexdigest()
