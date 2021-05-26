@@ -411,7 +411,7 @@ class UpdateSchedulerHelper(object):
                 if rigidNameValue == rigidName:
                     versionValue = product.getAttribute("installedVersion")
                     if versionValue != version:
-                        raise AssertionError("Version for found for {} does not match, expected{}, actual {}".format(rigidName, version, versionValue))
+                        raise AssertionError("Version for {} does not match, expected {}, actual {}".format(rigidName, version, versionValue))
                     else:
                         return
         raise AssertionError("Failed to find product entry for {}".format(rigidName))

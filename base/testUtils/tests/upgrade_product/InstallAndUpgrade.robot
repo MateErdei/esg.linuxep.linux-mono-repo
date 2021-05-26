@@ -59,7 +59,8 @@ ${mtr_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+${Sophos_Scheduled_Query_Pack}              ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 *** Test Cases ***
 
@@ -155,8 +156,6 @@ We Can Upgrade From A Release To Master Without Unexpected Errors
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
-
-    Check Watchdog Service File Has Correct Kill Mode
 
     Check Mtr Reconnects To Management Agent After Upgrade
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
@@ -406,6 +405,8 @@ Verify Upgrading Will Remove Files Which Are No Longer Required
     ...  320 secs
     ...  5 secs
     ...  Check Files After Upgrade
+
+
 
 Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
@@ -757,6 +758,61 @@ We Can Upgrade AV From A Release To VUT Without Unexpected Errors
 
     Check AV Plugin Permissions
     Check AV Plugin Can Scan Files
+
+Check Installed Version In Status Message Is Correctly Reported Based On Version Ini File
+    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    # Setup for test.
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   5 secs
+    ...   File Should Exist  ${status_file}
+
+    Override Local LogConf File for a component   DEBUG  global
+    Run Process  systemctl  restart  sophos-spl
+
+    # Tigger update to make sure everything has settle down foe test, i.e. we do not want files to be updated
+    # when the actual test update is being performed.
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   240 secs
+    ...   10 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   2
+
+    # Run test to simulate installedVersion content is correctly generated in status file.
+    # First modify Base, live response and MTR version ini files
+    # Base is set to an older version (make sure this is never newer than real installed version).
+    #       Or installer will run.  This is to simulate new version failed to install.
+    # Live reponse version.ini file will be removed, to simulate component never installed.
+    # MTR is set to an older version (make sure this is never newer than real installed version).
+    Remove File  ${SOPHOS_INSTALL}/base/VERSION.ini
+    Create File   ${SOPHOS_INSTALL}/base/VERSION.ini   PRODUCT_VERSION = 1.0.123.123
+    Run Process  chmod  640   ${SOPHOS_INSTALL}/base/VERSION.ini
+    Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/VERSION.ini
+    Remove File  ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
+    Remove File  ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
+    Create File  ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini   PRODUCT_VERSION = 1.0.0.234
+    Remove File  ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/PRODUCT_VERSION.ini
+    Create File  ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/PRODUCT_VERSION.ini  PRODUCT_VERSION = 1.0.0.345
+    Remove File  ${SOPHOS_INSTALL}/plugins/mtr/osquery/VERSION.ini
+    Create File  ${SOPHOS_INSTALL}/plugins/mtr/osquery/VERSION.ini  PRODUCT_VERSION = 1.0.0.456
+
+    #  This update should not install any files.
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...   240 secs
+    ...   10 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   3
+
+    # Check content of ALC_status.xml file contsins the expected installedVersion values.
+    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Base-component  1.0.123.123  ${status_file}
+    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Plugin-liveresponse  ${EMPTY}  ${status_file}
+    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-MDR-Control-Component  1.0.0.234  ${status_file}
+    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-MDR-DBOS-Component  1.0.0.345  ${status_file}
+    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-MDR-osquery-Component  1.0.0.456  ${status_file}
 
 *** Keywords ***
 
