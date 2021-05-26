@@ -12,7 +12,11 @@ import xml.dom.minidom
 def is_md5(s):
     if len(s) != 32:
         return False
-    return True
+    try:
+        int(s, 16)
+        return True
+    except ValueError:
+        return False
 
 def h(external_creds):
     # pass md5 directly back
