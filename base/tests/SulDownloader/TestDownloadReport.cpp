@@ -602,7 +602,8 @@ TEST_F( // NOLINT
     std::vector<ProductInfo> warehouseComponents;
     warehouseComponents.push_back(ProductInfo{ downloadedProduct.getLine(),
                                                downloadedProduct.getProductMetadata().getName(),
-                                               downloadedProduct.getProductMetadata().getVersion() });
+                                               downloadedProduct.getProductMetadata().getVersion(),
+                                               downloadedProduct.getProductMetadata().getVersion()});
 
     auto report = DownloadReport::Report(
         "sophosurl",
@@ -776,8 +777,8 @@ TEST_F(DownloadReportTest, shouldExtractTheWarehouseSubComponents)
         }
     ],
     "warehouseComponents":[
-        { "rigidName" : "rn1", "productName": "p1", "installedVersion":"v1"},
-        { "rigidName" : "rn2", "productName": "p2", "installedVersion":"v2"}
+        { "rigidName" : "rn1", "productName": "p1", "installedVersion":"v1", "warehouseVersion":"v1"},
+        { "rigidName" : "rn2", "productName": "p2", "installedVersion":"v2", "warehouseVersion":"v2"}
     ],
     "startTime": "20180822 121220",
     "errorDescription": "",
@@ -787,7 +788,7 @@ TEST_F(DownloadReportTest, shouldExtractTheWarehouseSubComponents)
     DownloadReport report = DownloadReport::toReport(serializedReportWithSubComponents);
     std::vector<suldownloaderdata::ProductInfo> warehouseComponents = report.getWarehouseComponents();
     EXPECT_EQ(warehouseComponents.size(), 2);
-    std::vector<suldownloaderdata::ProductInfo> expected = { { "rn1", "p1", "v1" }, { "rn2", "p2", "v2" } };
+    std::vector<suldownloaderdata::ProductInfo> expected = { { "rn1", "p1", "v1", "v1" }, { "rn2", "p2", "v2", "v2"} };
     EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, warehouseComponents);
     std::string reSerialize = DownloadReport::fromReport(report);
     DownloadReport reportAgain = DownloadReport::toReport(reSerialize);

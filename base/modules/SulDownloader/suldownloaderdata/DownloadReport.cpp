@@ -172,7 +172,19 @@ namespace SulDownloader
 
         report.setTimings(*timeTracker);
 
-        report.m_warehouseComponents = warehouseComponents;
+        std::vector<ProductInfo> updatedWareohuseComponents;
+
+        for(auto& warehouseComponent : warehouseComponents)
+        {
+            ProductInfo warehouseproductInfo;
+            warehouseproductInfo.m_rigidName = warehouseComponent.m_rigidName;
+            warehouseproductInfo.m_productName = warehouseComponent.m_productName;
+            warehouseproductInfo.m_version = warehouseComponent.m_version;
+            warehouseproductInfo.m_installedVersion = getInstalledVersion(warehouseComponent.m_rigidName);
+            updatedWareohuseComponents.push_back(warehouseproductInfo);
+        }
+
+        report.m_warehouseComponents = updatedWareohuseComponents;
 
         return report;
     }
@@ -442,6 +454,7 @@ namespace SulDownloader
             warehouseComponentProto->set_productname(warehouseComponent.m_productName);
             warehouseComponentProto->set_rigidname(warehouseComponent.m_rigidName);
             warehouseComponentProto->set_installedversion(warehouseComponent.m_version);
+            warehouseComponentProto->set_warehouseversion(warehouseComponent.m_installedVersion);
         }
 
         return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoReport);
@@ -493,7 +506,8 @@ namespace SulDownloader
             ProductInfo productInfo;
             productInfo.m_productName = warehouseComponentProto.productname();
             productInfo.m_rigidName = warehouseComponentProto.rigidname();
-            productInfo.m_version = warehouseComponentProto.installedversion();
+            productInfo.m_version = warehouseComponentProto.warehouseversion();
+            productInfo.m_installedVersion = warehouseComponentProto.installedversion();
             report.m_warehouseComponents.push_back(productInfo);
         }
 

@@ -253,7 +253,7 @@ TEST_F(TestSerializeStatus, SuccessStatusWithDefinedSubscriptions) // NOLINT
         <subscription rigidName="ComponentSuite" version="v1" displayVersion="v1" />
     </subscriptions>
     <products>
-        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="" />
+        <product rigidName="BaseRigidName" productName="BaseName" downloadedVersion="0.5.0" installedVersion="0.5.0" />
     </products>
     <Features>
     </Features>

@@ -111,6 +111,7 @@ namespace SulDownloader
                 ProductInfo productInfo;
                 productInfo.m_productName = baseMetadata.name;
                 productInfo.m_version = baseMetadata.downloadedVersion;
+                productInfo.m_installedVersion = baseMetadata.installedVersion;
                 productInfo.m_rigidName = baseMetadata.rigidName;
                 report.m_warehouseComponents.push_back(productInfo);
 

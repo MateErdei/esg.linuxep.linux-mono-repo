@@ -26,6 +26,7 @@ namespace SulDownloader
             std::string m_rigidName;
             std::string m_productName;
             std::string m_version;
+            std::string m_installedVersion;
         };
 
         struct SubscriptionInfo

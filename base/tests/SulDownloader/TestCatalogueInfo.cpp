@@ -71,13 +71,13 @@ public:
         switch (prodId)
         {
             case ProdId::SIMPLE_COMPONENT:
-                return ProductInfo{ "simple-rname", "simple-prod", "1s" };
+                return ProductInfo{ "simple-rname", "simple-prod", "1s", "1s" };
             case ProdId::COMPONENT_SUITE:
-                return ProductInfo{ "comp-rname", "comp-name", "1c" };
+                return ProductInfo{ "comp-rname", "comp-name", "1c", "1c" };
             case ProdId::SUB_COMPONENT1:
-                return ProductInfo{ "sub1-rname", "sub1-name", "1sc" };
+                return ProductInfo{ "sub1-rname", "sub1-name", "1sc", "1sc"  };
             case ProdId::SUB_COMPONENT2:
-                return ProductInfo{ "sub2-rname", "sub2-name", "2sc" };
+                return ProductInfo{ "sub2-rname", "sub2-name", "2sc","2sc" };
             default:
                 return ProductInfo{};
         }
