@@ -389,33 +389,44 @@ namespace Plugin
         try
         {
             LOGSUPPORT("Checking osquery database size");
-            std::string databasePath = Plugin::osQueryDataBasePath();
-            if (ifileSystem->isDirectory(databasePath))
+            std::vector<std::string> paths = PluginUtils::getOsqueryFilesToPurge();
+
+            if (paths.size() > MAX_THRESHOLD)
             {
-                std::vector<std::string> paths = ifileSystem->listFiles(databasePath);
+                LOGINFO("Purging Database");
+                stopOsquery();
 
-                if (paths.size() > MAX_THRESHOLD)
+                // Get files to purge again now that osquery has stopped so that we avoid the race condition of
+                // osquery creating new files after we got this list the first time before osquery had stopped.
+                paths = PluginUtils::getOsqueryFilesToPurge();
+                for (const auto& filepath : paths)
                 {
-                    LOGINFO("Purging Database");
-                    stopOsquery();
-
-                    for (const auto& filepath : paths)
+                    try
                     {
                         ifileSystem->removeFile(filepath);
                     }
-
-                    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-                    telemetry.increment(plugin::telemetryOSQueryDatabasePurges, 1L);
-
-                    LOGDEBUG("Purging Done");
-
-                    // osquery will automatically be restarted, make sure there is no delay.
-                    m_restartNoDelay = true;
+                    catch (const std::exception& exception)
+                    {
+                        // In the very unlikely event we can't delete the file, log a warning if we can't delete it but
+                        // it's already gone or log an error if we really can't delete it and the file remains.
+                        if (ifileSystem->exists(filepath))
+                        {
+                            LOGERROR("Delete failed, path: " << filepath << ", exception: " << exception.what());
+                        }
+                        else
+                        {
+                            LOGWARN("File already removed, path: " << filepath << ", exception: " << exception.what());
+                        }
+                    }
                 }
-            }
-            else
-            {
-                LOGSUPPORT("Osquery database does not exist");
+
+                auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+                telemetry.increment(plugin::telemetryOSQueryDatabasePurges, 1L);
+
+                LOGDEBUG("Purging Done");
+
+                // osquery will automatically be restarted, make sure there is no delay.
+                m_restartNoDelay = true;
             }
         }
         catch (Common::FileSystem::IFileSystemException& e)
