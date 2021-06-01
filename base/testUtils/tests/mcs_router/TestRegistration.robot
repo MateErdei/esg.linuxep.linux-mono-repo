@@ -59,7 +59,7 @@ Successful Registration With New Token Gives New Machine ID and resends existing
     ...  check_marked_mcsrouter_log_contains_string_n_times    queuing event for ALC  1
     Mark mcsrouter log
 	Register With New Token Local Cloud Server
-
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  updatescheduler
     # Wait for ThisIsAnMCSID+1002 in MCS logs, showing we've registered again.
     Wait Until Keyword Succeeds
     ...  16 secs

@@ -28,7 +28,9 @@ Test Components Shutdown Cleanly
 
      Block Connection Between EndPoint And FleetManager
      Install Directly From Component Suite
+     Check MDR Component Suite Installed Correctly
      Insert MTR Policy
+     Wait for MDR Executable To Be Running
 
      Run Process   systemctl  stop  sophos-spl
 
