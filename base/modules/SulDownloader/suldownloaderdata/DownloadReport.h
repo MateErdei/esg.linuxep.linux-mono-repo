@@ -136,6 +136,8 @@ namespace SulDownloader
             void setTimings(const TimeTracker&);
             void setProducts(const std::vector<ProductReport>& products);
             void setWarehouseComponents(const std::vector<ProductInfo>& warehouseComponents);
+            static const std::vector<ProductInfo> updateWarehouseComponentInstalledVersion(const std::vector<ProductInfo>& warehouseComponents);
+
 
             WarehouseStatus m_status= WarehouseStatus::UNSPECIFIED;
             std::string m_description;

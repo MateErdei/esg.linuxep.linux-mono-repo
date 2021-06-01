@@ -172,19 +172,7 @@ namespace SulDownloader
 
         report.setTimings(*timeTracker);
 
-        std::vector<ProductInfo> updatedWareohuseComponents;
-
-        for(auto& warehouseComponent : warehouseComponents)
-        {
-            ProductInfo warehouseproductInfo;
-            warehouseproductInfo.m_rigidName = warehouseComponent.m_rigidName;
-            warehouseproductInfo.m_productName = warehouseComponent.m_productName;
-            warehouseproductInfo.m_version = warehouseComponent.m_version;
-            warehouseproductInfo.m_installedVersion = getInstalledVersion(warehouseComponent.m_rigidName);
-            updatedWareohuseComponents.push_back(warehouseproductInfo);
-        }
-
-        report.m_warehouseComponents = updatedWareohuseComponents;
+        report.m_warehouseComponents = updateWarehouseComponentInstalledVersion(warehouseComponents);
 
         return report;
     }
@@ -264,6 +252,22 @@ namespace SulDownloader
                 m_warehouseComponents.push_back(warehouseComponent);
             }
         }
+    }
+
+    const std::vector<ProductInfo> DownloadReport::updateWarehouseComponentInstalledVersion(const std::vector<ProductInfo>& warehouseComponents)
+    {
+        std::vector<ProductInfo> updatedWareohuseComponents;
+
+        for(auto& warehouseComponent : warehouseComponents)
+        {
+            ProductInfo warehouseproductInfo;
+            warehouseproductInfo.m_rigidName = warehouseComponent.m_rigidName;
+            warehouseproductInfo.m_productName = warehouseComponent.m_productName;
+            warehouseproductInfo.m_version = warehouseComponent.m_version;
+            warehouseproductInfo.m_installedVersion = getInstalledVersion(warehouseComponent.m_rigidName);
+            updatedWareohuseComponents.push_back(warehouseproductInfo);
+        }
+        return updatedWareohuseComponents;
     }
 
     std::vector<ProductReport> DownloadReport::combineProductsAndSubscriptions(
