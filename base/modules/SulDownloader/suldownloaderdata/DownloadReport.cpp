@@ -453,8 +453,8 @@ namespace SulDownloader
             SulDownloaderProto::WarehouseComponent* warehouseComponentProto = protoReport.add_warehousecomponents();
             warehouseComponentProto->set_productname(warehouseComponent.m_productName);
             warehouseComponentProto->set_rigidname(warehouseComponent.m_rigidName);
-            warehouseComponentProto->set_installedversion(warehouseComponent.m_version);
-            warehouseComponentProto->set_warehouseversion(warehouseComponent.m_installedVersion);
+            warehouseComponentProto->set_installedversion(warehouseComponent.m_installedVersion);
+            warehouseComponentProto->set_warehouseversion(warehouseComponent.m_version);
         }
 
         return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoReport);
