@@ -42,7 +42,7 @@ User Should Not Exist
     File Log Should Not Contain   /etc/passwd   ${user}
 
 Check AV Plugin Not Installed
-    Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}
+    Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/
     File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
     User Should Not Exist  sophos-spl-av
     User Should Not Exist  sophos-spl-threat-detector
