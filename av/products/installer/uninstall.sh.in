@@ -25,6 +25,7 @@ BASEDIR="${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/sbin}"
 UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
+SAVE_DIR="${BASEDIR}/tmp/av_downgrade/"
 
 FORCE=0
 DOWNGRADE=0
@@ -43,8 +44,6 @@ done
 
 if (( DOWNGRADE == 1 ))
 then
-    # save logs
-    SAVE_DIR="${BASEDIR}/tmp/av_downgrade/"
     mkdir -p ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/chroot/log/sophos_threat_detector.log*  ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/log/av.log*  ${SAVE_DIR}
@@ -58,6 +57,17 @@ rm -rf "$UNINSTALLDIR"
 rm -f "$SYMLINK"
 rm -f "$SYMLINKVERSION"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
+
+if (( DOWNGRADE == 1 ))
+then
+    RESTORE_DIR=${UNINSTALLDIR}/log/downgrade_backup
+    mkdir -p "$RESTORE_DIR"
+    echo "$RESTORE_DIR"
+    for entry in "$SAVE_DIR"/*
+    do
+        cp "$entry"  "$RESTORE_DIR"/"$(basename -- "$entry")"
+    done
+fi
 
 userdel sophos-spl-av
 userdel sophos-spl-threat-detector
