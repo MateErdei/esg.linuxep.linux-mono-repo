@@ -544,8 +544,6 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
 
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
-    Check Sophos Threat Detector Running
-
 
 SUSI Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
@@ -585,8 +583,6 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Log  output is ${output}
     SUSI Debug Log Does Not Contain With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
-
-    Check Plugin Installed and Running
 
 
 *** Keywords ***
