@@ -167,9 +167,8 @@ EDR Recovers From Incomplete Database Purge
     Should Not Exist  ${canary_file}
 
     # Perform a query to make sure that osquery is now working
-    ${response} =  Run Live Query and Return Result
-    Should Contain  ${response}  "columnMetaData": [{"name":"name","type":"TEXT"},{"name":"value","type":"TEXT"}]
-    Should Contain  ${response}  "columnData": [["disable_audit","false"]]
+    ${response} =  Run Live Query and Return Result  SELECT * from uptime
+    Should Contain  ${response}  "errorCode":0,"errorMessage":"OK"
 
 
 *** Keywords ***
