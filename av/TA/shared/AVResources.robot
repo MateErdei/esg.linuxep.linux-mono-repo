@@ -404,6 +404,7 @@ Install AV Directly from SDDS
     ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
     ${log_contents} =  Get File  ${install_log}
+    File Log Should Not Contain  ${AV_INSTALL_LOG}  chown: cannot access
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\noutput: \n${log_contents}"
 
 Check AV Plugin Installed With Base
