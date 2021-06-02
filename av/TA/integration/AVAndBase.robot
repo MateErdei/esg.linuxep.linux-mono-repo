@@ -865,7 +865,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
     Register Cleanup    Remove File  /tmp_test/naughty_eicar
 
-    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+    Remove File  ${SCANNOW_LOG_PATH}
     Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
 
     Configure scan now
