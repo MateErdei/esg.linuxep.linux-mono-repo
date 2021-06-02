@@ -79,24 +79,32 @@ void ScanCallbackImpl::logSummary()
 
     std::ostringstream scanSummary;
 
-    scanSummary << "End of Scan Summary:" << std::endl;
+    LOGINFO("End of Scan Summary:");
 
     scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfScannedFiles(), " file", " files") << " scanned in ";
 
-    scanSummary << convertedTime.toString() << std::endl;
+    scanSummary << convertedTime.toString();
+    logSummaryNextLine(scanSummary);
 
     scanSummary << getNoOfInfectedFiles() << common::pluralize(getNoOfInfectedFiles(), " file", " files") << " out of ";
-    scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfInfectedFiles(), " was", " were") << " infected." << std::endl;
+    scanSummary << getNoOfScannedFiles() << common::pluralize(getNoOfInfectedFiles(), " was", " were") << " infected.";
+    logSummaryNextLine(scanSummary);
 
     if (getNoOfScanErrors() > 0)
     {
-        scanSummary << getNoOfScanErrors() << " scan" << common::pluralize(getNoOfScanErrors(), " error", " errors") << " encountered." << std::endl;
+        scanSummary << getNoOfScanErrors() << " scan" << common::pluralize(getNoOfScanErrors(), " error", " errors") << " encountered.";
+        logSummaryNextLine(scanSummary);
     }
 
     for (const auto& threatType : getThreatTypes())
     {
-        scanSummary << threatType.second << " " << threatType.first << common::pluralize(threatType.second, " infection", " infections") << " discovered." << std::endl;
+        scanSummary << threatType.second << " " << threatType.first << common::pluralize(threatType.second, " infection", " infections") << " discovered.";
+        logSummaryNextLine(scanSummary);
     }
+}
 
+void ScanCallbackImpl::logSummaryNextLine(std::ostringstream &scanSummary)
+{
     LOGINFO(scanSummary.str());
+    scanSummary.str("");
 }

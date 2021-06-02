@@ -50,5 +50,7 @@ namespace avscanner::avscannerimpl
         int m_noOfErrors = 0;
         time_t  m_startTime = 0;
         std::map<std::string, int> m_threatCounter;
+
+        static void logSummaryNextLine(std::ostringstream &scanSummary);
     };
 }
