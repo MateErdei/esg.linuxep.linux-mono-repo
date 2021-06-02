@@ -1,21 +1,15 @@
 /******************************************************************************************************
 
-Copyright 2020 Sophos Limited.  All rights reserved.
+Copyright 2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "PluginAdapter.h"
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/PluginApi/ApiException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/XmlUtilities/AttributesMap.h>
-
-
 
 namespace
 {

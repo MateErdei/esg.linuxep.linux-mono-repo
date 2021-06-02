@@ -1,12 +1,11 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Logger.h"
-
 #include <Common/Logging/LoggerConfig.h>
+#include <log4cplus/logger.h>
 
 log4cplus::Logger& getRemoteDiagnoseLogger()
 {
