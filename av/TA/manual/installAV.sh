@@ -72,7 +72,7 @@ fi
 
 ## Install AV
 chmod 700 "${SDDS_AV}/install.sh"
-bash "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
+bash $INSTALL_AV_BASH_OPTS "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
 
 ## Setup Dev region MCS
 OVERRIDE_FLAG_FILE="${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"
