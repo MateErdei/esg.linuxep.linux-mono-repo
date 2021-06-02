@@ -10,12 +10,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "PluginAdapter.h"
 #include "TaskQueue.h"
 
+
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/Logging/FileLoggingSetup.h>
-#include <Common/PluginApi/ApiException.h>
+
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/TaskQueue/ITaskQueue.h>
-#include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <stdexcept>

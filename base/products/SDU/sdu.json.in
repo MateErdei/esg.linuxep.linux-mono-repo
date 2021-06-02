@@ -1,0 +1,14 @@
+{
+  "policyAppIds": [
+    "ALC"
+  ],
+  "actionAppIds": [
+    "ALC"
+  ],
+  "statusAppIds": [
+    "ALC"
+  ],
+  "pluginName": "updatescheduler",
+  "executableFullPath": "base/bin/UpdateScheduler",
+  "executableUserAndGroup": "@SOPHOS_SPL_UPDATESCHEDULER@:@SOPHOS_SPL_GROUP@"
+}

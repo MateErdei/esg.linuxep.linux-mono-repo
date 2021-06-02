@@ -8,10 +8,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/Logging/SophosLoggerMacros.h>
 
-log4cplus::Logger& getTelemetrySchedulerLogger();
+log4cplus::Logger& getRemoteDiagnoseLogger();
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getTelemetrySchedulerLogger(), x)     // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getTelemetrySchedulerLogger(), x)       // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getTelemetrySchedulerLogger(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getTelemetrySchedulerLogger(), x)       // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getTelemetrySchedulerLogger(), x)     // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getRemoteDiagnoseLogger(), x)     // NOLINT
+#define LOGINFO(x) LOG4CPLUS_INFO(getRemoteDiagnoseLogger(), x)       // NOLINT
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getRemoteDiagnoseLogger(), x) // NOLINT
+#define LOGWARN(x) LOG4CPLUS_WARN(getRemoteDiagnoseLogger(), x)       // NOLINT
+#define LOGERROR(x) LOG4CPLUS_ERROR(getRemoteDiagnoseLogger(), x)     // NOLINT
