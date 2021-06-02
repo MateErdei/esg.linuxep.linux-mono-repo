@@ -16,7 +16,7 @@ FAILURE_REMOVE_PRODUCT_FILES=4
 FAILURE_REMOVE_USER=5
 FAILURE_REMOVE_GROUP=6
 FAILURE_TO_BACKUP_FILES=7
-
+FAILURE_REMOVE_DIAGNOSE_SERVICE_FILES=8
 function failure()
 {
   echo $1
@@ -72,6 +72,14 @@ function removeUpdaterSystemdService()
     systemctl daemon-reload
 }
 
+function removeDiagnoseSystemdService()
+{
+    systemctl stop sophos-spl-diagnose.service
+    rm -f "/lib/systemd/system/sophos-spl-diagnose.service"
+    rm -f "/usr/lib/systemd/system/sophos-spl-diagnose.service"
+    systemctl daemon-reload
+}
+
 function removeWatchdogSystemdService()
 {
     systemctl stop sophos-spl.service
@@ -114,6 +122,7 @@ else
 fi
 
 removeWatchdogSystemdService || failure "Failed to remove watchdog service files"  ${FAILURE_REMOVE_WATCHDOG_SERVICE_FILES}
+removeDiagnoseSystemdService || failure "Failed to remove diagnose service files"  ${FAILURE_REMOVE_DIAGNOSE_SERVICE_FILES}
 
 CommsComponentChroot=${SOPHOS_INSTALL}/var/sophos-spl-comms
 unmountCommsComponentDependencies "${CommsComponentChroot}"

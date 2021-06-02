@@ -9,7 +9,9 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/PluginApi/ApiException.h>
+#include <Common/XmlUtilities/AttributesMap.h>
 
 namespace
 {
@@ -98,8 +100,25 @@ namespace RemoteDiagnoseImpl
 
     void PluginAdapter::processAction(const std::string& actionXml)
     {
+        //<?xml version='1.0'?>
+        //<a:action xmlns:a="com.sophos/msys/action" type="SDURun" uploadUrl="https://feedback.sophos.com/cloud/prod/feedback_12345.zip"/>
         LOGINFO("processing action: " << actionXml);
-        // create arguments file
+        Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(actionXml);
+
+        auto action = attributesMap.lookup("a:action");
+        std::string actionType(action.value("type") );
+        if (actionType != "SDURun")
+        {
+            std::stringstream errorMessage;
+            errorMessage << "Malformed action received , type is : " << actionType <<" not SDURun";
+            throw std::runtime_error(errorMessage.str());
+        }
+
+        std::string url = action.value("uploadUrl");
+        std::string jsonString = "{\"url\":\""+url+"\"}";
+        auto fileSystem = Common::FileSystem::fileSystem();
+
+        fileSystem->writeFileAtomically(Common::ApplicationConfiguration::applicationPathManager().getDiagnoseConfig(),jsonString,Common::ApplicationConfiguration::applicationPathManager().getTempPath());
         //start diagnose
         //wait for it finish
         // times out- kill sd

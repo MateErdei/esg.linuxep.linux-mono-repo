@@ -18,6 +18,8 @@ target_link_libraries(remotediagnoseimpl PUBLIC
         processimpl
         utilityimpl
         osutilitiesimpl
+        applicationconfigurationimpl
+        xmlutilities
         )
 
 SET_TARGET_PROPERTIES(remotediagnoseimpl

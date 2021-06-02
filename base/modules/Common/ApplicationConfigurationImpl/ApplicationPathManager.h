@@ -81,6 +81,8 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getVersionIniFileForComponent(const std::string& component) const override;
         std::string getFeaturesJsonPath() const override;
+        std::string getDiagnoseOutputPath() const override;
+        std::string getDiagnoseConfig() const override;
 
     private:
         std::string socketPath(const std::string& relative) const;

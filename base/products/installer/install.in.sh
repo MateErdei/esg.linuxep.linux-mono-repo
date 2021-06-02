@@ -168,6 +168,35 @@ EOF
     fi
 }
 
+function createDiagnoseSystemdService()
+{
+    if ! isServiceInstalled sophos-spl-diagnose.service || $FORCE_INSTALL
+    then
+        if [[ -d /lib/systemd/system ]]
+        then
+            STARTUP_DIR="/lib/systemd/system"
+        elif [[ -d /usr/lib/systemd/system ]]
+        then
+            STARTUP_DIR="/usr/lib/systemd/system"
+        else
+            failure ${EXIT_FAIL_SERVICE} "Could not install the sophos-spl diagnose service"
+        fi
+        local service_name="sophos-spl-diagnose.service"
+
+        cat > ${STARTUP_DIR}/${service_name} << EOF
+[Service]
+Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
+ExecStart=${SOPHOS_INSTALL}/base/bin/sophos_diagnose
+Restart=no
+
+[Unit]
+Description=Sophos Server Protection Diagnose
+RequiresMountsFor=${SOPHOS_INSTALL}
+EOF
+        chmod 644 ${STARTUP_DIR}/${service_name}
+        systemctl daemon-reload
+    fi
+}
 function confirmProcessRunning()
 {
     pgrep -f "$1" &> /dev/null
@@ -483,6 +512,9 @@ chmod 711 "${SOPHOS_INSTALL}/base/mcs"
 chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs"
 
+# Remote Diagnose
+makedir 750 "${SOPHOS_INSTALL}/base/diagnoseOutput"
+chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/diagnoseOutput"
 # Telemetry
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry"
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry/var"
@@ -641,6 +673,7 @@ fi
 if changed_or_added install.sh ${DIST} ${PRODUCT_LINE_ID}
 then
     createUpdaterSystemdService
+    createDiagnoseSystemdService
     createWatchdogSystemdService
 fi
 

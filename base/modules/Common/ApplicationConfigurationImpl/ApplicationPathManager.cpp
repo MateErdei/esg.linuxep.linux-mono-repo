@@ -322,6 +322,14 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler/installed_features.json");
         }
 
+        std::string ApplicationPathManager::getDiagnoseOutputPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/diagnoseOutput");
+        }
+        std::string ApplicationPathManager::getDiagnoseConfig()  const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/diagnoseOutput/config.json");
+        }
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

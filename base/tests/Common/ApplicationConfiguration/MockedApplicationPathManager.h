@@ -80,4 +80,7 @@ public:
     MOCK_CONST_METHOD1(getVersionIniFileForComponent, std::string (const std::string& component));
     MOCK_CONST_METHOD0(getFeaturesJsonPath, std::string (void));
     MOCK_CONST_METHOD0(getStateMachineRawDataPath, std::string (void));
+
+    MOCK_CONST_METHOD0(getDiagnoseOutputPath, std::string (void));
+    MOCK_CONST_METHOD0(getDiagnoseConfig, std::string (void));
 };
