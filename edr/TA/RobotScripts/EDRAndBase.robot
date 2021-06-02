@@ -149,8 +149,6 @@ EDR Recovers From Incomplete Database Purge
     Create File  ${COMPONENT_ROOT_PATH}/VERSION.ini  PRODUCT_NAME = Sophos Endpoint Detection and Response plug-in\nPRODUCT_VERSION = 1.1.1.1\nBUILD_DATE = 2021-05-21
     Create Debug Level Logger Config File
     ${sstFiles}=  List Files In Directory  ${COMPONENT_ROOT_PATH}/var/osquery.db  *.sst
-    log to console  ${sstFiles[0]}
-    log to console  ${sstFiles[1]}
     Remove File  ${COMPONENT_ROOT_PATH}/var/osquery.db/${sstFiles[0]}
     should not exist  ${COMPONENT_ROOT_PATH}/var/osquery.db/${sstFiles[0]}
     Start EDR
@@ -159,9 +157,6 @@ EDR Recovers From Incomplete Database Purge
     ...  120 secs
     ...  2 secs
     ...  Run Shell Process  journalctl --since "5min ago" | grep "IO error: No such file or directoryWhile open a file for random read: /opt/sophos-spl/plugins/edr/var/osquery.db"  OnError=Did not detect osquery error
-
-    # Prove EDR is broken by running a query and expecting it to fail
-    Run Keyword And Expect Error   *File * does not exist*  Run Live Query and Return Result
 
     # Run Installer which has the work around in that will purge the osquery database on an upgrade from a version
     # older than 1.1.2
