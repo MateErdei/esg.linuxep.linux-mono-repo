@@ -121,7 +121,7 @@ void ProcessControllerServerConnectionThread::inner_run()
 
         if (FDUtils::fd_isset(exitFD, &tempRead))
         {
-            LOGSUPPORT("Closing scanning socket thread");
+            LOGSUPPORT("Closing process control socket thread");
             break;
         }
         else
