@@ -11,7 +11,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #include <utility>
 
-namespace TelemetrySchedulerImpl
+namespace RemoteDiagnoseImpl
 {
     PluginCallback::PluginCallback(std::shared_ptr<ITaskQueue> taskQueue) : m_taskQueue(std::move(taskQueue))
     {
@@ -23,23 +23,31 @@ namespace TelemetrySchedulerImpl
         LOGSUPPORT("Not applying unexpected new policy: " << policyXml);
     }
 
-    void PluginCallback::queueAction(const std::string& /*actionXml*/) { LOGSUPPORT("Received unexpected action"); }
+    void PluginCallback::queueAction(const std::string& actionXml) {
+        m_taskQueue->push(Task{ Task::TaskType::ACTION, actionXml });}
 
     void PluginCallback::onShutdown()
     {
         LOGSUPPORT("Shutdown signal received");
-        m_taskQueue->pushPriority(SchedulerTask::Shutdown);
+
+        m_taskQueue->pushStop();
     }
 
-    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /*appId*/)
+    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std
+    ::string& /* appId */)
     {
-        LOGSUPPORT("Received unexpected get status request");
-        return Common::PluginApi::StatusInfo{};
+        LOGSUPPORT("Received get status request");
+        return m_statusInfo;
     }
 
+    void PluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
+    {
+        LOGSUPPORT("Setting status");
+        m_statusInfo = std::move(statusInfo);
+    }
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received telemetry request");
         return "{}";
     }
-} // namespace TelemetrySchedulerImpl
+} // namespace RemoteDiagnoseImpl
