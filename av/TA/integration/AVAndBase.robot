@@ -815,7 +815,7 @@ Sophos Threat Detector always writes susi startup settings following a restart
     Mark AV Log
     Mark Sophos Threat Detector Log
 
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
+    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
     Send Sav Policy To Base  tempSavPolicy.xml
