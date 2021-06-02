@@ -167,11 +167,16 @@ EDR Recovers From Incomplete Database Purge
     Should Not Exist  ${canary_file}
 
     # Perform a query to make sure that osquery is now working
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check Simple Query Works
+
+*** Keywords ***
+Check Simple Query Works
     ${response} =  Run Live Query and Return Result  SELECT * from uptime
     Should Contain  ${response}  "errorCode":0,"errorMessage":"OK"
 
-
-*** Keywords ***
 Number Of SST Database Files Is Greater Than
     [Arguments]  ${min_sst_files_for_test}
     ${sst_file_count}=  Count Files In Directory  ${COMPONENT_ROOT_PATH}/var/osquery.db  *.sst
