@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2018 Sophos Limited.  All rights reserved.
+# Copyright 2021 Sophos Limited.  All rights reserved.
 
 PLUGIN_NAME=@PLUGIN_NAME@
 PRODUCT_LINE_ID="@PRODUCT_LINE_ID@"
@@ -97,6 +97,7 @@ EOM
 if is_already_installed
 then
     "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
+    purge_osquery_db_if_required
 fi
 
 #Create plugin registration file
@@ -194,8 +195,6 @@ if ! grep -q "network_tables" "${CONFIG_FILE}"
   then
     echo "network_tables=0" >> "${CONFIG_FILE}"
 fi
-
-purge_osquery_db_if_required
 
 #After install start the plugin
 "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
