@@ -55,7 +55,6 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 
     // start a scanning server
     std::shared_ptr<MessageCallbacks> messageCallbacks = std::make_shared<MessageCallbacks>();
-
     unixsocket::ThreatReporterServerConnectionThread connectionThread(serverFd, messageCallbacks);
     connectionThread.start();
 
