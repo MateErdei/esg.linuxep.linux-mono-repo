@@ -14,6 +14,20 @@ SET_TARGET_PROPERTIES(TestSocketUtils
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
+add_executable(ProcessControlClientExecutable
+        ../unixsocket/ProcessControlTestExecutable/ProcessControllClient.cpp)
+target_link_libraries(ProcessControlClientExecutable  PUBLIC
+        unixsocket)
+target_include_directories(ProcessControlClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(ProcessControlClientExecutable SYSTEM PRIVATE ${BOOSTPATH})
+
+add_executable(ProcessControlServerExecutable
+        ../unixsocket/ProcessControlTestExecutable/ProcessControlServer.cpp)
+target_link_libraries(ProcessControlServerExecutable  PUBLIC
+        unixsocket)
+target_include_directories(ProcessControlServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(ProcessControlServerExecutable SYSTEM PRIVATE ${BOOSTPATH})
+
 add_executable(threatReporterClientExecutable
         ../unixsocket/ThreatReporterTestExecutable/threatReporterClient.cpp)
 target_link_libraries(threatReporterClientExecutable  PUBLIC unixsocket)
