@@ -728,7 +728,11 @@ class MCS:
                     #flags.get_mcs_relevant_flags()
 
                     if self.should_generate_new_jwt_token():
-                        self.__m_comms.set_jwt_token_settings()
+                        comms.set_jwt_token_settings()
+                        config.set("JWT_token", comms.m_jwt_token)
+                        config.set("Device_id", comms.m_device_id)
+                        config.set("Tenant_id", comms.m_tenant_id)
+                        config.save()
 
                     # get all pending datafeeds
                     gather_datafeed_files()
