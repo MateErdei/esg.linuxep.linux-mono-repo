@@ -1149,6 +1149,8 @@ class MCSConnection:
                 datafeed_result.remove_datafeed_file()
             except MCSHttpForbiddenException:
                 self.m_jwt_token = None
+                self.__m_config.remove("JWT_token")
+                self.__m_config.save()
                 LOGGER.warning("Purging all datafeed files due to 403 code from Sophos Central")
                 datafeeds.purge()
             except MCSHttpTooManyRequestsException as exception_429:
@@ -1177,6 +1179,8 @@ class MCSConnection:
             except MCSHttpUnauthorizedException as exception:
                 LOGGER.error("Failed to send datafeed: {}".format(exception))
                 self.m_jwt_token = None
+                self.__m_config.remove("JWT_token")
+                self.__m_config.save()
                 break
             except Exception as exception:
                 LOGGER.error("Failed to send datafeed: {}".format(exception))
@@ -1314,13 +1318,18 @@ class MCSConnection:
 
         if "access_token" in token_dict:
             LOGGER.debug(f"""Setting JWT Token: {token_dict["access_token"]}""")
+            self.__m_config.set("JWT_token", token_dict["access_token"])
             self.m_jwt_token = token_dict["access_token"]
         if "device_id" in token_dict:
             LOGGER.debug(f"""Setting Device ID: {token_dict["device_id"]}""")
+            self.__m_config.set("Device_id", token_dict["device_id"])
             self.m_device_id = token_dict["device_id"]
         if "tenant_id" in token_dict:
             LOGGER.debug(f"""Setting Tenant ID: {token_dict["tenant_id"]}""")
+            self.__m_config.set("Tenant_id", token_dict["tenant_id"])
             self.m_tenant_id = token_dict["tenant_id"]
+
+        self.__m_config.save()
 
         try:
             self.m_jwt_expiration_timestamp = time.time() + token_dict["expires_in"]
