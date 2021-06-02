@@ -1,6 +1,7 @@
 *** Settings ***
 Library     Process
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  ../GeneralTeardownResource.robot
@@ -12,6 +13,7 @@ ${THREAT_DETECTOR_LOG_PATH}         ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_d
 ${SOPHOS_THREAT_DETECTOR_BINARY}    ${AV_PLUGIN_PATH}/sbin/sophos_threat_detector
 ${CLS_PATH}                         ${AV_PLUGIN_PATH}/bin/avscanner
 ${PLUGIN_BINARY}                    ${AV_PLUGIN_PATH}/sbin/av
+${SULDownloaderLog}                 ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 ${VIRUS_DETECTED_RESULT}            ${24}
 ${CLEAN_STRING}                     I am not a virus
@@ -19,6 +21,7 @@ ${EICAR_STRING}                     X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-
 
 *** Keywords ***
 Check AV Plugin Installed
+    Check Log Does Not Contain  Failed to install as setcap is not installed  ${SULDownloaderLog}  SulDownloaderLog
     File Should Exist   ${AVPLUGIN_PATH}/bin/avscanner
     Wait Until Keyword Succeeds
     ...  15 secs
