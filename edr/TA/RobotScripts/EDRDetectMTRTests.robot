@@ -96,23 +96,6 @@ Check Running Instance of Osquery Configured To Not Collect Audit Data
     Should Contain  ${response}  "columnData": [["disable_audit","true"]]
 
 
-Run Live Query and Return Result
-    [Arguments]  ${query}=SELECT name,value from osquery_flags where name == 'disable_audit'
-    ${query_template} =  Get File  ${EXAMPLE_DATA_PATH}/GenericQuery.json
-    ${query_json} =  Replace String  ${query_template}  %QUERY%  ${query}
-    Log  ${query_json}
-    Create File  ${EXAMPLE_DATA_PATH}/temp.json  ${query_json}
-    ${response}=  Set Variable  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_123-4_response.json
-    Simulate Live Query  temp.json
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  File Should Exist    ${response}
-    ${response} =  Get File  ${response}
-    Remove File  ${response}
-    Remove File  ${EXAMPLE_DATA_PATH}/temp.json
-    [Return]  ${response}
-
 Check Osquery Configured To Collect Audit Data
     ${osqueryConf} =   Get File  ${COMPONENT_ROOT_PATH}/etc/osquery.flags
     Should Contain  ${osqueryConf}  --disable_audit=false

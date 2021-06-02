@@ -104,9 +104,15 @@ public:
     {
         m_scheduleEpoch.setValue(scheduleEpoch);
     }
+
     time_t getScheduleEpochDuration()
     {
         return SCHEDULE_EPOCH_DURATION;
+    }
+
+    void databasePurge()
+    {
+        Plugin::PluginAdapter::databasePurge();
     }
 };
 class TestPluginAdapterWithLogger : public LogInitializedTests{};
@@ -809,3 +815,45 @@ TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesAllFlagsOff)
                               Plugin::PluginUtils::NETWORK_TABLES_FLAG +"\":false}";
     EXPECT_NO_THROW(pluginAdapter.processFlags(flags));
 }
+
+TEST_F(PluginAdapterWithMockFileSystem, testDatabasePurge)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    std::string movedDbPath = Plugin::osQueryDataBasePath() + ".moved";
+    std::vector<std::string> files(150, "fakepath");
+    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osQueryDataBasePath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osQueryDataBasePath())).WillOnce(Return(files));
+    EXPECT_CALL(*mockFileSystem, exists(movedDbPath)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(movedDbPath));
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osQueryDataBasePath(), movedDbPath));
+    EXPECT_NO_THROW(pluginAdapter.databasePurge());
+}
+
+TEST_F(PluginAdapterWithMockFileSystem, testDatabasePurgeWorksIfLastOneFailed)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
+    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
+    std::string movedDbPath = Plugin::osQueryDataBasePath() + ".moved";
+    std::vector<std::string> files(150, "fakepath");
+    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osQueryDataBasePath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osQueryDataBasePath())).WillOnce(Return(files));
+    EXPECT_CALL(*mockFileSystem, exists(movedDbPath)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(movedDbPath)).Times(2);
+    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osQueryDataBasePath(), movedDbPath));
+    EXPECT_NO_THROW(pluginAdapter.databasePurge());
+}
+
+

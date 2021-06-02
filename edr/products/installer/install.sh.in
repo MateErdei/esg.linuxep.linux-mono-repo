@@ -49,6 +49,48 @@ function is_already_installed()
     [[ -f "$SOPHOS_INSTALL/plugins/${PLUGIN_NAME}/bin/edr" ]]
 }
 
+# During upgrades we purge the osquery database when upgrading to 1.1.2 or newer as a work around for LINUXDAR-3073
+function purge_osquery_db_if_required()
+{
+    if is_installed_version_before 1.1.2
+    then
+        if [[  -d  "${SOPHOS_INSTALL}/plugins/edr/var/osquery.db" ]]
+        then
+              rm -f "${SOPHOS_INSTALL}/plugins/edr/var/osquery.db/"*
+        fi
+    fi
+}
+
+is_installed_version_before()
+{
+    INSTALLED_VERSION=$(grep PRODUCT_VERSION "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/VERSION.ini" | awk '{print $NF}')
+    COMPARE_VERSION=$1
+    IFS='.' read -r INSTALLED_VERSION_1 INSTALLED_VERSION_2 INSTALLED_VERSION_3 INSTALLED_VERSION_4 << EOM
+$INSTALLED_VERSION
+EOM
+    IFS='.' read -r COMPARE_VERSION_1 COMPARE_VERSION_2 COMPARE_VERSION_3 << EOM
+$COMPARE_VERSION
+EOM
+    if [ $INSTALLED_VERSION_1 -eq $COMPARE_VERSION_1 ] ; then
+        if [ $INSTALLED_VERSION_2 -eq $COMPARE_VERSION_2 ] ; then
+            if [ $INSTALLED_VERSION_3 -lt $COMPARE_VERSION_3 ] ; then
+                return 0
+            else
+              return 1
+            fi
+        elif [ $INSTALLED_VERSION_2 -lt $COMPARE_VERSION_2 ] ; then
+            return 0
+        else
+            return 1
+        fi
+    elif [ $INSTALLED_VERSION_1 -lt $COMPARE_VERSION_1 ] ; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+
 [[ -d $SOPHOS_INSTALL ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find installation directory: $SOPHOS_INSTALL"
 
 # In case this is an upgrade (not a clean install) request the watchdog stops the plugin
@@ -152,6 +194,8 @@ if ! grep -q "network_tables" "${CONFIG_FILE}"
   then
     echo "network_tables=0" >> "${CONFIG_FILE}"
 fi
+
+purge_osquery_db_if_required
 
 #After install start the plugin
 "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"

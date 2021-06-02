@@ -241,7 +241,7 @@ EDR Plugin Send LiveQuery Status On Period Rollover
 
     Stop EDR
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrPeriodTimestamp  10
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Start EDR
     Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
     Remove File  ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
     Remove File  ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
@@ -282,7 +282,7 @@ EDR Plugin Rolls ScheduleEpoch Over When The Previous One Has Elapsed
     ${oldScheduleEpochTimestamp} =  Set Variable  1600000000
     Stop EDR
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${oldScheduleEpochTimestamp}
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Start EDR
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -314,7 +314,7 @@ EDR Plugin Does Not Roll ScheduleEpoch Over When The Previous One Has Not Elapse
 
     Stop EDR
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${currentEpochTimeMinus3Days.__str__()}
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Start EDR
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -336,7 +336,7 @@ EDR Plugin Recovers When ScheduleEpoch Is In The Future
     ${oldScheduleEpochTimestamp} =  Set Variable  3472328296227742266
     Stop EDR
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${oldScheduleEpochTimestamp}
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Start EDR
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -371,7 +371,7 @@ Check XDR Results Contain Correct ScheduleEpoch Timestamp
 
     Stop EDR
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${currentEpochTimeMinus3Days.__str__()}
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Start EDR
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -774,15 +774,6 @@ EDR Plugin Updates Next Scheduled Queries When Supplement Updated And Flag Alrea
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   latest_mtr_query  ${mark2}
 
 *** Keywords ***
-Apply Live Query Policy And Wait For Query Pack Changes
-    [Arguments]  ${policy}
-    ${mark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
-    Move File Atomically  ${policy}  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  LiveQuery policy has changed. Restarting osquery to apply changes  ${mark}
-
 XDR Pack Should Be Enabled
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
@@ -899,8 +890,6 @@ Apply Live Query Policy And Expect Folding Rules To Have Changed
     ...  1 secs
     ...  EDR Plugin Log Contains  LiveQuery Policy folding rules have changed
 
-Create Debug Level Logger Config File
-    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
 
 Data Limit Test Setup
     [Arguments]  ${live_query_policy}  ${period}

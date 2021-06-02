@@ -261,7 +261,7 @@ EDR And Base Teardown
     ...  Check EDR Executable Not Running
     Common Teardown
     Remove File    ${EDR_LOG_PATH}
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Start EDR
 
 Create Install Options File With Content
     [Arguments]  ${installFlags}
@@ -291,7 +291,7 @@ Restart EDR
     ...  1 secs
     ...  Marked File Contains  ${EDR_LOG_PATH}  edr <> Plugin Finished  ${mark}
     ${mark} =  Mark File  ${EDR_LOG_PATH}
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Start EDR
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
@@ -340,4 +340,36 @@ Is XDR Enabled in Plugin Conf
     Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=1
 
 Stop EDR
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=40s
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
+
+Start EDR
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+
+Apply Live Query Policy And Wait For Query Pack Changes
+    [Arguments]  ${policy}
+    ${mark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    Move File Atomically  ${policy}  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  LiveQuery policy has changed. Restarting osquery to apply changes  ${mark}
+
+Create Debug Level Logger Config File
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+
+Run Live Query and Return Result
+    [Arguments]  ${query}=SELECT name,value from osquery_flags where name == 'disable_audit'
+    ${query_template} =  Get File  ${EXAMPLE_DATA_PATH}/GenericQuery.json
+    ${query_json} =  Replace String  ${query_template}  %QUERY%  ${query}
+    Log  ${query_json}
+    Create File  ${EXAMPLE_DATA_PATH}/temp.json  ${query_json}
+    ${response}=  Set Variable  ${SOPHOS_INSTALL}/base/mcs/response/LiveQuery_123-4_response.json
+    Simulate Live Query  temp.json
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  File Should Exist    ${response}
+    ${response} =  Get File  ${response}
+    Remove File  ${response}
+    Remove File  ${EXAMPLE_DATA_PATH}/temp.json
+    [Return]  ${response}

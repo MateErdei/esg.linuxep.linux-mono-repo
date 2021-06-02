@@ -395,31 +395,14 @@ namespace Plugin
             {
                 LOGINFO("Purging Database");
                 stopOsquery();
-
-                // Get files to purge again now that osquery has stopped so that we avoid the race condition of
-                // osquery creating new files after we got this list the first time before osquery had stopped.
-                paths = PluginUtils::getOsqueryFilesToPurge();
-                for (const auto& filepath : paths)
+                std::string databasePath = Plugin::osQueryDataBasePath();
+                std::string movedDatabasePath = databasePath + ".moved";
+                if (ifileSystem->exists(movedDatabasePath))
                 {
-                    try
-                    {
-                        ifileSystem->removeFile(filepath);
-                    }
-                    catch (const std::exception& exception)
-                    {
-                        // In the very unlikely event we can't delete the file, log a warning if we can't delete it but
-                        // it's already gone or log an error if we really can't delete it and the file remains.
-                        if (ifileSystem->exists(filepath))
-                        {
-                            LOGERROR("Delete failed, path: " << filepath << ", exception: " << exception.what());
-                        }
-                        else
-                        {
-                            LOGWARN("File already removed, path: " << filepath << ", exception: " << exception.what());
-                        }
-                    }
+                    ifileSystem->removeFileOrDirectory(movedDatabasePath);
                 }
-
+                ifileSystem->moveFile(databasePath, movedDatabasePath);
+                ifileSystem->removeFileOrDirectory(movedDatabasePath);
                 auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
                 telemetry.increment(plugin::telemetryOSQueryDatabasePurges, 1L);
 

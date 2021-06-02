@@ -30,7 +30,7 @@ LiveQuery Response is Chowned to Sophos Spl Local on EDR Startup
     ...  15 secs
     ...  1 secs
     ...  EDR Plugin Log Contains      edr <> Plugin Finished
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Start EDR
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
@@ -132,29 +132,58 @@ EDR Plugin Can Have Logging Level Changed Based On Components
     EDR Plugin Log Contains   Logger edr configured for level: DEBUG
 
 
-EDR Plugin Stops Without Errors
+EDR Recovers From Incomplete Database Purge
     Check EDR Plugin Installed With Base
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+
     Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  Check Osquery Running
+    ...  100 secs
+    ...  5 secs
+    ...  Number Of SST Database Files Is Greater Than  1
+
+    ${canary_file}=  Set Variable  ${COMPONENT_ROOT_PATH}/var/osquery.db/file_should_be_deleted
+    Create File  ${canary_file}  foo
+
     Stop EDR
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains      edr <> Plugin Finished
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  Check EDR Executable Not Running
-    EDR Plugin Log Does Not Contain  ERROR
-    EDR Plugin Log Does Not Contain  WARN
-    EDR Plugin Log Does Not Contain  Operation canceled
+    Remove File  ${COMPONENT_ROOT_PATH}/VERSION.ini
+    Create File  ${COMPONENT_ROOT_PATH}/VERSION.ini  PRODUCT_NAME = Sophos Endpoint Detection and Response plug-in\nPRODUCT_VERSION = 1.1.1.1\nBUILD_DATE = 2021-05-21
+    Create Debug Level Logger Config File
+    ${sstFiles}=  List Files In Directory  ${COMPONENT_ROOT_PATH}/var/osquery.db  *.sst
+    log to console  ${sstFiles[0]}
+    log to console  ${sstFiles[1]}
+    Remove File  ${COMPONENT_ROOT_PATH}/var/osquery.db/${sstFiles[0]}
+    should not exist  ${COMPONENT_ROOT_PATH}/var/osquery.db/${sstFiles[0]}
+    Start EDR
 
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  2 secs
+    ...  Run Shell Process  journalctl --since "5min ago" | grep "IO error: No such file or directoryWhile open a file for random read: /opt/sophos-spl/plugins/edr/var/osquery.db"  OnError=Did not detect osquery error
 
+    # Prove EDR is broken by running a query and expecting it to fail
+    Run Keyword And Expect Error   *File * does not exist*  Run Live Query and Return Result
+
+    # Run Installer which has the work around in that will purge the osquery database on an upgrade from a version
+    # older than 1.1.2
+    ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to re-run edr installer.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
+    log  ${result.stdout}
+    log  ${result.stderr}
+    Should Not Exist  ${canary_file}
+
+    # Perform a query to make sure that osquery is now working
+    ${response} =  Run Live Query and Return Result
+    Should Contain  ${response}  "columnMetaData": [{"name":"name","type":"TEXT"},{"name":"value","type":"TEXT"}]
+    Should Contain  ${response}  "columnData": [["disable_audit","false"]]
 
 
 *** Keywords ***
+Number Of SST Database Files Is Greater Than
+    [Arguments]  ${min_sst_files_for_test}
+    ${sst_file_count}=  Count Files In Directory  ${COMPONENT_ROOT_PATH}/var/osquery.db  *.sst
+    log to console  ${sst_file_count}
+    Should Be True 	${sst_file_count} > ${min_sst_files_for_test}
+
 Run Non-UTF8 Query
     ${result} =  Run Process  ${COMPONENT_ROOT_PATH}/extensions/LiveQueryReport  ${COMPONENT_ROOT_PATH}/var/osquery.sock  select '1\xfffd' as h;  shell=true
 
