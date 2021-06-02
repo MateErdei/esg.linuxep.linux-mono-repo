@@ -64,6 +64,8 @@ Teardown
     Stop Proxy Servers
     Stop Proxy If Running
     Stop Local Cloud Server
+    Run Keyword If Test Failed   Dump Cloud Server Log
+    Cleanup Local Cloud Server Logs
     Teardown Reset Original Path
     Run Keyword If Test Failed    Dump Thininstaller Log
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
@@ -74,12 +76,12 @@ Teardown
     Cleanup Temporary Folders
     Cleanup Systemd Files
 
-Setup With Large Group Creation
-    Setup Group File With Large Group Creation
-    SetupServers
-Teardown With Large Group Creation
-    Teardown Group File With Large Group Creation
-    Teardown
+#Setup With Large Group Creation
+#    Setup Group File With Large Group Creation
+#    SetupServers
+#Teardown With Large Group Creation
+#    Teardown Group File With Large Group Creation
+#    Teardown
 
 Check Proxy Log Contains
     [Arguments]  ${pattern}  ${fail_message}
@@ -122,91 +124,27 @@ Check All Relevant Logs Contain Install Path
     Check Log Contains  ${Install_Path}  ${Install_Path}/sophos-spl/logs/base/sophosspl/mcsrouter.log  MCS Router
 
 *** Test Case ***
-#Thin Installer Attempts Install And Register Through Message Relays
-#    Start Message Relay
+
+#Thin Installer Environment Proxy
 #    Should Not Exist    ${SOPHOS_INSTALL}
-#    Stop Local Cloud Server
-#    Start Local Cloud Server   --initial-mcs-policy    ${SUPPORT_FILES}/CentralXml/FakeCloudMCS_policy_Message_Relay.xml   --initial-alc-policy    ${BaseVUTPolicy}
-#
 #    Check MCS Router Not Running
 #    ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
 #    Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
 #
-#    # Create Dummy Hosts with certain distances (assume IP address is on eng (starts with 10))
-#    ${dist1} =  Find IP Address With Distance  1
-#    ${dist3} =  Find IP Address With Distance  3
-#    ${dist7} =  Find IP Address With Distance  7
-#    Copy File  /etc/hosts  /etc/hosts.bk
-#    Append To File  /etc/hosts  ${dist1} dummyhost1\n${dist3} dummyhost3\n${dist7} dummyhost7\n
+#    Start Simple Proxy Server  10000
+#    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  proxy=http://localhost:10000
 #
-#    Install Local SSL Server Cert To System
+#    ${customer_file_address} =  Get Customer File Domain For Policy  ${BaseVUTPolicy}
+#    ${warehouse_address} =  Get Warehouse Domain For Policy  ${BaseVUTPolicy}
 #
-#    # Add Message Relays to Thin Installer
-#    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem  message_relays=dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
-#
-#    # Check current proxy file is written with correct content and permissions.
-#    # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
-#    Check Current Proxy Is Created With Correct Content And Permissions  localhost:20000
-#
-#    # Check the MCS Capabilities check is performed with the Message Relays in the right order
-#    Check Thininstaller Log Contains    Message Relays: dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
-#    # Thininstaller orders only by priority, localhost is only one with low priority
-#    Log File  /etc/hosts
-#    Check Thininstaller Log Contains In Order
-#    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost3:10000)
-#    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost1:20000)
-#    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost7:9999)
-#    ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via localhost:20000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: localhost:20000\nDEBUG: Successfully got [No error] from Sophos Central
-#
-#    Should Exist    ${SOPHOS_INSTALL}
-#    ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
-#    Should Be Equal As Integers  ${result.rc}  0  Management Agent not running after installation
-#    Check MCS Router Running
-#
-#    # Check the message relays made their way through to the registration command in the full installer
-#    # Message relays ordered by distance and priority
-#    Check Register Central Log Contains In Order
-#    ...  Trying connection via message relay dummyhost1:20000
-#    ...  Trying connection via message relay dummyhost3:10000
-#    ...  Trying connection via message relay dummyhost7:9999
-#    ...  Successfully connected to localhost:4443 via localhost:20000
-#
-#    # Check the message relays made their way through to the MCS Router
-#    File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
-#    Wait Until Keyword Succeeds
-#        ...  65 secs
-#        ...  5 secs
-#        ...  Check MCS Router Log Contains  Successfully connected to localhost:4443 via localhost:20000
-#
-#    # Also to prove MCS is working correctly check that we get an ALC policy
-#    Wait Until Keyword Succeeds
-#    ...  30 secs
-#    ...  2 secs
-#    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseVUTPolicy}
+#    Check Proxy Log Contains  "CONNECT localhost:4443 HTTP/1.1" 200  Proxy Log does not show connection to Fake Cloud
+#    Check Proxy Log Contains  "CONNECT ${customer_file_address} HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
+#    Check Proxy Log Contains  "CONNECT ${warehouse_address} HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
+#    Check MCS Config Contains  proxy=http://localhost:10000  MCS Config does not have proxy present
 #
 #    Check Thininstaller Log Does Not Contain  ERROR
+#    Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
 #    Check Root Directory Permissions Are Not Changed
-
-Thin Installer Environment Proxy
-    Should Not Exist    ${SOPHOS_INSTALL}
-    Check MCS Router Not Running
-    ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
-    Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
-
-    Start Simple Proxy Server  10000
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  proxy=http://localhost:10000
-
-    ${customer_file_address} =  Get Customer File Domain For Policy  ${BaseVUTPolicy}
-    ${warehouse_address} =  Get Warehouse Domain For Policy  ${BaseVUTPolicy}
-
-    Check Proxy Log Contains  "CONNECT localhost:4443 HTTP/1.1" 200  Proxy Log does not show connection to Fake Cloud
-    Check Proxy Log Contains  "CONNECT ${customer_file_address} HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
-    Check Proxy Log Contains  "CONNECT ${warehouse_address} HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
-    Check MCS Config Contains  proxy=http://localhost:10000  MCS Config does not have proxy present
-
-    Check Thininstaller Log Does Not Contain  ERROR
-    Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
-    Check Root Directory Permissions Are Not Changed
 
 Thin Installer Digest Proxy
     Should Not Exist    ${SOPHOS_INSTALL}
@@ -251,48 +189,3 @@ Thin Installer Basic Proxy
     Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://username:password@localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://username:password@localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
     Check Root Directory Permissions Are Not Changed
 
-Thin Installer Parses Update Caches Correctly
-    # Expect installer to fail, we only care about log contents
-    Configure And Run Thininstaller Using Real Warehouse Policy  10  ${BASE_VUT_POLICY_NEVER_BALLISTA}  bad_url=${True}  update_caches=localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
-    Check Thininstaller Log Contains    List of update caches to install from: localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
-    Check Thininstaller Log Contains In Order
-    ...  Listing warehouse with creds [c071bb1cc186531a72e200467a61b321] at [https://localhost:10000/sophos/customer]
-    ...  Listing warehouse with creds [c071bb1cc186531a72e200467a61b321] at [https://localhost:9999/sophos/customer]
-    ...  Listing warehouse with creds [c071bb1cc186531a72e200467a61b321] at [https://localhost:20000/sophos/customer]
-    ...  Listing warehouse with creds [c071bb1cc186531a72e200467a61b321] at [http://dci.sophosupd.com/update]
-
-    Check Thininstaller Log Does Not Contain  ERROR
-    Check Root Directory Permissions Are Not Changed
-
-
-#Thin Installer Force Works
-#    # Install to default location and break it
-#    Create Initial Installation
-#
-#    # Remove install directory
-#    Should Exist  ${REGISTER_CENTRAL}
-#    Unmount All Comms Component Folders
-#    Remove Directory  /opt/sophos-spl  recursive=True
-#    Should Not Exist  ${REGISTER_CENTRAL}
-#
-#    # Force an installation
-#    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  args=--force
-#
-#    Check Thininstaller Log Does Not Contain  ERROR
-#    Should Exist  ${REGISTER_CENTRAL}
-#
-#    remove_thininstaller_log
-#    Check Root Directory Permissions Are Not Changed
-
-Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
-    [Documentation]  Created for LINUXDAR-2249
-    [Setup]  Setup With Large Group Creation
-    [Teardown]  Teardown With Large Group Creation
-    Should Not Exist    ${SOPHOS_INSTALL}
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem
-
-    Check Expected Base Processes Are Running
-
-    Check Thininstaller Log Does Not Contain  ERROR: Installer returned 16
-    Check Thininstaller Log Does Not Contain  Failed to create machine id. Error: Calling getGroupId on sophos-spl-group caused this error : Unknown group name

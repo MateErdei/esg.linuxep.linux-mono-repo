@@ -24,6 +24,13 @@ Resource  ThinInstallerResources.robot
 Default Tags  THIN_INSTALLER
 
 *** Keywords ***
+Setup With Large Group Creation
+    Setup Group File With Large Group Creation
+
+Teardown With Large Group Creation
+    Teardown Group File With Large Group Creation
+    Teardown With Temporary Directory Clean
+
 Setup Warehouse
     [Arguments]    ${customer_file_protocol}=--tls1_2   ${warehouse_protocol}=--tls1_2
     Clear Warehouse Config
@@ -51,6 +58,7 @@ Teardown
     Stop Proxy Servers
     Run Keyword If Test Failed   Dump Cloud Server Log
     Stop Local Cloud Server
+    Cleanup Local Cloud Server Logs
     Teardown Reset Original Path
     Run Keyword If Test Failed    Dump Thininstaller Log
     Remove Thininstaller Log
@@ -134,6 +142,7 @@ Run Thin Installer And Check Argument Is Saved To Install Options File
 ${CUSTOM_DIR_BASE} =  /CustomPath
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{FORCE_ARGUMENT} =  --force
+@{PRODUCT_MDR_ARGUMENT} =  --products\=mdr
 ${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
 
 
@@ -329,7 +338,6 @@ Thin Installer Attempts Install And Register Through Message Relays
     Start Message Relay
     Should Not Exist    ${SOPHOS_INSTALL}
     Stop Local Cloud Server
-    Start Local Cloud Server  --initial-alc-policy  ${BaseVUTPolicy}
     Start Local Cloud Server   --initial-mcs-policy    ${SUPPORT_FILES}/CentralXml/FakeCloudMCS_policy_Message_Relay.xml   --initial-alc-policy    ${BaseVUTPolicy}
 
     Check MCS Router Not Running
@@ -346,9 +354,10 @@ Thin Installer Attempts Install And Register Through Message Relays
     Install Local SSL Server Cert To System
 
     # Add Message Relays to Thin Installer
-    Create Default Credentials File  message_relays=dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
-    #Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem
-    Run Default Thininstaller  expected_return_code=0  mcsurl=https://localhost:1233  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    create_default_credentials_file  message_relays=dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
+    build_default_creds_thininstaller_from_sections
+    #Configure And Run TCredentialshininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem
+    Run Default Thininstaller  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
     # Check current proxy file is written with correct content and permissions.
     # Once MCS gets the BaseVUTPolicy policy the current_proxy file will be set to {} as there are no MRs in the policy
@@ -393,12 +402,143 @@ Thin Installer Attempts Install And Register Through Message Relays
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
+Thin Installer Environment Proxy
+    [Teardown]  Teardown With Temporary Directory Clean
+    Setup For Test With Warehouse Containing Base
+    Require Uninstalled
+    Start Local Cloud Server
+
+    Should Not Exist    ${SOPHOS_INSTALL}
+    Check MCS Router Not Running
+    ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
+    Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
+
+    Start Simple Proxy Server  10000
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  proxy=http://localhost:10000
+
+    ${customer_file_address} =  Get Customer File Domain For Policy  ${BaseVUTPolicy}
+    ${warehouse_address} =  Get Warehouse Domain For Policy  ${BaseVUTPolicy}
+
+    Check Proxy Log Contains  "CONNECT localhost:4443 HTTP/1.1" 200  Proxy Log does not show connection to Fake Cloud
+    Check Proxy Log Contains  "CONNECT ${customer_file_address} HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
+    Check Proxy Log Contains  "CONNECT ${warehouse_address} HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
+    Check MCS Config Contains  proxy=http://localhost:10000  MCS Config does not have proxy present
+
+    Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
+    Check Root Directory Permissions Are Not Changed
+
+
+Thin Installer Parses Update Caches Correctly
+    # Expect installer to fail, we only care about log contents
+    [Teardown]  Teardown With Temporary Directory Clean
+    Setup For Test With Warehouse Containing Base
+    Require Uninstalled
+    Start Local Cloud Server
+
+    create_default_credentials_file  update_caches=localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
+    build_default_creds_thininstaller_from_sections
+    Run Default Thininstaller  expected_return_code=10  no_connection_address_override=True  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
+
+    Check Thininstaller Log Contains    List of update caches to install from: localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
+    Check Thininstaller Log Contains In Order
+    ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:10000/sophos/customer]
+    ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:9999/sophos/customer]
+    ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:20000/sophos/customer]
+    ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [http://dci.sophosupd.com/update]
+
+    Check Thininstaller Log Does Not Contain  ERROR
+    Check Root Directory Permissions Are Not Changed
+
+Thin Installer Registers Existing Installation
+    [Tags]  THIN_INSTALLER  MCS_ROUTER
+    [Teardown]  Teardown With Temporary Directory Clean
+    Setup For Test With Warehouse Containing Base
+    Start Local Cloud Server
+
+    # Force an installation
+    Run Default Thininstaller  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
+    Check Thininstaller Log Does Not Contain  ERROR
+    Check Cloud Server Log Contains  Register with ::ThisIsARegToken\n
+    Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
+    remove_thininstaller_log
+
+
+Thin Installer Does Not Pass Customer Token Argument To Register Central When No Product Selection Arguments Given
+    [Tags]  THIN_INSTALLER  MCS_ROUTER
+    [Teardown]  Teardown With Temporary Directory Clean
+    Setup For Test With Warehouse Containing Base
+    Start Local Cloud Server
+    ${registerCentralArgFilePath} =  replace_register_central_with_script_that_echos_args
+
+    # Force an installation
+    Run Default Thininstaller  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
+    Check Thininstaller Log Does Not Contain  ERROR
+    ${registerCentralArgs} =  Get File  ${registerCentralArgFilePath}
+    # Register central arguments should not contain --customer-token by default, as older installations may not
+    # Be able to process the argument
+    Should Be Equal As Strings  '${registerCentralArgs.strip()}'   'ThisIsARegToken https://localhost:4443/mcs'
+
+    remove_thininstaller_log
+
+Thin Installer Registers Existing Installation With Product Args
+    [Tags]  THIN_INSTALLER  MCS_ROUTER
+    [Teardown]  Teardown With Temporary Directory Clean
+    Setup For Test With Warehouse Containing Base
+    Start Local Cloud Server
+
+    # Force an installation
+    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
+    Check Thininstaller Log Does Not Contain  ERROR
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+    Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegToken\n
+
+    remove_thininstaller_log
+
+
+Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
+    [Documentation]  Created for LINUXDAR-2249
+    [Teardown]  Teardown With Large Group Creation
+    Setup Group File With Large Group Creation
+    Setup For Test With Warehouse Containing Base
+    Require Uninstalled
+    Start Local Cloud Server
+
+    Should Not Exist    ${SOPHOS_INSTALL}
+
+    Run Default Thininstaller  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
+    Check Expected Base Processes Are Running
+
+    Check Thininstaller Log Does Not Contain  ERROR: Installer returned 16
+    Check Thininstaller Log Does Not Contain  Failed to create machine id. Error: Calling getGroupId on sophos-spl-group caused this error : Unknown group name
+
+
+Thin Installer Installs Product Successfully With Product Arguments
+    [Teardown]  Teardown With Temporary Directory Clean
+    Setup For Test With Warehouse Containing Base
+    Require Uninstalled
+    Start Local Cloud Server
+
+    Should Not Exist    ${SOPHOS_INSTALL}
+
+    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
+    Check MCS Router Running
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Check Cloud Server Log Contains  products requested from deployment API: ['mdr']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
 Thin Installer Repairs Broken Existing Installation
     [Teardown]  Teardown With Temporary Directory Clean
+    # Also installs
     Setup For Test With Warehouse Containing Base
-    # Install to default location and break it
-#    Create Initial Installation
+    # Break installation
     Should Exist  ${REGISTER_CENTRAL}
     Remove File  ${REGISTER_CENTRAL}
     Should Not Exist  ${REGISTER_CENTRAL}
@@ -418,13 +558,9 @@ Thin Installer Repairs Broken Existing Installation
 
 Thin Installer Force Works
     [Teardown]  Teardown With Temporary Directory Clean
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseVUTPolicy}
-
     # Setup warehouse and install Base
     Setup For Test With Warehouse Containing Base
-    # Install to default location and break it
-#    Create Initial Installation
+    Start Local Cloud Server
 
     # Remove install directory
     Should Exist  ${REGISTER_CENTRAL}
@@ -432,21 +568,7 @@ Thin Installer Force Works
     Remove Directory  /opt/sophos-spl  recursive=True
     Should Not Exist  ${REGISTER_CENTRAL}
 
-
-
-#    Run Default Thininstaller    3    https://localhost:4443
-
-
-#    # Run thininstaller without force
-#    Run Default Thininstaller  expected_return_code=20  mcsurl=https://localhost:1233  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-#    Check Thininstaller Log Contains  An existing installation of Sophos Linux Protection was found but could not find the installed path.
-#    Check Thininstaller Log Contains  You could try 'SophosSetup.sh --force' to force the install
-#    Remove Thininstaller Log
-
-    # Force an installation
-    # We expect it to return 18 as it does not register correctly and we only test the installation with --force
-#    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0  mcsurl=https://localhost:4443  override_location=https://localhost:1233  mcs_ca=${SUPPORT_FILES}/sophos_certs/root-ca.crt.pem  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0  mcsurl=https://localhost:4443  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Should Exist  ${REGISTER_CENTRAL}
     Check Thininstaller Log Contains  Installation complete, performing post install steps
     Remove Thininstaller Log
