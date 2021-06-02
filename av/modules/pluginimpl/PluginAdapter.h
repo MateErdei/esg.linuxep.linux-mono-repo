@@ -53,7 +53,7 @@ namespace Plugin
          * @param policyXml
          * @return true if a new policy has arrived false otherwise
          */
-        bool processPolicy(const std::string& policyXml);
+        bool processPolicy(const std::string& policyXml, bool firstPolicy = false);
         void processAction(const std::string& actionXml);
         void innerLoop();
         void processSUSIRestartRequest();
