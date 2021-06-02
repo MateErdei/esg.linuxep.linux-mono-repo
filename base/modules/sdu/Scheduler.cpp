@@ -9,14 +9,13 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "PluginCallback.h"
 #include "PluginAdapter.h"
 #include "TaskQueue.h"
-
+#include "Logger.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/Logging/FileLoggingSetup.h>
 
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/TaskQueue/ITaskQueue.h>
-#include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <stdexcept>
 #include <sys/stat.h>

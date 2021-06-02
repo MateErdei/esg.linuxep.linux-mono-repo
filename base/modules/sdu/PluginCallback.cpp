@@ -5,9 +5,9 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginCallback.h"
+#include "Logger.h"
 
 #include <Common/PluginApi/ApiException.h>
-#include <TelemetryScheduler/LoggerImpl/Logger.h>
 
 #include <utility>
 
