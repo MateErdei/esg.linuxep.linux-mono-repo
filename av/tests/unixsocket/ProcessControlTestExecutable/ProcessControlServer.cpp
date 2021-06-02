@@ -47,8 +47,15 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 
     // send our request
     ::send(clientFd.get(), Data, Size, 0);
-    usleep(500);
     ::close(clientFd);
+    while (true)
+    {
+        if(!connectionThread.isRunning())
+        {
+            break;
+        }
+        usleep(100);
+    }
 
     connectionThread.requestStop();
     connectionThread.join();
