@@ -1,14 +1,13 @@
 {
   "policyAppIds": [
-    "ALC"
   ],
   "actionAppIds": [
-    "ALC"
+    "SDU"
   ],
   "statusAppIds": [
-    "ALC"
+    "SDU"
   ],
-  "pluginName": "updatescheduler",
-  "executableFullPath": "base/bin/UpdateScheduler",
-  "executableUserAndGroup": "@SOPHOS_SPL_UPDATESCHEDULER@:@SOPHOS_SPL_GROUP@"
+  "pluginName": "sdu",
+  "executableFullPath": "base/bin/SDU",
+  "executableUserAndGroup": "@SOPHOS_SPL_USER@:@SOPHOS_SPL_GROUP@"
 }

@@ -91,6 +91,7 @@ namespace Common::ApplicationConfiguration
         virtual std::string getCommsRequestDirPath() const = 0;
         virtual std::string getCommsResponseDirPath() const = 0;
 
+        virtual std::string getRemoteDiagnosePath() const = 0;
         virtual std::string getDiagnoseOutputPath() const = 0;
         virtual std::string getDiagnoseConfig() const = 0;
         /**

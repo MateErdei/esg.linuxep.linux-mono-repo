@@ -322,13 +322,17 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler/installed_features.json");
         }
 
+        std::string ApplicationPathManager::getRemoteDiagnosePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/remote-diagnose");
+        }
         std::string ApplicationPathManager::getDiagnoseOutputPath() const
         {
-            return Common::FileSystem::join(sophosInstall(), "base/diagnoseOutput");
+            return Common::FileSystem::join(getRemoteDiagnosePath(), "output");
         }
         std::string ApplicationPathManager::getDiagnoseConfig()  const
         {
-            return Common::FileSystem::join(sophosInstall(), "base/diagnoseOutput/config.json");
+            return Common::FileSystem::join(getRemoteDiagnosePath(), "var/diagnose_config.json");
         }
     } // namespace ApplicationConfigurationImpl
 

@@ -81,6 +81,7 @@ public:
     MOCK_CONST_METHOD0(getFeaturesJsonPath, std::string (void));
     MOCK_CONST_METHOD0(getStateMachineRawDataPath, std::string (void));
 
+    MOCK_CONST_METHOD0(getRemoteDiagnosePath, std::string (void));
     MOCK_CONST_METHOD0(getDiagnoseOutputPath, std::string (void));
     MOCK_CONST_METHOD0(getDiagnoseConfig, std::string (void));
 };

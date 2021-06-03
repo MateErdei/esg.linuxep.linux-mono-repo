@@ -513,8 +513,10 @@ chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs"
 
 # Remote Diagnose
-makedir 750 "${SOPHOS_INSTALL}/base/diagnoseOutput"
-chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/diagnoseOutput"
+makedir 750 "${SOPHOS_INSTALL}/base/remote-diagnose/var"
+makedir 750 "${SOPHOS_INSTALL}/base/remote-diagnose/output"
+chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/remote-diagnose"
+
 # Telemetry
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry"
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry/var"
