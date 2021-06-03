@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <importspec>
   <warehouses>
-    <warehouse id="sspl"   name="DNR_SSPL_1_1_6"/>
+    <warehouse id="sspl"   name="SSPL_1_1_6"/>
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Base">
