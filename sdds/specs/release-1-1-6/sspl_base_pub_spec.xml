@@ -2,8 +2,8 @@
 <publicationspec importspec="sspl_base_import_spec.xml">
   <componentsuites>
     <line id="ServerProtectionLinux-Base">
-	<componentsuite importreference="ServerProtectionLinux-Base-1.1.6.2">
-        <component importreference="ServerProtectionLinux-Base-component-1.1.6.65" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
+	<componentsuite importreference="ServerProtectionLinux-Base-1.1.6.4">
+        <component importreference="ServerProtectionLinux-Base-component-1.1.6.88" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
         <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.2.12" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
       </componentsuite>
 	<componentsuite importreference="ServerProtectionLinux-Base-1.1.5.22">
@@ -23,7 +23,7 @@
   <warehouses>
     <warehouse furcatedentitlement="SSPL" id="sspl">
       <line id="ServerProtectionLinux-Base">
-		<component importreference="ServerProtectionLinux-Base-1.1.6.2">
+		<component importreference="ServerProtectionLinux-Base-1.1.6.4">
             <releasetag baseversion="" tag="BETA2"/>
             <releasetag baseversion="" tag="RECOMMENDED"/>
             <releasetag baseversion="" tag="BETA"/>
@@ -40,7 +40,7 @@
         </component>
       </line>
       <line id="ServerProtectionLinux-Plugin-EDR">
-        <component importreference="ServerProtectionLinux-Plugin-EDR-1.1.2.8">
+        <component importreference="ServerProtectionLinux-Plugin-EDR-1.1.2.20">
           <releasetag baseversion="" tag="BETA"/>
           <releasetag baseversion="" tag="RECOMMENDED"/>
           <genericsupplement decodepath="scheduled_query_pack"
@@ -62,7 +62,7 @@
         </component>
       </line>
       <line id="ServerProtectionLinux-Base-component">
-		<component importreference="ServerProtectionLinux-Base-component-1.1.6.65">
+		<component importreference="ServerProtectionLinux-Base-component-1.1.6.88">
 		  <genericsupplement decodepath="."
 		  line="SSPLFLAGS" tag="2021-2" warehousename="sspl_flags"/>
 		  </component>
@@ -82,7 +82,7 @@
 		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.0.11"/>
       </line>
 	  <line id="ServerProtectionLinux-Plugin-AV">
-          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.1.343">
+          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.1.29">
               <releasetag baseversion="" tag="RECOMMENDED"/>
               <genericsupplement
                       decodepath="files/plugins/av/chroot/susi/update_source/vdl"
@@ -94,17 +94,6 @@
                       decodepath="files/plugins/av/chroot/susi/update_source/model"
                       line="ML_MODEL_LINUX" tag="LINUX_SCAN" warehousename="ml_models"/>
           </component>
-          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.1.29">
-  		<genericsupplement
-         decodepath="files/plugins/av/chroot/susi/update_source/vdl"
-  			 line="VDL" tag="LATEST" warehousename="VDB_supp"/>
-  		<genericsupplement
-         decodepath="files/plugins/av/chroot/susi/update_source/reputation"
-  			 line="LocalRepData" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
-  		<genericsupplement
-         decodepath="files/plugins/av/chroot/susi/update_source/model"
-  			 line="ML_MODEL_LINUX" tag="LINUX_SCAN" warehousename="ml_models"/>
-		</component>
     <component importreference="ServerProtectionLinux-Plugin-AV-1.0.0.520">
       <genericsupplement
          decodepath="files/plugins/av/chroot/susi/update_source/vdl"
