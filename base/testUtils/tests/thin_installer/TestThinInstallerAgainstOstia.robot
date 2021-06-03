@@ -94,15 +94,6 @@ Check MCS Config Contains
     ${ret} =  Grep File  ${MCS_CONFIG_FILE}  ${pattern}
     Should Contain  ${ret}  ${pattern}  ${fail_message}
 
-Find IP Address With Distance
-    [Arguments]  ${dist}
-    ${result} =  Run Process  ip  addr
-    ${ipaddresses} =  Get Regexp Matches  ${result.stdout}  inet (10[^/]*)  1
-    ${head} =  Get Regexp Matches  ${ipaddresses[0]}  (10\.[^\.]*\.[^\.]*\.)[^\.]*  1
-    ${tail} =  Get Regexp Matches  ${ipaddresses[0]}  10\.[^\.]*\.[^\.]*\.([^\.]*)  1
-    ${tail_xored} =  Evaluate  ${tail[0]} ^ (2 ** ${dist})
-    [return]  ${head[0]}${tail_xored}
-
 Check All Sophos-spl Services Running
     Check Watchdog Running
     Check Management Agent Running
