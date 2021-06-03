@@ -468,7 +468,7 @@ AV Plugin Restores Downgrade Logs
     File Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}/sophos_threat_detector.log
 
 AV Can not install from SDDS Component
-    ${result} =  Run Process  ${COMPONENT_SDDS_COMPONENT}/install.sh  stderr=STDOUT  timeout=30s
+    ${result} =  Run Process  bash  ${COMPONENT_SDDS_COMPONENT}/install.sh  stderr=STDOUT  timeout=30s
     Log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${26}
 
