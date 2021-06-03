@@ -43,7 +43,7 @@ AV plugin Can Send Status
     Should Contain  ${status}   <product-version>${version}</product-version>
 
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="123" policyType="2"/></config>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send AV Policy  ${policyContent}
 
     Wait For Plugin Status  av  SAV  RevID="123"  Res="Same"  <product-version>${version}</product-version>
 
@@ -52,7 +52,7 @@ AV Plugin Can Process Scan Now
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send AV Policy  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
     AV Plugin Log Contains With Offset  Received new Action
@@ -69,7 +69,7 @@ AV Plugin Scan Now Updates Telemetry Count
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send AV Policy  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
     AV Plugin Log Contains With Offset  Received new Action
@@ -117,6 +117,7 @@ Scan Now Excludes Files And Directories As Expected
     File Log Contains             ${SCANNOW_LOG_PATH}        Excluding directory: /directory_excluded/
     File Log Should Not Contain   ${SCANNOW_LOG_PATH}        "/directory_excluded/eicar.com" is infected with EICAR-AV-Test
     File Log Should Not Contain   ${SCANNOW_LOG_PATH}        Excluding file: /directory_excluded/eicar.com
+
 
 Scan Now Logs Should Be As Expected
     Create Directory  /file_excluded/
@@ -170,7 +171,7 @@ AV Plugin Scans local secondary mount only once
     ${scanObjectSet} =  Policy Fragment FS Types  hardDrives=true
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${scanName}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send AV Policy  ${policyContent}
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: ${scanName}   timeout=30
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${scanName}     timeout=90
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${scanName}    timeout=60
@@ -235,7 +236,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}<filePath>${eicar_path1}</filePath><filePath>/tmp_test/eicar.?</filePath><filePath>/tmp_test/*.txt</filePath><filePath>eicarStr</filePath></filePathSet></posixExclusions>
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send AV Policy  ${policyContent}
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=240  interval=5
     AV Plugin Log Contains  Starting scan MyScan
     File Should Exist  ${myscan_log}
@@ -354,7 +355,7 @@ AV Plugin Gets Customer ID
 
     ${expectedId} =   Set Variable   a1c0f318e58aad6bf90d07cabda54b7d
 
-    Wait Until Created   ${customerIdFile1}   timeout=5sec
+    Wait Until Created   ${customerIdFile1}   timeout=10sec
     ${customerId1} =   Get File   ${customerIdFile1}
     Should Be Equal   ${customerId1}   ${expectedId}
 
@@ -378,7 +379,7 @@ AV Plugin Gets Customer ID from Obfuscated Creds
     # md5(md5("ABC123:password"))
     ${expectedId} =   Set Variable   f5c33e370714d94e1d967e53ac4f0437
 
-    Wait Until Created   ${customerIdFile1}   timeout=5sec
+    Wait Until Created   ${customerIdFile1}   timeout=10sec
     ${customerId1} =   Get File   ${customerIdFile1}
     Should Be Equal   ${customerId1}   ${expectedId}
 
@@ -393,7 +394,7 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
 
     ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
     Log    ${policyContent}
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send AV Policy  ${policyContent}
 
     ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
 
@@ -413,129 +414,17 @@ AV Plugin requests policies at startup
     ...  FakeManagement Log Contains   Received policy request: APPID=ALC
 
 
-AV Plugin restarts threat detector on customer id change
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    ${pid} =   Record Sophos Threat Detector PID
-
-    ${id1} =   Generate Random String
-    ${policyContent} =   Get ALC Policy   revid=${id1}  userpassword=${id1}  username=${id1}
-    Log   ${policyContent}
-    Send Plugin Policy  av  alc  ${policyContent}
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
-    Check Sophos Threat Detector has different PID   ${pid}
-
-    # change revid only, threat_detector should not restart
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    ${pid} =   Record Sophos Threat Detector PID
-
-    ${id2} =   Generate Random String
-    ${policyContent} =   Get ALC Policy   revid=${id2}  userpassword=${id1}  username=${id1}
-    Log   ${policyContent}
-    Send Plugin Policy  av  alc  ${policyContent}
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Run Keyword And Expect Error
-    ...   Keyword 'AV Plugin Log Contains With Offset' failed after retrying for 5 seconds.*
-    ...   Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=5
-    Check Sophos Threat Detector has same PID   ${pid}
-
-    # change credentials, threat_detector should restart
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    ${pid} =   Record Sophos Threat Detector PID
-
-    ${id3} =   Generate Random String
-    ${policyContent} =   Get ALC Policy   revid=${id3}  userpassword=${id3}  username=${id3}
-    Log   ${policyContent}
-    Send Plugin Policy  av  alc  ${policyContent}
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
-    Check Sophos Threat Detector has different PID   ${pid}
-
-Sophos Threat Detector sets default if susi startup settings permissions incorrect
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
-    Log   ${policyContent}
-    Send Plugin Policy  av  sav  ${policyContent}
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
-
-    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
-    Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
-
-    Mark Sophos Threat Detector Log
-    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
-    Run Process   /bin/kill   -9   ${output}
-
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
-    Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
-
-
-AV Plugin restarts threat detector on susi startup settings change
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    ${pid} =   Record Sophos Threat Detector PID
-
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
-    Log   ${policyContent}
-    Send Plugin Policy  av  sav  ${policyContent}
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
-    Check Sophos Threat Detector has different PID   ${pid}
-
-    # don't change lookup setting, threat_detector should not restart
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    ${pid} =   Record Sophos Threat Detector PID
-
-    ${id2} =   Generate Random String
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
-    Log   ${policyContent}
-    Send Plugin Policy  av  sav  ${policyContent}
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Run Keyword And Expect Error
-    ...   Keyword 'AV Plugin Log Contains With Offset' failed after retrying for 5 seconds.*
-    ...   Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed   timeout=5
-    Check Sophos Threat Detector has same PID   ${pid}
-
-    # change lookup setting, threat_detector should restart
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    ${pid} =   Record Sophos Threat Detector PID
-
-    ${id3} =   Generate Random String
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
-    Log   ${policyContent}
-    Send Plugin Policy  av  sav  ${policyContent}
-
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system configuration has changed
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket
-    Check Sophos Threat Detector has different PID   ${pid}
-
-
 *** Keywords ***
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
-    ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
+    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
+    ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Register Cleanup   Terminate Process  ${AV_PLUGIN_HANDLE}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
 
 Stop AV
-    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
     Log  ${result.stderr}
     Log  ${result.stdout}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
@@ -589,16 +478,13 @@ Test Remote Share
     ${allButTmp} =  Configure Scan Exclusions Everything Else  /testmnt/
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
 
-    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
-    Check AV Plugin Installed
-
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  30 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
     ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=false
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send AV Policy  ${policyContent}
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningDisabled}  timeout=120  interval=5
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningDisabled}  timeout=240  interval=5
     File Should Exist  ${remoteFSscanningDisabled_log}
@@ -617,33 +503,3 @@ Test Remote Share
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningEnabled}  timeout=240  interval=5
     File Should Exist  ${remoteFSscanningEnabled_log}
     File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR
-
-    
-
-Get ALC Policy
-    [Arguments]  ${revid}=${EMPTY}  ${algorithm}=Clear  ${username}=B  ${userpassword}=A
-    ${policyContent} =  Catenate   SEPARATOR=${\n}
-    ...   <?xml version="1.0"?>
-    ...   <AUConfigurations xmlns:csc="com.sophos\\msys\\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-    ...     <csc:Comp RevID="${revid}" policyType="1"/>
-    ...     <AUConfig>
-    ...       <primary_location>
-    ...         <server Algorithm="${algorithm}" UserPassword="${userpassword}" UserName="${username}"/>
-    ...       </primary_location>
-    ...     </AUConfig>
-    ...   </AUConfigurations>
-    ${policyContent} =   Replace Variables   ${policyContent}
-    [Return]   ${policyContent}
-
-Get SAV Policy
-    [Arguments]  ${revid}=${EMPTY}  ${sxlLookupEnabled}=A
-    ${policyContent} =  Catenate   SEPARATOR=${\n}
-    ...   <?xml version="1.0"?>
-    ...   <config>
-    ...       <csc:Comp RevID="${revid}" policyType="2"/>
-    ...       <detectionFeedback>
-    ...           <sendData>${sxlLookupEnabled}</sendData>
-    ...       </detectionFeedback>
-    ...   </config>
-    ${policyContent} =   Replace Variables   ${policyContent}
-    [Return]   ${policyContent}

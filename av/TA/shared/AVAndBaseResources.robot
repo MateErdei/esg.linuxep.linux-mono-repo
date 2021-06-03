@@ -68,7 +68,9 @@ Configure and check scan now with lookups disabled
     Check scan now with Offset
 
 Configure scan now
+    Mark Sophos Threat Detector Log
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
+    Wait until threat detector running with offset
     Wait until scheduled scan updated
 
 Configure scan now with lookups disabled

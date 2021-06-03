@@ -378,6 +378,13 @@ Wait until threat detector running with offset
     ...  UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...  timeout=60
 
+Wait until threat detector not running
+    [Arguments]  ${timeout}=30
+    Wait Until Keyword Succeeds
+    ...  ${timeout} secs
+    ...  3 secs
+    ...  Check Threat Detector Not Running
+
 Check AV Plugin Installed
     Check Plugin Installed and Running
     Wait Until Keyword Succeeds
