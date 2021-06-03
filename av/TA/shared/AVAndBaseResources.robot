@@ -58,17 +58,13 @@ Run plugin uninstaller
 Run plugin uninstaller with downgrade flag
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh  --downgrade
 
-Configure and check scan now
-    Configure scan now
-    Check scan now
-
 Configure and check scan now with offset
     Configure scan now
     Check scan now with Offset
 
 Configure and check scan now with lookups disabled
     Configure scan now with lookups disabled
-    Check scan now
+    Check scan now with Offset
 
 Configure scan now
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
@@ -84,12 +80,6 @@ Configure scan now with lookups disabled
 
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be disabled   timeout=10
     Wait until scheduled scan updated
-
-Check scan now
-    Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=10
-    AV Plugin Log Contains With Offset  Evaluating Scan Now
-    AV Plugin Log Contains With Offset  Starting scan Scan Now
 
 Check scan now with Offset
     Mark AV Log

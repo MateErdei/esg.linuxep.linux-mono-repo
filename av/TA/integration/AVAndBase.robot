@@ -563,10 +563,9 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
 
 
 AV Runs Scan With SXL Lookup Enable
-    Mark AV Log
     Mark Susi Debug Log
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
-    Configure and check scan now
+    Configure and check scan now with offset
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
     Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central   timeout=60
@@ -836,6 +835,7 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     Empty Directory  /opt/sophos-spl/base/mcs/event/
 
     Run  chmod 444 ${AV_LOG_PATH}
+    Register Cleanup  Stop AV Plugin
     Register Cleanup  Run  chmod 600 ${AV_LOG_PATH}
 
     ${INITIAL_AV_PID} =  Record AV Plugin PID

@@ -32,7 +32,7 @@ Diagnose Test TearDown
 *** Test Cases ***
 
 Diagnose collects the correct files
-    Configure and check scan now
+    Configure and check scan now with offset
     Run Diagnose
     Check Diagnose Tar Created
     Check Diagnose Collects Correct AV Files

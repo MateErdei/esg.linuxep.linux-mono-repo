@@ -516,6 +516,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
     Run  chmod 444 ${THREAT_DETECTOR_LOG_PATH}
+    Register Cleanup  Stop Sophos_threat_detector
     Register Cleanup  Run  chmod 600 ${THREAT_DETECTOR_LOG_PATH}
 
     ${INITIAL_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
@@ -561,15 +562,16 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
     Run  chmod 444 ${SUSI_DEBUG_LOG_PATH}
+    Register Cleanup  Stop Sophos_threat_detector
     Register Cleanup  Run  chmod 600 ${SUSI_DEBUG_LOG_PATH}
 
-    ${INITIAL_AV_PID} =  Record AV Plugin PID
-    Log  Initial PID: ${INITIAL_AV_PID}
-    Stop AV Plugin
-    Start AV Plugin
-    ${END_AV_PID} =  Record AV Plugin PID
-    Log  Restarted PID: ${END_AV_PID}
-    Should Not Be Equal As Integers  ${INITIAL_AV_PID}  ${END_AV_PID}
+    ${INITIAL_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Log  Initial PID: ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}
+    Stop Sophos_threat_detector
+    Start Sophos_threat_detector
+    ${END_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Log  Restarted PID: ${END_SOPHOS_THREAT_DETECTOR_PID}
+    Should Not Be Equal As Integers  ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}  ${END_SOPHOS_THREAT_DETECTOR_PID}
 
     Mark AV Log
     Mark Susi Debug Log
