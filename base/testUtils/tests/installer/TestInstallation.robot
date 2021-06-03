@@ -113,8 +113,7 @@ Verify Base Processes Have Correct Permissions
     Should Contain  ${result.stdout}   sophos-spl-network
     ${result} =     Run Process    ps    -o    group   -p   ${SecondCommspid.stdout}
     Should Contain  ${result.stdout}   sophos-spl-network
-    sleep  10
-    fail
+
 
 Verify MCS Folders Have Correct Permissions
     [Tags]    DEBUG  INSTALLER

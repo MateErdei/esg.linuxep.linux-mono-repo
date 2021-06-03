@@ -87,6 +87,7 @@ namespace
          */
         void queueAction(const std::string& action) override
         {
+            LOGINFO("Action = " << action);
             if (action == TriggerUpdate())
             {
                 LOGSUPPORT("Trigger sophos-spl-update service");
@@ -189,7 +190,7 @@ namespace watchdog
         }
         void WatchdogServiceLine::requestDiagnoseService(Common::ZMQWrapperApi::IContext& context)
         {
-            LOGINFO("Request Watchdog to trigger Update service.");
+            LOGINFO("Request Watchdog to trigger Diagnose service.");
             try
             {
                 auto requester = context.getRequester();
@@ -198,7 +199,7 @@ namespace watchdog
                 Common::PluginCommunicationImpl::PluginProxy pluginProxy(
                         std::move(requester), WatchdogServiceLineName());
                 pluginProxy.queueAction("", WDServiceCallBack::TriggerDiagnose(), "");
-                LOGINFO("Update Acknowledged.");
+                LOGINFO("Start Diagnose Acknowledged.");
             }
             catch (Common::PluginCommunication::IPluginCommunicationException& ex)
             {
@@ -215,7 +216,7 @@ namespace watchdog
             }
             catch (std::exception& ex)
             {
-                LOGERROR("Unexpected exception thrown while requesting update: " << ex.what());
+                LOGERROR("Unexpected exception thrown while requesting diagnose: " << ex.what());
                 assert(false); // not expecting other type of exception.
                 throw WatchdogServiceException(ex.what());
             }
@@ -224,7 +225,7 @@ namespace watchdog
         void WatchdogServiceLine::requestDiagnoseService()
         {
             auto context = Common::ZMQWrapperApi::createContext();
-            requestUpdateService(*context);
+            requestDiagnoseService(*context);
         }
         WatchdogServiceLine::WatchdogServiceLine(
             Common::ZMQWrapperApi::IContextSharedPtr context,

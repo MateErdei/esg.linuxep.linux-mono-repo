@@ -21,6 +21,14 @@ Default Tags  DIAGNOSE
 
 *** Test Cases ***
 Test Remote Diagnose can process SDU action
+
+    Override Local LogConf File for a component   DEBUG  global
+    Run Process  systemctl  restart  sophos-spl
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  1 secs
+        ...  Check Expected Base Processes Are Running
+
     Simulate SDU Action Now
     Wait Until Keyword Succeeds
         ...  10 secs

@@ -186,7 +186,8 @@ function createDiagnoseSystemdService()
         cat > ${STARTUP_DIR}/${service_name} << EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
-ExecStart=${SOPHOS_INSTALL}/base/bin/sophos_diagnose
+
+ExecStart=${SOPHOS_INSTALL}/bin/sophos_diagnose
 Restart=no
 
 [Unit]

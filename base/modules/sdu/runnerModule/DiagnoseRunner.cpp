@@ -54,12 +54,12 @@ namespace RemoteDiagnoseImpl
                 if (m_listener.wasAborted())
                 {
                     schedulerTask.taskType = Task::TaskType::DiagnoseMonitorDetached;
-                    LOGINFO("Update Service not monitoring Diagnose execution.");
+                    LOGINFO("Diagnose Service not monitoring Diagnose execution.");
                 }
                 else
                 {
                     schedulerTask.taskType = Task::TaskType::DiagnoseTimedOut;
-                    LOGWARN("Update Service timed out.");
+                    LOGWARN("Diagnose Service timed out.");
                 }
 
                 m_schedulerTaskQueue->push(schedulerTask);
@@ -72,7 +72,7 @@ namespace RemoteDiagnoseImpl
             schedulerTask.taskType = Task::TaskType::DiagnoseFinished;
             schedulerTask.Content = reportFileLocation;
             m_schedulerTaskQueue->push(schedulerTask);
-            LOGSUPPORT("Update Service finished.");
+            LOGSUPPORT("Diagnose Service finished.");
         }
 
         void DiagnoseRunner::logIfDiagnoseServiceFailed()

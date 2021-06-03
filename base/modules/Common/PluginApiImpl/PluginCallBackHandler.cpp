@@ -76,7 +76,7 @@ namespace Common
             else
             {
                 // Allowed list of non file name strings
-                for (auto& allowedStringData : { "TriggerUpdate" })
+                for (auto& allowedStringData : { "TriggerUpdate","TriggerDiagnose" })
                 {
                     if (payloadData == allowedStringData)
                     {

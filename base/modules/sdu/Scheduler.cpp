@@ -38,7 +38,7 @@ namespace RemoteDiagnoseImpl
             auto taskQueue = std::make_shared<TaskQueue>();
             auto pluginCallBack = std::make_shared<PluginCallback>(taskQueue);
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService =
-                resourceManagement->createPluginAPI("remote_diagnose", pluginCallBack);
+                resourceManagement->createPluginAPI("sdu", pluginCallBack);
 
             Common::ApplicationConfigurationImpl::ApplicationPathManager pathManager;
 
