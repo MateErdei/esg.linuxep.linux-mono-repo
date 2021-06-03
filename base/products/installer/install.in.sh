@@ -595,6 +595,8 @@ chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/sophos_managementagent
 chmod 750 "${SOPHOS_INSTALL}/base/bin/sophos_managementagent"*
 chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
 chmod 750 "${SOPHOS_INSTALL}/base/bin/mcsrouter"*
+chown -h "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/bin/SDU"*
+chmod 750 "${SOPHOS_INSTALL}/base/bin/SDU"*
 
 chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/lib"
 chmod -R 750 "${SOPHOS_INSTALL}/base/lib"

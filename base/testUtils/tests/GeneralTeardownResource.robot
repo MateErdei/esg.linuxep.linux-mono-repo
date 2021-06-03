@@ -12,6 +12,7 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/updatescheduler.log
     # new location
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/sophosspl/updatescheduler.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/wdctl.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/watchdog.log

@@ -158,6 +158,10 @@ Check Management Agent Running
     ${result} =     Run Process     pgrep  -f   sophos_managementagent
     Should Be Equal As Integers     ${result.rc}    0
 
+Check SDU Running
+    ${result} =     Run Process     pgrep  -f   SDU
+    Should Be Equal As Integers     ${result.rc}    0
+
 Check Update Scheduler Running
     ${result} =     Run Process     pgrep  -f   UpdateScheduler
     Should Be Equal As Integers     ${result.rc}    0
@@ -208,6 +212,7 @@ Check Expected Base Processes Are Running
     Check Update Scheduler Running
     Check Telemetry Scheduler Is Running
     Check Comms Component Is Running
+    Check SDU Running
 
 Check Base Processes Are Not Running
     Check Watchdog Not Running

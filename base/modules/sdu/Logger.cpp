@@ -9,6 +9,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 log4cplus::Logger& getRemoteDiagnoseLogger()
 {
-    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("remoteDiagnose");
+    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("remote_diagnose");
     return STATIC_LOGGER;
 }

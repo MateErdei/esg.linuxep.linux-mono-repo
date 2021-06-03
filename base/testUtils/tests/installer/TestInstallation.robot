@@ -94,6 +94,7 @@ Verify Base Processes Have Correct Permissions
     Require Fresh Install
     Check Expected Base Processes Are Running
     Check owner of process   sophos_managementagent   sophos-spl-user    sophos-spl-group
+    Check owner of process   SDU   sophos-spl-user    sophos-spl-group
     Check owner of process   UpdateScheduler   sophos-spl-updatescheduler   sophos-spl-group
     Check owner of process   tscheduler   sophos-spl-user    sophos-spl-group
     Check owner of process   sophos_watchdog   root  root
@@ -112,6 +113,8 @@ Verify Base Processes Have Correct Permissions
     Should Contain  ${result.stdout}   sophos-spl-network
     ${result} =     Run Process    ps    -o    group   -p   ${SecondCommspid.stdout}
     Should Contain  ${result.stdout}   sophos-spl-network
+    sleep  10
+    fail
 
 Verify MCS Folders Have Correct Permissions
     [Tags]    DEBUG  INSTALLER
