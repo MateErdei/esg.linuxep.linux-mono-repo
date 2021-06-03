@@ -21,7 +21,6 @@ Default Tags  DIAGNOSE
 
 *** Test Cases ***
 Test Remote Diagnose can process SDU action
-
     Override Local LogConf File for a component   DEBUG  global
     Run Process  systemctl  restart  sophos-spl
     Wait Until Keyword Succeeds
@@ -35,6 +34,10 @@ Test Remote Diagnose can process SDU action
         ...  1 secs
         ...  Check Log Contains   processing action    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
 
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  10 secs
+        ...  directory should not be empty   ${SOPHOS_INSTALL}/base/remote-diagnose/output
 
 *** Keywords ***
 Setup Fake Cloud

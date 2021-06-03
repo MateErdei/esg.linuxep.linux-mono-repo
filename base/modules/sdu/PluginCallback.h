@@ -34,12 +34,7 @@ namespace RemoteDiagnoseImpl
     private:
         std::shared_ptr<ITaskQueue> m_taskQueue;
 
-        std::string noPolicySetStatus{
-                R"sophos(<?xml version="1.0" encoding="utf-8" ?>
-<status version="1.0.0" is_running="1" />)sophos"
-        };
-
         Common::PluginApi::StatusInfo m_statusInfo =
-        Common::PluginApi::StatusInfo{ noPolicySetStatus, noPolicySetStatus, "SDU" };
+        Common::PluginApi::StatusInfo{};
     };
 } // namespace RemoteDiagnoseImpl

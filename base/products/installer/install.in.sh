@@ -187,7 +187,7 @@ function createDiagnoseSystemdService()
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 
-ExecStart=${SOPHOS_INSTALL}/bin/sophos_diagnose
+ExecStart=${SOPHOS_INSTALL}/bin/sophos_diagnose --remote
 Restart=no
 
 [Unit]

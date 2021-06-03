@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2019-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -41,6 +41,10 @@ namespace diagnose
                 return 0;
             }
             outputDir = arg;
+            if (arg == "--remote")
+            {
+                outputDir = Common::ApplicationConfiguration::applicationPathManager().getDiagnoseOutputPath();
+            }
         }
 
         if (!diagnose::CheckForTar::isTarAvailable())

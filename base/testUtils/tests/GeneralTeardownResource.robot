@@ -87,7 +87,7 @@ Log Status Of Sophos Spl
     Log  ${result.stdout}
     ${result} =  Run Process    systemctl  status  sophos-spl-update
     Log  ${result.stdout}
-    ${result} =  Run Process  ps -ef | grep sophos  shell=True
+    ${result} =  Run Process    systemctl  status  sophos-spl-diagnose
     Log  ${result.stdout}
 
 Check Journalctl

@@ -9,6 +9,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/XmlUtilities/AttributesMap.h>
@@ -79,7 +80,6 @@ namespace RemoteDiagnoseImpl
             {
                 case Task::TaskType::STOP:
                     LOGDEBUG("Process task STOP");
-                    //directoryWatcher->removeListener(mcsConfigDirListener);
                     return;
                 case Task::TaskType::ACTION:
                     LOGDEBUG("Process task ACTION");
@@ -113,20 +113,25 @@ namespace RemoteDiagnoseImpl
             throw std::runtime_error(errorMessage.str());
         }
 
-        std::string url = action.value("uploadUrl");
-        std::string jsonString = "{\"url\":\""+url+"\"}";
-        auto fileSystem = Common::FileSystem::fileSystem();
-
-        fileSystem->writeFileAtomically(Common::ApplicationConfiguration::applicationPathManager().getDiagnoseConfig(),jsonString,Common::ApplicationConfiguration::applicationPathManager().getTempPath());
+//        std::string url = action.value("uploadUrl");
+//        std::string jsonString = "{\"url\":\""+url+"\"}";
+//        auto fileSystem = Common::FileSystem::fileSystem();
+//
+//        fileSystem->writeFileAtomically(Common::ApplicationConfiguration::applicationPathManager().getDiagnoseConfig(),jsonString,Common::ApplicationConfiguration::applicationPathManager().getTempPath());
         //start diagnose
+        std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent("ServerProtectionLinux-Base-component");
+        std::string version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile, "PRODUCT_VERSION");
+        std::string newStatus = replaceAll(statusTemplate,"@VERSION@",version);
+        newStatus = replaceAll(statusTemplate,"@IS_RUNNING@","1");
+        m_baseService->sendStatus("SDU",newStatus,newStatus);
         if (!m_diagnoseRunner->isRunning())
         {
             m_diagnoseRunner->triggerDiagnose();
         }
         //wait for it finish
         // times out- kill sd
-        std::string newStatus = replaceAll(statusTemplate,"@IS_RUNNING@","0");
-        m_callback->setStatus(Common::PluginApi::StatusInfo{newStatus,newStatus,"SDU"});
+        newStatus = replaceAll(statusTemplate,"@IS_RUNNING@","0");
+        m_baseService->sendStatus("SDU",newStatus,newStatus);
     }
 
     PluginAdapter::~PluginAdapter()
