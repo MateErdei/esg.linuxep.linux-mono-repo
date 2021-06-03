@@ -190,6 +190,8 @@ IDE can be removed
 sophos_threat_detector can start after multiple IDE updates
     [Timeout]  10 minutes
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Register Cleanup  Installer Suite Setup
+
     # force SUSI to be loaded - otherwise reloads won't happen
     Check avscanner can detect eicar
 
@@ -404,7 +406,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=60
-    Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source/*
+    Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Install IDE without SUSI loaded  ${IDE_NAME}
@@ -456,6 +458,19 @@ AV Plugin Can Send Telemetry After Upgrade
     Check Telemetry  ${telemetryFileContents}
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
+
+AV Plugin Restores Downgrade Logs
+    Run plugin uninstaller with downgrade flag
+    Check AV Plugin Not Installed
+    Install AV Directly from SDDS
+    Directory Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}
+    File Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}/av.log
+    File Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}/sophos_threat_detector.log
+
+AV Can not install from SDDS Component
+    ${result} =  Run Process  ${COMPONENT_SDDS_COMPONENT}/install.sh  stderr=STDOUT  timeout=30s
+    Log  ${result.stdout}
+    Should Be Equal As Integers  ${result.rc}  ${26}
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
