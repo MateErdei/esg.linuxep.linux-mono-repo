@@ -22,7 +22,6 @@ ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${CLI_SCANNER_PATH}      ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
 ${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
-${THREAT_DETECTOR_LOG_SYMLINK}  ${AV_PLUGIN_PATH}/log/sophos_threat_detector.log
 ${SUSI_DEBUG_LOG_PATH}          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
 ${SCANNOW_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Scan Now.log
 ${TELEMETRY_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
