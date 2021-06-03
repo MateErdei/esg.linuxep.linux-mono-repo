@@ -57,11 +57,12 @@ namespace RemoteDiagnoseImpl
         std::shared_ptr<ITaskQueue> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback,
-        Common::DirectoryWatcher::IiNotifyWrapperPtr iiNotifyWrapperPtr) :
+        std::unique_ptr<IAsyncDiagnoseRunner> diagnoseRunner) :
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
-        m_iiNotifyWrapperPtr(std::move(iiNotifyWrapperPtr))
+        m_diagnoseRunner(std::move(diagnoseRunner))
+
 
     {
     }
@@ -70,14 +71,6 @@ namespace RemoteDiagnoseImpl
     {
         //m_callback->setRunning(true);
         LOGINFO("Entering the main loop");
-        // Request policy on startup
-
-        // keep this to monitot for output file
-//        MCSConfigDirListener mcsConfigDirListener(Common::ApplicationConfiguration::applicationPathManager().getMcsConfigFolderPath(), m_queueTask);
-//        Common::DirectoryWatcher::IDirectoryWatcherPtr directoryWatcher = Common::DirectoryWatcher::createDirectoryWatcher(std::move(m_iiNotifyWrapperPtr));
-//        directoryWatcher->addListener(mcsConfigDirListener);
-//        directoryWatcher->startWatch();
-
 
         while (true)
         {
@@ -108,8 +101,6 @@ namespace RemoteDiagnoseImpl
 
     void PluginAdapter::processAction(const std::string& actionXml)
     {
-        //<?xml version='1.0'?>
-        //<a:action xmlns:a="com.sophos/msys/action" type="SDURun" uploadUrl="https://feedback.sophos.com/cloud/prod/feedback_12345.zip"/>
         LOGINFO("processing action: " << actionXml);
         Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(actionXml);
 
@@ -128,6 +119,10 @@ namespace RemoteDiagnoseImpl
 
         fileSystem->writeFileAtomically(Common::ApplicationConfiguration::applicationPathManager().getDiagnoseConfig(),jsonString,Common::ApplicationConfiguration::applicationPathManager().getTempPath());
         //start diagnose
+        if (!m_diagnoseRunner->isRunning())
+        {
+            m_diagnoseRunner->triggerDiagnose();
+        }
         //wait for it finish
         // times out- kill sd
         std::string newStatus = replaceAll(statusTemplate,"@IS_RUNNING@","0");

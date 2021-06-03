@@ -10,7 +10,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "PluginAdapter.h"
 #include "TaskQueue.h"
 #include "Logger.h"
-
+#include "IAsyncDiagnoseRunner.h"
+#include "runnerModule/AsyncDiagnoseRunner.h"
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/Logging/FileLoggingSetup.h>
 
@@ -41,9 +42,11 @@ namespace RemoteDiagnoseImpl
 
             Common::ApplicationConfigurationImpl::ApplicationPathManager pathManager;
 
-
+            std::string dirPath = pathManager.getDiagnoseOutputPath();
+            std::unique_ptr<IAsyncDiagnoseRunner> runner =
+                    std::unique_ptr<IAsyncDiagnoseRunner>(new runnerModule::AsyncDiagnoseRunner(taskQueue, dirPath));
             PluginAdapter pluginAdapter(
-                    taskQueue, std::move(baseService), pluginCallBack);
+                    taskQueue, std::move(baseService), pluginCallBack, std::move(runner));
             pluginAdapter.mainLoop();
             //pluginCallBack->setRunning(false);
 
