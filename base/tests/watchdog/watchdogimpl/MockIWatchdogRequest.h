@@ -18,6 +18,7 @@ class MockIWatchdogRequest : public watchdog::watchdogimpl::IWatchdogRequest
 {
 public:
     MOCK_METHOD0(requestUpdateService, void());
+    MOCK_METHOD0(requestDiagnoseService, void());
 };
 
 class IWatchdogRequestReplacement

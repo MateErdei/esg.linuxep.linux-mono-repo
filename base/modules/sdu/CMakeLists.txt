@@ -9,7 +9,17 @@ add_library(remotediagnoseimpl SHARED
         TaskQueue.h
         ITaskQueue.h
         Logger.cpp
-        Logger.h)
+        Logger.h
+        IAsyncDiagnoseRunner.h
+        runnerModule/AsyncDiagnoseRunner.cpp
+        runnerModule/AsyncDiagnoseRunner.h
+        runnerModule/DiagnoseResultDirectoryListener.h
+        runnerModule/DiagnoseResultDirectoryListener.cpp
+        runnerModule/DiagnoseRunner.cpp
+        runnerModule/DiagnoseRunner.h
+        runnerModule/DiagnoseRunnerFactory.cpp
+        runnerModule/DiagnoseRunnerFactory.h
+        )
 
 include_directories(remotediagnoseimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 
@@ -20,6 +30,8 @@ target_link_libraries(remotediagnoseimpl PUBLIC
         osutilitiesimpl
         applicationconfigurationimpl
         xmlutilities
+        directorywatcherimpl
+        watchdogservice
         )
 
 SET_TARGET_PROPERTIES(remotediagnoseimpl

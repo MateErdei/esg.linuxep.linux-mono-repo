@@ -16,7 +16,11 @@ namespace RemoteDiagnoseImpl
         enum class TaskType
         {
             ACTION,
-            STOP
+            STOP,
+            DiagnoseMonitorDetached,
+            DiagnoseTimedOut,
+            DiagnoseFinished,
+            DiagnoseFailedToStart,
         };
         TaskType taskType;
         std::string Content;

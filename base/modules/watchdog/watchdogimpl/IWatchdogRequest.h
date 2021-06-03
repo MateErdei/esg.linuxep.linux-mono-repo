@@ -17,6 +17,7 @@ namespace watchdog
         public:
             virtual ~IWatchdogRequest() = default;
             virtual void requestUpdateService() = 0;
+            virtual void requestDiagnoseService() = 0;
         };
 
         Common::UtilityImpl::Factory<IWatchdogRequest>& factory();

@@ -92,6 +92,14 @@ namespace RemoteDiagnoseImpl
                     LOGDEBUG("Process task ACTION");
                     processAction(task.Content);
                     break;
+                case Task::TaskType::DiagnoseFailedToStart:
+                    break;
+                case Task::TaskType::DiagnoseMonitorDetached:
+                    break;
+                case Task::TaskType::DiagnoseFinished:
+                    break;
+                case Task::TaskType::DiagnoseTimedOut:
+                    break;
 
             }
         }

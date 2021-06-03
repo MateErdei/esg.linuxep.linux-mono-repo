@@ -30,6 +30,8 @@ namespace watchdog
             static std::string WatchdogServiceLineName() { return "watchdogservice"; }
             static void requestUpdateService(Common::ZMQWrapperApi::IContext&);
             static void requestUpdateService();
+            static void requestDiagnoseService(Common::ZMQWrapperApi::IContext&);
+            static void requestDiagnoseService();
 
         private:
             Common::ZMQWrapperApi::IContextSharedPtr m_context;
