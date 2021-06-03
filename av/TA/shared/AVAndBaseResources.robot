@@ -87,9 +87,9 @@ Configure scan now with lookups disabled
 
 Check scan now
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains  Completed scan Scan Now  timeout=180  interval=10
-    AV Plugin Log Contains  Evaluating Scan Now
-    AV Plugin Log Contains  Starting scan Scan Now
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=10
+    AV Plugin Log Contains With Offset  Evaluating Scan Now
+    AV Plugin Log Contains With Offset  Starting scan Scan Now
 
 Check scan now with Offset
     Mark AV Log
