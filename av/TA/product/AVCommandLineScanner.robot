@@ -252,8 +252,11 @@ CLS Duration Summary is Displayed Correctly
 
 CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout
-    sleep  1s
+    Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout  stderr=STDOUT
+    Register On Fail  Dump Log  /tmp/stdout
+    Register cleanup  Remove File  /tmp/stdout
+    Register cleanup  Remove File  ${NORMAL_DIRECTORY}/clean_file
+    sleep  2s
     Send Signal To Process  2
     ${result} =  Wait For Process  timeout=20s
     Process Should Be Stopped
