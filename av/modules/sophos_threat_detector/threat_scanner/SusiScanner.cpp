@@ -125,7 +125,6 @@ SusiScanner::scan(
         {
             std::string scanResultJson = scanResult->scanResultJson;
             LOGDEBUG("Scanning result details: " << scanResult->version << ", " << scanResultJson);
-            response.setFullScanResult(scanResultJson);
 
             json parsedScanResult = json::parse(scanResultJson);
             for (auto result : parsedScanResult["results"])

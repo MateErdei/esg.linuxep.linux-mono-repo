@@ -22,57 +22,11 @@ public:
     void SetUp() override
     {
         m_scanResponse.addDetection(m_filePath, m_threatName);
-        m_scanResponse.setFullScanResult(m_fullScanResult);
     }
 
     std::string m_filePath = "/tmp/eicar.com";
     std::string m_threatName = "EICAR-AV-TEST";
-    std::string m_fullScanResult = "{\n"
-                                   "    \"results\":\n"
-                                   "    [\n"
-                                   "        {\n"
-                                   "            \"detections\": [\n"
-                                   "               {\n"
-                                   "                   \"threatName\": \"MAL/malware-A\",\n"
-                                   "                   \"threatType\": \"malware/trojan/PUA/...\",\n"
-                                   "                   \"threatPath\": \"...\",\n"
-                                   "                   \"longName\": \"...\",\n"
-                                   "                   \"identityType\": 0,\n"
-                                   "                   \"identitySubtype\": 0\n"
-                                   "               }\n"
-                                   "            ],\n"
-                                   "            \"Local\": {\n"
-                                   "                \"LookupType\": 1,\n"
-                                   "                \"Score\": 20,\n"
-                                   "                \"SignerStrength\": 30\n"
-                                   "            },\n"
-                                   "            \"Global\": {\n"
-                                   "                \"LookupType\": 1,\n"
-                                   "                \"Score\": 40\n"
-                                   "            },\n"
-                                   "            \"ML\": {\n"
-                                   "                \"ml-pe\": 50\n"
-                                   "            },\n"
-                                   "            \"properties\": {\n"
-                                   "                \"GENES/SUPPRESSML\": 1\n"
-                                   "            },\n"
-                                   "            \"telemetry\": [\n"
-                                   "                {\n"
-                                   "                    \"identityName\": \"xxx\",\n"
-                                   "                    \"dataHex\": \"6865646765686f67\"\n"
-                                   "                }\n"
-                                   "            ],\n"
-                                   "            \"mlscores\": [\n"
-                                   "                {\n"
-                                   "                    \"score\": 12,\n"
-                                   "                    \"secScore\": 34,\n"
-                                   "                    \"featuresHex\": \"6865646765686f67\",\n"
-                                   "                    \"mlDataVersion\": 56\n"
-                                   "                }\n"
-                                   "            ]\n"
-                                   "        }\n"
-                                   "    ]\n"
-                                   "}";
+    std::string m_fullScanResult = "";
 
     scan_messages::ScanResponse m_scanResponse;
 };
