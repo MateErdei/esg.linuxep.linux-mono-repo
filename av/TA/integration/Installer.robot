@@ -192,8 +192,7 @@ sophos_threat_detector can start after multiple IDE updates
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Register Cleanup  Installer Suite Setup
 
-    # force SUSI to be loaded - otherwise reloads won't happen
-    Check avscanner can detect eicar
+    Force SUSI to be initialized
 
     Install IDE with SUSI loaded  ${IDE_NAME}
     Install IDE with SUSI loaded  ${IDE2_NAME}
@@ -506,7 +505,7 @@ Installer Test Setup
     Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
-    Check AV Plugin Installed With Base
+    Check Plugin Installed and Running
     Mark AV Log
     Mark Sophos Threat Detector Log
 

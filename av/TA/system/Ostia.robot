@@ -73,7 +73,7 @@ Verify AV installed
     Wait Until Created  ${COMPONENT_ROOT_PATH}  2m
     Directory Should Exist  ${COMPONENT_ROOT_PATH}
 
-    Check AV Plugin Installed With Base
+    Check Plugin Installed and Running
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  3 secs

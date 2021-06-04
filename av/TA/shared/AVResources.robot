@@ -4,10 +4,13 @@ Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
 Library         ../Libs/ExclusionHelper.py
+Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/BaseUtils.py
+Library         ../Libs/PluginUtils.py
+Library         ../Libs/SophosThreatDetector.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    GlobalSetup.robot
@@ -35,6 +38,7 @@ ${SOPHOS_THREAT_DETECTOR_BINARY}    ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/
 ${SOPHOS_THREAT_DETECTOR_LAUNCHER}  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 ${EXPORT_FILE}     /etc/exports
 ${AV_INSTALL_LOG}  /tmp/avplugin_install.log
+${AV_RESTORED_LOGS_DIRECTORY}   ${AV_PLUGIN_PATH}/log/downgrade_backup/
 ${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
 
 ${EICAR_STRING}  X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
@@ -63,6 +67,10 @@ Check AV Plugin Not Running
     ${result} =   Run Process  pidof  ${PLUGIN_BINARY}  timeout=3
     Should Not Be Equal As Integers  ${result.rc}  ${0}
 
+Check Threat Detector Not Running
+    ${result} =   Run Process  pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}  timeout=3
+    Should Not Be Equal As Integers  ${result.rc}  ${0}
+
 Count File Log Lines
     [Arguments]  ${path}
     ${content} =  Get File   ${path}  encoding_errors=replace
@@ -75,14 +83,21 @@ Count AV Log Lines
 
 Mark AV Log
     ${count} =  Count AV Log Lines
+    #Marks the lines in the log, used for log splitting
     Set Test Variable   ${AV_LOG_MARK}  ${count}
     Log  "AV LOG MARK = ${AV_LOG_MARK}"
+    #Marks characters in the log, used for log checking
+    LogUtils.Mark AV Log
 
 Mark Sophos Threat Detector Log
     [Arguments]  ${mark}=""
-    ${count} =  Count File Log Lines  ${THREAT_DETECTOR_LOG_PATH}
+    ${count} =  Count Optional File Log Lines  ${THREAT_DETECTOR_LOG_PATH}
     Set Test Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
+    [Return]  ${count}
+
+Get Sophos Threat Detector Log Mark
+    [Return]  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
 
 Mark Susi Debug Log
     ${count} =  Count File Log Lines  ${SUSI_DEBUG_LOG_PATH}
@@ -123,6 +138,15 @@ File Log Contains With Offset
     ${content} =  Get File Contents From Offset  ${path}  ${offset}
     Should Contain  ${content}  ${input}
 
+File Log Contains One of
+    [Arguments]  ${path}  ${offset}  @{inputs}
+    ${content} =  Get File Contents From Offset  ${path}  ${offset}
+    FOR   ${input}  IN  @{inputs}
+        ${status} =  Run Keyword And Return Status  Should Contain  ${content}  ${input}
+        Return From Keyword If  ${status}  ${status}
+    END
+    Fail  "None of inputs found in content"
+
 File Log Should Not Contain
     [Arguments]  ${path}  ${input}
     ${content} =  Get File   ${path}  encoding_errors=replace
@@ -133,8 +157,15 @@ File Log Should Not Contain With Offset
     ${content} =  Get File Contents From Offset  ${path}  ${offset}
     Should Not Contain  ${content}  ${input}
 
+Wait Until File Log Contains One Of
+    [Arguments]  ${logCheck}  ${timeout}  @{inputs}
+    Wait Until Keyword Succeeds
+    ...  ${timeout} secs
+    ...  3 secs
+    ...  ${logCheck}  @{inputs}
+
 Wait Until File Log Contains
-    [Arguments]  ${logCheck}  ${input}  ${timeout}=15  ${interval}=1
+    [Arguments]  ${logCheck}  ${input}  ${timeout}=15  ${interval}=3
     Wait Until Keyword Succeeds
     ...  ${timeout} secs
     ...  ${interval} secs
@@ -152,7 +183,7 @@ File Log Does Not Contain
 AV Plugin Log Contains With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    File Log Contains With Offset  ${AV_LOG_PATH}   ${input}   offset=${offset}
+    LogUtils.Check Marked AV Log Contains   ${input}    ${offset}
 
 AV Plugin Log Should Not Contain With Offset
     [Arguments]  ${input}
@@ -188,6 +219,11 @@ Sophos Threat Detector Log Contains With Offset
     ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
     File Log Contains With Offset  ${THREAT_DETECTOR_LOG_PATH}   ${input}   offset=${offset}
 
+Sophos Threat Detector Log Contains One of
+    [Arguments]  @{inputs}
+    ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
+    File Log Contains One of  ${THREAT_DETECTOR_LOG_PATH}   ${offset}   @{inputs}
+
 Threat Detector Log Should Not Contain With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  0
@@ -197,11 +233,23 @@ Wait Until Sophos Threat Detector Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  Sophos Threat Detector Log Contains With Offset  ${input}   timeout=${timeout}
 
+Wait Until Sophos Threat Detector Log Contains One of
+    [Arguments]  ${timeout}  @{inputs}
+    Wait Until File Log Contains One Of  Sophos Threat Detector Log Contains One Of  ${timeout}  @{inputs}
+
 Count Lines In Log
     [Arguments]  ${log_file}  ${line_to_count}
     ${contents} =  Get File  ${log_file}
     ${lines} =  Get Lines Containing String  ${contents}  ${line_to_count}
     ${lines_count} =  Get Line Count  ${lines}
+    [Return]  ${lines_count}
+
+Count Lines In Log With Offset
+    [Arguments]  ${log_file}  ${line_to_count}  ${offset}
+    ${content} =  Get File Contents From Offset  ${log_file}  ${offset}
+    ${lines} =  Get Lines Containing String  ${content}  ${line_to_count}
+    ${lines_count} =  Get Line Count  ${lines}
+
     [Return]  ${lines_count}
 
 Check Threat Detector Copied Files To Chroot
@@ -289,15 +337,27 @@ Check Plugin Installed and Running
     Wait until AV Plugin running
     Wait until threat detector running
 
+Check Plugin Installed and Running With Offset
+    File Should Exist   ${PLUGIN_BINARY}
+    Wait until AV Plugin running with offset
+    Wait until threat detector running with offset
+
 Wait until AV Plugin running
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
     ...  Check Plugin Running
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  40 secs
     ...  2 secs
     ...  Plugin Log Contains  ${COMPONENT} <> Starting the main program loop
+
+Wait until AV Plugin running with offset
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Plugin Running
+    Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting the main program loop  timeout=40
 
 Wait until threat detector running
     # wait for AV Plugin to initialize
@@ -306,9 +366,18 @@ Wait until threat detector running
     ...  3 secs
     ...  Check Sophos Threat Detector Running
     Wait Until Keyword Succeeds
-    ...  40 secs
+    ...  60 secs
     ...  2 secs
-    ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket
+    ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
+
+Wait until threat detector running with offset
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  3 secs
+    ...  Check Sophos Threat Detector Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...  UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...  timeout=60
 
 Check AV Plugin Installed
     Check Plugin Installed and Running
@@ -346,8 +415,12 @@ Install AV Directly from SDDS
     ${log_contents} =  Get File  ${install_log}
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\noutput: \n${log_contents}"
 
-Check AV Plugin Installed With Base
-    Check Plugin Installed and Running
+
+#Require Plugin Installed and Running
+#    Install Base if not installed
+#    Install AV if not installed
+#    Start AV Plugin if not running
+#    Start Sophos Threat Detector if not running
 
 Display All SSPL Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
@@ -366,8 +439,9 @@ AV And Base Teardown
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
     Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_INSTALL_LOG}  encoding_errors=replace
 
-Restart AV Plugin And Clear The Logs
+Restart AV Plugin And Clear The Logs For Integration Tests
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop threat_detector   OnError=failed to stop sophos_threat_detector
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
@@ -383,8 +457,9 @@ Restart AV Plugin And Clear The Logs
     Remove File    ${SUSI_DEBUG_LOG_PATH}
 
     Empty Directory  /opt/sophos-spl/base/mcs/event/
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop threat_detector   OnError=failed to start sophos_threat_detector
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start threat_detector   OnError=failed to start sophos_threat_detector
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
+    Wait until AV Plugin running
 
 Create Install Options File With Content
     [Arguments]  ${installFlags}
@@ -445,8 +520,9 @@ Remove ext2 mount
 
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
-    Copy File  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
-    Append To File  ${EXPORT_FILE}  ${source} localhost(rw,sync,no_subtree_check)\n
+    Copy File If Destination Missing  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
+    Ensure List appears once   ${EXPORT_FILE}  ${source} localhost(rw,sync,no_subtree_check)\n
+    Register On Fail  Run Process  systemctl  status  nfs-server
     Run Shell Process   systemctl restart nfs-server            OnError=Failed to restart NFS server
     Run Shell Process   mount -t nfs localhost:${source} ${destination}   OnError=Failed to mount local NFS share
 
@@ -481,7 +557,7 @@ Check Scheduled Scan Configuration File is Correct
     ${configFilename} =  Set Variable  /tmp/config-files-test/Sophos_Cloud_Scheduled_Scan.config
     Wait Until Keyword Succeeds
         ...    120 secs
-        ...    1 secs
+        ...    5 secs
         ...    File Should Exist  ${configFilename}
     @{exclusions} =  ExclusionHelper.get exclusions to scan tmp test
     CapnpHelper.check named scan object   ${configFilename}
@@ -539,36 +615,76 @@ Check IDE absent from installation
     [Arguments]  ${ide_name}
     file should not exist  ${INSTALL_IDE_DIR}/${ide_name}
 
-Run IDE update
-    # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
-    Mark Sophos Threat Detector Log
-    ${threat_detector_pid} =  Record Sophos Threat Detector PID
+Run installer from install set and wait for reload trigger
+    [Arguments]  ${threat_detector_pid}  ${mark}
     Run installer from install set
-    Wait Until Sophos Threat Detector Log Contains With Offset  Reload triggered by USR1  timeout=60
-    Wait Until Sophos Threat Detector Log Contains With Offset  Threat scanner successfully updated  timeout=120
+    Wait Until Sophos Threat Detector Logs Or Restarts  ${threat_detector_pid}  ${mark}  Reload triggered by USR1  timeout=60
+
+Run IDE update with expected texts
+    [Arguments]  ${timeout}  @{expected_update_texts}
+    # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
+    ${mark} =  Mark Sophos Threat Detector Log
+    ${threat_detector_pid} =  Record Sophos Threat Detector PID
+    Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${mark}
+    Wait Until Sophos Threat Detector Log Contains One Of  ${timeout}  @{expected_update_texts}
     Threat Detector Log Should Not Contain With Offset    Current version matches that of the update source. Nothing to do.
     Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
 
+Run IDE update with expected text
+    [Arguments]  ${expected_update_text}  ${timeout}=120
+    # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
+    ${mark} =  Mark Sophos Threat Detector Log
+    ${threat_detector_pid} =  Record Sophos Threat Detector PID
+    Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${mark}
+    Wait Until Sophos Threat Detector Logs Or Restarts  ${threat_detector_pid}  ${mark}  ${expected_update_text}  timeout=${timeout}
+    # Wait Until Sophos Threat Detector Log Contains With Offset  ${expected_update_text}  timeout=${timeout}
+    Threat Detector Log Should Not Contain With Offset    Current version matches that of the update source. Nothing to do.
+    Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}
 
-Install IDE
-    [Arguments]  ${ide_name}
-    Register cleanup  Uninstall IDE  ${ide_name}
+Run IDE update with SUSI loaded
+    # Require that SUSI has been initialized
+    Run IDE update with expected text  Threat scanner successfully updated  timeout=120
+
+Run IDE update
+    Run IDE update with expected texts  120  Threat scanner successfully updated  Threat scanner update is pending
+
+Run IDE update without SUSI loaded
+    # Require SUSI hasn't been initialized, so won't actually update
+    Run IDE update with expected text  Threat scanner update is pending  timeout=10
+
+Install IDE with install func
+    [Arguments]  ${ide_name}  ${ide_update_func}
+    SophosThreatDetector.register ide for uninstall  ${ide_name}
+    Register cleanup if unique  cleanup ides
+
     Add IDE to install set  ${ide_name}
-    Run IDE update
+    Run Keyword  ${ide_update_func}
     Check IDE present in installation  ${ide_name}
+
+Install IDE with SUSI loaded
+    [Arguments]  ${ide_name}
+    Install IDE with install func  ${ide_name}  Run IDE update with SUSI loaded
+
+Install IDE without SUSI loaded
+    [Arguments]  ${ide_name}
+    Install IDE with install func  ${ide_name}  Run IDE update without SUSI loaded
 
 Install IDE without reload check
     [Arguments]  ${ide_name}
-    Register cleanup  Uninstall IDE  ${ide_name}
-    Add IDE to install set  ${ide_name}
-    Run installer from install set
-    Check IDE present in installation  ${ide_name}
+    Install IDE with install func  ${ide_name}  Run installer from install set
+
+Install IDE
+    [Arguments]  ${ide_name}
+    Install IDE with SUSI loaded  ${ide_name}
 
 Uninstall IDE
-    [Arguments]  ${ide_name}
-    Deregister Cleanup   Uninstall IDE  ${ide_name}
+    [Arguments]  ${ide_name}  ${ide_update_func}=Run IDE update
+    # We don't know how the cleanup was registered
+    Deregister Optional Cleanup   Uninstall IDE  ${ide_name}  ${ide_update_func}
+    Deregister Optional Cleanup   Uninstall IDE  ${ide_name}
+    SophosThreatDetector.deregister ide for uninstall  ${ide_name}
     Remove IDE From Install Set  ${ide_name}
-    Run IDE update
+    Run Keyword  ${ide_update_func}
     Check IDE Absent From Installation  ${ide_name}
 
 
@@ -656,3 +772,33 @@ Get SAV Policy
     ...   </config>
     ${policyContent} =   Replace Variables   ${policyContent}
     [Return]   ${policyContent}
+
+Check If The Logs Are Close To Rotating
+    ${AV_LOG_SIZE}=  Get File Size   ${AV_LOG_PATH}
+    ${THREAT_DETECTOR_LOG_SIZE}=  Get File Size   ${THREAT_DETECTOR_LOG_PATH}
+    ${SUSI_DEBUG_LOG_SIZE}=  Get File Size   ${SUSI_DEBUG_LOG_PATH}
+    ${av_evaluation}=  Evaluate  ${AV_LOG_SIZE} / ${1000000} > ${9}
+    ${susi_evaluation}=  Evaluate  ${SUSI_DEBUG_LOG_SIZE} / ${1000000} > ${9}
+    ${threat_detector_evaluation}=  Evaluate  ${THREAT_DETECTOR_LOG_SIZE} / ${1000000} > ${9}
+
+    [return]  ${av_evaluation} or ${susi_evaluation} or ${threat_detector_evaluation}
+
+Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
+    ${result} =     Check If The Logs Are Close To Rotating
+    run keyword if  ${result}  Restart AV Plugin And Clear The Logs For Integration Tests
+
+
+Check avscanner can detect eicar in
+    [Arguments]  ${EICAR_PATH}
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${EICAR_PATH}
+    Log   ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain   ${output}    Detected "${EICAR_PATH}" is infected with EICAR-AV-Test
+
+
+Check avscanner can detect eicar
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com
+
+Force SUSI to be initialized
+    Check avscanner can detect eicar

@@ -79,9 +79,8 @@ VQA Suite Setup
     ...   ${IDE_DIR}/internet.ide
     ...   ${IDE_DIR}/hfs.ide
     Install With Base SDDS
-    Check AV Plugin Installed With Base
-    #Force SUSI to load
-    Check avscanner can detect eicar
+    Check Plugin Installed and Running
+    Force SUSI to be initialized
 
 VQA Suite TearDown
     No Operation
@@ -90,7 +89,7 @@ VQA Test Setup
     Register On Fail  Debug install set
     Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
-    Check AV Plugin Installed With Base
+    Check Plugin Installed and Running
     Mark AV Log
 
 VQA Test TearDown

@@ -609,7 +609,7 @@ AVSophosThreatDetector Suite TearDown
 
 AVSophosThreatDetector Test Setup
     Log  AVSophosThreatDetector Test Setup
-    Check AV Plugin Installed With Base
+    Check Plugin Installed and Running
     Mark AV Log
 
 AVSophosThreatDetector Test TearDown
