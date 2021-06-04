@@ -156,11 +156,7 @@ SUSI Is Given Empty EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${MACHINEID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID cannot be empty
 
 
@@ -169,11 +165,7 @@ SUSI Is Given A New Line As EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${MACHINEID_FILE}  \n
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID cannot contain a new line
 
 
@@ -182,11 +174,7 @@ SUSI Is Given An Empty Space As EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${MACHINEID_FILE}  ${SPACE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID cannot contain a empty space
 
 
@@ -195,11 +183,7 @@ SUSI Is Given Short EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${MACHINEID_FILE}  d22829d94b76c016ec4e04b08baef
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID should be 32 hex characters
 
 
@@ -208,11 +192,7 @@ SUSI Is Given Long EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${MACHINEID_FILE}  d22829d94b76c016ec4e04b08baefaaaaaaaaaaaaaaa
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID should be 32 hex characters
 
 
@@ -221,11 +201,7 @@ SUSI Is Given Non-hex EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${MACHINEID_FILE}  GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID must be in hex format
 
 
@@ -234,11 +210,7 @@ SUSI Is Given Non-UTF As EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     ${rc}   ${output} =    Run And Return Rc And Output  echo -n "ソフォスソフォスソフォスソフォス" | iconv -f utf-8 -t euc-jp > ${MACHINEID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID must be in hex format
 
 
@@ -247,11 +219,7 @@ SUSI Is Given Binary EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Copy File  /bin/true  ${MACHINEID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
 
 
@@ -272,11 +240,7 @@ SUSI Is Given Large File EndpointId
        Log  ${line}
     END
 
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID should be 32 hex characters
 
 
@@ -285,11 +249,7 @@ SUSI Is Given Empty CustomerId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${CUSTOMERID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID cannot be empty
 
 
@@ -298,11 +258,7 @@ SUSI Is Given A New Line As CustomerId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${CUSTOMERID_FILE}  \n
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID cannot contain a new line
 
 
@@ -311,11 +267,7 @@ SUSI Is Given An Empty Space As CustomerId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${CUSTOMERID_FILE}  ${SPACE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID cannot contain a empty space
 
 
@@ -324,11 +276,7 @@ SUSI Is Given Short CustomerId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baef
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
 
 
@@ -337,11 +285,7 @@ SUSI Is Given Long CustomerId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baefaaaaaaaaaaaaaaa
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
 
 
@@ -350,11 +294,7 @@ SUSI Is Given Non-hex CustomerId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${CUSTOMERID_FILE}  GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID must be in hex format
 
 
@@ -363,11 +303,7 @@ SUSI Is Given Non-UTF As CustomerId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     ${rc}   ${output} =    Run And Return Rc And Output  echo -n "ソフォスソフォスソフォスソフォス" | iconv -f utf-8 -t euc-jp > ${CUSTOMERID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID must be in hex format
 
 
@@ -376,11 +312,7 @@ SUSI Is Given Binary CustomerId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Copy File  /bin/true  ${CUSTOMERID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
 
 
@@ -400,12 +332,7 @@ SUSI Is Given Large File CustomerId
     FOR  ${line}  IN  @{list}
        Log  ${line}
     END
-
-    Start AV Plugin
-
-    Wait until threat detector running
-
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
 
 
@@ -415,18 +342,14 @@ SUSI Is Given Non-Permission CustomerId
     Stop AV Plugin
     Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baeffaa
     Run Process  chmod  000  ${CUSTOMERID_FILE}
-    Start AV Plugin
-
-    Wait until threat detector running
-    Force SUSI to be initialized
+    Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
 
 
 Threat Detector Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
 
-    Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
+    Create Temporary eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
 
     Mark Sophos Threat Detector Log
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
@@ -437,13 +360,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Run  chmod 600 ${THREAT_DETECTOR_LOG_PATH}
     Register Cleanup  Stop Sophos_threat_detector
 
-    ${INITIAL_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Log  Initial PID: ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}
-    Stop Sophos_threat_detector
-    Start Sophos_threat_detector
-    ${END_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Log  Restarted PID: ${END_SOPHOS_THREAT_DETECTOR_PID}
-    Should Not Be Equal As Integers  ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}  ${END_SOPHOS_THREAT_DETECTOR_PID}
+    restart sophos_threat_detector
 
     ${result} =  Run Process  ls  -l  ${THREAT_DETECTOR_LOG_PATH}
     Log  New permissions: ${result.stdout}
@@ -460,8 +377,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
 
 SUSI Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
-    Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
+    Create Temporary eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
 
     Mark Susi Debug Log
 
@@ -473,13 +389,7 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Stop Sophos_threat_detector
     Register Cleanup  Run  chmod 600 ${SUSI_DEBUG_LOG_PATH}
 
-    ${INITIAL_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Log  Initial PID: ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}
-    Stop Sophos_threat_detector
-    Start Sophos_threat_detector
-    ${END_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Log  Restarted PID: ${END_SOPHOS_THREAT_DETECTOR_PID}
-    Should Not Be Equal As Integers  ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}  ${END_SOPHOS_THREAT_DETECTOR_PID}
+    restart sophos_threat_detector
 
     Mark AV Log
     Mark Susi Debug Log
@@ -493,6 +403,25 @@ SUSI Can Work Despite Specified Log File Being Read-Only
 
 
 *** Keywords ***
+Start AV Plugin and Force SUSI to be initialized
+    Start AV Plugin
+    Wait until threat detector running
+    Force SUSI to be initialized
+
+Create Temporary eicar in
+    [Arguments]  ${path}
+    Create File  ${path}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${path}
+
+restart sophos_threat_detector
+    ${INITIAL_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Log  Initial PID: ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}
+    Stop Sophos_threat_detector
+    Start Sophos_threat_detector
+    ${END_SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Log  Restarted PID: ${END_SOPHOS_THREAT_DETECTOR_PID}
+    Should Not Be Equal As Integers  ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}  ${END_SOPHOS_THREAT_DETECTOR_PID}
+
 
 set sophos_threat_detector log level
     Set Log Level  DEBUG
