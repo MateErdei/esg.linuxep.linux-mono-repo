@@ -87,3 +87,8 @@ def create_test_telemetry_config_file(telemetry_config_file_path, certificate_pa
     uid = pwd.getpwnam(username).pw_uid
     os.chown(telemetry_config_file_path, uid, -1)
 
+def install_base_if_not_installed():
+    SOPHOS_INSTALL = get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
+    if not os.path.isdir(SOPHOS_INSTALL):
+        BuiltIn().run_keyword("Install Base For Component Tests")
+        return 0
