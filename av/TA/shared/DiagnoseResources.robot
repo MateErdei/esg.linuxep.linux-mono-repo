@@ -40,14 +40,16 @@ Check Diagnose Collects Correct AV Files
     Should Be Equal As Integers  ${result.rc}  0
     Log  ${result.stdout}
 
-    ${AVFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av
+    ${AVPFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av
+    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av/log/sophos_threat_detector
 
-    Should Contain  ${AVFiles}  av.log
-    Should Contain  ${AVFiles}  Scan Now.log
-    Should Contain  ${AVFiles}  sophos_threat_detector.log
+    Should Contain  ${AVPFiles}  av.log
+    Should Contain  ${AVPFiles}  Scan Now.log
+    Should Contain  ${SophosThreatDetectorFiles}  sophos_threat_detector.log
+    Should Contain  ${SophosThreatDetectorFiles}  susi_debug.log
 
-    Should Contain  ${AVFiles}  VERSION.ini
-    Should Contain  ${AVFiles}  VERSION.ini.0
+    Should Contain  ${AVPFiles}  VERSION.ini
+    Should Contain  ${AVPFiles}  VERSION.ini.0
 
 
 Check Diagnose Logs
