@@ -5,7 +5,7 @@ Resource    BaseResources.robot
 *** Keywords ***
 
 AV and Base Setup
-    Check Plugin Installed and Running
+    Require Plugin Installed and Running
     Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     Remove Directory  /tmp/DiagnoseOutput  true
 

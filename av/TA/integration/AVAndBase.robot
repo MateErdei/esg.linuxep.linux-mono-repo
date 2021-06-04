@@ -774,6 +774,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled   timeout=180
 
 Sophos Threat Detector sets default if susi startup settings permissions incorrect
+    [Tags]  FAULT INJECTION
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
@@ -812,24 +813,23 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
+    [Tags]  FAULT INJECTION
     Register Cleanup  Empty Directory  /opt/sophos-spl/base/mcs/event
-    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naugthy_eicar
-    Register Cleanup  Check Plugin Installed and Running
-
     Empty Directory  /opt/sophos-spl/base/mcs/event/
+
     Create File  ${NORMAL_DIRECTORY}/naugthy_eicar  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naugthy_eicar
 
     Mark AV Log
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naugthy_eicar
 
-    Log  return code is ${rc}
-    Log  output is ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    # Verify that we get a log message for the eicar
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
 
+    # Verify that the AV Plugin sends an alert when logging is working
     Wait Until Keyword Succeeds
        ...  60 secs
-       ...  3 secs
+       ...  5 secs
        ...  check threat event received by base  1  naugthyEicarThreatReport
 
     Empty Directory  /opt/sophos-spl/base/mcs/event/
@@ -844,6 +844,7 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     Start AV Plugin
     ${END_AV_PID} =  Record AV Plugin PID
     Log  Restarted PID: ${END_AV_PID}
+    # Verify the restart actually happened
     Should Not Be Equal As Integers  ${INITIAL_AV_PID}  ${END_AV_PID}
 
     Mark AV Log
@@ -851,25 +852,26 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     ${result} =  Run Process  ls  -l  ${AV_LOG_PATH}
     Log  New permissions: ${result.stdout}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naugthy_eicar
 
-    Log  return code is ${rc}
-    Log  output is ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    AV Plugin Log Should Not Contain With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
-
+    # Verify the av plugin still sent the alert
     Wait Until Keyword Succeeds
         ...  60 secs
-        ...  3 secs
+        ...  5 secs
         ...  check threat event received by base  1  naugthyEicarThreatReport
+
+    # Verify that the log wasn't written (permission blocked)
+    AV Plugin Log Should Not Contain With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+
 
 
 Scan Now Can Work Despite Specified Log File Being Read-Only
+    [Tags]  FAULT INJECTION
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
-    Register Cleanup    Remove File  /tmp_test/naughty_eicar
-
     Remove File  ${SCANNOW_LOG_PATH}
+
     Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
+    Register Cleanup    Remove File  /tmp_test/naughty_eicar
 
     Configure scan now
     Mark AV Log
@@ -908,10 +910,12 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
 
 
 Scheduled Scan Can Work Despite Specified Log File Being Read-Only
+    [Tags]  FAULT INJECTION
     Register Cleanup    Remove File  ${CLOUDSCAN_LOG_PATH}
-    Register Cleanup    Remove File  /tmp_test/naughty_eicar
+    Remove File  ${CLOUDSCAN_LOG_PATH}
 
     Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
+    Register Cleanup    Remove File  /tmp_test/naughty_eicar
 
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base

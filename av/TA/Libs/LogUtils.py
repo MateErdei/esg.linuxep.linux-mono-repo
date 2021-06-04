@@ -15,9 +15,9 @@ def _get_log_contents(path_to_log):
     try:
         with open(path_to_log, "rb") as log:
             contents = log.read()
-    except EnvironmentError:
-        return None
     except FileNotFoundError:
+        return None
+    except EnvironmentError:
         return None
     return contents.decode("UTF-8", errors='backslashreplace')
 
@@ -503,9 +503,13 @@ File Log Contains
         self.marked_managementagent_logs = len(contents)
 
     def mark_av_log(self):
-        av_log = self.av_log
-        contents = _get_log_contents(av_log)
-        self.marked_av_log = len(contents)
+        contents = _get_log_contents(self.av_log)
+        if contents is None:
+            self.marked_av_log = 0
+            return 0
+
+        self.marked_av_log = len(contents)  # bytes
+        return len(contents.splitlines())
 
     def mark_sophos_threat_detector_log(self):
         sophos_threat_detector_log = self.sophos_threat_detector_log

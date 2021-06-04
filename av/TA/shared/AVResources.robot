@@ -82,12 +82,11 @@ Count AV Log Lines
     [Return]   ${count}
 
 Mark AV Log
-    ${count} =  Count AV Log Lines
-    #Marks the lines in the log, used for log splitting
+    # Marks characters in the log, used for log checking, returns count of lines
+    ${count} =  LogUtils.Mark AV Log
+    # Marks the lines in the log, used for log splitting
     Set Test Variable   ${AV_LOG_MARK}  ${count}
     Log  "AV LOG MARK = ${AV_LOG_MARK}"
-    #Marks characters in the log, used for log checking
-    LogUtils.Mark AV Log
 
 Mark Sophos Threat Detector Log
     [Arguments]  ${mark}=""
