@@ -776,7 +776,6 @@ AV Plugin tries to restart threat detector on susi startup settings change
 Sophos Threat Detector sets default if susi startup settings permissions incorrect
     [Tags]  FAULT INJECTION
     Restart sophos_threat_detector
-    Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=60

@@ -16,22 +16,24 @@ FIXED_SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, "sav_policy", "SAV_Policy_Fi
 def create_sav_policy_with_scheduled_scan(filename, timestamp):
     parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
     day = calendar.day_name[parsed_timestamp.weekday()].lower()
-    parsed_timestamp = (parsed_timestamp + timedelta(minutes=1)).strftime("%H:%M:%S")
+    parsed_timestamp = (parsed_timestamp + timedelta(seconds=30)).strftime("%H:%M:%S")
 
-    sav_policy_builder = _SavPolicyBuilder("/opt/test/inputs/test_scripts/resources/SAV_Policy.xml", filename)
+    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day(day)
     sav_policy_builder.set_scheduled_scan_time(parsed_timestamp)
     sav_policy_builder.send_sav_policy()
 
 def create_sav_policy_with_multiple_scheduled_scans(filename, timestamp, no_of_scans=2):
     timestamp_builder = ""
-    for scan in range(no_of_scans):
-        parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
-        day = calendar.day_name[parsed_timestamp.weekday()].lower()
-        minutes_delta = 1 + scan
-        timestamp_builder += "<time>" + (parsed_timestamp + timedelta(minutes=minutes_delta)).strftime("%H:%M:%S") + "</time>\n\t\t\t"
+    parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
+    day = calendar.day_name[parsed_timestamp.weekday()].lower()
+    assert no_of_scans >= 1
 
-    sav_policy_builder = _SavPolicyBuilder("/opt/test/inputs/test_scripts/resources/SAV_Policy_Configurable_Multiple_Scheduled_Scans.xml", filename)
+    for scan in range(no_of_scans):
+        minutes_delta = scan
+        timestamp_builder += "<time>" + (parsed_timestamp + timedelta(minutes=minutes_delta, seconds=30)).strftime("%H:%M:%S") + "</time>\n\t\t\t"
+
+    sav_policy_builder = _SavPolicyBuilder(RESOURCES_DIR+"/SAV_Policy_Configurable_Multiple_Scheduled_Scans.xml", filename)
     sav_policy_builder.set_scheduled_scan_day(day)
     sav_policy_builder.set_scheduled_scan_time(timestamp_builder)
     sav_policy_builder.send_sav_policy()
@@ -97,7 +99,7 @@ class _SavPolicyBuilder:
         if output_name is None:
             self.output_path = None
         else:
-            self.output_path = "/opt/test/inputs/test_scripts/resources/" + output_name
+            self.output_path = RESOURCES_DIR + "/" + output_name
         # Defaults
         self.replacement_map = {"{{allFiles}}": "false",
                                 "{{excludeSophosDefined}}": "",
