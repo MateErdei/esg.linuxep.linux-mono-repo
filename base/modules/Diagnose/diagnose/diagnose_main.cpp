@@ -32,6 +32,7 @@ namespace diagnose
         }
 
         std::string outputDir = ".";
+        bool remote = false;
         if (argc == 2)
         {
             std::string arg(argv[1]);
@@ -44,6 +45,7 @@ namespace diagnose
             if (arg == "--remote")
             {
                 outputDir = Common::ApplicationConfiguration::applicationPathManager().getDiagnoseOutputPath();
+                remote = true;
             }
         }
 
@@ -164,8 +166,15 @@ namespace diagnose
             LOGINFO("Completed gathering files.");
 
             gatherFiles.copyDiagnoseLogFile(destination);
-
+            if (remote)
+            {
+                systemCommands.zipDiagnoseFolder(destination, outputDir);
+            }
+            else
+            {
             systemCommands.tarDiagnoseFolder(destination, outputDir);
+            }
+
         }
         catch (std::invalid_argument& e)
         {

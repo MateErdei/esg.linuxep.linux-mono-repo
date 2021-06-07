@@ -13,7 +13,9 @@ Resource    DiagnoseResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 
 Suite Setup  Require Fresh Install
-Suite Teardown  Ensure Uninstalled
+Suite Teardown  Run Keywords
+...             Ensure Uninstalled  AND
+...             Cleanup Certificates
 
 Test Teardown   Teardown
 Test Setup   Setup Fake Cloud
@@ -38,15 +40,21 @@ Test Remote Diagnose can process SDU action
         ...  30 secs
         ...  10 secs
         ...  directory should not be empty   ${SOPHOS_INSTALL}/base/remote-diagnose/output
+    Wait Until Keyword Succeeds
+        ...  20 secs
+        ...  5 secs
+        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
 
 *** Keywords ***
 Setup Fake Cloud
     Start Local Cloud Server  --initial-alc-policy  ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
+    Generate Local Fake Cloud Certificates
     Regenerate Certificates
     Set Local CA Environment Variable
 
     Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
-    Register With Fake Cloud
+    Register With Local Cloud Server
+
 
 Simulate SDU Action Now
     Copy File   ${SUPPORT_FILES}/CentralXml/SDUAction.xml  ${SOPHOS_INSTALL}/tmp

@@ -141,4 +141,27 @@ namespace diagnose
         std::cout << "Created tarfile: " << tarfileName << " in directory " << destPath << std::endl;
     }
 
+    //TODO LINUXDAR-871 this should produce a zip instead of a tar
+    void SystemCommands::zipDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const
+    {
+
+        std::cout << "Running tar on: " << srcPath << std::endl;
+        std::string tarfileName = "sspl.tar.gz";
+        std::string tarfile = Common::FileSystem::join(destPath, tarfileName);
+
+        std::string tarCommand =
+                "tar -czf " + tarfile + " -C '" + srcPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
+
+        int ret = system(tarCommand.c_str());
+        if (ret != 0)
+        {
+            throw std::invalid_argument("tar file command failed");
+        }
+
+        if (!fileSystem()->isFile(tarfile))
+        {
+            throw std::invalid_argument("tar file " + tarfile + " was not created");
+        }
+        std::cout << "Created tarfile: " << tarfileName << " in directory " << destPath << std::endl;
+    }
 } // namespace diagnose

@@ -37,7 +37,7 @@ namespace RemoteDiagnoseImpl
             m_diagnoseRunnerStartTime = std::chrono::system_clock::now();
 
             m_diagnoseRunner.reset(
-                new DiagnoseRunner(m_taskQueue, m_dirPath, "sspl-tar.gz", std::chrono::minutes(10)));
+                new DiagnoseRunner(m_taskQueue, m_dirPath, "sspl.tar.gz", std::chrono::minutes(10)));
             m_diagnoseExecHandle = std::async(std::launch::async, [this]() { m_diagnoseRunner->run(); });
         }
 

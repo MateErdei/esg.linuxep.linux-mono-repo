@@ -121,8 +121,9 @@ namespace RemoteDiagnoseImpl
         //start diagnose
         std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent("ServerProtectionLinux-Base-component");
         std::string version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile, "PRODUCT_VERSION");
+
         std::string newStatus = replaceAll(statusTemplate,"@VERSION@",version);
-        newStatus = replaceAll(statusTemplate,"@IS_RUNNING@","1");
+        newStatus = replaceAll(newStatus,"@IS_RUNNING@","1");
         m_baseService->sendStatus("SDU",newStatus,newStatus);
         if (!m_diagnoseRunner->isRunning())
         {
@@ -130,7 +131,7 @@ namespace RemoteDiagnoseImpl
         }
         //wait for it finish
         // times out- kill sd
-        newStatus = replaceAll(statusTemplate,"@IS_RUNNING@","0");
+        newStatus = replaceAll(newStatus,"@IS_RUNNING@","0");
         m_baseService->sendStatus("SDU",newStatus,newStatus);
     }
 
