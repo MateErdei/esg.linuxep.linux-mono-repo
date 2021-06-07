@@ -24,24 +24,12 @@ from mcsrouter.mcs import DeploymentApiException
 import mcsrouter.mcsclient.responses
 import mcsrouter.mcsclient.datafeeds
 
-# Stop the mcs router tests writing to disk
-class ConfigWithoutSave(mcsrouter.utils.config.Config):
-    def save(self, filename=None):
-        pass
 
 def dummy_function(*args):
     pass
 
 def raise_exception(message):
     raise AssertionError(message)
-
-
-def create_test_config(url="http://localhost/foobar"):
-    config = ConfigWithoutSave('testConfig.config')
-    config.set("MCSURL", url)
-    config.set("MCSID", "")
-    config.set("MCSPassword", "")
-    return config
 
 class FakeMCSConnection(mcsrouter.mcsclient.mcs_connection.MCSConnection):
     def __init__(self, command_xml):
@@ -327,7 +315,7 @@ class TestMCSConnection(unittest.TestCase):
     def test_send_datafeeds_resets_jwt_token_when_401_is_thrown(self, *mockargs):
         side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpUnauthorizedException(401, {}, '')
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect = side_effects
-        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        mcs_connection = TestMCSResponse.dummyMCSConnection(save=False)
         feed_id = "feed_id"
         content = '{key1: "value1", key2: "value2"}'
         some_time_in_the_future = "2601033100"
@@ -498,7 +486,7 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch("time.time", return_value=1605708424.2720187)
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id","expires_in":84600}')
     def test_set_jwt_token_settings_returns_values_when_valid(self, *mockargs):
-        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        mcs_connection = TestMCSResponse.dummyMCSConnection(save=False)
         mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
         self.assertEqual(mcs_connection.m_jwt_token, "jwt-token")
         self.assertEqual(mcs_connection.m_device_id, "device-id")
@@ -510,7 +498,7 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch("time.time", return_value=1605708424.2720187)
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","tenant_id":"tenant-id","expires_in":84600}')
     def test_set_jwt_token_settings_returns_values_when_valid_but_one_missing(self, *mockargs):
-        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        mcs_connection = TestMCSResponse.dummyMCSConnection(save=False)
         mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
         self.assertEqual(mcs_connection.m_jwt_token, "jwt-token")
         self.assertEqual(mcs_connection.m_device_id, None)
@@ -523,7 +511,7 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"not-relevant":"jwt-token","example-field":"tenant-id"}')
     def test_set_jwt_token_settings_returns_none_when_valid_json_but_fields_missing(self, *mockargs):
         with self.assertLogs(level="WARNING") as logs:
-            mcs_connection = TestMCSResponse.dummyMCSConnection()
+            mcs_connection = TestMCSResponse.dummyMCSConnection(save=False)
             mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
             self.assertEqual(mcs_connection.m_jwt_token, None)
             self.assertEqual(mcs_connection.m_device_id, None)
@@ -549,7 +537,7 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id","expires_in":"invalid"}')
     def test_set_jwt_token_settings_returns_values_when_expiration_value_is_invalid(self, *mockargs):
         with self.assertLogs(level="WARNING") as logs:
-            mcs_connection = TestMCSResponse.dummyMCSConnection()
+            mcs_connection = TestMCSResponse.dummyMCSConnection(save=False)
             mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
             self.assertEqual(mcs_connection.m_jwt_token, "jwt-token")
             self.assertEqual(mcs_connection.m_device_id, "device-id")

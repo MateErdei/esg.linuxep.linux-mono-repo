@@ -9,14 +9,24 @@ import mcsrouter.utils.config
 import mcsrouter.mcsclient.mcs_connection
 import mcsrouter.mcsclient.mcs_exception
 
-def createTestConfig(url="http://localhost/foobar"):
-    config = mcsrouter.utils.config.Config()
+def createTestConfig(url="http://localhost/foobar", save=True):
+    if not save:
+        config = configWithoutSave()
+    else:
+        config = mcsrouter.utils.config.Config()
     #the mcs_connection only check there is a file not that it is valid
     config.set("CAFILE", "/etc/fstab")
     config.set("MCSURL", url)
     config.set("MCSID", "")
     config.set("MCSPassword", "")
+    config.set("MCSPassword", "")
+    config.set("MCSPassword", "")
+    #add our stuff
     return config
+
+class configWithoutSave(mcsrouter.utils.config.Config):
+    def save(self, filename=None):
+        pass
 
 class dummyResponse(object):
     class dummyMsg(object):
@@ -55,11 +65,11 @@ class dummyConnection(object):
 
 # stub the underlying connection
 class dummyMCSConnection(mcsrouter.mcsclient.mcs_connection.MCSConnection):
-    def __init__(self, **kwargs):
-        config = createTestConfig("http://dummy.mcs.url:8080/")
+    def __init__(self, save=True, **kwargs):
+        config = createTestConfig("http://dummy.mcs.url:8080/", save)
         super(dummyMCSConnection, self).__init__(config)
         self.__m_kwargs = kwargs
-
+        self.config = config
         self.m_jwt_token = None
         self.m_device_id = None
         self.m_tenant_id = None
