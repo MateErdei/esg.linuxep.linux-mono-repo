@@ -37,6 +37,8 @@ namespace RemoteDiagnoseImpl
 
     private:
         void processAction(const std::string& actionXml);
+        void sendFinishedStatus();
+        void processZip();
 
         std::future<void> m_monitor;
         std::shared_ptr<ITaskQueue> m_queueTask;

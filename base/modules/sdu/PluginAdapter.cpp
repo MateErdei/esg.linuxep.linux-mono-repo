@@ -75,7 +75,7 @@ namespace RemoteDiagnoseImpl
 
         while (true)
         {
-            Task task = m_queueTask->pop();
+            Task task = m_queueTask->pop(m_diagnoseRunner->isRunning());
             switch (task.taskType)
             {
                 case Task::TaskType::STOP:
@@ -90,8 +90,12 @@ namespace RemoteDiagnoseImpl
                 case Task::TaskType::DiagnoseMonitorDetached:
                     break;
                 case Task::TaskType::DiagnoseFinished:
+                    processZip();
                     break;
                 case Task::TaskType::DiagnoseTimedOut:
+                    sendFinishedStatus();
+                    break;
+                default:
                     break;
 
             }
@@ -99,17 +103,15 @@ namespace RemoteDiagnoseImpl
         LOGSUPPORT("Left the plugin adapter main thread");
     }
 
-    void PluginAdapter::processAction(const std::string& actionXml)
-    {
+    void PluginAdapter::processAction(const std::string& actionXml) {
         LOGINFO("processing action: " << actionXml);
         Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(actionXml);
 
         auto action = attributesMap.lookup("a:action");
-        std::string actionType(action.value("type") );
-        if (actionType != "SDURun")
-        {
+        std::string actionType(action.value("type"));
+        if (actionType != "SDURun") {
             std::stringstream errorMessage;
-            errorMessage << "Malformed action received , type is : " << actionType <<" not SDURun";
+            errorMessage << "Malformed action received , type is : " << actionType << " not SDURun";
             throw std::runtime_error(errorMessage.str());
         }
 
@@ -119,18 +121,31 @@ namespace RemoteDiagnoseImpl
 //
 //        fileSystem->writeFileAtomically(Common::ApplicationConfiguration::applicationPathManager().getDiagnoseConfig(),jsonString,Common::ApplicationConfiguration::applicationPathManager().getTempPath());
         //start diagnose
-        std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent("ServerProtectionLinux-Base-component");
+        std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
+                "ServerProtectionLinux-Base-component");
         std::string version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile, "PRODUCT_VERSION");
 
-        std::string newStatus = replaceAll(statusTemplate,"@VERSION@",version);
-        newStatus = replaceAll(newStatus,"@IS_RUNNING@","1");
-        m_baseService->sendStatus("SDU",newStatus,newStatus);
-        if (!m_diagnoseRunner->isRunning())
-        {
+        std::string newStatus = replaceAll(statusTemplate, "@VERSION@", version);
+        newStatus = replaceAll(newStatus, "@IS_RUNNING@", "1");
+        m_baseService->sendStatus("SDU", newStatus, newStatus);
+        if (!m_diagnoseRunner->isRunning()) {
             m_diagnoseRunner->triggerDiagnose();
         }
-        //wait for it finish
-        // times out- kill sd
+    }
+
+    void PluginAdapter::processZip()
+    {
+        LOGINFO("Diagnose finished");
+        sendFinishedStatus();
+    }
+
+    void PluginAdapter::sendFinishedStatus()
+    {
+        std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
+                "ServerProtectionLinux-Base-component");
+        std::string version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile, "PRODUCT_VERSION");
+
+        std::string newStatus = replaceAll(statusTemplate, "@VERSION@", version);
         newStatus = replaceAll(newStatus,"@IS_RUNNING@","0");
         m_baseService->sendStatus("SDU",newStatus,newStatus);
     }

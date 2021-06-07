@@ -29,4 +29,33 @@ namespace RemoteDiagnoseImpl
         m_list.pop_front();
         return task;
     }
+    Task TaskQueue::pop(bool isRunning)
+    {
+        std::unique_lock<std::mutex> lck(m_mutex);
+        m_cond.wait(lck, [this] { return !m_list.empty(); });
+
+        if(!isRunning)
+        {
+            Task task = m_list.front();
+            m_list.pop_front();
+            return task;
+        }
+        else
+        {
+            Task task;
+            std::list<Task>::iterator iter;
+            for (iter = m_list.begin(); iter != m_list.end(); iter++)
+            {
+                if(iter->taskType != Task::TaskType::ACTION)
+                {
+                    task.taskType =iter->taskType;
+                    task.Content =iter->Content;
+                    break;
+                }
+            }
+            m_list.erase(iter);
+            return task;
+        }
+
+    }
 } // namespace RemoteDiagnoseImpl

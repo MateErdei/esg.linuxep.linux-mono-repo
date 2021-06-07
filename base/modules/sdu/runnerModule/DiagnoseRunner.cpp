@@ -40,11 +40,11 @@ namespace RemoteDiagnoseImpl
                 schedulerTask.taskType = Task::TaskType::DiagnoseFailedToStart;
                 schedulerTask.Content = std::get<1>(startDiagnoseServiceResult);
                 m_schedulerTaskQueue->push(schedulerTask);
-                LOGINFO("Update Service failed to start with error: " + std::get<1>(startDiagnoseServiceResult));
+                LOGINFO("DiagnoseService failed to start with error: " + std::get<1>(startDiagnoseServiceResult));
                 return;
             }
 
-            // Wait for the SUL Downloader results file to be created or a timeout or abortWaitingForReport is called.
+            // Wait for the diagnose zip to be created or a timeout or abortWaitingForReport is called.
             std::string reportFileLocation = m_listener.waitForFile(m_timeout);
 
             // If the file failed to be created it means either an abortWaitingForReport was called or the wait timed

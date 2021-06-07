@@ -21,6 +21,7 @@ namespace RemoteDiagnoseImpl
     public:
         void push(Task task) override;
         Task pop() override;
+        Task pop(bool isRunning) override;
         void pushStop() override;
 
     private:

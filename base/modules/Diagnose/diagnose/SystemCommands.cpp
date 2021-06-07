@@ -20,6 +20,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <iterator>
 #include <sstream>
+#include <Common/UtilityImpl/ProjectNames.h>
+#include <Common/FileSystem/IFilePermissions.h>
 
 namespace diagnose
 {
@@ -147,10 +149,11 @@ namespace diagnose
 
         std::cout << "Running tar on: " << srcPath << std::endl;
         std::string tarfileName = "sspl.tar.gz";
+        std::string tarfiletemp = Common::FileSystem::join(destPath, tarfileName+".temp");
         std::string tarfile = Common::FileSystem::join(destPath, tarfileName);
 
         std::string tarCommand =
-                "tar -czf " + tarfile + " -C '" + srcPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
+                "tar -czf " + tarfiletemp + " -C '" + srcPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
 
         int ret = system(tarCommand.c_str());
         if (ret != 0)
@@ -158,6 +161,11 @@ namespace diagnose
             throw std::invalid_argument("tar file command failed");
         }
 
+        std::string chown =
+                "chown sophos-spl-user:sophos-spl-group " + tarfiletemp ;
+        ret = system(chown.c_str());
+        Common::FileSystem::filePermissions()->chown(tarfiletemp, sophos::user(), sophos::group());
+        fileSystem()->moveFile(tarfiletemp, tarfile);
         if (!fileSystem()->isFile(tarfile))
         {
             throw std::invalid_argument("tar file " + tarfile + " was not created");

@@ -43,6 +43,10 @@ Test Remote Diagnose can process SDU action
     Wait Until Keyword Succeeds
         ...  20 secs
         ...  5 secs
+        ...  Check Log Contains   Diagnose finished    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
+    Wait Until Keyword Succeeds
+        ...  20 secs
+        ...  5 secs
         ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
 
 *** Keywords ***
