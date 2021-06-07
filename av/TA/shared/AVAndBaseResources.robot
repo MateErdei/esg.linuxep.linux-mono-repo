@@ -43,7 +43,8 @@ User Should Not Exist
 
 Check AV Plugin Not Installed
     Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/
-    File Should Not Exist  ${SOPHOS_INSTALL}/base/pluginRegistry/av.json
+    File Should Not Exist  ${PLUGIN_REGISTRY}/av.json
+    File Should Not Exist  ${PLUGIN_REGISTRY}/sophos_threat.json
     User Should Not Exist  sophos-spl-av
     User Should Not Exist  sophos-spl-threat-detector
 

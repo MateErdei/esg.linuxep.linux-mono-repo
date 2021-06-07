@@ -13,6 +13,7 @@ ${TEMP_SAV_POLICY_FILENAME} =  TempSAVpolicy.xml
 
 ${CERT_PATH}   /tmp/cert.pem
 ${SSPL_BASE}                    ${SOPHOS_INSTALL}/base
+${PLUGIN_REGISTRY}              ${SSPL_BASE}/pluginRegistry
 ${MCS_ACTION_DIRECTORY}         ${SSPL_BASE}/mcs/action
 ${MACHINE_ID_FILE}              ${SSPL_BASE}/etc/machine_id.txt
 ${EXE_CONFIG_FILE}              ${SSPL_BASE}/telemetry/var/telemetry-exe.json
