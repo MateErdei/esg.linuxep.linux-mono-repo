@@ -22,7 +22,6 @@ def createTestConfig(url="http://localhost/foobar", save=True):
     config.set("jwt_token", "")
     config.set("device_id", "")
     config.set("tenant_id", "")
-    #add our stuff
     return config
 
 class configWithoutSave(mcsrouter.utils.config.Config):
