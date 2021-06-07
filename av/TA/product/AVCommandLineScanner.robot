@@ -113,39 +113,6 @@ CLS No args
 
     Should Not Contain  ${result.stdout.replace("\n", " ")}  "failed to execute"
 
-# Must be the first test in this file to actually scan a file!
-CLS Can Scan Clean File Twice Faster Second time
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${before} =  Get Time  epoch
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file
-    ${after1} =  Get Time  epoch
-    ${rc2}   ${output2} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file
-    ${after2} =  Get Time  epoch
-
-    Log  return code is ${rc}
-    Log  output is ${output}
-    Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/clean_file was aborted
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Be Equal As Integers  ${rc2}  ${CLEAN_RESULT}
-    ${duration1} =  Evaluate  ${after1} - ${before}
-    ${duration2} =  Evaluate  ${after2} - ${after1}
-    Log  First duration is ${duration1}
-    Log  Second duration is ${duration2}
-    Run Keyword if  ${duration1} < ${duration2}  Fail  First scan quicker ${duration1} than second scan ${duration2}
-
-CLS Can init susi safely in parallel
-    ## Ensure SUSI not initialized
-    register cleanup  dump log   ${THREAT_DETECTOR_LOG_PATH}
-    Stop AV
-    Start AV
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    ${process1} =   Start Process   ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/clean_file
-    ${process2} =   Start Process   ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/clean_file
-    ${result1} =    Wait For Process   ${process1}  timeout=${60}  on_timeout=kill
-    ${result2} =    Wait For Process   ${process2}  timeout=${60}  on_timeout=kill
-    Should Be equal As Integers  ${result1.rc}  0
-    Should Be equal As Integers  ${result2.rc}  0
-
 
 CLS Can Scan Relative Path
     ${cwd} =  get cwd then change directory  ${NORMAL_DIRECTORY}
@@ -1478,3 +1445,37 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     File Log Should Not Contain With Offset  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+
+CLS Can Scan Clean File Twice Faster Second time
+    Stop AV
+    Start AV
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${before} =  Get Time  epoch
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file
+    ${after1} =  Get Time  epoch
+    ${rc2}   ${output2} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/clean_file
+    ${after2} =  Get Time  epoch
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/clean_file was aborted
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Be Equal As Integers  ${rc2}  ${CLEAN_RESULT}
+    ${duration1} =  Evaluate  ${after1} - ${before}
+    ${duration2} =  Evaluate  ${after2} - ${after1}
+    Log  First duration is ${duration1}
+    Log  Second duration is ${duration2}
+    Run Keyword if  ${duration1} < ${duration2}  Fail  First scan quicker ${duration1} than second scan ${duration2}
+
+CLS Can init susi safely in parallel
+    ## Ensure SUSI not initialized
+    register cleanup  dump log   ${THREAT_DETECTOR_LOG_PATH}
+    Stop AV
+    Start AV
+    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
+    ${process1} =   Start Process   ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/clean_file
+    ${process2} =   Start Process   ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/clean_file
+    ${result1} =    Wait For Process   ${process1}  timeout=${60}  on_timeout=kill
+    ${result2} =    Wait For Process   ${process2}  timeout=${60}  on_timeout=kill
+    Should Be equal As Integers  ${result1.rc}  0
+    Should Be equal As Integers  ${result2.rc}  0
