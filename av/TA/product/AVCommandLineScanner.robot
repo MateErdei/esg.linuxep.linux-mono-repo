@@ -252,7 +252,7 @@ CLS Duration Summary is Displayed Correctly
 
 
 CLS Summary is Printed When Avscanner Is Terminated Prematurely
-    Start Process    ${CLI_SCANNER_PATH}   /opt/test    stdout=/tmp/stdout  stderr=STDOUT
+    Start Process    ${CLI_SCANNER_PATH}   /opt/test/inputs/av  stdout=/tmp/stdout  stderr=STDOUT
     Register On Fail  Dump Log  /tmp/stdout
     Register cleanup  Remove File  /tmp/stdout
 
@@ -262,15 +262,16 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Process Should Be Stopped
 
     ${result} =  Get Process Result
-    Should Be Equal As Integers	${result.rc}  ${MANUAL_INTERUPTION_RESULT}
+
+    # May have found a threat or error so can't rely on the return code
+    # But we must not get clean/success out
+    Should Not Be Equal As Integers	${result.rc}  ${0}
 
     Should Contain   ${result.stdout}  Received SIGINT
-    Should Contain   ${result.stdout}  0 files out of
     Should Not Contain  ${result.stdout}  Reached total maximum number of reconnection attempts. Aborting scan.
     Should Not Contain  ${result.stdout}  Reconnected to Sophos Threat Detector after
     Should Not Contain  ${result.stdout}  - retrying after sleep
     Should Not Contain  ${result.stdout}  Failed to reconnect to Sophos Threat Detector - retrying...
-    Should Not Contain  ${result.stdout}  Failed to scan one or more files due to an error
 
 CLS Does not request TFTClassification from SUSI
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
