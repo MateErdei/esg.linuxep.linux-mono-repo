@@ -139,13 +139,16 @@ Closing a LiveResponse Session Does Not Affect The Outcome Of Another Session
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id1}
 
     Check Liveresponse Command Successfully Starts A Session   ${correlation_id2}
-    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id1}
+    Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id2}
 
-    ${count} =  Count Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
-    Should Be Equal As Integers  ${count}  2
+    Number Of Files In Dir Should Be  /opt/sophos-spl/plugins/liveresponse/var  2
+
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id2}
-    ${count} =  Count Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
-    Should Be Equal As Integers  ${count}  1
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Number Of Files In Dir Should Be  /opt/sophos-spl/plugins/liveresponse/var  1
 
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id1}
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id1}
@@ -172,6 +175,12 @@ Changing Environment Variables Does Not Affect Other LiveResponse Sessions
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id1}
 
 *** Keywords ***
+
+Number Of Files In Dir Should Be
+    [Arguments]  ${directoy}  ${expected_file_count}
+    ${actual_file_count} =  Count Files In Directory  ${directoy}
+    Should Be Equal As Integers  ${actual_file_count}  ${expected_file_count}
+
 Check Liveresponse Command Successfully Starts A Session
     [Arguments]   ${correlationId}
     Mark Managementagent Log
