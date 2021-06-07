@@ -19,8 +19,9 @@ def createTestConfig(url="http://localhost/foobar", save=True):
     config.set("MCSURL", url)
     config.set("MCSID", "")
     config.set("MCSPassword", "")
-    config.set("MCSPassword", "")
-    config.set("MCSPassword", "")
+    config.set("jwt_token", "")
+    config.set("device_id", "")
+    config.set("tenant_id", "")
     #add our stuff
     return config
 
