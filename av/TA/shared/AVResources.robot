@@ -787,16 +787,17 @@ Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
 
 
 Check avscanner can detect eicar in
-    [Arguments]  ${EICAR_PATH}
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${EICAR_PATH}
+    [Arguments]  ${EICAR_PATH}  ${LOCAL_AVSCANNER}=${AVSCANNER}
+    ${rc}   ${output} =    Run And Return Rc And Output   ${LOCAL_AVSCANNER} ${EICAR_PATH}
     Log   ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}    Detected "${EICAR_PATH}" is infected with EICAR-AV-Test
 
 
 Check avscanner can detect eicar
+    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com
+    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com   ${LOCAL_AVSCANNER}
 
 Force SUSI to be initialized
-    Check avscanner can detect eicar
+    Check avscanner can detect eicar  ${CLI_SCANNER_PATH}

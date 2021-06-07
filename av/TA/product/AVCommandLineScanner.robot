@@ -29,6 +29,7 @@ AVCommandLineScanner Suite Setup
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Start Fake Management If required
     Start AV
+    Force SUSI to be initialized
 
 AVCommandLineScanner Suite TearDown
     Stop AV
@@ -251,26 +252,25 @@ CLS Duration Summary is Displayed Correctly
 
 
 CLS Summary is Printed When Avscanner Is Terminated Prematurely
-    Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
-    Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout  stderr=STDOUT
+    Start Process    ${CLI_SCANNER_PATH}   /opt/test    stdout=/tmp/stdout  stderr=STDOUT
     Register On Fail  Dump Log  /tmp/stdout
     Register cleanup  Remove File  /tmp/stdout
-    Register cleanup  Remove File  ${NORMAL_DIRECTORY}/clean_file
+
     sleep  2s
     Send Signal To Process  2
     ${result} =  Wait For Process  timeout=20s
     Process Should Be Stopped
 
+    ${result} =  Get Process Result
+    Should Be Equal As Integers	${result.rc}  ${MANUAL_INTERUPTION_RESULT}
+
+    Should Contain   ${result.stdout}  Received SIGINT
+    Should Contain   ${result.stdout}  0 files out of
     Should Not Contain  ${result.stdout}  Reached total maximum number of reconnection attempts. Aborting scan.
     Should Not Contain  ${result.stdout}  Reconnected to Sophos Threat Detector after
     Should Not Contain  ${result.stdout}  - retrying after sleep
     Should Not Contain  ${result.stdout}  Failed to reconnect to Sophos Threat Detector - retrying...
     Should Not Contain  ${result.stdout}  Failed to scan one or more files due to an error
-    Should Contain   ${result.stdout}  Received SIGINT
-    Should Contain   ${result.stdout}  0 files out of
-    ${result} =  Get Process Result
-    log to console  ${result}
-    Should Be Equal As Integers	${result.rc}  ${MANUAL_INTERUPTION_RESULT}
 
 CLS Does not request TFTClassification from SUSI
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
