@@ -326,14 +326,12 @@ namespace Common
         {
             return Common::FileSystem::join(sophosInstall(), "base/remote-diagnose");
         }
+
         std::string ApplicationPathManager::getDiagnoseOutputPath() const
         {
             return Common::FileSystem::join(getRemoteDiagnosePath(), "output");
         }
-        std::string ApplicationPathManager::getDiagnoseConfig()  const
-        {
-            return Common::FileSystem::join(getRemoteDiagnosePath(), "var/diagnose_config.json");
-        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

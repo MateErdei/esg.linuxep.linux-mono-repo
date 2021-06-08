@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -93,7 +93,6 @@ namespace Common::ApplicationConfiguration
 
         virtual std::string getRemoteDiagnosePath() const = 0;
         virtual std::string getDiagnoseOutputPath() const = 0;
-        virtual std::string getDiagnoseConfig() const = 0;
         /**
          * @brief the sophos_alias.txt file is a file containing a url override for connecting to a
          * different customer file location such as ostia instead of going to sophos.

@@ -87,7 +87,6 @@ namespace
          */
         void queueAction(const std::string& action) override
         {
-            LOGINFO("Action = " << action);
             if (action == TriggerUpdate())
             {
                 LOGSUPPORT("Trigger sophos-spl-update service");

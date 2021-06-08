@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -84,7 +84,6 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getRemoteDiagnosePath() const override;
         std::string getDiagnoseOutputPath() const override;
-        std::string getDiagnoseConfig() const override;
 
     private:
         std::string socketPath(const std::string& relative) const;
