@@ -49,6 +49,30 @@ TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
     EXPECT_EQ(tasksOut[1].Content, tasksIn[1].Content);
 }
 
+
+TEST(TaskQueueTests, ActionTaskIsNotPoppedOffWhenDiagnoseIsProcessing) // NOLINT
+{
+    RemoteDiagnoseImpl::TaskQueue queue;
+    const std::vector<RemoteDiagnoseImpl::Task> tasksIn = { {RemoteDiagnoseImpl::Task::TaskType::ACTION,""},
+                                                            {RemoteDiagnoseImpl::Task::TaskType::STOP,""}};
+
+    for (auto task : tasksIn)
+    {
+        queue.push(task);
+    }
+
+    std::vector<RemoteDiagnoseImpl::Task> tasksOut;
+
+    for (size_t i = 0; i < tasksIn.size(); ++i)
+    {
+        tasksOut.emplace_back(queue.pop(true));
+    }
+
+    EXPECT_EQ(tasksOut.size(), tasksIn.size());
+    EXPECT_NE(tasksOut[0].taskType, RemoteDiagnoseImpl::Task::TaskType::ACTION);
+    EXPECT_NE(tasksOut[1].taskType, RemoteDiagnoseImpl::Task::TaskType::ACTION);
+}
+
 TEST(TaskQueueTests, popWaitsForPush) // NOLINT
 {
     using namespace std::chrono;

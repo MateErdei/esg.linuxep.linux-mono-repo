@@ -4,7 +4,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Scheduler.h"
+#include "Main.h"
 
 #include "PluginCallback.h"
 #include "PluginAdapter.h"
@@ -16,7 +16,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/Logging/FileLoggingSetup.h>
 
 #include <Common/PluginApi/IPluginResourceManagement.h>
-#include <Common/TaskQueue/ITaskQueue.h>
 
 #include <stdexcept>
 #include <sys/stat.h>

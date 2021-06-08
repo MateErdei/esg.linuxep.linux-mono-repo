@@ -3,7 +3,7 @@
 Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "Scheduler.h"
+#include "Main.h"
 
 #include <Common/UtilityImpl/Main.h>
 

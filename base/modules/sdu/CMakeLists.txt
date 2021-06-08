@@ -1,6 +1,6 @@
 add_library(remotediagnoseimpl SHARED
-        Scheduler.cpp
-        Scheduler.h
+        Main.cpp
+        Main.h
         PluginCallback.cpp
         PluginCallback.h
         PluginAdapter.cpp
