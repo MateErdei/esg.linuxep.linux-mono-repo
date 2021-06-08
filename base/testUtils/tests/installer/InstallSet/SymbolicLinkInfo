@@ -21,6 +21,7 @@ o777, root, root, /opt/sophos-spl/bin/wdctl
 o777, sophos-spl-group, root, /opt/sophos-spl/base/bin/machineid
 o777, sophos-spl-group, root, /opt/sophos-spl/base/bin/mcsrouter
 o777, sophos-spl-group, root, /opt/sophos-spl/base/bin/python3
+o777, sophos-spl-group, root, /opt/sophos-spl/base/bin/SDU
 o777, sophos-spl-group, root, /opt/sophos-spl/base/bin/sophos_managementagent
 o777, sophos-spl-group, root, /opt/sophos-spl/base/bin/telemetry
 o777, sophos-spl-group, root, /opt/sophos-spl/base/bin/tscheduler
@@ -444,6 +445,7 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobuf.so.25.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobuf.so.25.0.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobufutil.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libreactorimpl.so
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libremotediagnoseimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libretailer_lib.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libretailer_lib.so.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libretailer_lib.so.0.0

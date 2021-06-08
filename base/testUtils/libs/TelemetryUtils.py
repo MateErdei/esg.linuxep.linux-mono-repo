@@ -71,6 +71,7 @@ class TelemetryUtils:
         telemetry = {
             "commscomponent-unexpected-restarts": int(expected_times),
             "managementagent-unexpected-restarts": int(expected_times),
+            "sdu-unexpected-restarts": int(expected_times),
             "mcsrouter-unexpected-restarts": int(expected_times),
             "tscheduler-unexpected-restarts": int(expected_times),
             "updatescheduler-unexpected-restarts": int(expected_times)
