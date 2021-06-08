@@ -151,6 +151,16 @@ Threat Detector prolongs timeout if a scan is requested within the configured ti
     Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
 
 
+SUSI Is Given Non-Permission EndpointId
+    [Tags]  FAULT INJECTION
+    Mark Sophos Threat Detector Log
+    Stop AV Plugin
+    Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
+    Run Process  chmod  000  ${MACHINEID_FILE}
+    Start AV Plugin and Force SUSI to be initialized
+    Sophos Threat Detector Log Contains With Offset  Failed to read EndpointId - using default value
+
+
 SUSI Is Given Empty EndpointId
     [Tags]  FAULT INJECTION
     Mark Sophos Threat Detector Log
