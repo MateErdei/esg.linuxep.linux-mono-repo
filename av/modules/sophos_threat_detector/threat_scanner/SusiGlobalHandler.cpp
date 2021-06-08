@@ -173,6 +173,7 @@ bool SusiGlobalHandler::internal_update(const std::string& path, const std::stri
     else if (res == SUSI_S_OK)
     {
         LOGINFO("Threat scanner successfully updated");
+        logSusiVersion();
     }
     else
     {
@@ -226,6 +227,7 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
     else
     {
         LOGSUPPORT("Initialising Global Susi successful");
+        logSusiVersion();
         m_susiInitialised.store(true, std::memory_order_release); // susi init is now saved
         if (m_updatePending.load(std::memory_order_acquire))
         {
@@ -240,4 +242,21 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
 bool SusiGlobalHandler::susiIsInitialized()
 {
     return m_susiInitialised.load(std::memory_order_acquire);
+}
+
+void SusiGlobalHandler::logSusiVersion()
+{
+    SusiVersionResult* result = nullptr;
+    auto res = SUSI_GetVersion(&result);
+    if(res == SUSI_S_OK)
+    {
+        LOGINFO("SUSI Libraries loaded: " << result->versionResultJson);
+    }
+    else
+    {
+        std::ostringstream ost;
+        ost << "Failed to retrieve SUSI version: 0x" << std::hex << res << std::dec;
+        LOGERROR(ost.str());
+        throw std::runtime_error(ost.str());
+    }
 }

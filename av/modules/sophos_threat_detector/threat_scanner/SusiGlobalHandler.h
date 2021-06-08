@@ -68,6 +68,8 @@ namespace threat_scanner
 
         bool acquireLock(datatypes::AutoFd& fd);
         bool releaseLock(datatypes::AutoFd& fd);
+
+        void logSusiVersion();
     };
     using SusiGlobalHandlerSharePtr = std::shared_ptr<SusiGlobalHandler>;
 }
