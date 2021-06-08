@@ -121,7 +121,7 @@ ScanNow Suite TearDown
     Terminate All Processes  kill=True
 
 ScanNow Test Setup
-    Check Sophos Threat Detector Running
+    Require Sophos Threat Detector Running
     register cleanup  Delete Eicars From Tmp
     Check AV Plugin Log exists
     Mark AV Log

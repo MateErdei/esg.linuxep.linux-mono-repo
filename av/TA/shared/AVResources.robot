@@ -63,6 +63,15 @@ Check AV Plugin Running
 Check Sophos Threat Detector Running
     Run Shell Process  pidof ${SOPHOS_THREAT_DETECTOR_BINARY}   OnError=sophos_threat_detector not running
 
+Start Sophos Threat Detector
+    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Register Cleanup   Terminate Process  ${threat_detector_handle}
+    Wait until threat detector running
+
+Require Sophos Threat Detector Running
+    ${result} =   Run Process  pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}  timeout=3
+    Run Keyword If  ${result.rc} == ${0}  Start Sophos Threat Detector
+
 Check AV Plugin Not Running
     ${result} =   Run Process  pidof  ${PLUGIN_BINARY}  timeout=3
     Should Not Be Equal As Integers  ${result.rc}  ${0}

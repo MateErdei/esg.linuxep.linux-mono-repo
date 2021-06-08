@@ -19,9 +19,7 @@ ${ACTION_CONTENT} =  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/act
 Restart threat detector once it stops
     [Arguments]  ${timeout}=30
     Wait until threat detector not running  timeout=${timeout}
-    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
-    Register Cleanup   Terminate Process  ${threat_detector_handle}
-    Wait until threat detector running
+    Start Sophos Threat Detector
 
 Send AV Policy
     [Arguments]  ${policy_contents}  ${timeout}=30  ${with_restart}=True
