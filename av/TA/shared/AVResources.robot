@@ -419,6 +419,7 @@ Require Plugin Installed and Running
     Install AV if not installed
     Start AV Plugin if not running
     Start Sophos Threat Detector if not running
+    Wait Until File exists  ${THREAT_DETECTOR_LOG_PATH}
 
 Display All SSPL Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
