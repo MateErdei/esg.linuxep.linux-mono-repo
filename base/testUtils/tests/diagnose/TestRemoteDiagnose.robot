@@ -49,7 +49,26 @@ Test Remote Diagnose can process SDU action
         ...  5 secs
         ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
 
+Test Remote Diagnose can handle two SDU actions
+    Override Local LogConf File for a component   DEBUG  global
+    Run Process  systemctl  restart  sophos-spl
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  1 secs
+        ...  Check Expected Base Processes Are Running
+
+    Simulate SDU Action Now
+    Simulate SDU Action Now
+    Wait Until Keyword Succeeds
+            ...  60 secs
+            ...  10 secs
+            ...  check for processed tar files
+
+
 *** Keywords ***
+check for processed tar files
+    ${count} =  Count Files In Directory  ${SOPHOS_INSTALL}/base/remote-diagnose/output
+    Should Be Equal As Integers  2   ${count}
 Setup Fake Cloud
     Start Local Cloud Server  --initial-alc-policy  ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
     Generate Local Fake Cloud Certificates

@@ -39,6 +39,7 @@ namespace RemoteDiagnoseImpl
         void processAction(const std::string& actionXml);
         void sendFinishedStatus();
         void processZip();
+        bool m_processing = false;
 
         std::future<void> m_monitor;
         std::shared_ptr<ITaskQueue> m_queueTask;

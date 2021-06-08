@@ -21,6 +21,7 @@ namespace RemoteDiagnoseImpl
             DiagnoseTimedOut,
             DiagnoseFinished,
             DiagnoseFailedToStart,
+            Undefined,
         };
         TaskType taskType;
         std::string Content;

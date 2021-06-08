@@ -13,6 +13,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/XmlUtilities/AttributesMap.h>
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/FileSystem/IFileSystemException.h>
 
 namespace
 {
@@ -48,8 +50,6 @@ namespace
         return result;
     }
 
-
-
 } // namespace
 
 namespace RemoteDiagnoseImpl
@@ -63,37 +63,46 @@ namespace RemoteDiagnoseImpl
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_diagnoseRunner(std::move(diagnoseRunner))
-
-
     {
     }
 
     void PluginAdapter::mainLoop()
     {
-        //m_callback->setRunning(true);
         LOGINFO("Entering the main loop");
 
         while (true)
         {
-            Task task = m_queueTask->pop(m_diagnoseRunner->isRunning());
+            Task task = m_queueTask->pop(m_processing);
             switch (task.taskType)
             {
                 case Task::TaskType::STOP:
                     LOGDEBUG("Process task STOP");
+                    m_processing = false;
                     return;
                 case Task::TaskType::ACTION:
                     LOGDEBUG("Process task ACTION");
+                    m_processing = true;
                     processAction(task.Content);
                     break;
                 case Task::TaskType::DiagnoseFailedToStart:
+                    LOGDEBUG("Process task DiagnoseFailedToStart");
+                    m_processing = false;
                     break;
                 case Task::TaskType::DiagnoseMonitorDetached:
+                    LOGDEBUG("Process task DiagnoseMonitorDetached");
+                    m_processing = false;
                     break;
                 case Task::TaskType::DiagnoseFinished:
+                    LOGDEBUG("Process task DiagnoseFinished");
                     processZip();
+                    m_processing = false;
                     break;
                 case Task::TaskType::DiagnoseTimedOut:
+                    LOGDEBUG("Process task DiagnoseTimedOut");
                     sendFinishedStatus();
+                    m_processing = false;
+                    break;
+                case Task::TaskType::Undefined:
                     break;
                 default:
                     break;
@@ -131,16 +140,45 @@ namespace RemoteDiagnoseImpl
         if (!m_diagnoseRunner->isRunning()) {
             m_diagnoseRunner->triggerDiagnose();
         }
+        unsigned int waited = 0;
+        unsigned int waitPeriod = 1000; // 1ms for use with usleep
+        unsigned int target = 100 * 1000; //  wait 100 ms for diagnose to start
+        while (!m_diagnoseRunner->isRunning() && waited < target)
+        {
+            usleep(waitPeriod);
+            waited += waitPeriod;
+        }
     }
 
     void PluginAdapter::processZip()
     {
         LOGINFO("Diagnose finished");
         sendFinishedStatus();
+        std::string output = Common::ApplicationConfiguration::applicationPathManager().getDiagnoseOutputPath();
+        auto fs = Common::FileSystem::fileSystem();
+        std::string filepath = Common::FileSystem::join(output,"sspl.tar.gz");
+
+        Common::UtilityImpl::FormattedTime m_formattedTime;
+        std::string timestamp = m_formattedTime.currentTime();
+        std::replace(timestamp.begin(), timestamp.end(), ' ', '_');
+        std::string tarfileName = "sspl-diagnose_" + timestamp + ".tar.gz";
+
+        std::string processedfilepath = Common::FileSystem::join(output,tarfileName);
+
+        try
+        {
+            fs->moveFile(filepath, processedfilepath);
+        }
+        catch (Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGERROR("failed to process zip file due to error: " << exception.what());
+        }
     }
 
     void PluginAdapter::sendFinishedStatus()
     {
+        //TODO LINUXDAR-871 update mcs to handle more than one status sent during one command poll time
+        std::this_thread::sleep_for(std::chrono::seconds(10));
         std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
                 "ServerProtectionLinux-Base-component");
         std::string version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile, "PRODUCT_VERSION");
