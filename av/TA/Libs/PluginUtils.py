@@ -52,3 +52,6 @@ def start_sophos_threat_detector_if_not_running():
     if pid == -1:
         __start_plugin("threat_detector")
         ProcessUtils.wait_for_pid(threat_detector_exe, 15)
+
+    threat_detector_log = os.path.join(PLUGIN_INSTALL, "chroot", "log", "sophos_threat_detector.log")
+    BuiltIn().run_keyword("Wait Until File exists", threat_detector_log)
