@@ -17,11 +17,11 @@ namespace RemoteDiagnoseImpl
         {
             ACTION,
             STOP,
-            DiagnoseMonitorDetached,
-            DiagnoseTimedOut,
-            DiagnoseFinished,
-            DiagnoseFailedToStart,
-            Undefined,
+            DIAGNOSE_MONITOR_DETACHED,
+            DIAGNOSE_TIMED_OUT,
+            DIAGNOSE_FINISHED,
+            DIAGNOSE_FAILED_TO_START,
+            UNDEFINED,
         };
         TaskType taskType;
         std::string Content;

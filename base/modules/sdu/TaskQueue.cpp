@@ -45,7 +45,7 @@ namespace RemoteDiagnoseImpl
         else
         {
             Task task;
-            task.taskType = Task::TaskType::Undefined;
+            task.taskType = Task::TaskType::UNDEFINED;
             std::list<Task>::iterator iter;
                 for (iter = m_list.begin(); iter != m_list.end(); ++iter)
                 {

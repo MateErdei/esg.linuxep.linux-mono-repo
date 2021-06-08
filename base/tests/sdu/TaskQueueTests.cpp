@@ -26,9 +26,9 @@ TEST(TaskQueueTests, pushedTaskCanBePopped) // NOLINT
 TEST(TaskQueueTests, multiplePushedTasksCanBePopped) // NOLINT
 {
     RemoteDiagnoseImpl::TaskQueue queue;
-    const std::vector<RemoteDiagnoseImpl::Task> tasksIn = { {RemoteDiagnoseImpl::Task::TaskType::ACTION,""},
-                                                            {RemoteDiagnoseImpl::Task::TaskType::STOP,""},
-            {RemoteDiagnoseImpl::Task::TaskType::DiagnoseTimedOut,""}};
+    const std::vector<RemoteDiagnoseImpl::Task> tasksIn = { {RemoteDiagnoseImpl::Task::TaskType::ACTION, ""},
+                                                            {RemoteDiagnoseImpl::Task::TaskType::STOP,   ""},
+            {RemoteDiagnoseImpl::Task::TaskType::DIAGNOSE_TIMED_OUT,                                     ""}};
 
     for (auto task : tasksIn)
     {

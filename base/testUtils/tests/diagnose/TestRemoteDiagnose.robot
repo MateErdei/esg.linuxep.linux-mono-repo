@@ -34,12 +34,13 @@ Test Remote Diagnose can process SDU action
     Wait Until Keyword Succeeds
         ...  10 secs
         ...  1 secs
-        ...  Check Log Contains   processing action    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
+        ...  Check Log Contains   Processing action    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
 
     Wait Until Keyword Succeeds
         ...  30 secs
         ...  10 secs
-        ...  directory should not be empty   ${SOPHOS_INSTALL}/base/remote-diagnose/output
+        ...  Directory Should Not Be Empty   ${SOPHOS_INSTALL}/base/remote-diagnose/output
+
     Wait Until Keyword Succeeds
         ...  20 secs
         ...  5 secs
@@ -50,19 +51,12 @@ Test Remote Diagnose can process SDU action
         ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
 
 Test Remote Diagnose can handle two SDU actions
-    Override Local LogConf File for a component   DEBUG  global
-    Run Process  systemctl  restart  sophos-spl
-    Wait Until Keyword Succeeds
-        ...  10 secs
-        ...  1 secs
-        ...  Check Expected Base Processes Are Running
-
     Simulate SDU Action Now
     Simulate SDU Action Now
     Wait Until Keyword Succeeds
             ...  60 secs
             ...  10 secs
-            ...  check for processed tar files
+            ...  Check For Processed Tar Files
 
 
 *** Keywords ***

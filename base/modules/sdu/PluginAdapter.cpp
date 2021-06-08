@@ -84,25 +84,25 @@ namespace RemoteDiagnoseImpl
                     m_processing = true;
                     processAction(task.Content);
                     break;
-                case Task::TaskType::DiagnoseFailedToStart:
+                case Task::TaskType::DIAGNOSE_FAILED_TO_START:
                     LOGDEBUG("Process task DiagnoseFailedToStart");
                     m_processing = false;
                     break;
-                case Task::TaskType::DiagnoseMonitorDetached:
+                case Task::TaskType::DIAGNOSE_MONITOR_DETACHED:
                     LOGDEBUG("Process task DiagnoseMonitorDetached");
                     m_processing = false;
                     break;
-                case Task::TaskType::DiagnoseFinished:
+                case Task::TaskType::DIAGNOSE_FINISHED:
                     LOGDEBUG("Process task DiagnoseFinished");
                     processZip();
                     m_processing = false;
                     break;
-                case Task::TaskType::DiagnoseTimedOut:
+                case Task::TaskType::DIAGNOSE_TIMED_OUT:
                     LOGDEBUG("Process task DiagnoseTimedOut");
                     sendFinishedStatus();
                     m_processing = false;
                     break;
-                case Task::TaskType::Undefined:
+                case Task::TaskType::UNDEFINED:
                     break;
                 default:
                     break;
@@ -113,7 +113,7 @@ namespace RemoteDiagnoseImpl
     }
 
     void PluginAdapter::processAction(const std::string& actionXml) {
-        LOGINFO("processing action: " << actionXml);
+        LOGDEBUG("Processing action: " << actionXml);
         Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(actionXml);
 
         auto action = attributesMap.lookup("a:action");
@@ -124,12 +124,9 @@ namespace RemoteDiagnoseImpl
             throw std::runtime_error(errorMessage.str());
         }
 
-//        std::string url = action.value("uploadUrl");
-//        std::string jsonString = "{\"url\":\""+url+"\"}";
-//        auto fileSystem = Common::FileSystem::fileSystem();
-//
-//        fileSystem->writeFileAtomically(Common::ApplicationConfiguration::applicationPathManager().getDiagnoseConfig(),jsonString,Common::ApplicationConfiguration::applicationPathManager().getTempPath());
-        //start diagnose
+        std::string url = action.value("uploadUrl");
+        LOGDEBUG("Upload url: " << url);
+
         std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
                 "ServerProtectionLinux-Base-component");
         std::string version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile, "PRODUCT_VERSION");
@@ -137,17 +134,12 @@ namespace RemoteDiagnoseImpl
         std::string newStatus = replaceAll(statusTemplate, "@VERSION@", version);
         newStatus = replaceAll(newStatus, "@IS_RUNNING@", "1");
         m_baseService->sendStatus("SDU", newStatus, newStatus);
-        if (!m_diagnoseRunner->isRunning()) {
+
+        if (!m_diagnoseRunner->isRunning())
+        {
             m_diagnoseRunner->triggerDiagnose();
         }
-        unsigned int waited = 0;
-        unsigned int waitPeriod = 1000; // 1ms for use with usleep
-        unsigned int target = 100 * 1000; //  wait 100 ms for diagnose to start
-        while (!m_diagnoseRunner->isRunning() && waited < target)
-        {
-            usleep(waitPeriod);
-            waited += waitPeriod;
-        }
+
     }
 
     void PluginAdapter::processZip()

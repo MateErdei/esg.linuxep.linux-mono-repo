@@ -37,7 +37,7 @@ namespace RemoteDiagnoseImpl
             std::tuple<int, std::string> startDiagnoseServiceResult = startDiagnoseService();
             if (std::get<0>(startDiagnoseServiceResult) != 0)
             {
-                schedulerTask.taskType = Task::TaskType::DiagnoseFailedToStart;
+                schedulerTask.taskType = Task::TaskType::DIAGNOSE_FAILED_TO_START;
                 schedulerTask.Content = std::get<1>(startDiagnoseServiceResult);
                 m_schedulerTaskQueue->push(schedulerTask);
                 LOGINFO("DiagnoseService failed to start with error: " + std::get<1>(startDiagnoseServiceResult));
@@ -53,12 +53,12 @@ namespace RemoteDiagnoseImpl
             {
                 if (m_listener.wasAborted())
                 {
-                    schedulerTask.taskType = Task::TaskType::DiagnoseMonitorDetached;
+                    schedulerTask.taskType = Task::TaskType::DIAGNOSE_MONITOR_DETACHED;
                     LOGINFO("Diagnose Service not monitoring Diagnose execution.");
                 }
                 else
                 {
-                    schedulerTask.taskType = Task::TaskType::DiagnoseTimedOut;
+                    schedulerTask.taskType = Task::TaskType::DIAGNOSE_TIMED_OUT;
                     LOGWARN("Diagnose Service timed out.");
                 }
 
@@ -69,7 +69,7 @@ namespace RemoteDiagnoseImpl
             logIfDiagnoseServiceFailed();
 
             // If update result was successfully generated within timeout period then report file location and return.
-            schedulerTask.taskType = Task::TaskType::DiagnoseFinished;
+            schedulerTask.taskType = Task::TaskType::DIAGNOSE_FINISHED;
             schedulerTask.Content = reportFileLocation;
             m_schedulerTaskQueue->push(schedulerTask);
             LOGSUPPORT("Diagnose Service finished.");
