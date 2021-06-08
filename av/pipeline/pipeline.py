@@ -296,7 +296,9 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     global BRANCH_NAME
     BRANCH_NAME = context.branch
-    do_coverage = parameters.run_tests_on_coverage == 'yes' or has_coverage_build(BRANCH_NAME)
+    do_coverage = parameters.run_tests_on_coverage == 'yes' \
+                  or has_coverage_build(BRANCH_NAME) \
+                  or parameters.run_coverage != 'false'
     coverage_build = context.artifact.build()
     nine_nine_nine_mode = '999'
 

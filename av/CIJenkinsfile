@@ -3,6 +3,7 @@
 def params = [
     string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release|coverage]'),
     booleanParam(name: 'run_tests', defaultValue: true, description: 'Run Test Automation'),
+    booleanParam(name: 'run_coverage', defaultValue: false, description: 'Run Coverage'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'av_plugin'; buildParameters = params }
