@@ -324,7 +324,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     if run_tests:
         with stage.parallel('testing'):
-            test_inputs = get_inputs(context, av_build, parameters)
+            test_inputs = get_inputs(context, av_build)
             ubuntu1804_machine_component = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
             ubuntu2004_machine_component = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
             centos7_machine_component = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
@@ -352,7 +352,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
             if do_coverage:
                 with stage.parallel('coverage'):
-                    coverage_inputs = get_inputs(context, coverage_build, parameters, coverage=True)
+                    coverage_inputs = get_inputs(context, coverage_build, coverage=True)
                     machine_bullseye_test = tap.Machine('ubuntu1804_x64_server_en_us',
                                                         inputs=coverage_inputs,
                                                         platform=tap.Platform.Linux)
