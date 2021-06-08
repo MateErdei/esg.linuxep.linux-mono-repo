@@ -146,13 +146,12 @@ def unified_artifact(context: tap.PipelineContext, component: str, branch: str, 
     return artifact
 
 
-def get_inputs(context: tap.PipelineContext, build: ArtisanInput, parameters: tap.Parameters, coverage=False) -> Dict[str, Input]:
+def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False) -> Dict[str, Input]:
     print(str(build))
     supplement_branch = "released"
     output = 'output'
     # override the av input and get the bullseye coverage build instead
     if coverage:
-        assert has_coverage_build(context.branch) or parameters.run_coverage != "false"
         output = 'coverage'
 
     test_inputs = dict(

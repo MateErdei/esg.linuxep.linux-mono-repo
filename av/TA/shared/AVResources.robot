@@ -414,12 +414,15 @@ Install AV Directly from SDDS
     ${log_contents} =  Get File  ${install_log}
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\noutput: \n${log_contents}"
 
+Start Sophos Threat Detector if not running
+    PLuginUtils.Start Sophos Threat Detector if not running
+    Wait Until File exists  ${THREAT_DETECTOR_LOG_PATH}
+
 Require Plugin Installed and Running
     Install Base if not installed
     Install AV if not installed
     Start AV Plugin if not running
     Start Sophos Threat Detector if not running
-    Wait Until File exists  ${THREAT_DETECTOR_LOG_PATH}
 
 Display All SSPL Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
