@@ -30,7 +30,7 @@ namespace RemoteDiagnoseImpl
     {
         LOGSUPPORT("Shutdown signal received");
 
-        m_taskQueue->pushStop();
+        m_taskQueue->pushPriority(Task{ Task::TaskType::STOP, "" });
     }
 
     Common::PluginApi::StatusInfo PluginCallback::getStatus(const std

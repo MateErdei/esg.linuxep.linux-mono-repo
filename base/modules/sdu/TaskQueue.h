@@ -22,7 +22,7 @@ namespace RemoteDiagnoseImpl
         void push(Task task) override;
         Task pop() override;
         Task pop(bool isRunning) override;
-        void pushStop() override;
+        void pushPriority(Task task) override;
 
     private:
         std::mutex m_mutex;

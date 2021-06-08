@@ -30,7 +30,7 @@ namespace RemoteDiagnoseImpl
     {
     public:
         virtual void push(Task task) = 0;
-        virtual void pushStop() = 0;
+        virtual void pushPriority(Task task) = 0;
         virtual Task pop() = 0;
         virtual Task pop(bool isRunning) = 0;
     };

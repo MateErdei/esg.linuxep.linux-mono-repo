@@ -5,8 +5,6 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "TaskQueue.h"
-#include "Logger.h"
-
 
 namespace RemoteDiagnoseImpl
 {
@@ -17,11 +15,13 @@ namespace RemoteDiagnoseImpl
         m_cond.notify_one();
     }
 
-    void TaskQueue::pushStop()
+    void TaskQueue::pushPriority(Task task)
     {
-        Task stopTask{ .taskType = Task::TaskType::STOP, .Content = "" };
-        push(stopTask);
+        std::lock_guard<std::mutex> lck(m_mutex);
+        m_list.push_front(task);
+        m_cond.notify_one();
     }
+
     Task TaskQueue::pop()
     {
         std::unique_lock<std::mutex> lck(m_mutex);
