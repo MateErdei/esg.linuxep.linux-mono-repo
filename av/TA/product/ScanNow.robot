@@ -62,12 +62,6 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
     ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 
-    # Start scan now - abort or timeout...
-    Run Scan Now Scan With No Exclusions
-    AV Plugin Log Contains With Offset  Received new Action
-    Wait Until AV Plugin Log Contains With Offset  Evaluating Scan Now
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
-
     # Rename the sophos threat detector launcher so that it cannot be restarted
     Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
     register cleanup  Start AV
@@ -75,10 +69,12 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     register cleanup  Move File  ${DETECTOR_BINARY}_moved  ${DETECTOR_BINARY}
     register cleanup  Dump Log  ${SCANNOW_LOG_PATH}
 
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  3 secs
-    ...  File Log Contains  ${SCANNOW_LOG_PATH}  Scanning
+    # Start scan now - abort or timeout...
+    Run Scan Now Scan With No Exclusions  with_restart=False
+    AV Plugin Log Contains With Offset  Received new Action
+    Wait Until AV Plugin Log Contains With Offset  Evaluating Scan Now
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
+
     ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
     Run Process   /bin/kill   -SIGSEGV   ${output}
     sleep  60  Waiting for the socket to timeout

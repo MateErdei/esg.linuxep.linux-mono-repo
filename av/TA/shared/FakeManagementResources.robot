@@ -24,9 +24,9 @@ Restart threat detector once it stops
     Wait until threat detector running
 
 Send AV Policy
-    [Arguments]  ${policy_contents}  ${timeout}=30
+    [Arguments]  ${policy_contents}  ${timeout}=30  ${with_restart}=True
     Send Plugin Policy  av  sav  ${policy_contents}
-    Restart threat detector once it stops  timeout=${timeout}
+    Run Keyword If  '${with_restart}' == 'True'  Restart threat detector once it stops  timeout=${timeout}
 
 Run Scheduled Scan
     ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
@@ -57,8 +57,9 @@ Run Scan Now Scan For Excluded Files Test
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan With No Exclusions
+    [Arguments]  ${with_restart}=True
     ${policy_contents} =  Get Sav Policy With No Exclusions  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
-    Send AV Policy  ${policy_contents}
+    Send AV Policy  ${policy_contents}  with_restart=${with_restart}
     Wait until scheduled scan updated With Offset
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 

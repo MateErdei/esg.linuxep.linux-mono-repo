@@ -370,13 +370,14 @@ Wait until threat detector running
     ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
 Wait until threat detector running with offset
+    [Arguments]  ${timeout}=60
     Wait Until Keyword Succeeds
-    ...  30 secs
+    ...  ${timeout} secs
     ...  3 secs
     ...  Check Sophos Threat Detector Running
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...  UnixSocket <> Starting listening on socket: /var/process_control_socket
-    ...  timeout=60
+    ...  timeout=${timeout}
 
 Wait until threat detector not running
     [Arguments]  ${timeout}=30
