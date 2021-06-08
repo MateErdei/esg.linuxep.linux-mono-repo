@@ -161,10 +161,7 @@ namespace diagnose
             throw std::invalid_argument("tar file command failed");
         }
 
-        std::string chown =
-                "chown sophos-spl-user:sophos-spl-group " + tarfiletemp ;
-        ret = system(chown.c_str());
-        Common::FileSystem::filePermissions()->chown(tarfiletemp, sophos::user(), sophos::group());
+        Common::FileSystem::filePermissions()->chown(tarfiletemp, sophos::localUser(), sophos::group());
         fileSystem()->moveFile(tarfiletemp, tarfile);
         if (!fileSystem()->isFile(tarfile))
         {
