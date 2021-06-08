@@ -158,7 +158,7 @@ SUSI Is Given Non-Permission EndpointId
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
     Run Process  chmod  000  ${MACHINEID_FILE}
     Start AV Plugin and Force SUSI to be initialized
-    Sophos Threat Detector Log Contains With Offset  Failed to read EndpointId - using default value
+    Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
 
 
 SUSI Is Given Empty EndpointId
