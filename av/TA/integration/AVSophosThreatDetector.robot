@@ -18,6 +18,7 @@ Test Teardown   AVSophosThreatDetector Test TearDown
 ${CLEAN_STRING}     not an eicar
 ${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
 ${CUSTOMERID_FILE}  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
+${MACHINEID_CHROOT_FILE}  ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 
 
@@ -151,12 +152,23 @@ Threat Detector prolongs timeout if a scan is requested within the configured ti
     Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
 
 
-SUSI Is Given Non-Permission EndpointId
+Threat Detector Is Given Non-Permission EndpointId
     [Tags]  FAULT INJECTION
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
     Run Process  chmod  000  ${MACHINEID_FILE}
+    Start AV Plugin and Force SUSI to be initialized
+    Threat Detector Log Should Not Contain With Offset  Failed to read machine ID - using default value
+
+
+SUSI Is Given Non-Permission EndpointId
+    [Tags]  FAULT INJECTION
+    Mark Sophos Threat Detector Log
+    Stop AV Plugin
+    Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
+    ${handle} =  Start Process  ${BASH_SCRIPTS_PATH}/untilFail.sh  chmod 000 ${MACHINEID_CHROOT_FILE}
+    Register Cleanup  Terminate Process  ${handle}
     Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
 
@@ -353,6 +365,8 @@ SUSI Is Given Non-Permission CustomerId
     Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baeffaa
     Run Process  chmod  000  ${CUSTOMERID_FILE}
     Start AV Plugin and Force SUSI to be initialized
+    ${log} =  get file  ${THREAT_DETECTOR_LOG_PATH}
+    Log To Console  ${log}
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
 
 
