@@ -545,7 +545,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
     Configure scan now
-    Require Sophos Threat Detector Running
+    Start Sophos Threat Detector if not running
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
@@ -556,7 +556,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
 
     Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  $${SOPHOS_THREAT_DETECTOR_BINARY}_moved
 
-    Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central  timeout=60
+    Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central  timeout=120
     Register Cleanup    Uninstall and full reinstall
     Run Process   /bin/kill   -SIGSEGV   ${output}
 
