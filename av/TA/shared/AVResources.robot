@@ -71,7 +71,6 @@ Run Sophos Threat Detector Directly
 
 Restart threat detector once it stops
     [Arguments]  ${timeout}=240
-    Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system/susi configuration has changed
     Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
     Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     Run Sophos Threat Detector Directly
@@ -518,13 +517,15 @@ Wait Until Threat Detector Log exists
 Wait until scheduled scan updated
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans  timeout=240
-    ${status}  ${value}=  Run Keyword And Ignore Error  AV Plugin Log Contains  SAV policy received for the first time.
+    Run Keyword And Ignore Error  AV Plugin Log Contains  SAV policy received for the first time.
+    ${status}  ${value}=  Run Keyword And Ignore Error  Wait Until AV Plugin Log Contains  Restarting sophos_threat_detector as the system/susi configuration has changed
     Run Keyword If  '${status}' == 'PASS'  Restart threat detector once it stops
 
 Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=240
-    ${status}  ${value}=  Run Keyword And Ignore Error  AV Plugin Log Contains With Offset  SAV policy received for the first time.
+    Run Keyword And Ignore Error  AV Plugin Log Contains With Offset  SAV policy received for the first time.
+    ${status}  ${value}=  Run Keyword And Ignore Error  Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system/susi configuration has changed
     Run Keyword If  '${status}' == 'PASS'  Restart threat detector once it stops
 
 Configure Scan Exclusions Everything Else

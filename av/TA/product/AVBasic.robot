@@ -43,7 +43,7 @@ AV plugin Can Send Status
     Should Contain  ${status}   <product-version>${version}</product-version>
 
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="123" policyType="2"/></config>
-    Send AV Policy  ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
 
     Wait For Plugin Status  av  SAV  RevID="123"  Res="Same"  <product-version>${version}</product-version>
 
@@ -52,7 +52,7 @@ AV Plugin Can Process Scan Now
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send AV Policy  ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
     AV Plugin Log Contains With Offset  Received new Action
@@ -69,7 +69,7 @@ AV Plugin Scan Now Updates Telemetry Count
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send AV Policy  ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
     AV Plugin Log Contains With Offset  Received new Action
@@ -171,7 +171,7 @@ AV Plugin Scans local secondary mount only once
     ${scanObjectSet} =  Policy Fragment FS Types  hardDrives=true
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${scanName}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send AV Policy  ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: ${scanName}   timeout=30
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${scanName}     timeout=90
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${scanName}    timeout=60
@@ -236,7 +236,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}<filePath>${eicar_path1}</filePath><filePath>/tmp_test/eicar.?</filePath><filePath>/tmp_test/*.txt</filePath><filePath>eicarStr</filePath></filePathSet></posixExclusions>
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send AV Policy  ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=240  interval=5
     AV Plugin Log Contains  Starting scan MyScan
     File Should Exist  ${myscan_log}
@@ -394,8 +394,8 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
 
     ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
     Log    ${policyContent}
-    Send AV Policy  ${policyContent}
-
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait until scheduled scan updated With Offset
     ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
 
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
@@ -418,10 +418,11 @@ AV Plugin requests policies at startup
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
-    Register Cleanup   Terminate Process  ${threat_detector_handle}
-    ${av_plugin_handle} =  Start Process  ${AV_PLUGIN_BIN}
-    Register Cleanup   Terminate Process  ${AV_PLUGIN_HANDLE}
+    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
+    Register Cleanup   Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
+    Register Cleanup   Terminate Process  ${AV_PLUGIN_HANDLE}
     Check AV Plugin Installed
 
 Stop AV
@@ -484,7 +485,8 @@ Test Remote Share
     ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=false
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send AV Policy  ${policyContent}
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningDisabled}  timeout=120  interval=5
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningDisabled}  timeout=240  interval=5
     File Should Exist  ${remoteFSscanningDisabled_log}

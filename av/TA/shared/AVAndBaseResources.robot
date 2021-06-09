@@ -70,7 +70,8 @@ Configure and check scan now with lookups disabled
 Configure scan now
     Mark Sophos Threat Detector Log
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
-    Wait until scheduled scan updated
+    Wait Until AV Plugin Log exists  timeout=30
+    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=240
 
 Configure scan now with lookups disabled
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
@@ -81,7 +82,8 @@ Configure scan now with lookups disabled
     Check avscanner can detect eicar
 
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be disabled   timeout=10
-    Wait until scheduled scan updated
+    Wait Until AV Plugin Log exists  timeout=30
+    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=240
 
 Check scan now with Offset
     Mark AV Log
