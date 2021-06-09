@@ -1,7 +1,6 @@
 o777, root, root, /opt/sophos-spl/base/bin/CommsComponent
 o777, root, root, /opt/sophos-spl/base/bin/manifestdiff
 o777, root, root, /opt/sophos-spl/base/bin/registerCentral
-o777, root, root, /opt/sophos-spl/base/bin/SDU
 o777, root, root, /opt/sophos-spl/base/bin/sophos_watchdog
 o777, root, root, /opt/sophos-spl/base/bin/SulDownloader
 o777, root, root, /opt/sophos-spl/base/bin/versionedcopy

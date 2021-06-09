@@ -29,7 +29,6 @@ o660, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/status/SDU_sta
 o700, root, root, /opt/sophos-spl/base/bin/CommsComponent.0
 o700, root, root, /opt/sophos-spl/base/bin/manifestdiff.0
 o700, root, root, /opt/sophos-spl/base/bin/registerCentral.0
-o700, root, root, /opt/sophos-spl/base/bin/SDU.0
 o700, root, root, /opt/sophos-spl/base/bin/sophos_watchdog.0
 o700, root, root, /opt/sophos-spl/base/bin/SulDownloader.0
 o700, root, root, /opt/sophos-spl/base/bin/versionedcopy.0
