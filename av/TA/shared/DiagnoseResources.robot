@@ -41,7 +41,7 @@ Check Diagnose Collects Correct AV Files
     Log  ${result.stdout}
 
     ${AVPFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av
-    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av/log/sophos_threat_detector
+    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av/chroot/log
 
     Should Contain  ${AVPFiles}  av.log
     Should Contain  ${AVPFiles}  Scan Now.log
