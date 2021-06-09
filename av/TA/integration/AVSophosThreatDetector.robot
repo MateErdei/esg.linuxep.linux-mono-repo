@@ -167,7 +167,7 @@ SUSI Is Given Non-Permission EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
-    ${handle} =  Start Process  ${BASH_SCRIPTS_PATH}/untilFail.sh  chmod 000 ${MACHINEID_CHROOT_FILE}
+    ${handle} =  Start Process  bash  ${BASH_SCRIPTS_PATH}/untilSuccess.sh  chmod 000 ${MACHINEID_CHROOT_FILE}
     Register Cleanup  Terminate Process  ${handle}
     Start AV Plugin and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
@@ -365,8 +365,6 @@ SUSI Is Given Non-Permission CustomerId
     Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baeffaa
     Run Process  chmod  000  ${CUSTOMERID_FILE}
     Start AV Plugin and Force SUSI to be initialized
-    ${log} =  get file  ${THREAT_DETECTOR_LOG_PATH}
-    Log To Console  ${log}
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
 
 

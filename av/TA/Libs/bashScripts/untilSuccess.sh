@@ -1,5 +1,6 @@
 #!/bin/bash
 $@
-while [ $? -ne 0 ]; do
+while [[ $? -ne 0 ]];
+do
     $@
 done
