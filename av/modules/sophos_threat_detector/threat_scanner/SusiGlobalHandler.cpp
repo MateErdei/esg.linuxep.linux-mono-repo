@@ -173,6 +173,7 @@ bool SusiGlobalHandler::internal_update(const std::string& path, const std::stri
     else if (res == SUSI_S_OK)
     {
         LOGINFO("Threat scanner successfully updated");
+        logSusiVersion();
     }
     else
     {
@@ -233,7 +234,10 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
             internal_update(m_updatePath, m_lockFile);
             LOGDEBUG("Threat scanner pending update completed");
         }
-        logSusiVersion();
+        else
+        {
+            logSusiVersion();
+        }
     }
     return true;
 }
