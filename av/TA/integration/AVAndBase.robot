@@ -810,20 +810,22 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
 
 Sophos Threat Detector always writes susi startup settings following a restart
-    Restart sophos_threat_detector
-    Check Plugin Installed and Running
+    Restart AV Plugin And Clear The Logs For Integration Tests
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=60
-    Mark AV Log
-    Mark Sophos Threat Detector Log
 
     ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
+    Mark AV Log
+    Mark Sophos Threat Detector Log
     Send Sav Policy To Base  tempSavPolicy.xml
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
+    AV Plugin Log Contains  SAV policy received for the first time.
+    Run Keyword And Ignore Error  Wait Until AV Plugin Log Contains  Restarting sophos_threat_detector as the system/susi configuration has changed
+    Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=120

@@ -59,6 +59,10 @@ Scan Now Honours Exclusions
 
 Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     [Timeout]  10min
+    Stop AV
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    Start AV
     register cleanup  Start AV
     register cleanup  Stop AV
     register cleanup  Dump Log  ${SCANNOW_LOG_PATH}

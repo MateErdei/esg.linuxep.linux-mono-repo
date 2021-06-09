@@ -70,8 +70,6 @@ Run Sophos Threat Detector Directly
     Wait until threat detector running
 
 Restart threat detector once it stops
-    [Arguments]  ${timeout}=240
-    Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
     Wait For Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     Run Sophos Threat Detector Directly
 
