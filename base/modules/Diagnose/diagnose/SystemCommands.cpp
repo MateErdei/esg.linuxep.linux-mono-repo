@@ -162,7 +162,7 @@ namespace diagnose
             throw std::invalid_argument("tar file command failed");
         }
 
-        Common::FileSystem::filePermissions()->chown(tarfiletemp, sophos::sduUser(), sophos::group());
+        Common::FileSystem::filePermissions()->chown(tarfiletemp, sophos::sduUser(), "root");
         Common::FileSystem::filePermissions()->chmod(tarfiletemp,S_IRUSR | S_IWUSR | S_IRGRP);
         fileSystem()->moveFile(tarfiletemp, tarfile);
         if (!fileSystem()->isFile(tarfile))
