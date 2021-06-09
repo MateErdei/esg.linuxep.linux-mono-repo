@@ -45,6 +45,9 @@ def start_av_plugin_if_not_running():
         __start_plugin("av")
         ProcessUtils.wait_for_pid(av_exe, 15)
 
+    av_log = os.path.join(PLUGIN_INSTALL, "log", "av.log")
+    BuiltIn().run_keyword("Wait Until File exists", av_log)
+
 def start_sophos_threat_detector_if_not_running():
     PLUGIN_INSTALL = get_plugin_install()
     threat_detector_exe = os.path.join(PLUGIN_INSTALL, "sbin", "sophos_threat_detector")
