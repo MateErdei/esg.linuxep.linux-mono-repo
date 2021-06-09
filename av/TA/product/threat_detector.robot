@@ -7,6 +7,7 @@ Library         OperatingSystem
 Library         String
 
 Library         ../Libs/AVScanner.py
+Library         ../Libs/LockFile.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/LogUtils.py
 
@@ -65,7 +66,7 @@ Threat Detector Log Rotates
     Increase Threat Detector Log To Max Size
     Start AV
     Wait Until Created   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1   timeout=10s
-    Wait Until Sophos Threat Detector Log Contains   ThreatScanner
+    Wait Until Sophos Threat Detector Log Contains   UnixSocket
     Stop AV
 
     ${result} =  Run Process  ls  -altr  ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
@@ -108,6 +109,8 @@ Threat detector is killed gracefully
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting
     Wait Until Sophos Threat Detector Log Contains  Closing scanning socket thread
     Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result =0
+    Threat Detector Does Not Log Contain  Failed to open lock file
+    Threat Detector Does Not Log Contain  Failed to acquire lock
 
     # Verify SIGTERM is not logged at error level
     Verify Sophos Threat Detector Log Line is informational   Sophos Threat Detector received SIGTERM - shutting down
@@ -132,3 +135,47 @@ Threat detector triggers reload on SIGUSR1
 
     Stop AV
     Process Should Be Stopped
+
+Threat detector exits if it cannot acquire the susi update lock
+    Start AV
+    Wait until threat detector running
+    Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120
+    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
+
+    # Request a scan in order to load SUSI
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    ${lockfile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/var/susi_update.lock
+    Open And Acquire Lock   ${lockfile}
+    Register Cleanup  Release Lock
+
+    Run Process   /bin/kill   -SIGUSR1   ${pid}
+
+    Wait Until Sophos Threat Detector Log Contains  Reload triggered by USR1
+    Wait Until Sophos Threat Detector Log Contains  Failed to acquire lock on ${lockfile}  timeout=120
+    Wait Until Sophos Threat Detector Log Contains  UnixSocket <> Closing socket
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Threat Detector Not Running
+
+    Stop AV
+
+Threat Detector Logs Susi Version when applicable
+    Start AV
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
+    Sophos Threat Detector Log Contains With Offset  Initializing SUSI
+    Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
+    mark sophos threat detector log
+
+    ${rc2}   ${output2} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
+    Sophos Threat Detector Log Contains With Offset  SUSI already initialised
+    threat detector log should not contain with offset  SUSI Libraries loaded:
+    mark sophos threat detector log
+
+    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
+    Run Process   /bin/kill   -SIGUSR1   ${pid}
+    Sophos Threat Detector Log Contains With Offset  Threat scanner is already up to date
+    threat detector log should not contain with offset  SUSI Libraries loaded:

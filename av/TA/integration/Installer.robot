@@ -193,8 +193,14 @@ sophos_threat_detector can start after multiple IDE updates
     Register Cleanup  Installer Suite Setup
 
     Force SUSI to be initialized
+    Sophos Threat Detector Log Contains With Offset  Initializing SUSI
+    Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
+    mark sophos threat detector log
 
     Install IDE with SUSI loaded  ${IDE_NAME}
+    Sophos Threat Detector Log Contains With Offset  Threat scanner successfully updated
+    Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
+    mark sophos threat detector log
     Install IDE with SUSI loaded  ${IDE2_NAME}
     Install IDE with SUSI loaded  ${IDE3_NAME}
     # We need the updates to have actually updated SUSI
@@ -205,7 +211,7 @@ sophos_threat_detector can start after multiple IDE updates
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket
     ...   timeout=60
-
+    dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 IDE update waits if lock already taken
     ${lockfile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/var/susi_update.lock

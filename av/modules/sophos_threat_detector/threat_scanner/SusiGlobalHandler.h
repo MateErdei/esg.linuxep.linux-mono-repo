@@ -57,6 +57,7 @@ namespace threat_scanner
         std::string m_updatePath;
         std::string m_lockFile;
         std::mutex m_initializeMutex;
+        bool m_susiVersionAlreadyLogged = false;
 
         /**
          * Update SUSI. Assumes that SUSI has been initialised

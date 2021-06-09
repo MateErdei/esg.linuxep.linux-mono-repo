@@ -173,6 +173,7 @@ bool SusiGlobalHandler::internal_update(const std::string& path, const std::stri
     else if (res == SUSI_S_OK)
     {
         LOGINFO("Threat scanner successfully updated");
+        m_susiVersionAlreadyLogged = true;
         logSusiVersion();
     }
     else
@@ -215,6 +216,8 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
 
     LOGINFO("Initializing SUSI");
     auto res = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
+    // gets set to true in internal_update only when the update returns SUSI_OK
+    m_susiVersionAlreadyLogged = false;
     if (res != SUSI_S_OK)
     {
         // This can fail for reasons outside the programs control, therefore is an exception
@@ -234,11 +237,13 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
             internal_update(m_updatePath, m_lockFile);
             LOGDEBUG("Threat scanner pending update completed");
         }
-        else
-        {
-            logSusiVersion();
-        }
     }
+
+    if (!m_susiVersionAlreadyLogged)
+    {
+        logSusiVersion();
+    }
+
     return true;
 }
 
