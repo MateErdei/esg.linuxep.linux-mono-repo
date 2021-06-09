@@ -518,7 +518,7 @@ Wait until scheduled scan updated
 
 Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log exists  timeout=30
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=240
+    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=180
 
 Restart threat detector if it was requested to shutdown
     Run Keyword And Ignore Error  AV Plugin Log Contains  SAV policy received for the first time.

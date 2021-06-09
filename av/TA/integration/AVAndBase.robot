@@ -825,7 +825,7 @@ Sophos Threat Detector always writes susi startup settings following a restart
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     AV Plugin Log Contains  SAV policy received for the first time.
     Run Keyword And Ignore Error  Wait Until AV Plugin Log Contains  Restarting sophos_threat_detector as the system/susi configuration has changed
-    Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
+    Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting  timeout=60
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=120
