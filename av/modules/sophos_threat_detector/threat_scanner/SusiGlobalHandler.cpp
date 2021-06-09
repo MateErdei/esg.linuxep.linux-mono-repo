@@ -173,7 +173,6 @@ bool SusiGlobalHandler::internal_update(const std::string& path, const std::stri
     else if (res == SUSI_S_OK)
     {
         LOGINFO("Threat scanner successfully updated");
-        logSusiVersion();
     }
     else
     {
@@ -227,7 +226,6 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
     else
     {
         LOGSUPPORT("Initialising Global Susi successful");
-        logSusiVersion();
         m_susiInitialised.store(true, std::memory_order_release); // susi init is now saved
         if (m_updatePending.load(std::memory_order_acquire))
         {
@@ -235,6 +233,7 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
             internal_update(m_updatePath, m_lockFile);
             LOGDEBUG("Threat scanner pending update completed");
         }
+        logSusiVersion();
     }
     return true;
 }
