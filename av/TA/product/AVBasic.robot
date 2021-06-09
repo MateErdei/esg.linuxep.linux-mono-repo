@@ -172,6 +172,8 @@ AV Plugin Scans local secondary mount only once
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${scanName}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
+    Wait until scheduled scan updated With Offset
+    Restart threat detector if it was requested to shutdown
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: ${scanName}   timeout=30
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${scanName}     timeout=90
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${scanName}    timeout=60
@@ -237,6 +239,8 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
+    Wait until scheduled scan updated With Offset
+    Restart threat detector if it was requested to shutdown
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=240  interval=5
     AV Plugin Log Contains  Starting scan MyScan
     File Should Exist  ${myscan_log}
@@ -396,6 +400,7 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
     Log    ${policyContent}
     Send Plugin Policy  av  sav  ${policyContent}
     Wait until scheduled scan updated With Offset
+    Restart threat detector if it was requested to shutdown
     ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
 
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
@@ -487,6 +492,7 @@ Test Remote Share
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
     Wait until scheduled scan updated With Offset
+    Restart threat detector if it was requested to shutdown
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningDisabled}  timeout=120  interval=5
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningDisabled}  timeout=240  interval=5
     File Should Exist  ${remoteFSscanningDisabled_log}
