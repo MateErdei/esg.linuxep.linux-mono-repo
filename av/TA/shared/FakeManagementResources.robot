@@ -16,26 +16,16 @@ ${ACTION_CONTENT} =  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/act
 
 *** Keywords ***
 
-Restart threat detector once it stops
-    [Arguments]  ${timeout}=30
-    Wait until threat detector not running  timeout=${timeout}
-    Start Sophos Threat Detector
-
-Send AV Policy
-    [Arguments]  ${policy_contents}  ${timeout}=30  ${with_restart}=True
-    Send Plugin Policy  av  sav  ${policy_contents}
-    Run Keyword If  '${with_restart}' == 'True'  Restart threat detector once it stops  timeout=${timeout}
-
 Run Scheduled Scan
     ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
     Create Sav Policy With Scheduled Scan  ${TEMP_SAV_POLICY_FILENAME}  ${time}
     ${policy_contents} =  Get File  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
-    Send AV Policy  ${policy_contents}
+    Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated
 
 Configure Scan Now Scan
     ${policy_contents} =  Get Complete Sav Policy
-    Send AV Policy  ${policy_contents}
+    Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated
 
 Trigger Scan Now Scan
@@ -43,27 +33,26 @@ Trigger Scan Now Scan
 
 Run Scan Now Scan
     ${policy_contents} =  Get Complete Sav Policy
-    Send AV Policy  ${policy_contents}
+    Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated With Offset
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan For Excluded Files Test
     ${policy_contents} =  Replace Exclusions For Exclusion Test  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
 
-    Send AV Policy  ${policy_contents}
+    Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated With Offset
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan With No Exclusions
-    [Arguments]  ${with_restart}=True
     ${policy_contents} =  Get Sav Policy With No Exclusions  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
-    Send AV Policy  ${policy_contents}  with_restart=${with_restart}
+    Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated With Offset
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 
 # list of exclusions: https://wiki.sophos.net/display/SAVLU/Exclusions
 Run Scan Now Scan With All Types of Exclusions
     ${policy_contents} =  Get File  ${RESOURCES_PATH}/${SAV_POLICY_FOR_EXCLUSION_TYPE_TEST}
-    Send AV Policy  ${policy_contents}
+    Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated With Offset
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}

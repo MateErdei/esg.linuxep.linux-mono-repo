@@ -63,14 +63,22 @@ Check AV Plugin Running
 Check Sophos Threat Detector Running
     Run Shell Process  pidof ${SOPHOS_THREAT_DETECTOR_BINARY}   OnError=sophos_threat_detector not running
 
-Start Sophos Threat Detector
+Run Sophos Threat Detector Directly
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
-    Register Cleanup   Terminate Process  ${threat_detector_handle}
+    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
+    Register Cleanup   Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     Wait until threat detector running
+
+Restart threat detector once it stops
+    [Arguments]  ${timeout}=240
+    Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system/susi configuration has changed
+    Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
+    Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    Run Sophos Threat Detector Directly
 
 Require Sophos Threat Detector Running
     ${result} =   Run Process  pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}  timeout=3
-    Run Keyword If  ${result.rc} == ${0}  Start Sophos Threat Detector
+    Run Keyword If  ${result.rc} == ${0}  Run Sophos Threat Detector Directly
 
 Check AV Plugin Not Running
     ${result} =   Run Process  pidof  ${PLUGIN_BINARY}  timeout=3
@@ -510,10 +518,14 @@ Wait Until Threat Detector Log exists
 Wait until scheduled scan updated
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans  timeout=240
+    ${status}  ${value}=  Run Keyword And Ignore Error  AV Plugin Log Contains  SAV policy received for the first time.
+    Run Keyword If  '${status}' == 'PASS'  Restart threat detector once it stops
 
 Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=240
+    ${status}  ${value}=  Run Keyword And Ignore Error  AV Plugin Log Contains With Offset  SAV policy received for the first time.
+    Run Keyword If  '${status}' == 'PASS'  Restart threat detector once it stops
 
 Configure Scan Exclusions Everything Else
     [Arguments]  ${inclusion}
