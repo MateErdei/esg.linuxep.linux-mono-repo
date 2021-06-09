@@ -39,6 +39,8 @@ Kill Sophos Processes That Arent Watchdog
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
     ${result} =  Run Process   pgrep   tscheduler
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
+    ${result} =  Run Process   pgrep   sdu
+    Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
     ${result} =  Run Process   pgrep   liveresponse
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
     ${result} =  Run Process   pgrep   -f   ${COMMS_COMPONENT}
@@ -159,7 +161,7 @@ Check Management Agent Running
     Should Be Equal As Integers     ${result.rc}    0
 
 Check SDU Running
-    ${result} =     Run Process     pgrep  -f   SDU
+    ${result} =     Run Process     pgrep  -f   sdu
     Should Be Equal As Integers     ${result.rc}    0
 
 Check Update Scheduler Running

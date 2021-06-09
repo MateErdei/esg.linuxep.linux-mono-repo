@@ -94,7 +94,7 @@ Verify Base Processes Have Correct Permissions
     Require Fresh Install
     Check Expected Base Processes Are Running
     Check owner of process   sophos_managementagent   sophos-spl-user    sophos-spl-group
-    Check owner of process   SDU   sophos-spl-user    sophos-spl-group
+    Check owner of process   sdu   sophos-spl-user    sophos-spl-group
     Check owner of process   UpdateScheduler   sophos-spl-updatescheduler   sophos-spl-group
     Check owner of process   tscheduler   sophos-spl-user    sophos-spl-group
     Check owner of process   sophos_watchdog   root  root

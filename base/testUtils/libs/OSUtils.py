@@ -345,6 +345,7 @@ def get_dictionary_of_expected_sockets_and_permissions():
         "/opt/sophos-spl/var/ipc/watchdog.ipc":                 ["root",            "root",             "srw-------"],
         "/opt/sophos-spl/var/ipc/plugins/watchdogservice.ipc":  ["root", "sophos-spl-group", "srw-rw----"],
         "/opt/sophos-spl/var/ipc/plugins/tscheduler.ipc":       ["sophos-spl-user", "sophos-spl-group", "srw-------"],
+        "/opt/sophos-spl/var/ipc/plugins/sdu.ipc":              ["sophos-spl-user", "sophos-spl-group", "srw-------"],
         "/opt/sophos-spl/var/ipc/plugins/updatescheduler.ipc":  ["sophos-spl-updatescheduler", "sophos-spl-group", "srw-rw----"]
     }
 
@@ -358,7 +359,8 @@ def get_dictionary_of_expected_base_logs_and_permissions():
         "/opt/sophos-spl/logs/base/sophosspl/mcsrouter.log":              ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log": ["sophos-spl-user", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/updatescheduler.log":        ["sophos-spl-updatescheduler", "sophos-spl-group", "-rw-------"],
-        "/opt/sophos-spl/logs/base/sophosspl/tscheduler.log":             ["sophos-spl-user", "sophos-spl-group", "-rw-------"]
+        "/opt/sophos-spl/logs/base/sophosspl/tscheduler.log":             ["sophos-spl-user", "sophos-spl-group", "-rw-------"],
+        "/opt/sophos-spl/logs/base/sophosspl/remote_diagnose.log":             ["sophos-spl-user", "sophos-spl-group", "-rw-------"]
     }
 
 

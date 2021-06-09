@@ -29,6 +29,7 @@ o660, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/status/SDU_sta
 o700, root, root, /opt/sophos-spl/base/bin/CommsComponent.0
 o700, root, root, /opt/sophos-spl/base/bin/manifestdiff.0
 o700, root, root, /opt/sophos-spl/base/bin/registerCentral.0
+o700, root, root, /opt/sophos-spl/base/bin/SDU.0
 o700, root, root, /opt/sophos-spl/base/bin/sophos_watchdog.0
 o700, root, root, /opt/sophos-spl/base/bin/SulDownloader.0
 o700, root, root, /opt/sophos-spl/base/bin/versionedcopy.0
@@ -111,7 +112,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/mcsrouter.zip.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/python39.zip.0
 o744, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcrypto.so.1.1.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/mcsrouter.0
-o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/SDU.0
+o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/sdu.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/sophos_managementagent.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/telemetry.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/tscheduler.0

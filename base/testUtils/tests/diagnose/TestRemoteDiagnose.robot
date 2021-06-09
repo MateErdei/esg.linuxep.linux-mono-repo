@@ -17,7 +17,9 @@ Suite Teardown  Run Keywords
 ...             Ensure Uninstalled  AND
 ...             Cleanup Certificates
 
-Test Teardown   Teardown
+Test Teardown   Run Keywords
+...             Stop Local Cloud Server
+...             MCSRouter Default Test Teardown
 Test Setup   Setup Fake Cloud
 Default Tags  DIAGNOSE
 
