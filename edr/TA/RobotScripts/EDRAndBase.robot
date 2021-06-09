@@ -172,6 +172,26 @@ EDR Recovers From Incomplete Database Purge
     ...  5 secs
     ...  Check Simple Query Works
 
+EDR Plugin Stops Without Errors
+    Check EDR Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Osquery Running
+    Stop EDR
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check EDR Executable Not Running
+    EDR Plugin Log Does Not Contain  ERROR
+    EDR Plugin Log Does Not Contain  WARN
+    EDR Plugin Log Does Not Contain  Operation canceled
+
+
 *** Keywords ***
 Check Simple Query Works
     ${response} =  Run Live Query and Return Result  SELECT * from uptime
