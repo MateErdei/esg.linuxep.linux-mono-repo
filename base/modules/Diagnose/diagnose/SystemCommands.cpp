@@ -10,6 +10,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Strings.h"
 #include "SystemCommandException.h"
 
+#include <Common/UtilityImpl/ProjectNames.h>
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessException.h>
@@ -20,8 +22,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <iostream>
 #include <iterator>
 #include <sstream>
-#include <Common/UtilityImpl/ProjectNames.h>
-#include <Common/FileSystem/IFilePermissions.h>
+#include <sys/stat.h>
 
 namespace diagnose
 {
@@ -161,7 +162,8 @@ namespace diagnose
             throw std::invalid_argument("tar file command failed");
         }
 
-        Common::FileSystem::filePermissions()->chown(tarfiletemp, sophos::localUser(), sophos::group());
+        Common::FileSystem::filePermissions()->chown(tarfiletemp, sophos::sduUser(), sophos::group());
+        Common::FileSystem::filePermissions()->chmod(tarfiletemp,S_IRUSR | S_IWUSR | S_IRGRP);
         fileSystem()->moveFile(tarfiletemp, tarfile);
         if (!fileSystem()->isFile(tarfile))
         {

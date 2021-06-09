@@ -35,3 +35,8 @@ std::string sophos::updateSchedulerUser()
 {
     return "@SOPHOS_SPL_UPDATESCHEDULER@";
 }
+
+std::string sophos::sduUser()
+{
+    return "@SOPHOS_SPL_SDU@";
+}

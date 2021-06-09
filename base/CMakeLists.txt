@@ -12,6 +12,7 @@ set(SOPHOS_SPL_IPC_GROUP "sophos-spl-ipc")
 set(SOPHOS_SPL_NETWORK "sophos-spl-network")   #comms network facing user
 set(SOPHOS_SPL_LOCAL "sophos-spl-local")       #comms product facing user
 set(SOPHOS_SPL_UPDATESCHEDULER "sophos-spl-updatescheduler")  #user which updatescheduler runs as
+set(SOPHOS_SPL_SDU "sophos-spl-sdu")  #user which sdu runs as
 
 if (BUILD_FUZZ_TESTS)
     set(SANITISE_FLAGS "")

@@ -330,14 +330,17 @@ USER_NAME=@SOPHOS_SPL_USER@
 NETWORK_USER_NAME=@SOPHOS_SPL_NETWORK@
 LOCAL_USER_NAME=@SOPHOS_SPL_LOCAL@
 UPDATESCHEDULER_USER_NAME=@SOPHOS_SPL_UPDATESCHEDULER@
+SDU_USER_NAME=@SOPHOS_SPL_SDU@
 add_user "${USER_NAME}" "${GROUP_NAME}"
 add_user "${NETWORK_USER_NAME}" "${NETWORK_GROUP_NAME}"
 add_user "${LOCAL_USER_NAME}" "${GROUP_NAME}"
 add_user "${UPDATESCHEDULER_USER_NAME}" "${GROUP_NAME}"
+add_user "${SDU_USER_NAME}" "${GROUP_NAME}"
 
 # Add users to the IPC group which need to read and write the IPC socket
 add_to_group "${USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
 add_to_group "${UPDATESCHEDULER_USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
+add_to_group "${SDU_USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
 
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
@@ -515,7 +518,7 @@ chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs"
 
 # Remote Diagnose
 makedir 750 "${SOPHOS_INSTALL}/base/remote-diagnose/output"
-chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/remote-diagnose"
+chown -R "${SDU_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/remote-diagnose"
 
 # Telemetry
 makedir 750 "${SOPHOS_INSTALL}/base/telemetry"

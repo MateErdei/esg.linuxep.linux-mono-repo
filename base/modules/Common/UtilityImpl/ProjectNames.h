@@ -40,4 +40,8 @@ namespace sophos
      */
     std::string updateSchedulerUser();
 
+    /*
+ * Update Scheduler user to run the Update Scheduler component as low privilege
+ */
+    std::string sduUser();
 } // namespace sophos
