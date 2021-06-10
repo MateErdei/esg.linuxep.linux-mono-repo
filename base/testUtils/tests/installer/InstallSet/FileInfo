@@ -11,8 +11,8 @@ o600, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component/added
 o600, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component/changedFiles_manifest.dat
 o600, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
 o600, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/etc/datafeed-config-scheduled_query.json.0
-o600, sophos-spl-group, sophos-spl-sdu, /opt/sophos-spl/logs/base/sophosspl/remote_diagnose.log
 o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/var/tscheduler-status.json
+o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/logs/base/sophosspl/remote_diagnose.log
 o640, sophos-spl-group, root, /opt/sophos-spl/base/etc/machine_id.txt
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/commscomponent.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/managementagent.json
@@ -367,6 +367,7 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/i
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/idnadata.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/intranges.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/LICENSE.md.0
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/LICENSE.rst.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/package_data.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/uts46data.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/pathtools/__init__.py.0
@@ -447,10 +448,13 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/w
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/tricks/__init__.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/utils/__init__.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/utils/bricks.py.0
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/utils/compat.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/utils/delayed_queue.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/utils/dirsnapshot.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/utils/echo.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/utils/patterns.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/utils/platform.py.0
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/utils/unicode_paths.py.0
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/utils/win32stat.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/version.py.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/watchdog/watchmedo.py.0

@@ -9,5 +9,5 @@
   ],
   "pluginName": "sdu",
   "executableFullPath": "base/bin/sdu",
-  "executableUserAndGroup": "@SOPHOS_SPL_SDU@:@SOPHOS_SPL_GROUP@"
+  "executableUserAndGroup": "@SOPHOS_SPL_USER@:@SOPHOS_SPL_GROUP@"
 }
