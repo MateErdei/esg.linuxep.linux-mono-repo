@@ -958,6 +958,10 @@ Check Current Release With AV Installed Correctly
 Check EAP Release With AV Installed Correctly
     Check MCS Router Running
     Check MDR Plugin Installed
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  MDR Plugin Log Contains  Run SophosMTR
     Check AV Plugin Installed
     Check Installed Correctly
 
@@ -971,10 +975,7 @@ Check Installed Correctly
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
     ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
-    ${base_version_above_1_1_7} =  check_version_over_1_1_7  ${version_number}
-    Run Keyword If  ${base_version_above_1_1_7} == ${True}
-    ...  Check Expected Base Processes Are Running
-    ...  ELSE  Check Expected Base Processes Except SDU Are Running
+    Check Expected Base Processes Except SDU Are Running
 
 Check Files Before Upgrade
     # This is a selection of files from Base product, based on the version initialy installed
