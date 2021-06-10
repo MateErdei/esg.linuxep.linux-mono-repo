@@ -10,8 +10,9 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2021-13" build-id="20210319094615-5064d440965da5e2dc87c60852af85208e08dc8b-8gw4vT" />
-            <development-version branch="develop"/>
+            <release-version branch="release/Version_1_1_7" build-id="20210610140056-ccaccf5ca332ee7f7f08d76126e7c43316bec4cb-EvsxmZ" />
+            <!--TODO: [LINUXDAR-2656] Uncomment once the everest-base sdu changes are merged into develop-->
+            <!--<development-version branch="develop"/>-->
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
