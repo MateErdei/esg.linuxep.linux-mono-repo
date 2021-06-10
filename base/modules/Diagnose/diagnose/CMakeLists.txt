@@ -23,4 +23,4 @@ add_library(diagnoseimpl STATIC
 
 target_include_directories(diagnoseimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 
-target_link_libraries(diagnoseimpl PUBLIC logging)
+target_link_libraries(diagnoseimpl PUBLIC logging ${MINIZIP_LIBRARY})

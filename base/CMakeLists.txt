@@ -112,6 +112,7 @@ set( OPENSSL_INPUT ${INPUT}/openssl )
 set( EXPAT_INPUT ${INPUT}/expat )
 set( ZLIB_INPUT ${INPUT}/zlib )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
+set( MINIZIP_INPUT ${INPUT}/minizip )
 
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
 
@@ -188,7 +189,10 @@ find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus
         PATHS ${LOG4CPLUS_INPUT}/lib
         )
-
+find_library(MINIZIP_LIBRARY
+        NAMES minizip
+        PATHS ${MINIZIP_INPUT}
+        )
 # ensure valid log4cplus to work with fork
 file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)
 string(FIND "${log4cplusStrings}" "implicit initialization is turned off" DisabledImplicitInitialization)
