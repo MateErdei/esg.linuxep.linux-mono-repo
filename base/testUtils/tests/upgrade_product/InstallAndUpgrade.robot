@@ -974,7 +974,7 @@ Check Installed Correctly
     ${base_version_above_1_1_3} =  check_version_over_1_1_3  ${version_number}
     Run Keyword If  ${base_version_above_1_1_3} == ${True}
     ...  Check Expected Base Processes Are Running
-    ...  ELSE  Check Expected Base Processes Except Comms Are Running
+    ...  ELSE  Check Expected Base Processes Except SDU Are Running
 
 Check Files Before Upgrade
     # This is a selection of files from Base product, based on the version initialy installed

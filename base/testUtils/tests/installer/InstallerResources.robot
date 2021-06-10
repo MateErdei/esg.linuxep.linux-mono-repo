@@ -198,16 +198,6 @@ Check Comms Component Not Running
     ${result} =    Run Process  pgrep  -f   ${COMMS_COMPONENT}
     Should Not Be Equal As Integers    ${result.rc}    0
 
-Check Expected Base Processes Except Comms Are Running
-    Check Watchdog Running
-    Check Management Agent Running
-    Check Update Scheduler Running
-    Check Telemetry Scheduler Is Running
-
-Check Expected Base Processes Including Comms Are Running
-    Check Expected Base Processes Except Comms Are Running Are Running
-    Check Comms Component Is Running
-
 Check Expected Base Processes Are Running
     Check Watchdog Running
     Check Management Agent Running
@@ -215,6 +205,13 @@ Check Expected Base Processes Are Running
     Check Telemetry Scheduler Is Running
     Check Comms Component Is Running
     Check SDU Running
+
+Check Expected Base Processes Except SDU Are Running
+    Check Watchdog Running
+    Check Management Agent Running
+    Check Update Scheduler Running
+    Check Telemetry Scheduler Is Running
+    Check Comms Component Is Running
 
 Check Base Processes Are Not Running
     Check Watchdog Not Running
