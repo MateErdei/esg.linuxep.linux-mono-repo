@@ -158,8 +158,10 @@ Threat Detector Is Given Non-Permission EndpointId
     Stop AV Plugin
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
     Run Process  chmod  000  ${MACHINEID_FILE}
+    Remove File  ${MACHINEID_CHROOT_FILE}
     Start AV Plugin and Force SUSI to be initialized
-    Threat Detector Log Should Not Contain With Offset  Failed to read machine ID - using default value
+    Sophos Threat Detector Log Contains With Offset  Failed to copy: "${MACHINEID_FILE}"
+    Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
 
 
 SUSI Is Given Non-Permission EndpointId
@@ -167,9 +169,12 @@ SUSI Is Given Non-Permission EndpointId
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
-    ${handle} =  Start Process  bash  ${BASH_SCRIPTS_PATH}/untilSuccess.sh  chmod 000 ${MACHINEID_CHROOT_FILE}
-    Register Cleanup  Terminate Process  ${handle}
-    Start AV Plugin and Force SUSI to be initialized
+    Register Cleanup  Remove File  ${MACHINEID_FILE}
+    Start AV Plugin
+    Wait until threat detector running
+    Run Process  chmod  000  ${MACHINEID_CHROOT_FILE}
+    Register Cleanup  Remove File  ${MACHINEID_CHROOT_FILE}
+    Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
 
 
