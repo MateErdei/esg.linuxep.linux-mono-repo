@@ -264,6 +264,25 @@ Install Register And Wait First MCS Policy With MCS Policy
     Start MCSRouter
     Wait New MCS Policy Downloaded
 
+File Should Contain
+    [Arguments]  ${file_path}  ${expected_contents}
+    ${contents}=  Get File   ${file_path}
+    Should Contain  ${contents}   ${expected_contents}
+
+File Should Not Contain
+    [Arguments]  ${file_path}  ${expected_contents}
+    ${contents}=  Get File   ${file_path}
+    Should Not Contain  ${contents}   ${expected_contents}
+
+JWT Token Is Updated In MCS Config
+    # Whenever the token is requested and received, it is also stored in mcs.config
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  File Should Contain  /opt/sophos-spl/base/etc/sophosspl/mcs.config  jwt_token=
+    File Should Contain  /opt/sophos-spl/base/etc/sophosspl/mcs.config  tenant_id=
+    File Should Contain  /opt/sophos-spl/base/etc/sophosspl/mcs.config  device_id=
+
 Register With Fake Cloud
     Register With Fake Cloud Without Starting MCSRouter
     Start MCSRouter

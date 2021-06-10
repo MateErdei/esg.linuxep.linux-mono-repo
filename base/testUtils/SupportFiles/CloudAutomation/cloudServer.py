@@ -1341,6 +1341,18 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             logger.info("SENDING empty command response")
             NULL_NEXT = True
             return self.ret("")
+        elif self.path == "/error/stopServerERROR":
+            logger.info("Stopped sending errors.")
+            ERROR_NEXT = False
+            SERVER_401 = False
+            SERVER_XDR_401 = False
+            SERVER_404 = False
+            SERVER_403 = False
+            SERVER_500 = False
+            SERVER_413 = False
+            SERVER_504 = False
+            NULL_NEXT = False
+            return self.ret("")
         else:
             return self.ret("Unknown Error command path, should be /error", code=500)
             

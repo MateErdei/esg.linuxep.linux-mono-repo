@@ -60,6 +60,8 @@ Test 401 From Central When Sending XDR Data Is Handled Correctly
     ...  15s
     ...  2s
     ...  Check Marked MCSRouter Log Contains  Request JWT token from
+    JWT Token Is Updated In MCS Config
+
     Mark Mcsrouter Log
     Send Command From Fake Cloud    error/serverXdr401
 
@@ -68,7 +70,10 @@ Test 401 From Central When Sending XDR Data Is Handled Correctly
     ...  15s
     ...  2s
     ...  Check Marked MCSRouter Log Contains  UNAUTHORIZED from server
-
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  File Should Not Contain    /opt/sophos-spl/base/etc/sophosspl/mcs.config  jwt_token=
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
@@ -78,10 +83,13 @@ Test 401 From Central When Sending XDR Data Is Handled Correctly
     ...  2s
     ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Check Marked Mcsrouter Log Does Not Contain   Sent result, datafeed ID: scheduled_query
+
+    Send Command From Fake Cloud    error/stopServerERROR
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
     ...  Check Marked MCSRouter Log Contains   Request JWT token from
+    JWT Token Is Updated In MCS Config
     Check MCS Router Running
 
 Test 403 From Central Is Handled Correctly
@@ -98,6 +106,8 @@ Test 403 From Central Is Handled Correctly
     ...  15s
     ...  2s
     ...  Check Marked MCSRouter Log Contains  Request JWT token from
+    JWT Token Is Updated In MCS Config
+
     Mark Mcsrouter Log
     Send Command From Fake Cloud    error/server403
 
@@ -107,7 +117,10 @@ Test 403 From Central Is Handled Correctly
     ...  15s
     ...  2s
     ...  Check Marked MCSRouter Log Contains  HTTP Forbidden (403)
-
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  File Should Not Contain    /opt/sophos-spl/base/etc/sophosspl/mcs.config  jwt_token=
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
@@ -117,6 +130,8 @@ Test 403 From Central Is Handled Correctly
     ...  2s
     ...  Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Check Marked Mcsrouter Log Does Not Contain   Sent result, datafeed ID: scheduled_query
+
+    Send Command From Fake Cloud    error/stopServerERROR
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
@@ -137,6 +152,7 @@ Test 413 From Central Is Handled Correctly
     ...  15s
     ...  2s
     ...  Check Marked MCSRouter Log Contains  Request JWT token from
+    JWT Token Is Updated In MCS Config
 
     Create File  /opt/sophos-spl/base/mcs/datafeed/scheduled_query-1730641639.json  {"content" : "NotEmpty"}
     Wait Until Keyword Succeeds

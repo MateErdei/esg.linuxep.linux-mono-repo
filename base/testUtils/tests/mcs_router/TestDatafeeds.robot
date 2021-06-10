@@ -85,6 +85,7 @@ Retrieve JWT Tokens from Central
     ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Tenant ID: example-tenant-id   1
     Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Device ID: example-device-id  1
     Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: PLACEHOLDER  1
+    JWT Token Is Updated In MCS Config
 
 Retrieve JWT Tokens from Central only once per connection
     Override LogConf File as Global Level  DEBUG
@@ -97,6 +98,7 @@ Retrieve JWT Tokens from Central only once per connection
     ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Tenant ID: example-tenant-id   1
     Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Device ID: example-device-id  1
     Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: PLACEHOLDER  1
+    JWT Token Is Updated In MCS Config
 
     Wait Until Keyword Succeeds
     ...  30s
