@@ -279,7 +279,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/i
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/idnadata.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/intranges.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/LICENSE.md
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/LICENSE.rst
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/package_data.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/idna/uts46data.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/site-packages/pathtools/__init__.py
