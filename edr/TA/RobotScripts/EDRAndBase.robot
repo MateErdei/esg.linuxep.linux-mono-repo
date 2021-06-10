@@ -187,8 +187,8 @@ EDR Plugin Stops Without Errors
     ...  30 secs
     ...  1 secs
     ...  Check EDR Executable Not Running
-    EDR Plugin Log Does Not Contain  ERROR
-    EDR Plugin Log Does Not Contain  WARN
+    EDR Plugin Log Does Not Contain  ERROR [
+    EDR Plugin Log Does Not Contain  WARN [
     EDR Plugin Log Does Not Contain  Operation canceled
 
 
