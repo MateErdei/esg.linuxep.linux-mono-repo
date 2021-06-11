@@ -31,6 +31,7 @@ namespace diagnose
         * Archive the diagnose output into a zip ready for upload to Central location
         */
         void zipDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const;
+        void produceZip(const std::string& srcPath, const std::string& destPath) const;
     private:
         std::string getExecutablePath(const std::string& executableName) const;
         std::string runCommandOutputToString(const std::string& command, std::vector<std::string> args) const;

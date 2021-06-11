@@ -23,6 +23,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <iterator>
 #include <sstream>
 #include <sys/stat.h>
+#include <zip.h>
+#include <fstream>
+#include <zlib.h>
 
 namespace diagnose
 {
@@ -144,23 +147,70 @@ namespace diagnose
         std::cout << "Created tarfile: " << tarfileName << " in directory " << destPath << std::endl;
     }
 
+    void SystemCommands::produceZip(const std::string& srcPath, const std::string& destPath) const
+    {
+        zipFile zf = zipOpen(std::string(destPath.begin(), destPath.end()).c_str(), APPEND_STATUS_CREATE);
+        if (zf == NULL)
+            return;
+
+        bool error = false;
+        auto fs = Common::FileSystem::fileSystem();
+        std::vector<std::string> paths = fs->listFilesAndDirectories(srcPath);
+        for (auto& path : paths)
+        {
+            std::fstream file(path.c_str(), std::ios::binary | std::ios::in);
+            if (file.is_open())
+            {
+                file.seekg(0, std::ios::end);
+                long size = file.tellg();
+                file.seekg(0, std::ios::beg);
+
+                std::vector<char> buffer(size);
+                if (size == 0 || file.read(&buffer[0], size))
+                {
+                    zip_fileinfo zfi;
+                    std::string fileName = Common::FileSystem::basename(path);
+
+                    if (0 == zipOpenNewFileInZip(zf, std::string(fileName.begin(), fileName.end()).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
+                    {
+                        if (zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size))
+                            error = true;
+
+                        if (zipCloseFileInZip(zf))
+                            error = true;
+
+                        file.close();
+                        continue;
+                    }
+                }
+                file.close();
+            }
+            error = true;
+        }
+
+        if (zipClose(zf, NULL))
+            return ;
+
+        if (error)
+            return ;
+
+    }
+
+
+
     //TODO LINUXDAR-871 this should produce a zip instead of a tar
     void SystemCommands::zipDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const
     {
 
         std::cout << "Running tar on: " << srcPath << std::endl;
-        std::string tarfileName = "sspl.tar.gz";
+        std::string tarfileName = "sspl.zip";
         std::string tarfiletemp = Common::FileSystem::join(destPath, tarfileName+".temp");
         std::string tarfile = Common::FileSystem::join(destPath, tarfileName);
 
-        std::string tarCommand =
-                "tar -czf " + tarfiletemp + " -C '" + srcPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
+//        std::string tarCommand =
+//                "tar -czf " + tarfiletemp + " -C '" + srcPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
 
-        int ret = system(tarCommand.c_str());
-        if (ret != 0)
-        {
-            throw std::invalid_argument("tar file command failed");
-        }
+        produceZip(srcPath,tarfiletemp);
 
         Common::FileSystem::filePermissions()->chown(tarfiletemp, sophos::user(), sophos::group());
         Common::FileSystem::filePermissions()->chmod(tarfiletemp,S_IRUSR | S_IWUSR | S_IRGRP);

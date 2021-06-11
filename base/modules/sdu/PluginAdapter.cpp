@@ -148,7 +148,7 @@ namespace RemoteDiagnoseImpl
         sendFinishedStatus();
         std::string output = Common::ApplicationConfiguration::applicationPathManager().getDiagnoseOutputPath();
         auto fs = Common::FileSystem::fileSystem();
-        std::string filepath = Common::FileSystem::join(output,"sspl.tar.gz");
+        std::string filepath = Common::FileSystem::join(output,"sspl.zip");
 
         Common::UtilityImpl::FormattedTime m_formattedTime;
         std::string timestamp = m_formattedTime.currentTime();
