@@ -353,6 +353,10 @@ Apply Live Query Policy And Wait For Query Pack Changes
     ...  10s
     ...  2s
     ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  LiveQuery policy has changed. Restarting osquery to apply changes  ${mark}
+    Wait Until Keyword Succeeds
+    ...  20s
+    ...  2s
+    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Plugin preparation complete  ${mark}
 
 Create Debug Level Logger Config File
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
