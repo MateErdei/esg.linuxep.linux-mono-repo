@@ -85,7 +85,10 @@
         <package name="python-sseclient" version="0-0-23-19/218716/sseclient" dest="input">
             <include src="python-sseclient.tar" dest="."/>
         </package>
-
+        <build-asset project="thirdparty" repo="minizip">
+            <development-version branch="sophos/linux-sspl-master"/>
+            <include artifact-path="output" dest-dir="input"/>
+        </build-asset>
     </inputs>
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->

@@ -314,6 +314,7 @@ function build()
           echo 'Boost executor alredy patched'
         fi
         untar_input expat
+        untar_input minizip
         untar_input zlib
         untar_input log4cplus
         untar_input zeromq
