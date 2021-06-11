@@ -298,7 +298,7 @@ EDR Plugin Rolls ScheduleEpoch Over When The Previous One Has Elapsed
     Should Not Be Equal As Strings  ${scheduleEpoch}  ${oldScheduleEpochTimestamp}
     EDR Plugin Log Contains   Starting new schedule_epoch: ${scheduleEpoch}
     Wait Until Keyword Succeeds
-    ...  5 secs
+    ...  30 secs
     ...  1 secs
     ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${scheduleEpoch}
     Osquery Flag File Should Contain  --schedule_epoch=${scheduleEpoch}
@@ -354,7 +354,7 @@ EDR Plugin Recovers When ScheduleEpoch Is In The Future
     Should Not Be Equal As Strings  ${scheduleEpoch}  ${oldScheduleEpochTimestamp}
     EDR Plugin Log Contains   Starting new schedule_epoch: ${scheduleEpoch}
     Wait Until Keyword Succeeds
-    ...  5 secs
+    ...  30 secs
     ...  1 secs
     ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${scheduleEpoch}
     Osquery Flag File Should Contain  --schedule_epoch=${scheduleEpoch}
