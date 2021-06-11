@@ -231,7 +231,7 @@ namespace Common
                 try
                 {
                     // give some extra time to the ioservice to capture any remaining data
-                    if (ioservice.wait_for(std::chrono::seconds(10)) != std::future_status::ready)
+                    if (ioservice.wait_for(std::chrono::seconds(1)) != std::future_status::ready)
                     {
                         asyncPipe.close();
                     }
