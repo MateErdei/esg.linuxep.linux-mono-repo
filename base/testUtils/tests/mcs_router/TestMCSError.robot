@@ -48,14 +48,7 @@ Test 404 From Central Is handled correctly
 
 Test 401 From Central When Sending XDR Data Is Handled Correctly
     Install Register And Wait First MCS Policy
-    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
-    Stop Mcsrouter If Running
-    Mark Mcsrouter Log
-    Start MCSRouter
-    Wait Until Keyword Succeeds
-    ...  15s
-    ...  2s
-    ...  Check MCS Router Running
+    Restart MCS Router With Debug Logging
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
@@ -94,14 +87,7 @@ Test 401 From Central When Sending XDR Data Is Handled Correctly
 
 Test 403 From Central Is Handled Correctly
     Install Register And Wait First MCS Policy
-    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
-    Stop Mcsrouter If Running
-    Mark Mcsrouter Log
-    Start MCSRouter
-    Wait Until Keyword Succeeds
-    ...  15s
-    ...  2s
-    ...  Check MCS Router Running
+    Restart MCS Router With Debug Logging
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
@@ -140,14 +126,7 @@ Test 403 From Central Is Handled Correctly
 
 Test 413 From Central Is Handled Correctly
     Install Register And Wait First MCS Policy
-    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
-    Stop Mcsrouter If Running
-    Mark Mcsrouter Log
-    Start MCSRouter
-    Wait Until Keyword Succeeds
-    ...  15s
-    ...  2s
-    ...  Check MCS Router Running
+    Restart MCS Router With Debug Logging
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s

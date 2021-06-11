@@ -283,6 +283,20 @@ JWT Token Is Updated In MCS Config
     File Should Contain  /opt/sophos-spl/base/etc/sophosspl/mcs.config  tenant_id=
     File Should Contain  /opt/sophos-spl/base/etc/sophosspl/mcs.config  device_id=
 
+Restart MCS Router With Debug Logging
+    Stop Mcsrouter If Running
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCS Router Not Running
+    Mark MCSRouter Log
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
+    Start MCSRouter
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check MCS Router Running
+
 Register With Fake Cloud
     Register With Fake Cloud Without Starting MCSRouter
     Start MCSRouter
