@@ -340,7 +340,7 @@ class ThinInstallerUtils(object):
         cwd = os.getcwd()
         certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs", "prod_certs")
         mcs_ca = CentralUtils.get_nova_mcs_ca_path()
-        self.run_thininstaller([self.default_installsh_path],
+        self.run_thininstaller([self.default_installsh_path, "--version"],
                                mcs_ca=mcs_ca,
                                override_location=None,
                                certs_dir=certs_dir)
