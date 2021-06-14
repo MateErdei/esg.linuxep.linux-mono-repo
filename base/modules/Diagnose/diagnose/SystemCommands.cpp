@@ -215,7 +215,7 @@ namespace diagnose
 
                         fileName = path.substr(srcPath.size());
 
-                        if (0 == zipOpenNewFileInZip(zf, std::string(fileName.begin(), fileName.end()).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
+                        if (0 == zipOpenNewFileInZip(zf, ("."+fileName).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
                         {
                             if (zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size))
                                 error = true;

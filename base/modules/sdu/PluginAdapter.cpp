@@ -15,6 +15,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/HttpSender/RequestConfig.h>
+#include <CommsComponent/HttpRequester.h>
 
 namespace
 {
@@ -124,8 +126,8 @@ namespace RemoteDiagnoseImpl
             throw std::runtime_error(errorMessage.str());
         }
 
-        std::string url = action.value("uploadUrl");
-        LOGDEBUG("Upload url: " << url);
+        m_url = action.value("uploadUrl");
+        LOGDEBUG("Upload url: " << m_url);
 
         std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
                 "ServerProtectionLinux-Base-component");
@@ -145,17 +147,12 @@ namespace RemoteDiagnoseImpl
     void PluginAdapter::processZip()
     {
         LOGINFO("Diagnose finished");
-        sendFinishedStatus();
         std::string output = Common::ApplicationConfiguration::applicationPathManager().getDiagnoseOutputPath();
         auto fs = Common::FileSystem::fileSystem();
         std::string filepath = Common::FileSystem::join(output,"sspl.zip");
 
-        Common::UtilityImpl::FormattedTime m_formattedTime;
-        std::string timestamp = m_formattedTime.currentTime();
-        std::replace(timestamp.begin(), timestamp.end(), ' ', '_');
-        std::string tarfileName = "sspl-diagnose_" + timestamp + ".zip";
-
-        std::string processedfilepath = Common::FileSystem::join(output,tarfileName);
+        UrlData data = processUrl();
+        std::string processedfilepath = Common::FileSystem::join(output,data.filename);
 
         try
         {
@@ -165,8 +162,45 @@ namespace RemoteDiagnoseImpl
         {
             LOGERROR("failed to process zip file due to error: " << exception.what());
         }
+
+        Common::HttpSender::RequestConfig requestConfig{Common::HttpSender::RequestType::PUT,
+                                                        std::vector<std::string>{},data.domain,
+                                                        80,"",data.resourcePath};
+
+        try
+        {
+            auto response = CommsComponent::HttpRequester::triggerRequest("UploadDiagnose", requestConfig, std::chrono::minutes(1));
+
+            if (response.httpCode != 200)
+            {
+                LOGINFO("Response HttpCode: " << response.httpCode);
+                LOGINFO(response.description);
+
+            }
+
+        }
+        catch (std::exception& ex)
+        {
+            LOGERROR("Perform request failed: " << ex.what());
+
+        }
+        sendFinishedStatus();
     }
 
+    PluginAdapter::UrlData PluginAdapter::processUrl()
+    {
+        UrlData data;
+        data.filename = Common::FileSystem::basename(m_url);
+        if (!Common::UtilityImpl::StringUtils::startswith(m_url,"https://"))
+        {
+            throw std::runtime_error("Malformed url missing protocol");
+        }
+        std::string noProtocol = m_url.substr(8);
+        data.resourcePath = noProtocol.substr(noProtocol.find_first_of("/"));
+        data.domain = noProtocol.substr(0,noProtocol.find_first_of("/"));
+
+        return data;
+    }
     void PluginAdapter::sendFinishedStatus()
     {
         //TODO LINUXDAR-871 update mcs to handle more than one status sent during one command poll time

@@ -25,6 +25,7 @@ namespace RemoteDiagnoseImpl
 {
     class PluginAdapter
     {
+
     public:
         PluginAdapter(
             std::shared_ptr<ITaskQueue> queueTask,
@@ -36,12 +37,20 @@ namespace RemoteDiagnoseImpl
         ~PluginAdapter();
 
     private:
+        struct UrlData
+        {
+            std::string domain;
+            std::string resourcePath;
+            std::string filename;
+        };
+        UrlData processUrl();
         void processAction(const std::string& actionXml);
         void sendFinishedStatus();
         void processZip();
         bool m_processing = false;
 
         std::future<void> m_monitor;
+        std::string m_url;
         std::shared_ptr<ITaskQueue> m_queueTask;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_callback;
