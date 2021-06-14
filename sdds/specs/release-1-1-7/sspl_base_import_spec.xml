@@ -6,7 +6,7 @@
   <imports>
     <line id="ServerProtectionLinux-Base">
 	  <componentsuite id="ServerProtectionLinux-Base-1.1.7.0"
-                 version="1.1.7.1"
+                 version="1.1.7.0"
                  artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--Version-1_1_7/20210614062713-b2c1723025c4d718fb16b47fc5633d4aa4a9c3ce-Zbw8oF/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
                  longdic="Sophos Linux Base"
                  shortdic="Sophos Linux Base"/>
