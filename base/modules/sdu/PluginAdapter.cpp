@@ -153,7 +153,7 @@ namespace RemoteDiagnoseImpl
         Common::UtilityImpl::FormattedTime m_formattedTime;
         std::string timestamp = m_formattedTime.currentTime();
         std::replace(timestamp.begin(), timestamp.end(), ' ', '_');
-        std::string tarfileName = "sspl-diagnose_" + timestamp + ".tar.gz";
+        std::string tarfileName = "sspl-diagnose_" + timestamp + ".zip";
 
         std::string processedfilepath = Common::FileSystem::join(output,tarfileName);
 

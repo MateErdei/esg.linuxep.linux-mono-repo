@@ -35,7 +35,7 @@ namespace diagnose
     private:
         std::string getExecutablePath(const std::string& executableName) const;
         std::string runCommandOutputToString(const std::string& command, std::vector<std::string> args) const;
-
+        void walkDirectoryTree(std::vector<std::string>& pathCollection, const std::string& root) const;
         std::string m_destination;
     };
 } // namespace diagnose

@@ -147,6 +147,42 @@ namespace diagnose
         std::cout << "Created tarfile: " << tarfileName << " in directory " << destPath << std::endl;
     }
 
+    void SystemCommands::walkDirectoryTree(std::vector<std::string>& pathCollection, const std::string& root) const
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        std::vector<std::string> files;
+        try
+        {
+            files = fs->listFiles(root);
+        }
+        catch(IFileSystemException& exception)
+        {
+            std::cout << "Failed to get list of files for :'" << root << "'" << std::endl;
+            return;
+        }
+
+        for (auto& file : files)
+        {
+            pathCollection.push_back(file);
+        }
+
+        std::vector<std::string> directories;
+        try
+        {
+            directories = fs->listDirectories(root);
+        }
+        catch(IFileSystemException& exception)
+        {
+            std::cout << "Failed to get list of directories for :'" << root << "'" << std::endl;
+            return;
+        }
+
+        for (auto& directory : directories)
+        {
+            walkDirectoryTree(pathCollection, directory);
+        }
+    }
+
     void SystemCommands::produceZip(const std::string& srcPath, const std::string& destPath) const
     {
         zipFile zf = zipOpen(std::string(destPath.begin(), destPath.end()).c_str(), APPEND_STATUS_CREATE);
@@ -155,37 +191,46 @@ namespace diagnose
 
         bool error = false;
         auto fs = Common::FileSystem::fileSystem();
-        std::vector<std::string> paths = fs->listFilesAndDirectories(srcPath);
-        for (auto& path : paths)
+
+        std::vector<std::string> filesToZip;
+        walkDirectoryTree(filesToZip, srcPath);
+
+        for (auto& path : filesToZip)
         {
-            std::fstream file(path.c_str(), std::ios::binary | std::ios::in);
-            if (file.is_open())
+            if (fs->isFile(path))
             {
-                file.seekg(0, std::ios::end);
-                long size = file.tellg();
-                file.seekg(0, std::ios::beg);
 
-                std::vector<char> buffer(size);
-                if (size == 0 || file.read(&buffer[0], size))
+                std::fstream file(path.c_str(), std::ios::binary | std::ios::in);
+                if (file.is_open())
                 {
-                    zip_fileinfo zfi;
-                    std::string fileName = Common::FileSystem::basename(path);
-
-                    if (0 == zipOpenNewFileInZip(zf, std::string(fileName.begin(), fileName.end()).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
+                    file.seekg(0, std::ios::end);
+                    long size = file.tellg();
+                    file.seekg(0, std::ios::beg);
+                    std::cout << size  << std::endl;
+                    std::vector<char> buffer(size);
+                    if (size == 0 || file.read(&buffer[0], size))
                     {
-                        if (zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size))
-                            error = true;
+                        zip_fileinfo zfi;
+                        std::string fileName = Common::FileSystem::basename(path);
 
-                        if (zipCloseFileInZip(zf))
-                            error = true;
+                        fileName = path.substr(srcPath.size());
 
-                        file.close();
-                        continue;
+                        if (0 == zipOpenNewFileInZip(zf, std::string(fileName.begin(), fileName.end()).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
+                        {
+                            if (zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size))
+                                error = true;
+
+                            if (zipCloseFileInZip(zf))
+                                error = true;
+
+                            file.close();
+                            continue;
+                        }
                     }
+                    file.close();
                 }
-                file.close();
+                error = true;
             }
-            error = true;
         }
 
         if (zipClose(zf, NULL))
@@ -196,29 +241,27 @@ namespace diagnose
 
     }
 
-
-
-    //TODO LINUXDAR-871 this should produce a zip instead of a tar
     void SystemCommands::zipDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const
     {
 
-        std::cout << "Running tar on: " << srcPath << std::endl;
-        std::string tarfileName = "sspl.zip";
-        std::string tarfiletemp = Common::FileSystem::join(destPath, tarfileName+".temp");
-        std::string tarfile = Common::FileSystem::join(destPath, tarfileName);
+        std::cout << "Running zip on: " << srcPath << std::endl;
+        std::string zipFileName = "sspl.zip";
+        std::string zipfiletemp = Common::FileSystem::join(destPath, zipFileName + ".temp");
+        std::string zipfile = Common::FileSystem::join(destPath, zipFileName);
 
-//        std::string tarCommand =
-//                "tar -czf " + tarfiletemp + " -C '" + srcPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
+        produceZip(srcPath, zipfiletemp);
 
-        produceZip(srcPath,tarfiletemp);
-
-        Common::FileSystem::filePermissions()->chown(tarfiletemp, sophos::user(), sophos::group());
-        Common::FileSystem::filePermissions()->chmod(tarfiletemp,S_IRUSR | S_IWUSR | S_IRGRP);
-        fileSystem()->moveFile(tarfiletemp, tarfile);
-        if (!fileSystem()->isFile(tarfile))
+        Common::FileSystem::filePermissions()->chown(zipfiletemp, sophos::user(), sophos::group());
+        Common::FileSystem::filePermissions()->chmod(zipfiletemp, S_IRUSR | S_IWUSR | S_IRGRP);
+        try
         {
-            throw std::invalid_argument("tar file " + tarfile + " was not created");
+            fileSystem()->moveFile(zipfiletemp, zipfile);
         }
-        std::cout << "Created tarfile: " << tarfileName << " in directory " << destPath << std::endl;
+        catch(IFileSystemException& exception)
+        {
+            throw std::invalid_argument("zip file " + zipfile + " was not created, error" + exception.what());
+        }
+
+        std::cout << "Created tarfile: " << zipFileName << " in directory " << destPath << std::endl;
     }
 } // namespace diagnose
