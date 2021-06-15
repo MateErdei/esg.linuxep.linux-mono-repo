@@ -26,10 +26,6 @@ namespace Common::HttpSender
         m_resourcePath(resourcePath),
         m_filePath(filePath)
     {
-        if (!m_filePath.empty())
-        {auto& pathManager = Common::ApplicationConfiguration::applicationPathManager();
-        std::string commsInputDiretory = pathManager.getCommsInputDirectory();
-        m_chrootFilePath =  Common::FileSystem::join(commsInputDiretory, Common::FileSystem::basename(m_filePath));}
     }
 
     std::string RequestConfig::requestTypeToString(RequestType requestType)
@@ -78,10 +74,7 @@ namespace Common::HttpSender
     void RequestConfig::setCertPath(const std::string& certPath) { m_certPath = certPath; }
 
     void RequestConfig::setResourcePath(const std::string& resourcePath) { m_resourcePath = resourcePath; }
-    void RequestConfig::setFilePath(const std::string& filePath) { m_filePath = filePath;
-        auto& pathManager = Common::ApplicationConfiguration::applicationPathManager();
-        std::string commsInputDiretory = pathManager.getCommsInputDirectory();
-        m_chrootFilePath =  Common::FileSystem::join(commsInputDiretory, Common::FileSystem::basename(m_filePath));}
+    void RequestConfig::setFilePath(const std::string& filePath) { m_filePath = filePath;}
     void RequestConfig::setAdditionalHeaders(std::vector<std::string> headers) { m_additionalHeaders = headers; }
 
     RequestType RequestConfig::getRequestType() const { return m_requestType; }
@@ -98,10 +91,6 @@ namespace Common::HttpSender
 
     const std::string& RequestConfig::getResourcePath() const { return m_resourcePath; }
     const std::string& RequestConfig::getFilePath() const { return m_filePath; }
-    const std::string& RequestConfig::getChrootFilePath() const
-    {
-        return m_chrootFilePath;
-    }
 
 
     int RequestConfig::getPort() const { return m_port; }

@@ -52,7 +52,6 @@ namespace Common::HttpSender
         const std::string& getServer() const;
         const std::string& getResourcePath() const;
         const std::string& getFilePath() const;
-        const std::string& getChrootFilePath() const;
         std::string getRequestTypeAsString() const;
         int getPort() const;
 

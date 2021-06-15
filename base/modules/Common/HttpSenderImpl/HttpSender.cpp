@@ -202,6 +202,19 @@ namespace Common::HttpSenderImpl
         }
 
         curlOptions.emplace_back("Set logging options", CURLOPT_VERBOSE, verbose);
+        std::string filePath = requestConfig.getFilePath();
+        if (!filePath.empty())
+        {
+            LOGDEBUG("Sending file: "<< filePath);
+            struct curl_httppost *post = NULL;
+            struct curl_httppost *last = NULL;
+            curl_formadd(&post,
+                         &last,
+                         CURLFORM_COPYNAME, "Zip file",
+                         CURLFORM_FILE, filePath.c_str(),
+                         CURLFORM_END);
+        }
+
         std::string certPath = requestConfig.getCertPath();
 
         if (certPath.empty())

@@ -26,6 +26,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <zip.h>
 #include <fstream>
 #include <zlib.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 namespace diagnose
 {
@@ -233,6 +234,9 @@ namespace diagnose
             }
         }
 
+        Common::FileSystem::filePermissions()->chown(destPath, sophos::networkUser(), sophos::networkGroup());
+        Common::FileSystem::filePermissions()->chmod(destPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+
         if (zipClose(zf, NULL))
             return ;
 
@@ -257,7 +261,7 @@ namespace diagnose
         {
             fileSystem()->moveFile(zipfiletemp, zipfile);
         }
-        catch(IFileSystemException& exception)
+        catch (IFileSystemException& exception)
         {
             throw std::invalid_argument("zip file " + zipfile + " was not created, error" + exception.what());
         }

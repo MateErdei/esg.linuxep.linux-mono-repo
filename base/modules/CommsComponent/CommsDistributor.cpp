@@ -241,7 +241,6 @@ namespace CommsComponent
                     bodyFileContents = m_fileSystem->readFile(requestBodyFilePath);
                 }
 
-
                 std::string serializedRequestMessage = getSerializedRequest(requestFileContents, bodyFileContents, id);
                 if ( m_withSupportForProxy)
                 {
@@ -271,7 +270,10 @@ namespace CommsComponent
 
         // attempt to clean up request json and body
         cleanupFile(requestJsonFilePath);
-        cleanupFile(requestBodyFilePath);
+        if (m_fileSystem->exists(requestBodyFilePath))
+        {
+            cleanupFile(requestBodyFilePath);
+        }
     }
 
     void CommsDistributor::setupProxy()
