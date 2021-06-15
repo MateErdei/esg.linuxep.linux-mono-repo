@@ -23,6 +23,7 @@ message HttpRequest
     repeated string headers = 9; 
     // repeated KeyValue params = 10;  
     optional string certPath = 12; 
+    optional string filePath = 15;
 }
 
 message HttpResponse

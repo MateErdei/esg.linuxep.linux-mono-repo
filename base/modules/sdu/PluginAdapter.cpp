@@ -165,8 +165,10 @@ namespace RemoteDiagnoseImpl
 
         Common::HttpSender::RequestConfig requestConfig{Common::HttpSender::RequestType::PUT,
                                                         std::vector<std::string>{},data.domain,
-                                                        80,"",data.resourcePath};
-
+                                                        80,"",data.resourcePath,
+                                                        processedfilepath};
+        std::string content = fs->readFile(processedfilepath);
+        requestConfig.setData(content);
         try
         {
             auto response = CommsComponent::HttpRequester::triggerRequest("UploadDiagnose", requestConfig, std::chrono::minutes(1));

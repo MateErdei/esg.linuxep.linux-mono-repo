@@ -302,6 +302,15 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "var/comms/responses");
         }
 
+        std::string ApplicationPathManager::getCommsRootDirectory() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "/var/sophos-spl-comms");
+        }
+        std::string ApplicationPathManager::getCommsInputDirectory() const
+        {
+            return Common::FileSystem::join(getCommsRootDirectory(), "base/input");
+        }
+
         std::string ApplicationPathManager::getVersionIniFileForComponent(const std::string& component) const
         {
             std::string path;

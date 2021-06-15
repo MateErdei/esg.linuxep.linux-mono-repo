@@ -30,7 +30,8 @@ namespace Common::HttpSender
             const std::string& server,
             int port,
             const std::string& certPath,
-            const std::string& resourcePath);
+            const std::string& resourcePath,
+            const std::string& filePath = "");
 
         RequestConfig() = default;
         ~RequestConfig() = default;
@@ -41,6 +42,7 @@ namespace Common::HttpSender
         void setPort(const int port);
         void setCertPath(const std::string& certPath);
         void setResourcePath(const std::string& resourcePath);
+        void setFilePath(const std::string& filePath);
         void setAdditionalHeaders(std::vector<std::string>);
 
         const std::string& getData() const;
@@ -49,6 +51,8 @@ namespace Common::HttpSender
         const std::string& getCertPath() const;
         const std::string& getServer() const;
         const std::string& getResourcePath() const;
+        const std::string& getFilePath() const;
+        const std::string& getChrootFilePath() const;
         std::string getRequestTypeAsString() const;
         int getPort() const;
 
@@ -64,5 +68,7 @@ namespace Common::HttpSender
         RequestType m_requestType = RequestType::GET;
         std::string m_certPath;
         std::string m_resourcePath;
+        std::string m_filePath;
+        std::string m_chrootFilePath;
     };
 } // namespace Common::HttpSender

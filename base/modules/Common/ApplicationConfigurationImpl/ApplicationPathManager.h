@@ -78,6 +78,8 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getCommsRequestDirPath() const override;
         std::string getCommsResponseDirPath() const override;
+        std::string getCommsRootDirectory() const override;
+        std::string getCommsInputDirectory() const override;
 
         std::string getVersionIniFileForComponent(const std::string& component) const override;
         std::string getFeaturesJsonPath() const override;

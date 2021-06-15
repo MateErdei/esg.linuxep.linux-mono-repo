@@ -41,12 +41,30 @@ namespace
             proto->set_bodycontent(requestConfig.getData());
             proto->set_server(requestConfig.getServer());
             proto->set_resourcepath(requestConfig.getResourcePath());
+            proto->set_filepath(requestConfig.getFilePath());
+            proto->set_certpath(requestConfig.getCertPath());
             proto->set_requesttype(requestConfig.getRequestTypeAsString());
             proto->set_port(requestConfig.getPort());
 
-            for (const auto& header : requestConfig.getAdditionalHeaders())
+            for(const auto& header : requestConfig.getAdditionalHeaders())
             {
                 proto->add_headers(header);
+            }
+        }
+        void operator()(const CommsComponent::CommsConfig& config)
+        {
+            auto proto = m_msg.mutable_config();
+
+            std::map<std::string,std::vector<std::string>> key_list = config.getKeyList();
+            for (auto [key,list] : key_list)
+            {
+                CommsMsgProto::KeyValue keyvalue;
+                keyvalue.set_key(key);
+                for (const auto& value: list)
+                {
+                    keyvalue.add_value(value);
+                }
+                (*proto->add_keyvalue()) = keyvalue;
             }
         }
     };
@@ -57,13 +75,14 @@ namespace
         requestConfig.setRequestTypeFromString(requestProto.requesttype());
         requestConfig.setServer(requestProto.server());
         requestConfig.setResourcePath(requestProto.resourcepath());
+        requestConfig.setFilePath(requestProto.filepath());
+        requestConfig.setCertPath(requestProto.certpath());
         requestConfig.setData(requestProto.bodycontent());
         requestConfig.setPort(requestProto.port());
-        requestConfig.setCertPath(requestProto.certpath());
-        std::vector<std::string> headers;
-        for (auto& header: requestProto.headers())
+        std::vector<std::string> headers; 
+        for(auto& header: requestProto.headers())
         {
-            headers.push_back(header);
+            headers.push_back(header);             
         }
         requestConfig.setAdditionalHeaders(std::move(headers));
         return requestConfig;
@@ -77,6 +96,23 @@ namespace
         httpResponse.description = responseProto.description();
         httpResponse.exitCode = responseProto.exitcode();
         return httpResponse;
+    }
+
+    CommsComponent::CommsConfig from(const CommsMsgProto::Config& configProto)
+    {
+        CommsComponent::CommsConfig config;
+        for (const auto& pair : configProto.keyvalue())
+        {
+
+            std::vector<std::string> values;
+            for (const auto& value : pair.value())
+            {
+                values.emplace_back(value);
+            }
+            config.addKeyValueToList(std::pair<std::string,std::vector<std::string>>(pair.key(),values));
+
+        }
+        return config;
     }
 
 }
@@ -101,12 +137,18 @@ namespace CommsComponent
         if (protoMsg.has_httprequest())
         {
             commsMsg.content = from(protoMsg.httprequest());
-
-        }
-        else if (protoMsg.has_httpresponse())
+        } 
+        else if(protoMsg.has_httpresponse())
         {
             commsMsg.content = from(protoMsg.httpresponse());
-
+        }
+        else if(protoMsg.has_config())
+        {
+            commsMsg.content = from(protoMsg.config());
+        }
+        else if (protoMsg.has_config())
+        {
+                commsMsg.content = from(protoMsg.config());
         }
         else
         {
@@ -114,7 +156,7 @@ namespace CommsComponent
         }
         return commsMsg;
     }
-
+            
     std::string CommsMsg::serialize(const CommsMsg& commsMsg)
     {
         CommsMsgProto::CommsMsg protoMsg;
