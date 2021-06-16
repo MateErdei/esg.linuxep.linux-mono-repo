@@ -135,7 +135,7 @@ namespace RemoteDiagnoseImpl
 
         std::string newStatus = replaceAll(statusTemplate, "@VERSION@", version);
         newStatus = replaceAll(newStatus, "@IS_RUNNING@", "1");
-        m_baseService->sendStatus("SDU", newStatus, newStatus);
+        //m_baseService->sendStatus("SDU", newStatus, newStatus);
 
         if (!m_diagnoseRunner->isRunning())
         {
@@ -162,11 +162,11 @@ namespace RemoteDiagnoseImpl
         {
             LOGERROR("failed to process zip file due to error: " << exception.what());
         }
-
+        std::string chrootPath = Common::FileSystem::join("/base/remote-diagnose/output",data.filename);
         Common::HttpSender::RequestConfig requestConfig{Common::HttpSender::RequestType::PUT,
                                                         std::vector<std::string>{},data.domain,
-                                                        80,"",data.resourcePath,
-                                                        processedfilepath};
+                                                        443,"",data.resourcePath,
+                                                        chrootPath};
 
         try
         {

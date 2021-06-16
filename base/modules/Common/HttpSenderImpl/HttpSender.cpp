@@ -16,7 +16,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <map>
 #include <sstream>
 #include <variant>
-
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 namespace
 {
     size_t write_data(void* buffer, size_t size, size_t nmemb, void* userp) // NOLINT
@@ -36,6 +38,24 @@ namespace
         return 0;
     }
 
+
+    static size_t read_callback(char *ptr, size_t size, size_t nmemb, FILE *stream)
+    {
+        size_t retcode;
+        curl_off_t nread;
+
+        /* in real-world cases, this would probably get this data differently
+           as this fread() stuff is exactly what the library already would do
+           by default internally */
+        retcode = fread(ptr, size, nmemb, stream);
+
+        nread = (curl_off_t)retcode;
+        std::cout << "read bytes: " <<std::endl;
+        fprintf(stdout, "*** We read %" CURL_FORMAT_CURL_OFF_T
+                        " bytes from file\n", nread);
+
+        return retcode;
+    }
 } // namespace
 
 namespace
@@ -203,16 +223,26 @@ namespace Common::HttpSenderImpl
 
         curlOptions.emplace_back("Set logging options", CURLOPT_VERBOSE, verbose);
         std::string filePath = requestConfig.getFilePath();
+        FILE *hd_src = nullptr;
+        struct stat file_info;
         if (!filePath.empty())
         {
+            if (FileSystem::fileSystem()->isFile(filePath))
+            {
+            curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);
+            stat(filePath.c_str(), &file_info);
+            hd_src = fopen(filePath.c_str(), "rb");
             LOGDEBUG("Sending file: "<< filePath);
-            struct curl_httppost *post = NULL;
-            struct curl_httppost *last = NULL;
-            curl_formadd(&post,
-                         &last,
-                         CURLFORM_COPYNAME, "Zip file",
-                         CURLFORM_FILE, filePath.c_str(),
-                         CURLFORM_END);
+            curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+            curl_easy_setopt(curl, CURLOPT_READDATA, hd_src);
+            curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
+                             (curl_off_t)file_info.st_size);
+
+            }
+            else
+            {
+                LOGERROR("File does not exist: " << filePath);
+            }
         }
 
         std::string certPath = requestConfig.getCertPath();
@@ -317,6 +347,10 @@ namespace Common::HttpSenderImpl
 
         LOGDEBUG("Running easyPerform. ");
         CURLcode result = m_curlWrapper->curlEasyPerform(curl);
+        if (!filePath.empty() && hd_src !=nullptr)
+        {
+            fclose(hd_src);
+        }
         LOGDEBUG("Performed easyPerform: " << result);
         if (result != CURLE_OK)
         {

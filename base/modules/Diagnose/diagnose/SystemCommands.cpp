@@ -235,7 +235,7 @@ namespace diagnose
         }
 
         Common::FileSystem::filePermissions()->chown(destPath, sophos::networkUser(), sophos::networkGroup());
-        Common::FileSystem::filePermissions()->chmod(destPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        Common::FileSystem::filePermissions()->chmod(destPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP| S_IROTH);
 
         if (zipClose(zf, NULL))
             return ;
@@ -256,7 +256,7 @@ namespace diagnose
         produceZip(srcPath, zipfiletemp);
 
         Common::FileSystem::filePermissions()->chown(zipfiletemp, sophos::user(), sophos::group());
-        Common::FileSystem::filePermissions()->chmod(zipfiletemp, S_IRUSR | S_IWUSR | S_IRGRP);
+        Common::FileSystem::filePermissions()->chmod(zipfiletemp, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         try
         {
             fileSystem()->moveFile(zipfiletemp, zipfile);
