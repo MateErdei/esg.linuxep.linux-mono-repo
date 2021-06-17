@@ -1172,6 +1172,8 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
 
 
 CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
+    [Timeout]  15min
+
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
     ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 
@@ -1192,7 +1194,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Run Process   /bin/kill   -SIGSEGV   ${output}
     sleep  60  Waiting for the socket to timeout
     Wait Until Keyword Succeeds
-    ...  240 secs
+    ...  350 secs
     ...  10 secs
     ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
