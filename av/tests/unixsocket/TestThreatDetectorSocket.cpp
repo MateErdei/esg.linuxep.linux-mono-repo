@@ -268,11 +268,11 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLIN
             EXPECT_NE(response.getErrorMsg(), ""); // We should have an error message
         }
 
-        // Second time should throw exception
+        // 5th time should throw exception ( TOTAL_MAX_RECONNECTS / MAX_SCAN_RETRIES + 1)
         try
         {
             auto response = scan(client_socket, fd, THREAT_PATH);
-            FAIL() << "Managed to scan ten times with no connection";
+            FAIL() << "Managed to scan 5 times with no connection";
         }
         catch (const AbortScanException&)
         {
