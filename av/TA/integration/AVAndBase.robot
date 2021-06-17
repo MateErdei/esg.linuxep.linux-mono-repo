@@ -557,7 +557,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
     ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
 
-    Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  $${SOPHOS_THREAT_DETECTOR_BINARY}_moved
+    Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved
 
     Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central  timeout=120
     Register Cleanup    Uninstall and full reinstall
