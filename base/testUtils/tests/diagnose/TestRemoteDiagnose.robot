@@ -2,6 +2,9 @@
 
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/DiagnoseUtils.py
+Library     ${LIBS_DIRECTORY}/HttpsServer.py
+Library     ${LIBS_DIRECTORY}/TelemetryUtils.py
+
 
 
 Library     Process
@@ -17,12 +20,12 @@ Suite Teardown  Run Keywords
 ...             Ensure Uninstalled  AND
 ...             Cleanup Certificates
 
-Test Teardown   Run Keywords
-...             Stop Local Cloud Server
-...             MCSRouter Default Test Teardown
+Test Teardown   Teardown
+
 Test Setup   Setup Fake Cloud
 Default Tags  DIAGNOSE
-
+*** Variables ***
+${HTTPS_LOG_FILE_PATH}     /tmp/https_server.log
 *** Test Cases ***
 Test Remote Diagnose can process SDU action
     Override Local LogConf File for a component   DEBUG  global
@@ -48,9 +51,10 @@ Test Remote Diagnose can process SDU action
         ...  5 secs
         ...  Check Log Contains   Diagnose finished    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
     Wait Until Keyword Succeeds
-        ...  20 secs
+        ...  40 secs
         ...  5 secs
         ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
+    Check Log Contains   We are completely uploaded and fine    ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log   Comms Network
 
 Test Remote Diagnose can handle two SDU actions
     Simulate SDU Action Now
@@ -74,6 +78,17 @@ Setup Fake Cloud
     Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
     Register With Local Cloud Server
 
+    HttpsServer.Start Https Server  /tmp/cert.crt  443  tlsv1_2  True
+    install_system_ca_cert  /tmp/cert.crt
+    install_system_ca_cert  /tmp/ca.crt
+
+Teardown
+    Stop Local Cloud Server
+    MCSRouter Default Test Teardown
+    Stop Https Server
+    Dump Teardown Log  ${HTTPS_LOG_FILE_PATH}
+    Remove File  ${HTTPS_LOG_FILE_PATH}
+    cleanup_system_ca_certs
 
 Simulate SDU Action Now
     Copy File   ${SUPPORT_FILES}/CentralXml/SDUAction.xml  ${SOPHOS_INSTALL}/tmp
