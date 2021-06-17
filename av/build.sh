@@ -56,6 +56,7 @@ LOCAL_CMAKE=0
 DUMP_LAST_TEST_ON_FAILURE=1
 FAILURE_CPPCHECK=62
 CPPCHECK=0
+TAP=${TAP:-tap}
 
 while [[ $# -ge 1 ]]
 do
@@ -199,15 +200,19 @@ do
             rm -rf ${BUILD_DIR}/input
             python3 -m build_scripts.artisan_fetch build-files/release-package.xml
             ;;
+        --tap)
+            shift
+            TAP=$1
+            ;;
         --get-input|--get-input-new)
             rm -rf ${BUILD_DIR}/input ${BUILD_DIR}/redist
             export TAP_PARAMETER_MODE=release
-            tap fetch av_plugin.build.normal_build
+            $TAP fetch av_plugin.build.normal_build
             ;;
         --setup)
             rm -rf ${BUILD_DIR}/input ${BUILD_DIR}/redist
             export TAP_PARAMETER_MODE=release
-            tap fetch av_plugin.build.normal_build
+            $TAP fetch av_plugin.build.normal_build
             rm -f ${BUILD_DIR}/input/gcc-*-linux.tar.gz
             NO_BUILD=1
             LOCAL_GCC=1
