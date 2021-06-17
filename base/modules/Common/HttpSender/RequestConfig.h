@@ -68,6 +68,5 @@ namespace Common::HttpSender
         std::string m_certPath;
         std::string m_resourcePath;
         std::string m_filePath;
-        std::string m_chrootFilePath;
     };
 } // namespace Common::HttpSender

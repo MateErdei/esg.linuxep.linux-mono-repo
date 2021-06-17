@@ -52,7 +52,6 @@ namespace CommsComponent
             std::optional<std::string> responseFilePath;
             try
             {
-
                 LOGSUPPORT("Beginning to monitor response directory: " << Common::ApplicationConfiguration::applicationPathManager().getCommsResponseDirPath());
                 responseFilePath = monitorDir.next(timeout);
                 if (!responseFilePath.has_value())

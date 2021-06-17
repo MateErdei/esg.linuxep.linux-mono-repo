@@ -164,7 +164,7 @@ namespace RemoteDiagnoseImpl
         std::string chrootPath = Common::FileSystem::join("/base/remote-diagnose/output", data.filename);
 
         Common::HttpSender::RequestConfig requestConfig{Common::HttpSender::RequestType::PUT,
-                                                        std::vector<std::string>{"Expect:"},data.domain,
+                                                        std::vector<std::string>{},data.domain,
                                                         443,"",data.resourcePath,
                                                         chrootPath};
 

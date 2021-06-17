@@ -20,13 +20,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 #include <iostream>
-#include <iterator>
-#include <sstream>
 #include <sys/stat.h>
 #include <zip.h>
 #include <fstream>
 #include <zlib.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 namespace diagnose
 {
@@ -200,14 +197,12 @@ namespace diagnose
         {
             if (fs->isFile(path))
             {
-
                 std::fstream file(path.c_str(), std::ios::binary | std::ios::in);
                 if (file.is_open())
                 {
                     file.seekg(0, std::ios::end);
                     long size = file.tellg();
                     file.seekg(0, std::ios::beg);
-                    std::cout << size  << std::endl;
                     std::vector<char> buffer(size);
                     if (size == 0 || file.read(&buffer[0], size))
                     {
@@ -234,9 +229,6 @@ namespace diagnose
             }
         }
 
-        Common::FileSystem::filePermissions()->chown(destPath, sophos::networkUser(), sophos::networkGroup());
-        Common::FileSystem::filePermissions()->chmod(destPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP| S_IROTH);
-
         if (zipClose(zf, NULL))
             return ;
 
@@ -255,15 +247,18 @@ namespace diagnose
 
         produceZip(srcPath, zipfiletemp);
 
-        Common::FileSystem::filePermissions()->chown(zipfiletemp, sophos::user(), sophos::group());
-        Common::FileSystem::filePermissions()->chmod(zipfiletemp, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         try
         {
+            Common::FileSystem::filePermissions()->chown(zipfiletemp, sophos::user(), sophos::group());
+            Common::FileSystem::filePermissions()->chmod(zipfiletemp, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
             fileSystem()->moveFile(zipfiletemp, zipfile);
         }
         catch (IFileSystemException& exception)
         {
-            throw std::invalid_argument("zip file " + zipfile + " was not created, error" + exception.what());
+            std::stringstream errormsg;
+            errormsg << "Error creating zip file: " << exception.what();
+            throw std::runtime_error(errormsg.str());
         }
 
         std::cout << "Created tarfile: " << zipFileName << " in directory " << destPath << std::endl;
