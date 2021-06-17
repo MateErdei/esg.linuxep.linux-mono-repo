@@ -81,7 +81,7 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ...  File Log Contains  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
 
     ${line_count} =  Count Lines In Log  ${SCANNOW_LOG_PATH}  Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
-    Should Be True   5 < ${line_count} <= 10
+    Should Be True   3 <= ${line_count} <= 7
 
     File Log Contains Once  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
 
