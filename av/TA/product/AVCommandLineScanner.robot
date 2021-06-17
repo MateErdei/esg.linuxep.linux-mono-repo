@@ -1202,7 +1202,9 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ${result} =  Wait For Process  handle=${HANDLE}  timeout=10s  on_timeout=kill
 
     ${line_count} =  Count Lines In Log  ${LOG_FILE}  Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
-    Should Be Equal As Strings  ${line_count}  9
+
+    # How many files should completely fail before we abort the scan - 250 / 60 = 4.*
+    Should Be Equal As Strings  ${line_count}  4
 
     File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
