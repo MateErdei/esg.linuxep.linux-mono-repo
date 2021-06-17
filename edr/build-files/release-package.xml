@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-plugin-edr-component" version="1.1.2">
+<package name="sspl-template-plugin" version="1.0.0">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -7,24 +7,11 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/Version_1_1_6" build-id="20210521140905-54e5034b6bcc7e1099154be3bcebeff2345ae915-rLBqBe"/>
-            <development-version branch="develop"/>
-            <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
-            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
+            <development-version branch="develop" />
+            <include artifact-path="sspl-base/pluginapi" dest-dir="./input" />
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="./input/base-sdds"/>
         </build-asset>
-        <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2021.19" build-id="20210504124607-bf8d67823e02dcb218affc74fe23f17b87fc4460-juSRV9"/>
-            <development-version branch="develop"/>
-            <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
-        </build-asset>
-        <build-asset project="winep" repo="dbos">
-            <release-version branch="release/2021.10" build-id="20210309104636-4cf9e440aedc818512dbfeb5f63d3c98cc5ae4c2-6rLar3"/>
-            <development-version branch="develop"/>
-            <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
-        </build-asset>
-        <package name="boostlinux11" version="1-75-0-4/222018/output" dest="input">
-            <include src="boost.tar" dest="."/>
-        </package>
+
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
@@ -34,103 +21,35 @@
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
-        <trusted-asset artifact-path="com.osquery/osquery/4.6.0/osquery-4.6.0-linux" dest-dir="input/osquery"/>
-        <package name="openssllinux11" version="1-1-1j-1/222017/output" dest="input">
-            <include src="openssl.tar" dest="."/>
-        </package>
-        <package name="protobuflinux11" version="3-14-0-6/221619/output" dest="input">
-            <include src="protobuf.tar" dest="."/>
-        </package>
-        <package name="gflagslinux11" version="2-2-2-10/218072/output" dest="input">
-            <include src="gflags.tar" dest="."/>
-        </package>
-        <package name="gloglinux11" version="0-4-0-14/219062/output" dest="input">
-            <include src="glog.tar" dest="."/>
-        </package>
-        <package name="thriftlinux11" version="0-14-1-5/222026/output" dest="input">
-            <include src="thrift.tar" dest="."/>
-        </package>
-        <package name="sqlite-amalgamation" version="3-34-1-4/221901" dest="input">
-            <include src="sqlite-amalgamation" dest="sqlite-amalgamation"/>
-        </package>
-        <package name="jsoncpplinux11" version="1-8-4-17/220379/output" dest="input">
-            <include src="jsoncpp.tar" dest="."/>
-        </package>
-
     </inputs>
     <buildcommands>
-        <!--<command buildtype="prod">-->
-        <command mode="release,release-classic">
+        <command mode="release">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr</args>
+            <args>./build.sh --clean --name sspl-template-plugin</args>
             <workingdir>.</workingdir>
         </command>
-
-        <command mode="coverage">
-            <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr --bullseye</args>
-            <workingdir>.</workingdir>
-        </command>
-
-        <command mode="analysis">
-            <program>/bin/bash</program>
-            <args>./build.sh --no-build --name edr --analysis</args>
-            <workingdir>.</workingdir>
-        </command>
-
-        <!-- 999 -->
         <command mode="999">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name edr --999 --no-unit-test</args>
+            <args>./build.sh --clean --name sspl-template-plugin --999 --no-unit-test</args>
             <workingdir>.</workingdir>
         </command>
-
-        <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
-        <!--<command buildtype="dev">>
+        <command mode="060">
             <program>/bin/bash</program>
-            <args>./build.sh - -clean - -debug - -name edr</args> 'When put back remove spaces between hyphens'
+            <args>./build.sh --clean --name sspl-template-plugin --060 --no-unit-test</args>
             <workingdir>.</workingdir>
-        </command> -->
+        </command>
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
-        <!-- new unified pipeline -->
-        <!-- change edr/sdds to a release asset -->
-        <release-asset artifact-path="edr/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
-        <release-asset artifact-path="edr-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
-
+        <release-asset artifact-path="template/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release" />
+        <release-asset artifact-path="template-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999" />
+        <release-asset artifact-path="template-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060" />
         <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
         <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
-        <build-asset artifact-path="componenttests" source-dir="output/componenttests" mode="release"/>
         <build-asset artifact-path="build_log" source-dir="output" mode="release">
             <include glob="./build.log" />
         </build-asset>
-
-        <build-asset artifact-path="sspl-edr-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
-        <build-asset artifact-path="sspl-edr-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-plugin-edr-unittest" mode="coverage"/>
-        <build-asset artifact-path="sspl-edr-coverage/symbols" source-dir="output/symbols" mode="coverage"/>
-        <build-asset artifact-path="sspl-edr-coverage/base/base-sdds" source-dir="output/base-sdds" mode="coverage"/>
-        <build-asset artifact-path="sspl-edr-coverage/componenttests" source-dir="output/componenttests" mode="coverage"/>
-        <build-asset artifact-path="sspl-edr-coverage/build_log" source-dir="output" mode="coverage">
-            <include glob="./build.log" />
-        </build-asset>
-        <build-asset artifact-path="sspl-edr-coverage/covfile" source-dir="output/" mode="coverage">
-            <include glob="./*.cov"/>
-        </build-asset>
-        <build-asset artifact-path="analysis" source-dir="output/analysis/cppcheck" mode="analysis"/>
-
-        <destdir>sspl-plugin-edr-component</destdir>
-        <!--  Legacy build outputs to uk-filer6 -->
-        <buildoutputs>
-            <!-- Release -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="debug,release-classic"> </output>
-            <output name="build_log" srcfolder="log" mode="debug,release-classic"> </output>
-            
-            <!-- Analysis -->
-            <output name="analysis" srcfolder="output" artifactpath="_analysis" mode="analysis-classic"> </output>
-            <output name="analysis_build_log" srcfolder="log" artifactpath="analysis/build_log" mode="analysis-classic"/>
-
-        </buildoutputs>
-        <publishbranches>master,feature,bugfix,release,develop</publishbranches>
+        <destdir>sspl-template-plugin</destdir>
+        <publishbranches>develop,release,feature</publishbranches>
     </publish>
 </package>

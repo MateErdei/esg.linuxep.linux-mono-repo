@@ -6,5 +6,4 @@ def params = [
     choice(name: 'MODE', choices: ['release', 'coverage','analysis'], defaultValue: 'release', description: 'Build mode'),
 ]
 
-CIPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'edr_plugin'; buildParameters = params }
-
+CIPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'template_plugin'; buildParameters = params }

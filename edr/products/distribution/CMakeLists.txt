@@ -1,3 +1,5 @@
+
+
 configure_file(PRODUCT_NAME.in PRODUCT_NAME @ONLY )
 configure_file(PLUGIN_NAME.in PLUGIN_NAME @ONLY )
 configure_file(RIGID_NAME.in RIGID_NAME @ONLY )
@@ -12,40 +14,7 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
         OUTPUT_VARIABLE libgcc_s_path)
 string(STRIP "${libgcc_s_path}" libgcc_s_path )
 
-set(third_party_libs
-        ${libstdcpp_path}
-        ${libgcc_s_path}
-        ${pluginapilib}
-        ${zmqlib}
-        ${expatlib}
-        ${zlib}
-        ${log4cpluslib}
-        ${protobuflib}
-        ${OSQUERYSDK_LIBRARY}
-        ${LOGGER_PLUGIN_LIBRARY}
-        ${JSON_CPP_LIBRARY}
-        ${OSQUERY_GEN_LIBRARY}
-        ${THRIFT_LIBRARY}
-        )
-
-INCLUDE(FindLibraryFullPath)
-
-function(add_third_party_library LIB LIBRARY_PATH)
-    FindLibraryFullPath(FOUND_LIB_ABSOLUTE ${LIB} ${LIBRARY_PATH})
-    message("Add third party: ${FOUND_LIB_ABSOLUTE}  ${LIB}" )
-    set(third_party_libs ${third_party_libs} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
-endfunction(add_third_party_library)
-
-foreach (LIB boost_chrono boost_date_time boost_filesystem boost_system boost_thread boost_context)
-    add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
-endforeach(LIB)
-
-add_third_party_library(thrift ${INPUT}/thrift/install64/lib)
-add_third_party_library(glog ${INPUT}/glog/install64/lib)
-add_third_party_library(gflags ${INPUT}/gflags/install64/lib)
-add_third_party_library(crypto ${INPUT}/openssl/lib64)
-add_third_party_library(ssl ${INPUT}/openssl/lib64)
-add_third_party_library(jsoncpp ${INPUT}/jsoncpp/lib64)
+set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${pluginapilib} ${zmqlib} ${log4cpluslib} ${protobuflib})
 
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
@@ -81,6 +50,7 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
         COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
 )
+
 if (DEFINED ENV{VERSION_OVERRIDE})
     set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
 else()
@@ -90,7 +60,7 @@ else()
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     execute_process(
-            COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} CIJenkinsfile
+            COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
             OUTPUT_VARIABLE PRODUCT_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
