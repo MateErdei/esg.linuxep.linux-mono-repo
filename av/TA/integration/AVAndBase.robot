@@ -541,7 +541,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Register Cleanup    Uninstall and full reinstall
     Run Process   /bin/kill   -SIGSEGV   ${output}
 
-    Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, terminated with exit code: ${SCAN_ABORTED}   timeout=350    interval=10
+    Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, terminated with exit code: ${SCAN_ABORTED}   timeout=650    interval=10
 
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
@@ -562,7 +562,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Register Cleanup    Uninstall and full reinstall
     Run Process   /bin/kill   -SIGSEGV   ${output}
 
-    Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}    timeout=350    interval=10
+    Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}    timeout=650    interval=10
 
 AV Runs Scan With SXL Lookup Enable
     Mark AV Log

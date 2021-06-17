@@ -76,7 +76,7 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     sleep  60  Waiting for the socket to timeout
     Wait Until Keyword Succeeds
-    ...  350 secs
+    ...  650 secs
     ...  20 secs
     ...  File Log Contains  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
 
