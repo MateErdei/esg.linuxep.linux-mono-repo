@@ -146,13 +146,12 @@ namespace RemoteDiagnoseImpl
 
     void PluginAdapter::processZip()
     {
-        LOGINFO("Diagnose finished");
         std::string output = Common::ApplicationConfiguration::applicationPathManager().getDiagnoseOutputPath();
         auto fs = Common::FileSystem::fileSystem();
         std::string filepath = Common::FileSystem::join(output,"sspl.zip");
 
         UrlData data = processUrl();
-        std::string processedfilepath = Common::FileSystem::join(output,data.filename);
+        std::string processedfilepath = Common::FileSystem::join(output, data.filename);
 
         try
         {
@@ -162,9 +161,10 @@ namespace RemoteDiagnoseImpl
         {
             LOGERROR("failed to process zip file due to error: " << exception.what());
         }
-        std::string chrootPath = Common::FileSystem::join("/base/remote-diagnose/output",data.filename);
+        std::string chrootPath = Common::FileSystem::join("/base/remote-diagnose/output", data.filename);
+
         Common::HttpSender::RequestConfig requestConfig{Common::HttpSender::RequestType::PUT,
-                                                        std::vector<std::string>{},data.domain,
+                                                        std::vector<std::string>{"Expect:"},data.domain,
                                                         443,"",data.resourcePath,
                                                         chrootPath};
 
@@ -186,6 +186,7 @@ namespace RemoteDiagnoseImpl
 
         }
         sendFinishedStatus();
+        LOGINFO("Diagnose finished");
     }
 
     PluginAdapter::UrlData PluginAdapter::processUrl()
@@ -197,14 +198,13 @@ namespace RemoteDiagnoseImpl
             throw std::runtime_error("Malformed url missing protocol");
         }
         std::string noProtocol = m_url.substr(8);
-        data.resourcePath = noProtocol.substr(noProtocol.find_first_of("/"));
+        data.resourcePath = noProtocol.substr(noProtocol.find_first_of("/")+1);// plus one so we dont include the first slash
         data.domain = noProtocol.substr(0,noProtocol.find_first_of("/"));
 
         return data;
     }
     void PluginAdapter::sendFinishedStatus()
     {
-        //TODO LINUXDAR-871 update mcs to handle more than one status sent during one command poll time
         std::this_thread::sleep_for(std::chrono::seconds(10));
         std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
                 "ServerProtectionLinux-Base-component");

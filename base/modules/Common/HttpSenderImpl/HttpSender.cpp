@@ -224,20 +224,19 @@ namespace Common::HttpSenderImpl
         curlOptions.emplace_back("Set logging options", CURLOPT_VERBOSE, verbose);
         std::string filePath = requestConfig.getFilePath();
         FILE *hd_src = nullptr;
-        struct stat file_info;
+        bool uploadFile = false;
         if (!filePath.empty())
         {
             if (FileSystem::fileSystem()->isFile(filePath))
             {
-            curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);
-            stat(filePath.c_str(), &file_info);
-            hd_src = fopen(filePath.c_str(), "rb");
-            LOGDEBUG("Sending file: "<< filePath);
-            curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-            curl_easy_setopt(curl, CURLOPT_READDATA, hd_src);
-            curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
-                             (curl_off_t)file_info.st_size);
-
+                curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);
+                hd_src = fopen(filePath.c_str(), "rb");
+                LOGDEBUG("Sending file: "<< filePath << ", size: " << FileSystem::fileSystem()->fileSize(filePath));
+                curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+                curl_easy_setopt(curl, CURLOPT_READDATA, hd_src);
+                curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
+                                 (curl_off_t)FileSystem::fileSystem()->fileSize(filePath));
+                uploadFile = true;
             }
             else
             {
@@ -297,7 +296,7 @@ namespace Common::HttpSenderImpl
         {
             curlOptions.emplace_back("Specify data to POST to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
         }
-        else if (requestConfig.getRequestType() == RequestType::PUT)
+        else if (requestConfig.getRequestType() == RequestType::PUT && !uploadFile)
         {
             curlOptions.emplace_back("Specify a custom PUT request", CURLOPT_CUSTOMREQUEST, "PUT");
             curlOptions.emplace_back("Specify data to PUT to server", CURLOPT_COPYPOSTFIELDS, requestConfig.getData());
