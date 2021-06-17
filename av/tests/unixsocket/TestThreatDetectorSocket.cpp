@@ -262,7 +262,7 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLIN
         unixsocket::ScanningClientSocket& client_socket(client_sockets.back());
         TestFile testFile("testfile");
         datatypes::AutoFd fd(testFile.open());
-        for (int i=0;i< TOTAL_MAX_RECONNECTS / MAX_CONN_RETRIES;++i)
+        for (int i=0;i< TOTAL_MAX_RECONNECTS / MAX_SCAN_RETRIES;++i)
         {
             auto response = scan(client_socket, fd, THREAT_PATH);
             EXPECT_NE(response.getErrorMsg(), ""); // We should have an error message
