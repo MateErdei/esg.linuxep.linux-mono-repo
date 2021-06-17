@@ -12,7 +12,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #define TOTAL_MAX_RECONNECTS 250
 
 /* Number of attempts for initial connection to socket, before scanning any file */
-#define MAX_CONN_RETRIES 60
+#define MAX_CONN_RETRIES 20
 
 #ifdef USING_LIBFUZZER
 #define MAX_SCAN_RETRIES 1
@@ -20,5 +20,9 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 /* Number of attempt to scan a particular file, reconnecting if required */
 #define MAX_SCAN_RETRIES 60
 #endif
+
+/*
+ * Timing out avscanner will take (MAX_CONN_RETRIES + TOTAL_MAX_RECONNECTS) * sleepTime(1second)
+ */
 
 #endif // SSPL_PLUGIN_MAV_RECONNECTSETTINGS_H

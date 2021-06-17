@@ -52,7 +52,7 @@ ${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
 ${SCAN_DIRECTORY}   /home/vagrant/this/is/a/directory/for/scanning
 ${AVSCANNER}        /usr/local/bin/avscanner
 
-${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}  ${300}
+${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}  ${350}
 
 
 *** Keywords ***
@@ -451,15 +451,15 @@ Display All SSPL Files Installed
     Log  ${result.stderr}
 
 AV And Base Teardown
-    Run Teardown Functions
     Run Keyword If Test Failed   Display All SSPL Files Installed
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/watchdog.log  encoding_errors=replace
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  encoding_errors=replace
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${SUSI_DEBUG_LOG_PATH}  encoding_errors=replace
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${TELEMETRY_LOG_PATH}  encoding_errors=replace
-    Run Keyword If Test Failed   Run Keyword And Ignore Error  Log File   ${AV_INSTALL_LOG}  encoding_errors=replace
+    Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
+    Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
+    Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
+    Register On Fail  dump log  ${AV_LOG_PATH}
+    Register On Fail  dump log  ${TELEMETRY_LOG_PATH}
+    Register On Fail  dump log  ${AV_INSTALL_LOG}
+    Run Teardown Functions
 
 Restart AV Plugin And Clear The Logs For Integration Tests
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
