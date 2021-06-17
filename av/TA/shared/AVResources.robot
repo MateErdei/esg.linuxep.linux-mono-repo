@@ -52,6 +52,8 @@ ${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
 ${SCAN_DIRECTORY}   /home/vagrant/this/is/a/directory/for/scanning
 ${AVSCANNER}        /usr/local/bin/avscanner
 
+${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}  ${300}
+
 
 *** Keywords ***
 Check Plugin Running

@@ -1194,7 +1194,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Run Process   /bin/kill   -SIGSEGV   ${output}
     sleep  60  Waiting for the socket to timeout
     Wait Until Keyword Succeeds
-    ...  650 secs
+    ...  ${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD} secs
     ...  10 secs
     ...  File Log Contains  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
