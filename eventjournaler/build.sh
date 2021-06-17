@@ -129,6 +129,12 @@ do
         --valgrind)
             VALGRIND=1
             ;;
+        --999)
+            export VERSION_OVERRIDE=9.99.9.999
+            ;;
+        --060)
+            export VERSION_OVERRIDE=0.6.0.999
+            ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
             ;;

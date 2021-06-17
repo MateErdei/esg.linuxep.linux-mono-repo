@@ -51,15 +51,19 @@ add_custom_target(
         COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
 )
 
-execute_process(
-        COMMAND python3 ${PLUGINAPIPATH}/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build-files/release-package.xml
-        OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
+if (DEFINED ENV{VERSION_OVERRIDE})
+    set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
+else()
+    execute_process(
+            COMMAND python3 ${PLUGINAPIPATH}/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build-files/release-package.xml
+            OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(
-        COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
-        OUTPUT_VARIABLE PRODUCT_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(
+            COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
+            OUTPUT_VARIABLE PRODUCT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
 
 execute_process(
         COMMAND date +%Y-%m-%d
