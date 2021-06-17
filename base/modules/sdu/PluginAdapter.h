@@ -37,16 +37,10 @@ namespace RemoteDiagnoseImpl
         ~PluginAdapter();
 
     private:
-        struct UrlData
-        {
-            std::string domain;
-            std::string resourcePath;
-            std::string filename;
-        };
-        UrlData processUrl();
+
         void processAction(const std::string& actionXml);
         void sendFinishedStatus();
-        void processZip();
+
         bool m_processing = false;
 
         std::future<void> m_monitor;

@@ -5,6 +5,8 @@ add_library(remotediagnoseimpl SHARED
         PluginCallback.h
         PluginAdapter.cpp
         PluginAdapter.h
+        PluginUtils.cpp
+        PluginUtils.h
         TaskQueue.cpp
         TaskQueue.h
         ITaskQueue.h

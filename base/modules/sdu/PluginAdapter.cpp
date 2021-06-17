@@ -5,52 +5,26 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginAdapter.h"
+#include "PluginUtils.h"
 #include "Logger.h"
 
 
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+
+
 #include <Common/PluginApi/ApiException.h>
-#include <Common/XmlUtilities/AttributesMap.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+
+
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/HttpSender/RequestConfig.h>
-#include <CommsComponent/HttpRequester.h>
+
 
 namespace
 {
 
-    std::string statusTemplate { R"sophos(<?xml version="1.0" encoding="utf-8" ?>
-    <status version="@VERSION@" is_running="@IS_RUNNING@" />)sophos" };
 
 
-    std::string replaceAll(const std::string& pattern, const std::string& key, const std::string& replace)
-    {
-        if (key.empty())
-        {
-            return pattern;
-        }
-        std::string result;
-        size_t beginPos = 0;
 
-        while (true)
-        {
-            size_t pos = pattern.find(key, beginPos);
 
-            if (pos == std::string::npos)
-            {
-                break;
-            }
-            result += pattern.substr(beginPos, pos - beginPos);
-            result += replace;
-            beginPos = pos + key.length();
-        }
-
-        result += pattern.substr(beginPos);
-
-        return result;
-    }
 
 } // namespace
 
@@ -96,7 +70,8 @@ namespace RemoteDiagnoseImpl
                     break;
                 case Task::TaskType::DIAGNOSE_FINISHED:
                     LOGDEBUG("Process task DiagnoseFinished");
-                    processZip();
+                    RemoteDiagnoseImpl::PluginUtils::processZip(m_url);
+                    sendFinishedStatus();
                     m_processing = false;
                     break;
                 case Task::TaskType::DIAGNOSE_TIMED_OUT:
@@ -115,27 +90,7 @@ namespace RemoteDiagnoseImpl
     }
 
     void PluginAdapter::processAction(const std::string& actionXml) {
-        LOGDEBUG("Processing action: " << actionXml);
-        Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(actionXml);
-
-        auto action = attributesMap.lookup("a:action");
-        std::string actionType(action.value("type"));
-        if (actionType != "SDURun") {
-            std::stringstream errorMessage;
-            errorMessage << "Malformed action received , type is : " << actionType << " not SDURun";
-            throw std::runtime_error(errorMessage.str());
-        }
-
-        m_url = action.value("uploadUrl");
-        LOGDEBUG("Upload url: " << m_url);
-
-        std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
-                "ServerProtectionLinux-Base-component");
-        std::string version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile, "PRODUCT_VERSION");
-
-        std::string newStatus = replaceAll(statusTemplate, "@VERSION@", version);
-        newStatus = replaceAll(newStatus, "@IS_RUNNING@", "1");
-        //m_baseService->sendStatus("SDU", newStatus, newStatus);
+        m_url = RemoteDiagnoseImpl::PluginUtils::processAction(actionXml);
 
         if (!m_diagnoseRunner->isRunning())
         {
@@ -143,76 +98,10 @@ namespace RemoteDiagnoseImpl
         }
 
     }
-
-    void PluginAdapter::processZip()
-    {
-        std::string output = Common::ApplicationConfiguration::applicationPathManager().getDiagnoseOutputPath();
-        auto fs = Common::FileSystem::fileSystem();
-        std::string filepath = Common::FileSystem::join(output,"sspl.zip");
-
-        UrlData data = processUrl();
-        std::string processedfilepath = Common::FileSystem::join(output, data.filename);
-
-        try
-        {
-            fs->moveFile(filepath, processedfilepath);
-        }
-        catch (Common::FileSystem::IFileSystemException& exception)
-        {
-            LOGERROR("failed to process zip file due to error: " << exception.what());
-        }
-        std::string chrootPath = Common::FileSystem::join("/base/remote-diagnose/output", data.filename);
-
-        Common::HttpSender::RequestConfig requestConfig{Common::HttpSender::RequestType::PUT,
-                                                        std::vector<std::string>{},data.domain,
-                                                        443,"",data.resourcePath,
-                                                        chrootPath};
-
-        try
-        {
-            auto response = CommsComponent::HttpRequester::triggerRequest("UploadDiagnose", requestConfig, std::chrono::minutes(1));
-
-            if (response.httpCode != 200)
-            {
-                LOGINFO("Response HttpCode: " << response.httpCode);
-                LOGINFO(response.description);
-
-            }
-
-        }
-        catch (std::exception& ex)
-        {
-            LOGERROR("Perform request failed: " << ex.what());
-
-        }
-        sendFinishedStatus();
-        LOGINFO("Diagnose finished");
-    }
-
-    PluginAdapter::UrlData PluginAdapter::processUrl()
-    {
-        UrlData data;
-        data.filename = Common::FileSystem::basename(m_url);
-        if (!Common::UtilityImpl::StringUtils::startswith(m_url,"https://"))
-        {
-            throw std::runtime_error("Malformed url missing protocol");
-        }
-        std::string noProtocol = m_url.substr(8);
-        data.resourcePath = noProtocol.substr(noProtocol.find_first_of("/")+1);// plus one so we dont include the first slash
-        data.domain = noProtocol.substr(0,noProtocol.find_first_of("/"));
-
-        return data;
-    }
     void PluginAdapter::sendFinishedStatus()
     {
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
-                "ServerProtectionLinux-Base-component");
-        std::string version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile, "PRODUCT_VERSION");
-
-        std::string newStatus = replaceAll(statusTemplate, "@VERSION@", version);
-        newStatus = replaceAll(newStatus,"@IS_RUNNING@","0");
-        m_baseService->sendStatus("SDU",newStatus,newStatus);
+        std::string status = RemoteDiagnoseImpl::PluginUtils::getFinishedStatus();
+        m_baseService->sendStatus("SDU",status,status);
     }
 
     PluginAdapter::~PluginAdapter()
