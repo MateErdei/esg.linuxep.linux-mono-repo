@@ -265,6 +265,7 @@ function apply_permissions()
 
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/etc/
     chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} ${CHROOT}/${SOPHOS_INSTALL}
+    chown -R ${USER_NAME}:${GROUP_NAME} "${CHROOT_LINK_DIR}/var"
     chmod 0770 ${CHROOT}/${SOPHOS_INSTALL}/base/update/var/
     find ${CHROOT}/${SOPHOS_INSTALL} -type d -exec chown root:${GROUP_NAME} {} \;
 

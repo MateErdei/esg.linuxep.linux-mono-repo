@@ -477,14 +477,21 @@ AV Can not install from SDDS Component
     Log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${26}
 
-Check installer removes sophos_threat_detector log symlink
-    Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector/sophos_threat_detector.log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
-    File Should Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
-    # modify the manifest to force the installer to perform a full product update
+Check installer keeps SUSI startup settings as writable by AV Plugin
+    Restart AV Plugin And Clear The Logs For Integration Tests
+    Create file   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+    Change Owner  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}  sophos-spl-av  sophos-spl-group
     Modify manifest
-    Run Installer From Install Set
+    Install AV Directly from SDDS
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     ls -l ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+    Log   ${output}
 
-    File Should Not Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
+    Mark AV Log
+    Send Sav Policy To Base  SAV_Policy.xml
+    Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
+    AV Plugin Log Does Not Contain With Offset  Failed to create file
+
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
