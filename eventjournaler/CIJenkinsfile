@@ -3,7 +3,7 @@
 
 def params = [
     string(name: 'UPSTREAM_CONTEXT', defaultValue: '{}', description: 'Information about the build which triggered this in JSON.'),
-    choice(name: 'MODE', choices: ['release', 'coverage','analysis'], defaultValue: 'release', description: 'Build mode'),
+    choice(name: 'MODE', choices: ['release'], defaultValue: 'release', description: 'Build mode'),
 ]
 
 CIPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'template_plugin'; buildParameters = params }
