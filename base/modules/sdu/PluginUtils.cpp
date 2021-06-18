@@ -57,6 +57,7 @@ namespace RemoteDiagnoseImpl
             LOGERROR("failed to process zip file due to error: " << exception.what());
         }
         std::string chrootPath = Common::FileSystem::join("/base/remote-diagnose/output", data.filename);
+
         int port = 443;
         if (data.port != 0)
         {
@@ -85,8 +86,16 @@ namespace RemoteDiagnoseImpl
             LOGERROR("Perform request failed: " << ex.what());
 
         }
+
+        try
+        {
+            fs->removeFile(processedfilepath);
+        }
+        catch (Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGERROR("failed to cleanup zip file due to Error: " << exception.what());
+        }
         LOGINFO("Diagnose finished");
-        fs->removeFile(processedfilepath);
     }
 
     PluginUtils::UrlData PluginUtils::processUrl(const std::string& url)
@@ -125,12 +134,20 @@ namespace RemoteDiagnoseImpl
     {
         std::string statusTemplate {R"sophos(<?xml version="1.0" encoding="utf-8" ?>
     <status version="@VERSION@" is_running="@IS_RUNNING@" />)sophos" };
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+
         std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
                 "ServerProtectionLinux-Base-component");
-        std::string version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile, "PRODUCT_VERSION");
-
+        std::string version ="";
+        try
+        {
+             version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile,"PRODUCT_VERSION");
+        }
+        catch (Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGWARN("Cannot access VERSION.ini file at location "<< versionFile << " due to " << exception.what());
+        }
         std::string newStatus = Common::UtilityImpl::StringUtils::replaceAll(statusTemplate, "@VERSION@", version);
+
         newStatus = Common::UtilityImpl::StringUtils::replaceAll(newStatus,"@IS_RUNNING@","0");
         return newStatus;
 
