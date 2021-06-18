@@ -5,6 +5,7 @@ include(GoogleTest)
 
 add_executable(sduTests
         TaskQueueTests.cpp
+        TestPluginUtils.cpp
         MockTaskQueue.h
 )
 

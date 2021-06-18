@@ -32,6 +32,7 @@ namespace RemoteDiagnoseImpl
             std::string domain;
             std::string resourcePath;
             std::string filename;
+            int port = 0;
         };
         PluginUtils();
 
@@ -41,12 +42,7 @@ namespace RemoteDiagnoseImpl
         static std::string processAction(const std::string& actionXml);
         static std::string getFinishedStatus();
         static void processZip(const std::string& url);
-    private:
         static UrlData processUrl(const std::string& url);
-
-
-
-
     };
 
 

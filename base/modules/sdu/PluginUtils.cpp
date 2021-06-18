@@ -36,8 +36,16 @@ namespace RemoteDiagnoseImpl
         std::string output = Common::ApplicationConfiguration::applicationPathManager().getDiagnoseOutputPath();
         auto fs = Common::FileSystem::fileSystem();
         std::string filepath = Common::FileSystem::join(output,"sspl.zip");
-
-        UrlData data = processUrl(url);
+        UrlData data;
+        try
+        {
+            data = processUrl(url);
+        }
+        catch (std::exception& exception)
+        {
+            LOGERROR("Cannot process url will not send up diagnose file Error: " << exception.what());
+            return;
+        }
         std::string processedfilepath = Common::FileSystem::join(output, data.filename);
 
         try
@@ -49,10 +57,15 @@ namespace RemoteDiagnoseImpl
             LOGERROR("failed to process zip file due to error: " << exception.what());
         }
         std::string chrootPath = Common::FileSystem::join("/base/remote-diagnose/output", data.filename);
+        int port = 443;
+        if (data.port != 0)
+        {
+            port = data.port;
+        }
 
         Common::HttpSender::RequestConfig requestConfig{Common::HttpSender::RequestType::PUT,
                                                         std::vector<std::string>{},data.domain,
-                                                        443,"",data.resourcePath,
+                                                        port,"",data.resourcePath,
                                                         chrootPath};
 
         try
@@ -84,9 +97,26 @@ namespace RemoteDiagnoseImpl
         {
             throw std::runtime_error("Malformed url missing protocol");
         }
+
         std::string noProtocol = url.substr(8);
-        data.resourcePath = noProtocol.substr(noProtocol.find_first_of("/")+1);// plus one so we dont include the first slash
-        data.domain = noProtocol.substr(0,noProtocol.find_first_of("/"));
+        data.resourcePath = noProtocol.substr(noProtocol.find_first_of('/')+1);// plus one so we dont include the first slash
+        data.domain = noProtocol.substr(0,noProtocol.find_first_of('/'));
+
+        if (data.domain.find_first_of(':') != std::string::npos)
+        {
+            std::string p = data.domain.substr(noProtocol.find_first_of(':')+1);
+            try
+            {
+                data.port = std::stoi(p);
+            }
+            catch (std::exception& exception)
+            {
+                std::stringstream errorMsg;
+                errorMsg << "Url : " << url << " does not contain a valid port";
+                throw std::runtime_error(errorMsg.str());
+            }
+            data.domain = data.domain.substr(0,noProtocol.find_first_of(':'));
+        }
 
         return data;
     }
