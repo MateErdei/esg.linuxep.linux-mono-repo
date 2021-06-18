@@ -46,13 +46,13 @@ TEST_F(PluginUtilsTests, processUrlThrowWhenNotHTTPS) // NOLINT
 
 TEST_F(PluginUtilsTests, getFinishedStatusDoesNotThrowWhenThereIsNoVersioniniFile) // NOLINT
 {
-    std::string expectedStatus {R"sophos(<?xml version="1.0" encoding="utf-8" ?>
-    <status version="" is_running="0" />)sophos" };
+    std::string expectedStatus {
+    R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="" is_running="0" />)sophos" };
     std::string status = RemoteDiagnoseImpl::PluginUtils::getFinishedStatus();
     EXPECT_EQ(expectedStatus,status);
 }
 
-TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorreclty) // NOLINT
+TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectly) // NOLINT
 {
     std::vector<std::string> contents ={"PRODUCT_NAME = Sophos Server Protection Linux - Base Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
     auto filesystemMock = new NiceMock<MockFileSystem>();
@@ -61,12 +61,13 @@ TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorreclty) // NOLINT
 
     EXPECT_CALL(*filesystemMock, readLines(_)).WillOnce(Return(contents));
 
-    std::string expectedStatus {R"sophos(<?xml version="1.0" encoding="utf-8" ?>
-    <status version="1.0.0" is_running="0" />)sophos" };
+    std::string expectedStatus {
+        R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="1.0.0" is_running="0" />)sophos" };
     std::string status = RemoteDiagnoseImpl::PluginUtils::getFinishedStatus();
     EXPECT_EQ(expectedStatus,status);
     scopedReplaceFileSystem.reset();
 }
+
 TEST_F(PluginUtilsTests, getFinishedStatusWillNotThrowOnInvalidProductVersion) // NOLINT
 {
     std::vector<std::string> contents ={"PRODUCT_VERSION = NOTAVERSION"};

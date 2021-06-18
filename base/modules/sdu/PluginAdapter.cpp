@@ -8,25 +8,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include "PluginUtils.h"
 #include "Logger.h"
 
-
 #include <Common/FileSystem/IFileSystem.h>
-
-
 #include <Common/PluginApi/ApiException.h>
-
-
-#include <Common/FileSystem/IFileSystemException.h>
-
-
-namespace
-{
-
-
-
-
-
-
-} // namespace
 
 namespace RemoteDiagnoseImpl
 {

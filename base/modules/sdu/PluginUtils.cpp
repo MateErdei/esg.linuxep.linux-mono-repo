@@ -16,20 +16,23 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace RemoteDiagnoseImpl
 {
-    std::string PluginUtils::processAction(const std::string& actionXml) {
+    std::string PluginUtils::processAction(const std::string& actionXml)
+    {
         LOGDEBUG("Processing action: " << actionXml);
         Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(actionXml);
 
         auto action = attributesMap.lookup("a:action");
         std::string actionType(action.value("type"));
-        if (actionType != "SDURun") {
+        if (actionType != "SDURun")
+        {
             std::stringstream errorMessage;
             errorMessage << "Malformed action received , type is : " << actionType << " not SDURun";
             throw std::runtime_error(errorMessage.str());
         }
         std::string url = action.value("uploadUrl");
         LOGDEBUG("Upload url: " << url);
-        return url;}
+        return url;
+    }
 
     void PluginUtils::processZip(const std::string& url)
     {
@@ -77,14 +80,11 @@ namespace RemoteDiagnoseImpl
             {
                 LOGINFO("Response HttpCode: " << response.httpCode);
                 LOGINFO(response.description);
-
             }
-
         }
         catch (std::exception& ex)
         {
             LOGERROR("Perform request failed: " << ex.what());
-
         }
 
         try
@@ -132,12 +132,12 @@ namespace RemoteDiagnoseImpl
 
     std::string PluginUtils::getFinishedStatus()
     {
-        std::string statusTemplate {R"sophos(<?xml version="1.0" encoding="utf-8" ?>
-    <status version="@VERSION@" is_running="@IS_RUNNING@" />)sophos" };
+        std::string statusTemplate {
+        R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="@VERSION@" is_running="@IS_RUNNING@" />)sophos" };
 
-        std::string versionFile = Common::ApplicationConfiguration::applicationPathManager().getVersionIniFileForComponent(
-                "ServerProtectionLinux-Base-component");
-        std::string version ="";
+        std::string versionFile = Common::ApplicationConfiguration::applicationPathManager(
+                ).getVersionIniFileForComponent("ServerProtectionLinux-Base-component");
+        std::string version = "";
         try
         {
              version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile,"PRODUCT_VERSION");
@@ -150,7 +150,5 @@ namespace RemoteDiagnoseImpl
 
         newStatus = Common::UtilityImpl::StringUtils::replaceAll(newStatus,"@IS_RUNNING@","0");
         return newStatus;
-
     }
-
 }
