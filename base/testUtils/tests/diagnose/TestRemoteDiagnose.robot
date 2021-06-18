@@ -57,12 +57,16 @@ Test Remote Diagnose can process SDU action
     Check Log Contains   We are completely uploaded and fine    ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log   Comms Network
 
 Test Remote Diagnose can handle two SDU actions
+    Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  sdu
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  sdu
     Simulate SDU Action Now
     Simulate SDU Action Now
     Wait Until Keyword Succeeds
             ...  60 secs
             ...  10 secs
-            ...  Check For Processed Tar Files
+            ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose  Diagnose finished   2
+
 
 
 *** Keywords ***
