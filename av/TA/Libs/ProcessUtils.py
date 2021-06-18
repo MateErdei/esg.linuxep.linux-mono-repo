@@ -11,10 +11,14 @@ import time
 def pidof(executable):
     for d in os.listdir("/proc"):
         p = os.path.join("/proc", d, "exe")
-        if os.path.isfile(p):
+        try:
             dest = os.readlink(p)
-            if dest.startswith(executable):
-                return int(d)
+        except EnvironmentError:
+            # process went away while we were trying to read the exe
+            # TOCTOU error if we check for existence of link
+            continue
+        if dest.startswith(executable):
+            return int(d)
     return -1
 
 
