@@ -23,16 +23,19 @@
         <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="release-package-base-999,release-package-edr-mdr-999"/>
         <include artifact-path="sspl-base-060/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="release-package-060"/>
       </build-asset>
+
       <build-asset project="winep" repo="liveterminal" >
         <development-version branch="develop"/>
         <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal" mode="release-package,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
         <include artifact-path="liveterminal-999/sdds" dest-dir="redist/liveterminal" mode="release-package-edr-mdr-999"/>
       </build-asset>
+
       <build-asset project="linuxep" repo="sspl-plugin-edr-component">
         <development-version branch="develop"/>
         <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component" mode="release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
         <include artifact-path="edr-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component" mode="release-package-edr-999,release-package-edr-mdr-999"/>
       </build-asset>
+
       <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
         <development-version branch="develop"/>
         <include artifact-path="output/SDDS-SSPL-DBOS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT" mode="release-package,release-package-base-999,release-package-edr-999,release-package-query-pack"/>
@@ -49,16 +52,14 @@
         <include artifact-path="output-060/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT" mode="release-package-060"/>
       </build-asset>
 
-      <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
-        <development-version branch="develop"/>
-        <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus" mode="release-package,release-package-mdr-999,release-package-edr-999,release-package-base-999,release-package-query-pack"/>
-        <include artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus" mode="release-package-edr-mdr-999"/>
+      <build-asset project="em" repo="esg" mode="release-package-mdr-999,release-package-edr-mdr-999,release-package-060,release-package-edr-999,release-package,release-package-base-999">
+          <development-version branch="develop"/>
+          <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
       </build-asset>
-      <build-asset project="em" repo="esg">
-        <development-version branch="develop" mode="release-package-mdr-999,release-package-edr-mdr-999,release-package-060,release-package-edr-999,release-package,release-package-base-999"/>
-          <!-- Use a different branch to test that the query back is changed on upgrading the
-               query pack in develop should be different to the one in release branch chosen here-->
-          <development-version branch="release/2020.41-querypack" mode="release-package-query-pack"/>
+        <!-- Use a different branch to test that the query back is changed on upgrading the
+         query pack in develop should be different to the one in release branch chosen here-->
+        <build-asset project="em" repo="esg" mode="release-package-query-pack">
+          <development-version branch="release/2020.41-querypack"/>
         <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
       </build-asset>
 
