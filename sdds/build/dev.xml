@@ -52,6 +52,12 @@
         <include artifact-path="output-060/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT" mode="release-package-060"/>
       </build-asset>
 
+      <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
+        <development-version branch="develop"/>
+        <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus" mode="release-package,release-package-mdr-999,release-package-edr-999,release-package-base-999,release-package-query-pack"/>
+        <include artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus" mode="release-package-edr-mdr-999"/>
+      </build-asset>
+
       <build-asset project="em" repo="esg" mode="release-package-mdr-999,release-package-edr-mdr-999,release-package-060,release-package-edr-999,release-package,release-package-base-999">
           <development-version branch="develop"/>
           <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
