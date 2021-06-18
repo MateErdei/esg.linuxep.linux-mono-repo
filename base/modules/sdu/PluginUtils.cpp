@@ -73,6 +73,7 @@ namespace RemoteDiagnoseImpl
 
         }
         LOGINFO("Diagnose finished");
+        fs->removeFile(processedfilepath);
     }
 
     PluginUtils::UrlData PluginUtils::processUrl(const std::string& url)
