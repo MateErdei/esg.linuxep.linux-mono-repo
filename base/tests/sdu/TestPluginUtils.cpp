@@ -6,7 +6,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <sdu/PluginUtils.h>
 #include <gtest/gtest.h>
 
-TEST(PluginUtilsTests, processUrl) // NOLINT
+TEST(PluginUtilsTests, processUrlWillExtractAnddStoreValidDataCorrectly) // NOLINT
 {
     RemoteDiagnoseImpl::PluginUtils::UrlData data =RemoteDiagnoseImpl::PluginUtils::processUrl("https://localhost/stuff/file.zip");
     EXPECT_EQ(data.filename,"file.zip");
@@ -16,7 +16,7 @@ TEST(PluginUtilsTests, processUrl) // NOLINT
 
 }
 
-TEST(PluginUtilsTests, processUrlwithPort) // NOLINT
+TEST(PluginUtilsTests, processUrlwithPortWillValidDataIncludingPortCorrectly) // NOLINT
 {
     RemoteDiagnoseImpl::PluginUtils::UrlData data =RemoteDiagnoseImpl::PluginUtils::processUrl("https://localhost:80/stuff/file.zip");
     EXPECT_EQ(data.filename,"file.zip");
@@ -26,7 +26,7 @@ TEST(PluginUtilsTests, processUrlwithPort) // NOLINT
 
 }
 
-TEST(PluginUtilsTests, processUrlHandlesNotIntPort) // NOLINT
+TEST(PluginUtilsTests, processUrlThrowsWhenGivenInvalidPort) // NOLINT
 {
     EXPECT_THROW(RemoteDiagnoseImpl::PluginUtils::processUrl("https://localhost:blah/stuff/file.zip"),std::runtime_error);
 }
