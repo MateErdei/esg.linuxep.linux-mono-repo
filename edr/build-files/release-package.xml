@@ -8,7 +8,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/Version_1_1_6" build-id="20210521140905-54e5034b6bcc7e1099154be3bcebeff2345ae915-rLBqBe"/>
-            <development-version branch="develop"/>
+            <development-version branch="bugfix/LINUXDAR-2414-osquery-shutdown-generates-a-warning-in-the-log"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
