@@ -137,7 +137,9 @@ int main(int argc, char* argv[])
         if (owner && group)
         {
             if (chown(socket_path.c_str(), owner, group) != 0)
+            {
                 std::cout << "failed to change ownership of \"" << socket_path << "\"" << std::endl;
+            }
         }
 
         socket->subscribeTo("threatEvents");
@@ -149,7 +151,9 @@ int main(int argc, char* argv[])
             std::cout << "received event" << std::endl;
             int index = 0;
             for (const auto& s : data)
+            {
                 std::cout << index++ << ": " << s << std::endl;
+            }
             std::cout << std::endl;
         }
 
