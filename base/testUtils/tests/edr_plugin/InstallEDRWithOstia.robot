@@ -293,8 +293,16 @@ Install master of base and edr and mtr and upgrade to new query pack
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  file should exist  ${EDR_DIR}/VERSION.ini
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
 
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  5 secs
+    ...  file should exist  ${Sophos_Scheduled_Query_Pack}
     ${query_pack_vut} =  Get File  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_before_query_pack_reload} =  Get Edr OsQuery PID
     Wait Until Keyword Succeeds
@@ -317,6 +325,10 @@ Install master of base and edr and mtr and upgrade to new query pack
     ...  wdctl <> stop edr
     ...  wdctl <> start edr
 
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  file should exist  ${Sophos_Scheduled_Query_Pack}
     ${query_pack_99} =  Get File  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_after_query_pack_reload} =  Get Edr OsQuery PID
     ${edr_version_contents1} =  Get File  ${EDR_DIR}/VERSION.ini
