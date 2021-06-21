@@ -356,6 +356,8 @@ function install_product()
     BACKLINK="$(echo "${PLUGIN_INSTALL%/}" | sed -e "s:[^/]*:..:g;s:^/::")"
     ln -snf "${BACKLINK}/log" "${CHROOT_LINK_DIR}/log/sophos_threat_detector" \
         ||  failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create symlink ${CHROOT_LINK_DIR}/log/sophos_threat_detector: $?"
+    ## LINUXDAR-3138 If sophos_threat_detector.log symlink exists following upgrade, delete it
+    [ -L "${PLUGIN_INSTALL}/log/sophos_threat_detector.log" ] && rm "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
 
     pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
     THREAT_DETECTOR="sophos_threat_detector_launcher"
