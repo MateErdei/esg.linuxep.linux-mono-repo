@@ -63,6 +63,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentimpl.
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentloggerimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentutilityimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmcsrouterplugincommunicationimpl.so.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libminizip.so.3.0.2.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libobfuscationimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libosutilitiesimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpluginapiimpl.so.0

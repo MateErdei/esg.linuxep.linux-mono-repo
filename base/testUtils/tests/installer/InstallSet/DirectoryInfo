@@ -69,10 +69,10 @@ o750, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/mcs/policy
 o750, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/mcs/tmp
 o750, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/var/comms
 o750, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/var/comms/responses
-o751, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/remote-diagnose/output
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/var
 o751, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs
+o751, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/remote-diagnose/output
 o770, sophos-spl-group, root, /opt/sophos-spl/base/etc/sophosspl
 o770, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/mcs/datafeed
 o770, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/mcs/event
