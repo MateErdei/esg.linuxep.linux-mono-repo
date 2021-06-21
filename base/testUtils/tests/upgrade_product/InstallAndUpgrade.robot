@@ -372,7 +372,10 @@ We Can Downgrade From Master To A Release Without Unexpected Errors
     ...  Component Version has changed  ${AVReleaseVersion}    ${InstalledAVPluginVersionFile}
 
     #the query pack should have been re-installed
-    Should Exist  ${Sophos_Scheduled_Query_Pack}
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  file should exist  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_after_query_pack_restored} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
 

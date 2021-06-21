@@ -379,8 +379,8 @@ Set credentials
     Wait Until Keyword Succeeds
     ...  300
     ...  30
-    ...  ${regCommand}=  Get Sspl Registration
-    #${regCommand}=  Get Sspl Registration
+    ...  Get Sspl Registration
+    ${regCommand}=  Get Sspl Registration
     Set Suite Variable    ${regCommand}     ${regCommand}   children=true
 
 Set credentials for aws

@@ -43,6 +43,7 @@ Test Teardown
     Run Keyword If Test Failed    Dump Thininstaller Log
     Run Keyword If Test Failed    Log Status Of Sophos Spl
     Run Keyword If Test Failed    Dump Teardown Log    ${SOPHOS_INSTALL}/base/update/var/config.json
+    Run Keyword If Test Failed    Dump Teardown Log    /tmp/preserve-sul-downgrade
     Stop Local Cloud Server
     Cleanup Local Warehouse And Thininstaller
     Require Uninstalled
