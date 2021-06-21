@@ -108,7 +108,7 @@ def _make_local_copy_of_warehouse():
         GL_LOGGER.debug("Made branch path: %s", local_branch_path)
         with open(os.path.join(filer_branch_path, "lastgoodbuild.txt"), "r") as last_good_build:
             latest_good_build = last_good_build.read()
-            latest_path = os.path.join(filer_branch_path, latest_good_build, "warehouse", "1.0.2")
+            latest_path = os.path.join(filer_branch_path, latest_good_build, "warehouse", "1.0.3")
             local_destination_path = os.path.join(local_branch_path, latest_good_build)
             shutil.copytree(os.path.join(latest_path, "customer"), os.path.join(local_destination_path, "customer"))
             shutil.copytree(os.path.join(latest_path, "warehouse"), os.path.join(local_destination_path, "warehouse"))
