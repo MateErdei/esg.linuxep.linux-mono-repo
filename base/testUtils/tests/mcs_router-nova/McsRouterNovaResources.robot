@@ -376,8 +376,11 @@ Setup MCS Tests Nova
     Run Keyword If  ${is_AWS} == ${True}   Set credentials for aws
 
 Set credentials
-    #Set Default Credentials
-    ${regCommand}=  Get Sspl Registration
+    Wait Until Keyword Succeeds
+    ...  300
+    ...  30
+    ...  ${regCommand}=  Get Sspl Registration
+    #${regCommand}=  Get Sspl Registration
     Set Suite Variable    ${regCommand}     ${regCommand}   children=true
 
 Set credentials for aws

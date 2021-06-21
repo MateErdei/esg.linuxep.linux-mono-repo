@@ -58,12 +58,10 @@ Teardown
     Cleanup Temporary Folders
 
 Remove SAV files
-    ${SAV_LOG} =  Get Sav Log
-    Run Keyword If Test Failed   LogUtils.Dump Log   ${SAV_LOG}
-    Uninstall SAV
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/bin
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/local/bin/
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /bin
+    Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /tmp
 
 SAV Teardown
     Remove SAV files
@@ -161,23 +159,6 @@ Thin Installer fails to install to a folder within the temp folder
     Run Default Thininstaller With Args  19  --instdir=${Install_Path}
     Check Thininstaller Log Contains  The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent
 
-Thin Installer fails to install alongside SAV
-    [Tags]  SAV  THIN_INSTALLER
-    [Teardown]  SAV Teardown
-    Get And Install Sav
-    Run Default Thininstaller    8
-    Check Thininstaller Log Contains     This product cannot be run alongside Sophos Anti-Virus
-
-Thin Installer fails to install alongside SAV with non-standard PATH
-    [Tags]  SAV  THIN_INSTALLER
-    [Teardown]  SAV Teardown
-    ${path} =  Get System Path
-    Get And Install Sav
-    ## Change symlinks
-    create non standard sweep symlink   /tmp
-    run thininstaller with non standard path    8  /tmp:/bin:${path}
-    Check Thininstaller Log Contains     This product cannot be run alongside Sophos Anti-Virus
-
 Thin Installer Fails With Invalid Paths
     Run ThinInstaller Instdir And Check It Fails   /abc"def
     Run ThinInstaller Instdir And Check It Fails   /abc'def
@@ -227,6 +208,12 @@ Thin Installer Detects Sweep And Cancels Installation
     Run Default Thininstaller    8
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink    /bin
+
+    ${path} =  Get System Path
+    Create Fake Sweep Symlink   /tmp
+    run thininstaller with non standard path    8  /tmp:/bin:${path}
+    Check Thininstaller Log Contains     Found an existing installation of SAV in /tmp/i/am/fake
+    Delete Fake Sweep Symlink    /tmp
 
 Thin Installer Has Working Version Option
     Run Default Thininstaller With Args   0     --version
