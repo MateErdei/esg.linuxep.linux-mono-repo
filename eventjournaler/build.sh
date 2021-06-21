@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-DEFAULT_PRODUCT=TemplatePlugin
+DEFAULT_PRODUCT=eventjournaler
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
@@ -154,9 +154,9 @@ INPUT=$BASE/input
 
 if [[ ! -d "$INPUT" ]]
 then
-    if [[ -d "$BASE/sspl-template-plugin-build" ]]
+    if [[ -d "$BASE/sspl-event-journaler-plugin-build" ]]
     then
-        INPUT="$BASE/sspl-template-plugin-build/input"
+        INPUT="$BASE/sspl-event-journaler-plugin-build/input"
     else
         MESSAGE_PART1="You need to run the following to setup your input folder: "
         MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"

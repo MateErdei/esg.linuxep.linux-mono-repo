@@ -10,9 +10,9 @@ def get_package_version(package_path):
 PACKAGE_PATH = './build-files/release-package.xml'
 PACKAGE_VERSION = get_package_version(PACKAGE_PATH)
 
-@tap.pipeline(version=1, component='sspl-plugin-template')
-def template_plugin(stage: tap.Root, parameters: tap.Parameters):
-    component = tap.Component(name='sspl-plugin-template', base_version=PACKAGE_VERSION)
+@tap.pipeline(version=1, component='sspl-event-journaler-plugin')
+def event_journaler(stage: tap.Root, parameters: tap.Parameters):
+    component = tap.Component(name='sspl-event-journaler-plugin', base_version=PACKAGE_VERSION)
 
     release_mode = 'release'
     nine_nine_nine_mode = '999'
@@ -20,10 +20,10 @@ def template_plugin(stage: tap.Root, parameters: tap.Parameters):
 
     mode = parameters.mode or release_mode
 
-    template_build = None
+    release_build = None
     with stage.parallel('build'):
         if mode == release_mode:
-            template_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate5',
+            release_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate5',
                                             mode=release_mode, release_package=PACKAGE_PATH)
             nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate5',
                                                        mode=nine_nine_nine_mode, release_package=PACKAGE_PATH)

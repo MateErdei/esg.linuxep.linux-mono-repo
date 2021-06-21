@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(sspl_template_plugin)
+project(sspl_event_journaler)
 
 
 set(SANITISE_FLAGS   "-static-libasan -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=shift-exponent -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=alignment  -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=returns-nonnull-attribute -fsanitize=nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=signed-integer-overflow -fsanitize-address-use-after-scope ")
@@ -21,7 +21,7 @@ if(NOT DEFINED PLUGIN_NAME)
         file(READ "${CMAKE_SOURCE_DIR}/PLUGINNAME" PLUGIN_NAME_FROMFILE)
         string( STRIP ${PLUGIN_NAME_FROMFILE} PLUGIN_NAME)
     else()
-    set(PLUGIN_NAME TemplatePlugin)
+    set(PLUGIN_NAME eventjournaler)
     endif()
 endif()
 string( TOLOWER ${PLUGIN_NAME} plugin_name)

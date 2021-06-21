@@ -1,35 +1,13 @@
-# Template Plugin for Everest
+# Event Journaler
 
-Derived from Example Plugin:
+Derived from Template Plugin:
 
 Description of Example Plugin and Architecture: https://wiki.sophos.net/display/SAVLU/Example+Plugin+Architecture
 
 Ensure you have setup SSH keys in Stash, and have permission to clone this repo and the Everest-SystemProductTests repo.
-Email douglas.leeder@sophos.com to get repository access.
+Email ethan.vince-urwin@sophos.com to get repository access.
 
 ----
 
-This is a base for developing plugins.
-
-Fork this repo for each new plugin then in the new repo:
-
-* Alter Jenkinsfile to the new name
-* Alter localjenkins/Jenkinsfile to the new name
-* Alter build-files/release-package.xml to the new name
-* Alter CMakeLists.txt to the new project name
-* Add to Local Jenkins builds
-* Add to Artisan CI builds
-
-Note: the 4 first steps can be simplified by running from sspl-tools
-
-
-```bash
-# ./setup/setPluginName.sh <path:sspl-plugin-template> --name <newname> 
-#example 
-./setup/setPluginName.sh sspl-plugin-audit --name sspl-audit --name
-```
-
-
-The project name etc, can be customised by the build.sh and CMakeLists.txt
-but a default is passed from release-package.xml
+This is the component that records published events into Event Journals.
 
