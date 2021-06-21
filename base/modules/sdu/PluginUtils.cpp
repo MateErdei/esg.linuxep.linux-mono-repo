@@ -138,13 +138,19 @@ namespace RemoteDiagnoseImpl
         std::string versionFile = Common::ApplicationConfiguration::applicationPathManager(
                 ).getVersionIniFileForComponent("ServerProtectionLinux-Base-component");
         std::string version = "";
+        std::stringstream errorMsg;
+        errorMsg << "Cannot access VERSION.ini file at location "<< versionFile << " due to ";
         try
         {
              version = Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionFile,"PRODUCT_VERSION");
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
-            LOGWARN("Cannot access VERSION.ini file at location "<< versionFile << " due to " << exception.what());
+            LOGWARN( errorMsg.str() +  exception.what());
+        }
+        catch (std::runtime_error& exception)
+        {
+            LOGWARN(errorMsg.str() +  exception.what());
         }
         std::string newStatus = Common::UtilityImpl::StringUtils::replaceAll(statusTemplate, "@VERSION@", version);
 
