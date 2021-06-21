@@ -43,11 +43,6 @@ Test Remote Diagnose can process SDU action
 
     Wait Until Keyword Succeeds
         ...  30 secs
-        ...  10 secs
-        ...  Directory Should Not Be Empty   ${SOPHOS_INSTALL}/base/remote-diagnose/output
-
-    Wait Until Keyword Succeeds
-        ...  20 secs
         ...  5 secs
         ...  Check Log Contains   Diagnose finished    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
     Wait Until Keyword Succeeds

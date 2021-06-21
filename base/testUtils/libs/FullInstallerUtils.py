@@ -973,7 +973,7 @@ def unmount_all_comms_component_folders(skip_stop_proc=False):
     dirpath = '/opt/sophos-spl/var/sophos-spl-comms/'
     
     mounted_entries = ['etc/resolv.conf', 'etc/hosts', 'usr/lib', 'usr/lib64', 'lib', 
-                        'etc/ssl/certs', 'etc/pki/tls/certs', 'etc/pki/ca-trust/extracted', 'base/mcs/certs']
+                        'etc/ssl/certs', 'etc/pki/tls/certs', 'etc/pki/ca-trust/extracted', 'base/mcs/certs','base/remote-diagnose/output']
     for entry in mounted_entries:        
         try:
             fullpath = os.path.join(dirpath, entry)
