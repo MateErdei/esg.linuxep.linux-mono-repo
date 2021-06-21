@@ -477,6 +477,15 @@ AV Can not install from SDDS Component
     Log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${26}
 
+Check installer removes sophos_threat_detector log symlink
+    Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector/sophos_threat_detector.log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
+    File Should Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
+    # modify the manifest to force the installer to perform a full product update
+    Modify manifest
+    Run Installer From Install Set
+
+    File Should Not Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE2_NAME}        pemid.ide
