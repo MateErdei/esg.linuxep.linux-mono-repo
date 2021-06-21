@@ -36,7 +36,7 @@ Setup Thininstaller Test
     Get Thininstaller
     Create Default Credentials File
     Build Default Creds Thininstaller From Sections
-    Create Fake Savscan In Tmp
+
 
 
 Teardown
@@ -54,10 +54,10 @@ Teardown
     Remove Directory  ${CUSTOM_DIR_BASE}  recursive=True
     Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
     Remove Environment Variable  INSTALL_OPTIONS_FILE
-    Remove Fake Savscan In Tmp
     Cleanup Temporary Folders
 
 Remove SAV files
+    Remove Fake Savscan In Tmp
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/bin
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/local/bin/
     Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /bin
@@ -194,6 +194,7 @@ Thin Installer Does Not Tell Us About Which Sweep
 Thin Installer Detects Sweep And Cancels Installation
     [Tags]  SAV  THIN_INSTALLER
     [Teardown]  SAV Teardown
+    Create Fake Savscan In Tmp
     Create Fake Sweep Symlink    /usr/bin
     Run Default Thininstaller    8
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
