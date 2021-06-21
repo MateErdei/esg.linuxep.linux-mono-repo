@@ -371,9 +371,7 @@ Setup MCS Tests Nova
     Remove Environment Variable  MCS_CONFIG_SET
     Reload Cloud Options
     Set Nova MCS CA Environment Variable
-    ${is_AWS}=  is_aws_instance
-    Run Keyword If  ${is_AWS} == ${False}  Set credentials
-    Run Keyword If  ${is_AWS} == ${True}   Set credentials for aws
+    Set credentials
 
 Set credentials
     Wait Until Keyword Succeeds
