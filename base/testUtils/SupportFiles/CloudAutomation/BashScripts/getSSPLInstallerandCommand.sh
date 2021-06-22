@@ -24,7 +24,7 @@ if ! [[ -f $file ]]; then
 fi
 TOKEN=$(grep -a TOKEN= $file | grep -v CLOUD | grep -v CUSTOMER_TOKEN | grep -v MCS | sed -r 's/^TOKEN=//')
 URL=$(grep -a URL= $file | grep -v CLOUD | grep -v MCS | sed -r 's/^URL=//')
-echo "/opt/sophos-spl/base/bin/registerCentral" $TOKEN $URL >> "/tmp/registerCommand"
+echo "/opt/sophos-spl/base/bin/registerCentral" $TOKEN $URL > "/tmp/registerCommand"
 
 if ! [[ -f "/tmp/registerCommand" ]]; then
     echo "register command not found"
