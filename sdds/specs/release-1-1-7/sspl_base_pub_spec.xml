@@ -92,7 +92,7 @@
 		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.0.11"/>
       </line>
 	  <line id="ServerProtectionLinux-Plugin-AV">
-          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.2.10">
+          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.2.36">
               <releasetag baseversion="" tag="RECOMMENDED"/>
               <genericsupplement
                       decodepath="files/plugins/av/chroot/susi/update_source/vdl"
