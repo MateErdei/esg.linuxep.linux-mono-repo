@@ -108,9 +108,9 @@
                  shortdic="Sophos Linux Live Response"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-AV">
-      <component id="ServerProtectionLinux-Plugin-AV-1.0.2.10"
-                 version="1.0.2.10"
-                 artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--Version_1_0_2/20210611093143-0e2c05147fe969437849e835bc7e029658ea8120-bzUjZm/sspl-plugin-anti-virus/SDDS-COMPONENT"
+      <component id="ServerProtectionLinux-Plugin-AV-1.0.2.36"
+                 version="1.0.2.36"
+                 artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--Version_1_0_2/20210622140337-c4da43f5c1bd00f5eb5bf3d0acd8c4c258fa8d70-NylrG6/sspl-plugin-anti-virus/SDDS-COMPONENT"
                  longdic="Sophos Linux AntiVirus" 
                  shortdic="Sophos Linux AntiVirus"/>
       <component id="ServerProtectionLinux-Plugin-AV-1.0.1.29"
