@@ -372,7 +372,7 @@ Setup MCS Tests Nova
     Reload Cloud Options
     Set Nova MCS CA Environment Variable
     Set credentials
-    Log File  /tmp/SophosSetup.sh
+
 Set credentials
     Wait Until Keyword Succeeds
     ...  300

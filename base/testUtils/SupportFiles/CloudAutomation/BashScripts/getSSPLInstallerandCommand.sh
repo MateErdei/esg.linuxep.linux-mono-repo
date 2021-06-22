@@ -22,7 +22,7 @@ if ! [[ -f $file ]]; then
     echo "installer SophosSetup.sh doesn't exist in tmp"
     exit 1
 fi
-TOKEN=$(grep -a TOKEN= $file | grep -v CLOUD | grep -v MCS | sed -r 's/^TOKEN=//')
+TOKEN=$(grep -a TOKEN= $file | grep -v CLOUD | grep -v CUSTOMER_TOKEN | grep -v MCS | sed -r 's/^TOKEN=//')
 URL=$(grep -a URL= $file | grep -v CLOUD | grep -v MCS | sed -r 's/^URL=//')
 echo "/opt/sophos-spl/base/bin/registerCentral" $TOKEN $URL >> "/tmp/registerCommand"
 
