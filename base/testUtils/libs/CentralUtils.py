@@ -236,7 +236,9 @@ def get_sspl_registration():
     bashfile = os.path.join(PathManager.get_support_file_path() ,"CloudAutomation/BashScripts/getSSPLInstallerandCommand.sh")
     command = ["bash", bashfile, get_sspl_thinstaller_url()]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    stdout = process.communicate()[0]
+    stdout,stderr = process.communicate()
+    print(stdout.decode('utf-8'))
+    print(stderr.decode('utf-8'))
     if process.wait() != 0:
         raise AssertionError("error with get registration command: {}".format(stdout.decode('utf-8')))
     with open('/tmp/registerCommand', 'r') as file:
