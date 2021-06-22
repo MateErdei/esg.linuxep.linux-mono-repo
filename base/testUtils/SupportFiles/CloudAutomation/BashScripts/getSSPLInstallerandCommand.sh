@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set +x
 url=$1
 
 if [[ $url != "https://api.sandbox.sophos/api/download/"* ]]; then
