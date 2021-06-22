@@ -59,7 +59,7 @@ SetupServers
 
 Teardown
     Run Keyword If Test Failed  Dump Thininstaller Log
-    Log File  ${PROXY_LOG}
+    LogUtils.Dump Log  ${PROXY_LOG}
     General Test Teardown
     Stop Update Server
     Stop Proxy Servers
