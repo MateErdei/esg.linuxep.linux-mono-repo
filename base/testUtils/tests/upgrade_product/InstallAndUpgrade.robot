@@ -106,7 +106,7 @@ We Can Install From A Ballista Warehouse
 #    Force A failure If you want to check for anything with the teardown logs
 #    Fail
 
-We Can Upgrade From A Release To Master Without Unexpected Errors
+We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
@@ -241,7 +241,7 @@ VersionCopy File in the Wrong Location Is Removed
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
-We Can Downgrade From Master To A Release Without Unexpected Errors
+We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
 
@@ -692,7 +692,7 @@ Test That Only Subscriptions Appear As Subscriptions In ALC Status File
 
     Only Subscriptions In Policy Are In Alc Status Subscriptions
 
-We Can Upgrade AV From A Release To VUT Without Unexpected Errors
+We Can Upgrade AV From Dogfood To VUT Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
