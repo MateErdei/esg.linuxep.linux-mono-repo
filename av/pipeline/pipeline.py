@@ -305,7 +305,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     # section include to allow classic build to continue to work. To run unified pipeline local because of this check
     # export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     if parameters.mode:
-        component = tap.Component(name='sspl-plugin-anti-virus', base_version='1.0.3')
+        component = tap.Component(name='sspl-plugin-anti-virus', base_version='1.0.2')
         build_image = 'JenkinsLinuxTemplate5'
         release_package = "./build-files/release-package.xml"
         with stage.parallel('build'):
