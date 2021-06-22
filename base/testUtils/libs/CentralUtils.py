@@ -237,7 +237,6 @@ def get_sspl_registration():
     command = ["bash", bashfile, get_sspl_thinstaller_url()]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout = process.communicate()[0]
-
     if process.wait() != 0:
         raise AssertionError("error with get registration command: {}".format(stdout.decode('utf-8')))
     with open('/tmp/registerCommand', 'r') as file:
