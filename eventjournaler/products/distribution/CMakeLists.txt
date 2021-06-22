@@ -60,7 +60,7 @@ else()
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 
     execute_process(
-            COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
+            COMMAND python3 ${PLUGINAPIPATH}/distribution/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} CIJenkinsfile
             OUTPUT_VARIABLE PRODUCT_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
