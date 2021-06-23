@@ -39,6 +39,7 @@ Test Setup
 Test Teardown
     [Arguments]  ${UninstallAudit}=True
     Run Keyword If Test Failed    Dump Cloud Server Log
+    Run Keyword If Test Failed    Log XDR Intermediary File
     General Test Teardown
     Run Keyword If Test Failed    Dump Thininstaller Log
     Run Keyword If Test Failed    Log Status Of Sophos Spl
@@ -132,3 +133,6 @@ Run Shell Process
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
     Should Be Equal As Integers  ${result.rc}  ${expectedExitCode}   "${OnError}.\nstdout: \n${result.stdout} \n.stderr: \n${result.stderr}"
     [Return]  ${result.stdout} + ${result.stderr}
+
+Log XDR Intermediary File
+    Run Keyword And Ignore Error   Log File  ${SOPHOS_INSTALL}/plugins/edr/var/xdr_intermediary

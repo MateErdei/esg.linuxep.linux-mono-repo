@@ -214,19 +214,20 @@ namespace Common::HttpSenderImpl
 
         curlOptions.emplace_back("Set logging options", CURLOPT_VERBOSE, verbose);
         std::string filePath = requestConfig.getFilePath();
-        FILE *hd_src = nullptr;
+
+        std::unique_ptr<FILE, int (*)(FILE *)> fileToSend(nullptr, fclose);
         bool uploadFile = false;
         if (!filePath.empty())
         {
             if (FileSystem::fileSystem()->isFile(filePath))
             {
                 curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);
-                hd_src = fopen(filePath.c_str(), "rb");
-                if (hd_src !=nullptr)
+                fileToSend.reset(fopen(filePath.c_str(), "rb"));
+                if (fileToSend != nullptr)
                 {
                     LOGDEBUG("Sending file: "<< filePath << ", size: " << FileSystem::fileSystem()->fileSize(filePath));
                     curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-                    curl_easy_setopt(curl, CURLOPT_READDATA, hd_src);
+                    curl_easy_setopt(curl, CURLOPT_READDATA, fileToSend.get());
                     curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
                                      (curl_off_t)FileSystem::fileSystem()->fileSize(filePath));
                     uploadFile = true;
@@ -345,10 +346,6 @@ namespace Common::HttpSenderImpl
 
         LOGDEBUG("Running easyPerform. ");
         CURLcode result = m_curlWrapper->curlEasyPerform(curl);
-        if (!filePath.empty() && hd_src !=nullptr)
-        {
-            fclose(hd_src);
-        }
         LOGDEBUG("Performed easyPerform: " << result);
         if (result != CURLE_OK)
         {
