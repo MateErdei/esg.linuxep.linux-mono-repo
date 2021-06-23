@@ -334,7 +334,7 @@ namespace CommsComponent
             validDeps.emplace_back(std::make_pair(mcsCertPathSource, "base/mcs/certs"));
         }
 
-        auto diagnoseOutputPathSource = Common::FileSystem::join(sophosInstall, "base/remote-diagnose/output");
+        std::string diagnoseOutputPathSource = Common::ApplicationConfiguration::applicationPathManager().getDiagnoseOutputPath();
         if (Common::FileSystem::fileSystem()->isDirectory(diagnoseOutputPathSource))
         {
             validDeps.emplace_back(std::make_pair(diagnoseOutputPathSource, "base/remote-diagnose/output"));

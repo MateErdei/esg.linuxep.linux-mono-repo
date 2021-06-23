@@ -42,17 +42,8 @@ namespace
     static size_t read_callback(char *ptr, size_t size, size_t nmemb, FILE *stream)
     {
         size_t retcode;
-        curl_off_t nread;
 
-        /* in real-world cases, this would probably get this data differently
-           as this fread() stuff is exactly what the library already would do
-           by default internally */
         retcode = fread(ptr, size, nmemb, stream);
-
-        nread = (curl_off_t)retcode;
-        std::cout << "read bytes: " <<std::endl;
-        fprintf(stdout, "*** We read %" CURL_FORMAT_CURL_OFF_T
-                        " bytes from file\n", nread);
 
         return retcode;
     }
@@ -231,12 +222,20 @@ namespace Common::HttpSenderImpl
             {
                 curl_easy_setopt(curl, CURLOPT_READFUNCTION, read_callback);
                 hd_src = fopen(filePath.c_str(), "rb");
-                LOGDEBUG("Sending file: "<< filePath << ", size: " << FileSystem::fileSystem()->fileSize(filePath));
-                curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-                curl_easy_setopt(curl, CURLOPT_READDATA, hd_src);
-                curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
-                                 (curl_off_t)FileSystem::fileSystem()->fileSize(filePath));
-                uploadFile = true;
+                if (hd_src !=nullptr)
+                {
+                    LOGDEBUG("Sending file: "<< filePath << ", size: " << FileSystem::fileSystem()->fileSize(filePath));
+                    curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+                    curl_easy_setopt(curl, CURLOPT_READDATA, hd_src);
+                    curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,
+                                     (curl_off_t)FileSystem::fileSystem()->fileSize(filePath));
+                    uploadFile = true;
+                }
+                else
+                {
+                    LOGERROR("Failed to open file for reading: " << filePath);
+                }
+
             }
             else
             {
