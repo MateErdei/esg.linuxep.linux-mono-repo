@@ -55,6 +55,31 @@ Diagnose Tool Gathers Logs When Run From Installation
     Should Not Contain  ${contents}  error  ignore_case=True
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
 
+Diagnose Tool Gathers Logs When Run From Systemctl
+    [Tags]  DIAGNOSE  TAP_TESTS  SMOKE
+    Mimic Base Component Files  ${SOPHOS_INSTALL}
+    Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
+
+
+    Run Process  ${SOPHOS_INSTALL}/bin/sophos_diagnose  --remote
+
+    # Check diagnose tar created
+    ${Files} =  List Files In Directory  ${SOPHOS_INSTALL}/base/remote-diagnose/output/
+    ${fileCount} =    Get length    ${Files}
+    Should Be Equal As Numbers  ${fileCount}  1
+    Should Contain    ${Files[0]}    sspl.zip
+    Should Not Contain   ${Files}  BaseFiles
+    Should Not Contain   ${Files}  SystemFiles
+    Should Not Contain   ${Files}  PluginFiles
+
+    # Untar diagnose tar to check contents
+    Create Directory  ${UNPACK_DIRECTORY}
+    ${result} =   Run Process   unzip    ${SOPHOS_INSTALL}/base/remote-diagnose/output/${Files[0]}    -d    ${UNPACK_DIRECTORY}/
+    Should Be Equal As Strings   ${result.rc}  0
+
+    Check Diagnose Base Output
+    Check Diagnose Output For System Command Files
+    Check Diagnose Output For System Files
 
 Diagnose Tool Gathers MDR Logs When Run From Installation
     [Tags]  DIAGNOSE  MDR_PLUGIN

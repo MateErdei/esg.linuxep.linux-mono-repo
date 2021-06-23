@@ -20,3 +20,14 @@ for python_package in sseclient aiohttp aiohttp_sse asyncio python-dateutil webs
 do
   pip_install ${python_package}
 done
+
+if [ -n "$(which apt-get)" ]
+then
+  apt-get -y install zip || ( echo "package install failed" && exit 1 )
+elif [ -n "$(which yum)" ]
+then
+  yum -y install zip || ( echo "package install failed" && exit 1 )
+else
+  echo "System is not rhel-based or ubuntu, cannot install packages"
+  exit 1
+fi
