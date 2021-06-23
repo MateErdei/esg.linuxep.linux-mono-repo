@@ -69,15 +69,15 @@ def event_journaler(stage: tap.Root, context: tap.PipelineContext, parameters: t
             zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image='JenkinsLinuxTemplate6',
                                                 mode=zero_six_zero_mode, release_package=PACKAGE_PATH)
 
-    # with stage.parallel('test'):
-    #     machines = (
-    #         ("ubuntu1804",
-    #          tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, release_build, mode), platform=tap.Platform.Linux)),
-    #         ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, release_build, mode), platform=tap.Platform.Linux)),
-    #         ("centos82", tap.Machine('centos82_x64_server_en_us', inputs=get_inputs(context, release_build, mode), platform=tap.Platform.Linux)),
-    #         # add other distros here
-    #     )
-    #
-    # with stage.parallel('integration'):
-    #     for template_name, machine in machines:
-    #         stage.task(task_name=template_name, func=robot_task, machine=machine)
+    with stage.parallel('test'):
+        machines = (
+            ("ubuntu1804",
+             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, release_build, mode), platform=tap.Platform.Linux)),
+            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, release_build, mode), platform=tap.Platform.Linux)),
+            ("centos82", tap.Machine('centos82_x64_server_en_us', inputs=get_inputs(context, release_build, mode), platform=tap.Platform.Linux)),
+            # add other distros here
+        )
+
+    with stage.parallel('integration'):
+        for template_name, machine in machines:
+            stage.task(task_name=template_name, func=robot_task, machine=machine)
