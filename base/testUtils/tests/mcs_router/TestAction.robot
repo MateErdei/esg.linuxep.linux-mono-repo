@@ -14,7 +14,8 @@ Suite Teardown  Run Keywords
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
 Force Tags  LOAD2
-
+*** Variables ***
+${FileSystemWatcherLog}  /tmp/fsw.log
 *** Test Case ***
 Update Now Received And Action File Written
     Register With Fake Cloud
@@ -57,7 +58,7 @@ Action Applied After Policies
     Register With Fake Cloud
     Check Default Policies Exist
 
-    ${FileSystemWatcherLog}=  Set Variable  /tmp/fsw.log
+
     Setup Filesystem Watcher  ${SOPHOS_INSTALL}  log_file_path=${FileSystemWatcherLog}
     Start Filesystem Watcher
 
@@ -110,7 +111,6 @@ Action Applied After Policies
          ...  moved: ${SOPHOS_INSTALL}/tmp/actions/
          ...  _ALC_action_jura.xml to: ${SOPHOS_INSTALL}/base/mcs/action/ALC_action_jura.xml
 
-
 *** Keywords ***
 
 Check Cloud Server Log For Command Poll
@@ -122,6 +122,6 @@ Check Cloud Server Log For Command Poll
 
 Test With Filesystem Watcher Teardown
     Run Keywords
-    ...  Stop Filesystem Watcher
-    ...  Run Keyword If Test Failed   Log file  ${FileSystemWatcherLog}
+    ...  Stop Filesystem Watcher  AND
+    ...  Run Keyword If Test Failed  Log file  ${FileSystemWatcherLog}   AND
     ...  MCSRouter Default Test Teardown
