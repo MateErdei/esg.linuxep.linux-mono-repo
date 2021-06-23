@@ -86,6 +86,7 @@
             <include src="python-sseclient.tar" dest="."/>
         </package>
         <build-asset project="thirdparty" repo="minizip">
+            <release-version branch="release/linux-3.0.2" build-id="20210622151109-45729c01a79b678f7a29cf76cf770128ef856e2e-7mmYMo"/>
             <development-version branch="sophos/linux-sspl-master"/>
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
