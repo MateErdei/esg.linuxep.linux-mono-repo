@@ -7,7 +7,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include "ApplicationPaths.h"
 #include "Telemetry.h"
 #include "Logger.h"
-#include "StringReplace.h"
 
 #include <Common/UtilityImpl/StringUtils.h>
 

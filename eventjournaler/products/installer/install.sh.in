@@ -85,4 +85,5 @@ copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 
 [[ -f "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "plugin uninstall link file failed to be created"
 [[ -f "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "plugin version link file failed to be created"
+[[ -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/${PLUGIN_NAME}" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "plugin binary failed to be installed"
 [[ -f "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "plugin uninstall script failed to be installed"

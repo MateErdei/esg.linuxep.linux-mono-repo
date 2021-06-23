@@ -11,8 +11,8 @@ sophos_add_library(pluginimpl SHARED
         Logger.cpp
         PluginAdapter.cpp
         PluginAdapter.h
-        StringReplace.cpp
-        StringReplace.h
+        PluginUtils.cpp
+        PluginUtils.h
         Telemetry.cpp
         Telemetry.h
         config.h
