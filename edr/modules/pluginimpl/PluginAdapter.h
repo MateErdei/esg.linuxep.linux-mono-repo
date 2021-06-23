@@ -27,6 +27,12 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
+    class DetectRequestToStop : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
+
     class PluginAdapter
     {
         std::shared_ptr<QueueTask> m_queueTask;
@@ -103,6 +109,10 @@ namespace Plugin
         const time_t SCHEDULE_EPOCH_DURATION = ONE_DAY_IN_SECONDS * 6;
         static bool isQueryPackEnabled(Path queryPackPathWhenEnabled);
         void databasePurge();
+
+        static std::string
+        waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
+                              const std::string& policyAppId);
 
     private:
         void innerMainLoop();
