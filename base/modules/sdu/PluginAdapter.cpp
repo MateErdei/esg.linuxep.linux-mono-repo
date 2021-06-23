@@ -79,6 +79,9 @@ namespace RemoteDiagnoseImpl
         {
             m_diagnoseRunner->triggerDiagnose();
         }
+        {
+            LOGWARN("sophos_diagnose is currently running, we will not try to start it again");
+        }
 
     }
     void PluginAdapter::sendFinishedStatus()
@@ -89,17 +92,7 @@ namespace RemoteDiagnoseImpl
 
     PluginAdapter::~PluginAdapter()
     {
-        try
-        {
-            if (m_monitor.valid())
-            {
-                // TODO stop the sophos_diagnose
-            }
-        }catch (std::exception& ex)
-        {
-            std::cerr << "Plugin adapter exception: " << ex.what() << std::endl;
-        }
-        // safe to clean up.
+        LOGDEBUG("SDU finished");
     }
 
 } // namespace RemoteDiagnoseImpl

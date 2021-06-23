@@ -185,9 +185,10 @@ namespace diagnose
     {
         zipFile zf = zipOpen(std::string(destPath.begin(), destPath.end()).c_str(), APPEND_STATUS_CREATE);
         if (zf == NULL)
-            return;
+        {
+            LOGWARN("Error opening zip :" << destPath);
+        }
 
-        bool error = false;
         auto fs = Common::FileSystem::fileSystem();
 
         std::vector<std::string> filesToZip;
@@ -207,17 +208,20 @@ namespace diagnose
                     if (size == 0 || file.read(&buffer[0], size))
                     {
                         zip_fileinfo zfi;
-                        std::string fileName = Common::FileSystem::basename(path);
 
-                        fileName = path.substr(srcPath.size());
+                        std::string fileName = path.substr(srcPath.size());
 
                         if (0 == zipOpenNewFileInZip(zf, ("."+fileName).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
                         {
-                            if (zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size))
-                                error = true;
+                            if (ZIP_OK != zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size))
+                            {
+                                LOGWARN("Error zipping up file: " << fileName);
+                            }
 
-                            if (zipCloseFileInZip(zf))
-                                error = true;
+                            if (ZIP_OK != zipCloseFileInZip(zf))
+                            {
+                                LOGWARN("Error closing zip file: " << fileName);
+                            }
 
                             file.close();
                             continue;
@@ -225,22 +229,21 @@ namespace diagnose
                     }
                     file.close();
                 }
-                error = true;
+                LOGWARN("Could not open file: " << path);
             }
         }
 
-        if (zipClose(zf, NULL))
-            return ;
-
-        if (error)
-            return ;
+        if (ZIP_OK != zipClose(zf, NULL))
+        {
+            LOGWARN("Error closing zip :" << destPath);
+        }
 
     }
 
     void SystemCommands::zipDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const
     {
 
-        std::cout << "Running zip on: " << srcPath << std::endl;
+        LOGINFO("Running zip on: " << srcPath);
         std::string zipFileName = "sspl.zip";
         std::string zipfiletemp = Common::FileSystem::join(destPath, zipFileName + ".temp");
         std::string zipfile = Common::FileSystem::join(destPath, zipFileName);
@@ -261,6 +264,6 @@ namespace diagnose
             throw std::runtime_error(errormsg.str());
         }
 
-        std::cout << "Created tarfile: " << zipFileName << " in directory " << destPath << std::endl;
+        LOGINFO("Created tarfile: " << zipFileName << " in directory " << destPath);
     }
 } // namespace diagnose
