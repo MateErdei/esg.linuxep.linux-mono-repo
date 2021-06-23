@@ -43,7 +43,7 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str):
     if mode == 'release':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./TA'),
-            edr_sdds=ej_build / 'ej/SDDS-COMPONENT',
+            edr_sdds=ej_build / 'eventjournaler/SDDS-COMPONENT',
             base_sdds=ej_build / 'base/base-sdds',
             componenttests=ej_build / 'componenttests',
         )
