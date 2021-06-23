@@ -11,6 +11,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include "datatypes/sophos_filesystem.h"
 #include "modules/common/ThreadRunner.h"
+#include "common/StringUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
@@ -50,8 +51,9 @@ namespace Plugin
             {
                 m_adapter.processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
                 m_adapter.publishThreatEvent(
-                    pluginimpl::generateThreatDetectedJson(detection.getThreatName(), detection.getFilePath()),
-                    m_threatEventPublisherSocketPath);
+                    pluginimpl::generateThreatDetectedJson(detection.getThreatName(),
+                                                        common::toUtf8(detection.getFilePath())),
+                                                                  m_threatEventPublisherSocketPath);
             }
 
         private:
