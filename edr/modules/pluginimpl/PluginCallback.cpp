@@ -32,7 +32,7 @@ namespace Plugin
     void PluginCallback::applyNewPolicy(const std::string& policyXml)
     {
         LOGSUPPORT("Applying new policy");
-        m_task->push(Task{ Task::TaskType::Policy, policyXml });
+        m_task->push(Task{ Task::TaskType::POLICY, policyXml});
     }
 
     void PluginCallback::queueAction(const std::string& /* actionXml */) { LOGSUPPORT("Queueing action"); }

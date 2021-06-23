@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019 Sophos Limited.  All rights reserved.
+Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -15,20 +15,16 @@ namespace Plugin
 {
     struct Task
     {
-        enum class TaskType : int
+        enum class TaskType
         {
-            START_OSQUERY,
-            OSQUERY_PROCESS_FINISHED,
-            OSQUERY_PROCESS_FAILED_TO_START,
-            STOP,
             POLICY,
-            QUERY,
-            QUEUE_OSQUERY_RESTART
+            EXAMPLETASK,
+            STOP
         };
         TaskType m_taskType;
         std::string m_content;
-        std::string m_correlationId="";
         std::string m_appId="";
+        std::string m_correlationId="";
     };
 
     class QueueTask
@@ -38,15 +34,11 @@ namespace Plugin
         std::list<Task> m_list;
 
     public:
-        void push(Task);
-        void pushIfNotAlreadyInQueue(Task);
-        bool pop(Task&, int timeout);
+        void push(const Task&);
+        Task pop();
         void pushStop();
-        void pushOsqueryProcessDelayRestart();
-        void pushOsqueryProcessFinished();
-        void pushStartOsquery();
+        bool pop(Task&, int timeout);
         void pushPolicy(const std::string& appId, const std::string& policyXMl);
-        void pushOsqueryRestart(const std::string& reason);
     };
 
 } // namespace Plugin

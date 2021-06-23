@@ -110,6 +110,10 @@ namespace Plugin
         static bool isQueryPackEnabled(Path queryPackPathWhenEnabled);
         void databasePurge();
 
+        static std::string
+        waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
+                              const std::string& policyAppId);
+
     private:
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
