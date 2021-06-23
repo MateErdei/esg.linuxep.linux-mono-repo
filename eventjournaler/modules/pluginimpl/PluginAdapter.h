@@ -14,6 +14,12 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
+    class DetectRequestToStop : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
+
     class PluginAdapter
     {
     public:
@@ -23,6 +29,10 @@ namespace Plugin
             std::shared_ptr<PluginCallback> callback,
             std::unique_ptr<SubscriberLib::ISubscriber> subscriber);
         void mainLoop();
+
+        static std::string
+        waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
+                              const std::string& policyAppId);
 
     private:
         std::shared_ptr<QueueTask> m_queueTask;

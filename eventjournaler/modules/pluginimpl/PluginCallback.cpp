@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2021 Sophos Limited.  All rights reserved.
+Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -18,15 +18,24 @@ namespace Plugin
 {
     PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) : m_task(std::move(task))
     {
+        std::string noPolicySetStatus{
+            R"sophos(<?xml version="1.0" encoding="utf-8" ?>
+                    <status xmlns="http://www.sophos.com/EE/EESavStatus">
+                        <CompRes xmlns="com.sophos\msys\csc" Res="NoRef" RevID="" policyType="2" />
+                    </status>)sophos"
+        };
+        Common::PluginApi::StatusInfo noPolicyStatusInfo = { noPolicySetStatus, noPolicySetStatus, "SAV" };
+        m_statusInfo = noPolicyStatusInfo;
         LOGDEBUG("Plugin Callback Started");
     }
 
-    void PluginCallback::applyNewPolicy(const std::string& /*policyXml */)
+    void PluginCallback::applyNewPolicy(const std::string& policyXml)
     {
-        LOGSUPPORT("Received unexpected policy");
+        LOGSUPPORT("Applying new policy");
+        m_task->push(Task{ Task::TaskType::POLICY, policyXml});
     }
 
-    void PluginCallback::queueAction(const std::string& /* actionXml */) { LOGSUPPORT("Received unexpected action"); }
+    void PluginCallback::queueAction(const std::string& /* actionXml */) { LOGSUPPORT("Queueing action"); }
 
     void PluginCallback::onShutdown()
     {
@@ -44,8 +53,14 @@ namespace Plugin
 
     Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /* appId */)
     {
-        LOGSUPPORT("Received unexpected get status request");
-        return Common::PluginApi::StatusInfo{};
+        LOGSUPPORT("Received get status request");
+        return m_statusInfo;
+    }
+
+    void PluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
+    {
+        LOGSUPPORT("Setting status");
+        m_statusInfo = std::move(statusInfo);
     }
 
     std::string PluginCallback::getTelemetry()

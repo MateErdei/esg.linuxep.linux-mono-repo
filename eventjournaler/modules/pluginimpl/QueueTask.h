@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2021 Sophos Limited.  All rights reserved.
+Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -17,11 +17,14 @@ namespace Plugin
     {
         enum class TaskType
         {
-            Policy,
-            Stop
+            POLICY,
+            EXAMPLETASK,
+            STOP
         };
-        TaskType taskType;
-        std::string Content;
+        TaskType m_taskType;
+        std::string m_content;
+        std::string m_appId="";
+        std::string m_correlationId="";
     };
 
     class QueueTask
@@ -31,9 +34,11 @@ namespace Plugin
         std::list<Task> m_list;
 
     public:
-        void push(Task);
-        bool pop(Task&, int timeout);
+        void push(const Task&);
+        Task pop();
         void pushStop();
+        bool pop(Task&, int timeout);
+        void pushPolicy(const std::string& appId, const std::string& policyXMl);
     };
 
 } // namespace Plugin
