@@ -123,4 +123,5 @@ Check Cloud Server Log For Command Poll
 Test With Filesystem Watcher Teardown
     Run Keywords
     ...  Stop Filesystem Watcher
+    ...  Run Keyword If Test Failed   Log file  ${FileSystemWatcherLog}
     ...  MCSRouter Default Test Teardown
