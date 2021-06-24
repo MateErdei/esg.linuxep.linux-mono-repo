@@ -60,7 +60,6 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::processPolicy(const std::string& policyXml) { LOGDEBUG("Process policy: " << policyXml); }
 
     std::string PluginAdapter::waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS,
                                                      int maxTasksThreshold,
