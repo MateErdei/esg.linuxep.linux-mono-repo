@@ -1,4 +1,5 @@
 *** Settings ***
+Resource  EventJournalerResources.robot
 Test Setup  Install Base For Component Tests
 Test Teardown  Uninstall Base
 *** Test Cases ***
