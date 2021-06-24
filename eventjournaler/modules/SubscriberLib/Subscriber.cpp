@@ -5,12 +5,18 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "Subscriber.h"
+
 #include "Logger.h"
 
+#include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#include <sys/stat.h>
 
+#include <cstring>
 #include <iostream>
 #include <unistd.h>
 
@@ -18,34 +24,21 @@ namespace SubscriberLib
 {
     void Subscriber::subscribeToEvents()
     {
-//        uid_t owner = 0;
-//        gid_t group = 0;
-
-//        if (!user.empty())
-//        {
-//            if (getUserGroupID(user, owner, group))
-//            {
-//                std::cout << user << " " << owner << ":" << group << std::endl;
-//            }
-//        }
         auto context = Common::ZMQWrapperApi::createContext();
         auto socket = context->getSubscriber();
 //        assert(socket.get());
 
         socket->listen("ipc://" + m_socketPath);
 
-//        if (chmod(socket_path.c_str(), S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) != 0)
-//        {
-//            std::cout << "failed to change permissions of \"" << socket_path << "\"" << std::endl;
-//        }
-
-//        if (owner && group)
-//        {
-//            if (chown(socket_path.c_str(), owner, group) != 0)
-//            {
-//                std::cout << "failed to change ownership of \"" << socket_path << "\"" << std::endl;
-//            }
-//        }
+        try
+        {
+            Common::FileSystem::filePermissions()->chown(m_socketPath, sophos::user(), sophos::group());
+            Common::FileSystem::filePermissions()->chmod(m_socketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        }
+        catch (Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGERROR("Error setting up socket : "<< exception.what());
+        }
 
         socket->subscribeTo("threatEvents");
 
