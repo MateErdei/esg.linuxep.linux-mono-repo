@@ -18,13 +18,10 @@ namespace Plugin
         enum class TaskType
         {
             POLICY,
-            EXAMPLETASK,
             STOP
         };
         TaskType m_taskType;
         std::string m_content;
-        std::string m_appId="";
-        std::string m_correlationId="";
     };
 
     class QueueTask
@@ -34,11 +31,9 @@ namespace Plugin
         std::list<Task> m_list;
 
     public:
-        void push(const Task&);
+        void push(Task);
         Task pop();
         void pushStop();
-        bool pop(Task&, int timeout);
-        void pushPolicy(const std::string& appId, const std::string& policyXMl);
     };
 
 } // namespace Plugin
