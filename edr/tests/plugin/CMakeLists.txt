@@ -1,10 +1,18 @@
-include(GoogleTest)
 
 SophosAddTest(TestPlugin
-        TestPlugin.cpp
+        TestLiveQueryPolicyParser.cpp
+        TestMtrMonitor.cpp
+        TestQueueTask.cpp
+        TestOsqueryDataManager.cpp
+        TestOsqueryConfigurator.cpp
         TestPluginAdapter.cpp
+        TestPluginUtils.cpp
+        ALCPoliciesExample.h
+        ALCPoliciesExample.cpp
+        OsqueryTelemetryTests.cpp
+        TestOsqueryLogStringUtil.cpp
         PROJECTS pluginimpl
-        LIBS ${pluginapilib} ${testhelperslib} rt
+        LIBS ${pluginapilib} ${testhelperslib} rt dl ${OPENSSL_LIBRARY}
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
 )
 
