@@ -23,11 +23,10 @@ namespace Plugin
 
     void PluginCallback::applyNewPolicy(const std::string& policyXml)
     {
-        LOGSUPPORT("Applying new policy");
-        m_task->push(Task{ Task::TaskType::Policy, policyXml });
+        LOGSUPPORT("Received unexpected policy");
     }
 
-    void PluginCallback::queueAction(const std::string& /* actionXml */) { LOGSUPPORT("Queueing action"); }
+    void PluginCallback::queueAction(const std::string& /* actionXml */) { LOGSUPPORT("Received unexpected action"); }
 
     void PluginCallback::onShutdown()
     {

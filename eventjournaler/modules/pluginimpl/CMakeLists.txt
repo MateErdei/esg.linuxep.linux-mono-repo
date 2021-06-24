@@ -16,6 +16,8 @@ sophos_add_library(pluginimpl SHARED
         Telemetry.cpp
         Telemetry.h
         config.h
-        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
-        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib}
+        EXTRA_PROJECTS subscriberlib
+        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules
+        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} #subscriberlib
 )
+#target_link_libraries(pluginimpl PUBLIC  ${LOG4CPLUS_LIBRARY} )
