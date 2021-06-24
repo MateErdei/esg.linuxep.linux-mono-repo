@@ -21,7 +21,7 @@ namespace Plugin
         LOGDEBUG("Plugin Callback Started");
     }
 
-    void PluginCallback::applyNewPolicy(const std::string& policyXml)
+    void PluginCallback::applyNewPolicy(const std::string& /*policyXml */)
     {
         LOGSUPPORT("Received unexpected policy");
     }
