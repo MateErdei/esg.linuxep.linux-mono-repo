@@ -2,7 +2,7 @@
 add_executable(EventPubSub
         EventPubSub.cpp)
 
-target_include_directories(EventPubSub PUBLIC ${PROJECT_SOURCE_DIR} ${pluginapiinclude})
+target_include_directories(EventPubSub PUBLIC ../.. ${pluginapiinclude})
 
 target_link_libraries(EventPubSub ${zmqlib} ${pluginapilib} ${log4cpluslib} ${protobuflib})
 
