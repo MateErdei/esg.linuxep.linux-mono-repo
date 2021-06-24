@@ -12,7 +12,7 @@ namespace SubscriberLib
     public:
         void subscribeToEvents();
     private:
-        std::string m_socketPath = "event.sock";
+        std::string m_socketPath = "/opt/sophos-spl/plugins/eventjournaler/var/event.ipc";
     };
 }
 
