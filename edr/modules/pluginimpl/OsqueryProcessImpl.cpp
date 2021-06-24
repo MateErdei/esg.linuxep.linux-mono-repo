@@ -15,7 +15,7 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <modules/Proc/ProcUtilities.h>
+#include <Common/ProcUtilImpl/ProcUtilities.h>
 
 #include <iterator>
 #include <unistd.h>

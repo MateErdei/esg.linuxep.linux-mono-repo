@@ -17,8 +17,6 @@ sophos_add_library(pluginimpl SHARED
         PluginAdapter.h
         PluginUtils.cpp
         PluginUtils.h
-        StringReplace.cpp
-        StringReplace.h
         Telemetry.cpp
         Telemetry.h
         ApplicationPaths.h
@@ -39,7 +37,7 @@ sophos_add_library(pluginimpl SHARED
         OsqueryLogIngest.cpp
         LiveQueryPolicyParser.cpp
         LiveQueryPolicyParser.h
-        EXTRA_PROJECTS queryrunnerimpl procimpl OsqueryExtensions osqueryclient
+        EXTRA_PROJECTS queryrunnerimpl OsqueryExtensions osqueryclient
         EXTRA_INCLUDES ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${BOOST_INCLUDE_DIR} ${OSQUERYSDK}/include ${INPUT}/jsoncpp/include
         EXTRA_LIBS ${zmqlib}
             ${log4cpluslib}

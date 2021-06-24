@@ -17,8 +17,8 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/Proc/ProcUtilities.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
+#include <Common/ProcUtilImpl/ProcUtilities.h>
 
 #include <cmath>
 #include <unistd.h>
@@ -615,41 +615,6 @@ namespace Plugin
         }
     }
 
-    std::string PluginAdapter::waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS,
-                                                     int maxTasksThreshold,
-                                                     const std::string& policyAppId)
-    {
-        std::vector<Plugin::Task> nonPolicyTasks;
-        std::string policyContent;
-        for (int i = 0; i < maxTasksThreshold; i++)
-        {
-            Plugin::Task task;
-            if (!queueTask.pop(task, timeoutInS.count()))
-            {
-                LOGINFO(policyAppId << " policy has not been sent to the plugin");
-                break;
-            }
-            if (task.m_taskType == Plugin::Task::TaskType::POLICY && task.m_appId == policyAppId)
-            {
-                policyContent = task.m_content;
-                LOGINFO("First " << policyAppId << " policy received.");
-                break;
-            }
-            LOGSUPPORT("Keep task: " << static_cast<int>(task.m_taskType));
-            nonPolicyTasks.push_back(task);
-            if (task.m_taskType == Plugin::Task::TaskType::STOP)
-            {
-                LOGINFO("Abort waiting for the first policy as Stop signal received.");
-                throw DetectRequestToStop("");
-            }
-        }
-        LOGDEBUG("Return from waitForTheFirstPolicy ");
-        for (auto task : nonPolicyTasks)
-        {
-            queueTask.push(task);
-        }
-        return policyContent;
-    }
 
     OsqueryConfigurator& PluginAdapter::osqueryConfigurator()
     {

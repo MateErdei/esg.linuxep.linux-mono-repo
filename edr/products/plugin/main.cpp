@@ -12,7 +12,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Proc/ProcUtilities.h>
+#include <Common/ProcUtilImpl/ProcUtilities.h>
 #include <modules/livequery/config.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/Logger.h>
@@ -56,9 +56,12 @@ int main()
             if (pid.has_value() && pid.value() != getpid())
             {
                 std::string pathToProcExe = Common::FileSystem::join(entry, "exe");
-                std::string absolutePath = fs->readlink(pathToProcExe);
+                std::optional<Path> absolutePath = fs->readlink(pathToProcExe);
 
-                if (Common::UtilityImpl::StringUtils::startswith(absolutePath, Plugin::edrBinaryPath()))
+                if (!absolutePath.has_value())
+                    continue;
+
+                if (Common::UtilityImpl::StringUtils::startswith(absolutePath.value(), Plugin::edrBinaryPath()))
                 {
                     LOGINFO("Found running EDR instance with PID: " << pid.value());
                     std::optional<std::string> statContent = fs->readProcFile(pid.value(), "stat");
