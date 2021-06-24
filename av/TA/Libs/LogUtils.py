@@ -296,8 +296,16 @@ File Log Contains
                     , os.path.join(log_root, "Subscriber_{}_{}.log".format(subscriber_id, channel_name_listened_to))
                     , "Fake Subscriber {} {} Log".format(subscriber_id, channel_name_listened_to))
 
+    def log_string_if_found(self, string_to_contain, pathToLog):
+        with open(pathToLog, "rb") as file:
+            contents = file.read()
+            contents = contents.decode("UTF-8", errors='backslashreplace').splitlines()
+            for line in contents:
+                if string_to_contain in line:
+                    logger.info("{} contains: {} in {}".format(os.path.basename(pathToLog), string_to_contain, line))
+
     def check_all_product_logs_do_not_contain_string(self, string_to_find):
-        search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*"]
+        search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/*.log*"]
         glob_search_pattern = [os.path.join(self.install_path, search_entry) for search_entry in search_list]
         combined_files = [glob.glob(search_pattern) for search_pattern in glob_search_pattern]
         flat_files = [item for sublist in combined_files for item in sublist]
@@ -305,6 +313,7 @@ File Log Contains
         for filepath in flat_files:
             num_occurrence = self.get_number_of_occurrences_of_substring_in_log(filepath, string_to_find)
             if num_occurrence > 0:
+                self.log_string_if_found(string_to_find, filepath)
                 list_of_logs_containing_string.append("{} - {} times".format(filepath, num_occurrence))
         if list_of_logs_containing_string:
             raise AssertionError("These program logs contain {}:\n {}".format(string_to_find, list_of_logs_containing_string))

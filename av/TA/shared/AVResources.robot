@@ -476,6 +476,8 @@ AV And Base Teardown
     Register On Fail  dump log  ${TELEMETRY_LOG_PATH}
     Register On Fail  dump log  ${AV_INSTALL_LOG}
     Run Teardown Functions
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Error
 
 Restart AV Plugin And Clear The Logs For Integration Tests
     Log  Logs have to be rotated

@@ -58,6 +58,9 @@ AVCommandLineScanner Test TearDown
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
     Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Error
+
 
 Clear logs
     Stop AV
@@ -113,7 +116,6 @@ CLS No args
     Log  output is ${result.stdout}
 
     Should Not Contain  ${result.stdout.replace("\n", " ")}  "failed to execute"
-
 
 CLS Can Scan Relative Path
     ${cwd} =  get cwd then change directory  ${NORMAL_DIRECTORY}

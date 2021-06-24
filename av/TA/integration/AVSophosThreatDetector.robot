@@ -492,6 +492,8 @@ AVSophosThreatDetector Test Setup
 
 AVSophosThreatDetector Test TearDown
     run teardown functions
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Error
 
 Alter Hosts
     ## Back up /etc/hosts

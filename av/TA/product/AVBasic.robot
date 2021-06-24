@@ -471,6 +471,8 @@ Product Test Setup
 Product Test Teardown
     Delete Eicars From Tmp
     run teardown functions
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Error
     Component Test TearDown
 
 Test Remote Share

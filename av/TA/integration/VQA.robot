@@ -94,4 +94,6 @@ VQA Test Setup
 
 VQA Test TearDown
     Run Teardown Functions
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Error
     Run Keyword If Test Failed   VQA Suite Setup

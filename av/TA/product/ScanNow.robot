@@ -129,6 +129,9 @@ ScanNow Test Teardown
     Dump Log On Failure   ${SCANNOW_LOG_PATH}
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Error
+
     run teardown functions
 
 Clear threat detector log

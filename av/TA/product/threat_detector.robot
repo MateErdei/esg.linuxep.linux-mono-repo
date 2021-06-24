@@ -34,6 +34,8 @@ List AV Plugin Path
 Threat Detector Test Teardown
     List AV Plugin Path
     run teardown functions
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Error
     Component Test TearDown
 
 Start AV

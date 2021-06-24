@@ -552,6 +552,8 @@ Installer Test Setup
 
 Installer Test TearDown
     Run Teardown Functions
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Error
     Run Keyword If Test Failed   Installer Suite Setup
 
 Debug install set
