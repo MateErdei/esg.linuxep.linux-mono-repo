@@ -2,18 +2,11 @@
 Suite Setup     Global Setup Tasks
 Suite Teardown  Global Teardown Tasks
 
-
-
-
 Library         OperatingSystem
 
-
 Test Timeout    5 minutes
-
-
 *** Keywords ***
 Global Setup Tasks
-    # SOPHOS_INSTALL
 
     ${placeholder} =  Get Environment Variable      SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}          ${placeholder}
@@ -30,5 +23,4 @@ Global Setup Tasks
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
 
 Global Teardown Tasks
-    Uninstall Base
     Remove Directory  ${SOPHOS_INSTALL}  recursive=True

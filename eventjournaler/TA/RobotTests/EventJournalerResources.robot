@@ -1,7 +1,11 @@
 *** Settings ***
+Library         Process
+Library         OperatingSystem
+Library         String
 
+Resource  GeneralResources.robot
 *** Variables ***
-${EVENT_JOURNALER_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/eventjournaler.log
+${EVENT_JOURNALER_LOG_PATH}     ${COMPONENT_ROOT_PATH}/log/eventjournaler.log
 ${BASE_SDDS}                    ${TEST_INPUT_PATH}/base_sdds/
 ${EVENT_JOURNALER_SDDS}         ${COMPONENT_SDDS}
 
