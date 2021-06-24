@@ -28,7 +28,6 @@ o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libOsqueryExtensions.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libOsquerySDK.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libpluginapi.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libpluginimpl.so.0
-o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libprocimpl.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libprotobuf.so.25.0.0.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libqueryrunnerimpl.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libssl.so.1.1.0
