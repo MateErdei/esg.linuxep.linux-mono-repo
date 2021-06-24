@@ -35,7 +35,7 @@ TEST_F(TestSusiLoggerCallbackSusiDebugLog, info_level) // NOLINT
 {
     UsingMemoryAppender holder(*this);
     threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_INFO, "INFO_MESSAGE");
-    EXPECT_TRUE(appenderContains("INFO - INFO_MESSAGE"));
+    EXPECT_TRUE(appenderContains("SPRT - INFO_MESSAGE"));
 }
 
 TEST_F(TestSusiLoggerCallbackSusiDebugLog, warning_level) // NOLINT

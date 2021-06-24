@@ -36,7 +36,7 @@ void threat_scanner::susiLogCallback(void* token, SusiLogLevel level, const char
                 break;
             case SUSI_LOG_LEVEL_INFO:
                 // SUSI is too verbose at info-level, downgrade to support-level
-                LOG_SUSI_INFO(m); // Not putting info in normal log
+                LOG_SUSI_SUPPORT(m); // Not putting info in normal log
                 break;
             case SUSI_LOG_LEVEL_WARNING:
                 LOGWARN(m);

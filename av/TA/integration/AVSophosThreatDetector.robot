@@ -428,6 +428,30 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
     SUSI Debug Log Does Not Contain With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
 
+SUSI Debug Log Does Not Contain Info Level Logs By Default
+    Create Temporary eicar in  ${NORMAL_DIRECTORY}/eicar.com
+    register cleanup  Set Log Level  DEBUG
+    run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
+    Set Log Level  INFO
+    restart sophos_threat_detector
+    Wait Until Sophos Threat Detector Log Contains  Starting USR1 monitor  timeout=120
+
+    # Request a scan in order to load SUSI
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Wait Until File exists  ${SUSI_DEBUG_LOG_PATH}
+    Mark Susi Debug Log
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar.com
+    Wait Until Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/eicar.com
+
+    # Confirm that no info-level SUSI log messages were printed (ie. those starting with "I")
+    ${contents}  Get File Contents From Offset   ${SUSI_DEBUG_LOG_PATH}   ${SUSI_DEBUG_LOG_MARK}
+    @{lines}=  Split to lines  ${contents}
+    FOR  ${line}  IN  @{lines}
+        Log  ${line}
+        Should Not Start With  ${line}  I
+    END
+
 
 *** Keywords ***
 Start AV Plugin and Force SUSI to be initialized
