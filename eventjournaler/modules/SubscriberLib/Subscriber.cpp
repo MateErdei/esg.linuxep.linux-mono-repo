@@ -5,6 +5,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "Subscriber.h"
+#include "Logger.h"
 
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
@@ -52,7 +53,7 @@ namespace SubscriberLib
 //        {
         std::cout << "waiting for event ..." << std::endl;
         auto data = socket->read();
-        std::cout << "received event" << std::endl;
+        LOGINFO("received event");
         int index = 0;
         for (const auto& s : data)
         {

@@ -44,6 +44,7 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str):
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./TA'),
             event_journaler_sdds=ej_build / 'eventjournaler/SDDS-COMPONENT',
+            manual_tools=ej_build / 'eventjournaler/manualTools',
             base_sdds=ej_build / 'base/base-sdds'
         )
 
