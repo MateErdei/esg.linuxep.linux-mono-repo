@@ -1,6 +1,6 @@
 *** Settings ***
-Test Setup  No Operation
-Test Teardown  No Operation
+Test Setup  Install Base For Component Tests
+Test Teardown  Uninstall Base
 *** Test Cases ***
 Install Event Journaler
-    Log To console  Hello
+    Install Event Journaler Directly from SDDS
