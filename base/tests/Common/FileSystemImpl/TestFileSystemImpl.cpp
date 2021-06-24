@@ -729,20 +729,20 @@ namespace
 
     TEST_F(FileSystemImplTest, readLinkReturnsLinkedToPathWhenCalledOnSymbolicLink) // NOLINT
     {
-        Path findPath = m_fileSystem->readlink("/proc/self/exe");
-        ASSERT_NE(findPath.size(), 0);
+        std::optional<Path> findPath = m_fileSystem->readlink("/proc/self/exe");
+        ASSERT_TRUE(findPath.has_value());
     }
 
     TEST_F(FileSystemImplTest, readLinkReturnsEmptyWhenCalledOnNonExistentFile) // NOLINT
     {
-        Path findPath = m_fileSystem->readlink("/Not/a/file/path");
-        ASSERT_EQ(findPath.size(), 0);
+        std::optional<Path> findPath = m_fileSystem->readlink("/Not/a/file/path");
+        ASSERT_FALSE(findPath.has_value());
     }
 
     TEST_F(FileSystemImplTest, readLinkReturnsEmptyWhenCalledOnNonLinkFile) // NOLINT
     {
-        Path findPath = m_fileSystem->readlink("/bin/bash");
-        ASSERT_EQ(findPath.size(), 0);
+        std::optional<Path> findPath = m_fileSystem->readlink("/bin/bash");
+        ASSERT_FALSE(findPath.has_value());
     }
 
     TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnDirectories) // NOLINT

@@ -7,6 +7,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:reactorimplobject>
         $<TARGET_OBJECTS:threadsobject>
         $<TARGET_OBJECTS:filesystemimplobject>
+        $<TARGET_OBJECTS:procutilimplobject>
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:eventtypesimplobject>
@@ -54,6 +55,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/EventTypes
         COMMAND mkdir -p pluginapi/include/Common/Exceptions
         COMMAND mkdir -p pluginapi/include/Common/FileSystem
+        COMMAND mkdir -p pluginapi/include/Common/ProcUtilImpl
         COMMAND mkdir -p pluginapi/include/Common/Logging
         COMMAND mkdir -p pluginapi/include/Common/PersistentValue
         COMMAND mkdir -p pluginapi/include/Common/Process
@@ -115,6 +117,7 @@ add_copy_directory(Common/DirectoryWatcher)
 add_copy_directory(Common/EventTypes)
 add_copy_directory(Common/Exceptions)
 add_copy_directory(Common/FileSystem)
+add_copy_directory(Common/ProcUtilImpl)
 add_copy_directory(Common/Logging)
 add_copy_directory(Common/PluginApi)
 add_copy_directory(Common/PersistentValue)

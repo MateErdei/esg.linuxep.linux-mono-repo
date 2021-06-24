@@ -25,12 +25,12 @@ namespace
             return SOPHOS_INSTALL;
         }
         // If we don't have the environment variable, see if we can work out from the executable
-        Path exe = Common::FileSystem::fileSystem()->readlink("/proc/self/exe"); // either $SOPHOS_INSTALL/base/bin/X,
+        std::optional<Path> exe = Common::FileSystem::fileSystem()->readlink("/proc/self/exe"); // either $SOPHOS_INSTALL/base/bin/X,
                                                                                  // $SOPHOS_INSTALL/bin/X or
                                                                                  // $SOPHOS_INSTALL/plugins/PluginName/X
-        if (!exe.empty())
+        if (exe.has_value())
         {
-            std::string baseDirName = Common::FileSystem::dirName(exe);
+            std::string baseDirName = Common::FileSystem::dirName(exe.value());
             while (!baseDirName.empty())
             {
                 // Check if expected directories exist here

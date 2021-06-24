@@ -80,7 +80,7 @@ namespace Common
 
             void removeFileOrDirectory(const Path& path) const override;
 
-            Path readlink(const Path& path) const override;
+            std::optional<Path> readlink(const Path& path) const override;
 
             off_t fileSize(const Path& path) const override;
 

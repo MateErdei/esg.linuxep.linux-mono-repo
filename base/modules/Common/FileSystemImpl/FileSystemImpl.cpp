@@ -682,7 +682,7 @@ namespace Common
             return dirs;
         }
 
-        Path FileSystemImpl::readlink(const Path& path) const
+        std::optional<Path> FileSystemImpl::readlink(const Path& path) const
         {
             char linkPath[PATH_MAX + 1];
             ssize_t ret = ::readlink(path.c_str(), linkPath, PATH_MAX);
@@ -692,7 +692,7 @@ namespace Common
                 linkPath[PATH_MAX] = 0;
                 return makeAbsolute(linkPath);
             }
-            return Path();
+            return std::optional<Path> {};
         }
 
         off_t FileSystemImpl::fileSize(const Path& path) const

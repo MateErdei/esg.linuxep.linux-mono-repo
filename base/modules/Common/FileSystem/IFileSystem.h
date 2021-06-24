@@ -281,7 +281,7 @@ namespace Common
              * @param pathToLink
              * @return pathLinkedTo
              */
-            virtual Path readlink(const Path& path) const = 0;
+            virtual std::optional<Path> readlink(const Path& path) const = 0;
 
             /**
              * Return the size in bytes of the file at path location
