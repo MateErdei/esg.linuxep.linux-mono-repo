@@ -11,7 +11,6 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 
 #include "datatypes/sophos_filesystem.h"
 #include "modules/common/ThreadRunner.h"
-#include "common/StringUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
@@ -50,10 +49,10 @@ namespace Plugin
             void processMessage(const scan_messages::ServerThreatDetected& detection) override
             {
                 m_adapter.processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
-                m_adapter.publishThreatEvent(
-                    pluginimpl::generateThreatDetectedJson(detection.getThreatName(),
-                                                        common::toUtf8(detection.getFilePath())),
-                                                                  m_threatEventPublisherSocketPath);
+                //TODO: LINUXDAR-3177 uncomment the following code and convert getFilePath() string to utf-8
+//                    m_adapter.publishThreatEvent(
+//                    pluginimpl::generateThreatDetectedJson(detection.getThreatName(), detection.getFilePath()),
+//                    m_threatEventPublisherSocketPath);
             }
 
         private:
