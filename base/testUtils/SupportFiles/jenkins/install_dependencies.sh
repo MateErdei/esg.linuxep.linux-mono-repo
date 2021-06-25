@@ -23,10 +23,10 @@ done
 
 if [ -n "$(which apt-get)" ]
 then
-  sudo apt-get -y install zip || ( echo "package install failed" && exit 1 )
+  sudo apt-get -y install zip unzip || ( echo "package install failed" && exit 1 )
 elif [ -n "$(which yum)" ]
 then
-  sudo yum -y install zip || ( echo "package install failed" && exit 1 )
+  sudo yum -y install zip unzip || ( echo "package install failed" && exit 1 )
 else
   echo "System is not rhel-based or ubuntu, cannot install packages"
   exit 1
