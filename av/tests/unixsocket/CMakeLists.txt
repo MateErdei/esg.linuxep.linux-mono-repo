@@ -57,6 +57,18 @@ target_include_directories(threatDetectorClientExecutable PUBLIC ${CMAKE_SOURCE_
 target_include_directories(threatDetectorClientExecutable SYSTEM PRIVATE ${BOOSTPATH})
 
 
+SophosAddTest(TestProcessControllerServerSocket
+        ../common/LogInitializedTests.cpp
+        TestProcessControllerServerConnectionThread.cpp
+        TestProcessControllerServerSocket.cpp
+        PROJECTS unixsocket
+        INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
+        )
+SET_TARGET_PROPERTIES(TestProcessControllerServerSocket
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )
 
 SophosAddTest(TestThreatDetectorSocket
         ../common/LogInitializedTests.cpp

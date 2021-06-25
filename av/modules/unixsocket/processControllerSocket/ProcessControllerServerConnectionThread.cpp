@@ -33,6 +33,11 @@ ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread
     {
         throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with invalid socket fd");
     }
+
+    if (m_shutdownPipe.get() == nullptr)
+    {
+        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null shutdown pipe");
+    }
 }
 
 /**
@@ -180,6 +185,10 @@ void ProcessControllerServerConnectionThread::inner_run()
             {
                 m_shutdownPipe->notify();
                 break;
+            }
+            else
+            {
+                LOGDEBUG("Received unknown signal on Process Controller: " << processControlReader.getCommandType());
             }
         }
     }
