@@ -180,7 +180,7 @@ SusiScanner::scan(
     {
         // Return codes that cover zip bombs, corrupted files and password-protected files
         std::stringstream errorMsg;
-        errorMsg << "Scanning of " << common::toUtf8(file_path) << " was aborted";
+        errorMsg << "Scanning of " << file_path << " was aborted";
         response.setErrorMsg(errorMsg.str());
     }
 

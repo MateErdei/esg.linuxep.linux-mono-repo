@@ -83,7 +83,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
 
     if (m_callbacks)
     {
-        std::string errorMsg = response.getErrorMsg();
+        std::string errorMsg = common::toUtf8(response.getErrorMsg());
         if (response.getDetections().empty())
         {
             if (!errorMsg.empty())
