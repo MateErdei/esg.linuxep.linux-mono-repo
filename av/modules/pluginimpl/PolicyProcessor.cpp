@@ -78,6 +78,7 @@ namespace Plugin
         auto* fs = Common::FileSystem::fileSystem();
         auto dest = getNonChrootCustomerIdPath();
         fs->writeFile(dest, m_customerId);
+        ::chmod(dest.c_str(), 0640);
 
         // write a copy into the chroot
         auto pluginInstall = getPluginInstall();

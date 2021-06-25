@@ -165,6 +165,7 @@ AV Plugin gets customer id after upgrade
     Should Be Equal   ${customerId2}   ${expectedId}
 
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket  timeout=30
+    Threat Detector Does Not Log Contain  Failed to read customerID - using default value
 
 
 IDE can be removed
@@ -345,6 +346,12 @@ Check installer corrects permissions of var directory on upgrade
     Should Be Equal As Integers  ${rc}  0
     Should Be Empty  ${output}
 
+    # Request a scan in order to load SUSI
+    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Threat Detector Does Not Log Contain  Failed to read customerID - using default value
+
 Check installer corrects permissions of logs directory on upgrade
     Register On Fail  dump watchdog log
     Mark Watchdog Log
@@ -367,8 +374,9 @@ Check installer corrects permissions of chroot files on upgrade
     Change Owner  ${AV_LOG_PATH}  sophos-spl-user  sophos-spl-group
     Change Owner  ${THREAT_DETECTOR_LOG_PATH}  sophos-spl-user  sophos-spl-group
     ${customerIdFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/av/var/customer_id.txt
-    Create file   ${customerIdFile}
+    Create file   ${customerIdFile}  0123456789ABCDEF0123456789ABCDEF
     Change Owner  ${customerIdFile}  sophos-spl-user  sophos-spl-group
+    Run  chmod go-rwx ${customerIdFile}
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/av/VERSION.ini  sophos-spl-user  sophos-spl-group
     ${loggerConfFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/base/etc/logger.conf
     Create file   ${loggerConfFile}
@@ -383,10 +391,18 @@ Check installer corrects permissions of chroot files on upgrade
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/hosts  sophos-spl-user  sophos-spl-group
     Modify manifest
     Install AV Directly from SDDS
+    ${rc}  ${output} =  Run And Return Rc And Output  ls -l ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/av/var/
+    Log  ${output}
 
     ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
     Should Be Equal As Integers  ${rc}  0
     Should Be Empty  ${output}
+
+    # Request a scan in order to load SUSI
+    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Threat Detector Does Not Log Contain  Failed to read customerID - using default value
 
 Check installer can handle versioned copied Virus Data from 1.0.0
     # Simulate the versioned copied Virus Data that exists in a 1.0.0 install
