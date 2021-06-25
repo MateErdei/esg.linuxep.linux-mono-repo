@@ -165,7 +165,6 @@ AV Plugin gets customer id after upgrade
     Should Be Equal   ${customerId2}   ${expectedId}
 
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket  timeout=30
-    Threat Detector Does Not Log Contain  Failed to read customerID - using default value
 
 
 IDE can be removed
