@@ -127,30 +127,18 @@ SusiScanner::scan(
             LOGDEBUG("Scanning result details: " << scanResult->version << ", " << scanResultJson);
 
             json parsedScanResult = json::parse(scanResultJson);
-            std::string escapedPath;
             for (auto result : parsedScanResult["results"])
             {
-                std::string path;
+                std::string path(result["path"]);
+                std::string escapedPath = path;
+                common::escapeControlCharacters(escapedPath);
 
                 if (result.contains("detections"))
                 {
-                    try
-                    {
-                        path = common::toUtf8(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), true);
-                    }
-                    catch (const std::exception& e)
-                    {
-                        path = Common::ObfuscationImpl::Base64::Decode(result["base64path"]);
-                        LOGERROR("Failed to convert non-uft-8 path: " << Common::ObfuscationImpl::Base64::Decode(result["base64path"]) << " with error :" << e.what());
-                    }
-
-                    escapedPath = path;
-                    common::escapeControlCharacters(escapedPath);
-
                     for (auto detection : result["detections"])
                     {
                         LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath);
-                        response.addDetection(path, detection["threatName"]);
+                        response.addDetection(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), detection["threatName"]);
                     }
                 }
 
