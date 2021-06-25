@@ -127,22 +127,36 @@ SusiScanner::scan(
             LOGDEBUG("Scanning result details: " << scanResult->version << ", " << scanResultJson);
 
             json parsedScanResult = json::parse(scanResultJson);
+            std::string escapedPath;
             for (auto result : parsedScanResult["results"])
             {
-                std::string utf8Path(common::toUtf8(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), true));
-                std::string escapedPath = utf8Path;
-                common::escapeControlCharacters(escapedPath);
+                std::string path;
+
                 if (result.contains("detections"))
                 {
+                    try
+                    {
+                        path = common::toUtf8(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), true);
+                    }
+                    catch (const std::exception& e)
+                    {
+                        path = Common::ObfuscationImpl::Base64::Decode(result["base64path"]);
+                        LOGERROR("Failed to convert non-uft-8 path: " << Common::ObfuscationImpl::Base64::Decode(result["base64path"]) << " with error :" << e.what());
+                    }
+
+                    escapedPath = path;
+                    common::escapeControlCharacters(escapedPath);
+
                     for (auto detection : result["detections"])
                     {
                         LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath);
-                        response.addDetection(utf8Path, detection["threatName"]);
+                        response.addDetection(path, detection["threatName"]);
                     }
                 }
+
                 if (result.contains("error"))
                 {
-                    std::string errorMsg = susiErrorToReadableError(utf8Path, result["error"]);
+                    std::string errorMsg = susiErrorToReadableError(escapedPath, result["error"]);
                     LOGERROR(errorMsg);
                     response.setErrorMsg(errorMsg);
                 }
