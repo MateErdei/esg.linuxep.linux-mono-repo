@@ -13,7 +13,7 @@ echo "build Run Tests and Produce Coverge Report.sh with systemtests"
 git checkout build/release-package.xml
 sudo -H ./testUtils/SupportFiles/jenkins/SetupCIBuildScripts.sh
 export PATH=$PATH:/usr/local/bin/
-
+export BUILD_JWT=$(cat "testUtils/SupportFiles/jenkins/jwt_token.txt")
 ./fetchandbuild.sh --python-coverage
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
