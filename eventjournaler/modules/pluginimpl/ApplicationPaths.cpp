@@ -22,5 +22,7 @@ std::string Plugin::getVersionIniFilePath()
     return fromRelative("VERSION.ini");
 }
 
-
-
+std::string Plugin::getSubscriberSocketPath()
+{
+    return fromRelative("var/event.ipc");
+}

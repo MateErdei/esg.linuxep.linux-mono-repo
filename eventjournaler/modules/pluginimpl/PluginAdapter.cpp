@@ -8,11 +8,12 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 #include "Telemetry.h"
-
+#include "ApplicationPaths.h"
 #include <Common/PluginApi/NoPolicyAvailableException.h>
 //#include <modules/SubscriberLib/Subscriber.h>
 #include <SubscriberLib/Subscriber.h>
 
+#include <unistd.h>
 
 namespace Plugin
 {
@@ -30,9 +31,12 @@ namespace Plugin
     {
         m_callback->setRunning(true);
         LOGINFO("Entering the main loop");
-
-        SubscriberLib::Subscriber subscriber;
-        subscriber.subscribeToEvents();
+        SubscriberLib::Subscriber subscriber(Plugin::getSubscriberSocketPath());
+        subscriber.start();
+        sleep(11);
+        subscriber.stop();
+        std::cout << "DONE";
+//        subscriber.subscribeToEvents();
 
         // If the plugin requires a mcs policy the plugin needs to explicitly request the policy on start-up
         // or the plugin will not receive the policy until the next time the policy changes.
