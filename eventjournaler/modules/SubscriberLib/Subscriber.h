@@ -18,8 +18,10 @@ namespace SubscriberLib
         void subscribeToEvents();
         void stop();
         void start();
+        void reset();
+        bool getRunningStatus();
     private:
-        std::string m_socketPath; //"/opt/sophos-spl/plugins/eventjournaler/var/event.ipc";
+        std::string m_socketPath = "/opt/sophos-spl/plugins/eventjournaler/var/event.ipc";
         std::atomic<bool> m_running = false;
         std::unique_ptr<std::thread> m_runnerThread;
 

@@ -15,6 +15,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#include <Common/ZeroMQWrapper/IIPCException.h>
 #include <sys/stat.h>
 
 #include <cstring>
@@ -42,6 +43,7 @@ namespace SubscriberLib
             }
             else
             {
+                // todo change to error message
                 fs->makedirs(socketDir);
             }
             socket->listen("ipc://" + m_socketPath);
@@ -73,27 +75,26 @@ namespace SubscriberLib
                         LOGINFO(index++ << ": " << s);
                     }
                 }
-                catch(const std::exception& exception)
+                catch(const Common::ZeroMQWrapper::IIPCException& exception)
                 {
                     int errnoFromSocketRead = errno;
-//                    std::cout << std::to_string(errnoFromSocketRead) << std::endl;
                     LOGINFO(std::to_string(errnoFromSocketRead));
-
                     if (errnoFromSocketRead == EAGAIN)
                     {
-//                        std::cout << "Socket timeout" << std::endl;
-                        LOGINFO("Socket timeout");
-
+                        LOGDEBUG("Socket timeout");
                         // TODO
                         // Expected socket timeout. Using this so that our thread can exit and isn't blocked on read()
                         // for ever, we need to make sure this doesn't interfere with receiving messages though...
                     }
                     else
                     {
-                        // TODO how to handle this?
-                        LOGINFO("Unexpected exception from socket read: " << exception.what());
-                        throw exception;
+                        LOGERROR("Unexpected exception from socket read: " << exception.what());
+                        m_running = false;
                     }
+                }
+                catch(const std::exception& exception)
+                {
+                    m_running = false;
                 }
 
             }
@@ -105,6 +106,14 @@ namespace SubscriberLib
 //        }
 
         unlink(m_socketPath.c_str());
+    }
+
+    void Subscriber::start()
+    {
+        LOGINFO("Starting Subscriber");
+        m_running = true;
+        m_runnerThread = std::make_unique<std::thread>(std::thread([this] { subscribeToEvents(); }));
+        LOGINFO("Subscriber started");
     }
 
     void Subscriber::stop()
@@ -134,14 +143,24 @@ namespace SubscriberLib
         LOGINFO("Subscriber stopped");
     }
 
-    void Subscriber::start()
+    void Subscriber::reset()
     {
-        LOGINFO("Starting Subscriber");
-        m_running = true;
-        m_runnerThread = std::make_unique<std::thread>(std::thread([this] { subscribeToEvents(); }));
-        LOGINFO("Subscriber started");
+        auto fs = Common::FileSystem::fileSystem();
+        stop();
+        start();
+        bool socketExists = waitFor(5,0.1,[this, fs]() {
+          return (fs->exists(m_socketPath));
+        });
+        if (!socketExists)
+        {
+            LOGERROR("Socket was not created after starting subscriber thread");
+        }
     }
 
+    bool Subscriber::getRunningStatus()
+    {
+        return m_running;
+    }
     Subscriber::Subscriber(const std::string& socketAddress)
     : m_socketPath(socketAddress)
     {

@@ -33,40 +33,31 @@ namespace Plugin
         LOGINFO("Entering the main loop");
         SubscriberLib::Subscriber subscriber(Plugin::getSubscriberSocketPath());
         subscriber.start();
-        sleep(11);
-        subscriber.stop();
-        std::cout << "DONE";
-//        subscriber.subscribeToEvents();
 
-        // If the plugin requires a mcs policy the plugin needs to explicitly request the policy on start-up
-        // or the plugin will not receive the policy until the next time the policy changes.
-        // the try catch code below uses the ALC policy as an example.
-//        try
-//        {
-//            // Request required policies for plugin.
-//            m_baseService->requestPolicies("ALC");
-//        }
-//        catch (const Common::PluginApi::NoPolicyAvailableException&)
-//        {
-//            LOGINFO("No policy available right now for app: " << "ALC");
-//            // Ignore no Policy Available errors
-//        }
+        while (true)
+        {
+            Task task;
+            if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
+            {
+                if (!subscriber.getRunningStatus())
+                {
+                    subscriber.reset();
+                }
+            }
+            else
+            {
+                switch (task.taskType)
+                {
+                    case Task::TaskType::Stop:
+                        subscriber.stop();
+                        return;
+                    case Task::TaskType::Policy:
+                        processPolicy(task.Content);
+                        break;
+                }
 
-
-
-//        while (true)
-//        {
-//            Task task = m_queueTask->pop();
-//            switch (task.taskType)
-//            {
-//                case Task::TaskType::Stop:
-//                    return;
-//
-//                case Task::TaskType::Policy:
-//                    processPolicy(task.Content);
-//                    break;
-//            }
-//        }
+            }
+        }
     }
 
     void PluginAdapter::processPolicy(const std::string& policyXml) { LOGDEBUG("Process policy: " << policyXml); }

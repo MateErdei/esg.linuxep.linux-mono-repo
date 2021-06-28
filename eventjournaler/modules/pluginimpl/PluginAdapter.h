@@ -28,5 +28,6 @@ namespace Plugin
 
     private:
         void processPolicy(const std::string& policyXml);
+        int QUEUE_TIMEOUT = 5;
     };
 } // namespace Plugin
