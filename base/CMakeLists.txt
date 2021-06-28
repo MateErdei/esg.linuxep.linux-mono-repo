@@ -194,6 +194,7 @@ find_library(MINIZIP_LIBRARY
         PATHS ${MINIZIP_INPUT}/lib
         )
 set(MINIZIP_INCLUDE_DIR ${MINIZIP_INPUT}/include)
+set(ZLIB_INCLUDE_DIR ${ZLIB_INPUT}/include)
 # ensure valid log4cplus to work with fork
 file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)
 string(FIND "${log4cplusStrings}" "implicit initialization is turned off" DisabledImplicitInitialization)

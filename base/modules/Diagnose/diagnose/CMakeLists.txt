@@ -21,6 +21,6 @@ add_library(diagnoseimpl STATIC
         ../../Common/UtilityImpl/StringUtils.h
         )
 
-target_include_directories(diagnoseimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR}  ${MINIZIP_INCLUDE_DIR})
+target_include_directories(diagnoseimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR}  ${MINIZIP_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 target_link_libraries(diagnoseimpl PUBLIC logging ${OPENSSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ZLIB_LIBRARY} ${MINIZIP_LIBRARY})
