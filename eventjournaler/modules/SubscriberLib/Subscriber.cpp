@@ -12,6 +12,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/ProjectNames.h>
+#include <Common/UtilityImpl/WaitForUtils.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
@@ -24,12 +25,23 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace SubscriberLib
 {
+    Subscriber::Subscriber(const std::string& socketAddress, int readLoopTimeoutMilliSeconds)
+        : m_socketPath(socketAddress), m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds)
+    {
+        LOGINFO("Creating subscriber listening on socket address: " << m_socketPath);
+    }
+
+    Subscriber::~Subscriber()
+    {
+        LOGINFO("Stop not explicitly called, calling in destructor.");
+        stop();
+    }
+
     void Subscriber::subscribeToEvents()
     {
         auto context = Common::ZMQWrapperApi::createContext();
         auto socket = context->getSubscriber();
-        socket->setTimeout(5000);
-
+        socket->setTimeout(m_readLoopTimeoutMilliSeconds);
 
         auto fs = Common::FileSystem::fileSystem();
         std::string socketDir = Common::FileSystem::dirName(m_socketPath);
@@ -94,9 +106,7 @@ namespace SubscriberLib
             {
                 m_running = false;
             }
-
         }
-
         unlink(m_socketPath.c_str());
     }
 
@@ -122,7 +132,7 @@ namespace SubscriberLib
         if (fs->exists(m_socketPath))
         {
             LOGINFO("Waiting for subscriber socket to be removed");
-            bool socketStillExists = waitFor(1,0.1,[this, fs]() {
+            bool socketStillExists = Common::UtilityImpl::waitFor(1,0.1,[this, fs]() {
                 return (!fs->exists(m_socketPath));
             });
 
@@ -142,7 +152,7 @@ namespace SubscriberLib
         auto fs = Common::FileSystem::fileSystem();
         stop();
         start();
-        bool socketExists = waitFor(5,0.1,[this, fs]() {
+        bool socketExists = Common::UtilityImpl::waitFor(5,0.1,[this, fs]() {
           return (fs->exists(m_socketPath));
         });
         if (!socketExists)
@@ -155,37 +165,7 @@ namespace SubscriberLib
     {
         return m_running;
     }
-    Subscriber::Subscriber(const std::string& socketAddress)
-    : m_socketPath(socketAddress)
-    {
-        LOGINFO("Creating subscriber listening on socket address: " << m_socketPath);
-    }
 
-    Subscriber::~Subscriber()
-    {
-        LOGINFO("Stop not explicitly called, calling in destructor.");
-        stop();
-    }
 
-    bool Subscriber::waitFor(
-        double timeToWaitInSeconds,
-        double intervalInSeconds,
-        std::function<bool()> conditionFunction)
-    {
-        if (conditionFunction())
-        {
-            return true;
-        }
-        else
-        {
-            unsigned int intervalMicroSeconds = intervalInSeconds * 1000000;
-            double maxNumberOfSleeps = timeToWaitInSeconds / intervalInSeconds;
-            double sleepCounter = 0;
-            while (!conditionFunction() && sleepCounter++ < maxNumberOfSleeps)
-            {
-                usleep(intervalMicroSeconds);
-            }
-        }
-        return false;
-    }
+
 }

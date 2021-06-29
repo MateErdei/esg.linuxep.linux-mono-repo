@@ -13,7 +13,7 @@ namespace SubscriberLib
     class Subscriber
     {
     public:
-        explicit Subscriber(const std::string& socketAddress);
+        Subscriber(const std::string& socketAddress, int readLoopTimeoutMilliSeconds = 5000);
         ~Subscriber();
         void subscribeToEvents();
         void stop();
@@ -21,11 +21,10 @@ namespace SubscriberLib
         void reset();
         bool getRunningStatus();
     private:
-        std::string m_socketPath = "/opt/sophos-spl/plugins/eventjournaler/var/event.ipc";
+        std::string m_socketPath ;
         std::atomic<bool> m_running = false;
+        int m_readLoopTimeoutMilliSeconds;
         std::unique_ptr<std::thread> m_runnerThread;
-
-        bool waitFor(double timeToWaitInSeconds, double intervalInSeconds, std::function<bool()> conditionFunction);
     };
 }
 
