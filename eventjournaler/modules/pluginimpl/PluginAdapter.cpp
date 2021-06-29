@@ -3,17 +3,11 @@
 Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-//#include <Subscriber/Subscriber.h>
 #include "PluginAdapter.h"
-
 #include "Logger.h"
-#include "Telemetry.h"
 #include "ApplicationPaths.h"
-#include <Common/PluginApi/NoPolicyAvailableException.h>
-//#include <modules/SubscriberLib/Subscriber.h>
-#include <SubscriberLib/Subscriber.h>
 
-#include <unistd.h>
+#include <SubscriberLib/Subscriber.h>
 
 namespace Plugin
 {
@@ -39,6 +33,7 @@ namespace Plugin
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
+                LOGINFO("Servicing polled actions");
                 if (!subscriber.getRunningStatus())
                 {
                     subscriber.reset();

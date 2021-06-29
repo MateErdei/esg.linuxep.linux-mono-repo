@@ -45,7 +45,7 @@ Restart Event Journaler
     ${mark} =  Mark File  ${EVENT_JOURNALER_LOG_PATH}
     Stop Event Journaler
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  30 secs
     ...  1 secs
     ...  Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}  eventjournaler <> Plugin Finished  ${mark}
     ${mark} =  Mark File  ${EVENT_JOURNALER_LOG_PATH}
@@ -53,4 +53,13 @@ Restart Event Journaler
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}  Plugin preparation complete  ${mark}
+    ...  Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}  Entering the main loop  ${mark}
+
+Check Event Journaler Log contains
+    [Arguments]  ${string_to_contain}
+    File Should Contain  ${EVENT_JOURNALER_LOG_PATH}  ${string_to_contain}
+
+Event Journaler Teardown
+    Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
+    Run Keyword If Test Failed  Log File  ${EVENT_JOURNALER_LOG_PATH}

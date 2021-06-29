@@ -29,24 +29,23 @@ namespace SubscriberLib
         auto context = Common::ZMQWrapperApi::createContext();
         auto socket = context->getSubscriber();
         socket->setTimeout(5000);
-//        assert(socket.get());
-//        try
-//        {
-            auto fs = Common::FileSystem::fileSystem();
-            std::string socketDir = Common::FileSystem::dirName(m_socketPath);
-            if (fs->isDirectory(socketDir))
+
+
+        auto fs = Common::FileSystem::fileSystem();
+        std::string socketDir = Common::FileSystem::dirName(m_socketPath);
+        if (fs->isDirectory(socketDir))
+        {
+            if (fs->exists(m_socketPath))
             {
-                if (fs->exists(m_socketPath))
-                {
-                    fs->removeFileOrDirectory(m_socketPath);
-                }
+                fs->removeFileOrDirectory(m_socketPath);
             }
-            else
-            {
-                // todo change to error message
-                fs->makedirs(socketDir);
-            }
-            socket->listen("ipc://" + m_socketPath);
+        }
+        else
+        {
+            // todo change to error message
+            fs->makedirs(socketDir);
+        }
+        socket->listen("ipc://" + m_socketPath);
 
 //            try
 //            {
@@ -58,52 +57,45 @@ namespace SubscriberLib
 //                LOGERROR("Error setting up socket : "<< exception.what());
 //            }
 
-            socket->subscribeTo("threatEvents");
+        socket->subscribeTo("threatEvents");
 
-            //        for (int i = 0; i < count; i++)
-            //        {
-            while (m_running)
+
+        while (m_running)
+        {
+            std::cout << "waiting for event ..." << std::endl;
+            try
             {
-                std::cout << "waiting for event ..." << std::endl;
-                try
+                auto data = socket->read();
+                LOGINFO("received event");
+                int index = 0;
+                for (const auto& s : data)
                 {
-                    auto data = socket->read();
-                    LOGINFO("received event");
-                    int index = 0;
-                    for (const auto& s : data)
-                    {
-                        LOGINFO(index++ << ": " << s);
-                    }
+                    LOGINFO(index++ << ": " << s);
                 }
-                catch(const Common::ZeroMQWrapper::IIPCException& exception)
+            }
+            catch(const Common::ZeroMQWrapper::IIPCException& exception)
+            {
+                int errnoFromSocketRead = errno;
+                LOGINFO(std::to_string(errnoFromSocketRead));
+                if (errnoFromSocketRead == EAGAIN)
                 {
-                    int errnoFromSocketRead = errno;
-                    LOGINFO(std::to_string(errnoFromSocketRead));
-                    if (errnoFromSocketRead == EAGAIN)
-                    {
-                        LOGDEBUG("Socket timeout");
-                        // TODO
-                        // Expected socket timeout. Using this so that our thread can exit and isn't blocked on read()
-                        // for ever, we need to make sure this doesn't interfere with receiving messages though...
-                    }
-                    else
-                    {
-                        LOGERROR("Unexpected exception from socket read: " << exception.what());
-                        m_running = false;
-                    }
+                    LOGDEBUG("Socket timeout");
+                    // TODO
+                    // Expected socket timeout. Using this so that our thread can exit and isn't blocked on read()
+                    // for ever, we need to make sure this doesn't interfere with receiving messages though...
                 }
-                catch(const std::exception& exception)
+                else
                 {
+                    LOGERROR("Unexpected exception from socket read: " << exception.what());
                     m_running = false;
                 }
-
             }
-//        }
-//        catch (std::exception& exception)
-//        {
-//            LOGERROR("Exception thrown when trying to start subscriber: "<< exception.what());
-//            LOGERROR(strerror(errno));
-//        }
+            catch(const std::exception& exception)
+            {
+                m_running = false;
+            }
+
+        }
 
         unlink(m_socketPath.c_str());
     }
@@ -125,6 +117,7 @@ namespace SubscriberLib
             m_runnerThread->join();
             m_runnerThread.reset();
         }
+        LOGINFO(" thread has been stopped");
         auto fs = Common::FileSystem::fileSystem();
         if (fs->exists(m_socketPath))
         {
@@ -145,6 +138,7 @@ namespace SubscriberLib
 
     void Subscriber::reset()
     {
+        LOGINFO("Subscriber reset called");
         auto fs = Common::FileSystem::fileSystem();
         stop();
         start();
