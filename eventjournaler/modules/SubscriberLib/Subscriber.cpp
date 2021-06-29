@@ -26,9 +26,9 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 namespace SubscriberLib
 {
     Subscriber::Subscriber(const std::string& socketAddress, Common::ZMQWrapperApi::IContextSharedPtr context, int readLoopTimeoutMilliSeconds)
-        : m_socketPath(socketAddress), m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds), m_context(context), m_socket(m_context->getSubscriber())
+        : m_socketPath(socketAddress), m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds), m_context(context)
     {
-        setSocketTimeout(m_readLoopTimeoutMilliSeconds);
+//        setSocketTimeout(m_readLoopTimeoutMilliSeconds);
         LOGINFO("Creating subscriber listening on socket address: " << m_socketPath);
     }
 
@@ -41,8 +41,8 @@ namespace SubscriberLib
     void Subscriber::subscribeToEvents()
     {
 
-//        auto socket = m_context->getSubscriber();
-//        socket->setTimeout(m_readLoopTimeoutMilliSeconds);
+        auto socket = m_context->getSubscriber();
+        socket->setTimeout(m_readLoopTimeoutMilliSeconds);
 
         auto fs = Common::FileSystem::fileSystem();
         std::string socketDir = Common::FileSystem::dirName(m_socketPath);
@@ -58,8 +58,8 @@ namespace SubscriberLib
             // todo change to error message
             fs->makedirs(socketDir);
         }
-//        socket->listen("ipc://" + m_socketPath);
-        socketListen();
+        socket->listen("ipc://" + m_socketPath);
+//        socketListen();
 
 //            try
 //            {
@@ -71,15 +71,16 @@ namespace SubscriberLib
 //                LOGERROR("Error setting up socket : "<< exception.what());
 //            }
 
-//        socket->subscribeTo("threatEvents");
-        socketSubscribe("threatEvents");
+        socket->subscribeTo("threatEvents");
+//        socketSubscribe("threatEvents");
 
         while (m_running)
         {
             std::cout << "waiting for event ..." << std::endl;
             try
             {
-                auto data = socketRead();
+//                auto data = socketRead();
+                auto data = socket->read();
                 LOGINFO("received event");
                 int index = 0;
                 for (const auto& s : data)
@@ -167,20 +168,20 @@ namespace SubscriberLib
     {
         return m_running;
     }
-    void Subscriber::setSocketTimeout(int timeout)
-    {
-        m_socket->setTimeout(timeout);
-    }
-    std::vector<std::string> Subscriber::socketRead()
-    {
-        return m_socket->read();
-    }
-    void Subscriber::socketListen()
-    {
-        m_socket->listen("ipc://" + m_socketPath);
-    }
-    void Subscriber::socketSubscribe(const std::string& eventType) {
-        m_socket->subscribeTo(eventType);
-    }
+//    void Subscriber::setSocketTimeout(int timeout)
+//    {
+//        m_socket->setTimeout(timeout);
+//    }
+//    std::vector<std::string> Subscriber::socketRead()
+//    {
+//        return m_socket->read();
+//    }
+//    void Subscriber::socketListen()
+//    {
+//        m_socket->listen("ipc://" + m_socketPath);
+//    }
+//    void Subscriber::socketSubscribe(const std::string& eventType) {
+//        m_socket->subscribeTo(eventType);
+//    }
 
 }

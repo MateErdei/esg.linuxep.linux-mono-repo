@@ -24,11 +24,11 @@ namespace SubscriberLib
         void reset();
         bool getRunningStatus();
 
-    protected:
-        void setSocketTimeout(int timeout);
-        std::vector<std::string> socketRead();
-        void socketListen();
-        void socketSubscribe(const std::string& eventType);
+//    protected:
+//        void setSocketTimeout(int timeout);
+//        std::vector<std::string> socketRead();
+//        void socketListen();
+//        void socketSubscribe(const std::string& eventType);
 
     private:
         std::string m_socketPath ;
@@ -36,7 +36,7 @@ namespace SubscriberLib
         int m_readLoopTimeoutMilliSeconds;
         std::unique_ptr<std::thread> m_runnerThread;
         Common::ZMQWrapperApi::IContextSharedPtr m_context;
-        Common::ZeroMQWrapper::ISocketSubscriberPtr m_socket;
+//        Common::ZeroMQWrapper::ISocketSubscriberPtr m_socket;
 
     };
 }

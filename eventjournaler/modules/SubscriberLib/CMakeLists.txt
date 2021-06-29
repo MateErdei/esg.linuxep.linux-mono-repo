@@ -4,7 +4,7 @@ sophos_add_library(subscriberlib SHARED
         Logger.h
         Logger.cpp
         EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
-        EXTRA_LIBS ${zmqlib} ${log4cpluslib}
+        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuf}
         )
 
 SET_TARGET_PROPERTIES(subscriberlib

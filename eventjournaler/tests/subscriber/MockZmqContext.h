@@ -71,6 +71,10 @@ public:
 class MockZmqContext : public ZMQWrapperApi::IContext
 {
 public:
+
+//    MockSocketSubscriber*  subscriber = new StrictMock<MockSocketSubscriber>();
+    //ZeroMQWrapper::ISocketSubscriberPtr a = std::make_unique<subscriber>();
+
 //    MockZmqContext(ZeroMQWrapper::ISocketSubscriberPtr subscriber,
 //                   ZeroMQWrapper::ISocketPublisherPtr publisher,
 //                   ZeroMQWrapper::ISocketRequesterPtr requester,
@@ -84,7 +88,7 @@ public:
 //    virtual std::unique_ptr<IMyObjectThing> nonCopyableReturn() {
 //        return std::unique_ptr<IMyObjectThing>(nonCopyableReturnProxy());
 //    }
-    MockSocketSubscriber*  Socketsubscriber = new StrictMock<MockSocketSubscriber>();
+//    MockSocketSubscriber*  Socketsubscriber = new StrictMock<MockSocketSubscriber>();
     ZeroMQWrapper::ISocketSubscriberPtr m_subscriber;
     ZeroMQWrapper::ISocketPublisherPtr m_publisher;
     ZeroMQWrapper::ISocketRequesterPtr m_requester;
@@ -92,7 +96,11 @@ public:
     virtual ZeroMQWrapper::ISocketSubscriberPtr getSubscriber()
     {
         //ZeroMQWrapper::ISocketSubscriberPtr a = std::make_unique<MockSocketSubscriber>();
+//        return subscriber;
+
+        //    return Common::ZeroMQWrapper::ISocketSubscriberPtr(new Common::ZeroMQWrapperImpl::SocketSubscriberImpl(m_context));
         return std::move(m_subscriber);
+
 //        auto a = new MockSocketRequester();
 //        return a;
 //        return ZeroMQWrapper::ISocketSubscriberPtr(stdLLa);
