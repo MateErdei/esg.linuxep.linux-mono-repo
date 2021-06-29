@@ -71,34 +71,50 @@ public:
 class MockZmqContext : public ZMQWrapperApi::IContext
 {
 public:
-    MockZmqContext() {}
+//    MockZmqContext(ZeroMQWrapper::ISocketSubscriberPtr subscriber,
+//                   ZeroMQWrapper::ISocketPublisherPtr publisher,
+//                   ZeroMQWrapper::ISocketRequesterPtr requester,
+//                   ZeroMQWrapper::ISocketReplierPtr replier
+//                   ): m_subscriber(std::move(subscriber)),
+//                      m_publisher(std::move(publisher)),
+//                      m_requester(std::move(requester)),
+//                      m_replier(std::move(replier))
+//                    {}
 //    ~MockZmqContext(){}
 //    virtual std::unique_ptr<IMyObjectThing> nonCopyableReturn() {
 //        return std::unique_ptr<IMyObjectThing>(nonCopyableReturnProxy());
 //    }
-
+    MockSocketSubscriber*  Socketsubscriber = new StrictMock<MockSocketSubscriber>();
+    ZeroMQWrapper::ISocketSubscriberPtr m_subscriber;
+    ZeroMQWrapper::ISocketPublisherPtr m_publisher;
+    ZeroMQWrapper::ISocketRequesterPtr m_requester;
+    ZeroMQWrapper::ISocketReplierPtr m_replier;
     virtual ZeroMQWrapper::ISocketSubscriberPtr getSubscriber()
     {
-        ZeroMQWrapper::ISocketSubscriberPtr a = std::make_unique<MockSocketSubscriber>();
-        return a;
+        //ZeroMQWrapper::ISocketSubscriberPtr a = std::make_unique<MockSocketSubscriber>();
+        return std::move(m_subscriber);
 //        auto a = new MockSocketRequester();
 //        return a;
 //        return ZeroMQWrapper::ISocketSubscriberPtr(stdLLa);
     }
     virtual ZeroMQWrapper::ISocketPublisherPtr getPublisher()
     {
-        return std::make_unique<MockSocketPublisher>();
+        //return std::make_unique<MockSocketPublisher>();
+        return std::move(m_publisher);
     }
     virtual ZeroMQWrapper::ISocketRequesterPtr getRequester()
     {
-        ZeroMQWrapper::ISocketRequesterPtr a = std::make_unique<MockSocketRequester>();
-        return a;
+//        ZeroMQWrapper::ISocketRequesterPtr a = std::make_unique<MockSocketRequester>();
+//        return a;
 //        return ZeroMQWrapper::ISocketRequesterPtr(getRequesterMocked());
+        return std::move(m_requester);
     }
     virtual ZeroMQWrapper::ISocketReplierPtr getReplier()
     {
-        return std::make_unique<MockSocketReplier>();
+        //return std::make_unique<MockSocketReplier>();
+        return std::move(m_replier);
     }
+
 //    virtual ZeroMQWrapper::IProxyPtr getProxy(const std::string& frontend, const std::string& backend)
 //    {
 //        return ZeroMQWrapper::IProxyPtr(getProxyMocked(frontend, backend));
