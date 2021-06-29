@@ -6,3 +6,9 @@ sophos_add_library(subscriberlib SHARED
         EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
         EXTRA_LIBS ${zmqlib} ${log4cpluslib}
         )
+
+SET_TARGET_PROPERTIES(subscriberlib
+        PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )

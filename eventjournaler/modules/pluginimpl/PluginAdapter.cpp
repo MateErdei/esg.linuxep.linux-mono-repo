@@ -25,7 +25,8 @@ namespace Plugin
     {
         m_callback->setRunning(true);
         LOGINFO("Entering the main loop");
-        SubscriberLib::Subscriber subscriber(Plugin::getSubscriberSocketPath());
+        auto context = Common::ZMQWrapperApi::createContext();
+        SubscriberLib::Subscriber subscriber(Plugin::getSubscriberSocketPath(),context);
         subscriber.start();
 
         while (true)

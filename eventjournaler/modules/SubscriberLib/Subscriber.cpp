@@ -13,7 +13,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/UtilityImpl/WaitForUtils.h>
-#include <Common/ZMQWrapperApi/IContext.h>
+
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
@@ -25,8 +25,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace SubscriberLib
 {
-    Subscriber::Subscriber(const std::string& socketAddress, int readLoopTimeoutMilliSeconds)
-        : m_socketPath(socketAddress), m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds)
+    Subscriber::Subscriber(const std::string& socketAddress, Common::ZMQWrapperApi::IContextSharedPtr context, int readLoopTimeoutMilliSeconds)
+        : m_socketPath(socketAddress), m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds), m_context(context)
     {
         LOGINFO("Creating subscriber listening on socket address: " << m_socketPath);
     }
@@ -39,8 +39,8 @@ namespace SubscriberLib
 
     void Subscriber::subscribeToEvents()
     {
-        auto context = Common::ZMQWrapperApi::createContext();
-        auto socket = context->getSubscriber();
+
+        auto socket = m_context->getSubscriber();
         socket->setTimeout(m_readLoopTimeoutMilliSeconds);
 
         auto fs = Common::FileSystem::fileSystem();
