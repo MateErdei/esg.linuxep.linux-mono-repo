@@ -17,6 +17,7 @@ warehouses:
         subcomponents:
           sspl-base-component:
           sspl-liveterminal:
+          sspl-event-journaler:
   ssplmdr-release-0-6-0-wh:
     components:
       ssplmdr-suite:

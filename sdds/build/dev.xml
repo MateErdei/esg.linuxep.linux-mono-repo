@@ -36,6 +36,11 @@
         <include artifact-path="edr-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component" mode="release-package-edr-999,release-package-edr-mdr-999"/>
       </build-asset>
 
+    <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
+        <development-version branch="feature/LINUXDAR-3132-implement-event-plugin-subscription"/>
+        <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-event-journaler" mode="release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
+        <include artifact-path="eventjournaler-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-event-journaler" mode="release-package-edr-999,release-package-edr-mdr-999"/>
+    </build-asset>
       <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
         <development-version branch="develop"/>
         <include artifact-path="output/SDDS-SSPL-DBOS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT" mode="release-package,release-package-base-999,release-package-edr-999,release-package-query-pack"/>

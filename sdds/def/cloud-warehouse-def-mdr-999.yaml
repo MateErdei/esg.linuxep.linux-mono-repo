@@ -19,6 +19,7 @@ warehouses:
                 subcomponents:
                     sspl-base-component:
                     sspl-liveterminal:
+                    sspl-event-journaler:
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
