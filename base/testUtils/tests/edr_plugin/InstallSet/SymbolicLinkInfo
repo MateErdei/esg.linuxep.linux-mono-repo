@@ -61,7 +61,6 @@ o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libOsqueryExtensions.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libOsquerySDK.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libpluginapi.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libpluginimpl.so
-o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libprocimpl.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libprotobuf.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libprotobuf.so.25
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libprotobuf.so.25.0
