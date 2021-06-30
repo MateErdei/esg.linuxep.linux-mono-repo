@@ -21,5 +21,4 @@ namespace SubscriberLib
         virtual void restart() = 0;
         virtual bool getRunningStatus() = 0;
     };
-}
-
+} // namespace SubscriberLib

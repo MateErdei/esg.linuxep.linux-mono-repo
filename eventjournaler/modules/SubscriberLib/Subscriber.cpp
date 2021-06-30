@@ -13,10 +13,9 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/UtilityImpl/WaitForUtils.h>
-
+#include <Common/ZeroMQWrapper/IIPCException.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#include <Common/ZeroMQWrapper/IIPCException.h>
 #include <sys/stat.h>
 
 #include <cstring>
@@ -25,8 +24,11 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace SubscriberLib
 {
-    Subscriber::Subscriber(const std::string& socketAddress, Common::ZMQWrapperApi::IContextSharedPtr context, int readLoopTimeoutMilliSeconds)
-        : m_socketPath(socketAddress), m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds), m_context(context)
+    Subscriber::Subscriber(
+        const std::string& socketAddress,
+        Common::ZMQWrapperApi::IContextSharedPtr context,
+        int readLoopTimeoutMilliSeconds) :
+        m_socketPath(socketAddress), m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds), m_context(context)
     {
         LOGINFO("Creating subscriber listening on socket address: " << m_socketPath);
     }
@@ -70,7 +72,7 @@ namespace SubscriberLib
                     return;
                 }
             }
-            catch(const Common::ZeroMQWrapper::IIPCException& exception)
+            catch (const Common::ZeroMQWrapper::IIPCException& exception)
             {
                 int errnoFromSocketRead = errno;
                 LOGINFO(std::to_string(errnoFromSocketRead));
@@ -81,7 +83,7 @@ namespace SubscriberLib
                     m_running = false;
                 }
             }
-            catch(const std::exception& exception)
+            catch (const std::exception& exception)
             {
                 m_running = false;
             }
@@ -128,9 +130,8 @@ namespace SubscriberLib
         if (fs->exists(m_socketPath))
         {
             LOGINFO("Waiting for subscriber socket to be removed");
-            bool socketStillExists = Common::UtilityImpl::waitFor(1,0.1,[this, fs]() {
-                return (!fs->exists(m_socketPath));
-            });
+            bool socketStillExists =
+                Common::UtilityImpl::waitFor(1, 0.1, [this, fs]() { return (!fs->exists(m_socketPath)); });
 
             if (socketStillExists)
             {
@@ -148,17 +149,12 @@ namespace SubscriberLib
         auto fs = Common::FileSystem::fileSystem();
         stop();
         start();
-        bool socketExists = Common::UtilityImpl::waitFor(5,0.1,[this, fs]() {
-                                                         return fs->exists(m_socketPath);
-                                                         });
+        bool socketExists = Common::UtilityImpl::waitFor(5, 0.1, [this, fs]() { return fs->exists(m_socketPath); });
         if (!socketExists)
         {
             LOGERROR("Socket was not created after starting subscriber thread");
         }
     }
 
-    bool Subscriber::getRunningStatus()
-    {
-        return m_running;
-    }
-}
+    bool Subscriber::getRunningStatus() { return m_running; }
+} // namespace SubscriberLib

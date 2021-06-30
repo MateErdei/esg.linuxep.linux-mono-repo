@@ -4,11 +4,12 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
 #include "Common/ZeroMQWrapper/ISocketPublisher.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <modules/SubscriberLib/ISubscriber.h>

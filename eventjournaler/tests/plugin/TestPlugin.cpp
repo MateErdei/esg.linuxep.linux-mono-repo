@@ -34,58 +34,60 @@ TEST(TestLinkerWorks, WorksWithTheLogging) // NOLINT
 }
 
 // Test plugin adapter
-class DummyServiceApli : public Common::PluginApi::IBaseServiceApi
+class DummyServiceApi : public Common::PluginApi::IBaseServiceApi
 {
 public:
-    void sendEvent(const std::string&, const std::string&) const override {};
+    void sendEvent(const std::string&, const std::string&) const override{};
 
-    void sendStatus(const std::string&, const std::string&, const std::string&) const override {};
+    void sendStatus(const std::string&, const std::string&, const std::string&) const override{};
 
-    void requestPolicies(const std::string&) const override {};
+    void requestPolicies(const std::string&) const override{};
 };
-
 
 class TestablePluginAdapter : public Plugin::PluginAdapter
 {
 public:
-    TestablePluginAdapter(std::shared_ptr<Plugin::QueueTask> queueTask, std::unique_ptr<SubscriberLib::ISubscriber> subscriber) :
+    TestablePluginAdapter(
+        std::shared_ptr<Plugin::QueueTask> queueTask,
+        std::unique_ptr<SubscriberLib::ISubscriber> subscriber) :
         Plugin::PluginAdapter(
             queueTask,
-            std::unique_ptr<Common::PluginApi::IBaseServiceApi>(new DummyServiceApli()),
+            std::unique_ptr<Common::PluginApi::IBaseServiceApi>(new DummyServiceApi()),
             std::make_shared<Plugin::PluginCallback>(queueTask),
             std::move(subscriber))
     {
-
     }
 };
 
-class PluginAdapterTests : public LogOffInitializedTests{};
+class PluginAdapterTests : public LogOffInitializedTests
+{
+};
 
 TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberIfItStops)
 {
     int subscriberRunningStatusCall = 0;
-    auto countStatusCalls = [&](){
-      subscriberRunningStatusCall++;
-      return false;
+    auto countStatusCalls = [&]()
+    {
+        subscriberRunningStatusCall++;
+        return false;
     };
 
     MockSubscriberLib* mockSubscriber = new StrictMock<MockSubscriberLib>();
     EXPECT_CALL(*mockSubscriber, start).Times(1); // Plugin starting up subscriber
-    EXPECT_CALL(*mockSubscriber, stop).Times(1); // Plugin stopping subscriber on stop task
+    EXPECT_CALL(*mockSubscriber, stop).Times(1);  // Plugin stopping subscriber on stop task
     EXPECT_CALL(*mockSubscriber, getRunningStatus).WillRepeatedly(Invoke(countStatusCalls));
     EXPECT_CALL(*mockSubscriber, restart).Times(1);
     std::unique_ptr<SubscriberLib::ISubscriber> mockSubscriberPtr(mockSubscriber);
     auto queueTask = std::make_shared<Plugin::QueueTask>();
     TestablePluginAdapter pluginAdapter(queueTask, std::move(mockSubscriberPtr));
     auto mainLoopFuture = std::async(std::launch::async, &TestablePluginAdapter::mainLoop, &pluginAdapter);
-    while(subscriberRunningStatusCall == 0)
+    while (subscriberRunningStatusCall == 0)
     {
         usleep(100);
     }
     queueTask->pushStop();
     mainLoopFuture.get();
 }
-
 
 TEST_F(PluginAdapterTests, PluginAdapterMainLoopThrowsIfSocketDirDoesNotExist)
 {
