@@ -5,7 +5,7 @@ Test Teardown   Event Journaler Teardown
 Suite Teardown  Uninstall Base
 *** Test Cases ***
 Event Journaler Can recieve events
-    Run Shell Process  chmod a+x ${EVENT_PUB_SUB_TOOL} OnError=Failed to chmod EventPubSub binary   timeout=3s
+    Run Shell Process  chmod a+x ${EVENT_PUB_SUB_TOOL}  OnError=Failed to chmod EventPubSub binary   timeout=3s
     Run Shell Process  ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/plugins/eventjournaler/var/event.ipc send  OnError=Failed to run EventPubSub binary   timeout=60s
 
     Wait Until Keyword Succeeds
