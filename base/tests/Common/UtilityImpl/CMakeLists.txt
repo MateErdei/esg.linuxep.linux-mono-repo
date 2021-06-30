@@ -4,6 +4,7 @@ add_executable(TestUtilityImpl
         MockFormattedTime.h
         TestUniformIntDistribution.cpp
         TestVectorAsSet.cpp
+        TestWaitForUtils.cpp
         TestTimeUtils.cpp
         TestOrderedSet.cpp)
 target_include_directories(TestUtilityImpl SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
