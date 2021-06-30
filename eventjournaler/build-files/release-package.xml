@@ -25,7 +25,7 @@
     <buildcommands>
         <command mode="release">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name eventjournaler</args>
+            <args>./build.sh --clean --name eventjournaler  --no-unit-test</args>
             <workingdir>.</workingdir>
         </command>
         <command mode="999">

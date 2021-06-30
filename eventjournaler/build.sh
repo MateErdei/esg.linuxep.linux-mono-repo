@@ -29,8 +29,9 @@ source "$BASE"/build-files/common.sh
 CMAKE_BUILD_TYPE=RelWithDebInfo
 EXTRA_CMAKE_OPTIONS=
 export PRODUCT=${PLUGIN_NAME:-${DEFAULT_PRODUCT}}
-export PRODUCT_NAME=
-export PRODUCT_LINE_ID=
+export FEATURE_LIST=CORE
+export PRODUCT_NAME=EventJournaler
+export PRODUCT_LINE_ID=ServerProtectionLinux-Plugin-EventJournaler
 export DEFAULT_HOME_FOLDER=
 PLUGIN_TAR=
 [[ -z "${CLEAN:-}" ]] && CLEAN=1
