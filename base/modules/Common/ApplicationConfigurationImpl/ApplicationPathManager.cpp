@@ -19,6 +19,11 @@ namespace Common
             return socketPath("plugins/" + pluginName + ".ipc");
         }
 
+        std::string ApplicationPathManager::getEventSubscriberSocketAddress(const std::string& pluginName) const
+        {
+            return socketPath("plugins/events.ipc");
+        }
+
         std::string ApplicationPathManager::getManagementAgentSocketAddress() const
         {
             return socketPath("mcs_agent.ipc");
