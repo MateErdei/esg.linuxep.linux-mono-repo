@@ -56,6 +56,8 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/av.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log
 
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/eventjournaler/log/eventjournaler.log
+
     Dump Teardown Log    ./tmp/proxy_server.log
     Dump Teardown Log    ./tmp/proxy.log
     Dump Teardown Log    ./tmp/relay.log

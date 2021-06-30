@@ -65,6 +65,7 @@ The following tags can be used to select which tests can be run, using the inclu
 * DEBUG - Tests which are useful for debugging
 * DIAGNOSE - Tests which exercise sophos_diagnose
 * EDR_PLUGIN - Tests focusing on EDR capabilities
+* EVENT_JOURNALER_PLUGIN - Tests which exercise the event journaler plugin
 * EVENT_PLUGIN - Tests which exercise the event processor plugin 
 * EXAMPLE_PLUGIN - Tests which exercise the example plugin 
 * EXCLUDE_AWS - Used to exclude the test from being run on AWS

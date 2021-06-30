@@ -181,6 +181,7 @@ Install all plugins 999 then downgrade to all plugins develop
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Running
+    fail
 
 Install edr 999 and downgrade to current edr
     [Tags]  PLUGIN_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
@@ -522,7 +523,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrAndMtrVUTPolicy}
-
+    Override Local LogConf File Using Content  [global]\nVERBOSITY = DEBUG\n
     # Install EDR And MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
     Trigger Update Now
@@ -555,6 +556,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     ...  20 secs
     ...  1 secs
     ...  Check EDR Osquery Executable Running
+    fail
 
 
 *** Keywords ***
