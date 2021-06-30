@@ -40,25 +40,12 @@ namespace SubscriberLib
 
     void Subscriber::subscribeToEvents()
     {
-
-        auto socket = m_context->getSubscriber();
-        socket->setTimeout(m_readLoopTimeoutMilliSeconds);
-
-        auto fs = Common::FileSystem::fileSystem();
-        std::string socketDir = Common::FileSystem::dirName(m_socketPath);
-        if (fs->isDirectory(socketDir))
+        if (!m_socket)
         {
-            if (fs->exists(m_socketPath))
-            {
-                fs->removeFileOrDirectory(m_socketPath);
-            }
+            m_socket = m_context->getSubscriber();
         }
-        else
-        {
-            // todo change to error message
-            fs->makedirs(socketDir);
-        }
-        socket->listen("ipc://" + m_socketPath);
+        m_socket->setTimeout(m_readLoopTimeoutMilliSeconds);
+        m_socket->listen("ipc://" + m_socketPath);
 //        socketListen();
 
 //            try
@@ -71,16 +58,15 @@ namespace SubscriberLib
 //                LOGERROR("Error setting up socket : "<< exception.what());
 //            }
 
-        socket->subscribeTo("threatEvents");
+        m_socket->subscribeTo("threatEvents");
 //        socketSubscribe("threatEvents");
 
         while (m_running)
         {
-            std::cout << "waiting for event ..." << std::endl;
             try
             {
 //                auto data = socketRead();
-                auto data = socket->read();
+                auto data = m_socket->read();
                 LOGINFO("received event");
                 int index = 0;
                 for (const auto& s : data)
@@ -92,14 +78,8 @@ namespace SubscriberLib
             {
                 int errnoFromSocketRead = errno;
                 LOGINFO(std::to_string(errnoFromSocketRead));
-                if (errnoFromSocketRead == EAGAIN)
-                {
-                    LOGDEBUG("Socket timeout");
-                    // TODO
-                    // Expected socket timeout. Using this so that our thread can exit and isn't blocked on read()
-                    // for ever, we need to make sure this doesn't interfere with receiving messages though...
-                }
-                else
+                // We expect EAGAIN from the socket timeout which we use so we don't block on the read.
+                if (errnoFromSocketRead != EAGAIN)
                 {
                     LOGERROR("Unexpected exception from socket read: " << exception.what());
                     m_running = false;
@@ -110,12 +90,30 @@ namespace SubscriberLib
                 m_running = false;
             }
         }
-        unlink(m_socketPath.c_str());
+        auto fs = Common::FileSystem::fileSystem();
+        fs->removeFile(m_socketPath);
     }
 
     void Subscriber::start()
     {
         LOGINFO("Starting Subscriber");
+
+        auto fs = Common::FileSystem::fileSystem();
+        std::string socketDir = Common::FileSystem::dirName(m_socketPath);
+        if (fs->isDirectory(socketDir))
+        {
+            if (fs->exists(m_socketPath))
+            {
+                fs->removeFileOrDirectory(m_socketPath);
+            }
+        }
+        else
+        {
+            m_running = false;
+            std::string msg = "The events pub/sub socket directory does not exist: " + socketDir;
+            LOGERROR(msg);
+            throw std::runtime_error(msg);
+        }
         m_running = true;
         m_runnerThread = std::make_unique<std::thread>(std::thread([this] { subscribeToEvents(); }));
         LOGINFO("Subscriber started");
@@ -156,8 +154,8 @@ namespace SubscriberLib
         stop();
         start();
         bool socketExists = Common::UtilityImpl::waitFor(5,0.1,[this, fs]() {
-          return (fs->exists(m_socketPath));
-        });
+                                                         return fs->exists(m_socketPath);
+                                                         });
         if (!socketExists)
         {
             LOGERROR("Socket was not created after starting subscriber thread");
@@ -168,20 +166,4 @@ namespace SubscriberLib
     {
         return m_running;
     }
-//    void Subscriber::setSocketTimeout(int timeout)
-//    {
-//        m_socket->setTimeout(timeout);
-//    }
-//    std::vector<std::string> Subscriber::socketRead()
-//    {
-//        return m_socket->read();
-//    }
-//    void Subscriber::socketListen()
-//    {
-//        m_socket->listen("ipc://" + m_socketPath);
-//    }
-//    void Subscriber::socketSubscribe(const std::string& eventType) {
-//        m_socket->subscribeTo(eventType);
-//    }
-
 }

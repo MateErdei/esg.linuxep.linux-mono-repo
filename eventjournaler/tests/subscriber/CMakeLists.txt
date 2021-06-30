@@ -4,9 +4,8 @@ SophosAddTest(TestSubscriberLib
         TestSubscriberLib.cpp
         MockZmqContext.h
         PROJECTS subscriberlib
-        LIBS ${log4cpluslib} ${testhelperslib} rt ${protobuflib}
+        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest ${protobuflib}
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
-
 )
 
 add_dependencies(TestSubscriberLib copy_libs)
