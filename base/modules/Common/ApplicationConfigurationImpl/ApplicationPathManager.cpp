@@ -21,7 +21,11 @@ namespace Common
 
         std::string ApplicationPathManager::getEventSubscriberSocketAddress() const
         {
-            return socketPath("plugins/events.ipc");
+            return socketPath("events.ipc");
+        }
+        std::string ApplicationPathManager::getEventSubscriberSocketFile() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "var/ipc/events.ipc");
         }
 
         std::string ApplicationPathManager::getManagementAgentSocketAddress() const
