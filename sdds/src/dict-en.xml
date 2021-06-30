@@ -30,6 +30,15 @@
     </Identity>
     <Identity>
       <Label>
+        <Token>ServerProtectionLinux-Plugin-eventjournaler</Token>
+        <Language lang="en">
+          <LongDesc>ServerProtectionLinux Plugin Event Journal</LongDesc>
+          <ShortDesc>SSPL Event Journal</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
         <Token>ServerProtectionLinux-Plugin-MDR</Token>
         <Language lang="en">
           <LongDesc>Server Protection for Linux Plugin MTR</LongDesc>
