@@ -47,16 +47,27 @@ namespace SubscriberLib
         m_socket->listen("ipc://" + m_socketPath);
         m_socket->subscribeTo("threatEvents");
 
+        auto fs = Common::FileSystem::fileSystem();
+
         while (m_running)
         {
             try
             {
-                auto data = m_socket->read();
-                LOGINFO("Received event");
-                int index = 0;
-                for (const auto& messagePart : data)
+                if (fs->exists(m_socketPath))
                 {
-                    LOGINFO(index++ << ": " << messagePart);
+                    auto data = m_socket->read();
+                    LOGINFO("Received event");
+                    int index = 0;
+                    for (const auto& messagePart : data)
+                    {
+                        LOGINFO(index++ << ": " << messagePart);
+                    }
+                }
+                else
+                {
+                    LOGERROR("The subscriber socket has been unexpectedly removed.");
+                    m_running = false;
+                    return;
                 }
             }
             catch(const Common::ZeroMQWrapper::IIPCException& exception)
@@ -75,7 +86,6 @@ namespace SubscriberLib
                 m_running = false;
             }
         }
-        auto fs = Common::FileSystem::fileSystem();
         fs->removeFile(m_socketPath);
     }
 
@@ -132,9 +142,9 @@ namespace SubscriberLib
         LOGINFO("Subscriber stopped");
     }
 
-    void Subscriber::reset()
+    void Subscriber::restart()
     {
-        LOGINFO("Subscriber reset called");
+        LOGINFO("Subscriber restart called");
         auto fs = Common::FileSystem::fileSystem();
         stop();
         start();

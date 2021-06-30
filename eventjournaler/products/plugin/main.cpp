@@ -14,6 +14,9 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/ErrorCodes.h>
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/PluginAdapter.h>
+#include <modules/pluginimpl/ApplicationPaths.h>
+#include <modules/SubscriberLib/Subscriber.h>
+
 
 const char* PluginName = PLUGIN_NAME;
 
@@ -41,7 +44,9 @@ int main()
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
+    auto context = Common::ZMQWrapperApi::createContext();
+    std::unique_ptr<SubscriberLib::ISubscriber> subscriber = std::make_unique<SubscriberLib::Subscriber>(Plugin::getSubscriberSocketPath(),context);
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, std::move(subscriber));
 
     try
     {

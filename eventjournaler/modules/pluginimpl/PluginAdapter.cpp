@@ -13,10 +13,13 @@ namespace Plugin
     PluginAdapter::PluginAdapter(
         std::shared_ptr<QueueTask> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-        std::shared_ptr<PluginCallback> callback) :
+        std::shared_ptr<PluginCallback> callback,
+        std::unique_ptr<SubscriberLib::ISubscriber> subscriber
+        ) :
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
-        m_callback(std::move(callback))
+        m_callback(std::move(callback)),
+        m_subscriber(std::move(subscriber))
     {
     }
 
@@ -24,19 +27,16 @@ namespace Plugin
     {
         m_callback->setRunning(true);
         LOGINFO("Entering the main loop");
-        auto context = Common::ZMQWrapperApi::createContext();
-        SubscriberLib::Subscriber subscriber(Plugin::getSubscriberSocketPath(),context);
-        subscriber.start();
-
+        m_subscriber->start();
         while (true)
         {
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
-                if (!subscriber.getRunningStatus())
+                if (!m_subscriber->getRunningStatus())
                 {
                     LOGERROR("Subscriber not running, restarting it.");
-                    subscriber.reset();
+                    m_subscriber->restart();
                 }
             }
             else
@@ -44,7 +44,7 @@ namespace Plugin
                 switch (task.taskType)
                 {
                     case Task::TaskType::Stop:
-                        subscriber.stop();
+                        m_subscriber->stop();
                         return;
                     case Task::TaskType::Policy:
                         processPolicy(task.Content);

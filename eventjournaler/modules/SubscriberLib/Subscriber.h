@@ -4,6 +4,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "ISubscriber.h"
+
 #include <Common/ZMQWrapperApi/IContext.h>
 
 #include <atomic>
@@ -13,25 +15,24 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace SubscriberLib
 {
-    class Subscriber
+    class Subscriber : public ISubscriber
     {
     public:
         Subscriber(const std::string& socketAddress, Common::ZMQWrapperApi::IContextSharedPtr context, int readLoopTimeoutMilliSeconds = 5000);
-        ~Subscriber();
-        void subscribeToEvents();
-        void stop();
-        void start();
-        void reset();
-        bool getRunningStatus();
+        ~Subscriber() override;
+        void stop() override;
+        void start() override;
+        void restart() override;
+        bool getRunningStatus() override;
 
     private:
+        void subscribeToEvents();
         std::string m_socketPath ;
         std::atomic<bool> m_running = false;
         int m_readLoopTimeoutMilliSeconds;
         std::unique_ptr<std::thread> m_runnerThread;
         Common::ZMQWrapperApi::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketSubscriberPtr m_socket;
-
     };
 }
 
