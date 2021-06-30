@@ -30,7 +30,7 @@
     </Identity>
     <Identity>
       <Label>
-        <Token>ServerProtectionLinux-Plugin-eventjournaler</Token>
+        <Token>ServerProtectionLinux-Plugin-EventJournaler</Token>
         <Language lang="en">
           <LongDesc>ServerProtectionLinux Plugin Event Journal</LongDesc>
           <ShortDesc>SSPL Event Journal</ShortDesc>
