@@ -24,5 +24,5 @@ std::string Plugin::getVersionIniFilePath()
 
 std::string Plugin::getSubscriberSocketPath()
 {
-    return fromRelative("var/event.ipc");
+    return Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile();
 }
