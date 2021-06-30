@@ -73,7 +73,7 @@ warehouses:
                         supplements:
                             - ssplflags-supp
                     sspl-liveterminal:
-sspl-event-journaler:
+                    sspl-event-journaler:
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
