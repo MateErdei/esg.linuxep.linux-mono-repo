@@ -50,3 +50,23 @@ Restart Event Journaler
     ...  1 secs
     ...  Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}  Entering the main loop  ${mark}
 
+Mark File
+    [Arguments]  ${path}
+    ${content} =  Get File   ${path}
+    Log  ${content}
+    [Return]  ${content.split("\n").__len__()}
+
+Marked File Contains
+    [Arguments]  ${path}  ${input}  ${mark}
+    ${content} =  Get File   ${path}
+    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
+    Should Contain  ${content}  ${input}
+
+Check Event Journaler Installed
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Log Contains  Entering the main loop  ${EVENT_JOURNALER_LOG_PATH}  event journaler log
+    Check Event Journaler Executable Running
+
+

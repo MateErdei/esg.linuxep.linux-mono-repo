@@ -3,6 +3,7 @@ Documentation    Test base uninstaller clean up all components
 
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
+Resource    ../event_journaler/EventJournalerResources.robot
 Resource  ../edr_plugin/EDRResources.robot
 Resource  ../mdr_plugin/MDRResources.robot
 Resource  ../liveresponse_plugin/LiveResponseResources.robot
@@ -25,7 +26,11 @@ Test Components Shutdown Cleanly
 
      Install Live Response Directly
      Check Live Response Plugin Installed
-
+    Install Event Journaler Directly
+     Wait Until Keyword Succeeds
+     ...  20 secs
+     ...  1 secs
+     ...  Check Event Journaler Installed
      Block Connection Between EndPoint And FleetManager
      Install Directly From Component Suite
      Check MDR Component Suite Installed Correctly
@@ -49,6 +54,10 @@ Test Components Shutdown Cleanly
      ...  1 secs
      ...  Check Log Contains   Plugin Finished   ${SOPHOS_INSTALL}/plugins/liveresponse/log/liveresponse.log   LiveResponseLog
 
+     Wait Until Keyword Succeeds
+     ...  30 secs
+     ...  1 secs
+     ...  Check Log Contains   Plugin Finished   ${EVENTJOURNALER_DIR}/log/eventjournaler.log   LiveResponseLog
       Wait Until Keyword Succeeds
       ...  30 secs
       ...  1 secs

@@ -20,6 +20,7 @@ Library     Process
 Library     OperatingSystem
 Library     String
 
+Resource    ../event_journaler/EventJournalerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../mcs_router-nova/McsRouterNovaResources.robot
 Resource    ../installer/InstallerResources.robot
@@ -189,7 +190,7 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
-
+    Check Event Journaler Executable Running
     Check Update Reports Have Been Processed
 
 VersionCopy File in the Wrong Location Is Removed
