@@ -28,7 +28,6 @@ namespace SubscriberLib
     Subscriber::Subscriber(const std::string& socketAddress, Common::ZMQWrapperApi::IContextSharedPtr context, int readLoopTimeoutMilliSeconds)
         : m_socketPath(socketAddress), m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds), m_context(context)
     {
-//        setSocketTimeout(m_readLoopTimeoutMilliSeconds);
         LOGINFO("Creating subscriber listening on socket address: " << m_socketPath);
     }
 
@@ -46,32 +45,18 @@ namespace SubscriberLib
         }
         m_socket->setTimeout(m_readLoopTimeoutMilliSeconds);
         m_socket->listen("ipc://" + m_socketPath);
-//        socketListen();
-
-//            try
-//            {
-//                Common::FileSystem::filePermissions()->chown(m_socketPath, sophos::user(), sophos::group());
-//                Common::FileSystem::filePermissions()->chmod(m_socketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-//            }
-//            catch (Common::FileSystem::IFileSystemException& exception)
-//            {
-//                LOGERROR("Error setting up socket : "<< exception.what());
-//            }
-
         m_socket->subscribeTo("threatEvents");
-//        socketSubscribe("threatEvents");
 
         while (m_running)
         {
             try
             {
-//                auto data = socketRead();
                 auto data = m_socket->read();
-                LOGINFO("received event");
+                LOGINFO("Received event");
                 int index = 0;
-                for (const auto& s : data)
+                for (const auto& messagePart : data)
                 {
-                    LOGINFO(index++ << ": " << s);
+                    LOGINFO(index++ << ": " << messagePart);
                 }
             }
             catch(const Common::ZeroMQWrapper::IIPCException& exception)

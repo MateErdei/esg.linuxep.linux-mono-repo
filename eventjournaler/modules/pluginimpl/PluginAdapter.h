@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -28,6 +28,6 @@ namespace Plugin
 
     private:
         void processPolicy(const std::string& policyXml);
-        int QUEUE_TIMEOUT = 5;
+        int QUEUE_TIMEOUT = 5; // Seconds
     };
 } // namespace Plugin

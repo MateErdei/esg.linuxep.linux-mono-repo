@@ -99,7 +99,14 @@ public:
 //        return subscriber;
 
         //    return Common::ZeroMQWrapper::ISocketSubscriberPtr(new Common::ZeroMQWrapperImpl::SocketSubscriberImpl(m_context));
+
+
         return std::move(m_subscriber);
+//        auto a = m_subscriber.get();
+////        MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
+//
+//        return Common::ZeroMQWrapper::ISocketSubscriberPtr(a);
+//        return m_subscriber;
 
 //        auto a = new MockSocketRequester();
 //        return a;

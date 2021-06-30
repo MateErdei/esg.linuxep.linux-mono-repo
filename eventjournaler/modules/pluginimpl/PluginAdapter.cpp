@@ -1,8 +1,7 @@
 /******************************************************************************************************
-
-Copyright 2018 Sophos Limited.  All rights reserved.
-
+Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
+
 #include "PluginAdapter.h"
 #include "Logger.h"
 #include "ApplicationPaths.h"
@@ -34,9 +33,9 @@ namespace Plugin
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
-                LOGINFO("Servicing polled actions");
                 if (!subscriber.getRunningStatus())
                 {
+                    LOGERROR("Subscriber not running, restarting it.");
                     subscriber.reset();
                 }
             }
@@ -51,7 +50,6 @@ namespace Plugin
                         processPolicy(task.Content);
                         break;
                 }
-
             }
         }
     }
