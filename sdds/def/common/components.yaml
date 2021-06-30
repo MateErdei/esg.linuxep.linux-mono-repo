@@ -21,7 +21,7 @@ sspl-edr:
 sspl-event-journaler:
     fileset: ..\redist\sspl-plugin-event-journaler
     canonical-name: ServerProtectionLinuxPlugin-eventjournaler
-    line-id: ServerProtectionLinux-Plugin-eventjournaler
+    line-id: ServerProtectionLinux-Plugin-EventJournaler
 ssplmdr-suite:
     fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-MDR-COMPONENT-SUITE
     canonical-name: ServerProtectionLinuxPlugin-MDR
