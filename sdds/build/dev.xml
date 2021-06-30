@@ -37,7 +37,7 @@
       </build-asset>
 
     <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
-        <development-version branch="feature/LINUXDAR-3132-implement-event-plugin-subscription"/>
+        <development-version branch="feature/LINUXDAR-3132-implement-event-plugin-subscription-2"/>
         <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-event-journaler" mode="release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
         <include artifact-path="eventjournaler-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-event-journaler" mode="release-package-edr-999,release-package-edr-mdr-999"/>
     </build-asset>
