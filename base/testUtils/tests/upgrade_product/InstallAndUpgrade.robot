@@ -470,8 +470,6 @@ Version Copy Versions All Changed Files When Upgrading
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
 
-    Log File  /etc/hosts
-
     # Wrapped in a wait to keep trying for a bit if ostia is intermittent
     Wait Until Keyword Succeeds
     ...  3 mins

@@ -31,10 +31,10 @@ Check Event Journaler Executable Not Running
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Stop Event Journaler
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop eventjournaler   OnError=failed to stop eventjournaler  timeout=35s
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  eventjournaler
 
 Start Event Journaler
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start eventjournaler   OnError=failed to start eventjournaler
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  eventjournaler
 
 Restart Event Journaler
     ${mark} =  Mark File  ${EVENT_JOURNALER_LOG_PATH}

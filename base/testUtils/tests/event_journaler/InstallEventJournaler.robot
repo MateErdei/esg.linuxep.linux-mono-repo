@@ -50,21 +50,21 @@ Verify that the event journaler installer works correctly
     ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/event_journaler/InstallSet/SystemdInfo
     Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
 
-Verify That Live Response Logging Can Be Set Individually
-    [Teardown]  Live Response Tests Teardown With Installed File Replacement
-    Install Live Response Directly
+Verify That Event Journaler Logging Can Be Set Individually
+    Install Event Journaler Directly
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [eventjournaler]\nVERBOSITY=DEBUG\n
 
     Restart Event Journaler
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Live Response Plugin Log Contains  Logger liveresponse configured for level: DEBUG
+    ...  Check Log Contains  Logger eventjournaler configured for level: DEBUG  ${EVENT_JOURNALER_LOG_PATH}  event journaler log
 
 
 *** Keywords ***
 Event Journaler Tests Teardown With Installed File Replacement
     Run Keyword If Test Failed  Save Current Event Journaler InstalledFiles To Local Path
+    General Test Teardown
 
 Save Current Event Journaler InstalledFiles To Local Path
     Create File  ${ROBOT_TESTS_DIR}/event_journaler/InstallSet/FileInfo  ${FileInfo}
