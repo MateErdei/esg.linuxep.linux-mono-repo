@@ -30,7 +30,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 void printUsageAndExit(const std::string name)
 {
-    std::cout << "usage: " << name << " [-c <count> -s <socket path> -u <user>] send | listen" << std::endl;
+    std::cout << "usage: " << name << " [-c <count> -s <socket path> -u <user> -d <data>] send | listen" << std::endl;
     exit(EXIT_FAILURE);
 }
 
@@ -65,12 +65,14 @@ int main(int argc, char* argv[])
         printUsageAndExit(argv[0]);
     }
 
-    std::string socket_path = "event.sock";
+    std::string socketPath = "event.sock";
     std::string user;
+    std::string dataString;
+    bool customDataSet = false;
     int count = 1;
     int opt = 0;
 
-    while ((opt = getopt(argc, argv, "c:s:u:")) != -1)
+    while ((opt = getopt(argc, argv, "c:s:u:d:")) != -1)
     {
         switch (opt)
         {
@@ -78,10 +80,14 @@ int main(int argc, char* argv[])
                 count = atoi(optarg);
                 break;
             case 's':
-                socket_path = optarg;
+                socketPath = optarg;
                 break;
             case 'u':
                 user = optarg;
+                break;
+            case 'd':
+                dataString = optarg;
+                customDataSet = true;
                 break;
             default:
                 printUsageAndExit(argv[0]);
@@ -90,28 +96,30 @@ int main(int argc, char* argv[])
 
     std::string command = argv[optind];
 
-
     auto context = Common::ZMQWrapperApi::createContext();
     assert(context.get());
 
-    if (command.compare("send") == 0)
+    if (command == "send")
     {
-        const std::string threat_detected_json = R"({"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"})";
-
+//        const std::string threatDetectedJson = R"({"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"})";
+        if (!customDataSet)
+        {
+            dataString = R"({"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"})";
+        }
         auto socket = context->getPublisher();
         assert(socket.get());
 
-        socket->connect("ipc://" + socket_path);
+        socket->connect("ipc://" + socketPath);
         std::this_thread::sleep_for(std::chrono::milliseconds(100)); // wait for connection
 
         for (int i = 0; i < count; i++)
         {
             std::cout << "sending event" << std::endl;
-            socket->write({ "threatEvents", threat_detected_json });
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            socket->write({ "threatEvents", dataString });
+            std::this_thread::sleep_for(std::chrono::milliseconds (100));
         }
     }
-    else if (command.compare("listen") == 0)
+    else if (command == "listen")
     {
         uid_t owner = 0;
         gid_t group = 0;
@@ -127,18 +135,18 @@ int main(int argc, char* argv[])
         auto socket = context->getSubscriber();
         assert(socket.get());
 
-        socket->listen("ipc://" + socket_path);
+        socket->listen("ipc://" + socketPath);
 
-        if (chmod(socket_path.c_str(), S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) != 0)
+        if (chmod(socketPath.c_str(), S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) != 0)
         {
-            std::cout << "failed to change permissions of \"" << socket_path << "\"" << std::endl;
+            std::cout << "failed to change permissions of \"" << socketPath << "\"" << std::endl;
         }
 
         if (owner && group)
         {
-            if (chown(socket_path.c_str(), owner, group) != 0)
+            if (chown(socketPath.c_str(), owner, group) != 0)
             {
-                std::cout << "failed to change ownership of \"" << socket_path << "\"" << std::endl;
+                std::cout << "failed to change ownership of \"" << socketPath << "\"" << std::endl;
             }
         }
 
@@ -157,7 +165,7 @@ int main(int argc, char* argv[])
             std::cout << std::endl;
         }
 
-        unlink(socket_path.c_str());
+        unlink(socketPath.c_str());
     }
     else
     {

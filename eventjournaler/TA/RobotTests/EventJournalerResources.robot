@@ -63,3 +63,8 @@ Event Journaler Teardown
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Keyword If Test Failed  Log File  ${EVENT_JOURNALER_LOG_PATH}
+
+Journaler Log Contains String X Times
+    [Arguments]  ${input}   ${xtimes}
+    ${content} =  Get File   ${EVENT_JOURNALER_LOG_PATH}
+    Should Contain X Times  ${content}  ${input}  ${xtimes}

@@ -39,3 +39,10 @@ Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
     Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\nstdout: \n${result.stdout} \n. stderr: \n${result.stderr}"
+
+Wait Until Log Contains String X Times
+    [Arguments]  ${log}  ${xtimes}  ${waitSeconds}=25
+    Wait Until Keyword Succeeds
+        ...  ${waitSeconds} secs
+        ...  2 secs
+        ...  Journaler Log Contains String X Times  ${log}  ${xtimes}
