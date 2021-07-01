@@ -16,33 +16,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 class TestSubscriber : public LogOffInitializedTests{};
 
 
-TEST_F(TestSubscriber, SubscriberStart) // NOLINT
-{
-    MockZmqContext*  context = new StrictMock<MockZmqContext>();
-    std::string fakeSocketPath = "/fake/dir/for/socketPath";
-    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
-    EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
-    EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
-    EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(1);
-    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
-    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
-
-    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr,123);
-
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath)))
-        .WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath))
-        .WillOnce(Return(false)) // initial check in start() called by test
-        .WillOnce(Return(false)); // stop() call in destructor.
-    EXPECT_CALL(*mockFileSystem, removeFile(fakeSocketPath));
-
-    EXPECT_FALSE(subscriber.getRunningStatus());
-    subscriber.start();
-    EXPECT_TRUE(subscriber.getRunningStatus());
-}
-
 TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasntStarted) // NOLINT
 {
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
@@ -50,7 +23,7 @@ TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasn
     MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
-    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr,123);
+    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, 123);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -85,6 +58,7 @@ TEST_F(TestSubscriber, SubscriberStartAndStop) // NOLINT
         .WillOnce(Return(false)); // stop() call in destructor.
     EXPECT_CALL(*mockFileSystem, removeFile(fakeSocketPath));
 
+    EXPECT_FALSE(subscriber.getRunningStatus());
     subscriber.start();
     EXPECT_TRUE(subscriber.getRunningStatus());
     subscriber.stop();
