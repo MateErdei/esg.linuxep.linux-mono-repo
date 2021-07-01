@@ -4,15 +4,10 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/ZeroMQWrapper/ISocketPublisher.h"
-#include "Common/ZeroMQWrapper/ISocketReplier.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
-
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <modules/SubscriberLib/ISubscriber.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <modules/SubscriberLib/ISubscriber.h>
 
 using namespace ::testing;
 using namespace Common;

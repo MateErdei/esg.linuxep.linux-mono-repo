@@ -101,7 +101,6 @@ int main(int argc, char* argv[])
 
     if (command == "send")
     {
-//        const std::string threatDetectedJson = R"({"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"})";
         if (!customDataSet)
         {
             dataString = R"({"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"})";
