@@ -137,9 +137,24 @@ namespace SubscriberLib
             if (!socketRemoved)
             {
                 LOGERROR("Subscriber socket was not removed after Subscriber finished, deleting: " << m_socketPath);
-                fs->removeFile(m_socketPath);
+                try
+                {
+                    fs->removeFile(m_socketPath);
+                }
+                catch(const std::exception& exception)
+                {
+                    LOGERROR("Subscriber socket removeFile failed");
+                }
             }
-            LOGINFO("Subscriber socket has been removed");
+            if (fs->exists(m_socketPath))
+            {
+                LOGINFO("Subscriber socket has been removed");
+            }
+            else
+            {
+                LOGERROR("Subscriber socket cleanup failed, socket still exists: " << m_socketPath);
+            }
+
         }
         LOGINFO("Subscriber stopped");
     }
