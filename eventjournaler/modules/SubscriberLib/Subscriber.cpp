@@ -113,6 +113,9 @@ namespace SubscriberLib
             m_running = false;
             std::string msg = "The events pub/sub socket directory does not exist: " + socketDir;
             LOGERROR(msg);
+            // If the socket dir does not exist then the whole plugin will exit. If that dir is missing then the
+            // installation is unusable and this plugin shouldn't try and fix it.
+            // So throw and let WD start us up again if needed.
             throw std::runtime_error(msg);
         }
         m_running = true;
