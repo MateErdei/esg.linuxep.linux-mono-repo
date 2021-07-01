@@ -5,7 +5,8 @@ root-ca.crt.pem : root-ca.key.pem
 	openssl req -x509 -sha256 -new -nodes -key root-ca.key.pem \
 		-days 3000 \
 		-out $@ \
-		-subj "/C=UK/ST=Oxford/O=SAVLinuxCloudAutomation/CN=localhostCA"
+		-subj "/C=UK/ST=Oxford/O=SAVLinuxCloudAutomation/CN=localhostCA" \
+		-addext "subjectAltName=DNS:pushredirect"
 
 localhost.privkey.pem :
 	openssl genrsa \
@@ -16,7 +17,8 @@ localhost.csr.pem : localhost.privkey.pem
 	openssl req -new \
 	  -key "$<" \
 	  -out "$@" \
-	  -subj "/C=UK/ST=Oxford/L=Abingdon/O=SAVLinuxCloudAutomation/CN=localhost"
+	  -subj "/C=UK/ST=Oxford/L=Abingdon/O=SAVLinuxCloudAutomation/CN=localhost" \
+      -addext "subjectAltName=DNS:pushredirect"
 
 localhost.cert.pem : localhost.csr.pem root-ca.crt.pem root-ca.key.pem
 	openssl x509 -sha256 \
@@ -25,7 +27,8 @@ localhost.cert.pem : localhost.csr.pem root-ca.crt.pem root-ca.key.pem
 	  -CAkey root-ca.key.pem \
 	  -CAcreateserial \
 	  -out "$@" \
-	  -days 3
+	  -days 3 \
+	  -extfile openssl-ext.cnf
 
 server-private.pem : localhost.privkey.pem localhost.cert.pem
 	cat $^ >$@
@@ -46,7 +49,8 @@ utm.csr.pem : utm.privkey.pem
 	openssl req -new \
 	  -key "$<" \
 	  -out "$@" \
-	  -subj "/C=UK/ST=Oxford/L=Abingdon/O=SAVLinuxCloudAutomation/CN=localhost"
+	  -subj "/C=UK/ST=Oxford/L=Abingdon/O=SAVLinuxCloudAutomation/CN=localhost" \
+      -addext "subjectAltName=DNS:pushredirect"
 
 utm.cert.pem : utm.csr.pem root-ca.crt.pem root-ca.key.pem
 	openssl x509 -sha256 \

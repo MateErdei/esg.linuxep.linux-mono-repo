@@ -163,6 +163,11 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
 
         address[0] = self.dummyReplacement(address[0])
 
+        if self.OPTIONS.hang_on_push_connection:
+            if "pushredirect" in address[0]:
+                logger.info("Stuck in loop")
+                while True:
+                    pass
         try:
             s = socket.create_connection(address, timeout=self.timeout)
         except Exception as e:
@@ -489,6 +494,8 @@ def test(HandlerClass=ProxyRequestHandler, ServerClass=ThreadingHTTPServer, prot
     parser.add_option("--no-relay",dest="relay",default=True,action="store_false",
         help="Don't do SSL relay CONNECT")
     parser.add_option("--timeout-connections",dest="timeout",default=False,action="store_true",
+        help="Any connection will timeout in infinite loop")
+    parser.add_option("--hang-on-push-connections",dest="hang_on_push_connection",default=False,action="store_true",
         help="Any connection will timeout in infinite loop")
     parser.add_option("--proxy","--parent",dest="parent_proxy",default=None,
         help="Parent Proxy")

@@ -444,6 +444,38 @@ MCS Push Client Logs Successfull Connection Via Proxy
 
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
 
+Push Connection Does Not Hang Forever If Proxy Does Not Respond
+
+    Start Proxy Server Which Hangs On Push Connection  1235
+    Start MCS Push Server
+
+    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_300_push_redirect_server_address.xml
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+
+    Log File  /opt/sophos-spl/base/etc/mcs.config
+    ${config} =     Catenate    SEPARATOR=\n
+    ...    MCSToken=ThisIsARegToken
+    ...    MCSURL=https://localhost:4443/mcs
+    ...    proxy=http://username:password@localhost:1235
+    Remove File  /opt/sophos-spl/base/etc/mcs.config
+    Create File  /opt/sophos-spl/base/etc/mcs.config  content=${config}
+    ${r} =  Run Process  chown  root:sophos-spl-group  /opt/sophos-spl/base/etc/mcs.config
+    should be equal as strings  0  ${r.rc}
+    ${r} =  Run Process  chmod  640  /opt/sophos-spl/base/etc/mcs.config
+    should be equal as strings  0  ${r.rc}
+
+    Start MCSRouter
+    Wait New MCS Policy Downloaded
+
+    Wait Until Keyword Succeeds
+    ...  40 secs
+    ...  5 secs
+    ...  Check mcsrouter Log Contains    Failed to connect to pushredirect:4443 via localhost:1235: HTTPSConnectionPool(host='pushredirect', port=4443): Max retries exceeded with url: /mcs/push/endpoint/ThisIsAnMCSID+1001 (Caused by ProxyError('Cannot connect to proxy.', timeout('timed out')))
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy  pushHost=pushredirect
+
+    Send Message To Push Server And Expect It In MCSRouter Log   Single Message
+
 *** Keywords ***
 Test Teardown
     Push Client Test Teardown

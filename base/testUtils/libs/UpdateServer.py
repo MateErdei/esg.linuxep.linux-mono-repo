@@ -113,6 +113,10 @@ class UpdateServer(object):
         command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port, "--timeout-connections"]
         self.proxy_processes[port] = subprocess.Popen(command, stdout=self.proxy_log, stderr=subprocess.STDOUT)
 
+    def start_proxy_server_which_hangs_on_push_connection(self, port):
+        command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port, "--hang-on-push-connections"]
+        self.proxy_processes[port] = subprocess.Popen(command, stdout=self.proxy_log, stderr=subprocess.STDOUT)
+
     def start_proxy_server_with_digest_auth(self, port, username, password):
         command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port, "--digest", "--username",
                    username, "--password", password]

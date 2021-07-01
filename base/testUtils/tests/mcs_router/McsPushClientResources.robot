@@ -13,18 +13,19 @@ ${MCS_ROUTER_LOG}   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 
 *** Keywords ***
 Push Client started and connects to Push Server when the MCS Client receives MCS Policy
-    [Arguments]  ${proxy}=no
+    [Arguments]  ${proxy}=no  ${pushHost}=localhost
     Run Keyword If  '${proxy}' != 'proxy'
-    ...  Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct  ELSE
+    ...  Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct  ${pushHost}  ELSE
     ...  Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
 
 Push Client started and connects to Push Server when the MCS Client receives MCS Policy Direct
+    [Arguments]  ${pushHost}=localhost
     Wait Until Keyword Succeeds
     ...          10s
     ...          1s
     ...          Run Keywords
     ...          Check Mcsrouter Log Contains   Push Server settings changed. Applying it    AND
-    ...          Check Mcsrouter Log Contains   Push client successfully connected to localhost:4443 directly
+    ...          Check Mcsrouter Log Contains   Push client successfully connected to ${pushHost}:4443 directly
 
 Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
     Wait Until Keyword Succeeds

@@ -209,7 +209,7 @@ class MCSPushClientInternal(threading.Thread):
             LOGGER.debug("Try connection to push server via this route: {}".format(session.proxies))
             try:
                 digestproxyworkaround.GLOBALAUTHENTICATION.set(proxy_username, proxy_password)
-                messages = sseclient.SSEClient(self._url, session=session)
+                messages = sseclient.SSEClient(self._url, session=session, timeout=30)
                 LOGGER.info(self.__successful_connection_message())
                 LOGGER.debug("success in connecting to push server")
                 return messages
