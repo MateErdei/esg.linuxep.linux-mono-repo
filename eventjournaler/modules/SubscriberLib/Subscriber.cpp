@@ -43,6 +43,7 @@ namespace SubscriberLib
     {
         if (!m_socket)
         {
+            LOGDEBUG("Getting subscriber");
             m_socket = m_context->getSubscriber();
         }
         m_socket->setTimeout(m_readLoopTimeoutMilliSeconds);
@@ -125,15 +126,15 @@ namespace SubscriberLib
             m_runnerThread->join();
             m_runnerThread.reset();
         }
-        LOGINFO(" thread has been stopped");
+        LOGDEBUG("Thread has been stopped");
         auto fs = Common::FileSystem::fileSystem();
         if (fs->exists(m_socketPath))
         {
             LOGINFO("Waiting for subscriber socket to be removed");
-            bool socketStillExists =
+            bool socketRemoved =
                 Common::UtilityImpl::waitFor(1, 0.1, [this, fs]() { return (!fs->exists(m_socketPath)); });
 
-            if (socketStillExists)
+            if (!socketRemoved)
             {
                 LOGERROR("Subscriber socket was not removed after Subscriber finished, deleting: " << m_socketPath);
                 fs->removeFile(m_socketPath);
