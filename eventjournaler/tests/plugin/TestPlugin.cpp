@@ -20,27 +20,12 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 using namespace Common::FileSystem;
 
-// Generic tests
-TEST(TestFileSystemExample, binBashShouldExist) // NOLINT
-{
-    auto* ifileSystem = Common::FileSystem::fileSystem();
-    EXPECT_TRUE(ifileSystem->isExecutable("/bin/bash"));
-}
-
-TEST(TestLinkerWorks, WorksWithTheLogging) // NOLINT
-{
-    Common::Logging::ConsoleLoggingSetup consoleLoggingSetup;
-    LOGINFO("Produce this logging");
-}
-
 // Test plugin adapter
 class DummyServiceApi : public Common::PluginApi::IBaseServiceApi
 {
 public:
     void sendEvent(const std::string&, const std::string&) const override{};
-
     void sendStatus(const std::string&, const std::string&, const std::string&) const override{};
-
     void requestPolicies(const std::string&) const override{};
 };
 
