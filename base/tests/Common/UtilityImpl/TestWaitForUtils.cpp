@@ -13,10 +13,7 @@ TEST(WaitForUtils, waitLoopDoesNotThrowIfItReachesTheEndOftheLoop) // NOLINT
 {
     auto simpleFunc = []() {return false;};
     double waitTime = 0.1;
-//    get time in ms
     EXPECT_NO_THROW(Common::UtilityImpl::waitFor(waitTime,0.01,simpleFunc));
-//    get time in ms
-//    diff > waitTime
 }
 
 TEST(WaitForUtils, checkWaitLoopReturnsWhenConditionFulfiled) // NOLINT
@@ -29,8 +26,7 @@ TEST(WaitForUtils, checkWaitLoopReturnsWhenConditionFulfiled) // NOLINT
     };
     double waitTime = 0.1;
     EXPECT_NO_THROW(Common::UtilityImpl::waitFor(waitTime,0.1,simpleFunc));
-//    get time in ms
-//    diff < 1 second
+
     ASSERT_EQ(counter, 1);
 }
 
