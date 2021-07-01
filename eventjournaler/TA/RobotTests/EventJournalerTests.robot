@@ -7,9 +7,7 @@ Suite Teardown  Uninstall Base
 *** Test Cases ***
 Event Journaler Can Receive Events
     ${mark} =  Mark File  ${EVENT_JOURNALER_LOG_PATH}
-    Run Shell Process  chmod a+x ${EVENT_PUB_SUB_TOOL}  OnError=Failed to chmod EventPubSub binary   timeout=3s
-    Run Shell Process  ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/var/ipc/events.ipc send  OnError=Failed to run EventPubSub binary   timeout=60s
-
+    Publish Threat Event
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  5 secs
@@ -17,12 +15,11 @@ Event Journaler Can Receive Events
 
 
 Event Journaler Can Receive Events From Multiple Publishers
-    [Teardown]  Custom Teardown For Multi Pub Test
+    [Teardown]  Custom Teardown For Tests With Publishers Running In Background
     ${mark} =  Mark File  ${EVENT_JOURNALER_LOG_PATH}
-    Run Shell Process  chmod a+x ${EVENT_PUB_SUB_TOOL}  OnError=Failed to chmod EventPubSub binary   timeout=3s
-    Start Process 	timeout 30s ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/var/ipc/events.ipc send -d "msg-from-pub1" -c 100  alias=publisher1  shell=True
-    Start Process 	timeout 30s ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/var/ipc/events.ipc send -d "msg-from-pub2" -c 100  alias=publisher2  shell=True
-    Start Process 	timeout 30s ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/var/ipc/events.ipc send -d "msg-from-pub3" -c 100  alias=publisher3  shell=True
+    Publish Threat Events In Background Process   "msg-from-pub1"  100
+    Publish Threat Events In Background Process   "msg-from-pub2"  100
+    Publish Threat Events In Background Process   "msg-from-pub3"  100
 
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -41,14 +38,13 @@ Event Journaler Can Receive Events From Multiple Publishers
 
 
 Event Journaler Can Receive Many Events From Publisher
-    [Teardown]  Custom Teardown For Multi Pub Test
+    [Teardown]  Custom Teardown For Tests With Publishers Running In Background
     ${mark} =  Mark File  ${EVENT_JOURNALER_LOG_PATH}
-    Run Shell Process  chmod a+x ${EVENT_PUB_SUB_TOOL}  OnError=Failed to chmod EventPubSub binary   timeout=3s
-    Start Process 	timeout 30s ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/var/ipc/events.ipc send -d "msg-from-pub1" -c 100  alias=publisher1  shell=True
+    Publish Threat Events In Background Process   "msg-from-pub1"  100
     Wait Until Marked Journaler Log Contains String X Times  msg-from-pub1  100  ${mark}
 
 
-Event Journaler Can be stopped and started
+Event Journaler Can Be Stopped And Started
     Restart Event Journaler
 
 
@@ -56,8 +52,9 @@ Event Journaler Can be stopped and started
 Setup
     Install Base For Component Tests
     Install Event Journaler Directly from SDDS
+    Run Shell Process  chmod a+x ${EVENT_PUB_SUB_TOOL}  OnError=Failed to chmod EventPubSub binary   timeout=3s
 
-Custom Teardown For Multi Pub Test
+Custom Teardown For Tests With Publishers Running In Background
     Event Journaler Teardown
     Terminate All Processes
 
