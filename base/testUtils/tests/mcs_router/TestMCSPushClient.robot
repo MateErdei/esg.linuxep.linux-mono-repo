@@ -445,7 +445,9 @@ MCS Push Client Logs Successfull Connection Via Proxy
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
 
 Push Connection Does Not Hang Forever If Proxy Does Not Respond
-
+    [Teardown]  Test Teardown With Push Server Redirect
+    Backup Hosts File With Push Server Redirect
+    Log File  /etc/hosts
     Start Proxy Server Which Hangs On Push Connection  1235
     Start MCS Push Server
 
@@ -481,6 +483,10 @@ Test Teardown
     Push Client Test Teardown
     Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
 
+Test Teardown With Push Server Redirect
+    Test Teardown
+    Restore Hosts File With Push Server Redirect
+
 Test Teardown With Env Proxy
     Test Teardown
     Remove Environment Variable    https_proxy
@@ -494,3 +500,12 @@ Register EDR Plugin
 
 Deregister EDR Plugin
     Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/edr.json
+
+Backup Hosts File With Push Server Redirect
+    Move File  /etc/hosts  /etc/hosts.bak
+    Copy File  /etc/hosts.bak  /etc/hosts
+    Append To File  /etc/hosts  127.0.0.1\tpushredirect
+
+Restore Hosts File With Push Server Redirect
+    Remove File  /etc/hosts
+    Move File  /etc/hosts.bak  /etc/hosts
