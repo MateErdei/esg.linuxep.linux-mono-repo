@@ -61,6 +61,8 @@ namespace SubscriberLib
                     auto data = m_socket->read();
                     LOGINFO("Received event");
                     int index = 0;
+
+                    // TODO LINUXDAR-3142 Events generated here will need to be put into a queue.
                     for (const auto& messagePart : data)
                     {
                         LOGINFO(index++ << ": " << messagePart);
@@ -86,6 +88,7 @@ namespace SubscriberLib
             }
             catch (const std::exception& exception)
             {
+                LOGERROR("Stopping subscriber. Exception thrown during subscriber read loop: " << exception.what());
                 m_running = false;
             }
         }
