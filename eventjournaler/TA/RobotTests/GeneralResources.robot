@@ -29,6 +29,12 @@ Marked File Contains
     ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
     Should Contain  ${content}  ${input}
 
+Marked File Contains X Times
+    [Arguments]  ${path}  ${input}  ${xtimes}  ${mark}
+    ${content} =  Get File   ${path}
+    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
+    Should Contain X Times  ${content}  ${input}  ${xtimes}
+
 Marked File Does Not Contain
     [Arguments]  ${path}  ${input}  ${mark}
     ${content} =  Get File   ${path}
@@ -39,10 +45,3 @@ Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
     Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\nstdout: \n${result.stdout} \n. stderr: \n${result.stderr}"
-
-Wait Until Log Contains String X Times
-    [Arguments]  ${log}  ${xtimes}  ${waitSeconds}=25
-    Wait Until Keyword Succeeds
-        ...  ${waitSeconds} secs
-        ...  2 secs
-        ...  Journaler Log Contains String X Times  ${log}  ${xtimes}

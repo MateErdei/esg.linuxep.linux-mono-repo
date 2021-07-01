@@ -26,6 +26,7 @@ Uninstall Base
 Uninstall Event Journaler
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/eventjournaler/bin/uninstall.sh --force   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall Event Journaler.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+
 Check Event Journaler Executable Running
     ${result} =    Run Process  pgrep eventjournaler | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
@@ -59,12 +60,34 @@ Check Event Journaler Log contains
     [Arguments]  ${string_to_contain}
     File Should Contain  ${EVENT_JOURNALER_LOG_PATH}  ${string_to_contain}
 
+Check Marked Event Journaler Log contains Contains
+    [Arguments]  ${input}  ${mark}
+    Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}   ${input}   ${mark}
+
 Event Journaler Teardown
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Keyword If Test Failed  Log File  ${EVENT_JOURNALER_LOG_PATH}
 
 Journaler Log Contains String X Times
-    [Arguments]  ${input}   ${xtimes}
+    [Arguments]  ${to_find}   ${xtimes}
     ${content} =  Get File   ${EVENT_JOURNALER_LOG_PATH}
-    Should Contain X Times  ${content}  ${input}  ${xtimes}
+    Should Contain X Times  ${content}  ${to_find}  ${xtimes}
+
+Wait Until Journaler Log Contains String X Times
+    [Arguments]  ${to_find}  ${xtimes}  ${waitSeconds}=25
+    Wait Until Keyword Succeeds
+    ...  ${waitSeconds} secs
+    ...  2 secs
+    ...  Journaler Log Contains String X Times  ${to_find}  ${xtimes}
+
+Marked Journaler Log Contains String X Times
+    [Arguments]  ${input}   ${xtimes}  ${mark}
+    Marked File Contains X Times  ${EVENT_JOURNALER_LOG_PATH}  ${input}  ${xtimes}  ${mark}
+
+Wait Until Marked Journaler Log Contains String X Times
+    [Arguments]  ${to_find}  ${xtimes}  ${mark}  ${waitSeconds}=25
+    Wait Until Keyword Succeeds
+    ...  ${waitSeconds} secs
+    ...  2 secs
+    ...  Marked Journaler Log Contains String X Times  ${to_find}  ${xtimes}  ${mark}
