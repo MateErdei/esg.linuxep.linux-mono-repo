@@ -22,9 +22,16 @@ namespace Common::UtilityImpl
             unsigned int intervalMicroSeconds = intervalInSeconds * 1000000;
             double maxNumberOfSleeps = timeToWaitInSeconds / intervalInSeconds;
             double sleepCounter = 0;
-            while (!conditionFunction() && sleepCounter++ < maxNumberOfSleeps)
+            while (sleepCounter++ < maxNumberOfSleeps)
             {
-                usleep(intervalMicroSeconds);
+                if (conditionFunction())
+                {
+                    return true;
+                }
+                else
+                {
+                    usleep(intervalMicroSeconds);
+                }
             }
         }
         return false;
