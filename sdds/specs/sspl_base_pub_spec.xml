@@ -2,9 +2,14 @@
 <publicationspec importspec="sspl_base_import_spec.xml">
     <componentsuites>
         <line id="ServerProtectionLinux-Base">
-            <componentsuite importreference="ServerProtectionLinux-Base-1.1.7.0">
-                <component importreference="ServerProtectionLinux-Base-component-1.1.7.19" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
-                <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.3.0.6" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
+            <componentsuite importreference="ServerProtectionLinux-Base-1.1.7.X">
+                <component importreference="ServerProtectionLinux-Base-component-1.1.7.X" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
+                <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.X.X.X" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
+                <component importreference="ServerProtectionLinux-Plugin-EventJournaler-X.X.X.X" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
+            </componentsuite>
+            <componentsuite importreference="ServerProtectionLinux-Base-1.1.7.2">
+                <component importreference="ServerProtectionLinux-Base-component-1.1.7.7" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
+                <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.2.12" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
             </componentsuite>
             <componentsuite importreference="ServerProtectionLinux-Base-1.1.6.4">
                 <component importreference="ServerProtectionLinux-Base-component-1.1.6.88" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
@@ -27,10 +32,12 @@
     <warehouses>
         <warehouse furcatedentitlement="SSPL" id="sspl">
             <line id="ServerProtectionLinux-Base">
-                <component importreference="ServerProtectionLinux-Base-1.1.7.0">
+                <component importreference="ServerProtectionLinux-Base-1.1.7.X">
                     <releasetag baseversion="" tag="BETA2"/>
                     <releasetag baseversion="" tag="RECOMMENDED"/>
                     <releasetag baseversion="" tag="BETA"/>
+                </component>
+                <component importreference="ServerProtectionLinux-Base-1.1.7.0">
                 </component>
                 <component importreference="ServerProtectionLinux-Base-1.1.6.4">
                 </component>
@@ -68,7 +75,11 @@
                 </component>
             </line>
             <line id="ServerProtectionLinux-Base-component">
-                <component importreference="ServerProtectionLinux-Base-component-1.1.7.19">
+                <component importreference="ServerProtectionLinux-Base-component-1.1.7.X">
+                    <genericsupplement decodepath="."
+                                       line="SSPLFLAGS" tag="2021-2" warehousename="sspl_flags"/>
+                </component>
+                <component importreference="ServerProtectionLinux-Base-component-1.1.7.7">
                     <genericsupplement decodepath="."
                                        line="SSPLFLAGS" tag="2021-2" warehousename="sspl_flags"/>
                 </component>
@@ -90,6 +101,9 @@
                 <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.2.12"/>
                 <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.1.20"/>
                 <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.0.11"/>
+            </line>
+            <line id="ServerProtectionLinux-Plugin-EventJournaler">
+                <component importreference="ServerProtectionLinux-Plugin-EventJournaler-X.X.X.X"/>
             </line>
             <line id="ServerProtectionLinux-Plugin-AV">
                 <component importreference="ServerProtectionLinux-Plugin-AV-1.0.2.10">
