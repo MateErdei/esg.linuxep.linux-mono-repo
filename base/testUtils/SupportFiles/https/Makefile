@@ -80,7 +80,8 @@ localhost.cert.pem : localhost.csr.pem root-ca.crt.pem private/cakey.pem
 	  -CAcreateserial \
 	  -out "$@" \
 	  -extensions req_ext \
-      -extfile openssl.cnf
+      -extfile openssl.cnf \
+      -days 3000
 	[ -s $@ ]
 
 localhost.out_of_date.cert.pem : localhost.csr.pem root-ca.crt.pem private/cakey.pem | newcerts serial index.txt
