@@ -54,7 +54,7 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/logs/osquery.watcher.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/av.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/eventjournaler/log/eventjournaler.log
 
@@ -78,6 +78,7 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
 
 Dump All Sophos Processes
     ${result}=  Run Process    ps -elf | grep sophos    shell=True
