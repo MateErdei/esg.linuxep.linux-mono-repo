@@ -61,15 +61,6 @@ namespace Common
             }
         }
 
-        std::string ApplicationPathManager::getPublisherDataChannelAddress() const
-        {
-            return socketPath("publisherdatachannel.ipc");
-        }
-
-        std::string ApplicationPathManager::getSubscriberDataChannelAddress() const
-        {
-            return socketPath("subscriberdatachannel.ipc");
-        }
 
         std::string ApplicationPathManager::getPluginRegistryPath() const
         {

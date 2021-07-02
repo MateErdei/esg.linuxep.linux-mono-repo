@@ -26,8 +26,7 @@ namespace Common
             Common::ZeroMQWrapper::ISocketSubscriberPtr socketSubscriber) :
             m_socketSubscriber(std::move(socketSubscriber)),
             m_reactor(Common::Reactor::createReactor()),
-            m_sensorDataCallback(std::move(sensorDataCallback)),
-            m_converter(Common::EventTypes::constructEventConverter())
+            m_sensorDataCallback(std::move(sensorDataCallback)))
         {
             m_socketSubscriber->subscribeTo(sensorDataCategorySubscription);
             m_reactor->addListener(m_socketSubscriber.get(), this);

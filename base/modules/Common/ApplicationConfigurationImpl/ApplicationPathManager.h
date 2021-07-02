@@ -25,8 +25,6 @@ namespace Common::ApplicationConfigurationImpl
         std::string getLogConfFilePath() const override;
         std::string getLocalLogConfFilePath() const override;
         std::string getTelemetryOutputFilePath() const override;
-        std::string getPublisherDataChannelAddress() const override;
-        std::string getSubscriberDataChannelAddress() const override;
         std::string getPluginRegistryPath() const override;
         std::string getVersigPath() const override;
         std::string getMcsPolicyFilePath() const override;

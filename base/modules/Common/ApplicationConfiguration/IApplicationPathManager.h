@@ -39,8 +39,6 @@ namespace Common::ApplicationConfiguration
 
         virtual std::string getBaseSophossplConfigFileDirectory() const = 0;
 
-        virtual std::string getPublisherDataChannelAddress() const = 0;
-        virtual std::string getSubscriberDataChannelAddress() const = 0;
         virtual std::string getPluginRegistryPath() const = 0;
         virtual std::string getVersigPath() const = 0;
         virtual std::string getMcsPolicyFilePath() const = 0;

@@ -1,6 +1,6 @@
 add_subdirectory(ApplicationConfigurationImpl)
 add_subdirectory(DirectoryWatcherImpl)
-add_subdirectory(EventTypesImpl)
+#add_subdirectory(EventTypesImpl)
 add_subdirectory(FileSystemImpl)
 add_subdirectory(HttpSenderImpl)
 add_subdirectory(Logging)

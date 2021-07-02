@@ -8,7 +8,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "ISubscriber.h"
 
-#include <Common/EventTypes/IEventConverter.h>
+
 #include <Common/PluginApi/IEventVisitorCallback.h>
 #include <Common/Reactor/IReactor.h>
 #include <Common/ZMQWrapperApi/IContextPtr.h>

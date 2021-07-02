@@ -36,14 +36,14 @@ namespace Common
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> createPluginAPI(
                 const std::string& pluginName,
                 std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback) override;
-            std::unique_ptr<Common::PluginApi::IRawDataPublisher> createRawDataPublisher() override;
-            std::unique_ptr<Common::PluginApi::ISubscriber> createSubscriber(
-                const std::string& sensorDataCategorySubscription,
-                std::shared_ptr<Common::PluginApi::IEventVisitorCallback> sensorDataCallback) override;
-
-            std::unique_ptr<PluginApi::ISubscriber> createRawSubscriber(
-                const std::string& dataCategorySubscription,
-                std::shared_ptr<PluginApi::IRawDataCallback> rawDataCallback) override;
+//            std::unique_ptr<Common::PluginApi::IRawDataPublisher> createRawDataPublisher() override;
+//            std::unique_ptr<Common::PluginApi::ISubscriber> createSubscriber(
+//                const std::string& sensorDataCategorySubscription,
+//                std::shared_ptr<Common::PluginApi::IEventVisitorCallback> sensorDataCallback) override;
+//
+//            std::unique_ptr<PluginApi::ISubscriber> createRawSubscriber(
+//                const std::string& dataCategorySubscription,
+//                std::shared_ptr<PluginApi::IRawDataCallback> rawDataCallback) override;
 
             /* mainly for tests */
             void setDefaultTimeout(int timeoutMs);
