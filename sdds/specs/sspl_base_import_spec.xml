@@ -7,7 +7,7 @@
 		<line id="ServerProtectionLinux-Base">
 			<componentsuite id="ServerProtectionLinux-Base-1.1.7.6"
 							version="1.1.7.6"
-							artifact="esg-dev-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2021-28/20210705082840-df49274e32176958cc6290152bc5365bb8248a21-20R4xT/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
+							artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2021-28/20210705082840-df49274e32176958cc6290152bc5365bb8248a21-20R4xT/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
 							longdic="Sophos Linux Base"
 							shortdic="Sophos Linux Base"/>
 			<componentsuite id="ServerProtectionLinux-Base-1.1.7.2"
@@ -76,7 +76,7 @@
 		<line id="ServerProtectionLinux-Base-component">
 			<component id="ServerProtectionLinux-Base-component-1.1.7.83"
 					   version="1.1.7.83"
-					   artifact="esg-dev-releasable-candidate/linuxep.everest-base/release--2021-28/20210702152935-ed995af73c515608b30b02507d103cdd39431ea6-ntkuxd/sspl-base/SDDS-COMPONENT/"
+					   artifact="esg-releasable-candidate/linuxep.everest-base/release--2021-28/20210702152935-ed995af73c515608b30b02507d103cdd39431ea6-ntkuxd/sspl-base/SDDS-COMPONENT/"
 					   longdic="Sophos Linux Base Component"
 					   shortdic="Sophos Linux Base Component"/>
 			<component id="ServerProtectionLinux-Base-component-1.1.7.7"
@@ -130,7 +130,7 @@
 		<line id="ServerProtectionLinux-Plugin-EventJournaler">
 			<component id="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.28"
 					   version="1.0.0.28"
-					   artifact=" esg-dev-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2021-28/20210702170446-3e26761bfa4e3c64ece36adb7828ea0a3781e326-13Bica/eventjournaler/SDDS-COMPONENT"
+					   artifact=" esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2021-28/20210702170446-3e26761bfa4e3c64ece36adb7828ea0a3781e326-13Bica/eventjournaler/SDDS-COMPONENT"
 					   longdic="Sophos Linux Event Journaler"
 					   shortdic="Sophos Linux Event Journaler"/>
 		</line>
