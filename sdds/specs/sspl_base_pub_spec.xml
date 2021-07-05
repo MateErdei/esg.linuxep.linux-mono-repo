@@ -37,8 +37,6 @@
                     <releasetag baseversion="" tag="RECOMMENDED"/>
                     <releasetag baseversion="" tag="BETA"/>
                 </component>
-                <component importreference="ServerProtectionLinux-Base-1.1.7.0">
-                </component>
                 <component importreference="ServerProtectionLinux-Base-1.1.6.4">
                 </component>
                 <component importreference="ServerProtectionLinux-Base-1.1.5.22">
