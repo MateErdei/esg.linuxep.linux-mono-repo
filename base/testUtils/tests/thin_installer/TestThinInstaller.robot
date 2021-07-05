@@ -354,8 +354,8 @@ Thin Installer Attempts Install And Register Through Message Relays
     Install Local SSL Server Cert To System
 
     # Add Message Relays to Thin Installer
-    create_default_credentials_file  message_relays=dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
-    build_default_creds_thininstaller_from_sections
+    Create Default Credentials File  message_relays=dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
+    Build Default Creds Thininstaller From Sections
     #Configure And Run TCredentialshininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem
     Run Default Thininstaller  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
@@ -412,8 +412,6 @@ Thin Installer Digest Proxy
     Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
 
     Start Proxy Server With Digest Auth  10000  username  password
-    ${customer_file_address} =  Get Customer File Domain For Policy  ${BaseVUTPolicy}
-    ${warehouse_address} =  Get Warehouse Domain For Policy  ${BaseVUTPolicy}
 
     Run Default Thininstaller  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs  proxy=http://username:password@localhost:10000
 
@@ -458,8 +456,8 @@ Thin Installer Parses Update Caches Correctly
     Setup For Test With Warehouse Containing Product
     Start Local Cloud Server
 
-    create_default_credentials_file  update_caches=localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
-    build_default_creds_thininstaller_from_sections
+    Create Default Credentials File  update_caches=localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
+    Build Default Creds Thininstaller From Sections
     Run Default Thininstaller  expected_return_code=10  no_connection_address_override=True  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
 
@@ -505,7 +503,7 @@ Thin Installer Does Not Pass Customer Token Argument To Register Central When No
     # Be able to process the argument
     Should Be Equal As Strings  '${registerCentralArgs.strip()}'   'ThisIsARegToken https://localhost:4443/mcs'
 
-    remove_thininstaller_log
+    Remove Thininstaller Log
 
 Thin Installer Registers Existing Installation With Product Args
     [Tags]  THIN_INSTALLER  MCS_ROUTER
@@ -520,7 +518,7 @@ Thin Installer Registers Existing Installation With Product Args
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
     Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegToken\n
 
-    remove_thininstaller_log
+    Remove Thininstaller Log
 
 
 Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
