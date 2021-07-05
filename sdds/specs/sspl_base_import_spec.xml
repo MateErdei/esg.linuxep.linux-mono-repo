@@ -130,7 +130,7 @@
 		<line id="ServerProtectionLinux-Plugin-EventJournaler">
 			<component id="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.28"
 					   version="1.0.0.28"
-					   artifact=" esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2021-28/20210702170446-3e26761bfa4e3c64ece36adb7828ea0a3781e326-13Bica/eventjournaler/SDDS-COMPONENT"
+					   artifact="esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2021-28/20210702170446-3e26761bfa4e3c64ece36adb7828ea0a3781e326-13Bica/eventjournaler/SDDS-COMPONENT"
 					   longdic="Sophos Linux Event Journaler"
 					   shortdic="Sophos Linux Event Journaler"/>
 		</line>
