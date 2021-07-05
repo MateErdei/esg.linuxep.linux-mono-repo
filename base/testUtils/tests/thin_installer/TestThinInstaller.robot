@@ -139,12 +139,13 @@ Run Thin Installer And Check Argument Is Saved To Install Options File
     Should Contain  ${contents}  ${argument}
 
 *** Variables ***
+${PROXY_LOG}  ./tmp/proxy_server.log
+${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 ${CUSTOM_DIR_BASE} =  /CustomPath
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{FORCE_ARGUMENT} =  --force
 @{PRODUCT_MDR_ARGUMENT} =  --products\=mdr
 ${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
-
 
 *** Test Case ***
 Thin Installer can download test file from warehouse and execute it
@@ -333,8 +334,7 @@ Thin Installer Fails When No Path In Systemd File
 
 Thin Installer Attempts Install And Register Through Message Relays
     [Teardown]  Teardown With Temporary Directory Clean
-    Setup For Test With Warehouse Containing Base
-    Require Uninstalled
+    Setup For Test With Warehouse Containing Product
     Start Message Relay
     Should Not Exist    ${SOPHOS_INSTALL}
     Stop Local Cloud Server
@@ -402,10 +402,35 @@ Thin Installer Attempts Install And Register Through Message Relays
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
+Thin Installer Digest Proxy
+    [Teardown]  Teardown With Temporary Directory Clean
+    Setup For Test With Warehouse Containing Product
+    Start Local Cloud Server
+
+    Check MCS Router Not Running
+    ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
+    Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
+
+    Start Proxy Server With Digest Auth  10000  username  password
+    ${customer_file_address} =  Get Customer File Domain For Policy  ${BaseVUTPolicy}
+    ${warehouse_address} =  Get Warehouse Domain For Policy  ${BaseVUTPolicy}
+
+    Run Default Thininstaller  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs  proxy=http://username:password@localhost:10000
+
+    #The customer and warehouse domains are localhost:1233 and localhost:1234
+    Check Proxy Log Contains  "CONNECT localhost:4443 HTTP/1.1" 200  Proxy Log does not show connection to Fake Cloud
+    Check Proxy Log Contains  "CONNECT localhost:1233 HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
+    Check Proxy Log Contains  "CONNECT localhost:1234 HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
+    Check MCS Config Contains  proxy=http://username:password@localhost:10000  MCS Config does not have proxy present
+
+    Check Thininstaller Log Does Not Contain  ERROR
+
+    Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://username:password@localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://username:password@localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
+    Check Root Directory Permissions Are Not Changed
+
 Thin Installer Environment Proxy
     [Teardown]  Teardown With Temporary Directory Clean
-    Setup For Test With Warehouse Containing Base
-    Require Uninstalled
+    Setup For Test With Warehouse Containing Product
     Start Local Cloud Server
 
     Should Not Exist    ${SOPHOS_INSTALL}
@@ -414,14 +439,12 @@ Thin Installer Environment Proxy
     Should Not Be Equal As Integers  ${result.rc}  0  Management Agent running before installation
 
     Start Simple Proxy Server  10000
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  proxy=http://localhost:10000
+    Run Default Thininstaller  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs  proxy=http://localhost:10000
 
-    ${customer_file_address} =  Get Customer File Domain For Policy  ${BaseVUTPolicy}
-    ${warehouse_address} =  Get Warehouse Domain For Policy  ${BaseVUTPolicy}
-
+    #The customer and warehouse domains are localhost:1233 and localhost:1234
     Check Proxy Log Contains  "CONNECT localhost:4443 HTTP/1.1" 200  Proxy Log does not show connection to Fake Cloud
-    Check Proxy Log Contains  "CONNECT ${customer_file_address} HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
-    Check Proxy Log Contains  "CONNECT ${warehouse_address} HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
+    Check Proxy Log Contains  "CONNECT localhost:1233 HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
+    Check Proxy Log Contains  "CONNECT localhost:1234 HTTP/1.1" 200  Proxy Log does not show connection to Fake Warehouse
     Check MCS Config Contains  proxy=http://localhost:10000  MCS Config does not have proxy present
 
     Check Thininstaller Log Does Not Contain  ERROR
@@ -432,8 +455,7 @@ Thin Installer Environment Proxy
 Thin Installer Parses Update Caches Correctly
     # Expect installer to fail, we only care about log contents
     [Teardown]  Teardown With Temporary Directory Clean
-    Setup For Test With Warehouse Containing Base
-    Require Uninstalled
+    Setup For Test With Warehouse Containing Product
     Start Local Cloud Server
 
     create_default_credentials_file  update_caches=localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
@@ -505,8 +527,7 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
     [Documentation]  Created for LINUXDAR-2249
     [Teardown]  Teardown With Large Group Creation
     Setup Group File With Large Group Creation
-    Setup For Test With Warehouse Containing Base
-    Require Uninstalled
+    Setup For Test With Warehouse Containing Product
     Start Local Cloud Server
 
     Should Not Exist    ${SOPHOS_INSTALL}
@@ -521,8 +542,7 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
 
 Thin Installer Installs Product Successfully With Product Arguments
     [Teardown]  Teardown With Temporary Directory Clean
-    Setup For Test With Warehouse Containing Base
-    Require Uninstalled
+    Setup For Test With Warehouse Containing Product
     Start Local Cloud Server
 
     Should Not Exist    ${SOPHOS_INSTALL}
