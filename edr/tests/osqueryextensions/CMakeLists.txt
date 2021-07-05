@@ -1,7 +1,9 @@
+
 SophosAddTest(TestOsqueryExtension
         TestLoggerExtension.cpp
         TestResultSender.cpp
         TestSophosServerTable.cpp
+        TestSophosAVDetectionTable.cpp
         MockQueryContext.h
         PROJECTS OsqueryExtensions pluginimpl
         LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest pluginimpl

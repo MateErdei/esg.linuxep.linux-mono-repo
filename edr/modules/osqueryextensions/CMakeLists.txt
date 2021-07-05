@@ -8,6 +8,8 @@ sophos_add_library(OsqueryExtensions SHARED
         ResultsSender.cpp
         SophosServerTable.h
         SophosServerTable.cpp
+        SophosAVDetectionTable.h
+        SophosAVDetectionTable.cpp
         SophosExtension.h
         SophosExtension.cpp
         ${SQLITE_INCLUDE_DIR}/sqlite3.c

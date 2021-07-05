@@ -7,6 +7,8 @@ add_executable(FuzzableResultSender
         ../../../modules/osqueryextensions/ResultsSender.cpp
         ../../../modules/osqueryextensions/SophosServerTable.h
         ../../../modules/osqueryextensions/SophosServerTable.cpp
+        ../../../modules/osqueryextensions/SophosAVDetectionTable.h
+        ../../../modules/osqueryextensions/SophosAVDetectionTable.cpp
         ../../../modules/osqueryextensions/SophosExtension.h
         ../../../modules/osqueryextensions/SophosExtension.cpp
         ${SQLITE_INCLUDE_DIR}/sqlite3.c

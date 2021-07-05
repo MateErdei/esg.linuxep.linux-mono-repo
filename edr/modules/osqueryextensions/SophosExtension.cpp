@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SophosExtension.h"
 #include "Logger.h"
 #include "SophosServerTable.h"
+#include "SophosAVDetectionTable.h"
 
 #include <functional>
 
@@ -29,9 +30,14 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
         m_flags.timeout = 3;
         m_extension = OsquerySDK::CreateExtension(m_flags, "SophosExtension", "1.0.0");
 
+        LOGINFO("Adding Sophos Server Table");
         m_extension->AddTablePlugin(std::make_unique<OsquerySDK::SophosServerTable>());
+        LOGINFO("Adding Sophos Detections Table");
+        m_extension->AddTablePlugin(std::make_unique<OsquerySDK::SophosAVDetectionTable>());
         LOGDEBUG("Extension Added");
         m_extension->Start();
+
+
         m_stopped = false;
         m_runnerThread = std::make_unique<std::thread>(std::thread([this, extensionFinished] { Run(extensionFinished); }));
         LOGDEBUG("Sophos Extension running in thread");
