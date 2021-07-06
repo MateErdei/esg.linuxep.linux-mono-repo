@@ -70,7 +70,7 @@
     "RunUbuntu" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "ubuntu"]},
     "RunAmazon" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "amazonlinux"]},
     "RunCentosStream" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centosstream"]},
-    "RunCentos" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centos]},
+    "RunCentos" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centos"]},
     "RunRhel78x64" : {"Fn::Or": [
         {"Condition" : "RunRhel"},
         {"Condition" : "notRunAll"},
