@@ -1,7 +1,7 @@
 {
-  "ubuntu1804" : {
+  "ubuntu2004" : {
     "Type" : "AWS::EC2::Instance",
-    "Condition" :  "RunUbuntu1804" ,
+    "Condition" :  "RunUbuntu2004" ,
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
@@ -24,7 +24,7 @@
         {"Key" : "TestImage", "Value" : "true"},
         {"Key" : "Codeline", "Value" : "SSPL" },
         {"Key" : "Branch", "Value" : "SSPL" },
-        {"Key" : "Name", "Value" : "ubuntu1804" },
+        {"Key" : "Name", "Value" : "ubuntu2004" },
         {"Key" : "RootStackname", "Value" : "SSPL" }
       ],
       "NetworkInterfaces" : [{
