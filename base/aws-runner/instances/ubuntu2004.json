@@ -5,7 +5,7 @@
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
-      "ImageId" : "ami-09d22e5eddf14b4f3",
+      "ImageId" : "ami-0fa35491f8c1b096a",
       "InstanceType": "c4.large",
       "InstanceInitiatedShutdownBehavior": "terminate",
       "Tags" : [
