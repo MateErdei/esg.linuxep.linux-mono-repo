@@ -70,6 +70,7 @@
     "RunUbuntu" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "ubuntu"]},
     "RunAmazon" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "amazonlinux"]},
     "RunCentosStream" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centosstream"]},
+    "RunCentosStream" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centos]},
     "RunRhel78x64" : {"Fn::Or": [
         {"Condition" : "RunRhel"},
         {"Condition" : "RunAll"},
@@ -90,10 +91,30 @@
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "centosstreamx64"]}
         ]},
+    "RunCentos764" : {"Fn::Or": [
+        {"Condition" : "RunCentosStream"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "centos7x64"]}
+        ]},
+    "RunCentos8x64" : {"Fn::Or": [
+        {"Condition" : "RunCentosStream"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "centos8x64"]}
+        ]},
     "RunUbuntu1804Minimal" : {"Fn::Or": [
         {"Condition" : "RunUbuntu"},
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "ubuntu1804minimal"]}
+        ]},
+    "RunUbuntu1804" : {"Fn::Or": [
+        {"Condition" : "RunUbuntu"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "ubuntu1804"]}
+        ]},
+    "RunUbuntu2004" : {"Fn::Or": [
+        {"Condition" : "RunUbuntu"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "ubuntu2004"]}
         ]}
   },
 
