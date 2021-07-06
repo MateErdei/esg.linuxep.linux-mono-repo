@@ -270,17 +270,10 @@ Check MCS Envelope Contains Event Fail On N Event Sent
 
 Register With Real Update Cache and Message Relay Account
     [Arguments]   ${messageRelayOptions}=
-    Set Environment Variable  MCS_CONFIG_SET  ucmr-nova
-    Reload Cloud Options
-    ${ucmrRegCommand} =  Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  10 secs
-    ...  Get Registration Command
-
     Mark All Logs  Registering with Real Update Cache and Message Relay account
     # Remove the file so that we can use the "SulDownloader Reports Finished" function.
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    Register With Central  ${ucmrRegCommand} ${messageRelayOptions}
+    Register With Central  ${regCommand} ${messageRelayOptions}
 
 Register With Non MDR Account
     Set Environment Variable  MCS_CONFIG_SET  sav-nova
@@ -371,13 +364,24 @@ Setup MCS Tests Nova
     Remove Environment Variable  MCS_CONFIG_SET
     Reload Cloud Options
     Set Nova MCS CA Environment Variable
-    Set credentials
+    get credentials
 
-Set credentials
+Setup MCS Tests Nova Update cache
+    Setup Host File
+    Require Fresh Install
+    Remove Environment Variable  MCS_CONFIG_SET
+    Set Environment Variable  MCS_CONFIG_SET  ucmr-nova
+    Reload Cloud Options
+    Set Nova MCS CA Environment Variable
+    get credentials
+
+get credentials
     Wait Until Keyword Succeeds
     ...  300
     ...  30
-    ...  Get Sspl Registration
+    ...  set registration command
+
+set registration command
     ${regCommand}=  Get Sspl Registration
     Set Suite Variable    ${regCommand}     ${regCommand}   children=true
 
@@ -402,6 +406,5 @@ Reset Environment For Nova Tests
     Remove Environment Variable  MCS_CONFIG_SET
     Reload Cloud Options
     Set Nova MCS CA Environment Variable
-    ${regCommand}=  Get Sspl Registration
-    Set Suite Variable    ${regCommand}     ${regCommand}   children=true
+
 

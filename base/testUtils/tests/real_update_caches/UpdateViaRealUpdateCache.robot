@@ -1,5 +1,5 @@
 *** Settings ***
-Suite Setup       Setup MCS Tests Nova
+Suite Setup       Setup MCS Tests Nova Update cache
 Test Teardown   Post NOVA Update Teardown
 
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
