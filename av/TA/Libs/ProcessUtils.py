@@ -21,6 +21,11 @@ def pidof(executable):
             return int(d)
     return -1
 
+def pidof_or_fail(executable):
+    pid = pidof(executable)
+    if pid == -1:
+        raise AssertionError("%s is not running" % executable)
+    return pid
 
 def wait_for_pid(executable, timeout=15):
     start = time.time()
@@ -29,7 +34,7 @@ def wait_for_pid(executable, timeout=15):
         if pid > 0:
             return pid
         time.sleep(0.01)
-    raise Exception("Unable to find executable: {} in {} seconds".format(executable, timeout))
+    raise AssertionError("Unable to find executable: {} in {} seconds".format(executable, timeout))
 
 
 def __main(argv):

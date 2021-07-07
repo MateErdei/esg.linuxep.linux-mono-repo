@@ -10,6 +10,7 @@ Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/PluginUtils.py
+Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SophosThreatDetector.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
@@ -442,7 +443,8 @@ Require Plugin Installed and Running
     Install Base if not installed
     Install AV if not installed
     Start AV Plugin if not running
-    Start Sophos Threat Detector if not running
+    ${pid} =  Start Sophos Threat Detector if not running
+    Log  sophos_threat_detector PID = ${pid}
 
 Display All SSPL Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v primarywarehouse | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
@@ -717,17 +719,15 @@ Uninstall IDE
 
 Get Pid
     [Arguments]  ${EXEC}
-    ${result} =  run process  pidof  ${EXEC}  stderr=STDOUT
-    Should Be Equal As Integers  ${result.rc}  ${0}
-    Log  pid == ${result.stdout}
-    [Return]   ${result.stdout}
+    ${PID} =  ProcessUtils.pidof or fail  ${EXEC}
+    [Return]   ${PID}
 
 Record AV Plugin PID
-    ${PID} =  Get Pid  ${PLUGIN_BINARY}
+    ${PID} =  ProcessUtils.pidof or fail  ${PLUGIN_BINARY}
     [Return]   ${PID}
 
 Record Sophos Threat Detector PID
-    ${PID} =  Get Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    ${PID} =  ProcessUtils.pidof or fail  ${SOPHOS_THREAT_DETECTOR_BINARY}
     [Return]   ${PID}
 
 Check AV Plugin has same PID
