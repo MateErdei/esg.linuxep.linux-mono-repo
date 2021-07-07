@@ -1,6 +1,7 @@
 import tap.v1 as tap
 import xml.etree.ElementTree as ET
 from tap._pipeline.tasks import ArtisanInput
+import os
 
 def get_package_version(package_path):
     """ Read version from package.xml """
