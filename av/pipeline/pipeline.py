@@ -290,11 +290,11 @@ def bullseye_coverage_task(machine: tap.Machine):
         machine.output_artifact(coverage_results_dir, 'coverage')
 
 def get_test_machines(test_inputs):
-    return {
-        "ubuntu1804"   : tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux),
-        "ubuntu2004"   : tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux),
-        "centos7"      : tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux),
-    }
+    return [
+        ("ubuntu1804", tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+        ("ubuntu2004", tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+        ("centos7",    tap.Machine('centos77_x64_server_en_us',   inputs=test_inputs, platform=tap.Platform.Linux)),
+    ]
 
 
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
