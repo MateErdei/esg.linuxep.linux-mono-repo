@@ -122,6 +122,7 @@ def template_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: t
     component = tap.Component(name='sspl-plugin-template', base_version=PACKAGE_VERSION)
 
     release_mode = 'release'
+    coverage_mode = 'coverage'
     nine_nine_nine_mode = '999'
     zero_six_zero_mode = '060'
 
@@ -132,6 +133,15 @@ def template_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: t
         if mode == release_mode:
             template_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate5',
                                             mode=release_mode, release_package=PACKAGE_PATH)
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate5',
+                                                       mode=nine_nine_nine_mode, release_package=PACKAGE_PATH)
+            zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image='JenkinsLinuxTemplate5',
+                                                mode=zero_six_zero_mode, release_package=PACKAGE_PATH)
+        elif mode == coverage_mode:
+            release_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate5',
+                                                 mode=release_mode, release_package=PACKAGE_PATH)
+            template_build = stage.artisan_build(name=coverage_mode, component=component, image='JenkinsLinuxTemplate5',
+                                                 mode=coverage_mode, release_package=PACKAGE_PATH)
             nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate5',
                                                        mode=nine_nine_nine_mode, release_package=PACKAGE_PATH)
             zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image='JenkinsLinuxTemplate5',
