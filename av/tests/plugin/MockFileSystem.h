@@ -12,6 +12,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 
 #include <mutex>
+#include <type_traits>
 
 using namespace ::testing;
 using namespace Common::FileSystem;
@@ -55,7 +56,8 @@ public:
     MOCK_CONST_METHOD5(copyFileAndSetPermissions, void(const Path& src,const Path& dest, const mode_t mode, const std::string& ownerName, const std::string& groupName));
     MOCK_CONST_METHOD1(makedirs, void(const Path& path));
     MOCK_CONST_METHOD1(makeAbsolute, Path(const Path& path));
-    MOCK_CONST_METHOD1(readlink, std::optional<Path>(const Path& path));
+    using READLINK_RETURN_TYPE = typename std::result_of<decltype(&IFileSystem::readlink)(IFileSystem*, Path&)>::type;
+    MOCK_CONST_METHOD1(readlink, READLINK_RETURN_TYPE(const Path& path));
     MOCK_CONST_METHOD1(fileSize, off_t(const Path& path));
     MOCK_CONST_METHOD1(lastModifiedTime, std::time_t(const Path& path));
     MOCK_CONST_METHOD1(removeFilesInDirectory, void(const Path& path));
