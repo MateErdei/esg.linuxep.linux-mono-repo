@@ -559,9 +559,9 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
 
     Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved
-
-    Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central  timeout=120
     Register Cleanup    Uninstall and full reinstall
+
+    Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central  timeout=240
     Run Process   /bin/kill   -SIGSEGV   ${output}
 
     Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
