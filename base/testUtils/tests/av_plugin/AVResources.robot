@@ -46,19 +46,11 @@ Threat Detector Log Contains
     ${fileContent}=  Get File  ${THREAT_DETECTOR_LOG_PATH}
     Should Contain  ${fileContent}    ${input}
 
-Check Sophos Threat Detector Running
-    Run Shell Process  pidof ${SOPHOS_THREAT_DETECTOR_BINARY}   OnError=sophos_threat_detector not running
-
 Wait until threat detector running
-    # wait for AV Plugin to initialize
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  3 secs
-    ...  Check Sophos Threat Detector Running
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  2 secs
-    ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...  Threat Detector Log Contains  SophosThreatDetectorImpl <> Starting USR1 monitor
 
 Check AV Plugin Permissions
     ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
