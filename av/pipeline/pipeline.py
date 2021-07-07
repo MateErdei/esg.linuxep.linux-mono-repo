@@ -289,6 +289,13 @@ def bullseye_coverage_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact(coverage_results_dir, 'coverage')
 
+def get_test_machines(test_inputs):
+    return {
+        "ubuntu1804"   : tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux),
+        "ubuntu2004"   : tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux),
+        "centos7"      : tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux),
+    }
+
 
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
 def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
@@ -322,28 +329,19 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         # Non-unified build
         av_build = context.artifact.build()
 
-    test_environments = {'ubuntu1804_machine': 'ubuntu1804_x64_server_en_us',
-                         'ubuntu2004_machine': 'ubuntu2004_x64_server_en_us',
-                         'centos77_machine': 'centos77_x64_server_en_us',
-                         'centos82_machine': 'centos82_x64_server_en_us'}
     if run_tests:
         with stage.parallel('testing'):
             test_inputs = get_inputs(context, av_build)
-            component_machines = {}
-            product_machines = {}
-            integration_machines = {}
-            for environment in test_environments:
-                component_machines[environment + '_component'] = tap.Machine(test_environments[environment], inputs=test_inputs, platform=tap.Platform.Linux)
-                product_machines[environment + '_product'] = tap.Machine(test_environments[environment], inputs=test_inputs, platform=tap.Platform.Linux)
-                integration_machines[environment + '_integration'] = tap.Machine(test_environments[environment], inputs=test_inputs, platform=tap.Platform.Linux)
 
             with stage.parallel('TA'):
-                for machine in component_machines:
-                    stage.task(task_name=machine, func=pytest_task, machine=component_machines[machine])
-                for machine in product_machines:
-                    stage.task(task_name=machine, func=robot_task_product, machine=product_machines[machine])
-                for machine in integration_machines:
-                    stage.task(task_name=machine, func=robot_task_integration, machine=integration_machines[machine])
+                for (name, machine) in get_test_machines(test_inputs):
+                    stage.task(tast_name=name+"_component", func=pytest_task, machine=machine)
+
+                for (name, machine) in get_test_machines(test_inputs):
+                    stage.task(tast_name=name+"_product", func=robot_task_product, machine=machine)
+
+                for (name, machine) in get_test_machines(test_inputs):
+                    stage.task(tast_name=name+"_integration", func=robot_task_integration, machine=machine)
 
             if do_coverage:
                 with stage.parallel('coverage'):
