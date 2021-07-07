@@ -8,6 +8,20 @@ then
     apt install -y nfs-kernel-server zip unzip samba
 elif [[ -x $(which yum) ]]
 then
+    if [[ -f /etc/os-release ]]; then
+      . /etc/os-release
+      OS=$NAME
+    fi
+
+    if [[ "$OS" -eq "CentOS" ]]; then
+      for FILE in /etc/yum.repos.d/*; do
+        if [ -f "$FILE" ]; then
+          if grep -q "abn-centosrepo/" "$FILE"; then
+            sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' "FILE"
+          fi
+        fi
+      done
+    fi
     ping -c2 abn-centosrepo || true
     ping -c2 abn-engrepo.eng.sophos || true
 #    sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' /etc/yum.repos.d/CentOS-Base.repo
