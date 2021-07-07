@@ -1,0 +1,505 @@
+  { "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Sophos Server Protection for Linux AWS Testing Template",
+  "Parameters" : {
+            "KeyName": {
+              "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+              "Type": "AWS::EC2::KeyPair::KeyName",
+              "ConstraintDescription" : "must be the name of an existing EC2 KeyPair.",
+              "Default": "regressiontesting"
+            },
+            "BuildName": {
+              "Description" : "Build name",
+              "Type": "String",
+              "Default": "SSPL"
+            },
+            "Codeline": {
+              "Description" : "Codeline",
+              "Type": "String",
+              "Default": "SSPL-master"
+            },
+            "SSHLocation" : {
+              "Description" : "The IP address range that can be used to SSH to the EC2 instances",
+              "Type": "String",
+              "MinLength": "9",
+              "MaxLength": "18",
+              "Default": "195.171.192.0/24",
+              "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+              "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+           },
+            "TestPassUUID": {
+              "Description" : "Test pass UUID",
+              "Type": "String"
+            },
+            "cloudIpAddress": {
+              "Description" : "IP address of Cloud Server",
+              "Type": "String",
+              "Default": "10.230.0.253"
+              },
+            "RunCloud": {
+             "Description" : "true to run Nova, false to only run test machine image",
+             "Type": "String",
+             "Default": "true",
+             "AllowedValues": [ "true", "false" ]
+            },
+            "RunSome": {
+             "Description" : "run a subset of platforms",
+             "Type": "String",
+             "Default": "",
+             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "centosstream" ]
+            },
+            "RunOne": {
+             "Description" : "Run one specified test machine",
+             "Type": "String",
+             "Default": ""
+            },
+            "StackName": {
+              "Description" : "name of folder to dump tests into",
+              "Type": "String",
+              "Default": ""
+            }
+  },
+
+  "Conditions" : {
+    "RunSandbox" : {"Fn::Equals" : [{"Ref" : "RunCloud"}, "true"]},
+    "RunAll" : {"Fn::And":[
+      {"Fn::Equals" : [{"Ref" : "RunSome"}, ""]},
+      {"Fn::Equals" : [{"Ref" : "RunOne"}, ""]}
+      ]},
+    "RunRhel" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "rhel"]},
+    "RunUbuntu" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "ubuntu"]},
+    "RunAmazon" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "amazonlinux"]},
+    "RunCentosStream" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centosstream"]},
+    "RunRhel78x64" : {"Fn::Or": [
+        {"Condition" : "RunRhel"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel78x64"]}
+        ]},
+    "RunRhel81x64" : {"Fn::Or": [
+        {"Condition" : "RunRhel"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel81x64"]}
+        ]},
+    "RunAmazonLinux2x64" : {"Fn::Or": [
+        {"Condition" : "RunAmazon"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "amazonlinux2x64"]}
+        ]},
+    "RunCentosStreamx64" : {"Fn::Or": [
+        {"Condition" : "RunCentosStream"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "centosstreamx64"]}
+        ]},
+    "RunUbuntu1804Minimal" : {"Fn::Or": [
+        {"Condition" : "RunUbuntu"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "ubuntu1804minimal"]}
+        ]}
+  },
+
+  "Resources" : {
+    "VPC1" : {
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+        "CidrBlock" : "10.230.0.0/16",
+        "Tags" : [
+            {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
+            {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
+            {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+            {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+            {"Key" : "BusinessUnit", "Value" : "ESG"},
+            {"Key" : "CostCentre", "Value" : "GB11601200"},
+            {"Key" : "Project", "Value" : "XDR"},
+            {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+            {"Key" : "Environment", "Value" : "development"},
+            {"Key" : "AutomationExcluded", "Value" : "true"},
+            {"Key" : "SecurityClassification", "Value" : "none low"},
+            {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+            {"Key" : "TestImage", "Value" : "false"},
+            {"Key" : "Name", "Value" : "sspl-regression-tests-resource" },
+            {"Key" : "BuildName", "Value" : { "Ref" : "BuildName" } }
+            ]
+      }
+    },
+
+    "Subnet1" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC1" },
+        "CidrBlock" : "10.230.0.0/24",
+        "Tags" : [
+            {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
+            {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
+            {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+            {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+            {"Key" : "BusinessUnit", "Value" : "ESG"},
+            {"Key" : "CostCentre", "Value" : "GB11601200"},
+            {"Key" : "Project", "Value" : "XDR"},
+            {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+            {"Key" : "Environment", "Value" : "development"},
+            {"Key" : "AutomationExcluded", "Value" : "true"},
+            {"Key" : "SecurityClassification", "Value" : "none low"},
+            {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+            {"Key" : "TestImage", "Value" : "false"},
+            {"Key" : "Name", "Value" : "sspl-regression-tests-resource" },
+            {"Key" : "BuildName", "Value" : { "Ref" : "BuildName" } }
+            ]
+      }
+    },
+
+    "InternetGateway1" : {
+      "Type" : "AWS::EC2::InternetGateway",
+      "Properties" : {
+        "Tags" : [
+            {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
+            {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
+            {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+            {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+            {"Key" : "BusinessUnit", "Value" : "ESG"},
+            {"Key" : "CostCentre", "Value" : "GB11601200"},
+            {"Key" : "Project", "Value" : "XDR"},
+            {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+            {"Key" : "Environment", "Value" : "development"},
+            {"Key" : "AutomationExcluded", "Value" : "true"},
+            {"Key" : "SecurityClassification", "Value" : "none low"},
+            {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+            {"Key" : "TestImage", "Value" : "false"},
+            {"Key" : "Name", "Value" : "sspl-regression-tests-resource" },
+            {"Key" : "BuildName", "Value" : { "Ref" : "BuildName" } }
+            ]
+      }
+    },
+
+    "AttachGateway1" : {
+       "Type" : "AWS::EC2::VPCGatewayAttachment",
+       "Properties" : {
+         "VpcId" : { "Ref" : "VPC1" },
+         "InternetGatewayId" : { "Ref" : "InternetGateway1" }
+       }
+    },
+
+    "RouteTable1" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : {"Ref" : "VPC1"},
+        "Tags" : [
+            {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
+            {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
+            {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+            {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+            {"Key" : "BusinessUnit", "Value" : "ESG"},
+            {"Key" : "CostCentre", "Value" : "GB11601200"},
+            {"Key" : "Project", "Value" : "XDR"},
+            {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+            {"Key" : "Environment", "Value" : "development"},
+            {"Key" : "AutomationExcluded", "Value" : "true"},
+            {"Key" : "SecurityClassification", "Value" : "none low"},
+            {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+            {"Key" : "TestImage", "Value" : "false"},
+            {"Key" : "Name", "Value" : "sspl-regression-tests-resource" },
+            {"Key" : "BuildName", "Value" : { "Ref" : "BuildName" } }
+            ]
+      }
+    },
+
+    "Route1" : {
+      "Type" : "AWS::EC2::Route",
+      "DependsOn" : "AttachGateway1",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "RouteTable1" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "GatewayId" : { "Ref" : "InternetGateway1" }
+      }
+    },
+
+    "SubnetRouteTableAssociation1" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "Subnet1" },
+        "RouteTableId" : { "Ref" : "RouteTable1" }
+      }
+    },
+
+    "NetworkAcl1" : {
+      "Type" : "AWS::EC2::NetworkAcl",
+      "Properties" : {
+        "VpcId" : {"Ref" : "VPC1"},
+        "Tags" : [
+            {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
+            {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
+            {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+            {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+            {"Key" : "BusinessUnit", "Value" : "ESG"},
+            {"Key" : "CostCentre", "Value" : "GB11601200"},
+            {"Key" : "Project", "Value" : "XDR"},
+            {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+            {"Key" : "Environment", "Value" : "development"},
+            {"Key" : "AutomationExcluded", "Value" : "true"},
+            {"Key" : "SecurityClassification", "Value" : "none low"},
+            {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+            {"Key" : "TestImage", "Value" : "false"},
+            {"Key" : "BuildName", "Value" : { "Ref" : "BuildName" } },
+            {"Key" : "Name", "Value" : "sspl-regression-tests-resource" },
+            {"Key" : "Codeline", "Value" : { "Ref" : "Codeline" } }
+                ]
+      }
+    },
+
+    "InboundHTTPNetworkAclEntry1" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "NetworkAcl1"},
+        "RuleNumber" : "100",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "80", "To" : "80"}
+      }
+    },
+
+    "InboundSSHNetworkAclEntry1" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "NetworkAcl1"},
+        "RuleNumber" : "101",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "195.171.192.0/24",
+        "PortRange" : {"From" : "22", "To" : "22"}
+      }
+    },
+
+    "InboundSSHNetworkAclEntry2" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "NetworkAcl1"},
+        "RuleNumber" : "102",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "18.202.216.48/29",
+        "PortRange" : {"From" : "22", "To" : "22"}
+      }
+    },
+
+    "InboundResponsePortsNetworkAclEntry1" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "NetworkAcl1"},
+        "RuleNumber" : "103",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "1024", "To" : "65535"}
+      }
+    },
+
+    "OutBoundHTTPNetworkAclEntry1" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "NetworkAcl1"},
+        "RuleNumber" : "100",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "80", "To" : "80"}
+      }
+    },
+
+    "OutBoundHTTPSNetworkAclEntry1" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "NetworkAcl1"},
+        "RuleNumber" : "101",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "443", "To" : "443"}
+      }
+    },
+
+    "OutBoundResponsePortsNetworkAclEntry1" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "NetworkAcl1"},
+        "RuleNumber" : "102",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "1024", "To" : "65535"}
+      }
+    },
+
+    "SubnetNetworkAclAssociation1" : {
+      "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "Subnet1" },
+        "NetworkAclId" : { "Ref" : "NetworkAcl1" }
+      }
+    },
+
+    "SSPLsecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable SSH",
+        "VpcId" : { "Ref" : "VPC1" },
+        "SecurityGroupIngress" : [ {
+          "IpProtocol" : "tcp",
+          "FromPort" : "22",
+          "ToPort" : "22",
+          "CidrIp" : { "Ref" : "SSHLocation"}
+        },
+        {
+        "IpProtocol" : "icmp",
+        "FromPort" : "8",
+        "ToPort" : "-1",
+        "CidrIp" : { "Ref" : "SSHLocation"}
+        },
+
+        {
+        "IpProtocol" : "-1",
+        "FromPort" : "-1",
+        "ToPort" : "-1",
+        "CidrIp" : "10.230.0.0/8"
+        }
+
+        ]
+      }
+    },
+
+    "UbuntuCloudSandbox" : {
+      "Type" : "AWS::EC2::Instance",
+      "Condition" :  "RunSandbox" ,
+      "Properties" : {
+        "InstanceInitiatedShutdownBehavior": "terminate",
+        "KeyName" : { "Ref" : "KeyName" },
+        "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
+        "ImageId" : "ami-0387b0abd550863dc",
+        "InstanceType": "t3.xlarge",
+        "Tags" : [
+                {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
+                {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+                {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+                {"Key" : "BusinessUnit", "Value" : "ESG"},
+                {"Key" : "CostCentre", "Value" : "GB11601200"},
+                {"Key" : "Project", "Value" : "XDR"},
+                {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+                {"Key" : "BaseAmi", "Value" : "ami-0e4bf8f7a38e2b5c4"},
+                {"Key" : "Environment", "Value" : "development"},
+                {"Key" : "AutomationExcluded", "Value" : "true"},
+                {"Key" : "SecurityClassification", "Value" : "none low"},
+                {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+                {"Key" : "TestImage", "Value" : "false"},
+                {"Key" : "BuildName", "Value" : { "Ref" : "BuildName" } },
+                {"Key" : "Codeline", "Value" : { "Ref" : "Codeline" } },
+                {"Key" : "Name", "Value" : "UbuntuCloudSandbox"}
+        ],
+        "NetworkInterfaces" : [{
+          "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
+          "AssociatePublicIpAddress" : "true",
+          "PrivateIpAddress"         : { "Ref" : "cloudIpAddress"},
+          "DeviceIndex"              : "0",
+          "DeleteOnTermination"      : "true",
+          "SubnetId"                 : { "Ref" : "Subnet1" }
+        }],
+        "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
+            "#!/bin/bash\n",
+            "echo 'Starting AWS Cloud Sandbox' >> /tmp/cloudFormationInit.log\n",
+            "echo `date` >> /tmp/cloudFormationInit.log\n",
+            "echo 'My stack name is : ", { "Ref": "AWS::StackName" }, ".' >> /tmp/cloudFormationInit.log\n",
+            "sudo hostname sandbox.sophos\n",
+            "chmod a+w /tmp/cloudFormationInit.log\n",
+            "/home/ubuntu/novaScripts/start.sh > /tmp/cloudFormationInit.log  2>&1\n",
+            "sleep 1260\n",
+            "while aws s3 ls s3://sspl-testbucket/flags/", { "Ref": "AWS::StackName" }, "/ | grep flag >/dev/null; do echo 'First flag check: not shutting down yet...' >> /tmp/cloudFormationInit.log; sleep 60; done\n",
+            "while aws s3 ls s3://sspl-testbucket/flags/", { "Ref": "AWS::StackName" }, "/ | grep flag >/dev/null; do echo 'Second flag check: not shutting down yet...' >> /tmp/cloudFormationInit.log; sleep 60; done\n",
+            "echo '2 flag checks complete, no flags present so shutting down sandbox' >> /tmp/cloudFormationInit.log\n",
+            "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "--region eu-west-1\n"
+        ]]}}
+      }
+    },
+
+    "RegressionTestRole": {
+       "Type": "AWS::IAM::Role",
+       "Properties": {
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [ {
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": [ "ec2.amazonaws.com" ]
+                },
+                "Action": [ "sts:AssumeRole"]
+            }]
+          },
+          "Path": "/sophoslinux/regression/",
+          "Policies": [
+              {
+                "PolicyName": "getFromS3",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Action": "s3:ListAllMyBuckets",
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    },
+                    {
+                      "Action": "s3:ListBucket",
+                      "Effect": "Allow",
+                      "Resource": "arn:aws:s3:::sspl-testbucket"
+                    },
+                    {
+                      "Action": "s3:GetObject",
+                      "Effect": "Allow",
+                      "Resource": "arn:aws:s3:::sspl-testbucket/*"
+                    }
+                  ]
+                }
+              },
+              {
+                "PolicyName": "writeToS3",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": {
+                      "Action": [
+                        "s3:PutObject",
+                        "s3:DeleteObject"
+                        ],
+                      "Effect": "Allow",
+                      "Resource": [
+                        "arn:aws:s3:::sspl-testbucket/test-results/*"
+                        ]
+                  }
+                }
+              },
+              {
+                "PolicyName": "rebootInstance",
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": {
+                      "Action": "ec2:RebootInstances",
+                      "Effect": "Allow",
+                      "Resource": "*"
+                  }
+                }
+              }
+          ]
+
+        }
+    },
+    "RegressionTestInstanceProfile": {
+        "Type": "AWS::IAM::InstanceProfile",
+        "Properties": {
+            "Path": "/sophoslinux/regression/",
+            "Roles": [ { "Ref": "RegressionTestRole" }]
+        }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "ubuntu1804minimal" : {
+    "Type" : "AWS::EC2::Instance",
+    "Condition" :  "RunUbuntu1804Minimal" ,
+    "Properties" : {
+      "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
+      "KeyName" : { "Ref" : "KeyName" },
+      "ImageId" : "ami-0ba596e65f0544e86",
+      "InstanceType": "c4.large",
+      "InstanceInitiatedShutdownBehavior": "terminate",
+      "Tags" : [
+        {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
+        {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
+        {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+        {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+        {"Key" : "BusinessUnit", "Value" : "ESG"},
+        {"Key" : "CostCentre", "Value" : "GB11601200"},
+        {"Key" : "Project", "Value" : "XDR"},
+        {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+        {"Key" : "BaseAmi", "Value" : "ami-0240c07b7fc35ae0f"},
+        {"Key" : "Environment", "Value" : "development"},
+        {"Key" : "AutomationExcluded", "Value" : "true"},
+        {"Key" : "SecurityClassification", "Value" : "none low"},
+        {"Key" : "TestImage", "Value" : "true"},
+        {"Key" : "Codeline", "Value" : "SSPL" },
+        {"Key" : "Branch", "Value" : "SSPL" },
+        {"Key" : "Name", "Value" : "ubuntu1804minimal" },
+        {"Key" : "RootStackname", "Value" : "SSPL" }
+      ],
+      "NetworkInterfaces" : [{
+        "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
+        "AssociatePublicIpAddress" : "true",
+        "DeviceIndex"              : "0",
+        "DeleteOnTermination"      : "true",
+        "SubnetId"                 : { "Ref" : "Subnet1" }
+      }],
+      "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
+        "#!/bin/bash\n",
+        "echo 'Testing ", {"Ref": "BuildName"},"'\n",
+        "echo 'Setting up the system for tests ...' >>/tmp/cloudFormationInit.log\n",
+        "export HOSTNAME=@HOSTNAMEGOESHERE@", "\n",
+        "hostnamectl set-hostname ${HOSTNAME}\n",
+        "hostname ${HOSTNAME}\n",
+        "echo $'#cloud-config\nhostname: '${HOSTNAME} $'\nfqdn: '${HOSTNAME} >/etc/cloud/cloud.cfg.d/99_hostname.cfg\n",
+        "sed -i 's/127.0.0.1/127.0.0.1 '$HOSTNAME'/' /etc/hosts\n",
+        "apt-get update 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "update-alternatives --set python3 /usr/local/bin/python3.7\n",
+        "apt-get -y install python-pip python3-pip libcap2-bin auditd 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "apt-get -y install ec2-instance-connect epel-release make gcc gcc-build python3-dev nfs-utils kernel-devel fuse-libs gdb rpm-build cifs-utils wget attr psmisc sshpass gcc-c++ samba 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "pip3 install --upgrade awscli robotframework psutil pytest-html pyzmq zmq protobuf paramiko watchdog cryptography==3.3.1 python-dateutil requests enum34 packaging Cython pycapnp 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "export OVERRIDE_CLOUD_IP=", {"Ref": "cloudIpAddress"}, "\n",
+        "echo ", {"Ref": "cloudIpAddress"}, " >/root/OVERRIDE_CLOUD_IP\n",
+        "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
+        "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
+        "aws s3 cp s3://sspl-testbucket/sspl/sspl-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
+        "mkdir -p /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
+        "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
+        "mkdir -p '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
+        "cp /opt/sspl/sav* '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
+        "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
+        "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
+        "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
+        "poweroff\n"
+      ]]}}
+    }
+  }
+}

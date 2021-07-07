@@ -322,39 +322,28 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         # Non-unified build
         av_build = context.artifact.build()
 
+    test_environments = {'ubuntu1804_machine': 'ubuntu1804_x64_server_en_us',
+                         'ubuntu2004_machine': 'ubuntu2004_x64_server_en_us',
+                         'centos77_machine': 'centos77_x64_server_en_us',
+                         'centos82_machine': 'centos82_x64_server_en_us'}
     if run_tests:
         with stage.parallel('testing'):
             test_inputs = get_inputs(context, av_build)
-            ubuntu1804_machine_component = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-            ubuntu2004_machine_component = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-            centos7_machine_component = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-            centos8_machine_component = tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-
-            ubuntu1804_machine_product = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-            ubuntu2004_machine_product = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-            centos7_machine_product = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-            centos8_machine_product = tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-
-            ubuntu1804_machine_integration = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-            ubuntu2004_machine_integration = tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-            centos7_machine_integration = tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-            centos8_machine_integration = tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+            component_machines = {}
+            product_machines = {}
+            integration_machines = {}
+            for environment in test_environments:
+                component_machines[environment + '_component'] = tap.Machine(test_environments[environment], inputs=test_inputs, platform=tap.Platform.Linux)
+                product_machines[environment + '_product'] = tap.Machine(test_environments[environment], inputs=test_inputs, platform=tap.Platform.Linux)
+                integration_machines[environment + '_integration'] = tap.Machine(test_environments[environment], inputs=test_inputs, platform=tap.Platform.Linux)
 
             with stage.parallel('TA'):
-                stage.task(task_name='ubuntu1804_machine_component', func=pytest_task, machine=ubuntu1804_machine_component)
-                stage.task(task_name='ubuntu2004_machine_component', func=pytest_task, machine=ubuntu2004_machine_component)
-                stage.task(task_name='centos77_machine_component',   func=pytest_task, machine=centos7_machine_component)
-                stage.task(task_name='centos82_machine_component',   func=pytest_task, machine=centos8_machine_component)
-
-                stage.task(task_name='ubuntu1804_x64_product', func=robot_task_product, machine=ubuntu1804_machine_product)
-                stage.task(task_name='ubuntu2004_x64_product', func=robot_task_product, machine=ubuntu2004_machine_product)
-                stage.task(task_name='centos77_x64_product',   func=robot_task_product, machine=centos7_machine_product)
-                stage.task(task_name='centos82_x64_product',   func=robot_task_product, machine=centos8_machine_product)
-
-                stage.task(task_name='ubuntu1804_machine_integration', func=robot_task_integration, machine=ubuntu1804_machine_integration)
-                stage.task(task_name='ubuntu2004_machine_integration', func=robot_task_integration, machine=ubuntu2004_machine_integration)
-                stage.task(task_name='centos77_machine_integration',   func=robot_task_integration, machine=centos7_machine_integration)
-                stage.task(task_name='centos82_machine_integration',   func=robot_task_integration, machine=centos8_machine_integration)
+                for machine in component_machines:
+                    stage.task(task_name=machine, func=pytest_task, machine=component_machines[machine])
+                for machine in product_machines:
+                    stage.task(task_name=machine, func=robot_task_product, machine=product_machines[machine])
+                for machine in integration_machines:
+                    stage.task(task_name=machine, func=robot_task_integration, machine=integration_machines[machine])
 
             if do_coverage:
                 with stage.parallel('coverage'):
