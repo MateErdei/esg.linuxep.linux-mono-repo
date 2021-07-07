@@ -335,13 +335,13 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
             with stage.parallel('TA'):
                 for (name, machine) in get_test_machines(test_inputs):
-                    stage.task(tast_name=name+"_component", func=pytest_task, machine=machine)
+                    stage.task(task_name=name+"_component", func=pytest_task, machine=machine)
 
                 for (name, machine) in get_test_machines(test_inputs):
-                    stage.task(tast_name=name+"_product", func=robot_task_product, machine=machine)
+                    stage.task(task_name=name+"_product", func=robot_task_product, machine=machine)
 
                 for (name, machine) in get_test_machines(test_inputs):
-                    stage.task(tast_name=name+"_integration", func=robot_task_integration, machine=machine)
+                    stage.task(task_name=name+"_integration", func=robot_task_integration, machine=machine)
 
             if do_coverage:
                 with stage.parallel('coverage'):
