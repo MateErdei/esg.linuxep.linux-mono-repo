@@ -1,5 +1,6 @@
 import tap.v1 as tap
 import xml.etree.ElementTree as ET
+from tap._pipeline.tasks import ArtisanInput
 
 def get_package_version(package_path):
     """ Read version from package.xml """
@@ -42,8 +43,7 @@ def get_inputs(context: tap.PipelineContext, template_plugin_build: ArtisanInput
     if mode == 'release':
         test_inputs = dict(
             test_scripts = context.artifact.from_folder('./TA'),
-            template_plugin_sdds = template_plugin_build / 'TemplatePlugin/SDDS-COMPONENT',
-            base_sdds = template_plugin_build / 'base/base-sdds'
+            template_plugin_sdds = template_plugin_build / 'template/SDDS-COMPONENT',
         )
     return test_inputs
 
