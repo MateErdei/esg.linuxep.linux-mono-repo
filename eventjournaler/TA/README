@@ -6,20 +6,20 @@ In order to run these tests in tap do:
  1) activate the tap environment:
     source tap/bin/activate
  2) tap run event_journaler.integration --debug-loop
+---todo
 
 In order to run them in vagrant box:
     vagrant up
     vagrant ssh
     sudo mkdir -p /opt/test/inputs
-    sudo mkdir -p /opt/test/inputs/event_journaler/
-    sudo ln -s /vagrant/sspl-plugin-event-journaler/output/SDDS-COMPONENT /opt/test/inputs/event_journaler_sdds
-    sudo ln -s /vagrant/sspl-plugin-event-journaler/output/manualTools  /opt/test/inputs/manual_tools
+    sudo mkdir -p /opt/test/inputs/template_plugin/
+    sudo ln -s /vagrant/sspl-plugin-template/output/SDDS-COMPONENT /opt/test/inputs/template_plugin_sdds
     sudo  rm /opt/test/inputs/test_scripts
-    sudo ln -s /vagrant/sspl-plugin-event-journaler/TA  /opt/test/inputs/test_scripts
+    sudo ln -s /vagrant/sspl-plugin-template/TA  /opt/test/inputs/test_scripts
     sudo cp -r /vagrant/everest-base/output/SDDS-COMPONENT /opt/test/inputs/base_sdds
     sudo apt-get -y install python3.7 python3-pip
     sudo -H python3 -m pip install pyzmq protobuf pytest-html robotframework
-    cd /vagrant/sspl-plugin-event-journaler/TA
+    cd /vagrant/sspl-plugin-template/TA
     sudo python3 -m robot RobotTests/
 
 

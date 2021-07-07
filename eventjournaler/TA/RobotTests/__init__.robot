@@ -13,9 +13,8 @@ Global Setup Tasks
     Set Environment Variable  SOPHOS_INSTALL        ${SOPHOS_INSTALL}
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
     Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_INPUT_PATH}/test_scripts/RobotTests
-    Set Global Variable  ${COMPONENT_NAME}          eventjournaler
-    Set Global Variable  ${COMPONENT_SDDS}          ${TEST_INPUT_PATH}/event_journaler_sdds
-    Set Global Variable  ${EVENT_PUB_SUB_TOOL}      ${TEST_INPUT_PATH}/manual_tools/EventPubSub
+    Set Global Variable  ${COMPONENT_NAME}          TemplatePlugin
+    Set Global Variable  ${COMPONENT_SDDS}          ${TEST_INPUT_PATH}/template_plugin_sdds
     Set Global Variable  ${COMPONENT_ROOT_PATH}     ${SOPHOS_INSTALL}/plugins/${COMPONENT_NAME}
     #Set Global Variable  ${COMPONENT_BIN_PATH}      ${COMPONENT_ROOT_PATH}/bin/${COMPONENT_NAME}
     #Set Global variable  ${COMPONENT_LIB64_DIR}     ${COMPONENT_ROOT_PATH}/lib64
