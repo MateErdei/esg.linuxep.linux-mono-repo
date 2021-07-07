@@ -51,7 +51,7 @@ EDR Plugin Runs Scheduled Queries And Reports Telemetry
     ${scheduled_query_log} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
     ${number_of_bad_queries} =  Set Variable  ${scheduled_query_log.count("bad-query")}
     Should Be True  ${number_of_bad_queries} > 0
-    Should Be Equal As Integers  ${number_of_bad_queries}  1
+    Should Be Equal As Integers  ${number_of_bad_queries}  ${query_error_count}
 
     List Should Contain Value  ${scheduled_queries}  endpoint_id
     ${endpoint_id_json} =  Set Variable  ${telemetry_json['scheduled-queries']['endpoint_id']}
