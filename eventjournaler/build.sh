@@ -39,8 +39,8 @@ UNITTEST=1
 export ENABLE_STRIP=1
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
-COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
-COV_HTML_BASE=sspl-plugin-audit-unittest
+COVFILE="/tmp/root/sspl-plugin-template-unit.cov"
+COV_HTML_BASE=sspl-plugin-template-unittest
 VALGRIND=0
 GOOGLETESTTAR=googletest-release-1.8.1
 
@@ -121,8 +121,6 @@ do
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
-            BULLSEYE_UPLOAD=1
-            UNITTEST=1
             ;;
         --bullseye-upload-unittest|--bullseye-upload)
             BULLSEYE_UPLOAD=1
@@ -312,15 +310,6 @@ function build()
     if [[ -d build64/symbols ]]
     then
         cp -a build64/symbols output/
-    fi
-
-    if [[ ${BULLSEYE_UPLOAD} == 1 ]]
-    then
-        ## Process bullseye output
-        ## upload unit tests
-        cd $BASE
-        export BASE
-        bash -x build/bullseye/uploadResults.sh || exit $?
     fi
 
     echo "Build Successful"

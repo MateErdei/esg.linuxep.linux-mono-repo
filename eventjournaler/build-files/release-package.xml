@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-event-journaler-plugin" version="1.0.0">
+<package name="sspl-template-plugin" version="1.0.0">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -7,10 +7,9 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2021-28" build-id="20210702152935-ed995af73c515608b30b02507d103cdd39431ea6-ntkuxd"/>
             <development-version branch="develop" />
-            <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
-            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
+            <include artifact-path="sspl-base/pluginapi" dest-dir="./input" />
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="./input/base-sdds"/>
         </build-asset>
 
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
@@ -26,32 +25,43 @@
     <buildcommands>
         <command mode="release">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name eventjournaler</args>
+            <args>./build.sh --clean --name sspl-template-plugin</args>
             <workingdir>.</workingdir>
         </command>
         <command mode="999">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name eventjournaler --999 --no-unit-test</args>
+            <args>./build.sh --clean --name sspl-template-plugin --999 --no-unit-test</args>
             <workingdir>.</workingdir>
         </command>
         <command mode="060">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name eventjournaler --060 --no-unit-test</args>
+            <args>./build.sh --clean --name sspl-template-plugin --060 --no-unit-test</args>
             <workingdir>.</workingdir>
         </command>
+        <command mode="coverage">
+            <program>/bin/bash</program>
+            <args>./build.sh --clean --name sspl-template-plugin --no-unit-test --bullseye</args>
+        <workingdir>.</workingdir>
+    </command>
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
-        <release-asset artifact-path="eventjournaler/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release" />
-        <release-asset artifact-path="eventjournaler/manualTools" source-dir="output/manualTools" mode="release" />
-        <release-asset artifact-path="eventjournaler-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999" />
-        <release-asset artifact-path="eventjournaler-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060" />
+        <build-asset artifact-path="sspl-plugin-template-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
+        <build-asset artifact-path="sspl-plugin-template-coverage/symbols" source-dir="output/symbols" mode="coverage"/>
+        <build-asset artifact-path="sspl-plugin-template-coverage/build_log" source-dir="output" mode="coverage">
+            <include glob="./build.log" />
+        </build-asset>
+        <build-asset artifact-path="sspl-plugin-template-coverage/covfile" source-dir="output/" mode="coverage">
+            <include glob="./*.cov"/>
+        </build-asset>
+        <release-asset artifact-path="template/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release" />
+        <release-asset artifact-path="template-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999" />
+        <release-asset artifact-path="template-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060" />
         <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
-        <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
         <build-asset artifact-path="build_log" source-dir="output" mode="release">
             <include glob="./build.log" />
         </build-asset>
-        <destdir>sspl-plugin-event-journaler</destdir>
+        <destdir>sspl-template-plugin</destdir>
         <publishbranches>develop,release,feature</publishbranches>
     </publish>
 </package>
