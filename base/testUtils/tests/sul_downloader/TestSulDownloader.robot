@@ -1681,6 +1681,10 @@ Test Suldownloader Can Download A Component Suite And Component From A Single Wa
 
     Stop Update Server
 
+    ${product_list} =   Create List  ${BASE_RIGID_NAME}  ${BASE_RIGID_NAME}2  ${BASE_RIGID_NAME}3
+    Check Download Report Contains Minimum Products  report_file=${tmpdir}/update_report.json  specified_product_list=${product_list}
+
+
 Test Suldownloader Can Download A Component Suite And Component From A Multiple Warehouses
     Create Product File   helloworld   ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
     Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}2

@@ -4,6 +4,9 @@
 
 import glob
 import os
+import shutil
+import subprocess
+
 from packaging import version
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
@@ -168,3 +171,12 @@ def only_subscriptions_in_policy_are_in_alc_status_subscriptions():
 
     if policy_subscriptions != status_subscriptions:
         raise AssertionError(f"{policy_subscriptions} != {status_subscriptions}")
+
+def copy_files_and_folders_from_within_source_folder(src, dest, recreate_dest=0):
+    if recreate_dest == 1 and os.path.exists(dest):
+        shutil.rmtree(dest)
+
+    if not os.path.isdir(dest):
+        os.makedirs(dest)
+
+    subprocess.call("cp -r {}/* {}".format(src, dest), shell=True)

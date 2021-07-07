@@ -28,6 +28,12 @@ Require Installed
     ${result}=  SSPL Is Installed
     Run Keyword If   ${result} != True  Require Fresh Install
 
+Run Specific Installer Directly
+    [Arguments]    ${installer_path}
+    Run Process  chmod  +x  ${installer_path}
+    ${result} =  Run Process  ${installer_path}
+    Should Be Equal As Strings  ${result.rc}  0
+
 Kill Sophos Processes That Arent Watchdog
     ${result} =  Run Process   pgrep   -f   ${MANAGEMENT_AGENT}
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
@@ -130,7 +136,7 @@ Display All SSPL Plugins Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/liveresponse -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/eventjournaler | xargs ls -l  shell=True
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/eventjournaler -not -type d | grep -v lenses | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
 Display List Files Dash L in Directory 
@@ -230,19 +236,22 @@ Verify Sophos Users And Sophos Groups Are Created
     Verify User Created   sophos-spl-local
     Verify User Created   sophos-spl-updatescheduler
 
-Should Not Have A Given Message In Journalctl Since Certain Time
-    [Arguments]  ${message}  ${time}
-    ${result} =  Run Process  journalctl -o verbose --since "${time}"  shell=True  timeout=20
-    Log  ${result.stdout}
-    Should Not Contain    ${result.stdout}    ${message}
+Combine MTR Develop Component Suite
+    ${source} =   Set Variable  /tmp/system-product-test-inputs/sspl-mdr-componentsuite
+    ${dest} =     Set Variable  /tmp/system-product-test-inputs/sspl-mdr-componentsuite-sdds
+    Combine MTR Component Suite  ${source}  ${dest}
 
-Should Have A Given Message In Journalctl Since Certain Time
-    [Arguments]  ${message}  ${time}
-    ${result} =  Run Process  journalctl -o verbose --since "${time}"  shell=True  timeout=20
-    Log  ${result.stdout}
-    Should Contain    ${result.stdout}    ${message}
+Combine MTR 0-6-0 Component Suite
+    ${source} =   Set Variable  /tmp/system-product-test-inputs/sspl-mdr-componentsuite-0-6-0
+    ${dest} =     Set Variable  /tmp/system-product-test-inputs/sspl-mdr-componentsuite-0-6-0-sdds
+    Combine MTR Component Suite  ${source}  ${dest}
 
-Should Have Set KillMode To Mixed
-    ${result}=  Run Process  systemctl show sophos-spl | grep KillMode  shell=True
-    Log  ${result.stdout}
-    Should Contain  ${result.stdout}  KillMode=mixed
+Combine MTR Component Suite
+     [Arguments]  ${source}  ${dest}
+
+     copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-DBOS-COMPONENT   ${dest}  1
+     copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-MDR-COMPONENT  ${dest}
+     copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-MDR-COMPONENT-SUITE  ${dest}
+     copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-OSQUERY-COMPONENT  ${dest}
+
+

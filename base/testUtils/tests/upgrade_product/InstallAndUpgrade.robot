@@ -204,22 +204,12 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     Check Update Reports Have Been Processed
 
 VersionCopy File in the Wrong Location Is Removed
-    [Timeout]  10 minutes
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
-
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
-    Override LogConf File as Global Level  DEBUG
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
-
-    Check EAP Release Installed Correctly
+    [Tags]  INSTALLER
+    ${Root_Install_Location} =  Set Variable   /tmp/system-product-test-inputs
+    Combine MTR 0-6-0 Component Suite
+    Combine MTR Develop Component Suite
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
 
     #fake the file being copied to the wrong location
     Create Directory   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
@@ -227,24 +217,19 @@ VersionCopy File in the Wrong Location Is Removed
     ${result} =  Run Process  ln  -sf  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy
     Should Be Equal As Integers     ${result.rc}    0
 
+    # replace version files to prove installer updated product as expected.
+
+    Create File  ${InstalledBaseVersionFile}        PRODUCT_VERSION = 0.0.0.9999
+    Create File  ${InstalledMDRPluginVersionFile}   PRODUCT_VERSION = 0.0.0.999
+
+    Log File  ${InstalledBaseVersionFile}
+    Log FIle  ${InstalledMDRPluginVersionFile}
+
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
 
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
-
-    Mark Watchdog Log
-    Mark Managementagent Log
-
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -395,73 +380,33 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
 
 Verify Upgrading Will Remove Files Which Are No Longer Required
-    [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-    [Timeout]   10 minutes
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
-
-    Should Not Exist    ${SOPHOS_INSTALL}
-
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
-
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
+    [Tags]      INSTALLER
+    ${Root_Install_Location} =  Set Variable   /tmp/system-product-test-inputs
+    Combine MTR 0-6-0 Component Suite
+    Combine MTR Develop Component Suite
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
     Check Files Before Upgrade
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
-
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...  320 secs
-    ...  5 secs
-    ...  Check Files After Upgrade
-
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
+    Check Files After Upgrade
 
 
 Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
-    [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-    [Timeout]   10 minutes
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
-
-    Should Not Exist    ${SOPHOS_INSTALL}
-
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    # Swap old manifest files around, this will make the cleanup process mark files for delete which should not be
-    # deleted, because the files are outside of the components realm
-
+    [Tags]  INSTALLER
+    ${Root_Install_Location} =  Set Variable   /tmp/system-product-test-inputs
+    Combine MTR 0-6-0 Component Suite
+    Combine MTR Develop Component Suite
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
     Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
     Move File  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat  /tmp/MDR-manifest.dat
 
     Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
     Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
 
     # ensure that the list of files to remove contains files which are outside of the components realm
     ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
@@ -479,24 +424,13 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
 
 
 Version Copy Versions All Changed Files When Upgrading
-    [Tags]      INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-    [Documentation]  LINUXDAR-771 - check versioned copy works as expected.
+    [Tags]  INSTALLER
+    ${Root_Install_Location} =  Set Variable   /tmp/system-product-test-inputs
+    Combine MTR 0-6-0 Component Suite
+    Combine MTR Develop Component Suite
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
-
-    # Wrapped in a wait to keep trying for a bit if ostia is intermittent
-    Wait Until Keyword Succeeds
-    ...  3 mins
-    ...  30 secs
-    ...  Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
-
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   5 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Check EAP Release Installed Correctly
     ${BaseReleaseVersion}=  Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion}=  Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
 
@@ -506,41 +440,9 @@ Version Copy Versions All Changed Files When Upgrading
     ${BeforeManifestBase}=  Get File  ${BaseManifestPath}
     ${BeforeManifestPluginMdr}=  Get File  ${MTRPluginManifestPath}
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
 
-    Mark Watchdog Log
-    Mark Managementagent Log
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
-
-
-    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-    # FIXME LINUXDAR-2136 remove this line
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to connect to the warehouse
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
-    #TODO LINUXDAR-2972 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-
-    Check Mtr Reconnects To Management Agent After Upgrade
-
-    Check for Management Agent Failing To Send Message To MTR And Check Recovery
-
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
-
-    Check Current Release Installed Correctly
 
     ${BaseDevVersion} =  Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =  Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -561,77 +463,6 @@ Version Copy Versions All Changed Files When Upgrading
 
     Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestBase}       ${AfterManifestBase}        ${combinedBaseChanges}
     Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestPluginMdr}  ${AfterManifestPluginMdr}   ${combinedPluginMdrChanges}
-
-
-Update Will Be Forced When Feature List Changes Without Unexpected Errors
-    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUT_Without_SDU_Policy}
-
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUT_Without_SDU_Policy}
-
-
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
-
-    Simulate Previous Scheduled Update Success
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseOnlyVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseOnlyVUTPolicy}
-
-    # Update should be automatically invoke due to policy
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
-
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
-
-
-Update Will Be Forced When Subscription List Changes Without Unexpected Errors
-    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
-
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
-
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
-
-    Simulate Previous Scheduled Update Success
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
-
-     # Update should be automatically invoke due to policy
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
-
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
-    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
 
 Ensure Supplement Updates Only Perform A Supplement Update
     ## This can't run against real (remote) warehouses, since it modifies the warehouses to prevent product updates from working
@@ -674,22 +505,6 @@ Ensure Supplement Updates Only Perform A Supplement Update
 
     Check Log Does Not Contain  Doing product and supplement update   ${SULDownloaderLog}  SulDownloaderLog
     Check Log Does Not Contain  Forcing product update due previous update failure or change in configuration   ${SULDownloaderLog}  SulDownloaderLog
-
-Ensure Download Report Content Contains Sub Component Entries
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndEdrVUTPolicy}
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndEdrVUTPolicy}
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Check Current Release Installed Correctly
-    # Make sure that the minimum components are listed.
-    # This will ensure sub components are listed in the report when a sub component has it's own installer.
-    Check Download Report Contains Minimum Products
 
 Test That Only Subscriptions Appear As Subscriptions In ALC Status File
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
@@ -1007,7 +822,6 @@ Check Files After Upgrade
     File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
-    File Should Exist   ${UPDATE_CONFIG}
     File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
 
 Component Version has changed

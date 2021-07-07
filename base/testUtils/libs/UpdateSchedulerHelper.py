@@ -373,10 +373,16 @@ class UpdateSchedulerHelper(object):
         if report["errorDescription"] != error_description:
             raise AssertionError("errorDescription was not: {} but was: {}".format(error_description, report["errorDescription"]))
 
-    def check_download_report_contains_minimum_products(self):
-        report = self.get_latest_report_dict()
+    def check_download_report_contains_minimum_products(self, report_file=None, specified_product_list=None):
+        if report_file:
+            report = self.get_specified_report_dict(report_file)
+        else:
+            report = self.get_latest_report_dict()
         # The list of products that will always being installed, as part of base component suite.
-        minimum_product_list =['ServerProtectionLinux-Base', "ServerProtectionLinux-Plugin-liveresponse", "ServerProtectionLinux-Base-component"]
+        if specified_product_list:
+            minimum_product_list = specified_product_list
+        else:
+            minimum_product_list =['ServerProtectionLinux-Base', "ServerProtectionLinux-Plugin-liveresponse", "ServerProtectionLinux-Base-component"]
         expected_count = len(minimum_product_list)
         actual_count = 0;
 
@@ -388,6 +394,10 @@ class UpdateSchedulerHelper(object):
 
         if actual_count != expected_count:
             raise AssertionError("Download report does not contain the minimum set of expected products")
+
+    def get_specified_report_dict(self, report_file):
+        with open(report_file, "r") as report:
+            return json.load(report)
 
     def get_latest_report_dict(self):
         newest = self.get_latest_report_path()
