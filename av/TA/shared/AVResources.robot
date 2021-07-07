@@ -440,7 +440,9 @@ Install AV Directly from SDDS
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\noutput: \n${log_contents}"
 
 Require Plugin Installed and Running
+    [Arguments]  ${LogLevel}=DEBUG
     Install Base if not installed
+    Set Log Level  ${LogLevel}
     Install AV if not installed
     Start AV Plugin if not running
     ${pid} =  Start Sophos Threat Detector if not running
@@ -727,7 +729,7 @@ Record AV Plugin PID
     [Return]   ${PID}
 
 Record Sophos Threat Detector PID
-    ${PID} =  ProcessUtils.pidof or fail  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    ${PID} =  ProcessUtils.wait for pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${5}
     [Return]   ${PID}
 
 Check AV Plugin has same PID

@@ -25,7 +25,6 @@ ${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 *** Test Cases ***
 Test Global Rep works in chroot
     run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
-    run on failure  dump log   ${THREAT_DETECTOR_LOG_PATH}
     Restart sophos_threat_detector and mark logs
     scan GR test file
     check sophos_threat_dector log for successful global rep lookup
@@ -405,6 +404,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
 SUSI Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
     Create Temporary eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
+    register on fail  dump log  ${AV_LOG_PATH}
 
     Mark Susi Debug Log
 
@@ -473,10 +473,6 @@ restart sophos_threat_detector
     Log  Restarted PID: ${END_SOPHOS_THREAT_DETECTOR_PID}
     Should Not Be Equal As Integers  ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}  ${END_SOPHOS_THREAT_DETECTOR_PID}
 
-
-set sophos_threat_detector log level
-    Set Log Level  DEBUG
-
 scan GR test file
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/gui.exe
     run keyword if  ${rc} != ${0}  Log  ${output}
@@ -487,14 +483,13 @@ check sophos_threat_dector log for successful global rep lookup
 
 AVSophosThreatDetector Suite Setup
     Log  AVSophosThreatDetector Suite Setup
-    Require Plugin Installed and Running
-    set sophos_threat_detector log level
+    Require Plugin Installed and Running  DEBUG
 
 AVSophosThreatDetector Suite TearDown
     Log  AVSophosThreatDetector Suite TearDown
 
 AVSophosThreatDetector Test Setup
-    Require Plugin Installed and Running
+    Require Plugin Installed and Running  DEBUG
     Mark AV Log
     register on fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
