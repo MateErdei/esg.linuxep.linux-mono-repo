@@ -38,6 +38,8 @@ def get_platform():
                 logger.info(f"/etc/redhat-release contains: {contents}")
                 if "CentOS Stream release 8" in contents:
                     return "centos"
+                if "CentOS Linux release 8" in contents:
+                    return "centos"
         except FileNotFoundError:
             pass
     return "unknown"
