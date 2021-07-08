@@ -384,10 +384,8 @@ Avscanner runs as non-root
          ...  check threat event received by base  1  naugthyEicarThreatReportAsNobody
 
 AV Plugin Reports encoded eicars To Base
-   [Teardown]  Run Keywords      Remove Directory  /tmp_test/encoded_eicars  true
-   ...         AND               AV And Base Teardown
-
    Create Encoded Eicars
+   register cleanup  Remove Directory  /tmp_test/encoded_eicars  true
 
    ${expected_count} =  Count Eicars in Directory  /tmp_test/encoded_eicars/
    Should Be True  ${expected_count} > 0
@@ -399,9 +397,10 @@ AV Plugin Reports encoded eicars To Base
    #make sure base has generated all events before checking
    Wait Until Keyword Succeeds
          ...  60 secs
-         ...  3 secs
+         ...  5 secs
          ...  check_number_of_events_matches  ${expected_count}
 
+   check_all_eicars_are_found  /tmp_test/encoded_eicars/
    check_multiple_different_threat_events  ${expected_count}   encoded_eicars
 
    Empty Directory  ${MCS_PATH}/event/

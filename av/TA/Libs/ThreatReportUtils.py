@@ -1,5 +1,10 @@
-import sys
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (C) 2021 Sophos Plc, Oxford, England.
+# All rights reserved.
+
 import os
+import xml.dom.minidom
 
 try:
     from robot.api import logger
@@ -68,7 +73,7 @@ GL_EXPECTED_CONTENTS = {
         '''LATIN1-FRENCH-à ta santé âge-VIRUS (Latin1)''',
         '''COM1" ''',
         '''COM2" ''',
-        '''\[]:;|=.*?. "''',
+        r'''\[]:;|=.*?. "''',
         '''NUL" ''',
         '''LPT2" ''',
         '''LPT1" ''',
@@ -172,13 +177,20 @@ def check_multiple_different_threat_events(number_of_expected_events, event_type
     for s in expected_strings:
         expected_map[s] = 0
 
+    no_matches = []
+
     for filename in events_list:
         with open(os.path.join(GL_MCS_EVENTS_DIRECTORY, filename), "r") as file:
             contents = file.read()
-            for line in contents.splitlines():
-                for xml_part in expected_strings:
-                    if xml_part in line:
-                        expected_map[xml_part] += 1
+
+        found_match = False
+        for line in contents.splitlines():
+            for xml_part in expected_strings:
+                if xml_part in line:
+                    expected_map[xml_part] += 1
+                    found_match = True
+        if not found_match:
+            no_matches.append(filename)
 
     # Work out which strings haven't been matched already
     unmatched_strings = []
@@ -187,7 +199,77 @@ def check_multiple_different_threat_events(number_of_expected_events, event_type
             unmatched_strings.append(s)
 
     if len(unmatched_strings) > 0:
-        logger.error(f"Missing string expecting: {unmatched_strings}")
+        for unmatched in unmatched_strings:
+            logger.error(f"Failed to find: {unmatched}")
+
+        if len(no_matches) == 0:
+            logger.error("All %d files matched something however" % len(events_list))
+
+        for filename in (no_matches or events_list):
+            with open(os.path.join(GL_MCS_EVENTS_DIRECTORY, filename), "r") as file:
+                contents = file.read()
+            logger.info(f"{filename}: {contents}")
+
         raise Exception(f"Missing string expecting: {unmatched_strings}")
 
     return 1
+
+
+def convert_to_escaped_unicode(p):
+    try:
+        return p.decode("UTF-8")
+    except UnicodeDecodeError:
+        pass
+
+    for encoding in ("EUC-JP", "SJIS", "LATIN1"):
+        try:
+            return p.decode(encoding) + " (" + encoding + ")"
+        except UnicodeDecodeError:
+            pass
+
+    return p
+
+
+def find_eicars(eicar_directory):
+    ret = []
+    for base, _, files in os.walk(eicar_directory):
+        ret += [ convert_to_escaped_unicode(os.path.join(base, f)) for f in files ]
+    return ret
+
+
+def get_filepath_notification_event(p):
+    dom = xml.dom.minidom.parse(p)
+    try:
+
+        items = dom.getElementsByTagName("item")
+        assert len(items) == 1
+        item = items[0]
+        return item.getAttribute("path") + item.getAttribute("file")
+    finally:
+        dom.unlink()
+
+def get_eicars_from_notifications_events():
+    events_list = os.listdir(GL_MCS_EVENTS_DIRECTORY)
+    ret = []
+    for e in events_list:
+        ret.append(get_filepath_notification_event(os.path.join(GL_MCS_EVENTS_DIRECTORY, e)))
+    return ret
+
+def check_all_eicars_are_found(eicar_directory):
+    eicars_on_disk = find_eicars(eicar_directory)
+    eicars_reported = get_eicars_from_notifications_events()
+
+    eicars_on_disk_remaining = {}
+    for e in eicars_on_disk:
+        eicars_on_disk_remaining[e] = 1
+
+    for e in eicars_reported:
+        if e in eicars_on_disk_remaining:
+            eicars_on_disk_remaining[e] = 0
+
+    for e, v in eicars_on_disk_remaining.items():
+        if v == 1:
+            logger.error("%s not found in events" % e.decode("UTF-8", errors='backslashreplace'))
+
+
+
