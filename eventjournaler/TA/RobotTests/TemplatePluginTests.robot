@@ -3,7 +3,7 @@ Resource  TemplatePluginResources.robot
 
 *** Test Cases ***
 Example Test
-    Example Keyword In Test Suite
+    Example Keyword
     File Should Contain  /tmp/examplefile.txt  "Contents"
 
 Plugin Template Installs
