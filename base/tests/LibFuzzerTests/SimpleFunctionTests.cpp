@@ -49,7 +49,24 @@ public:
     }
 
 };
+void callRegex(const std::string & regex,const std::string & content)
+{
+    try
+    {
+        std::string response = Common::UtilityImpl::returnFirstMatch(regex, content);
+        if( !response.empty())
+        {
+            if( response.size() > content.size())
+            {
+                throw  std::logic_error( "Captured bigger than content");
+            }
+        }
 
+    }catch (std::regex_error& )
+    {
+        // this is ignored.
+    }
+}
 /** Verify EnforceUtf8 must either do nothing (input was a valid utf8) or throw a std:invalid_argument
  *  Anything else is outside the contract.
  * */
@@ -107,36 +124,8 @@ void verifyTelemetryJsonToMap(const std::string & input)
  */
 void verifyRegexUtility(const std::string & input)
 {
-    auto pos = input.find_first_of(';');
-    std::string pattern;
-    std::string content;
-    if ( pos != std::string::npos)
-    {
-        pattern = input.substr(0, pos);
-        content = input.substr(pos);
-    }
-    else
-    {
-        pattern = input;
-        content = input;
-    }
-    try
-    {
-        std::string response = Common::UtilityImpl::returnFirstMatch(pattern, content);
-        if( !response.empty())
-        {
-            if( response.size() > content.size())
-            {
-                throw  std::logic_error( "Captured bigger than content");
-            }
-        }
-
-    }catch (std::regex_error& )
-    {
-        // this is ignored.
-    }
-
-
+    callRegex(R"(([\\\\w]+)(-[\\\\w]+)?_policy.xml)",input);
+    callRegex(R"(\d{4}\d{2}\d{2} (\d{2})\d{2}\d{2})",input);
 }
 
 void verifyBase64(const std::string & input)
