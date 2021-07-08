@@ -40,7 +40,7 @@
         </command>
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --name sspl-template-plugin --no-unit-test --bullseye</args>
+            <args>./build.sh --clean --name sspl-template-plugin --bullseye</args>
         <workingdir>.</workingdir>
     </command>
     </buildcommands>
