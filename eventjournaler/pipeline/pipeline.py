@@ -107,6 +107,7 @@ def get_inputs(context: tap.PipelineContext, template_plugin_build: ArtisanInput
         test_inputs = dict(
             test_scripts = context.artifact.from_folder('./TA'),
             template_plugin_sdds = template_plugin_build / 'template/SDDS-COMPONENT',
+            base_sdds=template_plugin_build / 'base/base-sdds',
         )
     if mode == 'coverage':
         test_inputs = dict(
@@ -115,6 +116,7 @@ def get_inputs(context: tap.PipelineContext, template_plugin_build: ArtisanInput
             bullseye_files=context.artifact.from_folder('./build/bullseye'),
             coverage=template_plugin_build / 'sspl-plugin-template-coverage/covfile',
             coverage_unittest=template_plugin_build / 'sspl-plugin-template-coverage/unittest-htmlreport',
+            base_sdds=template_plugin_build / 'sspl-plugin-template-coverage/base/base-sdds',
         )
     return test_inputs
 
