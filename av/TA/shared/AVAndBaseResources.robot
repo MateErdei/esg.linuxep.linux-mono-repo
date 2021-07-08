@@ -121,4 +121,4 @@ Restart sophos_threat_detector and mark logs
     Mark AV Log
     Mark Sophos Threat Detector Log
     Start sophos_threat_detector
-    Wait until threat detector running
+    Wait until threat detector running with offset

@@ -376,22 +376,16 @@ Wait until AV Plugin running with offset
     Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting the main program loop  timeout=40
 
 Wait until threat detector running
-    # wait for AV Plugin to initialize
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  3 secs
-    ...  Check Sophos Threat Detector Running
+    # wait for sophos_threat_detector to initialize
+    ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  2 secs
     ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
 Wait until threat detector running with offset
-    [Arguments]  ${timeout}=60
-    Wait Until Keyword Succeeds
-    ...  ${timeout} secs
-    ...  3 secs
-    ...  Check Sophos Threat Detector Running
+    [Arguments]  ${timeout}=${60}
+    ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${timeout}
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...  UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...  timeout=${timeout}
