@@ -354,7 +354,7 @@ Thin Installer Attempts Install And Register Through Message Relays
     Install Local SSL Server Cert To System
 
     # Add Message Relays to Thin Installer
-    Create Default Credentials File  message_relays=dummyhost3:10000,1,1;dummyhost1:20000,1,2;localhost:20000,2,4;dummyhost7:9999,1,3
+    Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
     Build Default Creds Thininstaller From Sections
     #Configure And Run TCredentialshininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem
     Run Default Thininstaller  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
