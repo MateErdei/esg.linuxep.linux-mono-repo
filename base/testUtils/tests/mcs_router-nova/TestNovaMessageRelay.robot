@@ -45,8 +45,8 @@ MCS Communicates With Nova Via Message Relay
     Wait New MCS Policy Downloaded  60
     Wait For Server In Cloud
     Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
+    ...  60 secs
+    ...  10 secs
     ...  Check Marked Mcsrouter Log Contains   Successfully connected to mcs.sandbox.sophos:443 via sspluc
 
 

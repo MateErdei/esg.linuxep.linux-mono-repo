@@ -6,6 +6,7 @@ Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library   ${LIBS_DIRECTORY}/CentralUtils.py
 Library   ${LIBS_DIRECTORY}/ProxyUtils.py
 
+Test Timeout    10 minutes
 Suite Setup      Setup MCS Tests Nova
 Suite Teardown   Nova Suite Teardown
 
