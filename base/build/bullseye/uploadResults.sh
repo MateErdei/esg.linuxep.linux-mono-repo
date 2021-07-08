@@ -17,6 +17,8 @@ SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-base-unittest
 [[ -n ${htmldir} ]] || htmldir=${BASE}/output/coverage/${COV_HTML_BASE}
+[[ -n ${COVERAGE_SCRIPT} ]] || COVERAGE_SCRIPT=${BASE}/bazel-tools/tools/src/bullseye/test_coverage.py
+[[ -n ${UPLOAD_PATH} ]] || UPLOAD_PATH="UnifiedPipelines/linuxep/sspl-everest-base"
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=${BASE}/build/bullseye/private.key
@@ -65,8 +67,14 @@ chmod -R a+rX "$htmldir"
 
 if [[ ${BULLSEYE_UPLOAD} == 1 ]]
 then
-  rsync -va --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" --delete $htmldir \
-      upload@allegro.eng.sophos:public_html/bullseye/  \
-      </dev/null \
-      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
+#  rsync -va --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" --delete $htmldir \
+#      upload@allegro.eng.sophos:public_html/bullseye/  \
+#      </dev/null \
+#      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
+  sudo -E python3 -u $COVERAGE_SCRIPT "$COVFILE"                \
+      --output /opt/test/results/coverage/test_coverage.json    \
+      --min-function 70                                         \
+      --min-condition 70                                        \
+      --upload "$UPLOAD_PATH"                                   \
+      || echo "Failed to upload coverage results to artefactory"
 fi
