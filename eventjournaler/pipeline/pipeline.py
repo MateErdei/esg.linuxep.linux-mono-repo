@@ -114,6 +114,7 @@ def get_inputs(context: tap.PipelineContext, template_plugin_build: ArtisanInput
             template_plugin_sdds=template_plugin_build / 'sspl-plugin-template-coverage/SDDS-COMPONENT',
             bullseye_files=context.artifact.from_folder('./build/bullseye'),
             coverage=template_plugin_build / 'sspl-plugin-template-coverage/covfile',
+            coverage_unittest=template_plugin_build / 'sspl-plugin-template-coverage/unittest-htmlreport',
         )
     return test_inputs
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-DEFAULT_PRODUCT=eventjournaler
-FAILURE_UNIT_TESTS=16
+DEFAULT_PRODUCT=TemplatePlugin
+
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
 FAILURE_INPUT_NOT_AVAILABLE=50
@@ -29,9 +29,8 @@ source "$BASE"/build-files/common.sh
 CMAKE_BUILD_TYPE=RelWithDebInfo
 EXTRA_CMAKE_OPTIONS=
 export PRODUCT=${PLUGIN_NAME:-${DEFAULT_PRODUCT}}
-export FEATURE_LIST=CORE
-export PRODUCT_NAME=EventJournaler
-export PRODUCT_LINE_ID=ServerProtectionLinux-Plugin-EventJournaler
+export PRODUCT_NAME=
+export PRODUCT_LINE_ID=
 export DEFAULT_HOME_FOLDER=
 PLUGIN_TAR=
 [[ -z "${CLEAN:-}" ]] && CLEAN=1
@@ -153,9 +152,9 @@ INPUT=$BASE/input
 
 if [[ ! -d "$INPUT" ]]
 then
-    if [[ -d "$BASE/sspl-event-journaler-plugin-build" ]]
+    if [[ -d "$BASE/sspl-template-plugin-build" ]]
     then
-        INPUT="$BASE/sspl-event-journaler-plugin-build/input"
+        INPUT="$BASE/sspl-template-plugin-build/input"
     else
         MESSAGE_PART1="You need to run the following to setup your input folder: "
         MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
@@ -304,9 +303,25 @@ function build()
 
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
-    mkdir -p  output/manualTools/
-    cp -a build64/products/manualTools/EventPubSub output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventPubSub Tool to output"
-    cp -a ${INPUT}/base-sdds  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
+
+    if [[ ${BULLSEYE} == 1 ]]
+    then
+      if [[ ${UNITTEST} == 1 ]]
+      then
+        ## Process bullseye output
+        ## upload unit tests
+        cd $BASE
+
+        #keep the local jenkins tests seperated
+        export COV_HTML_BASE=sspl-plugin-template-unittest
+        export BULLSEYE_UPLOAD
+        bash -x build/bullseye/uploadResults.sh || exit $?
+        fi
+      cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
+    fi
+
+
+
     if [[ -d build64/symbols ]]
     then
         cp -a build64/symbols output/

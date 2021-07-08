@@ -47,6 +47,7 @@
     <publish>
         <workingdir>.</workingdir>
         <build-asset artifact-path="sspl-plugin-template-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
+        <build-asset artifact-path="sspl-plugin-template-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-plugin-template-unittest" mode="coverage"/>
         <build-asset artifact-path="sspl-plugin-template-coverage/symbols" source-dir="output/symbols" mode="coverage"/>
         <build-asset artifact-path="sspl-plugin-template-coverage/build_log" source-dir="output" mode="coverage">
             <include glob="./build.log" />
