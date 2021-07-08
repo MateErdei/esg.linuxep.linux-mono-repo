@@ -4,7 +4,7 @@ from tap._pipeline.tasks import ArtisanInput
 import os
 import requests
 
-SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Plugin-Template-bullseye-system-test-coverage/build?token=TOKEN_NAME'
+SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Plugin-Template-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
 COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-template-unit.cov'
 COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-plugin-template-tap.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
