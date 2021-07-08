@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-DEFAULT_PRODUCT=TemplatePlugin
+DEFAULT_PRODUCT=sspl-template-plugin
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
