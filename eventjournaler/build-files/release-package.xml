@@ -56,6 +56,8 @@
             <include glob="./*.cov"/>
         </build-asset>
         <release-asset artifact-path="template/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release" />
+        <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
+        <build-asset artifact-path="sspl-plugin-template-coverage/base/base-sdds" source-dir="output/base-sdds" mode="coverage"/>
         <release-asset artifact-path="template-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999" />
         <release-asset artifact-path="template-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060" />
         <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
