@@ -290,12 +290,18 @@ def bullseye_coverage_task(machine: tap.Machine):
         machine.output_artifact(coverage_results_dir, 'coverage')
 
 def get_test_machines(test_inputs):
-    return [
-        ("ubuntu1804", tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-        ("ubuntu2004", tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-        ("centos7",    tap.Machine('centos77_x64_server_en_us',   inputs=test_inputs, platform=tap.Platform.Linux)),
-    ]
+    test_environments = {'ubuntu1804': 'ubuntu1804_x64_server_en_us',
+                         'ubuntu2004': 'ubuntu2004_x64_server_en_us',
+                         'centos77': 'centos77_x64_server_en_us',
+                         'centos82': 'centos82_x64_server_en_us'}
 
+    ret = []
+    for name, image in test_environments.items():
+        ret.append((
+            name,
+            tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
+        ))
+    return ret
 
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
 def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
@@ -332,7 +338,6 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     if run_tests:
         with stage.parallel('testing'):
             test_inputs = get_inputs(context, av_build)
-
             with stage.parallel('TA'):
                 for (name, machine) in get_test_machines(test_inputs):
                     stage.task(task_name=name+"_component", func=pytest_task, machine=machine)
