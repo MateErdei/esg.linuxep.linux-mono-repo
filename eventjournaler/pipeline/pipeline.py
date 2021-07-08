@@ -126,7 +126,8 @@ def template_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: t
     nine_nine_nine_mode = '999'
     zero_six_zero_mode = '060'
 
-    mode = parameters.mode or release_mode
+   # mode = parameters.mode or release_mode
+    mode = coverage_mode
 
     template_build = None
     with stage.parallel('build'):
