@@ -4,7 +4,7 @@ from tap._pipeline.tasks import ArtisanInput
 import os
 import requests
 
-SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-EDR-Plugin-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
+SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Plugin-Template-bullseye-system-test-coverage/build?token=TOKEN_NAME'
 COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-template-unit.cov'
 COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-plugin-template-tap.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
@@ -127,8 +127,7 @@ def template_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: t
     nine_nine_nine_mode = '999'
     zero_six_zero_mode = '060'
 
-   # mode = parameters.mode or release_mode
-    mode = coverage_mode
+    mode = parameters.mode or release_mode
 
     template_build = None
     with stage.parallel('build'):
