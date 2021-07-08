@@ -106,6 +106,15 @@ elif [[ -n "${EDR_COVERAGE:-}" ]]; then
   export htmldir=$COVERAGE_STAGING/sspl-plugin-edr-combined
   export COV_HTML_BASE=sspl-plugin-edr-combined
   export BULLSEYE_UPLOAD=1
+elif [[ -n "${PLUGIN_TEMPLATE_COVERAGE:-}" ]]; then
+  # download tap + unit test cov file from Allegro, and use it to get combined (tap + unit + system tests)
+  export FILESTODOWNLOAD=sspl-plugin-template-taptest/sspl-plugin-template-tap.cov
+  bash -x $WORKSPACE/build/bullseye/downloadFromAllegro.sh || fail "ERROR failed to download cov file, exit code:"$?
+  mv /tmp/allegro/sspl-plugin-template-tap.cov $COVERAGE_STAGING/sspl-plugin-template-combined.cov
+  export COVFILE=$COVERAGE_STAGING/sspl-plugin-template-combined.cov
+  export htmldir=$COVERAGE_STAGING/sspl-plugin-template-combined
+  export COV_HTML_BASE=sspl-plugin-template-combined
+  export BULLSEYE_UPLOAD=1
 elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   # Upload unit-test html coverage (liveterminal repo does not have the scripts)
   mv $COVERAGE_STAGING/bullseye_report $COVERAGE_STAGING/sspl-liveresponse-unittest
@@ -160,7 +169,7 @@ if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
 fi
 
 #upload coverage results
-if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" || -n "${EDR_COVERAGE:-}" || -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
+if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" || -n "${EDR_COVERAGE:-}" || -n "${LIVERESPONSE_COVERAGE:-}" || -n "${PLUGIN_TEMPLATE_COVERAGE:-}" ]]; then
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
 fi
 
