@@ -10,5 +10,7 @@ ${TEMPLATE_PLUGIN_SDDS}         ${COMPONENT_SDDS}
 ${SOPHOS_INSTALL}               /opt/sophos-spl/
 
 *** Keywords ***
-Example Keyword
-    Create File  /tmp/examplefile.txt  "Contents"
+Run Shell Process
+    [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
+    ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
+    Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\nstdout: \n${result.stdout} \n. stderr: \n${result.stderr}"
