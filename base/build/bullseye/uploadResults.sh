@@ -72,6 +72,7 @@ then
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
   set -x
+  export PATH=$PATH: $BULLSEYE_DIR/bin/
   test -f $COVERAGE_SCRIPT && echo "FOUND THE SCRIPT"
   test -f $COVFILE && echo "FOUND THE COVFILE"
   test -f /opt/test/results/coverage/test_coverage.json && echo "FOUND JSON"
