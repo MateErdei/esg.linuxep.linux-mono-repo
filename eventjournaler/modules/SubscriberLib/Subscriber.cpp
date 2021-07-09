@@ -78,7 +78,6 @@ namespace SubscriberLib
             catch (const Common::ZeroMQWrapper::IIPCException& exception)
             {
                 int errnoFromSocketRead = errno;
-                LOGINFO(std::to_string(errnoFromSocketRead));
                 // We expect EAGAIN from the socket timeout which we use so we don't block on the read.
                 if (errnoFromSocketRead != EAGAIN)
                 {
