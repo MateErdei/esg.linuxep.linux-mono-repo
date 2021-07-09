@@ -20,6 +20,8 @@ elif [[ -n ${EDR_COVERAGE:-} ]]; then
   TEST_PACKAGE_XML=system-product-test-edr-coverage.xml
 elif [[ -n ${PLUGIN_TEMPLATE_COVERAGE:-} ]]; then
   TEST_PACKAGE_XML=system-product-test-plugin-template-coverage.xml
+elif [[ -n ${PLUGIN_TEMPLATE_COVERAGE:-} ]]; then
+  TEST_PACKAGE_XML=system-product-test-plugin-eventjournaler-coverage.xml
 fi
 
 # Create venv

@@ -12,8 +12,9 @@
             <include artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
-            <development-version branch="develop"/>
-            <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
+            <development-version branch="feature/LINUXDAR-3192-setup-coverage-in-template-plugin-and-pull-into"/>
+            <include artifact-path="sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
+            <include artifact-path="sspl-plugin-eventjournaler-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
             <development-version branch="develop"/>
@@ -35,12 +36,6 @@
             <include artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
             <include artifact-path="websocket_server" dest-dir="websocket_server" />
         </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-template">
-            <development-version branch="develop"/>
-            <include artifact-path="sspl-plugin-template-coverage/SDDS-COMPONENT" dest-dir="sspl-template-plugin"/>
-            <include artifact-path="sspl-plugin-template-coverage/covfile" dest-dir="coverage"/>
-        </build-asset>
-
         <!--        <package name="liveterminal_linux" version="develop/%LASTGOODBUILD%/liveterminal_linux/1.2.0/output" dest="." buildtype="dev">-->
         <!--            <include src="SDDS-COMPONENT"   dest="liveterminal" />-->
         <!--        </package>-->
