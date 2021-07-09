@@ -324,7 +324,7 @@ Setup MCS Tests Nova Update cache
 
 get credentials
     Wait Until Keyword Succeeds
-    ...  300
+    ...  120
     ...  30
     ...  set registration command
 
