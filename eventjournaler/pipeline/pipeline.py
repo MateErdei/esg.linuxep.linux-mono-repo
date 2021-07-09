@@ -1,7 +1,5 @@
 import tap.v1 as tap
-from tap._pipeline.tasks import ArtisanInput
 import xml.etree.ElementTree as ET
-import os
 from tap._pipeline.tasks import ArtisanInput
 import os
 import requests
@@ -111,16 +109,16 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str):
             manual_tools=ej_build / 'eventjournaler/manualTools',
             base_sdds=ej_build / 'base/base-sdds'
         )
-        if mode == 'coverage':
-            test_inputs = dict(
-                test_scripts=context.artifact.from_folder('./TA'),
-                event_journaler_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT',
-                manual_tools=ej_build / 'sspl-plugin-eventjournaler-coverage/manualTools',
-                bullseye_files=context.artifact.from_folder('./build/bullseye'),
-                coverage=ej_build / 'sspl-plugin-eventjournaler-coverage/covfile',
-                coverage_unittest=ej_build / 'sspl-plugin-eventjournaler-coverage/unittest-htmlreport',
-                base_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/base/base-sdds',
-            )
+    if mode == 'coverage':
+        test_inputs = dict(
+            test_scripts=context.artifact.from_folder('./TA'),
+            event_journaler_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT',
+            manual_tools=ej_build / 'sspl-plugin-eventjournaler-coverage/manualTools',
+            bullseye_files=context.artifact.from_folder('./build/bullseye'),
+            coverage=ej_build / 'sspl-plugin-eventjournaler-coverage/covfile',
+            coverage_unittest=ej_build / 'sspl-plugin-eventjournaler-coverage/unittest-htmlreport',
+            base_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/base/base-sdds',
+        )
     return test_inputs
 
 @tap.pipeline(version=1, component='sspl-event-journaler-plugin')
