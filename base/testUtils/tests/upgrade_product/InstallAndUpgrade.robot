@@ -22,7 +22,6 @@ Library     String
 
 Resource    ../event_journaler/EventJournalerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
-Resource    ../mcs_router-nova/McsRouterNovaResources.robot
 Resource    ../installer/InstallerResources.robot
 Resource    ../thin_installer/ThinInstallerResources.robot
 Resource    ../example_plugin/ExamplePluginResources.robot

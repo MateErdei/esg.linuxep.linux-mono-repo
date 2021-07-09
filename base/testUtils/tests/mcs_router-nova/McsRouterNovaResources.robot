@@ -21,24 +21,11 @@ ${tmpdir}               ${SOPHOS_INSTALL}/tmp/SDT
 ${statusPath}           ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 *** Keywords ***
-
 Dump Logs And Clean Up Temp Dir
     Run Keyword If Test Failed  Log File    /etc/hosts
     Stop Update Server
     Remove Directory   ${tmpdir}  recursive=true
     Reload Cloud Options
-
-
-Setup Fresh Install Nova
-    Require Fresh Install
-    Set Nova MCS CA Environment Variable
-
-    Generate Update Certs
-    Remove Files  ${UPDATE_ROOTCERT_DIR}/ps_rootca.crt  ${UPDATE_ROOTCERT_DIR}/ps_rootca.crt.0  ${UPDATE_ROOTCERT_DIR}/rootca.crt   ${UPDATE_ROOTCERT_DIR}/rootca.crt.0  ${UPDATE_ROOTCERT_DIR}/cache_certificates.crt
-    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${UPDATE_ROOTCERT_DIR}
-    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${UPDATE_ROOTCERT_DIR}
-    Log File   /etc/hosts
-
 
 Require Registered
     [Arguments]   ${waitForALCPolicy}=${False}
@@ -73,15 +60,6 @@ Check ALC Policy Exists
     ...  File Should Exist   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
 
-Check MCS Envelope Contains Event Success On N Event Sent
-    [Arguments]  ${Event_Number}
-    ${string}=  Check Log And Return Nth Occurence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
-    Should contain   ${string}   &lt;number&gt;0&lt;/number&gt;
-
-Check MCS Envelope Contains Event Fail On N Event Sent
-    [Arguments]  ${Event_Number}
-    ${string}=  Check Log And Return Nth Occurence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
-    Should Not Contain   ${string}   &lt;number&gt;0&lt;/number&gt;
 
 Register With Real Update Cache and Message Relay Account
     [Arguments]   ${messageRelayOptions}=

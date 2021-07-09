@@ -32,7 +32,6 @@ Check Registration and connection Via Message Relay
     Check Register Central Log Contains In Order   Trying connection via message relay ${MESSAGE_RELAY_1_HOSTNAME}:${MESSAGE_RELAY_1_PORT}  Successfully connected to mcs.sandbox.sophos:443 via ${MESSAGE_RELAY_1_HOSTNAME}:${MESSAGE_RELAY_1_PORT}
     Check Register Central Log Contains In Order   <productType>sspl</productType>  <platform>linux</platform>  <isServer>1</isServer>
     Mark Log File  ${BASE_LOGS_DIR}/sophosspl/mcsrouter.log
-    Wait New MCS Policy Downloaded  60
     Wait For Server In Cloud
     Wait Until Keyword Succeeds
     ...  60 secs

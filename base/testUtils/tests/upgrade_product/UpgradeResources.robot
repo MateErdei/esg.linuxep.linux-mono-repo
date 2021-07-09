@@ -13,7 +13,6 @@ Library     OperatingSystem
 Library     String
 
 Resource    ../mcs_router/McsRouterResources.robot
-Resource    ../mcs_router-nova/McsRouterNovaResources.robot
 Resource    ../thin_installer/ThinInstallerResources.robot
 Resource    ../liveresponse_plugin/LiveResponseResources.robot
 

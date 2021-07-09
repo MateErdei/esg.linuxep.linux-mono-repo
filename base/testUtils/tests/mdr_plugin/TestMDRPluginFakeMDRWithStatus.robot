@@ -4,7 +4,6 @@ Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/LogControlResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  MDRResources.robot
-Resource  ../mcs_router-nova/McsRouterNovaResources.robot
 Resource  ../GeneralTeardownResource.robot
 
 Suite Setup  Require Installed

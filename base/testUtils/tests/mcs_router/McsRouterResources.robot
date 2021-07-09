@@ -225,7 +225,15 @@ Install Register And Wait First MCS Policy
     Start MCSRouter
     Wait New MCS Policy Downloaded
 
+Check MCS Envelope Contains Event Success On N Event Sent
+    [Arguments]  ${Event_Number}
+    ${string}=  Check Log And Return Nth Occurence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
+    Should contain   ${string}   &lt;number&gt;0&lt;/number&gt;
 
+Check MCS Envelope Contains Event Fail On N Event Sent
+    [Arguments]  ${Event_Number}
+    ${string}=  Check Log And Return Nth Occurence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
+    Should Not Contain   ${string}   &lt;number&gt;0&lt;/number&gt;
 Start 401 Server
     [Arguments]    ${port}=4443
     ${handle} =  Start Process  python3  ${SUPPORT_FILES}/CloudAutomation/401server.py  ${port}

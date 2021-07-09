@@ -3,7 +3,6 @@ Library   OperatingSystem
 Library   Process
 
 Resource  McsRouterResources.robot
-Resource  ../mcs_router-nova/McsRouterNovaResources.robot
 
 Suite Setup       Run Keywords
 ...               Setup MCS Tests  AND
