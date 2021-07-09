@@ -118,6 +118,12 @@ Wait Until SophosMTR Executable Running
     ...  1 secs
     ...  Check SophosMTR Executable Running
 
+Wait For MDR Status
+    Wait Until Keyword Succeeds
+    ...  30
+    ...  1
+    ...  File Should Exist  ${SOPHOS_INSTALL}/base/mcs/status/MDR_status.xml
+
 Wait Until EDR and MTR OSQuery Running
     [Arguments]  ${WaitInSecs}=10
     Wait Until Keyword Succeeds

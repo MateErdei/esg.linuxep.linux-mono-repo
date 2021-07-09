@@ -11,7 +11,7 @@ Resource    ../thin_installer/ThinInstallerResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../mdr_plugin/MDRResources.robot
-Resource    ../mcs_router-nova/McsRouterNovaResources.robot
+
 Resource    ../upgrade_product/UpgradeResources.robot
 Resource  ../telemetry/TelemetryResources.robot
 
@@ -114,7 +114,10 @@ Send And Wait for Policy
          ...   Wait for Policy  ${expected_alc_policy_path}
 
 Wait For Update To be Executed
-    Wait For Update Action To Be Processed
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  File Should Exist   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs

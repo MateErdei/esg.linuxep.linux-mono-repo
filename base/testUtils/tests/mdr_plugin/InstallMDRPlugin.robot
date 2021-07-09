@@ -5,7 +5,7 @@ Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/MDRUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
-Resource  ../mcs_router-nova/McsRouterNovaResources.robot
+Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../installer/InstallerResources.robot
 Resource  MDRResources.robot
 Resource  ../management_agent/ManagementAgentResources.robot
