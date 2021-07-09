@@ -71,6 +71,7 @@ then
 #      upload@allegro.eng.sophos:public_html/bullseye/  \
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
+  set -x
   echo "Script path: $COVERAGE_SCRIPT"
   echo "Covfile: $COVFILE"
   echo "Base: $BASE"
