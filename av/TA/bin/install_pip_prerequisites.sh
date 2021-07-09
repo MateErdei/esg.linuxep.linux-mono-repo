@@ -43,7 +43,8 @@ then
       OS=$NAME
     fi
 
-    if [[ "$OS" -eq "CentOS" ]]; then
+    if [[ "$OS" == "CentOS Linux" ]]
+    then
       for FILE in /etc/yum.repos.d/*; do
         if [ -f "$FILE" ]; then
           if grep -q "abn-centosrepo/" "$FILE"; then

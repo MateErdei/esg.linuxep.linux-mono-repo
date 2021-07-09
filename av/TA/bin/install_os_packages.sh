@@ -36,8 +36,13 @@ then
 
     yum check-update || {
         EXIT=$?
-        echo "yum check-update failed: $EXIT"
-        exit $EXIT
+        if (( EXIT == 100 ))
+        then
+            echo "Updates available!"
+        else
+            echo "yum check-update failed: $EXIT"
+            exit $EXIT
+        fi
     }
     yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba
 else
