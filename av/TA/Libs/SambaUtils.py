@@ -44,11 +44,12 @@ def Allow_Samba_To_Access_Share(directory):
         if p.returncode == 0:
             break
 
-        logger.error("semanage returned non-zero %d: %s" % (p.returncode, p.stdout))
-        logger.error("Command: "+" ".join(command))
+        logger.info("semanage returned non-zero %d: %s" % (p.returncode, p.stdout))
+        logger.info("Command: "+" ".join(command))
         # try add
 
     if p.returncode != 0:
+        logger.error("Failed to add or modify semanage fcontext!")
         return
 
     subprocess.check_call(['restorecon', '-Rv', directory])
