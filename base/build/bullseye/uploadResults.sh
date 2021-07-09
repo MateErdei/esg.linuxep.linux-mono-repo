@@ -79,6 +79,10 @@ then
   echo "We're here: $PWD"
   echo "Base dir:"
   ls $BASE
+  echo "Tools dir:"
+  ls $BASE/tools
+  echo "TestUtils dir:"
+  ls $BASE/testUtils
   sudo -E python3 -u $COVERAGE_SCRIPT "$COVFILE"                \
       --output /opt/test/results/coverage/test_coverage.json    \
       --min-function 70                                         \
