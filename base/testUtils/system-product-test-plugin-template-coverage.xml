@@ -27,7 +27,7 @@
             <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="sspl-componentsuite"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-template">
-            <development-version branch="feature/LINUXDAR-3192-setup-coverage-in-template-plugin-and-pull-into-event-journaler"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-plugin-template-coverage/SDDS-COMPONENT" dest-dir="sspl-template-plugin"/>
             <include artifact-path="sspl-plugin-template-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
