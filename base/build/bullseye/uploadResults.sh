@@ -73,7 +73,7 @@ then
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
   set -x
   echo "Bullseye bin contents:"
-  ls $BULLSEYE_DIR/bin/
+  ls -l $BULLSEYE_DIR/bin/
   export PATH=$PATH:$BULLSEYE_DIR/bin
   test -f $COVERAGE_SCRIPT && echo "FOUND THE SCRIPT"
   test -f $COVFILE && echo "FOUND THE COVFILE"

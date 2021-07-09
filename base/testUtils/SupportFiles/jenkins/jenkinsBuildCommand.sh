@@ -141,6 +141,9 @@ elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   export BULLSEYE_UPLOAD=1
 fi
 
+# "/tmp/BullseyeCoverageEnv.txt" is a special location that bullseye checks for config values
+# We can set the COVFILE env var here so that all instrumented processes know where it is.
+echo COVFILE=${COVFILE} > /tmp/BullseyeCoverageEnv.txt
 
 bash ${JENKINS_DIR}/install_dependencies.sh
 
