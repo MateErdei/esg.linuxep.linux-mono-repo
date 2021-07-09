@@ -57,7 +57,7 @@
         <!--   999, 060 outputs   -->
         <release-asset artifact-path="template-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999" />
         <release-asset artifact-path="template-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060" />
-        
+
         <!--   Coverage outputs   -->
         <build-asset artifact-path="sspl-plugin-template-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
         <build-asset artifact-path="sspl-plugin-template-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-plugin-template-unittest" mode="coverage"/>
