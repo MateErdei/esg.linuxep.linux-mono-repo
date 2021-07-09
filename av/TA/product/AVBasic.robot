@@ -166,7 +166,7 @@ AV Plugin Scans local secondary mount only once
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
 
     ${currentTime} =  Get Current Date
-    ${scanTime} =  Add Time To Date  ${currentTime}  65 seconds  result_format=%H:%M:%S
+    ${scanTime} =  Add Time To Date  ${currentTime}  15 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
     ${scanObjectSet} =  Policy Fragment FS Types  hardDrives=true
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${scanName}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
@@ -485,7 +485,7 @@ Test Remote Share
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
 
     ${currentTime} =  Get Current Date
-    ${scanTime} =  Add Time To Date  ${currentTime}  30 seconds  result_format=%H:%M:%S
+    ${scanTime} =  Add Time To Date  ${currentTime}  15 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
     ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=false
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
@@ -500,7 +500,7 @@ Test Remote Share
 
     register on fail  dump log  ${remoteFSscanningEnabled_log}
     ${currentTime} =  Get Current Date
-    ${scanTime} =  Add Time To Date  ${currentTime}  30 seconds  result_format=%H:%M:%S
+    ${scanTime} =  Add Time To Date  ${currentTime}  15 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
     ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=true
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningEnabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
