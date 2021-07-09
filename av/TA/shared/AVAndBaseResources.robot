@@ -15,14 +15,12 @@ Check avscanner in /usr/local/bin
 Stop AV Plugin
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   av
     Should Be Equal As Integers    ${result.rc}    0
-    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   threat_detector
-    Should Be Equal As Integers    ${result.rc}    0
+    Stop Sophos_Threat_Detector
 
 Start AV Plugin
-    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start   threat_detector
-    Should Be Equal As Integers    ${result.rc}    0
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start   av
     Should Be Equal As Integers    ${result.rc}    0
+    Start Sophos_Threat_Detector
 
 Check avscanner not in /usr/local/bin
     File Should Not Exist  /usr/local/bin/avscanner
