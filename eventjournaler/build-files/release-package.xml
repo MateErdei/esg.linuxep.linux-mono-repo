@@ -64,7 +64,7 @@
         <!--   Coverage outputs   -->
         <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
         <release-asset artifact-path="sspl-plugin-eventjournaler-coverage/manualTools" source-dir="output/manualTools" mode="coverage" />
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-plugin-template-unittest" mode="coverage"/>
+        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-plugin-eventjournaler-unittest" mode="coverage"/>
         <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/symbols" source-dir="output/symbols" mode="coverage"/>
         <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/base/base-sdds" source-dir="output/base-sdds" mode="coverage"/>
         <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/build_log" source-dir="output" mode="coverage">
