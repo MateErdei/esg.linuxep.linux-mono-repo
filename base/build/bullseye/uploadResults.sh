@@ -75,10 +75,12 @@ then
   test -f $COVERAGE_SCRIPT && echo "FOUND THE SCRIPT"
   test -f $COVFILE && echo "FOUND THE COVFILE"
   test -f /opt/test/results/coverage/test_coverage.json && echo "FOUND JSON"
-  sudo -E python3 -u $COVERAGE_SCRIPT "$COVFILE"                \
+  sudo -E python3 -u $COVERAGE_SCRIPT                           \
       --output /opt/test/results/coverage/test_coverage.json    \
       --min-function 70                                         \
       --min-condition 70                                        \
-      --upload "$UPLOAD_PATH"                                   \
+      --upload                                                  \
+      --upload-job "$UPLOAD_PATH"                               \
+      "$COVFILE"                                                \
       || echo "Failed to upload coverage results to artefactory"
 fi
