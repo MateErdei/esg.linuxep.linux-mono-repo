@@ -12,7 +12,7 @@ Fuzzer Tests Global Setup
         Set Global Variable  ${EVEREST-BASE}  ${placeholder}
         Directory Should Exist  ${EVEREST-BASE}
         Fuzzer Set Paths  ${EVEREST-BASE}  ${SUPPORT_FILES}/base_data/fuzz
-        #Setup Base Build
+        Setup Base Build
 
 Fuzzer Tests Global TearDown
      Remove file  /tmp/fuzz.log
