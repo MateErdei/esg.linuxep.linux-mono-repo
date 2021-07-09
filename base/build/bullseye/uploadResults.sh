@@ -71,6 +71,13 @@ then
 #      upload@allegro.eng.sophos:public_html/bullseye/  \
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
+  echo "Script path: $COVERAGE_SCRIPT"
+  echo "Covfile: $COVFILE"
+  echo "Base: $BASE"
+  echo "Upload path: $UPLOAD_PATH"
+  echo "We're here: $PWD"
+  echo "Base dir:"
+  ls $BASE
   sudo -E python3 -u $COVERAGE_SCRIPT "$COVFILE"                \
       --output /opt/test/results/coverage/test_coverage.json    \
       --min-function 70                                         \
