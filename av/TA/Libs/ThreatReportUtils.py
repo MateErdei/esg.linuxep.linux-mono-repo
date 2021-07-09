@@ -231,6 +231,8 @@ def convert_to_escaped_unicode(p):
 
 
 def find_eicars(eicar_directory):
+    if isinstance(eicar_directory, str):
+        eicar_directory = eicar_directory.encode("UTF-8")
     ret = []
     for base, _, files in os.walk(eicar_directory):
         ret += [ convert_to_escaped_unicode(os.path.join(base, f)) for f in files ]
