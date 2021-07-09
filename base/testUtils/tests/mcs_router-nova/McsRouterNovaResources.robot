@@ -275,59 +275,6 @@ Register With Real Update Cache and Message Relay Account
     Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Register With Central  ${regCommand} ${messageRelayOptions}
 
-Register With Non MDR Account
-    Set Environment Variable  MCS_CONFIG_SET  sav-nova
-    Reload Cloud Options
-    ${savRegCommand} =  Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  10 secs
-    ...  Get Registration Command
-
-    Mark All Logs  Registering with non-MDR account
-    # Remove the file so that we can use the "SulDownloader Reports Finished" function.
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    Register With Central  ${savRegCommand}
-
-Register With MDR Account
-    Set Environment Variable  MCS_CONFIG_SET  sspl-nova
-    Reload Cloud Options
-    ${ssplRegCommand} =  Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  10 secs
-    ...  Get Registration Command
-
-    Mark All Logs  Registering with MDR account
-    # Remove the file so that we can use the "SulDownloader Reports Finished" function.
-    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    Register With Central  ${ssplRegCommand}
-
-Wait For ALC Policy To Not Contain MDR
-    Wait Until Keyword Succeeds
-    ...  60
-    ...  1
-    ...  File Should Exist   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-
-    Check ALC Policy Does Not Contain MDR
-
-Check ALC Policy Does Not Contain MDR
-    ${alcPolicy} =  Get File  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-    Should Not Contain  ${alcPolicy}   MDR
-
-
-Wait For ALC Policy To Contain MDR
-    Wait Until Keyword Succeeds
-    ...  60
-    ...  1
-    ...  File Should Exist   ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-
-    Check ALC Policy Contains MDR
-
-Check ALC Policy Contains MDR
-    ${alcPolicy} =  Get File  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-    Should Contain  ${alcPolicy}   MDR
-
-
-
 
 Wait For MDR Status
     Wait Until Keyword Succeeds
@@ -383,20 +330,7 @@ get credentials
 
 set registration command
     ${regCommand}=  Get Sspl Registration
-    Set Suite Variable    ${regCommand}     ${regCommand}   children=true
-
-Set credentials for aws
-    Wait Until Keyword Succeeds
-    ...  1200
-    ...  30
-    ...  Set credentials
-
-Setup Real Update Cache And Message Relay Tests With Nova
-    Setup Host File
-    Require Fresh Install
-    Set Nova MCS CA Environment Variable
-    ${regCommand}=  Get Sspl Registration
-    Set Suite Variable    ${regCommand}     ${regCommand}   children=true
+    Set global Variable    ${regCommand}     ${regCommand}   children=true
 
 Reset Environment For Nova Tests
     Nova Suite Teardown
