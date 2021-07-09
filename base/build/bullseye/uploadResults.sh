@@ -27,25 +27,25 @@ PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 ## Ensure ssh won't complain about private key permissions:
 chmod 600 ${PRIVATE_KEY}
 
+# tap template bullseye is installed to /usr/local/bin,
+# jenkins job template installs to either /opt/BullseyeCoverage or /usr/local/bullseye
+if [[ -f /opt/BullseyeCoverage/bin/covselect ]]
+then
+  BULLSEYE_DIR=/opt/BullseyeCoverage
+elif [[ -f /usr/local/bin/covselect ]]
+then
+  BULLSEYE_DIR=/usr/local
+elif [[ -f /usr/local/bullseye/bin/covselect ]]
+then
+    BULLSEYE_DIR=/usr/local/bullseye
+else
+  exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+fi
+
+echo "Bullseye location: $BULLSEYE_DIR"
+
 if [[ -z ${UPLOAD_ONLY} ]]
 then
-  # tap template bullseye is installed to /usr/local/bin,
-  # jenkins job template installs to either /opt/BullseyeCoverage or /usr/local/bullseye
-  if [[ -f /opt/BullseyeCoverage/bin/covselect ]]
-  then
-    BULLSEYE_DIR=/opt/BullseyeCoverage
-  elif [[ -f /usr/local/bin/covselect ]]
-  then
-    BULLSEYE_DIR=/usr/local
-  elif [[ -f /usr/local/bullseye/bin/covselect ]]
-  then
-      BULLSEYE_DIR=/usr/local/bullseye
-  else
-    exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
-  fi
-
-  echo "Bullseye location: $BULLSEYE_DIR"
-
   echo "Exclusions:"
   $BULLSEYE_DIR/bin/covselect --list --no-banner --file "$COVFILE"
 
@@ -72,6 +72,8 @@ then
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
   set -x
+  echo "Bullseye bin contents:"
+  ls $BULLSEYE_DIR/bin/
   export PATH=$PATH: $BULLSEYE_DIR/bin/
   test -f $COVERAGE_SCRIPT && echo "FOUND THE SCRIPT"
   test -f $COVFILE && echo "FOUND THE COVFILE"
