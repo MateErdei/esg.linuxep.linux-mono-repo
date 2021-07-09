@@ -330,7 +330,7 @@ get credentials
 
 set registration command
     ${regCommand}=  Get Sspl Registration
-    Set global Variable    ${regCommand}     ${regCommand}   children=true
+    Set Suite Variable    ${regCommand}     ${regCommand}   children=true
 
 Reset Environment For Nova Tests
     Nova Suite Teardown
