@@ -12,9 +12,9 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 # For proxies:
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
 Library    ${LIBS_DIRECTORY}/ProxyUtils.py
-
-# check if proxy can reach nova, restart proxy if it cant reach it
-Suite Setup     Check Secure Proxy Is Up
+Suite Setup  Run Keywords
+...          Setup MCS Tests Nova  AND
+...          Check Secure Proxy Is Up  # check if proxy can reach nova, restart proxy if it cant reach it
 
 ## EXCLUDE_AWS because this requires the secureproxyserver
 Default Tags  CENTRAL  MCS  EXCLUDE_AWS

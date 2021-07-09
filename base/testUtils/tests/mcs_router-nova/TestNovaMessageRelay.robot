@@ -7,11 +7,9 @@ Resource  McsRouterNovaResources.robot
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
 
 Default Tags  CENTRAL  MCS  EXCLUDE_AWS
-
+Suite Setup  Setup MCS Tests Nova Update cache
 Test Teardown     Real UCMR Test Teardown  requireDeRegister=True
-Suite Teardown    Run Keywords
-...               Require Fresh Install   AND
-...               Set Nova MCS CA Environment Variable
+
 
 *** Variables ***
 ${MESSAGE_RELAY_1_ID}  a29e6a89-c29e-4545-865f-a353f52030b5
