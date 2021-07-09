@@ -119,7 +119,6 @@ elif [[ -n "${PLUGIN_EVENTJOURNALER_COVERAGE:-}" ]]; then
   # download tap + unit test cov file from Allegro, and use it to get combined (tap + unit + system tests)
   export FILESTODOWNLOAD=sspl-plugin-eventjournaler-taptest/sspl-plugin-eventjournaler-tap.cov
   bash -x $WORKSPACE/build/bullseye/downloadFromAllegro.sh || fail "ERROR failed to download cov file, exit code:"$?
-  sleep 10000
   mv /tmp/allegro/sspl-plugin-eventjournaler-tap.cov $COVERAGE_STAGING/sspl-plugin-eventjournaler-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-plugin-eventjournaler-combined.cov
   export htmldir=$COVERAGE_STAGING/sspl-plugin-eventjournaler-combined
