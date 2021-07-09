@@ -46,23 +46,28 @@
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
+        <!--   Release outputs   -->
+        <release-asset artifact-path="template/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release" />
+        <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
+        <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
+        <build-asset artifact-path="build_log" source-dir="output" mode="release">
+            <include glob="./build.log" />
+        </build-asset>
+
+        <!--   999, 060 outputs   -->
+        <release-asset artifact-path="template-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999" />
+        <release-asset artifact-path="template-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060" />
+        
+        <!--   Coverage outputs   -->
         <build-asset artifact-path="sspl-plugin-template-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
         <build-asset artifact-path="sspl-plugin-template-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-plugin-template-unittest" mode="coverage"/>
         <build-asset artifact-path="sspl-plugin-template-coverage/symbols" source-dir="output/symbols" mode="coverage"/>
+        <build-asset artifact-path="sspl-plugin-template-coverage/base/base-sdds" source-dir="output/base-sdds" mode="coverage"/>
         <build-asset artifact-path="sspl-plugin-template-coverage/build_log" source-dir="output" mode="coverage">
             <include glob="./build.log" />
         </build-asset>
         <build-asset artifact-path="sspl-plugin-template-coverage/covfile" source-dir="output/" mode="coverage">
             <include glob="./*.cov"/>
-        </build-asset>
-        <release-asset artifact-path="template/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release" />
-        <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
-        <build-asset artifact-path="sspl-plugin-template-coverage/base/base-sdds" source-dir="output/base-sdds" mode="coverage"/>
-        <release-asset artifact-path="template-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999" />
-        <release-asset artifact-path="template-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060" />
-        <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
-        <build-asset artifact-path="build_log" source-dir="output" mode="release">
-            <include glob="./build.log" />
         </build-asset>
         <destdir>sspl-template-plugin</destdir>
         <publishbranches>develop,release,feature</publishbranches>
