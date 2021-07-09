@@ -15,7 +15,7 @@ function exitFailure()
 SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 [[ -n ${BASE} ]] || BASE=${SCRIPT_DIR}/../..
 
-[[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-plugin-event-journaler-unittest
+[[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-plugin-eventjournaler-unittest
 [[ -n ${htmldir} ]] || htmldir=${BASE}/output/coverage/${COV_HTML_BASE}
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key

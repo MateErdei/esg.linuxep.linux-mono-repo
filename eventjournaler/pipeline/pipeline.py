@@ -7,8 +7,8 @@ import os
 import requests
 
 SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Plugin-Event-Journaler-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
-COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-event-journaler-unit.cov'
-COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-plugin-event-journaler-tap.cov'
+COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-eventjournaler-unit.cov'
+COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-plugin-eventjournaler-tap.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
@@ -20,7 +20,7 @@ def combined_task(machine: tap.Machine):
         tests_dir = str(machine.inputs.test_scripts)
 
         # upload unit test coverage html results to allegro (and the .cov file which is in unitest_htmldir)
-        unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-plugin-event-journaler-unittest")
+        unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-plugin-eventjournaler-unittest")
         machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
         machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
 
@@ -49,7 +49,7 @@ def combined_task(machine: tap.Machine):
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
         # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
-        tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-plugin-event-journaler-taptest')
+        tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-plugin-eventjournaler-taptest')
         machine.run ('mkdir', tap_htmldir)
         machine.run('cp', COVFILE_TAPTESTS, tap_htmldir)
         machine.run('bash', '-x', UPLOAD_SCRIPT,
@@ -114,12 +114,12 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str):
         if mode == 'coverage':
             test_inputs = dict(
                 test_scripts=context.artifact.from_folder('./TA'),
-                event_journaler_sdds=ej_build / 'sspl-plugin-event-journaler-coverage/SDDS-COMPONENT',
-                manual_tools=ej_build / 'sspl-plugin-event-journaler-coverage/manualTools',
+                event_journaler_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT',
+                manual_tools=ej_build / 'sspl-plugin-eventjournaler-coverage/manualTools',
                 bullseye_files=context.artifact.from_folder('./build/bullseye'),
-                coverage=ej_build / 'sspl-plugin-event-journaler-coverage/covfile',
-                coverage_unittest=ej_build / 'sspl-plugin-event-journaler-coverage/unittest-htmlreport',
-                base_sdds=ej_build / 'sspl-plugin-event-journaler-coverage/base/base-sdds',
+                coverage=ej_build / 'sspl-plugin-eventjournaler-coverage/covfile',
+                coverage_unittest=ej_build / 'sspl-plugin-eventjournaler-coverage/unittest-htmlreport',
+                base_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/base/base-sdds',
             )
     return test_inputs
 
