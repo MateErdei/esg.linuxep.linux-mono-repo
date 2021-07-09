@@ -723,7 +723,7 @@ Get Pid
     [Return]   ${PID}
 
 Record AV Plugin PID
-    ${PID} =  ProcessUtils.pidof or fail  ${PLUGIN_BINARY}
+    ${PID} =  ProcessUtils.wait for pid  ${PLUGIN_BINARY}  ${5}
     [Return]   ${PID}
 
 Record Sophos Threat Detector PID
