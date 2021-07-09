@@ -526,7 +526,7 @@ Wait until scheduled scan updated With Offset
 
 Restart threat detector if it was requested to shutdown
     Run Keyword And Ignore Error  AV Plugin Log Contains  SAV policy received for the first time.
-    ${status}  ${value}=  Run Keyword And Ignore Error  Wait Until AV Plugin Log Contains  Restarting sophos_threat_detector as the system/susi configuration has changed
+    ${status}  ${value}=  Run Keyword And Ignore Error  Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system/susi configuration has changed
     Run Keyword If  '${status}' == 'PASS'  Restart threat detector once it stops
 
 Configure Scan Exclusions Everything Else
