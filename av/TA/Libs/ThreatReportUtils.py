@@ -215,19 +215,66 @@ def check_multiple_different_threat_events(number_of_expected_events, event_type
     return 1
 
 
-def convert_to_escaped_unicode(p):
+def convert_to_unicode(p):
+    assert isinstance(p, bytes)
     try:
         return p.decode("UTF-8")
     except UnicodeDecodeError:
         pass
+    except AttributeError:
+        logger.error("Expecting p (%s) to be bytes not unicode" % repr(p))
+        return p
 
-    for encoding in ("EUC-JP", "SJIS", "LATIN1"):
+    for encoding in ("EUC-JP", "Shift-JIS", "Latin1"):
         try:
             return p.decode(encoding) + " (" + encoding + ")"
         except UnicodeDecodeError:
             pass
 
     return p
+
+def convert_to_escaped_unicode(path):
+    r"""
+
+    * 0-6      \00o            NULL, start of heading, start of text, end of text, end of transmission, enquery, acknowledge
+    * 7        \a              bell
+    * 8        \b              backspace
+    * 9        \t              tab
+    * 10       \n              new line, line feed
+    * 11       \v              vertical tab
+    * 12       \f              form feed, new page
+    * 13       \r              carriage return
+    * 14                       shift out
+    * 15                       shift in
+    * 16-31   \0oo             data link escape, decide control 1-4, negative ack, synch idle, end of trans. block, cancel, end of medium
+    *                          substitute, escape, file separator, group separator, record separator, unit seperator
+    * 92(\)   \\               Back-slash
+    *
+    """
+    path = convert_to_unicode(path)
+    assert isinstance(path, str)
+    res = []
+    for c in path:
+        try:
+            o = ord(c)
+        except TypeError as ex:
+            logger.error("TypeError %s in %s" % (str(ex), repr(path)))
+            raise
+
+        if o < 0x20:
+            c = {
+                7 : r'\a',
+                8 : r'\b',
+                9 : r'\t',
+                10: r'\n',
+                11: r'\v',
+                12: r'\f',
+                13: r'\r',
+            }.get(o, u"\\{:0>3o}".format(o))
+        elif o == 92:
+            c = u"\\\\"
+        res.append(c)
+    return u"".join(res)
 
 
 def find_eicars(eicar_directory):
@@ -257,6 +304,11 @@ def get_eicars_from_notifications_events():
         ret.append(get_filepath_notification_event(os.path.join(GL_MCS_EVENTS_DIRECTORY, e)))
     return ret
 
+def safe_to_unicode(s):
+    if isinstance(s, bytes):
+        return s.decode("UTF-8", errors='backslashreplace')
+    return s
+
 def check_all_eicars_are_found(eicar_directory):
     eicars_on_disk = find_eicars(eicar_directory)
     eicars_reported = get_eicars_from_notifications_events()
@@ -265,13 +317,22 @@ def check_all_eicars_are_found(eicar_directory):
     for e in eicars_on_disk:
         eicars_on_disk_remaining[e] = 1
 
+    eicars_reported_remaining = {}
     for e in eicars_reported:
+        eicars_reported_remaining[e] = 1
         if e in eicars_on_disk_remaining:
             eicars_on_disk_remaining[e] = 0
 
+    for e in eicars_on_disk:
+        if e in eicars_reported_remaining:
+            eicars_reported_remaining[e] = 0
+
     for e, v in eicars_on_disk_remaining.items():
         if v == 1:
-            logger.error("%s not found in events" % e.decode("UTF-8", errors='backslashreplace'))
+            logger.error("%s not found in events" % safe_to_unicode(e))
 
+    for e, v in eicars_reported_remaining.items():
+        if v == 1:
+            logger.error("%s not found in on disk" % safe_to_unicode(e))
 
 

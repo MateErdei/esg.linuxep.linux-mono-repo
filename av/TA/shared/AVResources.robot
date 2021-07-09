@@ -24,11 +24,11 @@ ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${CLI_SCANNER_PATH}      ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
 ${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
-${THREAT_DETECTOR_LOG_SYMLINK}  ${AV_PLUGIN_PATH}/log/sophos_threat_detector.log
 ${SUSI_DEBUG_LOG_PATH}          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
 ${SCANNOW_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Scan Now.log
 ${CLOUDSCAN_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Sophos Cloud Scheduled Scan.log
 ${TELEMETRY_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
+${WATCHDOG_BINARY}      ${SOPHOS_INSTALL}/base/bin/sophos_watchdog
 ${CHROOT_LOGGING_SYMLINK}   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
 ${SUSI_STARTUP_SETTINGS_FILE}    ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
 ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}    ${COMPONENT_ROOT_PATH}/chroot/${AV_PLUGIN_PATH}/var/susi_startup_settings.json
@@ -424,14 +424,18 @@ Install Base For Component Tests
     Run Process  chmod  +x  ${BASE_SDDS}install.sh
     Run Process  chmod  +x  ${BASE_SDDS}/files/base/bin/*
     ${result} =   Run Process   bash  ${BASE_SDDS}install.sh  timeout=600s    stderr=STDOUT
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to install base.\noutput: \n${result.stdout}"
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install base.\noutput: \n${result.stdout}"
+    # Check watchdog running
+    ProcessUtils.wait_for_pid  ${WATCHDOG_BINARY}  ${5}
+    # Stop MCS router since we haven't configured Central
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install AV Directly from SDDS
     ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
     ${log_contents} =  Get File  ${install_log}
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to install plugin.\noutput: \n${log_contents}"
+    File Log Should Not Contain  ${AV_INSTALL_LOG}  chown: cannot access
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install plugin.\noutput: \n${log_contents}"
 
 Require Plugin Installed and Running
     [Arguments]  ${LogLevel}=DEBUG

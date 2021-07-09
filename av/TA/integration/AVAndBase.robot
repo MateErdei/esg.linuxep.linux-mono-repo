@@ -386,6 +386,7 @@ Avscanner runs as non-root
 AV Plugin Reports encoded eicars To Base
    Create Encoded Eicars
    register cleanup  Remove Directory  /tmp_test/encoded_eicars  true
+   register cleanup  Empty Directory  ${MCS_PATH}/event/
 
    ${expected_count} =  Count Eicars in Directory  /tmp_test/encoded_eicars/
    Should Be True  ${expected_count} > 0
@@ -402,8 +403,6 @@ AV Plugin Reports encoded eicars To Base
 
    check_all_eicars_are_found  /tmp_test/encoded_eicars/
    check_multiple_different_threat_events  ${expected_count}   encoded_eicars
-
-   Empty Directory  ${MCS_PATH}/event/
 
 
 AV Plugin uninstalls
