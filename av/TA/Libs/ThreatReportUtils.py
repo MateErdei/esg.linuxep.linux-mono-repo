@@ -249,6 +249,7 @@ def convert_to_escaped_unicode(path):
     * 16-31   \0oo             data link escape, decide control 1-4, negative ack, synch idle, end of trans. block, cancel, end of medium
     *                          substitute, escape, file separator, group separator, record separator, unit seperator
     * 92(\)   \\               Back-slash
+    * 127     \177
     *
     """
     path = convert_to_unicode(path)
@@ -261,7 +262,7 @@ def convert_to_escaped_unicode(path):
             logger.error("TypeError %s in %s" % (str(ex), repr(path)))
             raise
 
-        if o < 0x20:
+        if o < 0x20 or o == 127:
             c = {
                 7 : r'\a',
                 8 : r'\b',
@@ -327,12 +328,16 @@ def check_all_eicars_are_found(eicar_directory):
         if e in eicars_reported_remaining:
             eicars_reported_remaining[e] = 0
 
+    errors_found = False
     for e, v in eicars_on_disk_remaining.items():
         if v == 1:
             logger.error("%s not found in events" % safe_to_unicode(e))
+            errors_found = True
 
     for e, v in eicars_reported_remaining.items():
         if v == 1:
             logger.error("%s not found in on disk" % safe_to_unicode(e))
+            errors_found = True
 
-
+    if errors_found:
+        raise AssertionError("Eicars reported in events don't match eicars found on disk in %s" % eicar_directory)
