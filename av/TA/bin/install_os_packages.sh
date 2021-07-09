@@ -30,9 +30,16 @@ then
     cat /etc/yum.conf
     grep -r abn-centosrepo /etc/yum.repos.d/* /etc/yum.conf || true
 
-    yum check-update
+    yum check-update || {
+        EXIT=$?
+        echo "yum check-update failed: $EXIT"
+        exit $EXIT
+    }
     yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba
 else
     echo "Can't find package management system"
     exit 1
 fi
+echo "Completed install_os_packages.sh"
+exit 0
+
