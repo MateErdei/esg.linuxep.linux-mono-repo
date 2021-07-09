@@ -17,7 +17,7 @@ SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-base-unittest
 [[ -n ${htmldir} ]] || htmldir=${BASE}/output/coverage/${COV_HTML_BASE}
-[[ -n ${COVERAGE_SCRIPT} ]] || COVERAGE_SCRIPT=${BASE}/tools/src/bullseye/test_coverage.py
+[[ -n ${COVERAGE_SCRIPT} ]] || COVERAGE_SCRIPT=/tmp/system-product-test-inputs/bazel-tools/tools/src/bullseye/test_coverage.py
 [[ -n ${UPLOAD_PATH} ]] || UPLOAD_PATH="UnifiedPipelines/linuxep/sspl-everest-base"
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
@@ -72,17 +72,9 @@ then
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
   set -x
-  echo "Script path: $COVERAGE_SCRIPT"
-  echo "Covfile: $COVFILE"
-  echo "Base: $BASE"
-  echo "Upload path: $UPLOAD_PATH"
-  echo "We're here: $PWD"
-  echo "Base dir:"
-  ls $BASE
-  echo "Tools dir:"
-  ls $BASE/tools
-  echo "TestUtils dir:"
-  ls $BASE/testUtils
+  test -f $COVERAGE_SCRIPT && echo "FOUND THE SCRIPT"
+  test -f $COVFILE && echo "FOUND THE COVFILE"
+  test -f /opt/test/results/coverage/test_coverage.json && echo "FOUND JSON"
   sudo -E python3 -u $COVERAGE_SCRIPT "$COVFILE"                \
       --output /opt/test/results/coverage/test_coverage.json    \
       --min-function 70                                         \
