@@ -30,8 +30,8 @@ def create_sav_policy_with_multiple_scheduled_scans(filename, timestamp, no_of_s
     assert no_of_scans >= 1
 
     for scan in range(no_of_scans):
-        minutes_delta = scan
-        timestamp_builder += "<time>" + (parsed_timestamp + timedelta(minutes=minutes_delta, seconds=30)).strftime("%H:%M:%S") + "</time>\n\t\t\t"
+        delta = timedelta(seconds=20+scan*20)
+        timestamp_builder += "<time>" + (parsed_timestamp + delta).strftime("%H:%M:%S") + "</time>\n\t\t\t"
 
     sav_policy_builder = _SavPolicyBuilder(RESOURCES_DIR+"/SAV_Policy_Configurable_Multiple_Scheduled_Scans.xml", filename)
     sav_policy_builder.set_scheduled_scan_day(day)
