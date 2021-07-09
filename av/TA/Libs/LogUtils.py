@@ -83,9 +83,11 @@ class LogUtils(object):
     def dump_log(self, filename):
         if os.path.isfile(filename):
             try:
-                with open(filename, "r") as f:
+                with open(filename, "rb") as f:
                     logger.info("file: " + str(filename))
-                    logger.info(''.join(f.readlines()))
+                    lines = f.readlines()
+                    lines = [ line.decode("UTF-8", errors="backslashreplace") for line in lines ]
+                    logger.info(u''.join(lines))
             except Exception as e:
                 logger.info("Failed to read file: {}".format(e))
         else:
