@@ -6,7 +6,10 @@
 BASE_DIR=$1
 [ -n "$BASE_DIR" ] || BASE_DIR=/tmp_test/encoded_eicars
 mkdir -p "${BASE_DIR}"
-cd "${BASE_DIR}"
+cd "${BASE_DIR}" || {
+    echo "Can't go to $BASE_DIR"
+    exit 1
+}
 
 EICAR=
 EICAR='H*'$EICAR
