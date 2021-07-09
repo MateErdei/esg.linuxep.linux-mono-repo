@@ -137,7 +137,7 @@ def event_journaler(stage: tap.Root, context: tap.PipelineContext, parameters: t
     release_build = None
     with stage.parallel('build'):
         if mode == release_mode:
-            release_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate6',
+            ej_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate6',
                                             mode=release_mode, release_package=PACKAGE_PATH)
             nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate6',
                                                        mode=nine_nine_nine_mode, release_package=PACKAGE_PATH)
@@ -156,9 +156,9 @@ def event_journaler(stage: tap.Root, context: tap.PipelineContext, parameters: t
     with stage.parallel('test'):
         machines = (
             ("ubuntu1804",
-             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, release_build, mode), platform=tap.Platform.Linux)),
-            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, release_build, mode), platform=tap.Platform.Linux)),
-            ("centos82", tap.Machine('centos82_x64_server_en_us', inputs=get_inputs(context, release_build, mode), platform=tap.Platform.Linux)),
+             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, ej_build, mode), platform=tap.Platform.Linux)),
+            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, ej_build, mode), platform=tap.Platform.Linux)),
+            ("centos82", tap.Machine('centos82_x64_server_en_us', inputs=get_inputs(context, ej_build, mode), platform=tap.Platform.Linux)),
             # add other distros here
         )
         coverage_machines = (
