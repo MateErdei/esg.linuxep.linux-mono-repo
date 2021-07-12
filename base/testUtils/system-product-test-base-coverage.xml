@@ -3,7 +3,7 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="develop" build-id="20210702030000-1f1870682614554ca382d00ca581563fe01332a0-t3AwYq"/>
+            <development-version branch="feature--LINUXDAR-2945-upload-coverage-results-to-coverage-api-so-they-are-shown-in-redash" build-id="20210712110215-de87be9049c6f43be07abcbbf17a25b55e2159bc-R29vLs"/>
             <include artifact-path="sspl-base-coverage/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include artifact-path="sspl-base-coverage/system_test" dest-dir="SystemProductTestOutput"/>
             <include artifact-path='sspl-base-coverage/covfile' dest-dir="coverage"/>
