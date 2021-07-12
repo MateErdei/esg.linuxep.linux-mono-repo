@@ -15,6 +15,8 @@ Resource          SulDownloaderResources.robot
 Resource          ../installer/InstallerResources.robot
 Resource          ../GeneralTeardownResource.robot
 Resource          ../upgrade_product/UpgradeResources.robot
+Resource          ../scheduler_update/SchedulerUpdateResources.robot
+Resource          ../mdr_plugin/MDRResources.robot
 
 Suite Setup       Generate Update Certs
 Suite Teardown    Terminate All Processes    kill=True

@@ -6,6 +6,7 @@ Test Teardown    Test Teardown
 Library     ${LIBS_DIRECTORY}/MTRService.py
 
 Resource    EDRResources.robot
+Resource  ../mdr_plugin/MDRResources.robot
 
 Default Tags   EDR_PLUGIN   MDR_PLUGIN
 Force Tags  LOAD1

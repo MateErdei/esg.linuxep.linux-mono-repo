@@ -13,6 +13,7 @@ Resource    ../GeneralTeardownResource.robot
 Resource    ../watchdog/LogControlResources.robot
 Resource    EDRResources.robot
 Resource    ../mcs_router/McsPushClientResources.robot
+Resource   ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../liveresponse_plugin/LiveResponseResources.robot
 
 Default Tags   EDR_PLUGIN   FAKE_CLOUD   THIN_INSTALLER  INSTALLER
