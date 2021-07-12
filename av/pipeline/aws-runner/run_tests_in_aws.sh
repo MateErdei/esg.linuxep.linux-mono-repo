@@ -44,6 +44,13 @@ SCRIPT_DIR="${0%/*}"
 [[ $SCRIPT_DIR == $0 ]] && SCRIPT_DIR=.
 cd $SCRIPT_DIR
 
+if [[ ! -x $(which aws) ]]
+then
+    apt install awscli
+fi
+
+[[ -x $(which aws) ]] || failure "No aws command available"
+
 ## Start deleting old stacks
 aws cloudformation delete-stack --stack-name $STACK --region eu-west-1 || failure "Unable to delete-stack: $?"
 
