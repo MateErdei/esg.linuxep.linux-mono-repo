@@ -21,7 +21,8 @@ def main():
         'log': log_files[0],
         'output': log_files[1],
         'report': log_files[2],
-        'suite': '*'
+        # 'suite': '*'
+        'test': 'Verify_that_the_full_installer_works_correctly'
     }
 
     os.environ['OPENSSL_INPUT'] = '/opt/test/inputs/openssl'
