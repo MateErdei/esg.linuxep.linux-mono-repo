@@ -332,7 +332,7 @@ combineResults()
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel78x64-output.xml -l none -r none -N rhel78x64  ./results/rhel78x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel81x64-output.xml -l none -r none -N rhel81x64  ./results/rhel81x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu1804minimal-output.xml -l none -r none -N ubuntu1804minimal  ./results/ubuntu1804minimal*
-  python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu1804-output.xml -l none -r none -N ubuntu1804  ./results/ubuntu1804*
+  python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu1804x64-output.xml -l none -r none -N ubuntu1804x64  ./results/ubuntu1804x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu2004-output.xml -l none -r none -N ubuntu2004  ./results/ubuntu2004*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/centos7x64-output.xml -l none -r none -N centos7x64  ./results/centos7x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/centos8x64-output.xml -l none -r none -N centos8x64  ./results/centos8x64*

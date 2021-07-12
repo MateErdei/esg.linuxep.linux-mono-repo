@@ -1,5 +1,5 @@
 {
-  "ubuntu1804" : {
+  "ubuntu1804x64" : {
     "Type" : "AWS::EC2::Instance",
     "Condition" :  "RunUbuntu1804" ,
     "Properties" : {
@@ -24,7 +24,7 @@
         {"Key" : "TestImage", "Value" : "true"},
         {"Key" : "Codeline", "Value" : "SSPL" },
         {"Key" : "Branch", "Value" : "SSPL" },
-        {"Key" : "Name", "Value" : "ubuntu1804" },
+        {"Key" : "Name", "Value" : "ubuntu1804x64" },
         {"Key" : "RootStackname", "Value" : "SSPL" }
       ],
       "NetworkInterfaces" : [{
