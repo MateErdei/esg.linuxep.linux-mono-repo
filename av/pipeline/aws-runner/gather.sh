@@ -1,14 +1,19 @@
 #!/bin/bash
-
+# Copyright Sophos 2021
 set -x
-##
+
+ORIGINAL_DIR=$(pwd)
 
 SCRIPT_DIR="${0%/*}"
 cd $SCRIPT_DIR
 
+echo ORIGINAL_DIR=$ORIGINAL_DIR
+echo SCRIPT_DIR=${SCRIPT_DIR}
 
+ls -l $ORIGINAL_DIR
+ls -l $SCRIPT_DIR
 
-CREATE_DIR=./testUtils
+CREATE_DIR=./gather_dir
 
 function failure()
 {
@@ -20,30 +25,50 @@ function failure()
 
 rm -rf "${CREATE_DIR}" || failure 20 "Failed to delete old $CREATE_DIR"
 
-# Assume (for jenkins job) that Everest-Base is already present in the directory above SSPL-AWS-Runner
-cp -r ../testUtils ${CREATE_DIR}
+[[ -d ../TA ]] || failure 22 "Can't find TA at ../TA"
+cp -r ../TA ${CREATE_DIR} || failure 23 "Failed to copy TA"
 
-
+BASE=${CREATE_DIR}
 export TEST_UTILS=${CREATE_DIR}
-export SYSTEMPRODUCT_TEST_INPUT=./system-product-test-inputs
-# this changes the working directory of the gather process to a relative path to the job so that we can run
-# multiple jobs on the same machine
-sed -i s:/tmp/system-product-test-inputs:${SYSTEMPRODUCT_TEST_INPUT}:g ${TEST_UTILS}/system-product-test-release-package.xml
-source ${TEST_UTILS}/packageInput.sh || failure 211 "Failed to gather inputs"
-source ${TEST_UTILS}/SupportFiles/jenkins/exportInputLocations.sh
-source ${TEST_UTILS}/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 211 "Failed to gather inputs"
 
-([[ -d ${SYSTEMPRODUCT_TEST_INPUT} ]] && tar czf ${CREATE_DIR}/SystemProductTestInputs.tgz ${SYSTEMPRODUCT_TEST_INPUT}) || failure 212 "Failed to tar inputs"
-rm -rf "${SYSTEMPRODUCT_TEST_INPUT}" || failure 21 "Failed to delete new ${SYSTEMPRODUCT_TEST_INPUT}"
+# Not sure where pipeline will put this
+OUTPUT=../output
+ls -l .. . $OUTPUT
+[[ -d $OUTPUT ]] || failure 24 "Failed to find output at $OUTPUT!"
+
+TEST_DIR_NAME=test
+TEST_DIR=${DEST_BASE}/${TEST_DIR_NAME}
+INPUTS=${TEST_DIR}/inputs
+AV=$INPUTS/av
+mkdir -p $AV
+
+rsync -va --copy-unsafe-links --delete  "$BASE/../TA/"            "$INPUTS/test_scripts"
+ln -snf test_scripts "$INPUTS/TA"
+rm -rf "$AV/SDDS-COMPONENT"
+mv "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
+chmod 700 "$AV/SDDS-COMPONENT/install.sh"
+rm -rf "$AV/base-sdds"
+mv "$OUTPUT/base-sdds/"      "$AV/base-sdds"
+chmod 700 "$AV/base-sdds/install.sh"
+rm -rf "$AV/test-resources"
+mv "$OUTPUT/test-resources"  "$AV/"
+
+PYTHON=${PYTHON:-python3}
+${PYTHON} ${BASE}/manual/downloadSupplements.py "$INPUTS"
 
 echo "Copying test.sh"
 cp test.sh $CREATE_DIR/test.sh
 echo "Copying testAndSendResults.sh"
 cp testAndSendResults.sh $CREATE_DIR/testAndSendResults.sh
 
+ls -lR ${CREATE_DIR}
+
 echo "Creating tarfile"
-tar czf ${TEST_TAR} -C "$CREATE_DIR" . || failure 18 "Failed to create archive of build"
+tar czf ${TEST_TAR} -C "$CREATE_DIR"  \
+    --exclude='test/inputs/vdl.zip' \
+    --exclude='test/inputs/model.zip' \
+    --exclude='test/inputs/reputation.zip' \
+    . || failure 18 "Failed to create archive of build"
 
-rm -rf "${CREATE_DIR}" || failure 20 "Failed to delete new $CREATE_DIR"
-
+rm -rf "${CREATE_DIR}" || failure 20 "Failed to delete $CREATE_DIR"
 

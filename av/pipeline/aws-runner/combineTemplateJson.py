@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+from __future__ import absolute_import, print_function ,division, unicode_literals
 
 import json
 import os
@@ -34,8 +35,6 @@ def main():
     with open("sspl-system.template") as main_template_file:
         main_template_json = json.loads(main_template_file.read())
 
-
-
     n = 1
     for arguments in args():
         print("Adding templates with args for: " + arguments)
@@ -43,10 +42,11 @@ def main():
             unique_template_name = template_name + str(n)
             json_with_args = json.loads(template_json_str.replace("@ARGSGOHERE@", arguments).replace("@HOSTNAMEGOESHERE@", unique_template_name))
             main_template_json["Resources"][unique_template_name] = json_with_args
-        n+=1
+        n += 1
 
     with open("sspl-system.template.with_args", "w") as outFile:
         outFile.write(json.dumps(main_template_json, indent=4))
+
 
 if __name__ == '__main__':
     main()

@@ -137,6 +137,9 @@ def pytest_task(machine: tap.Machine):
     install_requirements(machine)
     pytest_task_with_env(machine)
 
+def aws_task(machine: tap.Machine):
+    machine.run("bash", machine.inputs.aws-runner / "run_tests_in_aws.sh")
+
 
 def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
     """Return an input artifact from an unified pipeline build"""
@@ -306,6 +309,7 @@ def get_test_machines(test_inputs):
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
 def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     run_tests = parameters.run_tests != 'false'
+    run_aws_tests = parameters.run_aws_tests != "false"
 
     global BRANCH_NAME
     BRANCH_NAME = context.branch
@@ -313,6 +317,8 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                   or has_coverage_build(BRANCH_NAME) \
                   or parameters.run_coverage != 'false'
     coverage_build = context.artifact.build()
+    do_cppcheck = parameters.run_cppcheck != "false"
+    build_999 = parameters.build_999 != "false"
     nine_nine_nine_mode = '999'
 
     # section include to allow classic build to continue to work. To run unified pipeline local because of this check
@@ -322,12 +328,16 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         build_image = 'JenkinsLinuxTemplate5'
         release_package = "./build-files/release-package.xml"
         with stage.parallel('build'):
-            av_cpp_check = stage.artisan_build(name="cpp-check", component=component, image=build_image,
-                                               mode="cppcheck", release_package=release_package)
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
-                                                       mode=nine_nine_nine_mode, release_package=release_package)
+            if do_cppcheck:
+                av_cpp_check = stage.artisan_build(name="cpp-check", component=component, image=build_image,
+                                                   mode="cppcheck", release_package=release_package)
+            if build_999:
+                nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
+                                                           mode=nine_nine_nine_mode, release_package=release_package)
+
             av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
                                            mode=parameters.mode, release_package=release_package)
+
             if do_coverage:
                 coverage_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
                                                mode="coverage", release_package=release_package)
@@ -355,3 +365,8 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                                         inputs=coverage_inputs,
                                                         platform=tap.Platform.Linux)
                     stage.task(task_name='ubuntu1804_x64_combined', func=bullseye_coverage_task, machine=machine_bullseye_test)
+
+    if run_aws_tests:
+        test_inputs = get_inputs(context, av_build)
+        machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+        stage.task("aws_tests", func=aws_task, machine=machine)

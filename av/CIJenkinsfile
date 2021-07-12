@@ -3,7 +3,10 @@
 def params = [
     string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release|coverage]'),
     booleanParam(name: 'run_tests', defaultValue: true, description: 'Run Test Automation'),
+    booleanParam(name: 'run_aws_tests', defaultValue: true, description: 'Run Test Automation in AWS'),
     booleanParam(name: 'run_coverage', defaultValue: false, description: 'Run Coverage'),
+    booleanParam(name: 'run_cppcheck', defaultValue: true, description: 'Run Static Analysis'),
+    booleanParam(name: 'build_999', defaultValue: true, description: 'Build 999 build'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'av_plugin'; buildParameters = params }

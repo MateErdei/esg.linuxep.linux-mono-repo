@@ -15,17 +15,16 @@
         {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
         {"Key" : "BusinessUnit", "Value" : "ESG"},
         {"Key" : "CostCentre", "Value" : "GB11601200"},
-        {"Key" : "Project", "Value" : "XDR"},
+        {"Key" : "Project", "Value" : "SSPLAV"},
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
         {"Key" : "BaseAmi", "Value" : "ami-0240c07b7fc35ae0f"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
         {"Key" : "TestImage", "Value" : "true"},
-        {"Key" : "Codeline", "Value" : "SSPL" },
-        {"Key" : "Branch", "Value" : "SSPL" },
-        {"Key" : "Name", "Value" : "ubuntu1804minimal" },
-        {"Key" : "RootStackname", "Value" : "SSPL" }
+        {"Key" : "Codeline", "Value" : "SSPLAV" },
+        {"Key" : "Branch", "Value" : "SSPLAV" },
+        {"Key" : "Name", "Value" : "ubuntu1804minimal" }
       ],
       "NetworkInterfaces" : [{
         "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],

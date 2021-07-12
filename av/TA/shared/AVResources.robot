@@ -77,16 +77,16 @@ Restart threat detector once it stops
     Run Sophos Threat Detector Directly
 
 Require Sophos Threat Detector Running
-    ${result} =   Run Process  pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}  timeout=3
-    Run Keyword If  ${result.rc} == ${0}  Run Sophos Threat Detector Directly
+    ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    Run Keyword If  ${result} == ${-1}  Run Sophos Threat Detector Directly
 
 Check AV Plugin Not Running
-    ${result} =   Run Process  pidof  ${PLUGIN_BINARY}  timeout=3
-    Should Not Be Equal As Integers  ${result.rc}  ${0}
+    ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
+    Should Be Equal As Integers  ${result}  ${-1}
 
 Check Threat Detector Not Running
-    ${result} =   Run Process  pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}  timeout=3
-    Should Not Be Equal As Integers  ${result.rc}  ${0}
+    ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    Should Be Equal As Integers  ${result}  ${-1}
 
 Count File Log Lines
     [Arguments]  ${path}
