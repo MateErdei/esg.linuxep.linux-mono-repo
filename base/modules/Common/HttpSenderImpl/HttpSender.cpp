@@ -308,7 +308,7 @@ namespace Common::HttpSenderImpl
         // curl_easy_setopt(easyhandle, CURLOPT_PROXYUSERPWD, "user:password");
         if (!proxySettings.proxy.empty())
         {
-            LOGINFO("Setup proxy for the connection");
+            LOGINFO("Setup proxy for the connection: " << proxySettings.proxy);
             curlOptions.emplace_back("Configure the Proxy Option", CURLOPT_PROXY, proxySettings.proxy);
             if (!proxySettings.credentials.empty())
             {
