@@ -68,10 +68,14 @@ std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ServerThr
     return result;
 }
 
-std::string pluginimpl::generateThreatDetectedJson(const std::string& threatName, const std::string& threatPath)
+std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ServerThreatDetected& detection)
 {
     json threatEvent;
-    threatEvent["threatName"] = threatName;
-    threatEvent["threatPath"] = threatPath;
+    threatEvent["detection_name"] = detection.getThreatName();
+    threatEvent["detection_thumbprint"] = detection.getThreatName(); // turn into sha?
+    threatEvent["threatPath"] = detection.getFilePath();
+    threatEvent["threat_type"] = "Virus";
+    threatEvent["threat_source"] = "SAV";
+    threatEvent["time"] = detection.getDetectionTime();
     return threatEvent.dump();
 }
