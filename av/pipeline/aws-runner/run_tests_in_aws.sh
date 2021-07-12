@@ -51,6 +51,10 @@ fi
 
 [[ -x $(which aws) ]] || failure "No aws command available"
 
+aws configure set aws_access_key_id AKIAIF23TRE42IG5IH4Q
+aws configure set aws_secret_access_key 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
+aws configure set default.region eu-west-1
+
 ## Start deleting old stacks
 aws cloudformation delete-stack --stack-name $STACK --region eu-west-1 || failure "Unable to delete-stack: $?"
 
