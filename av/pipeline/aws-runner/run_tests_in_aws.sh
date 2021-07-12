@@ -46,7 +46,7 @@ cd $SCRIPT_DIR
 
 if [[ ! -x $(which aws) ]]
 then
-    apt install awscli
+    apt install -y awscli </dev/null
 fi
 
 [[ -x $(which aws) ]] || failure "No aws command available"
