@@ -43,8 +43,10 @@ MCS creates and updates flags file
       ...  1 secs
       ...  Check Mcsrouter Log Contains In Order  Checking for updates to mcs flags  Checking for updates to mcs flags
 
-    ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
-    Should Contain  ${CONTENTS}  "livequery.network-tables.available" : true,
+    Wait Until Keyword Succeeds
+      ...  10 secs
+      ...  1 secs
+      ...  Mcs Flags contain Network tables
 
 MCS Combines Flags Files
     Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"livequery.network-tables.available" : "true","endpoint.flag3.enabled" : "always","endpoint.flag4.enabled" : "true", "endpoint.flag5.enabled" : "always"}
@@ -59,3 +61,8 @@ MCS Combines Flags Files
     Should Contain  ${CONTENTS}  "endpoint.flag3.enabled": true
     Should Contain  ${CONTENTS}  "endpoint.flag4.enabled": false
     Should Contain  ${CONTENTS}  "endpoint.flag5.enabled": true
+
+*** Keywords ***
+Mcs Flags contain Network tables
+    ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
+    Should Contain  ${CONTENTS}  "livequery.network-tables.available" : true,
