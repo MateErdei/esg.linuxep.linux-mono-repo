@@ -64,9 +64,9 @@ rm -rf "$INPUTS/ml_model"
 mv "../ml_model" "$INPUTS/ml_model"
 
 echo "Copying test.sh"
-cp test.sh $CREATE_DIR/test.sh
+cp test.sh ${INPUTS}/test_scripts/test.sh
 echo "Copying testAndSendResults.sh"
-cp testAndSendResults.sh $CREATE_DIR/testAndSendResults.sh
+cp testAndSendResults.sh ${INPUTS}/test_scripts/testAndSendResults.sh
 
 ls -lR ${CREATE_DIR}
 

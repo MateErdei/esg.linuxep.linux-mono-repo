@@ -16,8 +16,8 @@ from boto.s3.connection import S3Connection
 
 
 TIMEOUT_FOR_ALL_TESTS = 8*60*60  #seconds
-STACK = os.environ.get("STACK",None)
-TEST_PASS_UUID = os.environ.get("TEST_PASS_UUID",None)
+STACK = os.environ.get("STACK", None)
+TEST_PASS_UUID = os.environ.get("TEST_PASS_UUID", None)
 
 def checkMachinesAllTerminated(stack, uuid=TEST_PASS_UUID):
     conn = boto.ec2.connect_to_region(
@@ -30,10 +30,9 @@ def checkMachinesAllTerminated(stack, uuid=TEST_PASS_UUID):
         "tag:TestImage": "true"
         })
     for instance in instances:
-        print("Checking instance %s %s-%s ip %s"%(
+        print("Checking instance %s %s ip %s"%(
             instance.id,
             instance.tags.get('Name',"<unknown>"),
-            instance.tags.get('Slice',''),
             instance.ip_address
             ))
         if instance.state != "terminated":
@@ -75,6 +74,7 @@ def main(argv):
 
     print("Giving up and deleting stack anyway")
     return 1
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

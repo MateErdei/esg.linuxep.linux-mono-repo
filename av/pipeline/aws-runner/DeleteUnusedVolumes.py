@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ## pip install -U boto
 import boto
@@ -17,6 +17,6 @@ volumes = ec2.get_all_volumes(filters={
     })
 
 for volume in volumes:
-    print volume
+    print(volume)
     volume.delete()
 

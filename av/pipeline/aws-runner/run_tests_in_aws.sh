@@ -70,6 +70,9 @@ aws configure set default.region eu-west-1
 ## Start deleting old stacks
 aws cloudformation delete-stack --stack-name $STACK --region eu-west-1 || failure "Unable to delete-stack: $?"
 
+#
+pip3 install -U boto
+
 ## Create template
 
 function compress()
@@ -322,7 +325,7 @@ cleanupStack() {
         || failure "Unable to delete-stack for $STACK: $?"
 
     echo "Delete unused volumes for $STACK:" >&2
-    python $SCRIPT_DIR/DeleteUnusedVolumes.py \
+    python3 $SCRIPT_DIR/DeleteUnusedVolumes.py \
         || failure "Unable to delete unused volumes for $STACK: $?"
 }
 
