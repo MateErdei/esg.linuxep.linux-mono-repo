@@ -72,7 +72,7 @@ then
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
   set -x
-  cp $BULLSEYE_DIR/bin/covxml /usr/local/bin/covxml
+  sudo cp $BULLSEYE_DIR/bin/covxml /usr/local/bin/covxml
   ln -s $BULLSEYE_DIR/bin/covxml covxml
   sudo -E python3 -u $COVERAGE_SCRIPT                           \
       --output /opt/test/results/coverage/test_coverage.json    \
