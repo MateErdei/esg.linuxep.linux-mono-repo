@@ -12,6 +12,9 @@ echo SCRIPT_DIR=${SCRIPT_DIR}
 
 ls -l $ORIGINAL_DIR
 ls -l $SCRIPT_DIR
+ls -l ..
+OUTPUT=../av
+ls -l .. . $OUTPUT
 
 CREATE_DIR=./gather_dir
 
@@ -24,37 +27,41 @@ function failure()
 }
 
 rm -rf "${CREATE_DIR}" || failure 20 "Failed to delete old $CREATE_DIR"
-
-[[ -d ../TA ]] || failure 22 "Can't find TA at ../TA"
-cp -r ../TA ${CREATE_DIR} || failure 23 "Failed to copy TA"
-
-BASE=${CREATE_DIR}
-export TEST_UTILS=${CREATE_DIR}
-
-# Not sure where pipeline will put this
-OUTPUT=../output
-ls -l .. . $OUTPUT
+[[ -d ../test_scripts ]] || failure 22 "Can't find test_scripts at ../test_scripts"
 [[ -d $OUTPUT ]] || failure 24 "Failed to find output at $OUTPUT!"
 
+
 TEST_DIR_NAME=test
-TEST_DIR=${DEST_BASE}/${TEST_DIR_NAME}
+TEST_DIR=${CREATE_DIR}/${TEST_DIR_NAME}
 INPUTS=${TEST_DIR}/inputs
+mkdir -p ${INPUTS}
+
+mv ../test_scripts ${INPUTS}/test_scripts || failure 23 "Failed to copy test_scripts"
+ln -s test_scripts ${INPUTS}/TA
+
 AV=$INPUTS/av
 mkdir -p $AV
 
-rsync -va --copy-unsafe-links --delete  "$BASE/../TA/"            "$INPUTS/test_scripts"
-ln -snf test_scripts "$INPUTS/TA"
 rm -rf "$AV/SDDS-COMPONENT"
 mv "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
 chmod 700 "$AV/SDDS-COMPONENT/install.sh"
+
 rm -rf "$AV/base-sdds"
 mv "$OUTPUT/base-sdds/"      "$AV/base-sdds"
 chmod 700 "$AV/base-sdds/install.sh"
+
 rm -rf "$AV/test-resources"
 mv "$OUTPUT/test-resources"  "$AV/"
 
-PYTHON=${PYTHON:-python3}
-${PYTHON} ${BASE}/manual/downloadSupplements.py "$INPUTS"
+# Supplements
+rm -rf "$INPUTS/local_rep"
+mv "../local_rep" "$INPUTS/local_rep"
+
+rm -rf "$INPUTS/vdl"
+mv "../vdl" "$INPUTS/vdl"
+
+rm -rf "$INPUTS/ml_model"
+mv "../ml_model" "$INPUTS/ml_model"
 
 echo "Copying test.sh"
 cp test.sh $CREATE_DIR/test.sh

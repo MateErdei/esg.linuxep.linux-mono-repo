@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 IDENTITFIER=`hostname`-`date +%F`-`date +%H``date +%M`
 [[ -n $STACK ]] || STACK=ssplav-system-tests-${IDENTITFIER}-$(echo "$@"-${RANDOM} | md5sum | cut -f 1 -d " " )
 
@@ -44,6 +46,16 @@ SCRIPT_DIR="${0%/*}"
 [[ $SCRIPT_DIR == $0 ]] && SCRIPT_DIR=.
 cd $SCRIPT_DIR
 
+export TEST_TAR=./ssplav-test-$STACK.tgz
+TAR_BASENAME=$(basename ${TEST_TAR})
+## Gather files
+if [[ -z "$SKIP_GATHER" ]]
+then
+    bash -x ./gather.sh || failure "Failed to gather test files: $?"
+fi
+[[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
+
+
 if [[ ! -x $(which aws) ]]
 then
     apt install -y awscli </dev/null
@@ -57,15 +69,6 @@ aws configure set default.region eu-west-1
 
 ## Start deleting old stacks
 aws cloudformation delete-stack --stack-name $STACK --region eu-west-1 || failure "Unable to delete-stack: $?"
-
-export TEST_TAR=./ssplav-test-$STACK.tgz
-TAR_BASENAME=$(basename ${TEST_TAR})
-## Gather files
-if [[ -z "$SKIP_GATHER" ]]
-then
-    bash ./gather.sh || failure "Failed to gather test files: $?"
-fi
-[[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
 
 ## Create template
 
