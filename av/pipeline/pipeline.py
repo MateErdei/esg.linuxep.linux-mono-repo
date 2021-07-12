@@ -138,7 +138,7 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 def aws_task(machine: tap.Machine):
-    machine.run("bash", machine.inputs.aws-runner / "run_tests_in_aws.sh")
+    machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh")
 
 
 def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
@@ -149,7 +149,7 @@ def unified_artifact(context: tap.PipelineContext, component: str, branch: str, 
     return artifact
 
 
-def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False) -> Dict[str, Input]:
+def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False, pipeline=False) -> Dict[str, Input]:
     print(str(build))
     supplement_branch = "released"
     output = 'output'
@@ -171,6 +171,10 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
 
     if coverage:
         test_inputs['bazel_tools'] = unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
+
+    if pipeline:
+        test_inputs['aws_runner'] = context.artifact.from_folder("./pipeline/aws-runner")
+
     return test_inputs
 
 @tap.timeout(task_timeout=5400)
@@ -367,6 +371,6 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                     stage.task(task_name='ubuntu1804_x64_combined', func=bullseye_coverage_task, machine=machine_bullseye_test)
 
     if run_aws_tests:
-        test_inputs = get_inputs(context, av_build)
+        test_inputs = get_inputs(context, av_build, pipeline=True)
         machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
         stage.task("aws_tests", func=aws_task, machine=machine)
