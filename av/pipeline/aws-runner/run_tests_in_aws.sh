@@ -58,12 +58,6 @@ then
 fi
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
 
-
-if [[ ! -x $(which aws) ]]
-then
-    apt install -y awscli </dev/null
-fi
-
 [[ -x $(which aws) ]] || failure "No aws command available"
 
 export AWS_ACCESS_KEY_ID=AKIAIF23TRE42IG5IH4Q
