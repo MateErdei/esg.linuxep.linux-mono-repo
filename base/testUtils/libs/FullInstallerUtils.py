@@ -208,7 +208,17 @@ def get_sspl_event_journaler_plugin_sdds():
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "output/SDDS-COMPONENT"))
     return get_plugin_sdds("SSPL Event Journaler Plugin", "SSPL_EVENT_JOURNALER_PLUGIN_SDDS", candidates)
+
+def get_sspl_anti_virus_plugin_sdds():
+    candidates = []
+    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-anti-virus")
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "output/SDDS-COMPONENT"))
+    return get_plugin_sdds("SSPL AV Plugin", "SSPL_ANTI_VIRUS_PLUGIN_SDDS", candidates)
 
 def get_sspl_base_sdds_version_0_5():
     candidates = ["/uk-filer5/prodro/bir/sspl-base/0-5-0-223/213552/output/SDDS-COMPONENT/"]

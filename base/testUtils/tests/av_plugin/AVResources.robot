@@ -20,6 +20,16 @@ ${CLEAN_STRING}                     I am not a virus
 ${EICAR_STRING}                     X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 
 *** Keywords ***
+Install AV Plugin Directly
+    ${AV_SDDS_DIR} =  Get SSPL Anti Virus Plugin SDDS
+    ${result} =    Run Process  bash -x ${AV_SDDS_DIR}/install.sh 2> /tmp/install.log   shell=True
+    ${error} =  Get File  /tmp/install.log
+    Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr}, ${error}"
+    Log  ${error}
+    Log  ${result.stderr}
+    Log  ${result.stdout}
+    Check AV Plugin Installed
+
 Check AV Plugin Installed
     Check Log Does Not Contain  Failed to install as setcap is not installed  ${SULDownloaderLog}  SulDownloaderLog
     File Should Exist   ${AVPLUGIN_PATH}/bin/avscanner
@@ -34,6 +44,17 @@ Check AV Plugin Installed
 
 Check AV Plugin Running
     Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
+
+Check AV Plugin Executable Not Running
+    ${result} =    Run Process  pgrep  -a  ${PLUGIN_BINARY}
+    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
+Stop AV Plugin
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
+
+Start AV Plugin
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
 AV Plugin Log Contains
     [Arguments]  ${TextToFind}

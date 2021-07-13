@@ -15,6 +15,11 @@
             <development-version branch="develop"/>
             <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
         </build-asset>
+        <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
+            <development-version branch="develop"/>
+            <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
+        </build-asset>
+        <trusted-asset artifact-path="com.sophos/ssplav-vdl/released/vdl.zip" dest-dir="vdl"/>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
             <development-version branch="develop"/>
             <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>

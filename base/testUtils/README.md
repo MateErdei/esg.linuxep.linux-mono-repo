@@ -58,6 +58,7 @@ To refresh, run step 3b then 4
 The following tags can be used to select which tests can be run, using the include or exclude arguments.
 * AMAZON_LINUX - Test cases which will run on AWS only
 * AUDIT_PLUGIN - Test cases which test sspl-audit
+* AV_PLUGIN - Test cases which test anti-virus plugin
 * BASE_DOWNGRADE - Test cases where base is downgraded
 * CENTRAL - Tests which run against Central or Nova
 * COMMS - Test cases which test the comms component
