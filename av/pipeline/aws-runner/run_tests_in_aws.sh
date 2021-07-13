@@ -46,6 +46,9 @@ SCRIPT_DIR="${0%/*}"
 [[ $SCRIPT_DIR == $0 ]] && SCRIPT_DIR=.
 cd $SCRIPT_DIR
 
+# Install python requirements
+python3 -m pip install --upgrade -r requirements.txt || failure "Unable to install python requirements: $?"
+
 export TEST_TAR=./ssplav-test-$STACK.tgz
 TAR_BASENAME=$(basename ${TEST_TAR})
 ## Gather files
@@ -63,15 +66,15 @@ fi
 
 [[ -x $(which aws) ]] || failure "No aws command available"
 
-aws configure set aws_access_key_id AKIAIF23TRE42IG5IH4Q
-aws configure set aws_secret_access_key 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
-aws configure set default.region eu-west-1
+export AWS_ACCESS_KEY_ID=AKIAIF23TRE42IG5IH4Q
+aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+export AWS_SECRET_ACCESS_KEY="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"
+aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+export AWS_REGION=eu-west-1
+aws configure set default.region "$AWS_REGION"
 
 ## Start deleting old stacks
-aws cloudformation delete-stack --stack-name $STACK --region eu-west-1 || failure "Unable to delete-stack: $?"
-
-#
-pip3 install -U boto
+aws cloudformation delete-stack --stack-name $STACK --region $AWS_REGION || failure "Unable to delete-stack: $?"
 
 ## Create template
 
@@ -340,7 +343,6 @@ aws s3 rm ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME}
 
 combineResults()
 {
-  python3 -m pip install --upgrade robotframework
 
   rm -rf results-combine-workspace
   mkdir results-combine-workspace
