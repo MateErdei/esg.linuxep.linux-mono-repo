@@ -2,6 +2,8 @@
 
 set -x
 
+SSHLocation=${SSHLocation:-"195.171.192.0/24"}
+
 IDENTITFIER=`hostname`-`date +%F`-`date +%H``date +%M`
 [[ -n $STACK ]] || STACK=ssplav-system-tests-${IDENTITFIER}-$(echo "$@"-${RANDOM} | md5sum | cut -f 1 -d " " )
 
@@ -46,8 +48,13 @@ SCRIPT_DIR="${0%/*}"
 [[ $SCRIPT_DIR == $0 ]] && SCRIPT_DIR=.
 cd $SCRIPT_DIR
 
+echo $STACK >stackName
+
 # Install python requirements
-python3 -m pip install --upgrade -r requirements.txt || failure "Unable to install python requirements: $?"
+if [[ -z "$SKIP_REQUIREMENTS" ]]
+then
+    python3 -m pip install --upgrade -r requirements.txt || failure "Unable to install python requirements: $?"
+fi
 
 export TEST_TAR=./ssplav-test-$STACK.tgz
 TAR_BASENAME=$(basename ${TEST_TAR})
@@ -61,7 +68,7 @@ fi
 [[ -x $(which aws) ]] || failure "No aws command available"
 
 export AWS_ACCESS_KEY_ID=AKIAIF23TRE42IG5IH4Q
-aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID || failure "Unable to configure access key: $?"
 export AWS_SECRET_ACCESS_KEY="09/KeoBM/fhfj9AQOwaRpSXAwOATTcEe3PKL/V7v"
 aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
 export AWS_REGION=eu-west-1
@@ -154,9 +161,9 @@ then
 fi
 
 ## Trigger Cloud Formation
-REGION=eu-west-1
+REGION=${AWS_REGION}
 KEY_NAME=regressiontesting
-BUILD_NAME=SSPL
+BUILD_NAME=SSPLAV
 ## check if RunCloud is set
 if [[ $RUNCLOUD == "true" ]]
 then
@@ -199,6 +206,7 @@ do
                      ParameterKey=RunSome,ParameterValue="$RUN_SOME" \
                      ParameterKey=RunOne,ParameterValue="$RUN_ONE" \
                      ParameterKey=StackName,ParameterValue="${STACK}" \
+                     ParameterKey=SSHLocation,ParameterValue="${SSHLocation}" \
                      --output=text 2>&1)
 
     echo "Stack ID == ${stack_id}"
@@ -322,7 +330,8 @@ cleanupStack() {
         || failure "Unable to delete-stack for $STACK: $?"
 
     echo "Delete unused volumes for $STACK:" >&2
-    python3 $SCRIPT_DIR/DeleteUnusedVolumes.py \
+    pwd
+    python3 ./DeleteUnusedVolumes.py \
         || failure "Unable to delete unused volumes for $STACK: $?"
 }
 
