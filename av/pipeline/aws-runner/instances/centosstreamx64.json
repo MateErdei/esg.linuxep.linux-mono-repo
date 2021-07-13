@@ -52,7 +52,7 @@
         "echo ", {"Ref": "cloudIpAddress"}, " >/root/OVERRIDE_CLOUD_IP\n",
         "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
         "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
-        "yum install -y python39 make iptables openssl python2\n",
+        "yum install -y python39 make iptables openssl python2 vim-common\n",
         "ln -s /bin/python2 /bin/python\n",
         "pip3 install --upgrade awscli robotframework psutil zmq protobuf paramiko watchdog cryptography==3.3.1 python-dateutil requests enum34 packaging 2>&1 >>/tmp/cloudFormationInit.log\n",
         "python3 -m awscli s3 cp s3://sspl-testbucket/ssplav/ssplav-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
