@@ -358,5 +358,9 @@ combineResults()
   python3 -m robot.rebot -l ./results/combined-log.html -r ./results/combined-report.html -N combined ./results-combine-workspace/*
 }
 combineResults
-## exit
+LOG_RESULT_DIR=${LOG_RESULT_DIR:-/opt/test/logs}
+mkdir -p ${LOG_RESULT_DIR}
+cp ./results/combined-log.html ${LOG_RESULT_DIR}/log.html
+cp ./results/combined-report.html ${LOG_RESULT_DIR}/report.html
+
 exit 0

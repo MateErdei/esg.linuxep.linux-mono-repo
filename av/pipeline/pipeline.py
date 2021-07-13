@@ -138,7 +138,12 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 def aws_task(machine: tap.Machine):
-    machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh")
+    try:
+        machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh")
+    finally:
+        machine.output_artifact('/opt/test/logs', 'logs')
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
+                    "robot" + get_suffix() + "_aws-log.html")
 
 
 def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
