@@ -65,7 +65,8 @@ python3 -m pip install -r $SCRIPT_DIR/requirements.txt
 echo "Running tests on $HOSTNAME"
 RESULT=0
 #EXCLUSIONS='-e MANUAL -e AUDIT_PLUGIN -e PUB_SUB -e EVENT_PLUGIN -e EXCLUDE_AWS -e CUSTOM_LOCATION -e TESTFAILURE -e FUZZ -e MCS_FUZZ -e MDR_REGRESSION_TESTS -e EXAMPLE_PLUGIN'
-python3 -m robot --include "INTEGRATION OR PRODUCT" --exclude "OSTIA OR MANUAL OR DISABLED OR STRESS" --removekeywords WUKS  .
+#python3 -m robot --include "INTEGRATION OR PRODUCT" --exclude "OSTIA OR MANUAL OR DISABLED OR STRESS" --removekeywords WUKS  .
+python3 -m robot --include "AVSCANNER" --exclude "INTEGRATION OR OSTIA OR MANUAL OR DISABLED OR STRESS" --removekeywords WUKS  .
 
 [[ ${RERUNFAILED} == true ]] || exit 0
 

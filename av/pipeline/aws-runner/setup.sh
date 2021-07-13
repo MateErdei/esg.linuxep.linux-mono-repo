@@ -1,6 +1,6 @@
 #!/bin/bash
 SRC=/home/pair/mav
-BUILD=/home/pair/mav/output
+BUILD=${BUILD:-/home/pair/mav/output}
 DEST=.
 SUPPLEMENT=/opt/test/inputs
 

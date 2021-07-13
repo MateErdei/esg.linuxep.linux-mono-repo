@@ -51,7 +51,7 @@
         "echo ", {"Ref": "cloudIpAddress"}, " >/root/OVERRIDE_CLOUD_IP\n",
         "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
         "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
-        "aws s3 cp s3://sspl-testbucket/sspl/sspl-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
+        "aws s3 cp s3://sspl-testbucket/ssplav/ssplav-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
         "tar xvzf /opt/sspl-test.tgz -C /opt >> /tmp/cloudFormationInit.log 2>&1\n",
         "bash /opt/test/inputs/test_scripts/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
         "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",

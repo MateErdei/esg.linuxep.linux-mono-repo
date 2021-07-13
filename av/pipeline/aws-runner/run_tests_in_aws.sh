@@ -57,13 +57,13 @@ then
 fi
 
 export TEST_TAR=./ssplav-test-$STACK.tgz
-TAR_BASENAME=$(basename ${TEST_TAR})
 ## Gather files
 if [[ -z "$SKIP_GATHER" ]]
 then
     bash -x ./gather.sh || failure "Failed to gather test files: $?"
 fi
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
+TAR_BASENAME=$(basename ${TEST_TAR})
 
 [[ -x $(which aws) ]] || failure "No aws command available"
 

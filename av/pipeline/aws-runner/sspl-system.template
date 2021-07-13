@@ -288,7 +288,7 @@
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "NetworkAcl1"},
-        "RuleNumber" : "102",
+        "RuleNumber" : "103",
         "Protocol" : "6",
         "RuleAction" : "allow",
         "Egress" : "false",
@@ -301,7 +301,7 @@
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "NetworkAcl1"},
-        "RuleNumber" : "103",
+        "RuleNumber" : "104",
         "Protocol" : "6",
         "RuleAction" : "allow",
         "Egress" : "false",
@@ -314,7 +314,7 @@
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "NetworkAcl1"},
-        "RuleNumber" : "100",
+        "RuleNumber" : "200",
         "Protocol" : "6",
         "RuleAction" : "allow",
         "Egress" : "true",
@@ -327,7 +327,7 @@
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "NetworkAcl1"},
-        "RuleNumber" : "101",
+        "RuleNumber" : "201",
         "Protocol" : "6",
         "RuleAction" : "allow",
         "Egress" : "true",
@@ -340,7 +340,7 @@
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "NetworkAcl1"},
-        "RuleNumber" : "102",
+        "RuleNumber" : "202",
         "Protocol" : "6",
         "RuleAction" : "allow",
         "Egress" : "true",
