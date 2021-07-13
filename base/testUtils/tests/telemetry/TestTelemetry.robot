@@ -331,7 +331,7 @@ Test With Proxy
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}
 
-    Check Log Contains   Setup proxy for the connection    ${SOPHOS_INSTALL}/var/sophos-spl-comms/logs/comms_network.log    comms network
+    Check Log Contains   Setup proxy for the connection: localhost:3000    ${SOPHOS_INSTALL}/var/sophos-spl-comms/logs/comms_network.log    comms network
 
 Telemetry Causing Comms To Hang Does Not Stop Comms Restarting
     [Tags]   TELEMETRY   COMMS

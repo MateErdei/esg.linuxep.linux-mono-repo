@@ -50,7 +50,7 @@ Test RunHttpRequest without Jail can perform a GET request with pinned Certifica
     Should Contain   ${content}   Response From HttpsServer
 
 
-Test RunHttpRequest with Proxy Wihtout Authentication works
+Test RunHttpRequest with Proxy Without Authentication works
     Start Simple Proxy Server    3000
     Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${CERT_PATH}
     ${output}=  Run Shell Process  ${RunHttpRequestExecutable} -i ${FileNameRequest1} --proxy localhost:3000   "Failed to run http request"  30  expectedExitCode=0
