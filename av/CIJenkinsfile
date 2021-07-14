@@ -2,11 +2,15 @@
 
 def params = [
     string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release|coverage]'),
-    booleanParam(name: 'run_tests', defaultValue: true, description: 'Run Test Automation'),
-    booleanParam(name: 'run_aws_tests', defaultValue: true, description: 'Run Test Automation in AWS'),
-    booleanParam(name: 'run_coverage', defaultValue: false, description: 'Run Coverage'),
-    booleanParam(name: 'run_cppcheck', defaultValue: true, description: 'Run Static Analysis'),
-    booleanParam(name: 'build_999', defaultValue: true, description: 'Build 999 build'),
+    booleanParam(name: 'run_tests', defaultValue: true, description: 'Run Test Automation (default everywhere)'),
+    booleanParam(name: 'force_run_aws_tests', defaultValue: false, description: 'Run Test Automation in AWS (default in develop & release)'),
+    booleanParam(name: 'inhibit_run_aws_tests', defaultValue: false, description: 'Don't run Test Automation in AWS (default in feature & bugfix)'),
+    booleanParam(name: 'force_run_coverage', defaultValue: false, description: 'Run Coverage (default in develop & release)'),
+    booleanParam(name: 'inhibit_run_coverage', defaultValue: false, description: 'Don't run Coverage (default in feature & bugfix)'),
+    booleanParam(name: 'force_run_cppcheck', defaultValue: false, description: 'Run Static Analysis (default in feature, bugfix & develop'),
+    booleanParam(name: 'inhibit_run_cppcheck', defaultValue: false, description: 'Don't run Static Analysis (default in release)'),
+    booleanParam(name: 'force_build_999', defaultValue: false, description: 'Build 999 build (default in develop)'),
+    booleanParam(name: 'inhibit_build_999', defaultValue: false, description: 'Don't build 999 build (default in feature, bugfix & release)'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'av_plugin'; buildParameters = params }
