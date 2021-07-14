@@ -66,13 +66,13 @@ int main(int argc, char* argv[])
 
     for (const auto& detection: response.getDetections())
     {
-        if (detection.second.empty())
+        if (detection.name.empty())
         {
             PRINT(filename << " is clean");
         }
         else
         {
-            PRINT(filename << " is infected with " <<detection.second);
+            PRINT(filename << " is infected with " <<detection.name);
         }
     }
 

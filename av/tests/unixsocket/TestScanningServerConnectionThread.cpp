@@ -314,7 +314,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
     auto expected_response = scan_messages::ScanResponse();
-    expected_response.addDetection("/tmp/eicar.com", "THREAT");
+    expected_response.addDetection("/tmp/eicar.com", "THREAT","");
 
     EXPECT_CALL(*scanner, scan(_, "/file/to/scan", _, _)).WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));

@@ -86,8 +86,8 @@ TEST(TestScanClient, TestScanArchive) // NOLINT
 
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.addDetection(infectedFile1, threatName);
-    response.addDetection(infectedFile2, threatName);
+    response.addDetection(infectedFile1, threatName,"");
+    response.addDetection(infectedFile2, threatName,"");
     std::map<path, std::string> detections;
     detections.emplace(infectedFile1, threatName);
     detections.emplace(infectedFile2, threatName);
@@ -117,7 +117,7 @@ TEST(TestScanClient, TestScanInfectedNoCallback) // NOLINT
 
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.addDetection("/tmp/eicar.com", THREAT);
+    response.addDetection("/tmp/eicar.com", THREAT,"");
 
     EXPECT_CALL(mock_socket, scan(_, _))
             .Times(1)
@@ -127,7 +127,7 @@ TEST(TestScanClient, TestScanInfectedNoCallback) // NOLINT
     ScanClient s(mock_socket, mock_callbacks, false, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
     EXPECT_FALSE(result.getDetections().empty());
-    EXPECT_EQ(result.getDetections()[0].second, THREAT);
+    EXPECT_EQ(result.getDetections()[0].name, THREAT);
 }
 
 TEST(TestScanClient, TestScanInfected) // NOLINT
@@ -137,7 +137,7 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
 
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.addDetection("/etc/passwd", THREAT);
+    response.addDetection("/etc/passwd", THREAT,"");
     std::map<path, std::string> detections;
     detections.emplace("/etc/passwd", THREAT);
 
@@ -156,7 +156,7 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
     auto result = s.scan("/etc/passwd");
 
     EXPECT_FALSE(result.getDetections().empty());
-    EXPECT_EQ(result.getDetections()[0].second, THREAT);
+    EXPECT_EQ(result.getDetections()[0].name, THREAT);
 }
 
 TEST(TestScanClient, TestFailedToOpenMessages) // NOLINT

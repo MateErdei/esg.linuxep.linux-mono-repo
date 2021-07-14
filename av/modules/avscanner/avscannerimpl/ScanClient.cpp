@@ -109,7 +109,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
             std::map<path, std::string> detections;
             for(const auto& detection : response.getDetections())
             {
-                detections.emplace(detection.first, detection.second);
+                detections.emplace(detection.path, detection.name);
             }
 
             m_callbacks->infectedFile(detections, fileToScanPath, isSymlink);

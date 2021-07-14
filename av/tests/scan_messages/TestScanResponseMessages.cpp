@@ -21,11 +21,12 @@ class TestScanResponseMessages : public ::testing::Test
 public:
     void SetUp() override
     {
-        m_scanResponse.addDetection(m_filePath, m_threatName);
+        m_scanResponse.addDetection(m_filePath, m_threatName, m_sha256);
     }
 
     std::string m_filePath = "/tmp/eicar.com";
     std::string m_threatName = "EICAR-AV-TEST";
+    std::string m_sha256 = "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def";
     std::string m_fullScanResult = "";
 
     scan_messages::ScanResponse m_scanResponse;

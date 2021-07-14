@@ -138,7 +138,7 @@ SusiScanner::scan(
                     for (auto detection : result["detections"])
                     {
                         LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath);
-                        response.addDetection(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), detection["threatName"]);
+                        response.addDetection(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), detection["threatName"], detection["sha256"]);
                     }
                 }
 
@@ -161,18 +161,18 @@ SusiScanner::scan(
 
     if (res == SUSI_I_THREATPRESENT)
     {
-        std::vector<std::pair<std::string, std::string>> detections = response.getDetections();
+        std::vector<scan_messages::DetectionContainer> detections = response.getDetections();
         if (detections.empty())
         {
             // Failed to parse SUSI scan report but the return code shows that we detected a threat
-            response.addDetection(file_path, "unknown");
+            response.addDetection(file_path, "unknown","unknown");
             sendThreatReport(file_path, "unknown", scanType, userID);
         }
         else
         {
             for (const auto& detection: detections)
             {
-                sendThreatReport(detection.first, detection.second, scanType, userID);
+                sendThreatReport(detection.path, detection.name, scanType, userID);
             }
         }
     }

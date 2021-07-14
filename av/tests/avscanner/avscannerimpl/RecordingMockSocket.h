@@ -33,7 +33,7 @@ namespace
             m_paths.emplace_back(p);
 //            PRINT("Scanning " << p);
             scan_messages::ScanResponse response;
-            response.addDetection(p, "");
+            response.addDetection(p, "","");
             return response;
         }
 

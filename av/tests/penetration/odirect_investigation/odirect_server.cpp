@@ -48,7 +48,7 @@ namespace
             fd.close();
 
             scan_messages::ScanResponse response;
-            response.addDetection("/bin/bash", "");
+            response.addDetection("/bin/bash", "","");
             return response;
         }
 

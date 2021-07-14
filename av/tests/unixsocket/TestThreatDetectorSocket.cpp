@@ -105,7 +105,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
     auto expected_response = scan_messages::ScanResponse();
-    expected_response.addDetection("/tmp/eicar.com", "THREAT");
+    expected_response.addDetection("/tmp/eicar.com", "THREAT","");
 
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
@@ -121,7 +121,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
         auto response = scan(client_socket, fd, THREAT_PATH);
 
         EXPECT_FALSE(response.allClean());
-        EXPECT_EQ(response.getDetections()[0].second, "THREAT");
+        EXPECT_EQ(response.getDetections()[0].name, "THREAT");
     }
 
     server.requestStop();
@@ -136,7 +136,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
     auto expected_response = scan_messages::ScanResponse();
-    expected_response.addDetection("/bin/bash", "");
+    expected_response.addDetection("/bin/bash", "","");
 
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
@@ -166,7 +166,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
     auto expected_response = scan_messages::ScanResponse();
-    expected_response.addDetection("/bin/bash", "");
+    expected_response.addDetection("/bin/bash", "","");
 
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillRepeatedly(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
