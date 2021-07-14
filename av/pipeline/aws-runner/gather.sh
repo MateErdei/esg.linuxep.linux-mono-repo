@@ -36,32 +36,36 @@ TEST_DIR=${CREATE_DIR}/${TEST_DIR_NAME}
 INPUTS=${TEST_DIR}/inputs
 mkdir -p ${INPUTS}
 
-mv ../test_scripts ${INPUTS}/test_scripts || failure 23 "Failed to copy test_scripts"
+COPY=mv
+# non-destructive
+COPY="cp -a"
+
+$COPY ../test_scripts ${INPUTS}/test_scripts || failure 23 "Failed to copy test_scripts"
 ln -s test_scripts ${INPUTS}/TA
 
 AV=$INPUTS/av
 mkdir -p $AV
 
 rm -rf "$AV/SDDS-COMPONENT"
-mv "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
+$COPY "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
 chmod 700 "$AV/SDDS-COMPONENT/install.sh"
 
 rm -rf "$AV/base-sdds"
-mv "$OUTPUT/base-sdds/"      "$AV/base-sdds"
+$COPY "$OUTPUT/base-sdds/"      "$AV/base-sdds"
 chmod 700 "$AV/base-sdds/install.sh"
 
 rm -rf "$AV/test-resources"
-mv "$OUTPUT/test-resources"  "$AV/"
+$COPY "$OUTPUT/test-resources"  "$AV/"
 
 # Supplements
 rm -rf "$INPUTS/local_rep"
-mv "../local_rep" "$INPUTS/local_rep"
+$COPY "../local_rep" "$INPUTS/local_rep"
 
 rm -rf "$INPUTS/vdl"
-mv "../vdl" "$INPUTS/vdl"
+$COPY "../vdl" "$INPUTS/vdl"
 
 rm -rf "$INPUTS/ml_model"
-mv "../ml_model" "$INPUTS/ml_model"
+$COPY "../ml_model" "$INPUTS/ml_model"
 
 echo "Copying test.sh"
 cp test.sh ${INPUTS}/test_scripts/test.sh
