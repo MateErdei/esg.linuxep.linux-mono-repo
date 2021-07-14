@@ -12,7 +12,7 @@ function failure()
 
 SCRIPT_DIR="${0%/*}"
 cd $SCRIPT_DIR || exit 1
-#PLATFORM_EXCLUDE_TAG=""
+PLATFORM_EXCLUDE_TAG=""
 #
 #if [[ -f /etc/centos-release ]]
 #then
@@ -55,6 +55,17 @@ cd $SCRIPT_DIR || exit 1
 #    fi
 #fi
 
+SAMBA_EXCLUDE_TAG=
+if [[ ! -f /etc/samba/smb.conf ]]
+then
+    echo "Excluding SMB as /etc/samba/smb.conf doesn't exist"
+    SAMBA_EXCLUDE_TAG="-e SMB"
+elif [[ ! -x $(which mount.cifs) ]]
+then
+    echo "Excluding SMB as mount.cifs doesn't exist"
+    SAMBA_EXCLUDE_TAG="-e SMB"
+fi
+
 export TEST_UTILS=$SCRIPT_DIR
 
 
@@ -64,14 +75,18 @@ python3 -m pip install -r $SCRIPT_DIR/requirements.txt
 
 echo "Running tests on $HOSTNAME"
 RESULT=0
-#EXCLUSIONS='-e MANUAL -e AUDIT_PLUGIN -e PUB_SUB -e EVENT_PLUGIN -e EXCLUDE_AWS -e CUSTOM_LOCATION -e TESTFAILURE -e FUZZ -e MCS_FUZZ -e MDR_REGRESSION_TESTS -e EXAMPLE_PLUGIN'
-python3 -m robot --include "INTEGRATION OR PRODUCT" --exclude "OSTIA OR MANUAL OR DISABLED OR STRESS" --removekeywords WUKS  .
-#python3 -m robot --include "AVSCANNER" --exclude "INTEGRATION OR OSTIA OR MANUAL OR DISABLED OR STRESS" --removekeywords WUKS  .
+python3 -m robot --include "INTEGRATION OR PRODUCT" \
+    --exclude "OSTIA OR MANUAL OR DISABLED OR STRESS" \
+    $PLATFORM_EXCLUDE_TAG \
+    $SAMBA_EXCLUDE_TAG \
+    --removekeywords WUKS  .
+RESULT=$?
 
-[[ ${RERUNFAILED} == true ]] || exit 0
+[[ ${RERUNFAILED} == true ]] || exit $RESULT
 
-if [[ ${RESULT} != 0 ]]; then
-echo "Re-run failed tests"
+if (( RESULT != 0 ))
+then
+    echo "Re-run failed tests"
     mv output.xml output1.xml
     python3 -m robot --rerunfailed output1.xml --output output2.xml  tests || echo "Failed tests on rerun"
     python3 -m robot.rebot --merge --output output.xml -l log.html -r report.html output1.xml output2.xml

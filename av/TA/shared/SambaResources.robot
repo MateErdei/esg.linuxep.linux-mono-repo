@@ -13,6 +13,7 @@ ${SAMBA_CONFIG}    /etc/samba/smb.conf
 
 Create Local SMB Share
     [Arguments]  ${source}  ${destination}
+    file should exist  ${SAMBA_CONFIG}
     file should not exist  ${SAMBA_CONFIG}_bkp
     Copy File  ${SAMBA_CONFIG}  ${SAMBA_CONFIG}_bkp
     Register Cleanup  Restore Samba config
