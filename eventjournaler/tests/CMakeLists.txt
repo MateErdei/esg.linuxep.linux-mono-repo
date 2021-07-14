@@ -8,3 +8,4 @@ add_custom_target(echogTest
         )
 add_subdirectory(plugin)
 add_subdirectory(subscriber)
+add_subdirectory(EventQueueLib)
