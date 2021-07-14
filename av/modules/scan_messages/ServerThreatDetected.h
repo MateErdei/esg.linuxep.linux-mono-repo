@@ -25,6 +25,7 @@ namespace scan_messages
         [[nodiscard]] E_NOTIFCATION_STATUS getNotificationStatus() const;
         [[nodiscard]] E_THREAT_TYPE getThreatType() const;
         [[nodiscard]] E_ACTION_CODE getActionCode() const;
+        [[nodiscard]] std::string getSha256() const;
     };
 }
 

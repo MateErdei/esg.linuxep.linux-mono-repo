@@ -13,6 +13,7 @@ struct FileScanResponse {
     struct Detection {
         filePath        @0 :Text;
         threatName      @1 :Text;
+        sha256          @2 :Text;
     }
 
     detections      @0 :List(Detection);

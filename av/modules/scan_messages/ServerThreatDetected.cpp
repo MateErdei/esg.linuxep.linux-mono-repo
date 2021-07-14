@@ -19,6 +19,7 @@ ServerThreatDetected::ServerThreatDetected(Sophos::ssplav::ThreatDetected::Reade
     m_notificationStatus = static_cast<E_NOTIFCATION_STATUS>(reader.getNotificationStatus());
     m_threatType = static_cast<E_THREAT_TYPE>(reader.getThreatType());
     m_actionCode = static_cast<E_ACTION_CODE>(reader.getActionCode());
+    m_sha256 = reader.getSha256();
 }
 
 std::string ServerThreatDetected::getFilePath() const
@@ -64,4 +65,9 @@ E_THREAT_TYPE ServerThreatDetected::getThreatType() const
 E_ACTION_CODE ServerThreatDetected::getActionCode() const
 {
     return m_actionCode;
+}
+
+std::string ServerThreatDetected::getSha256() const
+{
+    return m_sha256;
 }

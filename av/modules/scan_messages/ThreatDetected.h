@@ -61,6 +61,7 @@ namespace scan_messages
         void setNotificationStatus(E_NOTIFCATION_STATUS notificationStatus);
         void setFilePath(const std::string& filePath);
         void setActionCode(E_ACTION_CODE actionCode);
+        void setSha256(const std::string& sha256);
 
         [[nodiscard]] std::string serialise() const;
 
@@ -73,5 +74,6 @@ namespace scan_messages
         E_NOTIFCATION_STATUS m_notificationStatus;
         std::string m_filePath;
         E_ACTION_CODE m_actionCode;
+        std::string m_sha256;
     };
 }

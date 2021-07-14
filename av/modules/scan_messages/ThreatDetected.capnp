@@ -19,6 +19,7 @@ struct ThreatDetected {
     notificationStatus              @5  :Int64;
     filePath                        @6  :Text;
     actionCode                      @7  :Int64;
+    sha256                          @8  :Text;
 }
 
 

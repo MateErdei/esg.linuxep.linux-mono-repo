@@ -13,17 +13,23 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace scan_messages
 {
+    struct DetectionContainer
+    {
+        std::string path;
+        std::string name;
+        std::string sha256;
+    };
     class ScanResponse
     {
     public:
         ScanResponse();
         explicit ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader);
 
-        void addDetection(std::string path, std::string threatName);
+        void addDetection(std::string path, std::string threatName, std::string sha256);
         void setFullScanResult(std::string fullScanResult);
         void setErrorMsg(std::string errorMsg);
 
-        [[nodiscard]] std::vector<std::pair<std::string, std::string>> getDetections();
+        [[nodiscard]] std::vector<DetectionContainer> getDetections();
 
         [[nodiscard]] std::string serialise() const;
 
@@ -32,7 +38,7 @@ namespace scan_messages
         [[nodiscard]] std::string getErrorMsg();
 
     private:
-        std::vector<std::pair<std::string, std::string>> m_detections;
+        std::vector<DetectionContainer> m_detections;
         std::string m_fullScanResult;
         std::string m_errorMsg;
     };

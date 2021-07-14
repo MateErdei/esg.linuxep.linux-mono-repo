@@ -21,7 +21,8 @@ ThreatDetected::ThreatDetected()
           m_threatType(E_VIRUS_THREAT_TYPE),
           m_scanType(E_SCAN_TYPE_UNKNOWN),
           m_notificationStatus(E_NOTIFICATION_STATUS_NOT_CLEANUPABLE),
-          m_actionCode(E_SMT_THREAT_ACTION_UNKNOWN)
+          m_actionCode(E_SMT_THREAT_ACTION_UNKNOWN),
+          m_sha256()
 {
 }
 
@@ -70,11 +71,15 @@ void ThreatDetected::setActionCode(E_ACTION_CODE actionCode)
     m_actionCode = actionCode;
 }
 
+void ThreatDetected::setSha256(const std::string& sha256)
+{
+    m_sha256 = sha256;
+}
+
 std::string ThreatDetected::serialise() const
 {
     ::capnp::MallocMessageBuilder message;
-    Sophos::ssplav::ThreatDetected::Builder threatDetectedBuilder =
-            message.initRoot<Sophos::ssplav::ThreatDetected>();
+    Sophos::ssplav::ThreatDetected::Builder threatDetectedBuilder = message.initRoot<Sophos::ssplav::ThreatDetected>();
 
     threatDetectedBuilder.setUserID(m_userID);
     threatDetectedBuilder.setDetectionTime(m_detectionTime);
@@ -84,6 +89,7 @@ std::string ThreatDetected::serialise() const
     threatDetectedBuilder.setNotificationStatus(m_notificationStatus);
     threatDetectedBuilder.setFilePath(m_filePath);
     threatDetectedBuilder.setActionCode(m_actionCode);
+    threatDetectedBuilder.setSha256(m_sha256);
 
     if (m_filePath.empty())
     {
@@ -102,4 +108,5 @@ std::string ThreatDetected::serialise() const
 
     return dataAsString;
 }
+
 

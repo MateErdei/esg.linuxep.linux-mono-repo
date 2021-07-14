@@ -20,7 +20,11 @@ ScanResponse::ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader)
 {
     for (Sophos::ssplav::FileScanResponse::Detection::Reader detection : reader.getDetections())
     {
-        m_detections.emplace_back(std::make_pair(detection.getFilePath(), detection.getThreatName()));
+        DetectionContainer detectionContainer;
+        detectionContainer.name = detection.getThreatName();
+        detectionContainer.path = detection.getThreatName();
+        detectionContainer.sha256 = detection.getSha256();
+        m_detections.emplace_back(detectionContainer);
     }
     m_fullScanResult = reader.getFullScanResult();
     m_errorMsg = reader.getErrorMsg();
@@ -35,8 +39,9 @@ std::string ScanResponse::serialise() const
     ::capnp::List<Sophos::ssplav::FileScanResponse::Detection>::Builder detections = responseBuilder.initDetections(m_detections.size());
     for (unsigned int i=0; i < m_detections.size(); i++)
     {
-        detections[i].setFilePath(m_detections[i].first);
-        detections[i].setThreatName(m_detections[i].second);
+        detections[i].setFilePath(m_detections[i].path);
+        detections[i].setThreatName(m_detections[i].name);
+        detections[i].setSha256(m_detections[i].sha256);
     }
     responseBuilder.setFullScanResult(m_fullScanResult);
     responseBuilder.setErrorMsg(m_errorMsg);
@@ -47,12 +52,16 @@ std::string ScanResponse::serialise() const
     return dataAsString;
 }
 
-void ScanResponse::addDetection(std::string filePath, std::string threatName)
+void ScanResponse::addDetection(std::string filePath, std::string threatName,std::string sha256)
 {
-    m_detections.emplace_back(std::make_pair(filePath, threatName));
+    DetectionContainer detection;
+    detection.name = threatName;
+    detection.path = filePath;
+    detection.sha256 = sha256;
+    m_detections.emplace_back(detection);
 }
 
-std::vector<std::pair<std::string, std::string>> ScanResponse::getDetections()
+std::vector<DetectionContainer> ScanResponse::getDetections()
 {
     return m_detections;
 }
@@ -77,7 +86,7 @@ bool ScanResponse::allClean()
     bool allClean = true;
     for (const auto& detection: m_detections)
     {
-        if (!detection.second.empty())
+        if (!detection.name.empty())
         {
             allClean = false;
         }
