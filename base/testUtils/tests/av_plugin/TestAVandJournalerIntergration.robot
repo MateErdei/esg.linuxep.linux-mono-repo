@@ -17,6 +17,7 @@ Default Tags   EVENT_JOURNALER_PLUGIN   AV_PLUGIN
 *** Test Cases ***
 Test av can publish events and that journaler can recieve them
     Install Event Journaler Directly
+    Override LogConf File as Global Level  DEBUG
     Install AV Plugin Directly
     Check AV Plugin Can Scan Files
     sleep  20

@@ -220,6 +220,25 @@ def get_sspl_anti_virus_plugin_sdds():
         candidates.append(os.path.join(local_path_to_plugin, "output/SDDS-COMPONENT"))
     return get_plugin_sdds("SSPL AV Plugin", "SSPL_ANTI_VIRUS_PLUGIN_SDDS", candidates)
 
+
+def setup_av_install():
+    path_to_sdds = get_sspl_anti_virus_plugin_sdds()
+    path_to_vdl_data = "/tmp/system-product-test-inputs/vdl"
+    path_to_model_data = "/tmp/system-product-test-inputs/ml_model"
+    path_to_localrep_data = "/tmp/system-product-test-inputs/local_rep"
+
+    full_av_sdds = "/tmp/system-product-test-inputs/av-sdds"
+    if os.path.exists(full_av_sdds):
+        shutil.rmtree(full_av_sdds)
+    shutil.copytree(path_to_sdds, full_av_sdds)
+
+    shutil.copytree(path_to_vdl_data, os.path.join(full_av_sdds,"files/plugins/av/chroot/susi/update_source/vdl"))
+    shutil.copytree(path_to_model_data, os.path.join(full_av_sdds,"files/plugins/av/chroot/susi/update_source/model"))
+    shutil.copytree(path_to_localrep_data, os.path.join(full_av_sdds,"files/plugins/av/chroot/susi/update_source/reputation"))
+
+    return full_av_sdds
+
+
 def get_sspl_base_sdds_version_0_5():
     candidates = ["/uk-filer5/prodro/bir/sspl-base/0-5-0-223/213552/output/SDDS-COMPONENT/"]
     return get_plugin_sdds("SSPL Base Version 0.5", "SSPL_BASE_SDDS_RELEASE_0_5", candidates)

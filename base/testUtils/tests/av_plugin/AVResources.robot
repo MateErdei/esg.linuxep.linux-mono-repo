@@ -3,6 +3,7 @@ Library     Process
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/DownloadAVSupplements.py
 
 Resource  ../GeneralTeardownResource.robot
 *** Variables ***
@@ -21,17 +22,28 @@ ${EICAR_STRING}                     X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-
 
 *** Keywords ***
 Install AV Plugin Directly
-    ${AV_SDDS_DIR} =  Get SSPL Anti Virus Plugin SDDS
-    ${result} =    Run Process  bash -x ${AV_SDDS_DIR}/install.sh 2> /tmp/install.log   shell=True
+    Install Virus data
+    ${AV_SDDS_DIR} =  setup_av_install
+    ${result} =    Run Process  bash -x ${AV_SDDS_DIR}/install.sh &> /tmp/install.log   shell=True
     ${error} =  Get File  /tmp/install.log
     Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr}, ${error}"
     Log  ${error}
     Log  ${result.stderr}
     Log  ${result.stdout}
-    Check AV Plugin Installed
+    Check AV Plugin Installed Directly
+
+Install Virus data
+    get_av_supplements
+#    ${result} =    Run Process  unzip ${VDL_ZIP_DIR}/vdl.zip -d /tmp/system-product-test-inputs/av-sdds/files/plugins/av/chroot/susi/update_source/vdl  shell=True
+#    Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr}"
+#    Log  ${result.stderr}
+#    Log  ${result.stdout}
 
 Check AV Plugin Installed
     Check Log Does Not Contain  Failed to install as setcap is not installed  ${SULDownloaderLog}  SulDownloaderLog
+    Check AV Plugin Installed Directly
+
+Check AV Plugin Installed Directly
     File Should Exist   ${AVPLUGIN_PATH}/bin/avscanner
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -43,10 +55,13 @@ Check AV Plugin Installed
     ...  AV Plugin Log Contains  av <> Starting scanScheduler
 
 Check AV Plugin Running
-    Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
+    ${result} =    Run Process  pgrep  -f  ${PLUGIN_BINARY}
+    Log  ${result.stderr}
+    Log  ${result.stdout}
+    Should Be Equal As Integers    ${result.rc}    0
 
 Check AV Plugin Executable Not Running
-    ${result} =    Run Process  pgrep  -a  ${PLUGIN_BINARY}
+    ${result} =    Run Process  pgrep  -f  ${PLUGIN_BINARY}
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
