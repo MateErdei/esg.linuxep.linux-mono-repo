@@ -20,5 +20,7 @@ Test av can publish events and that journaler can recieve them
     Override LogConf File as Global Level  DEBUG
     Install AV Plugin Directly
     Check AV Plugin Can Scan Files
-    sleep  20
-    fail
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Log Contains  Received event  ${EVENT_JOURNALER_LOG_PATH}  event journaler log
