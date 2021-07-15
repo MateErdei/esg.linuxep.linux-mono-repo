@@ -18,6 +18,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getWatchdogSocketAddress() const override;
         std::string getEventSubscriberSocketAddress() const override;
         std::string getEventSubscriberSocketFile() const override;
+        std::string getEventJournalsPath() const;
         std::string sophosInstall() const override;
         std::string getRelativeLogConfFilePath() const override;
         std::string getRelativeLocalLogConfFilePath() const override;

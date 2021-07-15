@@ -28,6 +28,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "var/ipc/events.ipc");
         }
 
+        std::string ApplicationPathManager::getEventJournalsPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "data", "event-journals");
+        }
+
         std::string ApplicationPathManager::getManagementAgentSocketAddress() const
         {
             return socketPath("mcs_agent.ipc");
