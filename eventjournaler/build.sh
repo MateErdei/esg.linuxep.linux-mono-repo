@@ -319,6 +319,7 @@ function build()
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
     mkdir -p  output/manualTools/
     cp -a build64/products/manualTools/EventPubSub output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventPubSub Tool to output"
+    cp -a build64/products/manualTools/EventJournalWriter output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventJournalWriter Tool to output"
     cp -a ${INPUT}/base-sdds  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
     if [[ -d build64/symbols ]]
     then
