@@ -12,6 +12,11 @@
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
+        <build-asset project="winep" repo="sed">
+            <!--TODO: add release-version and change development-version to develop -->
+            <development-version branch="feature/LINUXDAR-3116-build-journal-library-for-linux"/>
+            <include artifact-path="sed-libs-linux/JournalLib" dest-dir="input"/>
+        </build-asset>
 
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
@@ -21,6 +26,12 @@
         </package>
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
+        </package>
+        <package name="capnprotolinux11" version="0-8-0-17/222740/capnproto" dest="input">
+            <include src="capnproto.tar" dest="."/>
+        </package>
+        <package name="xzutilslinux" version="5-2-4-25/222750/output" dest="input">
+            <include src="xzutils.tar" dest="."/>
         </package>
     </inputs>
     <buildcommands>

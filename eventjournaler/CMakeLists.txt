@@ -91,6 +91,27 @@ set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
 set(testhelpersinclude ${PLUGINAPIPATH}/tests/include)
 set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
 
+set(JOURNAL_INPUT ${INPUT}/JournalLib)
+set(XZUTILS_INPUT ${INPUT}/xzutils)
+
+set(CAPNPROTO_INPUT ${INPUT}/capnproto )
+set(CAPNPROTO_INCLUDE_DIR ${CAPNPROTO_INPUT}/include)
+set(CAPNPROTO_LIBRARY_DIR ${CAPNPROTO_INPUT}/lib64)
+set(CAPNPROTO_EXECUTABLE_DIR ${CAPNPROTO_INPUT}/bin)
+set(CAPNPROTO_EXECUTABLE ${CAPNPROTO_INPUT}/bin/capnp)
+set(CAPNPROTO_LD_LIBRARY_PATH ${CAPNPROTO_LIBRARY_DIR}:$ENV{LD_LIBRARY_PATH} )
+set( ENV{LD_LIBRARY_PATH} ${CAPNPROTO_LD_LIBRARY_PATH} )
+message( ${CAPNPROTO_LD_LIBRARY_PATH})
+
+find_library(JOURNAL_LIBRARY
+        NAMES libJournalLib.a
+        PATHS ${INPUT}/JournalLib/lib
+        NO_DEFAULT_PATH)
+find_library(LZMA_LIBRARY
+        NAMES liblzma.a
+        PATHS ${INPUT}/xzutils/lib
+        NO_DEFAULT_PATH)
+
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)

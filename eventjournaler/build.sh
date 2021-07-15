@@ -168,7 +168,9 @@ function untar_input()
     local input=$1
     local tarbase=$2
     local override_tar=$3
+    local output=$4
     local tar
+    local dir
     if [[ -n $tarbase ]]
     then
         tar=${INPUT}/${tarbase}.tar
@@ -176,18 +178,26 @@ function untar_input()
         tar=${INPUT}/${input}.tar
     fi
 
+    if [[ -n $output ]]
+    then
+        dir=$REDIST/$output
+        mkdir -p $dir
+    else
+        dir=$REDIST
+    fi
+
     if [[ -n "$override_tar" ]]
     then
         echo "Untaring override $override_tar"
-        tar xzf "${override_tar}" -C "$REDIST"
+        tar xzf "${override_tar}" -C "$dir"
     elif [[ -f "$tar" ]]
     then
         echo "Untaring $tar"
-        tar xf "$tar" -C "$REDIST"
+        tar xf "$tar" -C "$dir"
     elif [[ -f "${tar}.gz" ]]
     then
         echo "untaring ${tar}.gz"
-        tar xzf "${tar}.gz" -C "$REDIST"
+        tar xzf "${tar}.gz" -C "$dir"
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
     fi
@@ -215,6 +225,9 @@ function build()
         untar_input pluginapi "" ${PLUGIN_TAR}
         untar_input cmake cmake-3.11.2-linux
         untar_input $GOOGLETESTTAR
+        untar_input JournalLib
+        untar_input capnproto
+        untar_input xzutils "" "" xzutils
     fi
 
     PATH=$REDIST/cmake/bin:$PATH
