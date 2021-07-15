@@ -9,7 +9,8 @@ shift
 
 TEST_SCRIPTS=/opt/test/inputs/test_scripts
 
-$TEST_SCRIPTS/test.sh "$@"
+chmod 700 $TEST_SCRIPTS/test.sh
+bash $TEST_SCRIPTS/test.sh "$@"
 RESULT=$?
 
 ## Upload results to s3
