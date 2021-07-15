@@ -56,18 +56,21 @@ def main(argv):
 
     start = time.time()
     ## and check for machines running
-    delay=120
+    delay = 120
     while time.time() < start + TIMEOUT_FOR_ALL_TESTS:
         try:
             if checkMachinesAllTerminated(STACK, TEST_PASS_UUID):
-                print("All instances terminated")
+                duration = time.time() - start
+                minutes = duration // 60
+                seconds = duration % 60
+                print("All instances terminated after %d:%d" % (minutes, seconds))
                 return 0
         except SyntaxError:
             raise
         except Exception as e:
             print("Got exception but carrying on",e)
 
-        if time.time() - start > 58*60:
+        if time.time() - start > 20*60:
             delay = 30
 
         time.sleep(delay)
