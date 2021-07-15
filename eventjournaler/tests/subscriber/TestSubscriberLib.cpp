@@ -10,6 +10,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <queue>
 
@@ -70,6 +71,12 @@ TEST_F(TestSubscriber, SubscriberStartAndStop) // NOLINT
         .WillOnce(Return(false)); // stop() call in destructor.
     EXPECT_CALL(*mockFileSystem, removeFile(fakeSocketPath));
 
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+        std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1);
+
     EXPECT_FALSE(subscriber.getRunningStatus());
     subscriber.start();
     EXPECT_TRUE(subscriber.getRunningStatus());
@@ -115,6 +122,12 @@ TEST_F(TestSubscriber, SubscriberCanRestart) // NOLINT
         .WillOnce(Return(false)) // stop() call in test
         .WillOnce(Return(false)); // stop() call in destructor.
     EXPECT_CALL(*mockFileSystem, removeFile(fakeSocketPath)).Times(2);
+
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+        std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(2);
 
     subscriber.start();
     EXPECT_TRUE(subscriber.getRunningStatus());
@@ -174,6 +187,12 @@ TEST_F(TestSubscriber, SubscriberResetsIfSocketRemoved) // NOLINT
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath))).WillOnce(Return(true));
+
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+        std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1);
 
     EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath))
         .WillOnce(Return(false)) // initial check in start(), called by test

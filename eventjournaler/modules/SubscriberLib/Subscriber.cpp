@@ -18,9 +18,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 #include <sys/stat.h>
 
-#include <cstring>
 #include <iostream>
-#include <unistd.h>
 
 namespace SubscriberLib
 {
@@ -44,6 +42,11 @@ namespace SubscriberLib
 
     void Subscriber::subscribeToEvents()
     {
+
+//        ZMQ.Poller poller = ZMQ.Poller(2)
+//        poller.register(subscriber, ZMQ.Poller.POLLIN)
+//        Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
+
         if (!m_socket)
         {
             LOGDEBUG("Getting subscriber");
@@ -51,11 +54,19 @@ namespace SubscriberLib
         }
         m_socket->setTimeout(m_readLoopTimeoutMilliSeconds);
         m_socket->listen("ipc://" + m_socketPath);
-        // todo use our fs call here
-        if (chmod(m_socketPath.c_str(), S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) != 0)
+        auto permissionUtils = Common::FileSystem::filePermissions();
+
+        try
         {
-            LOGERROR("Failed to set socket permissions: " << m_socketPath);
+            permissionUtils->chmod(m_socketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
         }
+        catch (const Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGERROR("Failed to set socket permissions: " << m_socketPath << " Exception: " << exception.what());
+            m_running = false;
+            return;
+        }
+
         m_socket->subscribeTo("threatEvents");
 
         auto fs = Common::FileSystem::fileSystem();
