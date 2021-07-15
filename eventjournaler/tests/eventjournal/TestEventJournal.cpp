@@ -42,6 +42,31 @@ protected:
         fs::remove_all(JOURNAL_LOCATION);
     }
 
+    void CheckJournalFile(const std::string& filename, size_t expected_size)
+    {
+        EXPECT_EQ(expected_size, Common::FileSystem::fileSystem()->fileSize(filename));
+
+        std::ifstream f(filename, std::ios::binary|std::ios::in);
+        std::vector<uint8_t> buffer(16);
+
+        f.read(reinterpret_cast<char*>(&buffer[0]), 16);
+
+        u_int32_t riff = 0;
+        u_int32_t length = 0;
+        u_int32_t sjrn = 0;
+        u_int32_t hdr = 0;
+
+        memcpy(&riff, &buffer[0], sizeof(riff));
+        memcpy(&length, &buffer[4], sizeof(length));
+        memcpy(&sjrn, &buffer[8], sizeof(sjrn));
+        memcpy(&hdr, &buffer[12], sizeof(hdr));
+
+        EXPECT_EQ(0x46464952, riff);
+        EXPECT_EQ(expected_size - 8, length);
+        EXPECT_EQ(0x6e726a73, sjrn);
+        EXPECT_EQ(0x20726468, hdr);
+    }
+
     inline static const std::string JOURNAL_LOCATION = "/tmp/test-journal";
     inline static const std::string PRODUCER = "EventJournalTest";
     inline static const std::string SUBJECT = "Detections";
@@ -62,7 +87,7 @@ TEST_F(TestEventJournalWriter, InsertDetectionsEvent) // NOLINT
     auto filename = Common::FileSystem::basename(files.front());
     EXPECT_TRUE(Common::UtilityImpl::StringUtils::startswith(filename, SUBJECT));
     EXPECT_TRUE(Common::UtilityImpl::StringUtils::endswith(filename, ".bin"));
-    EXPECT_EQ(224, Common::FileSystem::fileSystem()->fileSize(files.front()));
+    CheckJournalFile(files.front(), 224);
 }
 
 TEST_F(TestEventJournalWriter, InsertUnsupportedEventThrows) // NOLINT
