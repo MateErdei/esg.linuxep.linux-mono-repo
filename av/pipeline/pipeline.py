@@ -137,6 +137,7 @@ def pytest_task(machine: tap.Machine):
     install_requirements(machine)
     pytest_task_with_env(machine)
 
+@tap.timeout(task_timeout=5400)
 def aws_task(machine: tap.Machine):
     try:
         machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh")
