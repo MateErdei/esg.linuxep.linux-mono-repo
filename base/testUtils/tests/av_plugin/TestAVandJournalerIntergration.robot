@@ -24,3 +24,7 @@ Test av can publish events and that journaler can recieve them
     ...  15 secs
     ...  1 secs
     ...  Check Log Contains  Received event  ${EVENT_JOURNALER_LOG_PATH}  event journaler log
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Log Contains  {"details":{"filePath":"/tmp/dirty_file","sha256FileHash":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"},"detectionName":{"short":"EICAR-AV-Test"},"items":{"1":{"path":"/tmp/dirty_file","primary":true,"sha256":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f","type":1}},"threatSource":1,"threatType":1,"time":  ${EVENT_JOURNALER_LOG_PATH}  event journaler log
