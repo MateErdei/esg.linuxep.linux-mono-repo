@@ -615,12 +615,12 @@ TEST_F(TestPluginAdapter, testPublishThreatReport) //NOLINT
     MockBase* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-
+    pluginAdapter.connectToThreatPublishingSocket(m_threatEventPublisherSocketPath);
     std::string threatDetectedJSON = R"sophos({"threatName":"eicar", "threatPath":"/tmp/eicar.com"})sophos";
 
     while (thread.getData().empty())
     {
-        pluginAdapter.publishThreatEvent(threatDetectedJSON, m_threatEventPublisherSocketPath);
+        pluginAdapter.publishThreatEvent(threatDetectedJSON);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 

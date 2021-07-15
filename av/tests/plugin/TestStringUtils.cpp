@@ -219,7 +219,7 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON) // NOLINT
         messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
     std::string result = generateThreatDetectedJson(scan_messages::ServerThreatDetected(deSerialisedData));
 
-    static const std::string expectedJSON = R"sophos({"details":{"filePath":"","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":"eicar"},"items":{"1":{"path":"","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"time":123})sophos";
+    static const std::string expectedJSON = R"sophos({"details":{"filePath":"","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":"eicar"},"items":{"1":{"path":"","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"threatType":1,"time":123})sophos";
 
     EXPECT_EQ(result, expectedJSON);
 }
@@ -251,7 +251,7 @@ TEST_F(TestStringUtils, TestEmptyThreatNameSON) // NOLINT
         messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
     std::string result = generateThreatDetectedJson(scan_messages::ServerThreatDetected(deSerialisedData));
 
-    static const std::string expectedJSON = R"sophos({"details":{"filePath":"path/to/threat","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":""},"items":{"1":{"path":"path/to/threat","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"time":123})sophos";
+    static const std::string expectedJSON = R"sophos({"details":{"filePath":"path/to/threat","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":""},"items":{"1":{"path":"path/to/threat","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"threatType":1,"time":123})sophos";
 
     EXPECT_EQ(result, expectedJSON);
 }

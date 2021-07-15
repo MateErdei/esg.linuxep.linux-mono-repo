@@ -45,7 +45,8 @@ namespace Plugin
         void mainLoop();
         void processScanComplete(std::string& scanCompletedXml) override;
         void processThreatReport(const std::string& threatDetectedXML);
-        void publishThreatEvent(const std::string& threatDetectedJSON, const std::string& threatEventPublisherSocketPath);
+        void publishThreatEvent(const std::string& threatDetectedJSON);
+        void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
 
     private:
         /**

@@ -52,9 +52,7 @@ namespace Plugin
                 m_adapter.processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
                 std::string subscriberSocketPath = Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile();
                 //TODO: LINUXDAR-3177 uncomment the following code and convert getFilePath() string to utf-8
-                    m_adapter.publishThreatEvent(
-                    pluginimpl::generateThreatDetectedJson(detection),
-                    subscriberSocketPath);
+                    m_adapter.publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
             }
 
         private:
@@ -112,7 +110,7 @@ namespace Plugin
         ThreadRunner scheduler(
             m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
         ThreadRunner sophos_threat_detector(*m_threatDetector, "threatDetector");
-        m_threatEventPublisher->connect("ipc://" + Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
+        connectToThreatPublishingSocket(Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
         innerLoop();
     }
 
@@ -310,11 +308,11 @@ namespace Plugin
         m_queueTask->push(Task { .taskType = Task::TaskType::ThreatDetected, .Content = threatDetectedXML });
     }
 
-    void PluginAdapter::publishThreatEvent(const std::string& threatDetectedJSON, const std::string& threatEventPublisherSocketPath)
+    void PluginAdapter::publishThreatEvent(const std::string& threatDetectedJSON)
     {
         try
         {
-            LOGDEBUG("Publishing threat detection event: " << threatDetectedJSON << " to: " << threatEventPublisherSocketPath);
+            LOGDEBUG("Publishing threat detection event: " << threatDetectedJSON);
             m_threatEventPublisher->write({ "threatEvents", threatDetectedJSON });
         }
         catch (const Common::ZeroMQWrapper::IIPCException& e)
@@ -333,5 +331,9 @@ namespace Plugin
         {
             Common::Telemetry::TelemetryHelper::getInstance().increment("threat-count", 1ul);
         }
+    }
+    void PluginAdapter::connectToThreatPublishingSocket(const std::string& pubSubSocketAddress)
+    {
+        m_threatEventPublisher->connect("ipc://" + pubSubSocketAddress);
     }
 }
