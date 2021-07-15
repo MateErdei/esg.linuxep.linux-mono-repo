@@ -314,7 +314,8 @@ namespace Plugin
         try
         {
             m_threatEventPublisher->connect("ipc://" + threatEventPublisherSocketPath);
-            LOGDEBUG("Publishing threat detection event: " << threatDetectedJSON);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // wait for connection
+            LOGDEBUG("Publishing threat detection event: " << threatDetectedJSON << " to: " << threatEventPublisherSocketPath);
             m_threatEventPublisher->write({ "threatEvents", threatDetectedJSON });
         }
         catch (const Common::ZeroMQWrapper::IIPCException& e)
