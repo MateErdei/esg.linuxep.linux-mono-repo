@@ -41,6 +41,7 @@ SusiScanner::SusiScanner(
 void SusiScanner::sendThreatReport(
         const std::string& threatPath,
         const std::string& threatName,
+        const std::string& sha256,
         int64_t scanType,
         const std::string& userID)
 {
@@ -48,6 +49,7 @@ void SusiScanner::sendThreatReport(
     m_threatReporter->sendThreatReport(
         threatPath,
         threatName,
+        sha256,
         scanType,
         userID,
         std::time(nullptr)
@@ -166,13 +168,13 @@ SusiScanner::scan(
         {
             // Failed to parse SUSI scan report but the return code shows that we detected a threat
             response.addDetection(file_path, "unknown","unknown");
-            sendThreatReport(file_path, "unknown", scanType, userID);
+            sendThreatReport(file_path, "unknown", "unknown", scanType, userID);
         }
         else
         {
             for (const auto& detection: detections)
             {
-                sendThreatReport(detection.path, detection.name, scanType, userID);
+                sendThreatReport(detection.path, detection.name, detection.sha256, scanType, userID);
             }
         }
     }

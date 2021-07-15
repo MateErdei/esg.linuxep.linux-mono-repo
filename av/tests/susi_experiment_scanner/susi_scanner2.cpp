@@ -118,6 +118,7 @@ namespace
         void sendThreatReport(
             const std::string&,
             const std::string&,
+            const std::string&,
             int64_t,
             const std::string&,
             std::time_t) override

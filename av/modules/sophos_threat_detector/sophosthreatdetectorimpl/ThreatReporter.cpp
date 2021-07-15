@@ -25,6 +25,7 @@ sspl::sophosthreatdetectorimpl::ThreatReporter::ThreatReporter(
 void sspl::sophosthreatdetectorimpl::ThreatReporter::sendThreatReport(
     const std::string& threatPath,
     const std::string& threatName,
+    const std::string& sha256,
     int64_t scanType,
     const std::string& userID,
     std::time_t detectionTimeStamp)
@@ -50,6 +51,7 @@ void sspl::sophosthreatdetectorimpl::ThreatReporter::sendThreatReport(
         threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
         threatDetected.setFilePath(threatPath);
         threatDetected.setActionCode(scan_messages::E_SMT_THREAT_ACTION_NONE);
+        threatDetected.setSha256(sha256);
 
         threatReporterSocket.sendThreatDetection(threatDetected);
     }

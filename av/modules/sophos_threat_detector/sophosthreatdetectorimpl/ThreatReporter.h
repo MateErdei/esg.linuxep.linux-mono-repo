@@ -22,6 +22,7 @@ namespace sspl::sophosthreatdetectorimpl
         void sendThreatReport(
             const std::string& threatPath,
             const std::string& threatName,
+            const std::string& sha256,
             int64_t scanType,
             const std::string& userID,
             std::time_t detectionTimeStamp) override;

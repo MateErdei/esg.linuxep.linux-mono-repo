@@ -96,6 +96,7 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ServerTh
     items["1"]["type"] = 1; // FILE
     threatEvent["detectionName"]["short"] =  detection.getThreatName();
     threatEvent["threatSource"] = 1; // SAV
+    threatEvent["threatType"] = detection.getThreatType(); // Virus
     threatEvent["time"] = detection.getDetectionTime();
     threatEvent["details"] = details;
     threatEvent["items"] = items;

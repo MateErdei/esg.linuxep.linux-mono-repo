@@ -113,8 +113,9 @@ namespace
             const std::string& userID,
             std::time_t detectionTimeStamp) = 0;
          */
-        MOCK_METHOD5(sendThreatReport, void(const std::string& threatPath,
+        MOCK_METHOD6(sendThreatReport, void(const std::string& threatPath,
             const std::string& threatName,
+            const std::string& sha256,
             int64_t scanType,
             const std::string& userID,
             std::time_t detectionTimeStamp));
@@ -253,7 +254,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
-    EXPECT_CALL(*mock_reporter, sendThreatReport(_, _ ,_ ,_, _)).Times(1).WillOnce(
+    EXPECT_CALL(*mock_reporter, sendThreatReport(_, _, _, _, _, _)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 

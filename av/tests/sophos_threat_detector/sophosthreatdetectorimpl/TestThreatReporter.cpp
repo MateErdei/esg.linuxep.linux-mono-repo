@@ -58,7 +58,7 @@ TEST_F(TestThreatReporter, testReport) // NOLINT
 
     sspl::sophosthreatdetectorimpl::ThreatReporter reporterClient(socket_path);
 
-    reporterClient.sendThreatReport("/path", "threatName", 1, "root", 1);
+    reporterClient.sendThreatReport("/path", "threatName", "sha256", 1, "root", 1);
 
     serverWaitGuard.wait();
     threatReporterServer.requestStop();

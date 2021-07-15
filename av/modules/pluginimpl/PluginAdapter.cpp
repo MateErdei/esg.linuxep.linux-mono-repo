@@ -112,6 +112,7 @@ namespace Plugin
         ThreadRunner scheduler(
             m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
         ThreadRunner sophos_threat_detector(*m_threatDetector, "threatDetector");
+        m_threatEventPublisher->connect("ipc://" + Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
         innerLoop();
     }
 
@@ -313,8 +314,6 @@ namespace Plugin
     {
         try
         {
-            m_threatEventPublisher->connect("ipc://" + threatEventPublisherSocketPath);
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // wait for connection
             LOGDEBUG("Publishing threat detection event: " << threatDetectedJSON << " to: " << threatEventPublisherSocketPath);
             m_threatEventPublisher->write({ "threatEvents", threatDetectedJSON });
         }

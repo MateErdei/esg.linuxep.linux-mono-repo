@@ -19,6 +19,7 @@ namespace scan_messages
         std::string name;
         std::string sha256;
     };
+
     class ScanResponse
     {
     public:
