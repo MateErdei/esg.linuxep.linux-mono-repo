@@ -5,7 +5,7 @@
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
-      "ImageId" : "ami-0bcd098678a67cc92",
+      "ImageId" : "ami-08b1b6aa7c7453379",
       "InstanceType": "c4.large",
       "InstanceInitiatedShutdownBehavior": "terminate",
       "Tags" : [
@@ -17,7 +17,7 @@
         {"Key" : "CostCentre", "Value" : "GB11601200"},
         {"Key" : "Project", "Value" : "XDR"},
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
-        {"Key" : "BaseAmi", "Value" : "ami-0bcd098678a67cc92"},
+        {"Key" : "BaseAmi", "Value" : "ami-08b1b6aa7c7453379"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
