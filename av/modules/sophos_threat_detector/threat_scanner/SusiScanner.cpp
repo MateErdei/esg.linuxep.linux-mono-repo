@@ -138,7 +138,7 @@ SusiScanner::scan(
                     for (auto detection : result["detections"])
                     {
                         LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath);
-                        response.addDetection(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), detection["threatName"], detection["sha256"]);
+                        response.addDetection(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), detection["threatName"], result["sha256"]);
                     }
                 }
 

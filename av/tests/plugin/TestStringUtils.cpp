@@ -192,17 +192,17 @@ TEST_F(TestStringUtils, TestEmptyPathXML) // NOLINT
     EXPECT_EQ(result, expectedXML);
 }
 
-TEST_F(TestStringUtils, blahtemp) // NOLINT
-{
-    std::string threatName = "EICAR-AV-Test";
-    std::string threatPath = "";
-
-    scan_messages::ServerThreatDetected serverThreatDetectedMessage(createEvent());
-    std::string result = generateThreatDetectedJson(serverThreatDetectedMessage);
-    static const std::string expectedJSON = R"sophos({"threatName":"EICAR-AV-Test","threatPath":""})sophos";
-
-    EXPECT_EQ(result, expectedJSON);
-}
+//TEST_F(TestStringUtils, blahtemp) // NOLINT
+//{
+//    std::string threatName = "EICAR-AV-Test";
+//    std::string threatPath = "";
+//
+//    scan_messages::ServerThreatDetected serverThreatDetectedMessage(createEvent());
+//    std::string result = generateThreatDetectedJson(serverThreatDetectedMessage);
+//    static const std::string expectedJSON = R"sophos({"threatName":"EICAR-AV-Test","threatPath":""})sophos";
+//
+//    EXPECT_EQ(result, expectedJSON);
+//}
 
 //TEST_F(TestStringUtils, TestEmptyThreatPathJSON) // NOLINT
 //{
