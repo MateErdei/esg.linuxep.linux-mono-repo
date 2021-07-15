@@ -192,36 +192,66 @@ TEST_F(TestStringUtils, TestEmptyPathXML) // NOLINT
     EXPECT_EQ(result, expectedXML);
 }
 
-//TEST_F(TestStringUtils, blahtemp) // NOLINT
-//{
-//    std::string threatName = "EICAR-AV-Test";
-//    std::string threatPath = "";
-//
-//    scan_messages::ServerThreatDetected serverThreatDetectedMessage(createEvent());
-//    std::string result = generateThreatDetectedJson(serverThreatDetectedMessage);
-//    static const std::string expectedJSON = R"sophos({"threatName":"EICAR-AV-Test","threatPath":""})sophos";
-//
-//    EXPECT_EQ(result, expectedJSON);
-//}
 
-//TEST_F(TestStringUtils, TestEmptyThreatPathJSON) // NOLINT
-//{
-//    std::string threatName = "EICAR-AV-Test";
-//    std::string threatPath = "";
-//    std::string result = generateThreatDetectedJson(threatName, threatPath);
-//
-//    static const std::string expectedJSON = R"sophos({"threatName":"EICAR-AV-Test","threatPath":""})sophos";
-//
-//    EXPECT_EQ(result, expectedJSON);
-//}
-//
-//TEST_F(TestStringUtils, TestEmptyThreatNameJSON) // NOLINT
-//{
-//    std::string threatName = "";
-//    std::string threatPath = "/tmp/eicar.com";
-//    std::string result = generateThreatDetectedJson(threatName, threatPath);
-//
-//    static const std::string expectedJSON = R"sophos({"threatName":"","threatPath":"/tmp/eicar.com"})sophos";
-//
-//    EXPECT_EQ(result, expectedJSON);
-//}
+TEST_F(TestStringUtils, TestEmptyThreatPathJSON) // NOLINT
+{
+    std::string threatName = "eicar";
+    std::string userID = "User";
+
+    scan_messages::ThreatDetected threatDetected;
+    threatDetected.setUserID(userID);
+    threatDetected.setDetectionTime(m_detectionTimeStamp);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
+    threatDetected.setThreatName(threatName);
+    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
+    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+    threatDetected.setSha256("2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def");
+
+    std::string dataAsString = threatDetected.serialise();
+
+    const kj::ArrayPtr<const capnp::word> view(
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
+        messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+    std::string result = generateThreatDetectedJson(scan_messages::ServerThreatDetected(deSerialisedData));
+
+    static const std::string expectedJSON = R"sophos({"details":{"filePath":"","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":"eicar"},"items":{"1":{"path":"","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"time":123})sophos";
+
+    EXPECT_EQ(result, expectedJSON);
+}
+
+TEST_F(TestStringUtils, TestEmptyThreatNameSON) // NOLINT
+{
+
+    std::string threatPath = "path/to/threat";
+    std::string userID = "User";
+
+    scan_messages::ThreatDetected threatDetected;
+    threatDetected.setUserID(userID);
+    threatDetected.setDetectionTime(m_detectionTimeStamp);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
+    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
+    threatDetected.setFilePath(threatPath);
+    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+    threatDetected.setSha256("2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def");
+
+    std::string dataAsString = threatDetected.serialise();
+
+    const kj::ArrayPtr<const capnp::word> view(
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
+        messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+    std::string result = generateThreatDetectedJson(scan_messages::ServerThreatDetected(deSerialisedData));
+
+    static const std::string expectedJSON = R"sophos({"details":{"filePath":"path/to/threat","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":""},"items":{"1":{"path":"path/to/threat","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"time":123})sophos";
+
+    EXPECT_EQ(result, expectedJSON);
+}
