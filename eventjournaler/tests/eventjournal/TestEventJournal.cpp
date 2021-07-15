@@ -62,11 +62,20 @@ TEST_F(TestEventJournalWriter, InsertDetectionsEvent) // NOLINT
     auto filename = Common::FileSystem::basename(files.front());
     EXPECT_TRUE(Common::UtilityImpl::StringUtils::startswith(filename, SUBJECT));
     EXPECT_TRUE(Common::UtilityImpl::StringUtils::endswith(filename, ".bin"));
+    EXPECT_EQ(224, Common::FileSystem::fileSystem()->fileSize(files.front()));
 }
 
 TEST_F(TestEventJournalWriter, InsertUnsupportedEventThrows) // NOLINT
 {
     EXPECT_THROW(m_writer->insert(EventJournal::Subject::NumSubjects, m_eventData), std::runtime_error);
+
+    EXPECT_FALSE(Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER)));
+}
+
+TEST_F(TestEventJournalWriter, InsertUnalignedDataThrows) // NOLINT
+{
+    m_eventData.pop_back();
+    EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, m_eventData), std::runtime_error);
 
     EXPECT_FALSE(Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER)));
 }

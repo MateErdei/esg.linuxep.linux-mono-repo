@@ -63,6 +63,11 @@ namespace EventJournal
     {
         std::string subjectName = getSubjectName(subject);
 
+        if (!is64bitAligned(data.size()))
+        {
+            throw std::runtime_error("input data not 64-bit aligned");
+        }
+
         auto directory = Common::FileSystem::join(m_location, m_producer, subjectName);
         if (!Common::FileSystem::fileSystem()->exists(directory))
         {
@@ -319,12 +324,22 @@ namespace EventJournal
 
     uint32_t Writer::get64bitAlignedLength(uint32_t length) const
     {
-        if (length & 0x00000007)
+        if (!is64bitAligned(length))
         {
             length = (length & 0xfffffff8) + 8;
         }
 
         return length;
+    }
+
+    bool Writer::is64bitAligned(uint32_t length) const
+    {
+        if (length & 0x00000007)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     std::string Writer::getSubjectName(Subject subject) const

@@ -54,6 +54,7 @@ namespace EventJournal
         uint64_t getAndIncrementNextUniqueID();
 
         uint32_t get64bitAlignedLength(uint32_t length) const;
+        bool is64bitAligned(uint32_t length) const;
 
         std::string getSubjectName(Subject subject) const;
 
