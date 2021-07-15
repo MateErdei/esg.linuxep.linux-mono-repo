@@ -154,7 +154,7 @@ namespace EventJournal
 
     uint64_t Writer::readHighestUniqueID(const std::string& file) const
     {
-        std::vector<uint8_t> buffer(MAX_RECORD_LENGTH);
+        std::vector<uint8_t> buffer(2 * MAX_RECORD_LENGTH);
 
         std::ifstream f(file, std::ios::binary | std::ios::in);
         f.seekg(0, std::ios::end);
@@ -214,26 +214,44 @@ namespace EventJournal
                 break;
             }
 
-            f.read(reinterpret_cast<char*>(&fcc), sizeof(fcc));
-            f.read(reinterpret_cast<char*>(&length), sizeof(length));
-            if (f.eof())
-            {
-                break;
-            }
+            f.read(reinterpret_cast<char*>(&buffer[0]), PBUF_HEADER_LENGTH);
+            bytesRemaining -= PBUF_HEADER_LENGTH;
+
+            uint64_t id = 0;
+            int64_t timestamp = 0;
+            memcpy(&fcc, &buffer[0], sizeof(fcc));
+            memcpy(&length, &buffer[4], sizeof(length));
+            memcpy(&id, &buffer[8], sizeof(id));
+            memcpy(&timestamp, &buffer[16], sizeof(timestamp));
+
             if (fcc != FCC_TYPE_PBUF)
             {
                 LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" unexpected PBUF type 0x" << std::hex << fcc);
                 break;
             }
-            if (bytesRemaining < length)
+
+            if (bytesRemaining < (length-sizeof(id)-sizeof(timestamp)))
             {
-                LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" invalid PBUF length " << length << " pos=" << f.tellg() << " - " << bytesRemaining << " bytes remaining");
+                LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" invalid PBUF length " << length << " - " << bytesRemaining << " bytes remaining");
                 break;
             }
+
+            length -= sizeof(id) + sizeof(timestamp);
             f.read(reinterpret_cast<char*>(&buffer[0]), length);
             bytesRemaining -= length;
 
-            memcpy(&uniqueID, &buffer[0], sizeof(uniqueID));
+            if (id <= uniqueID)
+            {
+                LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" unique ID " << id << " out-of-sequence - previous ID " << uniqueID);
+                break;
+            }
+
+            uniqueID = id;
+
+            if (f.eof())
+            {
+                break;
+            }
         }
 
         return uniqueID;
