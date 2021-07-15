@@ -42,6 +42,14 @@ def get_platform():
                     return "centos"
         except FileNotFoundError:
             pass
+        try:
+            with open("/etc/os-release", "r") as release_file:
+                contents = release_file.read()
+                logger.info(f"/etc/os-release contains: {contents}")
+                if "Ubuntu" in contents:
+                    return "ubuntu"
+        except FileNotFoundError:
+            pass
     return "unknown"
 
 
