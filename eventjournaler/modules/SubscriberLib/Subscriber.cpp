@@ -27,8 +27,12 @@ namespace SubscriberLib
     Subscriber::Subscriber(
         const std::string& socketAddress,
         Common::ZMQWrapperApi::IContextSharedPtr context,
+        std::unique_ptr<SubscriberLib::IEventQueuePusher> eventQueuePusher,
         int readLoopTimeoutMilliSeconds) :
-        m_socketPath(socketAddress), m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds), m_context(context)
+        m_socketPath(socketAddress),
+        m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds),
+        m_context(context),
+        m_eventQueuePusher(std::move(eventQueuePusher))
     {
         LOGINFO("Creating subscriber listening on socket address: " << m_socketPath);
     }
@@ -62,9 +66,10 @@ namespace SubscriberLib
                     LOGINFO("Received event");
                     int index = 0;
 
-                    // TODO LINUXDAR-3142 Events generated here will need to be put into a queue.
+                    m_eventQueuePusher->push(data);
                     for (const auto& messagePart : data)
                     {
+                        // TODO LINUXDAR-3142 deal with this logging
                         LOGINFO(index++ << ": " << messagePart);
                     }
                 }

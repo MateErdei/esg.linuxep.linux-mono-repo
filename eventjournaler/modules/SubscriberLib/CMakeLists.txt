@@ -4,6 +4,12 @@ sophos_add_library(subscriberlib SHARED
         ISubscriber.h
         Logger.h
         Logger.cpp
+        IEventQueuePusher.h
+        EventQueuePusher.h
+        EventQueuePusher.cpp
+        ../WriterLib/IEventQueuePopper.h
+        ../WriterLib/EventQueuePopper.h
+        ../WriterLib/EventQueuePopper.cpp
         EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib}
         )

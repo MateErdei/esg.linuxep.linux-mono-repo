@@ -34,7 +34,7 @@ namespace
 
 struct TestableEventQueue : public EventQueue
 {
-    explicit TestableEventQueue(uint maxSize)
+    explicit TestableEventQueue(int maxSize)
         : EventQueue::EventQueue(maxSize)
     {}
 

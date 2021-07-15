@@ -4,6 +4,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "IEventQueue.h"
 #include <queue>
 #include <condition_variable>
 #include "Common/ZeroMQWrapper/IReadable.h"
@@ -16,12 +17,12 @@ namespace EventQueueLib
         using std::runtime_error::runtime_error;
     };
 
-    class EventQueue
+    class EventQueue : public IEventQueue
     {
     public:
-        EventQueue(uint maxSize);
-        bool push(Common::ZeroMQWrapper::data_t event);
-        std::optional<Common::ZeroMQWrapper::data_t> pop(int timeoutInMilliseconds);
+        EventQueue(int maxSize);
+        bool push(Common::ZeroMQWrapper::data_t event) override;
+        std::optional<Common::ZeroMQWrapper::data_t> pop(int timeoutInMilliseconds) override;
 
     protected:
         bool isQueueFull();

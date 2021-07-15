@@ -8,6 +8,7 @@ namespace Plugin
 {
     namespace Telemetry
     {
-        const char *const version = "version";
+        const char* const version = "version";
+        const char* const telemetryDroppedAvEvents = "dropped-av-events";
     } // namespace Telemetry
 } // namespace Plugin

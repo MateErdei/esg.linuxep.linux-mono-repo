@@ -7,6 +7,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include "ISubscriber.h"
 
 #include <Common/ZMQWrapperApi/IContext.h>
+#include <modules/SubscriberLib/IEventQueuePusher.h>
 
 #include <atomic>
 #include <functional>
@@ -21,6 +22,7 @@ namespace SubscriberLib
         Subscriber(
             const std::string& socketAddress,
             Common::ZMQWrapperApi::IContextSharedPtr context,
+            std::unique_ptr<SubscriberLib::IEventQueuePusher> eventQueuePusher,
             int readLoopTimeoutMilliSeconds = 5000);
         ~Subscriber() override;
         void stop() override;
@@ -36,5 +38,6 @@ namespace SubscriberLib
         std::unique_ptr<std::thread> m_runnerThread;
         Common::ZMQWrapperApi::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketSubscriberPtr m_socket;
+        std::unique_ptr<SubscriberLib::IEventQueuePusher> m_eventQueuePusher;
     };
 } // namespace SubscriberLib

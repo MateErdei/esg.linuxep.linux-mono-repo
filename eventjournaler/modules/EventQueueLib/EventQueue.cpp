@@ -9,7 +9,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace EventQueueLib
 {
-    EventQueueLib::EventQueue::EventQueue(uint maxSize) :
+    EventQueueLib::EventQueue::EventQueue(int maxSize) :
         m_maxQueueLength(maxSize)
     {
     }

@@ -13,6 +13,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <modules/SubscriberLib/Subscriber.h>
+#include <modules/SubscriberLib/EventQueuePusher.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/PluginAdapter.h>
@@ -44,8 +45,14 @@ int main()
     }
 
     auto context = Common::ZMQWrapperApi::createContext();
+
+    EventQueueLib::EventQueue* eventQueue = new EventQueueLib::EventQueue(10);
+    std::shared_ptr<EventQueueLib::EventQueue> eventQueuePtr(eventQueue);
+    EventQueuePusher::IEventQueuePusher* pusher = new EventQueuePusher::EventQueuePusher(eventQueuePtr);
+    std::unique_ptr<EventQueuePusher::IEventQueuePusher> pusherPtr(pusher);
+
     std::unique_ptr<SubscriberLib::ISubscriber> subscriber =
-        std::make_unique<SubscriberLib::Subscriber>(Plugin::getSubscriberSocketPath(), context);
+        std::make_unique<SubscriberLib::Subscriber>(Plugin::getSubscriberSocketPath(), context, std::move(pusherPtr));
     PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, std::move(subscriber));
 
     try
