@@ -51,6 +51,11 @@ namespace SubscriberLib
         }
         m_socket->setTimeout(m_readLoopTimeoutMilliSeconds);
         m_socket->listen("ipc://" + m_socketPath);
+        // todo use our fs call here
+        if (chmod(m_socketPath.c_str(), S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) != 0)
+        {
+            LOGERROR("Failed to set socket permissions: " << m_socketPath);
+        }
         m_socket->subscribeTo("threatEvents");
 
         auto fs = Common::FileSystem::fileSystem();
