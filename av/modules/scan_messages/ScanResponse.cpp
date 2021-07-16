@@ -20,9 +20,9 @@ ScanResponse::ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader)
 {
     for (Sophos::ssplav::FileScanResponse::Detection::Reader detection : reader.getDetections())
     {
-        DetectionContainer detectionContainer;
+        Detection detectionContainer;
         detectionContainer.name = detection.getThreatName();
-        detectionContainer.path = detection.getThreatName();
+        detectionContainer.path = detection.getFilePath();
         detectionContainer.sha256 = detection.getSha256();
         m_detections.emplace_back(detectionContainer);
     }
@@ -54,14 +54,14 @@ std::string ScanResponse::serialise() const
 
 void ScanResponse::addDetection(const std::string& filePath, const std::string& threatName, const std::string& sha256)
 {
-    DetectionContainer detection;
+    Detection detection;
     detection.path = filePath;
     detection.name = threatName;
     detection.sha256 = sha256;
     m_detections.emplace_back(detection);
 }
 
-std::vector<DetectionContainer> ScanResponse::getDetections()
+std::vector<Detection> ScanResponse::getDetections()
 {
     return m_detections;
 }

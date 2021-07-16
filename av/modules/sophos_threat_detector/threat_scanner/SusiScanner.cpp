@@ -163,7 +163,7 @@ SusiScanner::scan(
 
     if (res == SUSI_I_THREATPRESENT)
     {
-        std::vector<scan_messages::DetectionContainer> detections = response.getDetections();
+        std::vector<scan_messages::Detection> detections = response.getDetections();
         if (detections.empty())
         {
             // Failed to parse SUSI scan report but the return code shows that we detected a threat

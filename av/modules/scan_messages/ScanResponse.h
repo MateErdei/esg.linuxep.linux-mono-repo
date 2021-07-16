@@ -13,7 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace scan_messages
 {
-    struct DetectionContainer
+    struct Detection
     {
         std::string path;
         std::string name;
@@ -30,7 +30,7 @@ namespace scan_messages
         void setFullScanResult(std::string fullScanResult);
         void setErrorMsg(std::string errorMsg);
 
-        [[nodiscard]] std::vector<DetectionContainer> getDetections();
+        [[nodiscard]] std::vector<Detection> getDetections();
 
         [[nodiscard]] std::string serialise() const;
 
@@ -39,7 +39,7 @@ namespace scan_messages
         [[nodiscard]] std::string getErrorMsg();
 
     private:
-        std::vector<DetectionContainer> m_detections;
+        std::vector<Detection> m_detections;
         std::string m_fullScanResult;
         std::string m_errorMsg;
     };
