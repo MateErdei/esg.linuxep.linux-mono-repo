@@ -332,6 +332,7 @@ namespace Plugin
             Common::Telemetry::TelemetryHelper::getInstance().increment("threat-count", 1ul);
         }
     }
+
     void PluginAdapter::connectToThreatPublishingSocket(const std::string& pubSubSocketAddress)
     {
         m_threatEventPublisher->connect("ipc://" + pubSubSocketAddress);

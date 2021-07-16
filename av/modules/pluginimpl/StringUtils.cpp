@@ -74,16 +74,20 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ServerTh
     json details;
     json items;
     std::string path = common::toUtf8(detection.getFilePath());
+
     details["filePath"] = path;
     details["sha256FileHash"] = detection.getSha256();
+
     items["1"]["path"] = path;
     items["1"]["primary"] = true;
     items["1"]["sha256"] = detection.getSha256();
     items["1"]["type"] = 1; // FILE
+
     threatEvent["detectionName"]["short"] =  detection.getThreatName();
     threatEvent["threatSource"] = 1; // SAV
     threatEvent["threatType"] = detection.getThreatType(); // Virus
     threatEvent["time"] = detection.getDetectionTime();
+
     threatEvent["details"] = details;
     threatEvent["items"] = items;
 
