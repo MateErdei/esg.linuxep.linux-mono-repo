@@ -22,8 +22,7 @@ ${EICAR_STRING}                     X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-
 
 *** Keywords ***
 Install AV Plugin Directly
-    Install Virus data
-    ${AV_SDDS_DIR} =  setup_av_install
+    ${AV_SDDS_DIR} =  Setup Av Install
     ${result} =    Run Process  bash -x ${AV_SDDS_DIR}/install.sh &> /tmp/install.log   shell=True
     ${error} =  Get File  /tmp/install.log
     Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr}, ${error}"
@@ -33,11 +32,7 @@ Install AV Plugin Directly
     Check AV Plugin Installed Directly
 
 Install Virus data
-    get_av_supplements
-#    ${result} =    Run Process  unzip ${VDL_ZIP_DIR}/vdl.zip -d /tmp/system-product-test-inputs/av-sdds/files/plugins/av/chroot/susi/update_source/vdl  shell=True
-#    Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr}"
-#    Log  ${result.stderr}
-#    Log  ${result.stdout}
+    Get Av Supplements
 
 Check AV Plugin Installed
     Check Log Does Not Contain  Failed to install as setcap is not installed  ${SULDownloaderLog}  SulDownloaderLog
