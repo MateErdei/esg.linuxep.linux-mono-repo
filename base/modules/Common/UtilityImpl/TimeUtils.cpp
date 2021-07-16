@@ -116,6 +116,20 @@ namespace Common
             return std::to_string(std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count());
         }
 
+        // copied from SED
+        static constexpr uint64_t WINDOWS_FILETIME_OFFSET = 0x019db1ded53e8000;
+        static constexpr uint64_t WINDOWS_100NANO_PER_SECOND = 10000000;
+
+        std::time_t TimeUtils::WindowsFileTimeToEpoch(int64_t ft)
+        {
+            return (ft - WINDOWS_FILETIME_OFFSET) / WINDOWS_100NANO_PER_SECOND;
+        }
+
+        int64_t TimeUtils::EpochToWindowsFileTime(std::time_t t)
+        {
+            return (static_cast<int64_t>(t) * WINDOWS_100NANO_PER_SECOND) + WINDOWS_FILETIME_OFFSET;
+        }
+
         std::string FormattedTime::currentTime() const
         {
             return TimeUtils::fromTime(TimeUtils::getCurrTime(), "%Y%m%d %H%M%S");

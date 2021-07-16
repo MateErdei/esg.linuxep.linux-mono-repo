@@ -86,6 +86,11 @@ namespace Common
             static std::time_t toTime(const std::string&);
             static std::time_t toTime(const std::string&, const char* format);
             static std::string toEpochTime(const std::string& dateTime);
+
+            // Windows FILETIME contains a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC)
+            // https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
+            static std::time_t WindowsFileTimeToEpoch(int64_t ft);
+            static int64_t EpochToWindowsFileTime(std::time_t t);
         };
 
         class FormattedTime : public virtual IFormattedTime

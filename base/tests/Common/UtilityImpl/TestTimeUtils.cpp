@@ -75,3 +75,17 @@ TEST(TimeUtils, toEpochTimeShouldReturnSensibleResult) // NOLINT
     EXPECT_EQ(convertedTime, "1600000000");
 }
 
+TEST(TimeUtils, toWindowsFileTimeShouldReturnSensibleResult) // NOLINT
+{
+    long epoch_time = 1600000000; //2020 09 13 12:26:40
+    std::int64_t convertedTime = Common::UtilityImpl::TimeUtils::EpochToWindowsFileTime(epoch_time);
+    EXPECT_EQ(convertedTime, 132444736000000000);
+}
+
+TEST(TimeUtils, WindowsFileTimeToEpochShouldReturnSensibleResult) // NOLINT
+{
+    int64_t file_time = 132444736000000000; //2020 09 13 12:26:40
+    std::time_t convertedTime = Common::UtilityImpl::TimeUtils::WindowsFileTimeToEpoch(file_time);
+    EXPECT_EQ(convertedTime, 1600000000);
+}
+
