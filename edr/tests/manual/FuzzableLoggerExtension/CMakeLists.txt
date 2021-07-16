@@ -11,7 +11,10 @@ add_executable(FuzzableResultSender
         ../../../modules/osqueryextensions/SophosAVDetectionTable.cpp
         ../../../modules/osqueryextensions/SophosExtension.h
         ../../../modules/osqueryextensions/SophosExtension.cpp
+        ../../../modules/EventJournalWrapperImpl/EventJournalWrapper.h
+        ../../../modules/EventJournalWrapperImpl/EventJournalWrapper.cpp
         ${SQLITE_INCLUDE_DIR}/sqlite3.c
+
         )
 
 target_link_libraries(FuzzableResultSender PUBLIC
@@ -36,8 +39,11 @@ target_link_libraries(FuzzableResultSender PUBLIC
         ${CMAKE_DL_LIBS}
         dl
         ${GFLAG_LIBRARY}
+        eventjournalwrapperimpl
+        ${LZMA_LIBRARY}
+        stdc++fs
         )
-
+target_compile_definitions(FuzzableResultSender PUBLIC -D_HAS_STD_BYTE)
 target_include_directories(FuzzableResultSender PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${OSQUERYSDK}/include
@@ -47,6 +53,9 @@ target_include_directories(FuzzableResultSender PUBLIC
         ${INPUT}/jsoncpp/include
         ${pluginapiinclude}
         ${CMAKE_SOURCE_DIR}
+        ${JOURNAL_INCLUDE_DIR}
+        ${CAPNPROTO_INCLUDE_DIR}
+        ${LZMA_INCLUDE_DIR}
         )
 
 SET_TARGET_PROPERTIES(FuzzableResultSender

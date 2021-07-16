@@ -36,6 +36,8 @@ namespace Plugin
     std::string systemctlPath();
     std::string servicePath();
     std::string livequeryExecutable();
+    std::string eventJournalerJsonFilePath();
+    std::string getJRLPath();
     std::string osQueryLensesPath();
     std::string livequeryResponsePath();
     std::string etcDir();

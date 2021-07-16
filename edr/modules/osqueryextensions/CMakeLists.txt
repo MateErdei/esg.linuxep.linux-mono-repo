@@ -1,4 +1,5 @@
 sophos_add_library(OsqueryExtensions SHARED
+        ThreatTypes.h
         IServiceExtension.h
         LoggerExtension.h
         LoggerExtension.cpp
@@ -13,7 +14,11 @@ sophos_add_library(OsqueryExtensions SHARED
         SophosExtension.h
         SophosExtension.cpp
         ${SQLITE_INCLUDE_DIR}/sqlite3.c
+        EXTRA_PROJECTS
+            eventjournalwrapperimpl
+
         EXTRA_LIBS
+            ${JOURNAL_LIBRARY}
             ${log4cpluslib}
             ${protobuflib}
             ${OSQUERYSDK_LIBRARY}
@@ -25,5 +30,6 @@ sophos_add_library(OsqueryExtensions SHARED
             ${GLOG_LIBRARY}
             ${THRIFT_GEN_LIBRARY}
             pthread
-        EXTRA_INCLUDES ${OSQUERYSDK}/include ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include ${BOOST_INCLUDE_DIR}
+
+        EXTRA_INCLUDES ${OSQUERYSDK}/include ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include ${BOOST_INCLUDE_DIR} ${JOURNAL_INCLUDE_DIR}
         )

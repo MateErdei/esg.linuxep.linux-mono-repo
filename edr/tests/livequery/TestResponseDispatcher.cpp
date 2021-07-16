@@ -39,6 +39,14 @@ bool serializedJsonContentAreEquivalent(const std::string & v1, const std::strin
 {
     nlohmann::json jv1 = nlohmann::json::parse(v1);
     nlohmann::json jv2 = nlohmann::json::parse(v2);
+    std::string str1 = to_string(jv1);
+    std::string str2 = to_string(jv2);
+
+    if (str1 == str2)
+    {
+        return true;
+    }
+
     return jv1 == jv2;
 }
 
@@ -165,7 +173,7 @@ TEST_F(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJso
         "time": "1518221620",
         "pid": "21306",
         "path": "/usr/bin/someexe",
-        "mode": "01000755"
+        "mode": "1000755"
         "lastAccess": "Tue Jan 14 15:53:13 2020 UTC",
         },
         "UnixTime": "1518223620",
@@ -187,14 +195,14 @@ TEST_F(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJso
     ResponseData::RowData  rowData;
     rowData["time"] = "1518221620";
     rowData["pid"] = "21306";
-    rowData["mode"] = "01000755";
+    rowData["mode"] = "1000755";
     rowData["path"] = "/usr/bin/someexe";
     rowData["uid"] = "500";
     rowData["lastAccess"] = "Tue Jan 14 15:53:13 2020 UTC";
     columnData.push_back(rowData);
     // difference between first and second row is the pid,path, and empty mode empty time
     rowData["pid"] = "50331";
-    rowData["mode"] = "";
+    rowData["mode"] = "0";
     rowData["path"] = "/usr/bin/someOther.exe";
     rowData["uid"] = "";
     columnData.push_back(rowData);
@@ -209,7 +217,7 @@ TEST_F(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJso
         "rows": 2,
         "errorCode": 0,
         "errorMessage": "OK",
-        "sizeBytes" : 168
+        "sizeBytes" : 164
     },
     "columnMetaData": [
       {"name": "time", "type": "BIGINT"},
@@ -220,8 +228,8 @@ TEST_F(TestResponseDispatcher, extendedValidQueryResponseShouldReturnExpectedJso
      {"name": "lastAccess", "type": "TEXT"}
     ],
     "columnData": [
-        [1518221620, 21306, "01000755", "/usr/bin/someexe", 500, "Tue Jan 14 15:53:13 2020 UTC"],
-        [1518221620, 50331, "", "/usr/bin/someOther.exe", null, "Tue Jan 14 15:53:13 2020 UTC"]
+        [1518221620, 21306, 1000755, "/usr/bin/someexe", 500, "Tue Jan 14 15:53:13 2020 UTC"],
+        [1518221620, 50331, 0, "/usr/bin/someOther.exe", null, "Tue Jan 14 15:53:13 2020 UTC"]
     ]
 })";
     ResponseDispatcher dispatcher;

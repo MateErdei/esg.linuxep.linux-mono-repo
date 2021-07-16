@@ -14,11 +14,7 @@ namespace OsquerySDK
     {
     public:
         SophosAVDetectionTable() = default;
-
-
         std::string GetName() override;
-
-
         std::vector<TableColumn> GetColumns() override;
         OsquerySDK::TableRows Generate(OsquerySDK::QueryContextInterface& context) override;
 

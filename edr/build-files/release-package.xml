@@ -22,12 +22,24 @@
             <development-version branch="develop"/>
             <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
         </build-asset>
+        <build-asset project="winep" repo="sed">
+            <release-version branch="release/LINUXDAR-3116-journal-library" build-id="20210709113429-ef2082531af8d53ced225286ab8c6259ce538fb7-MOSomo" />
+            <include artifact-path="sed-libs-linux/JournalLib" dest-dir="input"/>
+        </build-asset>
+        <package name="capnprotolinux11" version="0-8-0-17/222740/capnproto" dest=".">
+            <include src="capnproto.tar" dest="input"/>
+        </package>
         <package name="boostlinux11" version="1-75-0-4/222018/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
             <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
         </package>
+
+        <package name="xzutilslinux" version="5-2-4-25/222750/output" dest="input">
+            <include src="xzutils.tar" dest="."/>
+        </package>
+
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
             <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
         </package>

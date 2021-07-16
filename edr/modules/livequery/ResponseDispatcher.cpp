@@ -52,7 +52,6 @@ namespace
 
             const std::string& value = valueIterator->second;
             if (m_valueType.second == OsquerySDK::ColumnType::TEXT_TYPE ||
-                m_valueType.second == OsquerySDK::ColumnType::UNSIGNED_BIGINT_TYPE  ||
                 m_valueType.second == OsquerySDK::ColumnType::BLOB_TYPE
                 )
             {
@@ -68,7 +67,11 @@ namespace
 
                 try
                 {
-                    if (m_valueType.second == OsquerySDK::ColumnType::BIGINT_TYPE)
+                    if(m_valueType.second == OsquerySDK::ColumnType::UNSIGNED_BIGINT_TYPE)
+                    {
+                        jsonArray.push_back(extractNonTextValues<uint64_t>(value));
+                    }
+                    else if (m_valueType.second == OsquerySDK::ColumnType::BIGINT_TYPE)
                     {
                         jsonArray.push_back(extractNonTextValues<long long>(value));
                     }

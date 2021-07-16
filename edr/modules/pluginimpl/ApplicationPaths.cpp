@@ -31,6 +31,11 @@ std::string Plugin::lockFilePath()
     return fromRelative("var/edr.lock");
 }
 
+std::string Plugin::eventJournalerJsonFilePath()
+{
+    return fromRelative("etc/");
+}
+
 std::string Plugin::getVersionIniFilePath()
 {
     return fromRelative("VERSION.ini");
@@ -181,6 +186,11 @@ std::string Plugin::varDir()
     return fromRelative("var");
 }
 
+std::string Plugin::getJRLPath()
+{
+    return Common::FileSystem::join(varDir(), "jrl");
+}
+
 std::string Plugin::mtrFlagsFile()
 {
     return Common::FileSystem::join(
@@ -192,3 +202,5 @@ std::string Plugin::edrBinaryPath()
 {
     return fromRelative("bin/edr");
 }
+
+

@@ -117,6 +117,9 @@ mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/query_packs || failure ${E
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr var dir"
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr log dir"
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions  || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr extensions dir"
+mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr var dir"
+mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr var dir"
+
 
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
 chmod 0700 -R ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/osquery.conf.d
@@ -124,6 +127,8 @@ chmod 0700 -R ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/etc/query_packs
 chmod 0700 -R ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var
 chmod 0700 -R ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log
 chmod 0700 -R ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions
+chmod 0700 -R ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl
+
 
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
