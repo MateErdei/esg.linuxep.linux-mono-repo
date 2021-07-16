@@ -41,16 +41,12 @@ namespace EventJournal
         return std::vector<uint8_t>(bytes.begin(), bytes.end());
     }
 
+    Writer::Writer() : Writer("", "") {}
 
-    Writer::Writer() : Writer("", "")
-    {
-    }
+    Writer::Writer(const std::string& location) : Writer(location, "") {}
 
-    Writer::Writer(const std::string& location) : Writer(location, "")
-    {
-    }
-
-    Writer::Writer(const std::string& location, const std::string& producer) : m_location(location), m_producer(producer), m_nextUniqueID(1)
+    Writer::Writer(const std::string& location, const std::string& producer) :
+        m_location(location), m_producer(producer), m_nextUniqueID(1)
     {
         if (m_location.empty())
         {
@@ -78,7 +74,6 @@ namespace EventJournal
             Common::FileSystem::fileSystem()->makedirs(directory);
         }
 
-
         auto path = getExistingFile(subjectName);
         if (!path.empty())
         {
@@ -94,7 +89,6 @@ namespace EventJournal
                 m_nextUniqueID.exchange(uniqueID + 1);
             }
         }
-
 
         time_t now = time(NULL);
         uint64_t producerUniqueID = getAndIncrementNextUniqueID();
@@ -112,7 +106,7 @@ namespace EventJournal
             LOGDEBUG("Update " << path);
         }
 
-        std::ios::openmode mode = std::ios::binary|std::ios::in|std::ios::out;
+        std::ios::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
         if (Common::FileSystem::fileSystem()->exists(path))
             mode |= std::ios::ate;
         else
@@ -133,7 +127,6 @@ namespace EventJournal
         f.seekg(4, std::ios::beg);
         f.write(reinterpret_cast<const char*>(&length), sizeof(length));
     }
-
 
     std::string Writer::getNewFilename(const std::string& subject, uint64_t uniqueID, uint64_t timestamp) const
     {
@@ -172,14 +165,14 @@ namespace EventJournal
 
         size_t bytesRemaining = fileSize;
 
-        if (bytesRemaining < (RIFF_HEADER_LENGTH+SJRN_HEADER_LENGTH))
+        if (bytesRemaining < (RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH))
         {
             LOGWARN("File " << Common::FileSystem::basename(file) << " not valid");
             return 0;
         }
 
-        f.read(reinterpret_cast<char*>(&buffer[0]), RIFF_HEADER_LENGTH+SJRN_HEADER_LENGTH);
-        bytesRemaining -= RIFF_HEADER_LENGTH+SJRN_HEADER_LENGTH;
+        f.read(reinterpret_cast<char*>(&buffer[0]), RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH);
+        bytesRemaining -= RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH;
 
         uint32_t fcc = 0;
         uint32_t length = 0;
@@ -191,9 +184,11 @@ namespace EventJournal
             return 0;
         }
 
-        if (length != (fileSize-RIFF_HEADER_LENGTH))
+        if (length != (fileSize - RIFF_HEADER_LENGTH))
         {
-            LOGWARN("File " << Common::FileSystem::basename(file) << " invalid RIFF length " << length << " (file size " << fileSize << ")");
+            LOGWARN(
+                "File " << Common::FileSystem::basename(file) << " invalid RIFF length " << length << " (file size "
+                        << fileSize << ")");
             return 0;
         }
 
@@ -207,11 +202,9 @@ namespace EventJournal
             return 0;
         }
 
-
         sjrn_length -= sizeof(sjrn_length);
         f.read(reinterpret_cast<char*>(&buffer[0]), sjrn_length);
         bytesRemaining -= sjrn_length;
-
 
         uint64_t uniqueID = 0;
 
@@ -219,7 +212,9 @@ namespace EventJournal
         {
             if (bytesRemaining < PBUF_HEADER_LENGTH)
             {
-                LOGWARN("File " << Common::FileSystem::basename(file) << " invalid PBUF chunk - " << bytesRemaining << " bytes remaining");
+                LOGWARN(
+                    "File " << Common::FileSystem::basename(file) << " invalid PBUF chunk - " << bytesRemaining
+                            << " bytes remaining");
                 break;
             }
 
@@ -239,9 +234,11 @@ namespace EventJournal
                 break;
             }
 
-            if (bytesRemaining < (length-sizeof(id)-sizeof(timestamp)))
+            if (bytesRemaining < (length - sizeof(id) - sizeof(timestamp)))
             {
-                LOGWARN("File " << Common::FileSystem::basename(file) << " invalid PBUF length " << length << " - " << bytesRemaining << " bytes remaining");
+                LOGWARN(
+                    "File " << Common::FileSystem::basename(file) << " invalid PBUF length " << length << " - "
+                            << bytesRemaining << " bytes remaining");
                 break;
             }
 
@@ -251,7 +248,9 @@ namespace EventJournal
 
             if (id <= uniqueID)
             {
-                LOGWARN("File " << Common::FileSystem::basename(file) << " unique ID " << id << " out-of-sequence - previous ID " << uniqueID);
+                LOGWARN(
+                    "File " << Common::FileSystem::basename(file) << " unique ID " << id
+                            << " out-of-sequence - previous ID " << uniqueID);
                 break;
             }
 
@@ -304,7 +303,11 @@ namespace EventJournal
         data.resize(headerLength);
     }
 
-    void Writer::appendPbufHeader(std::vector<uint8_t>& data, uint32_t length, uint64_t producerUniqueID, uint64_t timestamp) const
+    void Writer::appendPbufHeader(
+        std::vector<uint8_t>& data,
+        uint32_t length,
+        uint64_t producerUniqueID,
+        uint64_t timestamp) const
     {
         uint32_t fcc = FCC_TYPE_PBUF;
 
@@ -319,10 +322,7 @@ namespace EventJournal
         data.insert(data.end(), header.begin(), header.end());
     }
 
-    uint64_t Writer::getAndIncrementNextUniqueID()
-    {
-        return m_nextUniqueID.fetch_add(1);
-    }
+    uint64_t Writer::getAndIncrementNextUniqueID() { return m_nextUniqueID.fetch_add(1); }
 
     uint32_t Writer::get64bitAlignedLength(uint32_t length) const
     {
@@ -348,15 +348,14 @@ namespace EventJournal
     {
         switch (subject)
         {
-            case Subject::Detections: return "Detections";
-            default: throw std::runtime_error("unsupported subject");
+            case Subject::Detections:
+                return "Detections";
+            default:
+                throw std::runtime_error("unsupported subject");
         }
     }
 
-    std::string Writer::getSerialisationMethod() const
-    {
-        return "CapnProto";
-    }
+    std::string Writer::getSerialisationMethod() const { return "CapnProto"; }
 
     std::string Writer::getSerialisationVersion() const
     {
