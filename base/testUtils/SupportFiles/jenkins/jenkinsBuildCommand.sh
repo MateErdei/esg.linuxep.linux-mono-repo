@@ -77,7 +77,7 @@ export TEST_UTILS=$WORKSPACE/testUtils
 [[ -n $NO_GATHER ]] || source $WORKSPACE/testUtils/SupportFiles/jenkins/gatherTestInputs.sh                || fail "Error: failed to gather test inputs"
 source $WORKSPACE/testUtils/SupportFiles/jenkins/exportInputLocations.sh            || fail "Error: failed to export expected input locations"
 source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh     || fail "Error: failed to validate gathered inputs"
-python3 ${TEST_UTILS}/libs/DownloadAVSupplement.py  || fail "Error: failed to gather av supplements locations"
+python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py  || fail "Error: failed to gather av supplements locations"
 #setup coverage inputs and exports
 COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
 

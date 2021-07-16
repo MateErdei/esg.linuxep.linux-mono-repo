@@ -32,7 +32,7 @@ sed -i s:/tmp/system-product-test-inputs:${SYSTEMPRODUCT_TEST_INPUT}:g ${TEST_UT
 source ${TEST_UTILS}/SupportFiles/jenkins/gatherTestInputs.sh || failure 211 "Failed to gather inputs"
 source ${TEST_UTILS}/SupportFiles/jenkins/exportInputLocations.sh
 source ${TEST_UTILS}/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 211 "Failed to gather inputs"
-python3 ${TEST_UTILS}/libs/DownloadAVSupplement.py
+python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py
 
 ([[ -d ${SYSTEMPRODUCT_TEST_INPUT} ]] && tar czf ${CREATE_DIR}/SystemProductTestInputs.tgz ${SYSTEMPRODUCT_TEST_INPUT}) || failure 212 "Failed to tar inputs"
 rm -rf "${SYSTEMPRODUCT_TEST_INPUT}" || failure 21 "Failed to delete new ${SYSTEMPRODUCT_TEST_INPUT}"
