@@ -134,13 +134,16 @@ check_vagrant_up_and_running()
 
 if os.environ.get("NO_GATHER"):
     gather = ""
+    av = ""
 else:
     gather = "TEST_UTILS=/vagrant/everest-base/testUtils  sudo -E /vagrant/everest-base/testUtils/SupportFiles/jenkins/gatherTestInputs.sh"
+    av = "sudo -E /vagrant/everest-base/testUtils/libs/DownloadAVSupplements.py"
 
 tempfileContent = f"""#!/bin/bash
 pushd {remotedir}
 export BASE_DIST={base_folder}
 {gather}
+{av}
 {env_variables}
 export PYTHONPATH=/vagrant/everest-base/testUtils/libs/:/vagrant/everest-base/testUtils/SupportFiles/:$PYTHONPATH
 sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
