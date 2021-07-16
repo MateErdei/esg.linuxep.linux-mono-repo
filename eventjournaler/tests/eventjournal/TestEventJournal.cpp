@@ -4,18 +4,19 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 ***********************************************************************************************/
 
-#include <fstream>
-#include <filesystem>
-#include <memory>
-
-#include <eventjournal/EventJournalWriter.h>
-
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/UtilityImpl/StringUtils.h>
-
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/LogInitializedTests.h>
+#include <Common/Helpers/MockFileSystem.h>
+#include <Common/UtilityImpl/StringUtils.h>
+#include <eventjournal/EventJournalWriter.h>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+#include <filesystem>
+#include <fstream>
+#include <memory>
 
 namespace fs = std::filesystem;
 
@@ -37,16 +38,13 @@ protected:
         EXPECT_FALSE(m_eventData.empty());
     }
 
-    void TearDown() override
-    {
-        fs::remove_all(JOURNAL_LOCATION);
-    }
+    void TearDown() override { fs::remove_all(JOURNAL_LOCATION); }
 
     void CheckJournalFile(const std::string& filename, size_t expected_size)
     {
         EXPECT_EQ(expected_size, Common::FileSystem::fileSystem()->fileSize(filename));
 
-        std::ifstream f(filename, std::ios::binary|std::ios::in);
+        std::ifstream f(filename, std::ios::binary | std::ios::in);
         std::vector<uint8_t> buffer(16);
 
         f.read(reinterpret_cast<char*>(&buffer[0]), 16);
@@ -103,4 +101,15 @@ TEST_F(TestEventJournalWriter, InsertUnalignedDataThrows) // NOLINT
     EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, m_eventData), std::runtime_error);
 
     EXPECT_FALSE(Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER)));
+}
+
+TEST_F(TestEventJournalWriter, CreateDirectoryFailureThrows) // NOLINT
+{
+    auto directory = Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER, SUBJECT);
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(directory)).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, makedirs(directory)).WillOnce(Throw(std::runtime_error("Test exception")));
+
+    EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, m_eventData), std::runtime_error);
 }
