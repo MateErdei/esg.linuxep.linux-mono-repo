@@ -113,17 +113,19 @@ def process(baseurl, filename, dirname):
     return zip_updated
 
 
-def run():
+def run(argv):
+    dest = "/tmp/system-product-test-inputs"
+    if argv[1]:
+        dest = argv[1]
+
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
-    updated = process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", "/tmp/system-product-test-inputs/vdl")
-    updated = process(artifactory_base_url + "ssplav-mlmodel/released", "model.zip", "/tmp/system-product-test-inputs/ml_model") or updated
-    updated = process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", "/tmp/system-product-test-inputs/local_rep") or updated
+    updated = process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", dest +"/vdl")
+    updated = process(artifactory_base_url + "ssplav-mlmodel/released", "model.zip", dest +"/ml_model") or updated
+    updated = process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", dest +"/local_rep") or updated
     return updated
 
-def get_av_supplements():
-    run()
 def main(argv):
-    run()
+    run(argv)
     return 0
 
 

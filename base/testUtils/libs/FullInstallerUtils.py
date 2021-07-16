@@ -223,9 +223,16 @@ def get_sspl_anti_virus_plugin_sdds():
 
 def setup_av_install():
     path_to_sdds = get_sspl_anti_virus_plugin_sdds()
-    path_to_vdl_data = "/tmp/system-product-test-inputs/vdl"
-    path_to_model_data = "/tmp/system-product-test-inputs/ml_model"
-    path_to_localrep_data = "/tmp/system-product-test-inputs/local_rep"
+    SDDS_PATH = os.environ.get("SYSTEMPRODUCT_TEST_INPUT")
+
+    if SDDS_PATH is not None:
+        path_to_vdl_data = SDDS_PATH + "/vdl"
+        path_to_model_data = SDDS_PATH + "/ml_model"
+        path_to_localrep_data = SDDS_PATH + "/local_rep"
+    else:
+        path_to_vdl_data = "/tmp/system-product-test-inputs/vdl"
+        path_to_model_data = "/tmp/system-product-test-inputs/ml_model"
+        path_to_localrep_data = "/tmp/system-product-test-inputs/local_rep"
 
     full_av_sdds = "/tmp/system-product-test-inputs/av-sdds"
     if os.path.exists(full_av_sdds):
