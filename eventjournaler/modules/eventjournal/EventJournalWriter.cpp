@@ -106,9 +106,13 @@ namespace EventJournal
 
         std::ios::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
         if (Common::FileSystem::fileSystem()->exists(path))
+        {
             mode |= std::ios::ate;
+        }
         else
+        {
             mode |= std::ios::trunc;
+        }
         std::fstream f(path, mode);
 
         std::vector<uint8_t> contents;
