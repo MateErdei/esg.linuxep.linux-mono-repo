@@ -271,11 +271,9 @@ namespace EventJournal
         const std::string serialisationMethod = getSerialisationMethod();
         const std::string serialisationVersion = getSerialisationVersion();
 
-        uint32_t headerLength = RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + sizeof(uint16_t) +
-            m_producer.length()+1 +
-            subject.length()+1 +
-            serialisationMethod.length()+1 +
-            serialisationVersion.length()+1;
+        uint32_t headerLength = RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + sizeof(uint16_t) + m_producer.length() + 1 +
+                                subject.length() + 1 + serialisationMethod.length() + 1 +
+                                serialisationVersion.length() + 1;
         headerLength = get64bitAlignedLength(headerLength);
         data.reserve(headerLength);
 
