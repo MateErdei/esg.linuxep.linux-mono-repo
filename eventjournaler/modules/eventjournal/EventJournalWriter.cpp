@@ -53,10 +53,14 @@ namespace EventJournal
     Writer::Writer(const std::string& location, const std::string& producer) : m_location(location), m_producer(producer), m_nextUniqueID(1)
     {
         if (m_location.empty())
+        {
             m_location = Common::ApplicationConfiguration::applicationPathManager().getEventJournalsPath();
+        }
 
         if (m_producer.empty())
+        {
             m_producer = "SophosSPL";
+        }
     }
 
     void Writer::insert(Subject subject, const std::vector<uint8_t>& data)
