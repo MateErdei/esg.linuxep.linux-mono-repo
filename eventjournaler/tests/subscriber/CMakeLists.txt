@@ -4,7 +4,7 @@ SophosAddTest(TestSubscriberLib
         MockEventQueuePusher.h
         TestSubscriberLib.cpp
         TestEventQueuePusher.cpp
-        PROJECTS subscriberlib eventqueuelib testhelpersobject
+        PROJECTS subscriberlib eventqueuelib
         LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest ${protobuflib}
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
         )
@@ -15,4 +15,3 @@ SET_TARGET_PROPERTIES(TestSubscriberLib
         INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
-

@@ -48,8 +48,8 @@ int main()
 
     EventQueueLib::EventQueue* eventQueue = new EventQueueLib::EventQueue(10);
     std::shared_ptr<EventQueueLib::EventQueue> eventQueuePtr(eventQueue);
-    EventQueuePusher::IEventQueuePusher* pusher = new EventQueuePusher::EventQueuePusher(eventQueuePtr);
-    std::unique_ptr<EventQueuePusher::IEventQueuePusher> pusherPtr(pusher);
+    SubscriberLib::IEventQueuePusher* pusher = new SubscriberLib::EventQueuePusher(eventQueuePtr);
+    std::unique_ptr<SubscriberLib::IEventQueuePusher> pusherPtr(pusher);
 
     std::unique_ptr<SubscriberLib::ISubscriber> subscriber =
         std::make_unique<SubscriberLib::Subscriber>(Plugin::getSubscriberSocketPath(), context, std::move(pusherPtr));
