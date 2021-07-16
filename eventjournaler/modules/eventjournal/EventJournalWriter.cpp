@@ -4,12 +4,6 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 ***********************************************************************************************/
 
-#include <fstream>
-#include <filesystem>
-#include <iomanip>
-#include <cstring>
-#include <cstddef>
-
 #include "EventJournalWriter.h"
 
 #include "EventJournalTimeUtils.h"
@@ -18,11 +12,15 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/StringUtils.h>
-
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
 #include <Event.capnp.h>
+#include <cstddef>
+#include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
 
 namespace EventJournal
 {
