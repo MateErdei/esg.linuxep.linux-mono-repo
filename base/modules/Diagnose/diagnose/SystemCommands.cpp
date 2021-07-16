@@ -209,9 +209,9 @@ namespace diagnose
                     {
                         zip_fileinfo zfi;
 
-                        std::string fileName = path.substr(srcPath.size());
+                        std::string fileName = path.substr(srcPath.size()+1);
 
-                        if (0 == zipOpenNewFileInZip(zf, ("."+fileName).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
+                        if (0 == zipOpenNewFileInZip(zf, (fileName).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
                         {
                             if (ZIP_OK != zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size))
                             {
