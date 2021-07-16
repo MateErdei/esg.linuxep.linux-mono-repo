@@ -85,7 +85,7 @@ namespace EventJournal
             uint64_t uniqueID = readHighestUniqueID(path);
             if (uniqueID == 0)
             {
-                LOGWARN("File \"" << Common::FileSystem::basename(path) << "\" does not contain any events");
+                LOGWARN("File " << Common::FileSystem::basename(path) << " does not contain any events");
                 path.clear();
                 return;
             }
@@ -174,7 +174,7 @@ namespace EventJournal
 
         if (bytesRemaining < (RIFF_HEADER_LENGTH+SJRN_HEADER_LENGTH))
         {
-            LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" not valid");
+            LOGWARN("File " << Common::FileSystem::basename(file) << " not valid");
             return 0;
         }
 
@@ -187,13 +187,13 @@ namespace EventJournal
         memcpy(&length, &buffer[4], sizeof(length));
         if (fcc != FCC_TYPE_RIFF)
         {
-            LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" unexpected RIFF type 0x" << std::hex << fcc);
+            LOGWARN("File " << Common::FileSystem::basename(file) << " unexpected RIFF type 0x" << std::hex << fcc);
             return 0;
         }
 
         if (length != (fileSize-RIFF_HEADER_LENGTH))
         {
-            LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" invalid RIFF length " << length << " (file size " << fileSize << ")");
+            LOGWARN("File " << Common::FileSystem::basename(file) << " invalid RIFF length " << length << " (file size " << fileSize << ")");
             return 0;
         }
 
@@ -203,7 +203,7 @@ namespace EventJournal
 
         if (bytesRemaining < sjrn_length)
         {
-            LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" invalid SJRN length " << sjrn_length);
+            LOGWARN("File " << Common::FileSystem::basename(file) << " invalid SJRN length " << sjrn_length);
             return 0;
         }
 
@@ -219,7 +219,7 @@ namespace EventJournal
         {
             if (bytesRemaining < PBUF_HEADER_LENGTH)
             {
-                LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" invalid PBUF chunk - " << bytesRemaining << " bytes remaining");
+                LOGWARN("File " << Common::FileSystem::basename(file) << " invalid PBUF chunk - " << bytesRemaining << " bytes remaining");
                 break;
             }
 
@@ -235,13 +235,13 @@ namespace EventJournal
 
             if (fcc != FCC_TYPE_PBUF)
             {
-                LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" unexpected PBUF type 0x" << std::hex << fcc);
+                LOGWARN("File " << Common::FileSystem::basename(file) << " unexpected PBUF type 0x" << std::hex << fcc);
                 break;
             }
 
             if (bytesRemaining < (length-sizeof(id)-sizeof(timestamp)))
             {
-                LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" invalid PBUF length " << length << " - " << bytesRemaining << " bytes remaining");
+                LOGWARN("File " << Common::FileSystem::basename(file) << " invalid PBUF length " << length << " - " << bytesRemaining << " bytes remaining");
                 break;
             }
 
@@ -251,7 +251,7 @@ namespace EventJournal
 
             if (id <= uniqueID)
             {
-                LOGWARN("File \"" << Common::FileSystem::basename(file) << "\" unique ID " << id << " out-of-sequence - previous ID " << uniqueID);
+                LOGWARN("File " << Common::FileSystem::basename(file) << " unique ID " << id << " out-of-sequence - previous ID " << uniqueID);
                 break;
             }
 
