@@ -97,8 +97,8 @@ namespace EventJournal
 
 
         time_t now = time(NULL);
-        auto producerUniqueID = getAndIncrementNextUniqueID();
-        auto timestamp = UNIXToWindowsFileTime(now);
+        uint64_t producerUniqueID = getAndIncrementNextUniqueID();
+        int64_t timestamp = UNIXToWindowsFileTime(now);
         bool isNewFile = false;
 
         if (path.empty())
