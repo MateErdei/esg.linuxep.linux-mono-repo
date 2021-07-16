@@ -353,8 +353,6 @@ namespace EventJournal
             case Subject::Detections: return "Detections";
             default: throw std::runtime_error("unsupported subject");
         }
-
-        return "";
     }
 
     std::string Writer::getSerialisationMethod() const
