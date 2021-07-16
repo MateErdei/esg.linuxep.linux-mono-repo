@@ -43,10 +43,6 @@ namespace SubscriberLib
     void Subscriber::subscribeToEvents()
     {
 
-//        ZMQ.Poller poller = ZMQ.Poller(2)
-//        poller.register(subscriber, ZMQ.Poller.POLLIN)
-//        Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
-
         if (!m_socket)
         {
             LOGDEBUG("Getting subscriber");
