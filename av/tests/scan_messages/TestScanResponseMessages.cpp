@@ -48,5 +48,7 @@ TEST_F(TestScanResponseMessages, CreateScanResponse) //NOLINT
     ::capnp::List<Sophos::ssplav::FileScanResponse::Detection>::Reader detections = deSerialisedData.getDetections();
 
     EXPECT_EQ(detections[0].getThreatName(), m_threatName);
+    EXPECT_EQ(detections[0].getSha256(), m_sha256);
+    EXPECT_EQ(detections[0].getFilePath(), m_filePath);
     EXPECT_EQ(deSerialisedData.getFullScanResult(), m_fullScanResult);
 }
