@@ -2,7 +2,6 @@ add_library(eventjournal
 	EventJournalWriter.cpp
 	EventJournalWriter.h
 	IEventJournalWriter.h
-	EventJournalTimeUtils.h
 	Logger.h
 	Logger.cpp)
 

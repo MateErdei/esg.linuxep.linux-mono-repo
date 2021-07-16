@@ -6,12 +6,12 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 #include "EventJournalWriter.h"
 
-#include "EventJournalTimeUtils.h"
 #include "Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
@@ -90,7 +90,7 @@ namespace EventJournal
 
         time_t now = time(NULL);
         uint64_t producerUniqueID = getAndIncrementNextUniqueID();
-        int64_t timestamp = UNIXToWindowsFileTime(now);
+        int64_t timestamp = Common::UtilityImpl::TimeUtils::EpochToWindowsFileTime(now);
         bool isNewFile = false;
 
         if (path.empty())
