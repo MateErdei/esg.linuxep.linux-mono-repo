@@ -6,7 +6,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IDataType.h>
 
-namespace SubscriberLib
+namespace WriterLib
 {
     class IEventQueuePopper
     {

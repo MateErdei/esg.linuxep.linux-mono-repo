@@ -69,8 +69,7 @@ namespace SubscriberLib
                     m_eventQueuePusher->push(data);
                     for (const auto& messagePart : data)
                     {
-                        // TODO LINUXDAR-3142 deal with this logging
-                        LOGINFO(index++ << ": " << messagePart);
+                        LOGDEBUG(index++ << ": " << messagePart);
                     }
                 }
                 else

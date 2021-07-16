@@ -8,6 +8,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <Common/Helpers/LogInitializedTests.h>
 #include <modules/SubscriberLib/EventQueuePusher.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include "tests/Helpers/MockEventQueue.h"
 
 
@@ -24,4 +25,20 @@ TEST_F(TestEventQueuePusher, testPushPassesCorrectArguementsToItsPushMethod) // 
 
     EXPECT_CALL(*mockQueue, push(testData)).Times(1);
     eventQueuePusher.push(testData);
+}
+
+TEST_F(TestEventQueuePusher, testDroppedEventsTriggerTelemetryIncrement) // NOLINT
+{
+    MockEventQueue* mockQueue = new StrictMock<MockEventQueue>();
+    std::shared_ptr<IEventQueue> mockQueuePtr(mockQueue);
+    Common::ZeroMQWrapper::data_t testData = {"data", "for", "test"};
+    SubscriberLib::EventQueuePusher eventQueuePusher(mockQueuePtr);
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+
+    EXPECT_CALL(*mockQueue, push(testData)).WillRepeatedly(Return(false));
+
+    eventQueuePusher.push(testData);
+    EXPECT_EQ(telemetry.serialise(), "{\"dropped-av-events\":1}");
+    eventQueuePusher.push(testData);
+    EXPECT_EQ(telemetry.serialise(), "{\"dropped-av-events\":2}");
 }

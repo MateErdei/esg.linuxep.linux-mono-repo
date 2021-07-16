@@ -21,7 +21,7 @@ namespace SubscriberLib
         auto& telemetryHelper = Common::Telemetry::TelemetryHelper::getInstance();
         if (!m_eventQueue->push(event))
         {
-            telemetryHelper.increment(Plugin::Telemetry::telemetryDroppedAvEvents, ulong(1));
+            telemetryHelper.increment(Plugin::Telemetry::telemetryDroppedAvEvents, 1L);
         }
     }
 }

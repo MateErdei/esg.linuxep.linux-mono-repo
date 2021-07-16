@@ -57,9 +57,3 @@ Setup
 Custom Teardown For Tests With Publishers Running In Background
     Event Journaler Teardown
     Terminate All Processes
-
-
-
-
-
-

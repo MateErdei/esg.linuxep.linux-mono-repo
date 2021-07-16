@@ -46,7 +46,7 @@ int main()
 
     auto context = Common::ZMQWrapperApi::createContext();
 
-    EventQueueLib::EventQueue* eventQueue = new EventQueueLib::EventQueue(10);
+    EventQueueLib::EventQueue* eventQueue = new EventQueueLib::EventQueue(100);
     std::shared_ptr<EventQueueLib::EventQueue> eventQueuePtr(eventQueue);
     SubscriberLib::IEventQueuePusher* pusher = new SubscriberLib::EventQueuePusher(eventQueuePtr);
     std::unique_ptr<SubscriberLib::IEventQueuePusher> pusherPtr(pusher);

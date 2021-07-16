@@ -5,11 +5,11 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <optional>
-#include "modules/EventQueueLib/EventQueue.h"
+#include "modules/EventQueueLib/IEventQueue.h"
 #include "IEventQueuePopper.h"
 #include "Common/ZeroMQWrapper/IReadable.h"
 
-namespace SubscriberLib
+namespace WriterLib
 {
     class EventQueuePopper : public IEventQueuePopper
     {

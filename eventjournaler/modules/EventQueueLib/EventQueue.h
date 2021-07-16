@@ -11,12 +11,6 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace EventQueueLib
 {
-    class QueueEmptyException : public std::runtime_error
-    {
-    public:
-        using std::runtime_error::runtime_error;
-    };
-
     class EventQueue : public IEventQueue
     {
     public:
