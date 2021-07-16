@@ -5,6 +5,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <modules/SubscriberLib/Subscriber.h>
 #include <Common/Helpers/MockZmqContext.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -83,7 +84,36 @@ TEST_F(TestSubscriber, SubscriberStartAndStop) // NOLINT
     subscriber.stop();
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
+TEST_F(TestSubscriber, SubscriberHandlesfailedChmod) // NOLINT
+{
+    MockZmqContext*  context = new StrictMock<MockZmqContext>();
+    std::string fakeSocketPath = "/a/b/FakeSocketPath";
+    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
+    EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
+    EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
+    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
+    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
+    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr,123);
 
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath)))
+        .WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath))
+        .WillOnce(Return(false)) // initial check in start() called by test
+        .WillOnce(Return(false)); // stop() call in destructor.
+
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+        std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    EXPECT_CALL(*mockFilePermissions,
+                chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1).WillRepeatedly(Throw(Common::FileSystem::IFileSystemException("thrown")));
+
+    EXPECT_FALSE(subscriber.getRunningStatus());
+    EXPECT_NO_THROW(subscriber.start());
+    EXPECT_TRUE(subscriber.getRunningStatus());
+}
 TEST_F(TestSubscriber, SubscriberCanRestart) // NOLINT
 {
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
