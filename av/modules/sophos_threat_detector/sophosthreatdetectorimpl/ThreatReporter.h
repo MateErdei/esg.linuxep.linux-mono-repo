@@ -12,7 +12,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 namespace sspl::sophosthreatdetectorimpl
 {
-
     class ThreatReporter : public threat_scanner::IThreatReporter
     {
     public:

@@ -109,4 +109,3 @@ std::string ThreatDetected::serialise() const
     return dataAsString;
 }
 
-

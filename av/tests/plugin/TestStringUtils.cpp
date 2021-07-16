@@ -192,7 +192,6 @@ TEST_F(TestStringUtils, TestEmptyPathXML) // NOLINT
     EXPECT_EQ(result, expectedXML);
 }
 
-
 TEST_F(TestStringUtils, TestEmptyThreatPathJSON) // NOLINT
 {
     std::string threatName = "eicar";

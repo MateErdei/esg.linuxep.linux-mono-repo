@@ -52,11 +52,11 @@ std::string ScanResponse::serialise() const
     return dataAsString;
 }
 
-void ScanResponse::addDetection(std::string filePath, std::string threatName, std::string sha256)
+void ScanResponse::addDetection(const std::string& filePath, const std::string& threatName, const std::string& sha256)
 {
     DetectionContainer detection;
-    detection.name = threatName;
     detection.path = filePath;
+    detection.name = threatName;
     detection.sha256 = sha256;
     m_detections.emplace_back(detection);
 }
