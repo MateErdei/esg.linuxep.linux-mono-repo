@@ -10,26 +10,23 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/TempDir.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <eventjournal/EventJournalWriter.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <filesystem>
 #include <fstream>
 #include <memory>
-
-namespace fs = std::filesystem;
 
 class TestEventJournalWriter : public LogOffInitializedTests
 {
 protected:
     void SetUp() override
     {
-        fs::remove_all(JOURNAL_LOCATION);
-        ASSERT_TRUE(fs::create_directories(JOURNAL_LOCATION));
+        m_journalDir = Tests::TempDir::makeTempDir(JOURNAL_LOCATION);
 
-        m_writer.reset(new EventJournal::Writer(JOURNAL_LOCATION, PRODUCER));
+        m_writer.reset(new EventJournal::Writer(m_journalDir->dirPath(), PRODUCER));
 
         EventJournal::Detection detection;
         detection.subType = "Test";
@@ -38,8 +35,6 @@ protected:
         m_eventData = EventJournal::encode(detection);
         EXPECT_FALSE(m_eventData.empty());
     }
-
-    void TearDown() override { fs::remove_all(JOURNAL_LOCATION); }
 
     void CheckJournalFile(const std::string& filename, size_t expected_size, mode_t expected_mode)
     {
@@ -85,11 +80,12 @@ protected:
         return buffer.st_mode;
     }
 
-    inline static const std::string JOURNAL_LOCATION = "/tmp/test-journal";
+    inline static const std::string JOURNAL_LOCATION = "test-journal";
     inline static const std::string PRODUCER = "EventJournalTest";
     inline static const std::string SUBJECT = "Detections";
 
     std::unique_ptr<EventJournal::Writer> m_writer;
+    std::unique_ptr<Tests::TempDir> m_journalDir;
     std::vector<uint8_t> m_eventData;
 };
 
@@ -97,11 +93,11 @@ TEST_F(TestEventJournalWriter, InsertDetectionsEvent) // NOLINT
 {
     m_writer->insert(EventJournal::Subject::Detections, m_eventData);
 
-    auto directory = Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER, SUBJECT);
+    auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
     ASSERT_TRUE(Common::FileSystem::fileSystem()->isDirectory(directory));
     mode_t directoryPermissions = S_IFDIR | S_IXUSR | S_IXGRP | S_IRUSR | S_IWUSR | S_IRGRP;
-    EXPECT_EQ(directoryPermissions, getDirectoryPermissions(JOURNAL_LOCATION));
-    EXPECT_EQ(directoryPermissions, getDirectoryPermissions(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER)));
+    EXPECT_EQ(directoryPermissions, getDirectoryPermissions(m_journalDir->dirPath()));
+    EXPECT_EQ(directoryPermissions, getDirectoryPermissions(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)));
     EXPECT_EQ(directoryPermissions, getDirectoryPermissions(directory));
 
     auto files = Common::FileSystem::fileSystem()->listFiles(directory);
@@ -116,7 +112,8 @@ TEST_F(TestEventJournalWriter, InsertUnsupportedEventThrows) // NOLINT
 {
     EXPECT_THROW(m_writer->insert(EventJournal::Subject::NumSubjects, m_eventData), std::runtime_error);
 
-    EXPECT_FALSE(Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER)));
+    EXPECT_FALSE(
+        Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)));
 }
 
 TEST_F(TestEventJournalWriter, InsertUnalignedDataThrows) // NOLINT
@@ -124,7 +121,8 @@ TEST_F(TestEventJournalWriter, InsertUnalignedDataThrows) // NOLINT
     m_eventData.pop_back();
     EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, m_eventData), std::runtime_error);
 
-    EXPECT_FALSE(Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER)));
+    EXPECT_FALSE(
+        Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)));
 }
 
 TEST_F(TestEventJournalWriter, InsertTooLargeDataThrows) // NOLINT
@@ -132,17 +130,19 @@ TEST_F(TestEventJournalWriter, InsertTooLargeDataThrows) // NOLINT
     std::vector<uint8_t> data(196 * 1024);
     EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, data), std::runtime_error);
 
-    EXPECT_FALSE(Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER)));
+    EXPECT_FALSE(
+        Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)));
 }
 
 TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitThrows) // NOLINT
 {
-    auto directory = Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER, SUBJECT);
+    auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
     auto filename = Common::FileSystem::join(directory, SUBJECT + "-0000000000000001-132444736000000000.bin");
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
     EXPECT_CALL(*mockFileSystem, exists(directory)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, exists(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER))).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)))
+        .WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, isDirectory(directory)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(directory)).WillOnce(Return(std::vector{ filename }));
     EXPECT_CALL(*mockFileSystem, fileSize(filename)).WillOnce(Return(99804296));
@@ -153,7 +153,7 @@ TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitThrows) // NOLINT
 
 TEST_F(TestEventJournalWriter, CreateDirectoryFailureThrows) // NOLINT
 {
-    auto directory = Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER, SUBJECT);
+    auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
     EXPECT_CALL(*mockFileSystem, exists(directory)).WillOnce(Return(false));
