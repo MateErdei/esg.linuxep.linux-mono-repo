@@ -103,6 +103,30 @@ TEST_F(TestEventJournalWriter, InsertUnalignedDataThrows) // NOLINT
     EXPECT_FALSE(Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER)));
 }
 
+TEST_F(TestEventJournalWriter, InsertTooLargeDataThrows) // NOLINT
+{
+    std::vector<uint8_t> data(196 * 1024);
+    EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, data), std::runtime_error);
+
+    EXPECT_FALSE(Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER)));
+}
+
+TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitThrows) // NOLINT
+{
+    auto directory = Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER, SUBJECT);
+    auto filename = Common::FileSystem::join(directory, SUBJECT + "-0000000000000001-132444736000000000.bin");
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(directory)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER))).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, isDirectory(directory)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(directory)).WillOnce(Return(std::vector{ filename }));
+    EXPECT_CALL(*mockFileSystem, fileSize(filename)).WillOnce(Return(99804296));
+
+    std::vector<uint8_t> data(195 * 1024);
+    EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, data), std::runtime_error);
+}
+
 TEST_F(TestEventJournalWriter, CreateDirectoryFailureThrows) // NOLINT
 {
     auto directory = Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER, SUBJECT);

@@ -42,6 +42,7 @@ namespace EventJournal
         static constexpr uint16_t SJRN_VERSION       = 1;
         static constexpr uint32_t PBUF_HEADER_LENGTH = 24;
         static constexpr uint32_t MAX_RECORD_LENGTH  = 0x31000; // 196K
+        static constexpr uint32_t MAX_FILE_SIZE      = 100000000;
 
         std::string getNewFilename(const std::string& subject, uint64_t uniqueID, uint64_t timestamp) const;
         bool isSubjectFile(const std::string& subject, const std::string& filename) const;

@@ -73,6 +73,11 @@ namespace EventJournal
             throw std::runtime_error("input data not 64-bit aligned");
         }
 
+        if ((data.size() + PBUF_HEADER_LENGTH) > MAX_RECORD_LENGTH)
+        {
+            throw std::runtime_error("input data exceeds maximum record length");
+        }
+
         auto directory = Common::FileSystem::join(m_location, m_producer, subjectName);
         if (!Common::FileSystem::fileSystem()->exists(directory))
         {
@@ -93,6 +98,12 @@ namespace EventJournal
         }
         else
         {
+            auto fileSize = Common::FileSystem::fileSystem()->fileSize(path);
+            if ((fileSize + PBUF_HEADER_LENGTH + data.size()) > MAX_FILE_SIZE)
+            {
+                throw std::runtime_error("input data exceeds maximum file size");
+            }
+
             LOGDEBUG("Update " << path);
         }
 
