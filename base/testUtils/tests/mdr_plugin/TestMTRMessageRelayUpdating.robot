@@ -104,7 +104,6 @@ MTR Fails To Add Message Relay Information When MCS Config Files Are Missing But
     Wait Message Relay Structure Is Correct And Contains Port    3000
 
 MTR Has No Message Relay Configured If Not Defined In MCS Config Files
-    Start Watchdog
     Register With Local Cloud Server
 
     Start Watchdog
