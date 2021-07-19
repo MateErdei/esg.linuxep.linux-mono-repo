@@ -5,16 +5,19 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IDataType.h>
-#include <modules/JournalerCommon/Event.h>
-
 
 namespace SubscriberLib
 {
-    class IEventHandler
+    class IEventQueuePusher
     {
     public:
-        virtual ~IEventHandler() = default;
-        IEventHandler() = default;
-        virtual void handleEvent(JournalerCommon::Event event) = 0;
+        virtual ~IEventQueuePusher() = default;
+        IEventQueuePusher() = default;
+
+        /**
+         * Pushes data on to the Event Queue
+         * @param data to push
+         */
+        virtual void push(Common::ZeroMQWrapper::data_t event) = 0;
     };
 } // namespace EventQueuePusher
