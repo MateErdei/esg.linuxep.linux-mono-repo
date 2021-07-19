@@ -6,6 +6,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include <optional>
 #include "EventQueue.h"
+#include "Logger.h"
 
 namespace EventQueueLib
 {
@@ -26,6 +27,14 @@ namespace EventQueueLib
 
     bool EventQueueLib::EventQueue::push(Common::ZeroMQWrapper::data_t event)
     {
+        // TODO LINUXDAR-3135: Remove this logging loop when reading from the queue is implemented and testable
+        // Logging loop used for robot tests. Not desired for released product.
+        int index = 0;
+        for (const auto& messagePart : event)
+        {
+            LOGINFO(index++ << ": " << messagePart);
+        }
+
         std::lock_guard<std::mutex> lock(m_pushMutex);
         if (isQueueFull())
         {

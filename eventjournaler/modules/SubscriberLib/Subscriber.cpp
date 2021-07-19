@@ -63,14 +63,7 @@ namespace SubscriberLib
                 if (fs->exists(m_socketPath))
                 {
                     auto data = m_socket->read();
-                    LOGINFO("Received event");
-                    int index = 0;
-
                     m_eventQueuePusher->push(data);
-                    for (const auto& messagePart : data)
-                    {
-                        LOGDEBUG(index++ << ": " << messagePart);
-                    }
                 }
                 else
                 {
