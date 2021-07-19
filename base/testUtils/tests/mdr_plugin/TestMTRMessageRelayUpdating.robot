@@ -39,6 +39,7 @@ Teardown MTR Message Relay Updating Suite
 
 
 Setup MTR Message Relay Updating Test
+    Set Local CA Environment Variable
     Start Local Cloud Server
 
     Block Connection Between EndPoint And FleetManager
@@ -87,7 +88,10 @@ MTR Fails To Add Message Relay Information When MCS Config Files Are Missing But
 
     Install MDR Directly
     Check MDR Plugin Installed
-
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  File should exist  ${MTR_MESSAGE_RELAY_CONFIG_FILE}
     Check Log Does Not Contain    selectedMessageRelay    ${MTR_MESSAGE_RELAY_CONFIG_FILE}    MessageRelayConfig.xml
 
     ${EXPECTED_ERROR}=     Set Variable    Failed to read mcs config file(s): ${MCS_CONFIG} ${MCS_POLICY_CONFIG}
@@ -100,6 +104,7 @@ MTR Fails To Add Message Relay Information When MCS Config Files Are Missing But
     Wait Message Relay Structure Is Correct And Contains Port    3000
 
 MTR Has No Message Relay Configured If Not Defined In MCS Config Files
+    Start Watchdog
     Register With Local Cloud Server
 
     Start Watchdog
