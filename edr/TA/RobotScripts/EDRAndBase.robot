@@ -174,12 +174,11 @@ EDR Recovers From Incomplete Database Purge
 
 EDR Plugin Can Run Queries For Event Journal Detection Table
     Check EDR Plugin Installed With Base
-    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
 
     Wait Until Keyword Succeeds
-    ...  100 secs
-    ...  5 secs
-    ...  Number Of SST Database Files Is Greater Than  1
+    ...  15 secs
+    ...  1 secs
+    ...  Check Osquery Running
 
     Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/event-journals/test1
     Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/event_journal  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/event-journals/
@@ -192,6 +191,8 @@ EDR Plugin Can Run Queries For Event Journal Detection Table
     ...  Check Sophos Detections Journal Queries Work
 
 EDR Plugin Can Run Queries For Event Journal Detection Table And Create Jrl
+    # Need to make sure test starts of fresh
+    Reinstall With Base
     Check EDR Plugin Installed With Base
     Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
 
@@ -235,6 +236,10 @@ EDR Plugin Stops Without Errors
 
 
 *** Keywords ***
+Reinstall With Base
+    Uninstall All
+    Install With Base SDDS
+
 Check Simple Query Works
     ${response} =  Run Live Query and Return Result  SELECT * from uptime
     Should Contain  ${response}  "errorCode":0,"errorMessage":"OK"
