@@ -13,7 +13,7 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <!--TODO: add release-version and change development-version to develop -->
+            <release-version branch="release/LINUXDAR-3116-journal-library" build-id="20210709113429-ef2082531af8d53ced225286ab8c6259ce538fb7-MOSomo" />
             <development-version branch="feature/LINUXDAR-3116-build-journal-library-for-linux"/>
             <include artifact-path="sed-libs-linux/JournalLib" dest-dir="input"/>
         </build-asset>
