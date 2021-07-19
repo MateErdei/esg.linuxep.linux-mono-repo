@@ -1,5 +1,5 @@
 add_executable(${plugin_name}
-        main.cpp ../../modules/osqueryextensions/ThreatTypes.h ../../modules/EventJournalWrapperImpl/IEventJournalReaderWrapper.h ../../modules/osqueryextensions/SophosAVDetectionTableGenerator.cpp ../../modules/osqueryextensions/SophosAVDetectionTableGenerator.h)
+        main.cpp )
 target_link_libraries(${plugin_name} PUBLIC pluginimpl dl ${OPENSSL_LIBRARY})
 
 SET_TARGET_PROPERTIES( ${plugin_name}

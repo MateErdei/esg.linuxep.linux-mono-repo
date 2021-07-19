@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -30,9 +30,9 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
         m_flags.timeout = 3;
         m_extension = OsquerySDK::CreateExtension(m_flags, "SophosExtension", "1.0.0");
 
-        LOGINFO("Adding Sophos Server Table");
+        LOGDEBUG("Adding Sophos Server Table");
         m_extension->AddTablePlugin(std::make_unique<OsquerySDK::SophosServerTable>());
-        LOGINFO("Adding Sophos Detections Table");
+        LOGDEBUG("Adding Sophos Detections Table");
         m_extension->AddTablePlugin(std::make_unique<OsquerySDK::SophosAVDetectionTable>());
         LOGDEBUG("Extension Added");
         m_extension->Start();

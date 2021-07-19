@@ -118,7 +118,7 @@ mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var || failure ${EXIT_FAIL_CRE
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr log dir"
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/extensions  || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr extensions dir"
 mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr var dir"
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr var dir"
+mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var/jrl || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create edr jrl dir"
 
 
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*

@@ -31,11 +31,6 @@ std::string Plugin::lockFilePath()
     return fromRelative("var/edr.lock");
 }
 
-std::string Plugin::eventJournalerJsonFilePath()
-{
-    return fromRelative("etc/");
-}
-
 std::string Plugin::getVersionIniFilePath()
 {
     return fromRelative("VERSION.ini");

@@ -51,7 +51,7 @@ namespace Common
             std::string jrl("");
             auto filesystem = Common::FileSystem::fileSystem();
 
-            if(filesystem->isFile(idFilePath))
+            if (filesystem->isFile(idFilePath))
             {
                 jrl = filesystem->readFile(idFilePath);
             }
@@ -59,13 +59,13 @@ namespace Common
         }
         void Reader::updateJrl(const std::string& idFilePath, const std::string& jrl)
         {
-            if(idFilePath.empty())
+            if (idFilePath.empty())
             {
                 return;
             }
             auto filesystem = Common::FileSystem::fileSystem();
 
-            if(filesystem->isFile(idFilePath))
+            if (filesystem->isFile(idFilePath))
             {
                 filesystem->removeFile(idFilePath);
             }
@@ -106,7 +106,7 @@ namespace Common
                 subjects.push_back(getSubjectName(s));
             }
             std::shared_ptr <Sophos::Journal::ViewInterface> view;
-            if(!jrl.empty())
+            if (!jrl.empty())
             {
                 view = m_helper->GetJournalView(subjects, jrl);
             }

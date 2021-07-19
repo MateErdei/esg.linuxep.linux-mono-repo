@@ -3,7 +3,7 @@
 Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "MockJoutnalReaderWrapper.h"
+#include "MockJournalReaderWrapper.h"
 #include "MockQueryContext.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
