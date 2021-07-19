@@ -223,7 +223,7 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON) // NOLINT
     EXPECT_EQ(result, expectedJSON);
 }
 
-TEST_F(TestStringUtils, TestEmptyThreatNameSON) // NOLINT
+TEST_F(TestStringUtils, TestEmptyThreatNameJSON) // NOLINT
 {
 
     std::string threatPath = "path/to/threat";

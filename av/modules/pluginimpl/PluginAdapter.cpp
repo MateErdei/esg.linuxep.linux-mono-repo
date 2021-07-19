@@ -51,7 +51,6 @@ namespace Plugin
             {
                 m_adapter.processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
                 std::string subscriberSocketPath = Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile();
-                //TODO: LINUXDAR-3177 uncomment the following code and convert getFilePath() string to utf-8
                 m_adapter.publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
             }
 
