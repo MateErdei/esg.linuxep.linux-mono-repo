@@ -10,3 +10,11 @@ add_subdirectory(plugin)
 add_subdirectory(subscriber)
 add_subdirectory(EventQueueLib)
 add_subdirectory(WriterLib)
+
+add_custom_target(kcov
+        COMMAND bash ${PROJECT_SOURCE_DIR}/../everest-base/tools/run-kcov.sh ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/tests ${PROJECT_BINARY_DIR}/kcov_output ${PROJECT_BINARY_DIR}/tests
+        )
+
+add_custom_target(kcov-all
+        COMMAND bash ${PROJECT_SOURCE_DIR}/../everest-base/tools/run-kcov-all.sh ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/tests ${PROJECT_BINARY_DIR}/kcov_output ${PROJECT_BINARY_DIR}/tests
+        )
