@@ -8,7 +8,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2021-28" build-id="20210702152935-ed995af73c515608b30b02507d103cdd39431ea6-ntkuxd"/>
-            <development-version branch="feature/LINUXDAR-3147-add-linux-writing-capability-to-event-journal-library" />
+            <development-version branch="develop" />
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
