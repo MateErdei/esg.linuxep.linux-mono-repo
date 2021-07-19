@@ -4,7 +4,7 @@ add_executable(BinaryDataTable
         BinaryDataTable.cpp
         BinaryDataTable.h
         ${SQLITE_INCLUDE_DIR}/sqlite3.c
-        )
+        ../../osqueryextensions/MockJoutnalReaderWrapper.h)
 
 target_link_libraries(BinaryDataTable PUBLIC
         ${GLOG_LIBRARY}

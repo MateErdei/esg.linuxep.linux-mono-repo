@@ -8,6 +8,8 @@ sophos_add_library(OsqueryExtensions SHARED
         ResultsSender.h
         ResultsSender.cpp
         SophosServerTable.h
+        SophosAVDetectionTableGenerator.h
+        SophosAVDetectionTableGenerator.cpp
         SophosServerTable.cpp
         SophosAVDetectionTable.h
         SophosAVDetectionTable.cpp

@@ -9,10 +9,12 @@ add_executable(FuzzableResultSender
         ../../../modules/osqueryextensions/SophosServerTable.cpp
         ../../../modules/osqueryextensions/SophosAVDetectionTable.h
         ../../../modules/osqueryextensions/SophosAVDetectionTable.cpp
+        ../../../modules/osqueryextensions/SophosAVDetectionTableGenerator.h
+        ../../../modules/osqueryextensions/SophosAVDetectionTableGenerator.cpp
         ../../../modules/osqueryextensions/SophosExtension.h
         ../../../modules/osqueryextensions/SophosExtension.cpp
-        ../../../modules/EventJournalWrapperImpl/EventJournalWrapper.h
-        ../../../modules/EventJournalWrapperImpl/EventJournalWrapper.cpp
+        ../../../modules/EventJournalWrapperImpl/EventJournalReaderWrapper.h
+        ../../../modules/EventJournalWrapperImpl/EventJournalReaderWrapper.cpp
         ${SQLITE_INCLUDE_DIR}/sqlite3.c
 
         )

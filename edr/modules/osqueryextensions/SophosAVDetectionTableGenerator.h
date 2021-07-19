@@ -8,14 +8,14 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include "OsquerySDK/OsquerySDK.h"
 
+#include <modules/EventJournalWrapperImpl/IEventJournalReaderWrapper.h>
 namespace OsquerySDK
 {
-    class SophosAVDetectionTable : public OsquerySDK::TablePluginInterface
+    class SophosAVDetectionTableGenerator
     {
     public:
-        SophosAVDetectionTable() = default;
-        std::string GetName() override;
-        std::vector<TableColumn> GetColumns() override;
-        OsquerySDK::TableRows Generate(OsquerySDK::QueryContextInterface& context) override;
+        OsquerySDK::TableRows GenerateData(
+            const std::string& queryId,
+            std::shared_ptr<Common::EventJournalWrapper::IEventJournalReaderWrapper> journalReader);
     };
 }

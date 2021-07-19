@@ -27,14 +27,11 @@ namespace
                                       { 8, "Amsi Protection" }, { 100, "App" }, { 102, "Data Loss Prevention" },
                                       { 103, "Device Control" } };
 
-    enum ItemType : unsigned char
-    {
-        FILE = 1,
-        PROCESS = 2,
-        URL = 3,
-        NETWORK = 4,
-        REGISTRY = 5,
-        THREAD = 6,
-        DEVICE = 7,
-    };
+    EnumStringMap THREAT_ITEM_TYPE_MAP = { { 1, "FILE" },
+                                        { 2, "PROCESS" },
+                                        { 3, "URL" },
+                                        { 4, "NETWORK" },
+                                        { 5, "REGISTRY" },
+                                        { 6, "THREAD" },
+                                        { 7, "DEVICE" } };
 } // namespace

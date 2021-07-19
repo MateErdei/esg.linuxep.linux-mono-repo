@@ -1,6 +1,7 @@
 sophos_add_library(eventjournalwrapperimpl SHARED
-        EventJournalWrapper.cpp
-        EventJournalWrapper.h
+        EventJournalReaderWrapper.cpp
+        EventJournalReaderWrapper.h
+        IEventJournalReaderWrapper.h
         Logger.cpp
         Logger.h)
 

@@ -172,6 +172,48 @@ EDR Recovers From Incomplete Database Purge
     ...  5 secs
     ...  Check Simple Query Works
 
+EDR Plugin Can Run Queries For Event Journal Detection Table
+    Check EDR Plugin Installed With Base
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  Number Of SST Database Files Is Greater Than  1
+
+    Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/event-journals/test1
+    Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/event_journal  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/event-journals/
+    Run Process  chown  -R  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/plugins/eventjournaler/
+
+    # Perform a query to make sure that osquery is now working
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check Sophos Detections Journal Queries Work
+
+EDR Plugin Can Run Queries For Event Journal Detection Table And Create Jrl
+    Check EDR Plugin Installed With Base
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  Number Of SST Database Files Is Greater Than  1
+
+    Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/event-journals/test1
+    Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/event_journal  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/event-journals/
+    Run Process  chown  -R  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/plugins/eventjournaler/
+
+    # Perform a query to make sure that osquery is now working
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check Sophos Detections Journal Queries Work With Query Id
+
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+
+
+
 EDR Plugin Stops Without Errors
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
@@ -196,6 +238,14 @@ EDR Plugin Stops Without Errors
 Check Simple Query Works
     ${response} =  Run Live Query and Return Result  SELECT * from uptime
     Should Contain  ${response}  "errorCode":0,"errorMessage":"OK"
+
+Check Sophos Detections Journal Queries Work
+        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal
+        Should Contain  ${response}  "errorCode":0,"errorMessage":"OK"
+
+Check Sophos Detections Journal Queries Work With Query Id
+        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal WHERE query_id = 'test_query1'
+        Should Contain  ${response}  "errorCode":0,"errorMessage":"OK"
 
 Number Of SST Database Files Is Greater Than
     [Arguments]  ${min_sst_files_for_test}
