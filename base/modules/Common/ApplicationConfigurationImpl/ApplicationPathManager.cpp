@@ -30,7 +30,7 @@ namespace Common
 
         std::string ApplicationPathManager::getEventJournalsPath() const
         {
-            return Common::FileSystem::join(sophosInstall(), "data", "event-journals");
+            return Common::FileSystem::join(sophosInstall(), "plugins/eventjournaler", "data/eventjournals");
         }
 
         std::string ApplicationPathManager::getManagementAgentSocketAddress() const
