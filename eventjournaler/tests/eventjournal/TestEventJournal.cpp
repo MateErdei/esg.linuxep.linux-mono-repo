@@ -97,7 +97,8 @@ TEST_F(TestEventJournalWriter, InsertDetectionsEvent) // NOLINT
     ASSERT_TRUE(Common::FileSystem::fileSystem()->isDirectory(directory));
     mode_t directoryPermissions = S_IFDIR | S_IXUSR | S_IXGRP | S_IRUSR | S_IWUSR | S_IRGRP;
     EXPECT_EQ(directoryPermissions, getDirectoryPermissions(m_journalDir->dirPath()));
-    EXPECT_EQ(directoryPermissions, getDirectoryPermissions(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)));
+    EXPECT_EQ(
+        directoryPermissions, getDirectoryPermissions(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)));
     EXPECT_EQ(directoryPermissions, getDirectoryPermissions(directory));
 
     auto files = Common::FileSystem::fileSystem()->listFiles(directory);
@@ -106,6 +107,21 @@ TEST_F(TestEventJournalWriter, InsertDetectionsEvent) // NOLINT
     EXPECT_TRUE(Common::UtilityImpl::StringUtils::startswith(filename, SUBJECT));
     EXPECT_TRUE(Common::UtilityImpl::StringUtils::endswith(filename, ".bin"));
     CheckJournalFile(files.front(), 224, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
+}
+
+TEST_F(TestEventJournalWriter, AppendDetectionsEvent) // NOLINT
+{
+    m_writer->insert(EventJournal::Subject::Detections, m_eventData);
+    m_writer.reset(new EventJournal::Writer(m_journalDir->dirPath(), PRODUCER));
+    m_writer->insert(EventJournal::Subject::Detections, m_eventData);
+
+    auto files = Common::FileSystem::fileSystem()->listFiles(
+        Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT));
+    ASSERT_EQ(1, files.size());
+    auto filename = Common::FileSystem::basename(files.front());
+    EXPECT_TRUE(Common::UtilityImpl::StringUtils::startswith(filename, SUBJECT));
+    EXPECT_TRUE(Common::UtilityImpl::StringUtils::endswith(filename, ".bin"));
+    CheckJournalFile(files.front(), 376, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
 TEST_F(TestEventJournalWriter, InsertUnsupportedEventThrows) // NOLINT
