@@ -67,6 +67,24 @@ protected:
         EXPECT_EQ(0x20726468, hdr);
     }
 
+    mode_t getDirectoryPermissions(const std::string& directory)
+    {
+        struct stat buffer{};
+        int result = stat(directory.c_str(), &buffer);
+
+        if (result != 0)
+        {
+            throw std::runtime_error("stat failed");
+        }
+
+        if (!S_ISDIR(buffer.st_mode))
+        {
+            throw std::runtime_error("not a directory");
+        }
+
+        return buffer.st_mode;
+    }
+
     inline static const std::string JOURNAL_LOCATION = "/tmp/test-journal";
     inline static const std::string PRODUCER = "EventJournalTest";
     inline static const std::string SUBJECT = "Detections";
@@ -81,13 +99,17 @@ TEST_F(TestEventJournalWriter, InsertDetectionsEvent) // NOLINT
 
     auto directory = Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER, SUBJECT);
     ASSERT_TRUE(Common::FileSystem::fileSystem()->isDirectory(directory));
+    mode_t directoryPermissions = S_IFDIR | S_IXUSR | S_IXGRP | S_IRUSR | S_IWUSR | S_IRGRP;
+    EXPECT_EQ(directoryPermissions, getDirectoryPermissions(JOURNAL_LOCATION));
+    EXPECT_EQ(directoryPermissions, getDirectoryPermissions(Common::FileSystem::join(JOURNAL_LOCATION, PRODUCER)));
+    EXPECT_EQ(directoryPermissions, getDirectoryPermissions(directory));
 
     auto files = Common::FileSystem::fileSystem()->listFiles(directory);
     ASSERT_EQ(1, files.size());
     auto filename = Common::FileSystem::basename(files.front());
     EXPECT_TRUE(Common::UtilityImpl::StringUtils::startswith(filename, SUBJECT));
     EXPECT_TRUE(Common::UtilityImpl::StringUtils::endswith(filename, ".bin"));
-    CheckJournalFile(files.front(), 224, S_IFREG | S_IRUSR | S_IWUSR);
+    CheckJournalFile(files.front(), 224, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
 TEST_F(TestEventJournalWriter, InsertUnsupportedEventThrows) // NOLINT

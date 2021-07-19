@@ -84,6 +84,11 @@ namespace EventJournal
         if (!Common::FileSystem::fileSystem()->exists(directory))
         {
             Common::FileSystem::fileSystem()->makedirs(directory);
+
+            mode_t directoryPermissions = S_IXUSR | S_IXGRP | S_IRUSR | S_IWUSR | S_IRGRP;
+            Common::FileSystem::filePermissions()->chmod(m_location, directoryPermissions);
+            Common::FileSystem::filePermissions()->chmod(Common::FileSystem::join(m_location, m_producer), directoryPermissions);
+            Common::FileSystem::filePermissions()->chmod(directory, directoryPermissions);
         }
 
         time_t now = time(NULL);
@@ -123,7 +128,7 @@ namespace EventJournal
         std::vector<uint8_t> contents;
         if (isNewFile)
         {
-            Common::FileSystem::filePermissions()->chmod(path, S_IRUSR | S_IWUSR );
+            Common::FileSystem::filePermissions()->chmod(path, S_IRUSR | S_IWUSR | S_IRGRP);
             writeRIFFAndSJRNHeader(contents, subjectName);
         }
         appendPbufHeader(contents, data.size(), producerUniqueID, timestamp);
