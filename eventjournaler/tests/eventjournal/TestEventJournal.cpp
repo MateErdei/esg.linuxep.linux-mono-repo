@@ -4,6 +4,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 ***********************************************************************************************/
 
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
@@ -40,9 +41,10 @@ protected:
 
     void TearDown() override { fs::remove_all(JOURNAL_LOCATION); }
 
-    void CheckJournalFile(const std::string& filename, size_t expected_size)
+    void CheckJournalFile(const std::string& filename, size_t expected_size, mode_t expected_mode)
     {
         EXPECT_EQ(expected_size, Common::FileSystem::fileSystem()->fileSize(filename));
+        EXPECT_EQ(expected_mode, Common::FileSystem::filePermissions()->getFilePermissions(filename));
 
         std::ifstream f(filename, std::ios::binary | std::ios::in);
         std::vector<uint8_t> buffer(16);
@@ -85,7 +87,7 @@ TEST_F(TestEventJournalWriter, InsertDetectionsEvent) // NOLINT
     auto filename = Common::FileSystem::basename(files.front());
     EXPECT_TRUE(Common::UtilityImpl::StringUtils::startswith(filename, SUBJECT));
     EXPECT_TRUE(Common::UtilityImpl::StringUtils::endswith(filename, ".bin"));
-    CheckJournalFile(files.front(), 224);
+    CheckJournalFile(files.front(), 224, S_IFREG | S_IRUSR | S_IWUSR);
 }
 
 TEST_F(TestEventJournalWriter, InsertUnsupportedEventThrows) // NOLINT

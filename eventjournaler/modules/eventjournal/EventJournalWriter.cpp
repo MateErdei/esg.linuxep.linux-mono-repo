@@ -10,10 +10,12 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <capnp/message.h>
 #include <capnp/serialize.h>
+#include <sys/stat.h>
 
 #include <Event.capnp.h>
 #include <cstddef>
@@ -121,6 +123,7 @@ namespace EventJournal
         std::vector<uint8_t> contents;
         if (isNewFile)
         {
+            Common::FileSystem::filePermissions()->chmod(path, S_IRUSR | S_IWUSR );
             writeRIFFAndSJRNHeader(contents, subjectName);
         }
         appendPbufHeader(contents, data.size(), producerUniqueID, timestamp);
