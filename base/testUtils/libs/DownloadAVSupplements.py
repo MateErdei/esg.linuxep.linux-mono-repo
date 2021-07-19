@@ -115,8 +115,11 @@ def process(baseurl, filename, dirname):
 
 def run(argv):
     dest = "/tmp/system-product-test-inputs"
-    if argv[1]:
-        dest = argv[1]
+    try:
+        if argv[1]:
+            dest = argv[1]
+    except IndexError:
+        pass
 
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
     updated = process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", dest +"/vdl")

@@ -23,7 +23,8 @@ ${EICAR_STRING}                     X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-
 *** Keywords ***
 Install AV Plugin Directly
     ${AV_SDDS_DIR} =  Setup Av Install
-    ${result} =    Run Process  bash -x ${AV_SDDS_DIR}/install.sh &> /tmp/install.log   shell=True
+    ${handle}=  Start Process  bash -x ${AV_SDDS_DIR}/install.sh &> /tmp/install.log   shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=120  on_timeout=kill
     ${error} =  Get File  /tmp/install.log
     Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr}, ${error}"
     Log  ${error}

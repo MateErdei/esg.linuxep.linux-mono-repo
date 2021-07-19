@@ -9,7 +9,10 @@ Resource  ../watchdog/WatchdogResources.robot
 Suite Setup     Require Fresh Install
 Suite Teardown  Require Uninstalled
 
-Test Teardown  General Test Teardown
+Test Teardown  Run Keywords
+...            Run Keyword If Test Failed  Dump Teardown Log  /tmp/install.sh  AND
+...            Remove File  /tmp/install.sh  AND
+...            General Test Teardown
 
 Default Tags   EVENT_JOURNALER_PLUGIN   AV_PLUGIN
 
