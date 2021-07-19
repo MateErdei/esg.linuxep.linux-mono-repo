@@ -44,8 +44,10 @@ namespace EventJournal
         static constexpr uint32_t MAX_RECORD_LENGTH  = 0x31000; // 196K
 
         std::string getNewFilename(const std::string& subject, uint64_t uniqueID, uint64_t timestamp) const;
+        bool isSubjectFile(const std::string& subject, const std::string& filename) const;
 
         std::string getExistingFile(const std::string& subject) const;
+        uint64_t readHighestUniqueID() const;
         uint64_t readHighestUniqueID(const std::string& file) const;
 
         void writeRIFFAndSJRNHeader(std::vector<uint8_t>& data, const std::string& subject) const;

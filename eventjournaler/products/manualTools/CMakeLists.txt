@@ -12,13 +12,7 @@ target_link_libraries(EventPubSub ${zmqlib} ${pluginapilib} ${log4cpluslib} ${pr
 target_link_libraries(EventJournalWriter eventjournal ${pluginapilib} ${protobuflib} ${log4cpluslib} ${LZMA_LIBRARY} stdc++fs)
 
 SET_TARGET_PROPERTIES(EventPubSub
-        PROPERTIES BUILD_RPATH "/opt/sophos-spl/plugins/eventjournaler/lib64")
+        PROPERTIES BUILD_RPATH "/opt/sophos-spl/plugins/eventjournaler/lib64;${CMAKE_BINARY_DIR}/libs")
 
 SET_TARGET_PROPERTIES(EventJournalWriter
-        PROPERTIES BUILD_RPATH "/opt/sophos-spl/plugins/eventjournaler/lib64")
-
-SET_TARGET_PROPERTIES(EventJournalWriter
-        PROPERTIES
-        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
-        )
+        PROPERTIES BUILD_RPATH "/opt/sophos-spl/plugins/eventjournaler/lib64;${CMAKE_BINARY_DIR}/libs")

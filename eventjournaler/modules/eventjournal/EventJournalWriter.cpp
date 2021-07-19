@@ -55,6 +55,13 @@ namespace EventJournal
         {
             m_producer = "SophosSPL";
         }
+
+        uint64_t lastUniqueID = readHighestUniqueID();
+        if (lastUniqueID != 0)
+        {
+            LOGDEBUG("last producer unique ID " << lastUniqueID);
+            m_nextUniqueID.exchange(lastUniqueID + 1);
+        }
     }
 
     void Writer::insert(Subject subject, const std::vector<uint8_t>& data)
@@ -72,27 +79,12 @@ namespace EventJournal
             Common::FileSystem::fileSystem()->makedirs(directory);
         }
 
-        auto path = getExistingFile(subjectName);
-        if (!path.empty())
-        {
-            uint64_t uniqueID = readHighestUniqueID(path);
-            if (uniqueID == 0)
-            {
-                LOGWARN("File " << Common::FileSystem::basename(path) << " does not contain any events");
-                path.clear();
-                return;
-            }
-            else
-            {
-                m_nextUniqueID.exchange(uniqueID + 1);
-            }
-        }
-
         time_t now = time(NULL);
         uint64_t producerUniqueID = getAndIncrementNextUniqueID();
         int64_t timestamp = Common::UtilityImpl::TimeUtils::EpochToWindowsFileTime(now);
         bool isNewFile = false;
 
+        auto path = getExistingFile(subjectName);
         if (path.empty())
         {
             path = Common::FileSystem::join(directory, getNewFilename(subjectName, producerUniqueID, timestamp));
@@ -138,6 +130,12 @@ namespace EventJournal
         return subject + "-" + oss.str() + "-" + std::to_string(timestamp) + ".bin";
     }
 
+    bool Writer::isSubjectFile(const std::string& subject, const std::string& filename) const
+    {
+        return Common::UtilityImpl::StringUtils::startswith(filename, subject) &&
+               Common::UtilityImpl::StringUtils::endswith(filename, ".bin");
+    }
+
     std::string Writer::getExistingFile(const std::string& subject) const
     {
         auto subjectDirectory = Common::FileSystem::join(m_location, m_producer, subject);
@@ -146,7 +144,7 @@ namespace EventJournal
             auto files = Common::FileSystem::fileSystem()->listFiles(subjectDirectory);
             for (const auto& file : files)
             {
-                if (Common::UtilityImpl::StringUtils::endswith(file, ".bin"))
+                if (isSubjectFile(subject, Common::FileSystem::basename(file)))
                 {
                     return file;
                 }
@@ -156,9 +154,38 @@ namespace EventJournal
         return "";
     }
 
+    uint64_t Writer::readHighestUniqueID() const
+    {
+        uint64_t uniqueID = 0;
+
+        auto directory = Common::FileSystem::join(m_location, m_producer);
+        if (Common::FileSystem::fileSystem()->exists(directory))
+        {
+            auto subjects = Common::FileSystem::fileSystem()->listDirectories(directory);
+            for (const auto& subject : subjects)
+            {
+                auto files = Common::FileSystem::fileSystem()->listFiles(subject);
+                for (const auto& file : files)
+                {
+                    if (isSubjectFile(Common::FileSystem::basename(subject), Common::FileSystem::basename(file)))
+                    {
+                        uint64_t id = readHighestUniqueID(file);
+
+                        if (id > uniqueID)
+                        {
+                            uniqueID = id;
+                        }
+                    }
+                }
+            }
+        }
+
+        return uniqueID;
+    }
+
     uint64_t Writer::readHighestUniqueID(const std::string& file) const
     {
-        std::vector<uint8_t> buffer(2 * MAX_RECORD_LENGTH);
+        std::vector<uint8_t> buffer(32);
 
         std::ifstream f(file, std::ios::binary | std::ios::in);
         f.seekg(0, std::ios::end);
@@ -205,7 +232,7 @@ namespace EventJournal
         }
 
         sjrn_length -= sizeof(sjrn_length);
-        f.read(reinterpret_cast<char*>(&buffer[0]), sjrn_length);
+        f.seekg(sjrn_length, std::ios::cur);
         bytesRemaining -= sjrn_length;
 
         uint64_t uniqueID = 0;
@@ -245,7 +272,7 @@ namespace EventJournal
             }
 
             length -= sizeof(id) + sizeof(timestamp);
-            f.read(reinterpret_cast<char*>(&buffer[0]), length);
+            f.seekg(length, std::ios::cur);
             bytesRemaining -= length;
 
             if (id <= uniqueID)
