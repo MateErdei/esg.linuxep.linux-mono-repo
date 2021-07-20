@@ -42,6 +42,8 @@ namespace EventQueueLib
         }
         m_queue.push(event);
         m_cond.notify_one();
+        LOGDEBUG("Queue size after push: " << m_queue.size());
+
         return true;
     }
 
