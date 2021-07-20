@@ -187,10 +187,12 @@ TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist) // NOLINT
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath))).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath)).WillOnce(Return(false));
-
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    testing::internal::CaptureStderr();
     EXPECT_FALSE(subscriber.getRunningStatus());
     EXPECT_THROW(subscriber.start(), std::runtime_error);
-    EXPECT_FALSE(subscriber.getRunningStatus());
+    std::string errorMsg = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(errorMsg, ::testing::HasSubstr("The events pub/sub socket directory does not exist:"));
 }
 
 TEST_F(TestSubscriber, SubscriberResetsIfSocketRemoved) // NOLINT
