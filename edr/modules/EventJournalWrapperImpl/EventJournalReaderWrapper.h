@@ -33,25 +33,12 @@ namespace Common
             std::string getCurrentJRLForId(const std::string& idFilePath) override;
             void updateJrl(const std::string& idFilePath, const std::string& jrl) override;
 
-            std::vector<Entry> getEntries(
-                std::vector<Subject> subjectFilter,
-                const std::string& jrl) override;
-
-            std::vector<Entry> getEntries(
-                std::vector<Subject> subjectFilter,
-                uint32_t limit = 0,
-                uint64_t startTime = 0,
-                uint64_t endTime = 0) override;
+            std::vector<Entry> getEntries(std::vector<Subject> subjectFilter) override;
+            std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, const std::string& jrl) override;
 
             std::pair<bool, Detection> decode(const std::vector<uint8_t>& data) override;
 
         private:
-            std::vector<Entry> getEntries(
-                std::vector<Subject> subjectFilter,
-                const std::string& jrl,
-                uint32_t limit,
-                uint64_t startTime,
-                uint64_t endTime);
             std::string m_location;
             std::shared_ptr<Sophos::Journal::HelperInterface> m_helper;
         };

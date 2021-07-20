@@ -37,7 +37,7 @@ namespace OsquerySDK
         }
         else
         {
-            entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections },0,0,0);
+            entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections });
         }
 
         std::string newJrl("");

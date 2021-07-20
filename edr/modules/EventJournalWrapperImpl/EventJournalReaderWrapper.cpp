@@ -4,21 +4,20 @@ Copyright 2021 Sophos Limited. All rights reserved.
 
 ***********************************************************************************************/
 #include "EventJournalReaderWrapper.h"
-
 #include "EventJournalTimeUtils.h"
 #include "Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/FileUtils.h>
-#include <Common/UtilityImpl/StringUtils.h>
+#include <Common/UtilityImpl/TimeUtils.h>
+
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
-#include <cstddef>
 #include <cstring>
 #include <fstream>
-#include <iomanip>
+
 
 #include <Event.capnp.h>
 #include <Journal.h>
@@ -73,32 +72,14 @@ namespace Common
             filesystem->writeFile(idFilePath, jrl);
         }
 
+        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter)
+        {
+            return getEntries(subjectFilter, "");
+        }
+
         std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl)
         {
-            return getEntries(subjectFilter, jrl, 0,0,0);
-        }
-
-        std::vector<Entry> Reader::getEntries(
-            std::vector<Subject> subjectFilter,
-            uint32_t limit,
-            uint64_t startTime,
-            uint64_t endTime)
-        {
-            return getEntries(subjectFilter, "", limit,startTime, endTime);
-        }
-
-        std::vector<Entry> Reader::getEntries(
-            std::vector<Subject> subjectFilter,
-            const std::string& jrl,
-            uint32_t limit,
-            uint64_t startTime,
-            uint64_t endTime
-            )
-        {
             std::vector<Entry> entries;
-            (void)limit;
-            (void)startTime;
-            (void)endTime;
 
             std::vector<std::string> subjects;
             for (auto s : subjectFilter)
@@ -130,7 +111,7 @@ namespace Common
 
                 Entry e;
                 e.producerUniqueID = entry->GetProducerUniqueId();
-                e.timestamp = getWindowsFileTime(entry->GetTimestamp());
+                e.timestamp = UtilityImpl::TimeUtils::WindowsFileTimeToEpoch(getWindowsFileTime(entry->GetTimestamp()));
                 e.jrl = it.GetJournalResourceLocator();
                 e.data.resize(entry->GetDataSize());
                 memcpy(e.data.data(), entry->GetData(), entry->GetDataSize());

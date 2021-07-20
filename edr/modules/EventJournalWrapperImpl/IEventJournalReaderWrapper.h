@@ -47,11 +47,7 @@ namespace Common
 
             virtual std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, const std::string& jrl) = 0;
 
-            virtual std::vector<Entry> getEntries(
-                std::vector<Subject> subjectFilter,
-                uint32_t limit,
-                uint64_t startTime,
-                uint64_t endTime) = 0;
+            virtual std::vector<Entry> getEntries(std::vector<Subject> subjectFilter) = 0;
 
             virtual  std::pair<bool, Detection> decode(const std::vector<uint8_t>& data) = 0;
         };

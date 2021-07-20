@@ -144,7 +144,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNo
         std::make_pair(true, detection);
 
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLForId(_)).Times(0);
-    EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,0)).WillOnce(Return(entries));
+    EXPECT_CALL(*MockReaderWrapper, getEntries(_)).WillOnce(Return(entries));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).Times(0);
     EXPECT_CALL(*MockReaderWrapper, updateJrl(_, "jrl")).Times(0);
     OsquerySDK::SophosAVDetectionTableGenerator generator;
@@ -187,7 +187,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNo
     std::pair<bool, Common::EventJournalWrapper::Detection> detectionResult =
         std::make_pair(true, detection);
 
-    EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,0)).WillOnce(Return(entries));
+    EXPECT_CALL(*MockReaderWrapper, getEntries(_)).WillOnce(Return(entries));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillRepeatedly(Return(detectionResult));
     OsquerySDK::SophosAVDetectionTableGenerator generator;
     auto actualResults = generator.GenerateData(queryId, MockReaderWrapper);
@@ -242,7 +242,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithMu
     std::pair<bool, Common::EventJournalWrapper::Detection> detectionResult2 =
         std::make_pair(true, detection2);
 
-    EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,0)).WillOnce(Return(entries));
+    EXPECT_CALL(*MockReaderWrapper, getEntries(_)).WillOnce(Return(entries));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillOnce(Return(detectionResult2));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillOnce(Return(detectionResult1)).RetiresOnSaturation();
 
@@ -287,7 +287,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
         std::make_pair(true, detection);
 
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLForId(_)).WillOnce(Return(""));
-    EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,0)).WillOnce(Return(entries));
+    EXPECT_CALL(*MockReaderWrapper, getEntries(_)).WillOnce(Return(entries));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillRepeatedly(Return(detectionResult));
     EXPECT_CALL(*MockReaderWrapper, updateJrl("/opt/sophos-spl/plugins/edr/var/jrl/query_id_1", "jrl")).Times(1);
     OsquerySDK::SophosAVDetectionTableGenerator generator;
