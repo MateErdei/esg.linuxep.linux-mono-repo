@@ -44,6 +44,7 @@ class LogUtils(object):
         self.register_log = os.path.join(self.base_logs_dir, "register_central.log")
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
         self.av_log = os.path.join(self.install_path, "plugins", "av", "log", "av.log")
+        self.ej_log = os.path.join(self.install_path, "plugins", "eventjournaler", "log", "eventjournaler.log")
         self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "log", "sophos_threat_detector.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.edr_osquery_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr_osquery.log")
@@ -523,6 +524,9 @@ class LogUtils(object):
     def check_edr_log_does_not_contain(self, string_to_not_contain):
         log = self.edr_log
         self.check_log_does_not_contain(string_to_not_contain, log, "EDR")
+
+    def check_event_journaler_log_contains(self, string_to_contain):
+        self.check_log_contains(string_to_contain, self.ej_log, "Journaler")
 
     def check_mdr_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.mdr_log, "MDR")
