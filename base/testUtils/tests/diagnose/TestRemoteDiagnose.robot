@@ -37,7 +37,7 @@ Test Remote Diagnose can process SDU action
 
     Simulate SDU Action Now
     Wait Until Keyword Succeeds
-        ...  10 secs
+        ...  140 secs
         ...  1 secs
         ...  Check Log Contains   Processing action    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose
 
@@ -49,6 +49,7 @@ Test Remote Diagnose can process SDU action
         ...  40 secs
         ...  5 secs
         ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
+
     Check Log Contains   We are completely uploaded and fine    ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log   Comms Network
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/remote-diagnose/output
 
@@ -59,8 +60,8 @@ Test Remote Diagnose can handle two SDU actions
     Simulate SDU Action Now
     Simulate SDU Action Now
     Wait Until Keyword Succeeds
-            ...  60 secs
-            ...  10 secs
+            ...  280 secs
+            ...  5 secs
             ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose  Diagnose finished   2
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/remote-diagnose/output
 

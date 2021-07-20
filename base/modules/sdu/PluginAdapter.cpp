@@ -40,6 +40,15 @@ namespace RemoteDiagnoseImpl
                     return;
                 case Task::TaskType::ACTION:
                     LOGDEBUG("Process task ACTION");
+                    sendStartedStatus();
+                    LOGDEBUG("Waiting for running status to be sent.");
+                    // We wait 120 seconds for the hope that the running status is sent.
+                    // This is simply because we need to send 2 statuses one to say diagnose is running
+                    // and another to state we are finished.  Diagnose can only take a few seconds which is too quick
+                    // with regards to sending status message that will not overwrite each other and for
+                    // the status messages to be processed by central.
+                    std::this_thread::sleep_for(std::chrono::seconds (120));
+                    LOGDEBUG("Starting diagnose");
                     m_processing = true;
                     processAction(task.Content);
                     break;
@@ -84,9 +93,14 @@ namespace RemoteDiagnoseImpl
         }
 
     }
+    void PluginAdapter::sendStartedStatus()
+    {
+        std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(1);
+        m_baseService->sendStatus("SDU",status,status);
+    }
     void PluginAdapter::sendFinishedStatus()
     {
-        std::string status = RemoteDiagnoseImpl::PluginUtils::getFinishedStatus();
+        std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(0);
         m_baseService->sendStatus("SDU",status,status);
     }
 

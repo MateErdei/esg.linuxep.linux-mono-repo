@@ -39,6 +39,7 @@ namespace RemoteDiagnoseImpl
     private:
 
         void processAction(const std::string& actionXml);
+        void sendStartedStatus();
         void sendFinishedStatus();
 
         bool m_processing = false;

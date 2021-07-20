@@ -48,11 +48,26 @@ TEST_F(PluginUtilsTests, getFinishedStatusDoesNotThrowWhenThereIsNoVersioniniFil
 {
     std::string expectedStatus {
     R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="" is_running="0" />)sophos" };
-    std::string status = RemoteDiagnoseImpl::PluginUtils::getFinishedStatus();
+    std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(0);
     EXPECT_EQ(expectedStatus,status);
 }
 
-TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectly) // NOLINT
+TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsRunning) // NOLINT
+{
+    std::vector<std::string> contents ={"PRODUCT_NAME = Sophos Server Protection Linux - Base Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
+    auto filesystemMock = new NiceMock<MockFileSystem>();
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
+
+    EXPECT_CALL(*filesystemMock, readLines(_)).WillOnce(Return(contents));
+
+    std::string expectedStatus {
+        R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="1.0.0" is_running="1" />)sophos" };
+    std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(1);
+    EXPECT_EQ(expectedStatus,status);
+    scopedReplaceFileSystem.reset();
+}
+TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsNotRunning) // NOLINT
 {
     std::vector<std::string> contents ={"PRODUCT_NAME = Sophos Server Protection Linux - Base Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
     auto filesystemMock = new NiceMock<MockFileSystem>();
@@ -63,11 +78,10 @@ TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectly) // NOLINT
 
     std::string expectedStatus {
         R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="1.0.0" is_running="0" />)sophos" };
-    std::string status = RemoteDiagnoseImpl::PluginUtils::getFinishedStatus();
+    std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(0);
     EXPECT_EQ(expectedStatus,status);
     scopedReplaceFileSystem.reset();
 }
-
 TEST_F(PluginUtilsTests, getFinishedStatusWillNotThrowOnInvalidProductVersion) // NOLINT
 {
     std::vector<std::string> contents ={"PRODUCT_VERSION = NOTAVERSION"};
@@ -76,6 +90,6 @@ TEST_F(PluginUtilsTests, getFinishedStatusWillNotThrowOnInvalidProductVersion) /
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readLines(_)).WillOnce(Return(contents));
 
-    EXPECT_NO_THROW(RemoteDiagnoseImpl::PluginUtils::getFinishedStatus());
+    EXPECT_NO_THROW(RemoteDiagnoseImpl::PluginUtils::getStatus(0));
     scopedReplaceFileSystem.reset();
 }

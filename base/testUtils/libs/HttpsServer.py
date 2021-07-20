@@ -64,6 +64,7 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
 class HttpsServer(object):
     def __init__(self):
         self.thread = None
+        self.httpd = None
 
     def start_https_server(self, certfile_path, port=443, protocol_string=None, root_ca=False):
 
@@ -88,22 +89,24 @@ class HttpsServer(object):
             subprocess.call('/usr/bin/openssl req -x509 -newkey rsa:4096 -keyout {} -out {} -days 365 -nodes -subj "{}"'
                             .format(keyfile_path, certfile_path, subject), shell=True)
 
-        httpd = http.server.HTTPServer(('', port), HttpsHandler)
+        self.httpd = http.server.HTTPServer(('', port), HttpsHandler)
 
         protocol = tls_from_string(protocol_string)
         if not protocol:
             protocol = ssl.PROTOCOL_TLS
 
-        httpd.socket = ssl.wrap_socket(httpd.socket,
+        self.httpd.socket = ssl.wrap_socket(self.httpd.socket,
                                        server_side=True,
                                        keyfile=keyfile_path,
                                        ssl_version=protocol,
                                        certfile=certfile_path)
 
-        self.thread = threading.Thread(target=httpd.handle_request)
+        self.thread = threading.Thread(target=self.httpd.serve_forever)
         self.thread.daemon = True
         self.thread.start()
 
     def stop_https_server(self):
+        if self.httpd:
+            self.httpd.shutdown()
         if self.thread:
             self.thread.join()

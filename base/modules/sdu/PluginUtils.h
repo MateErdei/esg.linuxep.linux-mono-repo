@@ -40,7 +40,12 @@ namespace RemoteDiagnoseImpl
 
 
         static std::string processAction(const std::string& actionXml);
-        static std::string getFinishedStatus();
+        /*
+         * @brief  Retrieves the status of the SDU, updating the is_running field based on the parameter.
+         * @param  isRunning - 1 (diagnose is running), 0 (diagnose is not running)
+         * @return  string - XML status message
+         */
+        static std::string getStatus(int isRunning);
         static void processZip(const std::string& url);
         static UrlData processUrl(const std::string& url);
     };

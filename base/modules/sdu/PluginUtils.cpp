@@ -130,7 +130,7 @@ namespace RemoteDiagnoseImpl
         return data;
     }
 
-    std::string PluginUtils::getFinishedStatus()
+    std::string PluginUtils::getStatus(int isRunning)
     {
         std::string statusTemplate {
         R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="@VERSION@" is_running="@IS_RUNNING@" />)sophos" };
@@ -154,7 +154,7 @@ namespace RemoteDiagnoseImpl
         }
         std::string newStatus = Common::UtilityImpl::StringUtils::replaceAll(statusTemplate, "@VERSION@", version);
 
-        newStatus = Common::UtilityImpl::StringUtils::replaceAll(newStatus,"@IS_RUNNING@","0");
+        newStatus = Common::UtilityImpl::StringUtils::replaceAll(newStatus,"@IS_RUNNING@",std::to_string(isRunning));
         return newStatus;
     }
 }
