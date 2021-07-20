@@ -172,6 +172,24 @@ namespace EventJournal
         return "";
     }
 
+    std::string Writer::getClosedFileName(const std::string& filepath) const
+    {
+        std::vector<std::string> list = Common::UtilityImpl::StringUtils::splitString(Common::FileSystem::basename(filepath),"-");
+        std::string subject  = list[0];
+        std::string firstOss = list[1];;
+        std::string firstTimestamp = list[3].substr(list[3].find_first_of("."));
+
+        std::ostringstream oss;
+        oss << std::hex << std::setfill('0') << std::setw(16) << readHighestUniqueID(filepath);
+        std::string lastOss = oss.str();
+
+        time_t now = time(NULL);
+        int64_t lasttimestamp = Common::UtilityImpl::TimeUtils::EpochToWindowsFileTime(now);
+
+
+        return subject + "-" + firstOss + "-" + lastOss+ "-" + firstTimestamp+ "-" +std::to_string(lasttimestamp) + ".bin";
+    }
+
     uint64_t Writer::readHighestUniqueID() const
     {
         uint64_t uniqueID = 0;
