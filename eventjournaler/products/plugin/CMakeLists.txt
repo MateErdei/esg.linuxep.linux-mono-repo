@@ -2,7 +2,7 @@
 
 add_executable(${plugin_name}
         main.cpp)
-target_link_libraries(${plugin_name} PUBLIC pluginimpl eventqueuelib)
+target_link_libraries(${plugin_name} PUBLIC pluginimpl eventqueuelib eventwriterlib)
 
 SET_TARGET_PROPERTIES( ${plugin_name}
        PROPERTIES

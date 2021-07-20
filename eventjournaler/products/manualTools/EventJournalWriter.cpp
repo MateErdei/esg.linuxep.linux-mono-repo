@@ -16,7 +16,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
-#include <eventjournal/EventJournalWriter.h>
+#include <EventJournal/EventJournalWriter.h>
 
 
 void printUsageAndExit(const std::string name)

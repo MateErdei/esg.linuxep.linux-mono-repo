@@ -18,10 +18,10 @@ namespace EventJournal
         NumSubjects
     };
 
-    class IWriter
+    class IEventJournalWriter
     {
     public:
-        virtual ~IWriter() = default;
+        virtual ~IEventJournalWriter() = default;
 
         virtual void insert(Subject subject, const std::vector<uint8_t>& data) = 0;
     };

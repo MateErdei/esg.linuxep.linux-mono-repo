@@ -23,7 +23,7 @@ namespace EventJournal
     std::vector<uint8_t> encode(const Detection& detection);
 
 
-    class Writer : public IWriter
+    class Writer : public IEventJournalWriter
     {
     public:
         Writer();

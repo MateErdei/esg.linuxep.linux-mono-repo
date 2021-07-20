@@ -12,8 +12,10 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/ErrorCodes.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
-#include <modules/SubscriberLib/Subscriber.h>
+#include <EventWriterLib/EventQueuePopper.h>
+#include <EventWriterLib/EventWriter.h>
 #include <modules/SubscriberLib/EventQueuePusher.h>
+#include <modules/SubscriberLib/Subscriber.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/PluginAdapter.h>
@@ -44,16 +46,14 @@ int main()
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
-    auto context = Common::ZMQWrapperApi::createContext();
+    std::shared_ptr<EventQueueLib::EventQueue> eventQueue(new EventQueueLib::EventQueue(100));
+    std::unique_ptr<SubscriberLib::IEventQueuePusher> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue));
+//    auto context = Common::ZMQWrapperApi::createContext();
+    std::unique_ptr<SubscriberLib::ISubscriber> subscriber(new SubscriberLib::Subscriber(Plugin::getSubscriberSocketPath(), Common::ZMQWrapperApi::createContext(), std::move(eventQueuePusher)));
+    std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(new EventWriterLib::EventQueuePopper(eventQueue));
+    std::unique_ptr<EventWriterLib::IEventWriter> eventWriter(new EventWriterLib::EventWriter(std::move(eventQueuePopper)));
 
-    EventQueueLib::EventQueue* eventQueue = new EventQueueLib::EventQueue(100);
-    std::shared_ptr<EventQueueLib::EventQueue> eventQueuePtr(eventQueue);
-    SubscriberLib::IEventQueuePusher* pusher = new SubscriberLib::EventQueuePusher(eventQueuePtr);
-    std::unique_ptr<SubscriberLib::IEventQueuePusher> pusherPtr(pusher);
-
-    std::unique_ptr<SubscriberLib::ISubscriber> subscriber =
-        std::make_unique<SubscriberLib::Subscriber>(Plugin::getSubscriberSocketPath(), context, std::move(pusherPtr));
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, std::move(subscriber));
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, std::move(subscriber), std::move(eventWriter));
 
     try
     {

@@ -12,7 +12,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/TempDir.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <eventjournal/EventJournalWriter.h>
+#include <EventJournal/EventJournalWriter.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

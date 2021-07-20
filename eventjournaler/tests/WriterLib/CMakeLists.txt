@@ -2,7 +2,7 @@ include(GoogleTest)
 
 SophosAddTest(TestWriterLib
         TestEventQueuePopper.cpp
-        PROJECTS writerlib eventqueuelib
+        PROJECTS eventwriterlib eventqueuelib
         LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest ${protobuflib}
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
         )

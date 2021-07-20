@@ -9,7 +9,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include "IEventQueuePopper.h"
 #include "Common/ZeroMQWrapper/IReadable.h"
 
-namespace WriterLib
+namespace EventWriterLib
 {
     class EventQueuePopper : public IEventQueuePopper
     {
