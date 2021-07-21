@@ -63,7 +63,7 @@ Repeatedly writing the same file into the action folder Does Not Cause A Crash
     Chown  sophos-spl-user:sophos-spl-group  ${temp_dir}/template
 
     Wait Until Keyword Succeeds
-    ...  5 secs
+    ...  10 secs
     ...  1 secs
     ...  Check UpdateScheduler Log Contains String N Times  Attempting to update from warehouse  1
     Wait Until Keyword Succeeds
