@@ -5,7 +5,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginMemoryAppenderUsingTests.h"
-#include "MockFileSystem.h"
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <Common/Helpers/MockFileSystem.h>
 
 #include <pluginimpl/PluginAdapter.h>
 #include <pluginimpl/PluginAdapter.cpp>

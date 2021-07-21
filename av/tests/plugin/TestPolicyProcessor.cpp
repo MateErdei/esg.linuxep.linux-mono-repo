@@ -4,7 +4,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "MockFileSystem.h"
+#include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "datatypes/sophos_filesystem.h"
