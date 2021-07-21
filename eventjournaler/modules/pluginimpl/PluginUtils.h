@@ -20,6 +20,7 @@ namespace Plugin
         * @param filepath, file to be compressed
          */
         static void compressFile(const std::string filepath);
+        static uint64_t getDirectorySize(const std::string dirpath);
 
     private:
         static bool init_encoder(lzma_stream *strm, uint32_t preset);

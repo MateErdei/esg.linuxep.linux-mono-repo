@@ -135,11 +135,17 @@ namespace Plugin
         // Initialize the encoder. If it succeeds, compress from
         // stdin to stdout. the shoudl be file handles fro the file to compressed and the output file
         FILE *myfile = fopen (filepath.c_str() , "r");
-        FILE *output = fopen ("/tmp/myfile.xz" , "rw");
+        std::string destPath = filepath.substr(0,filepath.find_first_of(".")) + ".xz";
+        std::cout << destPath << std::endl;
+        FILE *output = fopen (destPath.c_str() , "wb");
+        //FILE *output = fopen ("/tmp/myfile.xz" , "wb");
 
         bool success = init_encoder(&strm, 7);
         if (success)
-            success = compress(&strm, myfile, output);
+        {
+            compress(&strm, myfile, output);
+        }
+
 
         // Free the memory allocated for the encoder. If we were encoding
 
@@ -152,5 +158,23 @@ namespace Plugin
 
         }
     }
+    uint64_t PluginUtils::getDirectorySize(const std::string dirpath)
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        uint64_t totalDirectorySize = 0;
+        if (fs->isDirectory(dirpath))
+        {
+            std::vector<Path> filesCollection;
+            fs->listAllFilesInDirectoryTree(filesCollection, dirpath);
+            for(auto& file : filesCollection)
+            {
+                totalDirectorySize += fs->fileSize(file);
+            }
+            return totalDirectorySize;
+        }
+        return totalDirectorySize;
+
+    }
+
 
 }
