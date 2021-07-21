@@ -892,4 +892,45 @@ namespace
         EXPECT_TRUE(m_fileSystem->exists(testFilePathAfterMove));
     }
 
+    TEST_F(FileSystemImplTest, listAllFilesInDirectoryTreeReturnsExpectedListOfFiles) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/subdir");
+        tempDir.createFile("Root/file1", "hello");
+        tempDir.createFile("Root/file2", "hello");
+        tempDir.createFile("Root/subdir/file1", "hello");
+
+        std::vector<Path> fileList;
+        m_fileSystem->listAllFilesInDirectoryTree(fileList, tempDir.absPath("Root"));
+
+        EXPECT_EQ(fileList.size(), 3);
+
+        std::sort(fileList.begin(), fileList.end());
+
+        EXPECT_EQ(fileList[0], tempDir.absPath("Root/file1"));
+        EXPECT_EQ(fileList[1], tempDir.absPath("Root/file2"));
+        EXPECT_EQ(fileList[2], tempDir.absPath("Root/subdir/file1"));
+    }
+
+    TEST_F(FileSystemImplTest, listAllFilesInDirectoryTreeHandlesEmptyDirectory) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root");
+
+        std::vector<Path> fileList;
+        m_fileSystem->listAllFilesInDirectoryTree(fileList, tempDir.absPath("Root"));
+
+        EXPECT_EQ(fileList.size(), 0);
+
+    }
+
+    TEST_F(FileSystemImplTest, listAllFilesInDirectoryTreeDoesntThrowOnDirThatDoesNotExist) // NOLINT
+    {
+
+        std::vector<Path> fileList;
+        EXPECT_NO_THROW(m_fileSystem->listAllFilesInDirectoryTree(fileList, "DoesntExistDir"));
+        EXPECT_EQ(fileList.size(), 0);
+
+
+    }
 } // namespace
