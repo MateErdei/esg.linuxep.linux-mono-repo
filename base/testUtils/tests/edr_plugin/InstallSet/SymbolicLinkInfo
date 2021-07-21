@@ -75,6 +75,7 @@ o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libstdc++.so.6
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libstdc++.so.6.0
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libstdc++.so.6.0.25
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libthrift-0.14.1.so
+o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libthrift.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libzmq.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libzmq.so.5
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libzmq.so.5.2
