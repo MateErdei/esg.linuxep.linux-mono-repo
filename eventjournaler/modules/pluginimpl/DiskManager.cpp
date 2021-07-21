@@ -4,15 +4,17 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "PluginUtils.h"
+#include "DiskManager.h"
 
 #include "Logger.h"
+
+#include <Common/UtilityImpl/StringUtils.h>
 
 #include <cstring>
 #include <lzma.h>
 namespace Plugin
 {
-    bool PluginUtils::init_encoder(lzma_stream *strm, uint32_t preset)
+    bool DiskManager::init_encoder(lzma_stream *strm, uint32_t preset)
     {
         // Initialize the encoder using a preset.
         lzma_ret ret = lzma_easy_encoder(strm, preset, LZMA_CHECK_CRC64);
@@ -46,7 +48,7 @@ namespace Plugin
     }
 
 
-    bool PluginUtils::compress(lzma_stream *strm, FILE *infile, FILE *outfile)
+    bool DiskManager::compress(lzma_stream *strm, FILE *infile, FILE *outfile)
     {
         // This will be LZMA_RUN until the end of the input file is reached.
         // This tells lzma_code() when there will be no more input.
@@ -128,7 +130,7 @@ namespace Plugin
         }
     }
 
-    void PluginUtils::compressFile(const std::string filepath)
+    void DiskManager::compressFile(const std::string filepath)
     {
         lzma_stream strm = LZMA_STREAM_INIT;
 
@@ -153,12 +155,13 @@ namespace Plugin
 
         // Close stdout to catch possible write errors that can occur
         // when pending data is flushed from the stdio buffers.
-        if (fclose(stdout)) {
+        fclose(myfile);
+        if (fclose(output)) {
             LOGERROR( "Write error: " << strerror(errno));
 
         }
     }
-    uint64_t PluginUtils::getDirectorySize(const std::string dirpath)
+    uint64_t DiskManager::getDirectorySize(const std::string dirpath)
     {
         auto fs = Common::FileSystem::fileSystem();
         uint64_t totalDirectorySize = 0;
@@ -176,5 +179,80 @@ namespace Plugin
 
     }
 
+    void DiskManager::deleteOldJournalFiles(const std::string dirpath, uint64_t lowerLimit)
+    {
+        std::list<std::string> files = getSortedListOFCompressedJournalFiles(dirpath);
+        auto fs = Common::FileSystem::fileSystem();
+        bool deletedAllfiles = true;
+        for (const auto& file: files)
+        {
+            try
+            {
+                fs->removeFile(file);
+            }
+            catch (Common::FileSystem::IFileSystemException& exception)
+            {
+                LOGERROR("Failed to delete old jorunale file "<< file << " due to error: "<< exception.what());
+            }
+            if (getDirectorySize(dirpath) < lowerLimit)
+            {
+                //we are now below the limit we can stop deleting files
+                deletedAllfiles = false;
+                break;
+            }
+        }
+        if (deletedAllfiles)
+        {
+            LOGERROR("We have deleted all compressed files in directory: "<< dirpath << "but the data in that directory is still above the limit");
+        }
+    }
+
+    std::list<std::string> DiskManager::getSortedListOFCompressedJournalFiles(const std::string dirpath)
+    {
+        std::list<std::string> list;
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->isDirectory(dirpath))
+        {
+            std::vector<Path> filesCollection;
+            fs->listAllFilesInDirectoryTree(filesCollection, dirpath);
+
+            for (const auto& path : filesCollection)
+            {
+                if (Common::UtilityImpl::StringUtils::endswith(path,".xz"))
+                {
+                    list.push_back(path);
+                }
+            }
+            list.sort(isJournalFileNewer);
+        }
+        else
+        {
+            LOGWARN("No files to delete");
+        }
+        return list;
+    }
+
+    bool DiskManager::isJournalFileNewer(const std::string currentFile, const std::string newFile)
+    {
+        std::vector<std::string> currentFileParts = Common::UtilityImpl::StringUtils::splitString( Common::FileSystem::basename(currentFile),"-");
+        if (currentFileParts.size() != 4)
+        {
+            // this file name is malformed this should go to the top of the list
+            return false;
+        }
+        std::vector<std::string> newFileParts = Common::UtilityImpl::StringUtils::splitString( Common::FileSystem::basename(newFile),"-");
+        if (newFileParts.size() != 4)
+        {
+            // this file name is malformed this should go to the top of the list
+            return true;
+        }
+        int currentTime = std::stoi(currentFileParts[3]);
+        int newTime = std::stoi(currentFileParts[3]);
+        if (currentTime > newTime)
+        {
+            return true;
+        }
+        return false;
+    }
 
 }
