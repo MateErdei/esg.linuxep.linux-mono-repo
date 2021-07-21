@@ -7,7 +7,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <gtest/gtest.h>
 #include <Common/Helpers/LogInitializedTests.h>
-#include <modules/EventWriterLib/EventQueuePopper.h>
+#include <modules/EventWriterWorkerLib/EventQueuePopper.h>
 #include "tests/Helpers/MockEventQueue.h"
 
 

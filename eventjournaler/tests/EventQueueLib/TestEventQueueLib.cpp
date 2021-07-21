@@ -9,7 +9,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/LogInitializedTests.h>
 
 #include <modules/SubscriberLib/EventQueuePusher.h>
-#include <modules/EventWriterLib/EventQueuePopper.h>
+#include <modules/EventWriterWorkerLib/EventQueuePopper.h>
 
 #include <future>
 

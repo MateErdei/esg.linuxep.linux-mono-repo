@@ -20,7 +20,6 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Event.capnp.h>
 #include <cstddef>
 #include <cstring>
-#include <filesystem>
 #include <fstream>
 #include <iomanip>
 

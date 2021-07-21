@@ -1,5 +1,5 @@
 add_subdirectory(EventQueueLib)
 add_subdirectory(pluginimpl)
 add_subdirectory(SubscriberLib)
-add_subdirectory(EventWriterLib)
+add_subdirectory(EventWriterWorkerLib)
 add_subdirectory(EventJournal)

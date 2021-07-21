@@ -1,8 +1,6 @@
-
-
 add_executable(${plugin_name}
         main.cpp)
-target_link_libraries(${plugin_name} PUBLIC pluginimpl eventqueuelib eventwriterlib)
+target_link_libraries(${plugin_name} PUBLIC pluginimpl eventqueuelib eventwriterlib eventjournal)
 
 SET_TARGET_PROPERTIES( ${plugin_name}
        PROPERTIES
@@ -12,4 +10,3 @@ SET_TARGET_PROPERTIES( ${plugin_name}
 install(TARGETS ${plugin_name}
         DESTINATION files/plugins/${PLUGIN_NAME}/bin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE  GROUP_READ GROUP_EXECUTE)
-

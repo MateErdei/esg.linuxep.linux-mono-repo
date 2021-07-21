@@ -5,12 +5,12 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "IEventQueuePopper.h"
-#include "IEventWriter.h"
+#include "IEventWriterWorker.h"
 
 #include "Common/ZeroMQWrapper/IReadable.h"
-#include "modules/EventQueueLib/IEventQueue.h"
-#include "modules/EventWriterLib/IEventQueuePopper.h"
 #include "modules/EventJournal/IEventJournalWriter.h"
+#include "modules/EventQueueLib/IEventQueue.h"
+#include "modules/EventWriterWorkerLib/IEventQueuePopper.h"
 
 #include <atomic>
 #include <optional>
@@ -31,10 +31,10 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace EventWriterLib
 {
-    class EventWriter : public IEventWriter
+    class EventWriterWorker : public IEventWriterWorker
     {
     public:
-        explicit EventWriter(std::unique_ptr<IEventQueuePopper> eventQueuePopper);
+        explicit EventWriterWorker(std::unique_ptr<IEventQueuePopper> eventQueuePopper,  std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter);
         void stop() override;
         void start() override;
         void restart() override;
@@ -43,7 +43,8 @@ namespace EventWriterLib
     private:
         std::unique_ptr<IEventQueuePopper> m_eventQueuePopper;
         std::unique_ptr<EventJournal::IEventJournalWriter> m_eventJournalWriter;
-        std::atomic<bool> m_running = false;
+        std::atomic<bool> m_shouldBeRunning = false;
+        std::atomic<bool> m_isRunning = false;
         std::unique_ptr<std::thread> m_runnerThread;
 
         void run();

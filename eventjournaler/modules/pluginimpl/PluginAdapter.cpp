@@ -15,12 +15,12 @@ namespace Plugin
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback,
         std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
-        std::unique_ptr<EventWriterLib::IEventWriter> eventWriter) :
+        std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter) :
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_subscriber(std::move(subscriber)),
-        m_eventWriter(std::move(eventWriter))
+        m_eventWriterWorker(std::move(eventWriter))
     {
     }
 
@@ -28,7 +28,7 @@ namespace Plugin
     {
         m_callback->setRunning(true);
         LOGINFO("Entering the main loop");
-        m_eventWriter->start();
+        m_eventWriterWorker->start();
         m_subscriber->start();
         while (true)
         {
@@ -40,10 +40,10 @@ namespace Plugin
                     LOGERROR("Subscriber not running, restarting it.");
                     m_subscriber->restart();
                 }
-                if (!m_eventWriter->getRunningStatus())
+                if (!m_eventWriterWorker->getRunningStatus())
                 {
                     LOGERROR("Event Writer not running, restarting it.");
-                    m_eventWriter->restart();
+                    m_eventWriterWorker->restart();
                 }
             }
             else
@@ -52,7 +52,7 @@ namespace Plugin
                 {
                     case Task::TaskType::Stop:
                         m_subscriber->stop();
-                        m_eventWriter->stop();
+                        m_eventWriterWorker->stop();
                         return;
                     case Task::TaskType::Policy:
                         processPolicy(task.Content);

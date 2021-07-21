@@ -10,7 +10,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include "QueueTask.h"
 
 #include <Common/PluginApi/IBaseServiceApi.h>
-#include <EventWriterLib/IEventWriter.h>
+#include <EventWriterWorkerLib/IEventWriterWorker.h>
 #include <SubscriberLib/ISubscriber.h>
 
 namespace Plugin
@@ -23,7 +23,7 @@ namespace Plugin
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
             std::shared_ptr<PluginCallback> callback,
             std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
-            std::unique_ptr<EventWriterLib::IEventWriter> eventWriter);
+            std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter);
         void mainLoop();
 
     private:
@@ -31,7 +31,7 @@ namespace Plugin
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_callback;
         std::unique_ptr<SubscriberLib::ISubscriber> m_subscriber;
-        std::unique_ptr<EventWriterLib::IEventWriter> m_eventWriter;
+        std::unique_ptr<EventWriterLib::IEventWriterWorker> m_eventWriterWorker;
         int QUEUE_TIMEOUT = 5; // Seconds
 
         void processPolicy(const std::string& policyXml);

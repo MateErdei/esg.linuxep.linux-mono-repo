@@ -12,8 +12,9 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/ErrorCodes.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
-#include <EventWriterLib/EventQueuePopper.h>
-#include <EventWriterLib/EventWriter.h>
+#include <EventJournal/EventJournalWriter.h>
+#include <EventWriterWorkerLib/EventQueuePopper.h>
+#include <EventWriterWorkerLib/EventWriterWorker.h>
 #include <modules/SubscriberLib/EventQueuePusher.h>
 #include <modules/SubscriberLib/Subscriber.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
@@ -51,7 +52,8 @@ int main()
 //    auto context = Common::ZMQWrapperApi::createContext();
     std::unique_ptr<SubscriberLib::ISubscriber> subscriber(new SubscriberLib::Subscriber(Plugin::getSubscriberSocketPath(), Common::ZMQWrapperApi::createContext(), std::move(eventQueuePusher)));
     std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(new EventWriterLib::EventQueuePopper(eventQueue));
-    std::unique_ptr<EventWriterLib::IEventWriter> eventWriter(new EventWriterLib::EventWriter(std::move(eventQueuePopper)));
+    std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter (new EventJournal::Writer());
+    std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter(new EventWriterLib::EventWriterWorker(std::move(eventQueuePopper), std::move(eventJournalWriter)));
 
     PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, std::move(subscriber), std::move(eventWriter));
 

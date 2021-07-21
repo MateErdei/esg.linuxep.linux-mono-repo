@@ -39,7 +39,6 @@ namespace SubscriberLib
 
     Subscriber::~Subscriber()
     {
-        LOGINFO("Stop not explicitly called, calling in destructor.");
         stop();
     }
 

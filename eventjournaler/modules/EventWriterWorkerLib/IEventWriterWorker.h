@@ -19,10 +19,10 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace EventWriterLib
 {
-    class IEventWriter
+    class IEventWriterWorker
     {
     public:
-        virtual ~IEventWriter() = default;
+        virtual ~IEventWriterWorker() = default;
         virtual void stop() = 0;
         virtual void start() = 0;
         virtual void restart() = 0;

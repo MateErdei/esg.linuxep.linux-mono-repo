@@ -6,11 +6,15 @@ Suite Teardown  Uninstall Base
 
 *** Test Cases ***
 Event Journaler Can Receive Events
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Should Exist   ${EVENT_JOURNALER_LOG_PATH}
     ${mark} =  Mark File  ${EVENT_JOURNALER_LOG_PATH}
     Publish Threat Event
     Wait Until Keyword Succeeds
     ...  20 secs
-    ...  5 secs
+    ...  1 secs
     ...  Check Marked Event Journaler Log contains Contains  {"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"}   ${mark}
 
 
