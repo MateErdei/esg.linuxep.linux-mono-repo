@@ -113,7 +113,19 @@ namespace SubscriberLib
         {
             if (fs->exists(m_socketPath))
             {
-                fs->removeFileOrDirectory(m_socketPath);
+                try
+                {
+                    fs->removeFile(m_socketPath);
+                }
+                catch(const std::exception& exception)
+                {
+                    m_running = false;
+                    std::string msg =
+                            "Subscriber start failed to remove existing socket: " + m_socketPath +
+                            " Error: " + exception.what();
+                    LOGERROR(msg);
+                    throw std::runtime_error(msg);
+                }
             }
         }
         else
@@ -160,7 +172,7 @@ namespace SubscriberLib
                     LOGERROR("Subscriber socket removeFile failed");
                 }
             }
-            if (fs->exists(m_socketPath))
+            if (!fs->exists(m_socketPath))
             {
                 LOGINFO("Subscriber socket has been removed");
             }

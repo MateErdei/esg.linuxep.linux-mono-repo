@@ -9,3 +9,6 @@ add_custom_target(echogTest
 add_subdirectory(plugin)
 add_subdirectory(subscriber)
 add_subdirectory(eventjournal)
+add_subdirectory(EventQueueLib)
+add_subdirectory(WriterLib)
+add_subdirectory(Helpers)
