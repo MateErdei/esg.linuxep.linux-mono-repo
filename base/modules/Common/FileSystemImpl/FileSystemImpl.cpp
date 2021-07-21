@@ -587,7 +587,45 @@ namespace Common
 
             return files;
         }
+        void FileSystemImpl::listAllFilesInDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const
+        {
+            walkDirectoryTree(pathCollection, root);
+        }
 
+        void FileSystemImpl::walkDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const
+        {
+            std::vector<std::string> files;
+            try
+            {
+                files = listFiles(root);
+            }
+            catch(IFileSystemException& exception)
+            {
+                std::cout << "Failed to get list of files for :'" << root << "'" << std::endl;
+                return;
+            }
+
+            for (auto& file : files)
+            {
+                pathCollection.push_back(file);
+            }
+
+            std::vector<std::string> directories;
+            try
+            {
+                directories = listDirectories(root);
+            }
+            catch(IFileSystemException& exception)
+            {
+                std::cout << "Failed to get list of directories for :'" << root << "'" << std::endl;
+                return;
+            }
+
+            for (auto& directory : directories)
+            {
+                listAllFilesInDirectoryTree(pathCollection, directory);
+            }
+        }
         void FileSystemImpl::removeFile(const Path& path, bool ignoreAbsent) const
         {
             if (::remove(path.c_str()) != 0)

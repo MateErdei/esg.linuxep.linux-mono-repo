@@ -44,7 +44,7 @@ namespace Common
 
             std::vector<Path> listFilesAndDirectories(const Path& directoryPath, bool includeSymlinks = false)
                 const override;
-
+            void listAllFilesInDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const override;
             std::vector<Path> listDirectories(const Path& directoryPath) const override;
 
             void moveFile(const Path& sourcePath, const Path& destPath) const override;
@@ -91,6 +91,8 @@ namespace Common
             void removeFilesInDirectory(const Path& path) const override;
 
             bool waitForFile(const Path& path, unsigned int timeout) const override;
+        private:
+            void walkDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const;
         };
 
         std::unique_ptr<IFileSystem>& fileSystemStaticPointer();

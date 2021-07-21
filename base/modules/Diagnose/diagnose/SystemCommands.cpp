@@ -145,41 +145,7 @@ namespace diagnose
         std::cout << "Created tarfile: " << tarfileName << " in directory " << destPath << std::endl;
     }
 
-    void SystemCommands::walkDirectoryTree(std::vector<std::string>& pathCollection, const std::string& root) const
-    {
-        auto fs = Common::FileSystem::fileSystem();
-        std::vector<std::string> files;
-        try
-        {
-            files = fs->listFiles(root);
-        }
-        catch(IFileSystemException& exception)
-        {
-            std::cout << "Failed to get list of files for :'" << root << "'" << std::endl;
-            return;
-        }
 
-        for (auto& file : files)
-        {
-            pathCollection.push_back(file);
-        }
-
-        std::vector<std::string> directories;
-        try
-        {
-            directories = fs->listDirectories(root);
-        }
-        catch(IFileSystemException& exception)
-        {
-            std::cout << "Failed to get list of directories for :'" << root << "'" << std::endl;
-            return;
-        }
-
-        for (auto& directory : directories)
-        {
-            walkDirectoryTree(pathCollection, directory);
-        }
-    }
 
     void SystemCommands::produceZip(const std::string& srcPath, const std::string& destPath) const
     {
@@ -191,8 +157,8 @@ namespace diagnose
 
         auto fs = Common::FileSystem::fileSystem();
 
-        std::vector<std::string> filesToZip;
-        walkDirectoryTree(filesToZip, srcPath);
+        std::vector<Path> filesToZip;
+        fs->listAllFilesInDirectoryTree(filesToZip, srcPath);
 
         for (auto& path : filesToZip)
         {
