@@ -16,6 +16,14 @@ Event Journaler Can Receive Events
     ...  20 secs
     ...  1 secs
     ...  Check Marked Event Journaler Log contains Contains  {"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"}   ${mark}
+    #{"details":{"filePath":"/tmp/dirty_file","sha256FileHash":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"},"detectionName":{"short":"EICAR-AV-Test"},"items":{"1":{"path":"/tmp/dirty_file","primary":true,"sha256":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f","type":1}},"threatSource":1,"threatType":1,"time":
+    Wait Until Keyword Succeeds
+    ...  300 secs
+    ...  5 secs
+    ...  Check Journal Contains Detection Event With Content   {"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"}
+
+    log to console  sleeping...
+    sleep  1000
 
 
 Event Journaler Can Receive Events From Multiple Publishers
@@ -56,7 +64,8 @@ Event Journaler Can Be Stopped And Started
 Setup
     Install Base For Component Tests
     Install Event Journaler Directly from SDDS
-    Run Shell Process  chmod a+x ${EVENT_PUB_SUB_TOOL}  OnError=Failed to chmod EventPubSub binary   timeout=3s
+    Run Shell Process  chmod a+x ${EVENT_PUB_SUB_TOOL}  OnError=Failed to chmod EventPubSub binary tool   timeout=3s
+    Run Shell Process  chmod a+x ${EVENT_READER_TOOL}  OnError=Failed to chmod JournalReader binary tool   timeout=3s
 
 Custom Teardown For Tests With Publishers Running In Background
     Event Journaler Teardown
