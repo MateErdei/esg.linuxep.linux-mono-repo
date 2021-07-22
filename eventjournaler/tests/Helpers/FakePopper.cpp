@@ -4,8 +4,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#pragma once
-
 #include "FakePopper.h"
 #include <optional>
 #include <mutex>
