@@ -180,28 +180,42 @@ namespace Plugin
 
     void DiskManager::deleteOldJournalFiles(const std::string& dirpath, uint64_t limit)
     {
-        std::vector<SubjectFileInfo> files = getSortedListOFCompressedJournalFiles(dirpath);
+        std::vector<std::vector<SubjectFileInfo>> fileset;
         auto fs = Common::FileSystem::fileSystem();
-        uint64_t sizeOfDeletedFiles =0;
-        std::vector<std::string> filesToDelete;
-        for (const auto& file: files)
+        std::vector<std::string> subjects = fs->listDirectories(dirpath);
+        for (const auto& subject : subjects)
         {
-            sizeOfDeletedFiles += file.size;
-            filesToDelete.push_back(file.filepath);
-            if (sizeOfDeletedFiles > limit)
-            {
-                break;
-            }
-
+            std::vector<SubjectFileInfo> files = getSortedListOFCompressedJournalFiles(subject);
+            fileset.push_back(files);
         }
+
+
+        uint64_t sizeOfDeletedFiles = 0;
+        std::vector<std::string> filesToDelete;
+        size_t iterator = 0;
+        while (sizeOfDeletedFiles < limit)
+        {
+            for (const auto& subjectList: fileset)
+            {
+                if (subjectList.size() > iterator)
+                {
+                    SubjectFileInfo file = subjectList[iterator];
+                    sizeOfDeletedFiles += file.size;
+                    filesToDelete.push_back(file.filepath);
+                    if (sizeOfDeletedFiles > limit)
+                    {
+                        break;
+                    }
+                }
+            }
+            iterator++;
+        }
+
         for (const auto& file: filesToDelete)
         {
             fs->removeFile(file);
         }
-        if (filesToDelete.size() == files.size())
-        {
-            LOGERROR("We have deleted all compressed files in directory: "<< dirpath << "but the data in that directory is still above the limit");
-        }
+
     }
 
     std::vector<DiskManager::SubjectFileInfo> DiskManager::getSortedListOFCompressedJournalFiles(const std::string& dirpath)

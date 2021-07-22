@@ -30,16 +30,17 @@ TEST_F(DiskManagerTest, weCanDeleteOldJournalFiles) // NOLINT
 {
     Tests::TempDir tempDir;
     tempDir.makeDirs("Root/subdir");
-    tempDir.createFile("Root/file1.xz", "hello");
-    tempDir.createFile("Root/file2.xz", "hello");
+    tempDir.makeDirs("Root/subdir1");
+    tempDir.createFile("Root/subdir1/file1.xz", "hello");
+    tempDir.createFile("Root/subdir1/file2.xz", "hello");
     tempDir.createFile("Root/subdir/file1.xz", "hello");
     Plugin::DiskManager disk;
-    disk.deleteOldJournalFiles(tempDir.absPath("Root"),15);
+    disk.deleteOldJournalFiles(tempDir.absPath("Root"),10);
 
     auto fs = Common::FileSystem::fileSystem();
     std::vector<Path> fileList = fs->listAllFilesInDirectoryTree(tempDir.absPath("Root"));
 
-    EXPECT_EQ(fileList.size(), 0);
+    EXPECT_EQ(fileList.size(), 1);
 }
 
 TEST_F(DiskManagerTest, weCanSortJournalFiles) // NOLINT
