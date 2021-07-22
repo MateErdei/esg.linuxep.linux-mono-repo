@@ -33,6 +33,10 @@ TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop) // 
     EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData)).Times(10);
 
     writer.start();
+    while(!writer.getRunningStatus())
+    {
+        usleep(1);
+    }
     writer.stop();
 
     ASSERT_FALSE(writer.getRunningStatus());
