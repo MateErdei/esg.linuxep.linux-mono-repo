@@ -130,7 +130,7 @@ namespace Plugin
         }
     }
 
-    void DiskManager::compressFile(const std::string filepath)
+    void DiskManager::compressFile(const std::string& filepath)
     {
         lzma_stream strm = LZMA_STREAM_INIT;
 
@@ -138,9 +138,9 @@ namespace Plugin
         // stdin to stdout. the shoudl be file handles fro the file to compressed and the output file
         FILE *myfile = fopen (filepath.c_str() , "r");
         std::string destPath = filepath.substr(0,filepath.find_first_of(".")) + ".xz";
-        std::cout << destPath << std::endl;
+
         FILE *output = fopen (destPath.c_str() , "wb");
-        //FILE *output = fopen ("/tmp/myfile.xz" , "wb");
+
 
         bool success = init_encoder(&strm, 7);
         if (success)
@@ -161,7 +161,7 @@ namespace Plugin
 
         }
     }
-    uint64_t DiskManager::getDirectorySize(const std::string dirpath)
+    uint64_t DiskManager::getDirectorySize(const std::string& dirpath)
     {
         auto fs = Common::FileSystem::fileSystem();
         uint64_t totalDirectorySize = 0;
@@ -178,7 +178,7 @@ namespace Plugin
 
     }
 
-    void DiskManager::deleteOldJournalFiles(const std::string dirpath, uint64_t dataDeletionSize)
+    void DiskManager::deleteOldJournalFiles(const std::string& dirpath, uint64_t limit)
     {
         std::list<SubjectFileInfo> files = getSortedListOFCompressedJournalFiles(dirpath);
         auto fs = Common::FileSystem::fileSystem();
@@ -188,7 +188,7 @@ namespace Plugin
         {
             sizeOfDeletedFiles += file.size;
             filesToDelete.push_back(file.filepath);
-            if (sizeOfDeletedFiles > dataDeletionSize)
+            if (sizeOfDeletedFiles > limit)
             {
                 break;
             }
@@ -204,7 +204,8 @@ namespace Plugin
         }
     }
 
-    std::list<DiskManager::SubjectFileInfo> DiskManager::getSortedListOFCompressedJournalFiles(const std::string dirpath)
+    std::list<DiskManager::SubjectFileInfo> DiskManager::getSortedListOFCompressedJournalFiles(
+        const std::string& dirpath)
     {
         std::list<SubjectFileInfo> list;
         auto fs = Common::FileSystem::fileSystem();
@@ -262,6 +263,25 @@ namespace Plugin
             return true;
         }
         return false;
+    }
+
+    void DiskManager::compressClosedFiles(const std::string& dirpath)
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        std::vector<Path> filesCollection = fs->listAllFilesInDirectoryTree(dirpath);
+        for (const auto& path : filesCollection)
+        {
+            if (Common::UtilityImpl::StringUtils::endswith(path,".bin"))
+            {
+                //closed file name should be in format  subject-uniqueID1-uniqueID2-timestamp1-timestamp2.xz
+                std::vector<std::string> fileNameParts =  Common::UtilityImpl::StringUtils::splitString( Common::FileSystem::basename(path),"-");
+                if (filesCollection.size() == 5)
+                {
+                    compressFile(path);
+                    LOGDEBUG("Compressed file: " << path);
+                }
+            }
+        }
     }
 
 }

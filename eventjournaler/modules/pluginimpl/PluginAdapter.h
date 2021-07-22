@@ -35,6 +35,9 @@ namespace Plugin
         int QUEUE_TIMEOUT = 5; // Seconds
 
         void processPolicy(const std::string& policyXml);
+        void manageJournalDataStoreSize();
 
+        uint64_t dataLimit = 3600000000; //3.6GB
+        uint64_t lowerLimit= 3000000000; //3.0GB
     };
 } // namespace Plugin
