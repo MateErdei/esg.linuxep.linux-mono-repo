@@ -201,7 +201,7 @@ namespace Common
              * @param directoryPath
              * @return List of the full path of files under the directoryPath.
              */
-            virtual void listAllFilesInDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const = 0;
+            virtual std::vector<Path> listAllFilesInDirectoryTree(const Path& root) const = 0;
 
             /**
              * Provide the full absolute path of the directories under the directoryPath given.

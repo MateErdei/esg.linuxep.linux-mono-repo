@@ -900,8 +900,8 @@ namespace
         tempDir.createFile("Root/file2", "hello");
         tempDir.createFile("Root/subdir/file1", "hello");
 
-        std::vector<Path> fileList;
-        m_fileSystem->listAllFilesInDirectoryTree(fileList, tempDir.absPath("Root"));
+        std::vector<Path> fileList =
+            m_fileSystem->listAllFilesInDirectoryTree(tempDir.absPath("Root"));
 
         EXPECT_EQ(fileList.size(), 3);
 
@@ -917,8 +917,8 @@ namespace
         Tests::TempDir tempDir;
         tempDir.makeDirs("Root");
 
-        std::vector<Path> fileList;
-        m_fileSystem->listAllFilesInDirectoryTree(fileList, tempDir.absPath("Root"));
+        std::vector<Path> fileList =
+            m_fileSystem->listAllFilesInDirectoryTree(tempDir.absPath("Root"));
 
         EXPECT_EQ(fileList.size(), 0);
 
@@ -928,7 +928,7 @@ namespace
     {
 
         std::vector<Path> fileList;
-        EXPECT_NO_THROW(m_fileSystem->listAllFilesInDirectoryTree(fileList, "DoesntExistDir"));
+        EXPECT_NO_THROW(fileList = m_fileSystem->listAllFilesInDirectoryTree("DoesntExistDir"));
         EXPECT_EQ(fileList.size(), 0);
 
 

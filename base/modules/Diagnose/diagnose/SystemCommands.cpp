@@ -157,8 +157,7 @@ namespace diagnose
 
         auto fs = Common::FileSystem::fileSystem();
 
-        std::vector<Path> filesToZip;
-        fs->listAllFilesInDirectoryTree(filesToZip, srcPath);
+        std::vector<Path> filesToZip = fs->listAllFilesInDirectoryTree(srcPath);
 
         for (auto& path : filesToZip)
         {

@@ -587,9 +587,11 @@ namespace Common
 
             return files;
         }
-        void FileSystemImpl::listAllFilesInDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const
+        std::vector<Path> FileSystemImpl::listAllFilesInDirectoryTree(const Path& root) const
         {
+            std::vector<Path> pathCollection;
             walkDirectoryTree(pathCollection, root);
+            return pathCollection;
         }
 
         void FileSystemImpl::walkDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const
@@ -623,7 +625,7 @@ namespace Common
 
             for (auto& directory : directories)
             {
-                listAllFilesInDirectoryTree(pathCollection, directory);
+                walkDirectoryTree(pathCollection, directory);
             }
         }
         void FileSystemImpl::removeFile(const Path& path, bool ignoreAbsent) const
