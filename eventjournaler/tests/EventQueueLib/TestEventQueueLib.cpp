@@ -10,6 +10,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <modules/SubscriberLib/EventQueuePusher.h>
 #include <modules/EventWriterWorkerLib/EventQueuePopper.h>
+#include <modules/JournalerCommon/Event.h>
 
 #include <future>
 
@@ -25,7 +26,7 @@ namespace
         auto queue =  std::queue<JournalerCommon::Event>{};
         for (int i = 0; i < queueSize; i++)
         {
-            queue.push(JournalerCommon::Event{});
+            queue.push(JournalerCommon::Event());
         }
         EXPECT_EQ(queue.size(), queueSize);
         return queue;
@@ -105,7 +106,7 @@ TEST_F(TestEventQueue, testEventQueueIsEmptyReturnsTrueWhenQueueIsEmpty) // NOLI
 TEST_F(TestEventQueue, testEventQueuePushReturnsTrueWhenPushingToQueueThatIsNotFull) // NOLINT
 {
     TestableEventQueue eventQueueWithMaxSize5(5);
-    auto data = JournalerCommon::Event({JournalerCommon::EventType::THREAT_EVENT, "data"});
+    JournalerCommon::Event data {JournalerCommon::EventType::THREAT_EVENT, "fake data"};
     EXPECT_TRUE(eventQueueWithMaxSize5.push(data));
     auto queue = eventQueueWithMaxSize5.getQueue();
     EXPECT_EQ(queue.size(), 1);
@@ -116,9 +117,9 @@ TEST_F(TestEventQueue, testEventQueuePushReturnsFalseWhenPushingToQueueThatIsFul
 {
     TestableEventQueue eventQueueWithMaxSize2(2);
     auto mockedQueue = std::queue<JournalerCommon::Event>();
-    auto data1 = JournalerCommon::Event({JournalerCommon::EventType::THREAT_EVENT, "data1"});
-    auto data2 = JournalerCommon::Event({JournalerCommon::EventType::THREAT_EVENT, "data2"});
-    auto data3 = JournalerCommon::Event({JournalerCommon::EventType::THREAT_EVENT, "data3"});
+    auto data1 = JournalerCommon::Event({"one", "two", "three"});
+    auto data2 = JournalerCommon::Event({"four", "five", "six"});
+    auto data3 = JournalerCommon::Event({"seven", "eight", "nine"});
     mockedQueue.push(data1);
     mockedQueue.push(data2);
     eventQueueWithMaxSize2.setQueue(mockedQueue);
@@ -136,7 +137,7 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksForTimeoutBeforeReturningEmptyOpti
     int timeout = 100;
 
     std::chrono::milliseconds before = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-    std::optional<Common::ZeroMQWrapper::data_t> emptyOptionalData = eventQueueWithMaxSize2.pop(timeout);
+    std::optional<JournalerCommon::Event> emptyOptionalData = eventQueueWithMaxSize2.pop(timeout);
     std::chrono::milliseconds after = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     EXPECT_FALSE(emptyOptionalData.has_value());
@@ -157,11 +158,11 @@ TEST_F(TestEventQueue, testEventQueuePopReturnsValueImmediatelyWhenThereIsDataTo
 
 
     std::chrono::milliseconds before1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-    std::optional<Common::ZeroMQWrapper::data_t> data1 = eventQueueWithMaxSize2.pop(1000);
+    std::optional<JournalerCommon::Event> data1 = eventQueueWithMaxSize2.pop(1000);
     std::chrono::milliseconds after1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     std::chrono::milliseconds before2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-    std::optional<Common::ZeroMQWrapper::data_t> data2 = eventQueueWithMaxSize2.pop(1000);
+    std::optional<JournalerCommon::Event> data2 = eventQueueWithMaxSize2.pop(1000);
     std::chrono::milliseconds after2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     EXPECT_EQ(data1, expectedData1);
@@ -173,7 +174,7 @@ TEST_F(TestEventQueue, testEventQueuePopReturnsValueImmediatelyWhenThereIsDataTo
 TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndReturningValueWhenDataIsPushed) // NOLINT
 {
     TestableEventQueue eventQueueWithMaxSize2(2);
-    auto expectedData = Common::ZeroMQWrapper::data_t({"one", "two", "three"});
+    auto expectedData = JournalerCommon::Event({"one", "two", "three"});
 
     auto x = std::cv_status::timeout;
     (void)x;
@@ -181,7 +182,7 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndRe
             [&eventQueueWithMaxSize2, &expectedData]
         {
             std::chrono::milliseconds before = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-            std::optional<Common::ZeroMQWrapper::data_t> data = eventQueueWithMaxSize2.pop(1000);
+            std::optional<JournalerCommon::Event> data = eventQueueWithMaxSize2.pop(1000);
             std::chrono::milliseconds after = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
             EXPECT_TRUE(data.has_value());
             EXPECT_EQ(data.value(), expectedData);
@@ -195,22 +196,22 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndRe
     EXPECT_NEAR(duration, 100, 10);
 }
 
-//TEST_F(TestEventQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped) // NOLINT
-//{
-//    EventQueueLib::IEventQueue* eventQueue = new EventQueueLib::EventQueue(3);
-//    std::shared_ptr<EventQueueLib::IEventQueue> eventQueuePtr(eventQueue);
-//    SubscriberLib::IEventQueuePusher* pusher = new SubscriberLib::EventQueuePusher(eventQueuePtr);
-//    WriterLib::IEventQueuePopper* popper = new WriterLib::EventQueuePopper(eventQueuePtr);
-//
-//    auto data1 = Common::ZeroMQWrapper::data_t({"one", "two", "three"});
-//    auto data2 = Common::ZeroMQWrapper::data_t({"four", "five", "six"});
-//    auto data3 = Common::ZeroMQWrapper::data_t({"seven", "eight", "nine"});
-//
-//    pusher->push(data1);
-//    pusher->push(data2);
-//    pusher->push(data3);
-//
-//    ASSERT_EQ(data1, popper->getEvent(10));
-//    ASSERT_EQ(data2, popper->getEvent(10));
-//    ASSERT_EQ(data3, popper->getEvent(10));
-//}
+TEST_F(TestEventQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped) // NOLINT
+{
+    EventQueueLib::IEventQueue* eventQueue = new EventQueueLib::EventQueue(3);
+    std::shared_ptr<EventQueueLib::IEventQueue> eventQueuePtr(eventQueue);
+    SubscriberLib::IEventHandler* pusher = new SubscriberLib::EventQueuePusher(eventQueuePtr);
+    EventWriterLib::IEventQueuePopper* popper = new EventWriterLib::EventQueuePopper(eventQueuePtr);
+
+    auto data1 = Common::ZeroMQWrapper::data_t({"one", "two", "three"});
+    auto data2 = Common::ZeroMQWrapper::data_t({"four", "five", "six"});
+    auto data3 = Common::ZeroMQWrapper::data_t({"seven", "eight", "nine"});
+
+    pusher->handleEvent(data1);
+    pusher->handleEvent(data2);
+    pusher->handleEvent(data3);
+
+    ASSERT_EQ(data1, popper->getEvent(10));
+    ASSERT_EQ(data2, popper->getEvent(10));
+    ASSERT_EQ(data3, popper->getEvent(10));
+}
