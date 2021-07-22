@@ -48,12 +48,12 @@ struct TestableEventQueue : public EventQueue
         return EventQueue::isQueueEmpty();
     }
 
-    void setQueue(std::queue<Common::ZeroMQWrapper::data_t> newQueue)
+    void setQueue(std::queue<JournalerCommon::Event> newQueue)
     {
         m_queue = newQueue;
     }
 
-    std::queue<Common::ZeroMQWrapper::data_t> getQueue()
+    std::queue<JournalerCommon::Event> getQueue()
     {
         return m_queue;
     }

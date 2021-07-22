@@ -15,7 +15,7 @@ namespace EventWriterLib
     {
     public:
         EventQueuePopper(const std::shared_ptr<EventQueueLib::IEventQueue>& eventQueue);
-        std::optional<Common::ZeroMQWrapper::data_t> getEvent(int timeoutInMilliseconds) override;
+        std::optional<JournalerCommon::Event> getEvent(int timeoutInMilliseconds) override;
 
     private:
         std::shared_ptr<EventQueueLib::IEventQueue> m_eventQueue;

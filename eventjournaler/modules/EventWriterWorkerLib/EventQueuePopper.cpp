@@ -13,7 +13,7 @@ namespace EventWriterLib
     {
     }
 
-    std::optional<Common::ZeroMQWrapper::data_t> EventWriterLib::EventQueuePopper::getEvent(int timeoutInMilliseconds)
+    std::optional<JournalerCommon::Event> EventWriterLib::EventQueuePopper::getEvent(int timeoutInMilliseconds)
     {
         return m_eventQueue->pop(timeoutInMilliseconds);
     }

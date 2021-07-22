@@ -27,12 +27,12 @@ namespace SubscriberLib
     Subscriber::Subscriber(
         const std::string& socketAddress,
         Common::ZMQWrapperApi::IContextSharedPtr context,
-        std::unique_ptr<SubscriberLib::IEventQueuePusher> eventQueuePusher,
+        std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher,
         int readLoopTimeoutMilliSeconds) :
         m_socketPath(socketAddress),
         m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds),
         m_context(context),
-        m_eventQueuePusher(std::move(eventQueuePusher))
+        m_eventHandler(std::move(eventQueuePusher))
     {
         LOGINFO("Creating subscriber listening on socket address: " << m_socketPath);
     }
@@ -62,7 +62,8 @@ namespace SubscriberLib
                 if (fs->exists(m_socketPath))
                 {
                     auto data = m_socket->read();
-                    m_eventQueuePusher->push(data);
+                    JournalerCommon::Event event = convertZmqDataToEvent(data);
+                    m_eventHandler->handleEvent(event);
                 }
                 else
                 {
@@ -174,4 +175,17 @@ namespace SubscriberLib
     }
 
     bool Subscriber::getRunningStatus() { return m_running; }
+
+    JournalerCommon::Event Subscriber::convertZmqDataToEvent(Common::ZeroMQWrapper::data_t data)
+    {
+        if (data.size() == 2)
+        {
+            auto type = JournalerCommon::EventTypeMap.at(data[0]);
+            JournalerCommon::Event event {type, data[1]};
+            return event;
+        }
+
+        throw std::runtime_error("ZMQ Data arriving from pub sub did not contain the expected 2 minimum components");
+
+    }
 } // namespace SubscriberLib

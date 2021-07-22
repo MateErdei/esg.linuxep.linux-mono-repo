@@ -16,7 +16,7 @@ namespace SubscriberLib
     {
     }
 
-    void SubscriberLib::EventQueuePusher::push(Common::ZeroMQWrapper::data_t event)
+    void SubscriberLib::EventQueuePusher::handleEvent(JournalerCommon::Event event)
     {
         auto& telemetryHelper = Common::Telemetry::TelemetryHelper::getInstance();
         if (!m_eventQueue->push(event))

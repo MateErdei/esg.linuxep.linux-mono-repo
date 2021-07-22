@@ -31,7 +31,7 @@ TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasn
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventQueuePusher> mockPusherPtr(mockPusher);
+    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
     SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), 123);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
@@ -57,7 +57,7 @@ TEST_F(TestSubscriber, SubscriberStartAndStop) // NOLINT
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventQueuePusher> mockPusherPtr(mockPusher);
+    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
     SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), 123);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
@@ -82,7 +82,7 @@ TEST_F(TestSubscriber, SubscriberCanRestart) // NOLINT
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventQueuePusher> mockPusherPtr(mockPusher);
+    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
 
     MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
     EXPECT_CALL(*socketSubscriber, setTimeout(1000)).Times(2);
@@ -129,7 +129,7 @@ TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist) // NOLINT
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
     MockEventQueuePusher* mockPusher = new StrictMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventQueuePusher> mockPusherPtr(mockPusher);
+    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
 
     MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
     EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(0);
@@ -156,7 +156,7 @@ TEST_F(TestSubscriber, SubscriberResetsIfSocketRemoved) // NOLINT
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
     MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventQueuePusher> mockPusherPtr(mockPusher);
+    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
     EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(1);
@@ -196,7 +196,7 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
     MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
     MockEventQueuePusher* mockPusher = new StrictMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventQueuePusher> mockPusherPtr(mockPusher);
+    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
     EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(1);

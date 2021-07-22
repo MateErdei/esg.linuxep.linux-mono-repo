@@ -5,9 +5,13 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "IEventQueue.h"
-#include <queue>
-#include <condition_variable>
+
 #include "Common/ZeroMQWrapper/IReadable.h"
+
+#include <modules/JournalerCommon/Event.h>
+
+#include <condition_variable>
+#include <queue>
 
 namespace EventQueueLib
 {
@@ -15,14 +19,14 @@ namespace EventQueueLib
     {
     public:
         EventQueue(int maxSize);
-        bool push(Common::ZeroMQWrapper::data_t event) override;
-        std::optional<Common::ZeroMQWrapper::data_t> pop(int timeoutInMilliseconds) override;
+        bool push(JournalerCommon::Event event) override;
+        std::optional<JournalerCommon::Event> pop(int timeoutInMilliseconds) override;
 
     protected:
         bool isQueueFull();
         bool isQueueEmpty();
 
-        std::queue<Common::ZeroMQWrapper::data_t> m_queue;
+        std::queue<JournalerCommon::Event> m_queue;
 
     private:
         uint m_maxQueueLength;

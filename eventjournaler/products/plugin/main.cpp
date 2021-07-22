@@ -48,7 +48,7 @@ int main()
     }
 
     std::shared_ptr<EventQueueLib::EventQueue> eventQueue(new EventQueueLib::EventQueue(100));
-    std::unique_ptr<SubscriberLib::IEventQueuePusher> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue));
+    std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue));
 //    auto context = Common::ZMQWrapperApi::createContext();
     std::unique_ptr<SubscriberLib::ISubscriber> subscriber(new SubscriberLib::Subscriber(Plugin::getSubscriberSocketPath(), Common::ZMQWrapperApi::createContext(), std::move(eventQueuePusher)));
     std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(new EventWriterLib::EventQueuePopper(eventQueue));

@@ -4,7 +4,7 @@ sophos_add_library(subscriberlib SHARED
         ISubscriber.h
         Logger.h
         Logger.cpp
-        IEventQueuePusher.h
+        IEventHandler.h
         EventQueuePusher.h
         EventQueuePusher.cpp
 #        ../WriterLib/IEventQueuePopper.h

@@ -25,15 +25,15 @@ namespace EventQueueLib
         return m_queue.empty();
     }
 
-    bool EventQueueLib::EventQueue::push(Common::ZeroMQWrapper::data_t event)
+    bool EventQueueLib::EventQueue::push(JournalerCommon::Event event)
     {
-        // TODO LINUXDAR-3135: Remove this logging loop when reading from the queue is implemented and testable
-        // Logging loop used for robot tests. Not desired for released product.
-        int index = 0;
-        for (const auto& messagePart : event)
-        {
-            LOGINFO(index++ << ": " << messagePart);
-        }
+//        // TODO LINUXDAR-3135: Remove this logging loop when reading from the queue is implemented and testable
+//        // Logging loop used for robot tests. Not desired for released product.
+//        int index = 0;
+//        for (const auto& messagePart : event)
+//        {
+//            LOGINFO(index++ << ": " << messagePart);
+//        }
 
         std::lock_guard<std::mutex> lock(m_pushMutex);
         if (isQueueFull())
@@ -45,7 +45,7 @@ namespace EventQueueLib
         return true;
     }
 
-    std::optional<Common::ZeroMQWrapper::data_t> EventQueueLib::EventQueue::pop(int timeoutInMilliseconds)
+    std::optional<JournalerCommon::Event> EventQueueLib::EventQueue::pop(int timeoutInMilliseconds)
     {
         std::unique_lock<std::mutex> lock(m_popMutex);
         bool queueEmpty = !m_cond.wait_for(lock, std::chrono::milliseconds(timeoutInMilliseconds), [this] { return !isQueueEmpty(); });

@@ -5,6 +5,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IDataType.h>
+#include <JournalerCommon/Event.h>
 #include <optional>
 
 namespace EventWriterLib
@@ -20,6 +21,6 @@ namespace EventWriterLib
          * @param timeout to wait for queue to be populated
          * @return data if queue has any, nullptr otherwise
          */
-        virtual std::optional<Common::ZeroMQWrapper::data_t> getEvent(int timeoutInMilliseconds) = 0;
+        virtual std::optional<JournalerCommon::Event> getEvent(int timeoutInMilliseconds) = 0;
     };
 } // namespace EventQueuePopper

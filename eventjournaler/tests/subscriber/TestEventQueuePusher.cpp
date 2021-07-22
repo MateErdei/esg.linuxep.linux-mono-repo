@@ -24,7 +24,7 @@ TEST_F(TestEventQueuePusher, testPushPassesCorrectArguementsToItsPushMethod) // 
     SubscriberLib::EventQueuePusher eventQueuePusher(mockQueuePtr);
 
     EXPECT_CALL(*mockQueue, push(testData)).Times(1);
-    eventQueuePusher.push(testData);
+    eventQueuePusher.handleEvent(testData);
 }
 
 TEST_F(TestEventQueuePusher, testDroppedEventsTriggerTelemetryIncrement) // NOLINT
@@ -37,8 +37,8 @@ TEST_F(TestEventQueuePusher, testDroppedEventsTriggerTelemetryIncrement) // NOLI
 
     EXPECT_CALL(*mockQueue, push(testData)).WillRepeatedly(Return(false));
 
-    eventQueuePusher.push(testData);
+    eventQueuePusher.handleEvent(testData);
     EXPECT_EQ(telemetry.serialise(), "{\"dropped-av-events\":1}");
-    eventQueuePusher.push(testData);
+    eventQueuePusher.handleEvent(testData);
     EXPECT_EQ(telemetry.serialise(), "{\"dropped-av-events\":2}");
 }

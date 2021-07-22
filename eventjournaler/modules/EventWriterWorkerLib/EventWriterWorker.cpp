@@ -60,21 +60,36 @@ namespace EventWriterLib
             {
                 if (auto event = m_eventQueuePopper->getEvent(100))
                 {
+                    // event.value().type
+                    // event.value().data
+
+
                     // TODO Can this ever be more than 2?
-                    if (event.value().size() == 2)
+//                    if (event.value().size() == 2)
+//                    {
+
+                    switch (event.value().type)
                     {
-                        std::string type = event.value()[0];
-                        std::string data = event.value()[1];
-                        LOGINFO("type:" << type);
-                        LOGINFO("data:" << data);
-                        EventJournal::Detection detection{type, data};
-                        auto encodedDetection = EventJournal::encode(detection);
-                        m_eventJournalWriter->insert(EventJournal::Subject::Detections, encodedDetection);
+                        case JournalerCommon::EventType::THREAT_EVENT:
+                            std::string type = "TODO"; //JournalerCommon::EventTypeMap.at(event.value().type);
+                            std::string data = event.value().data;
+                            LOGINFO("type:" << type);
+                            LOGINFO("data:" << data);
+                            EventJournal::Detection detection{type, data};
+                            auto encodedDetection = EventJournal::encode(detection);
+                            m_eventJournalWriter->insert(EventJournal::Subject::Detections, encodedDetection);
+                            break;
+//                        default:
+//                            throw std::runtime_error("Unsupported event type");
                     }
-                    else
-                    {
-                        LOGWARN("oh no size not 2: " << event.value().size());
-                    }
+
+
+
+//                    }
+//                    else
+//                    {ommon::ZeroMQWrapper::data_t
+//                        LOGWARN("oh no size not 2: " << event.value().size());
+//                    }
 
 //                    for (const auto& eventPart : event.value())
 //                    {
