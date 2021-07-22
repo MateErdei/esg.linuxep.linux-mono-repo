@@ -19,6 +19,7 @@ public:
     FakePopper(Common::ZeroMQWrapper::data_t fakeData, int amountOfData = 1);
     std::optional<Common::ZeroMQWrapper::data_t> getEvent(int timeoutInMilliseconds) override;
     void setBlock(bool block);
+    bool queueEmpty();
 
 private:
     std::vector<Common::ZeroMQWrapper::data_t> fake_eventQueue;

@@ -9,6 +9,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <thread>
 #include <future>
 #include "tests/Helpers/FakePopper.h"
+#include "MockJournalWriter.h"
 //#include writer
 
 class TestWriter : public LogOffInitializedTests{};
@@ -22,12 +23,9 @@ TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop) // 
     FakePopper fakePopper(dataOne, 10);
     // Pointer?
     WriterLib::WriterObject writer(fakePopper/*, timeout*/);
+    MockJournalWriter*  mockJournalWriter = new StrictMock<MockJournalWriter>();
 
-    EXPECT_CALL(*mockPopper, getEvent(timeout))
-        .WillRepeatedly(Return(dataOne)).Times(10)
-        .WillRepeatedly(Return(std::nullopt));
-
-    EXPECT_CALL(*writer, write(dataOne)).Times(10);
+    EXPECT_CALL(*mockJournalWriter, write(dataOne)).Times(10);
 
     writer.start();
     auto unblockTask = std::async(std::launch::async, [&fakePopper] { fakePopper.setBlock(false); });
@@ -35,11 +33,5 @@ TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop) // 
     unblockTask.get();
 
     ASSERT_FALSE(writer.getRunningStatus());
-}
-
-TEST_F(TestWriter, test) // NOLINT
-{
-    auto value = popper.getEvent(1000);
-    if (value.hasValue()) {}
-    else if (!this.getRunningStatus()) { stop logic }
+    ASSERT_TRUE(fakePopper.queueEmpty());
 }

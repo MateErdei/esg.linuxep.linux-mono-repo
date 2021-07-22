@@ -44,3 +44,7 @@ void FakePopper::setBlock(bool block)
     m_block = block;
 }
 
+bool FakePopper::queueEmpty()
+{
+    return fake_eventQueue.empty();
+}
