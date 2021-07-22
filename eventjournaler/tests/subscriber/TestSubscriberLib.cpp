@@ -217,7 +217,7 @@ TEST_F(TestSubscriber, SubscriberResetsIfSocketRemoved) // NOLINT
 
     auto sleepAndReturnEmptyData = [](){
       sleep(1);
-      return std::vector<std::string>();
+      return std::vector<std::string>{"threatEvents", "data"};
     };
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(sleepAndReturnEmptyData));
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
@@ -262,7 +262,12 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(1);
 
 //    std::vector<std::string> mockSocketValues = {"type", "data"};
-    std::vector<std::vector<std::string>> mockSocketValues = {{"threatEvents", "data1"}, {"threatEvents", "data2"}};
+    std::vector<std::vector<std::string>> mockSocketValues = {
+        {"threatEvents", "data1"},
+        {"threatEvents", "data2"},
+        {"threatEvents", "data3"},
+        {"threatEvents", "data4"}
+    };
     auto sleepAndReturnData = [&mockSocketValues](){
         sleep(1);
         auto fakeEventData = mockSocketValues.back();
@@ -294,10 +299,10 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
             .WillOnce(Return(false)) // Next time around the read loop we fake the socket being missing here
             .WillOnce(Return(false)); // stop() call in destructor
 
-    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "one"})).Times(1);
-    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "two"})).Times(1);
-    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "three"})).Times(1);
-    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "four"})).Times(1);
+    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data1"})).Times(1);
+    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data2"})).Times(1);
+    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data3"})).Times(1);
+    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data4"})).Times(1);
 //    EXPECT_CALL(*mockPusher, push(Common::ZeroMQWrapper::data_t({"one", "two", "three"}))).Times(1);
 //    EXPECT_CALL(*mockPusher, push(Common::ZeroMQWrapper::data_t({"one", "two"}))).Times(1);
 //    EXPECT_CALL(*mockPusher, push(Common::ZeroMQWrapper::data_t({"one"}))).Times(1);
