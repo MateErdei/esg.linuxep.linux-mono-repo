@@ -180,7 +180,7 @@ namespace Plugin
 
     void DiskManager::deleteOldJournalFiles(const std::string& dirpath, uint64_t limit)
     {
-        std::list<SubjectFileInfo> files = getSortedListOFCompressedJournalFiles(dirpath);
+        std::vector<SubjectFileInfo> files = getSortedListOFCompressedJournalFiles(dirpath);
         auto fs = Common::FileSystem::fileSystem();
         uint64_t sizeOfDeletedFiles =0;
         std::vector<std::string> filesToDelete;
@@ -204,8 +204,7 @@ namespace Plugin
         }
     }
 
-    std::list<DiskManager::SubjectFileInfo> DiskManager::getSortedListOFCompressedJournalFiles(
-        const std::string& dirpath)
+    std::vector<DiskManager::SubjectFileInfo> DiskManager::getSortedListOFCompressedJournalFiles(const std::string& dirpath)
     {
         std::list<SubjectFileInfo> list;
         auto fs = Common::FileSystem::fileSystem();
@@ -249,7 +248,12 @@ namespace Plugin
         {
             LOGWARN("No files to delete");
         }
-        return list;
+        std::vector<SubjectFileInfo> sortedFiles;
+        for (const auto& file : list)
+        {
+            sortedFiles.insert(sortedFiles.begin(),file);
+        }
+        return sortedFiles;
     }
 
     bool DiskManager::isJournalFileNewer(const SubjectFileInfo& currentInfo,const SubjectFileInfo& newInfo)

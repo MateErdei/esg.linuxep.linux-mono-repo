@@ -30,7 +30,7 @@ namespace Plugin
         void compressFile(const std::string& filepath);
         uint64_t getDirectorySize(const std::string& dirpath);
         void deleteOldJournalFiles(const std::string& dirpath,uint64_t limit);
-        std::list<SubjectFileInfo> getSortedListOFCompressedJournalFiles(const std::string& dirpath);
+        std::vector<SubjectFileInfo> getSortedListOFCompressedJournalFiles(const std::string& dirpath);
         void compressClosedFiles(const std::string& dirpath);
     private:
         bool init_encoder(lzma_stream *strm, uint32_t preset);

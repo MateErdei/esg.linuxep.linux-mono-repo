@@ -10,10 +10,10 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gtest/gtest.h>
-#include <modules/pluginimpl/Logger.h>
+
 #include <pluginimpl/DiskManager.h>
 #include <Common/Helpers/TempDir.h>
-#include <future>
+
 
 class DiskManagerTest : public LogInitializedTests
 {
@@ -57,18 +57,12 @@ TEST_F(DiskManagerTest, weCanSortJournalFiles) // NOLINT
     EXPECT_CALL(*mockFileSystem, listAllFilesInDirectoryTree(_)).WillOnce(Return(files));
     EXPECT_CALL(*mockFileSystem, fileSize(_)).WillRepeatedly(Return(20));
     Plugin::DiskManager disk;
-    std::list<Plugin::DiskManager::SubjectFileInfo> list = disk.getSortedListOFCompressedJournalFiles("randompath");
+    std::vector<Plugin::DiskManager::SubjectFileInfo> list = disk.getSortedListOFCompressedJournalFiles("randompath");
     // uncompressed file is ignored
     EXPECT_EQ(list.size(), 3);
-    // in order to check ordering of elements in list iterate through the list to create vector with opposite ordering of list
-    std::vector<std::string> sortedFiles;
-    for (const auto& file : list)
-    {
-        sortedFiles.push_back(file.filepath);
-    }
-    // newest file first, malformed file at the end since the vector is in the oppositie order of the ordered list
-    EXPECT_EQ(sortedFiles[0],"System-00000000005b067e-00000000005b067e-131803877044481800-131803877044481699.xz");
-    EXPECT_EQ(sortedFiles[1],"System-00000000005b067e-00000000005b067e-131803877044481699-131803877044481699.xz");
-    EXPECT_EQ(sortedFiles[2],"131803877044481200-131803877044481699.xz");
+
+    EXPECT_EQ(list[2].filepath,"System-00000000005b067e-00000000005b067e-131803877044481800-131803877044481699.xz");
+    EXPECT_EQ(list[1].filepath,"System-00000000005b067e-00000000005b067e-131803877044481699-131803877044481699.xz");
+    EXPECT_EQ(list[0].filepath,"131803877044481200-131803877044481699.xz");
 
 }
