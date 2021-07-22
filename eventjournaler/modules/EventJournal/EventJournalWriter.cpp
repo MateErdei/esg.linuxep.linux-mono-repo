@@ -10,6 +10,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
@@ -79,8 +80,9 @@ namespace EventJournal
             throw std::runtime_error("input data exceeds maximum record length");
         }
 
+        auto fs = Common::FileSystem::fileSystem();
         auto directory = Common::FileSystem::join(m_location, m_producer, subjectName);
-        if (!Common::FileSystem::fileSystem()->exists(directory))
+        if (!fs->exists(directory))
         {
             Common::FileSystem::fileSystem()->makedirs(directory);
 
@@ -104,17 +106,27 @@ namespace EventJournal
         }
         else
         {
-            auto fileSize = Common::FileSystem::fileSystem()->fileSize(path);
+            auto fileSize = fs->fileSize(path);
             if ((fileSize + PBUF_HEADER_LENGTH + data.size()) > MAX_FILE_SIZE)
             {
-                throw std::runtime_error("input data exceeds maximum file size");
+                std::string closedFile = getClosedFilePath(path);
+                try
+                {
+                    fs->moveFile(path, closedFile);
+                }
+                catch (Common::FileSystem::IFileSystemException& exception)
+                {
+                    LOGERROR("Failed to close file: "<< path<< " due to error: " << exception.what());
+                }
+                path = Common::FileSystem::join(directory, getNewFilename(subjectName, producerUniqueID, timestamp));
+                isNewFile = true;
             }
 
             LOGDEBUG("Update " << path);
         }
 
         std::ios::openmode mode = std::ios::binary | std::ios::in | std::ios::out;
-        if (Common::FileSystem::fileSystem()->exists(path))
+        if (fs->exists(path))
         {
             mode |= std::ios::ate;
         }
@@ -172,12 +184,12 @@ namespace EventJournal
         return "";
     }
 
-    std::string Writer::getClosedFileName(const std::string& filepath) const
+    std::string Writer::getClosedFilePath(const std::string& filepath) const
     {
         std::vector<std::string> list = Common::UtilityImpl::StringUtils::splitString(Common::FileSystem::basename(filepath),"-");
         std::string subject  = list[0];
         std::string firstOss = list[1];;
-        std::string firstTimestamp = list[3].substr(list[3].find_first_of("."));
+        std::string firstTimestamp = list[2].substr(0,list[2].find_first_of("."));
 
         std::ostringstream oss;
         oss << std::hex << std::setfill('0') << std::setw(16) << readHighestUniqueID(filepath);
@@ -187,7 +199,8 @@ namespace EventJournal
         int64_t lasttimestamp = Common::UtilityImpl::TimeUtils::EpochToWindowsFileTime(now);
 
 
-        return subject + "-" + firstOss + "-" + lastOss+ "-" + firstTimestamp+ "-" +std::to_string(lasttimestamp) + ".bin";
+        std::string filename = subject + "-" + firstOss + "-" + lastOss+ "-" + firstTimestamp+ "-" +std::to_string(lasttimestamp) + ".bin";
+        return Common::FileSystem::join(Common::FileSystem::dirName(filepath),filename);
     }
 
     uint64_t Writer::readHighestUniqueID() const

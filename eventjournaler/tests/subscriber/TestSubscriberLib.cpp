@@ -18,8 +18,22 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <queue>
 
-class TestSubscriber : public LogOffInitializedTests{};
-class TestSubscriberWithLog : public LogInitializedTests{};
+class TestSubscriber : public LogOffInitializedTests
+{
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+        Tests::restoreFilePermissions();
+    }
+};
+class TestSubscriberWithLog : public LogInitializedTests
+{
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+        Tests::restoreFilePermissions();
+    }
+};
 
 TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasntStarted) // NOLINT
 {

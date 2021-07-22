@@ -9,10 +9,11 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/LogInitializedTests.h>
+#include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/TempDir.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <EventJournal/EventJournalWriter.h>
+#include <eventjournal/EventJournalWriter.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -34,6 +35,12 @@ protected:
 
         m_eventData = EventJournal::encode(detection);
         EXPECT_FALSE(m_eventData.empty());
+    }
+
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+        Tests::restoreFilePermissions();
     }
 
     void CheckJournalFile(const std::string& filename, size_t expected_size, mode_t expected_mode)
@@ -150,19 +157,30 @@ TEST_F(TestEventJournalWriter, InsertTooLargeDataThrows) // NOLINT
         Common::FileSystem::fileSystem()->isDirectory(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)));
 }
 
-TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitThrows) // NOLINT
+TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitClosesOldFileAndCreatesNewFile) // NOLINT
 {
     auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
     auto filename = Common::FileSystem::join(directory, SUBJECT + "-0000000000000001-132444736000000000.bin");
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+        std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+
     EXPECT_CALL(*mockFileSystem, exists(directory)).WillOnce(Return(true));
+    std::string detectionsFileNamePrefix("Detections-0000000000000001");
+    std::string closedFilePrefix("Detections-0000000000000001-0000000000000000");
+    EXPECT_CALL(*mockFileSystem, exists(HasSubstr(Common::FileSystem::join(directory, detectionsFileNamePrefix)))).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, isDirectory(directory)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(directory)).WillOnce(Return(std::vector{ filename }));
     EXPECT_CALL(*mockFileSystem, fileSize(filename)).WillOnce(Return(99804296));
+    // moved called when closing file, check to see if the move call contains file with the correct prefix.
+    EXPECT_CALL(*mockFileSystem, moveFile(HasSubstr(detectionsFileNamePrefix), HasSubstr(closedFilePrefix))).Times(1);
+    EXPECT_CALL(*mockFilePermissions, chmod(_,_)).Times(1);
 
     std::vector<uint8_t> data(195 * 1024);
-    EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, data), std::runtime_error);
+    EXPECT_NO_THROW(m_writer->insert(EventJournal::Subject::Detections, data));
 }
 
 TEST_F(TestEventJournalWriter, CreateDirectoryFailureThrows) // NOLINT
