@@ -167,8 +167,7 @@ namespace Plugin
         uint64_t totalDirectorySize = 0;
         if (fs->isDirectory(dirpath))
         {
-            std::vector<Path> filesCollection;
-            fs->listAllFilesInDirectoryTree(filesCollection, dirpath);
+            std::vector<Path> filesCollection = fs->listAllFilesInDirectoryTree(dirpath);
             for(auto& file : filesCollection)
             {
                 totalDirectorySize += fs->fileSize(file);
@@ -213,8 +212,7 @@ namespace Plugin
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isDirectory(dirpath))
         {
-            std::vector<Path> filesCollection;
-            fs->listAllFilesInDirectoryTree(filesCollection, dirpath);
+            std::vector<Path> filesCollection = fs->listAllFilesInDirectoryTree(dirpath);
 
             for (const auto& path : filesCollection)
             {
@@ -235,19 +233,42 @@ namespace Plugin
     bool DiskManager::isJournalFileNewer(const std::string currentFile, const std::string newFile)
     {
         std::vector<std::string> currentFileParts = Common::UtilityImpl::StringUtils::splitString( Common::FileSystem::basename(currentFile),"-");
-        if (currentFileParts.size() != 4)
+        if (currentFileParts.size() != 5)
         {
             // this file name is malformed this should go to the top of the list
             return false;
         }
+
         std::vector<std::string> newFileParts = Common::UtilityImpl::StringUtils::splitString( Common::FileSystem::basename(newFile),"-");
-        if (newFileParts.size() != 4)
+        if (newFileParts.size() != 5)
         {
             // this file name is malformed this should go to the top of the list
             return true;
         }
-        int currentTime = std::stoi(currentFileParts[3]);
-        int newTime = std::stoi(currentFileParts[3]);
+        std::string cTime= currentFileParts[3];
+        uint64_t newTime;
+        uint64_t currentTime;
+        try
+        {
+            currentTime = std::stoul(cTime);
+        }
+        catch (std::exception& exception)
+        {
+            // this timestamp is malformed this should go to the top of the list
+            return false;
+        }
+
+        std::string nTime = currentFileParts[4].substr(0,currentFileParts[4].find_first_of("."));
+        try
+        {
+            newTime = std::stoul(nTime);
+        }
+        catch (std::exception& exception)
+        {
+            // this timestamp is malformed this should go to the top of the list
+            return false;
+        }
+
         if (currentTime > newTime)
         {
             return true;
