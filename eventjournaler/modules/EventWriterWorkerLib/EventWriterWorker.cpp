@@ -58,43 +58,19 @@ namespace EventWriterLib
         {
             while (m_shouldBeRunning)
             {
-                if (auto event = m_eventQueuePopper->getEvent(100))
+                // Inner while loop to ensure we drain the queue once m_shouldBeRunning is set to false.
+                while (std::optional<JournalerCommon::Event> event = m_eventQueuePopper->getEvent(100))
                 {
-                    // event.value().type
-                    // event.value().data
-
-
-                    // TODO Can this ever be more than 2?
-//                    if (event.value().size() == 2)
-//                    {
-
                     switch (event.value().type)
                     {
                         case JournalerCommon::EventType::THREAT_EVENT:
-                            std::string type = "TODO"; //JournalerCommon::EventTypeMap.at(event.value().type);
-                            std::string data = event.value().data;
-                            LOGINFO("type:" << type);
-                            LOGINFO("data:" << data);
-                            EventJournal::Detection detection{type, data};
-                            auto encodedDetection = EventJournal::encode(detection);
-                            m_eventJournalWriter->insert(EventJournal::Subject::Detections, encodedDetection);
+                        {
+                            writeEvent(event.value());
                             break;
-//                        default:
-//                            throw std::runtime_error("Unsupported event type");
+                        }
+                        default:
+                            throw std::runtime_error("Unsupported event type");
                     }
-
-
-
-//                    }
-//                    else
-//                    {ommon::ZeroMQWrapper::data_t
-//                        LOGWARN("oh no size not 2: " << event.value().size());
-//                    }
-
-//                    for (const auto& eventPart : event.value())
-//                    {
-
-//                    }
                 }
             }
         }
@@ -106,11 +82,20 @@ namespace EventWriterLib
         }
 
     }
-    //    EventWriter::EventWriter(const std::shared_ptr<IEventQueuePopper>& eventQueue) {}
 
-    //    std::optional<Common::ZeroMQWrapper::data_t> WriterLib::EventQueuePopper::getEvent(int timeoutInMilliseconds)
-//    {
-//        return m_eventQueue->pop(timeoutInMilliseconds);
-//    }
+    void EventWriterWorker::writeEvent(JournalerCommon::Event event)
+    {
+        std::string journalSubType = JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(event.type);
+        EventJournal::Detection detection{ journalSubType, event.data };
+        auto encodedDetection = EventJournal::encode(detection);
+        try
+        {
+            m_eventJournalWriter->insert(EventJournal::Subject::Detections, encodedDetection);
+        }
+        catch(const std::exception& ex)
+        {
+            LOGERROR("Failed to store " << journalSubType << " event in journal: " << ex.what());
+        }
+    }
 }
 

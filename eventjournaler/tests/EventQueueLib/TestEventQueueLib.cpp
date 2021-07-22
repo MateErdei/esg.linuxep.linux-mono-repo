@@ -20,12 +20,12 @@ using namespace EventQueueLib;
 
 namespace
 {
-    std::queue<Common::ZeroMQWrapper::data_t> createQueueOfSize(int queueSize)
+    std::queue<JournalerCommon::Event> createQueueOfSize(int queueSize)
     {
-        auto queue =  std::queue<Common::ZeroMQWrapper::data_t>{};
+        auto queue =  std::queue<JournalerCommon::Event>{};
         for (int i = 0; i < queueSize; i++)
         {
-            queue.push(Common::ZeroMQWrapper::data_t());
+            queue.push(JournalerCommon::Event{});
         }
         EXPECT_EQ(queue.size(), queueSize);
         return queue;
@@ -105,7 +105,7 @@ TEST_F(TestEventQueue, testEventQueueIsEmptyReturnsTrueWhenQueueIsEmpty) // NOLI
 TEST_F(TestEventQueue, testEventQueuePushReturnsTrueWhenPushingToQueueThatIsNotFull) // NOLINT
 {
     TestableEventQueue eventQueueWithMaxSize5(5);
-    auto data = Common::ZeroMQWrapper::data_t({"one", "two", "three"});
+    auto data = JournalerCommon::Event({JournalerCommon::EventType::THREAT_EVENT, "data"});
     EXPECT_TRUE(eventQueueWithMaxSize5.push(data));
     auto queue = eventQueueWithMaxSize5.getQueue();
     EXPECT_EQ(queue.size(), 1);
@@ -115,10 +115,10 @@ TEST_F(TestEventQueue, testEventQueuePushReturnsTrueWhenPushingToQueueThatIsNotF
 TEST_F(TestEventQueue, testEventQueuePushReturnsFalseWhenPushingToQueueThatIsFull) // NOLINT
 {
     TestableEventQueue eventQueueWithMaxSize2(2);
-    auto mockedQueue = std::queue<Common::ZeroMQWrapper::data_t>();
-    auto data1 = Common::ZeroMQWrapper::data_t({"one", "two", "three"});
-    auto data2 = Common::ZeroMQWrapper::data_t({"four", "five", "six"});
-    auto data3 = Common::ZeroMQWrapper::data_t({"seven", "eight", "nine"});
+    auto mockedQueue = std::queue<JournalerCommon::Event>();
+    auto data1 = JournalerCommon::Event({JournalerCommon::EventType::THREAT_EVENT, "data1"});
+    auto data2 = JournalerCommon::Event({JournalerCommon::EventType::THREAT_EVENT, "data2"});
+    auto data3 = JournalerCommon::Event({JournalerCommon::EventType::THREAT_EVENT, "data3"});
     mockedQueue.push(data1);
     mockedQueue.push(data2);
     eventQueueWithMaxSize2.setQueue(mockedQueue);

@@ -192,7 +192,7 @@ namespace SubscriberLib
     {
         if (data.size() == 2)
         {
-            auto type = JournalerCommon::EventTypeMap.at(data[0]);
+            auto type = JournalerCommon::PubSubSubjectToEventTypeMap.at(data[0]);
             JournalerCommon::Event event {type, data[1]};
             return event;
         }

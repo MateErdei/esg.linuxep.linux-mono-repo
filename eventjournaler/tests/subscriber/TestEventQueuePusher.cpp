@@ -20,7 +20,7 @@ TEST_F(TestEventQueuePusher, testPushPassesCorrectArguementsToItsPushMethod) // 
 {
     MockEventQueue* mockQueue = new StrictMock<MockEventQueue>();
     std::shared_ptr<IEventQueue> mockQueuePtr(mockQueue);
-    Common::ZeroMQWrapper::data_t testData = {"data", "for", "test"};
+    JournalerCommon::Event testData = {JournalerCommon::EventType::THREAT_EVENT, "testdata"};
     SubscriberLib::EventQueuePusher eventQueuePusher(mockQueuePtr);
 
     EXPECT_CALL(*mockQueue, push(testData)).Times(1);
@@ -31,7 +31,7 @@ TEST_F(TestEventQueuePusher, testDroppedEventsTriggerTelemetryIncrement) // NOLI
 {
     MockEventQueue* mockQueue = new StrictMock<MockEventQueue>();
     std::shared_ptr<IEventQueue> mockQueuePtr(mockQueue);
-    Common::ZeroMQWrapper::data_t testData = {"data", "for", "test"};
+    JournalerCommon::Event testData = {JournalerCommon::EventType::THREAT_EVENT, "testdata"};
     SubscriberLib::EventQueuePusher eventQueuePusher(mockQueuePtr);
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 

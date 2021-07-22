@@ -47,6 +47,7 @@ namespace EventWriterLib
         std::atomic<bool> m_isRunning = false;
         std::unique_ptr<std::thread> m_runnerThread;
 
+        void writeEvent(JournalerCommon::Event event);
         void run();
     };
 }
