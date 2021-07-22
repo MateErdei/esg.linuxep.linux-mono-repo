@@ -178,37 +178,35 @@ namespace Plugin
 
     }
 
-    void DiskManager::deleteOldJournalFiles(const std::string dirpath, uint64_t lowerLimit)
+    void DiskManager::deleteOldJournalFiles(const std::string dirpath, uint64_t dataDeletionSize)
     {
-        std::list<std::string> files = getSortedListOFCompressedJournalFiles(dirpath);
+        std::list<SubjectFileInfo> files = getSortedListOFCompressedJournalFiles(dirpath);
         auto fs = Common::FileSystem::fileSystem();
-        bool deletedAllfiles = true;
+        uint64_t sizeOfDeletedFiles =0;
+        std::vector<std::string> filesToDelete;
         for (const auto& file: files)
         {
-            try
+            sizeOfDeletedFiles += file.size;
+            filesToDelete.push_back(file.filepath);
+            if (sizeOfDeletedFiles > dataDeletionSize)
             {
-                fs->removeFile(file);
-            }
-            catch (Common::FileSystem::IFileSystemException& exception)
-            {
-                LOGERROR("Failed to delete old jorunale file "<< file << " due to error: "<< exception.what());
-            }
-            if (getDirectorySize(dirpath) < lowerLimit)
-            {
-                //we are now below the limit we can stop deleting files
-                deletedAllfiles = false;
                 break;
             }
+
         }
-        if (deletedAllfiles)
+        for (const auto& file: filesToDelete)
+        {
+            fs->removeFile(file);
+        }
+        if (filesToDelete.size() == files.size())
         {
             LOGERROR("We have deleted all compressed files in directory: "<< dirpath << "but the data in that directory is still above the limit");
         }
     }
 
-    std::list<std::string> DiskManager::getSortedListOFCompressedJournalFiles(const std::string dirpath)
+    std::list<DiskManager::SubjectFileInfo> DiskManager::getSortedListOFCompressedJournalFiles(const std::string dirpath)
     {
-        std::list<std::string> list;
+        std::list<SubjectFileInfo> list;
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isDirectory(dirpath))
         {
@@ -218,7 +216,30 @@ namespace Plugin
             {
                 if (Common::UtilityImpl::StringUtils::endswith(path,".xz"))
                 {
-                    list.push_back(path);
+                    SubjectFileInfo info;
+                    info.filepath = path;
+                    info.size = fs->fileSize(path);
+                    std::vector<std::string> fileNameParts = Common::UtilityImpl::StringUtils::splitString( Common::FileSystem::basename(path),"-");
+                    if (fileNameParts.size() != 5)
+                    {
+                        // this file name is malformed this should go to the top of the list
+                        info.fileId = 0;
+                    }
+                    else
+                    {
+                        std::string cTime= fileNameParts[3];
+
+                        try
+                        {
+                            info.fileId = std::stoul(cTime);
+                        }
+                        catch (std::exception& exception)
+                        {
+                            // this timestamp is malformed this should go to the top of the list
+                            info.fileId = 0;
+                        }
+                    }
+                    list.push_back(info);
                 }
             }
             list.sort(isJournalFileNewer);
@@ -230,46 +251,13 @@ namespace Plugin
         return list;
     }
 
-    bool DiskManager::isJournalFileNewer(const std::string currentFile, const std::string newFile)
+    bool DiskManager::isJournalFileNewer(const SubjectFileInfo& currentInfo,const SubjectFileInfo& newInfo)
     {
-        std::vector<std::string> currentFileParts = Common::UtilityImpl::StringUtils::splitString( Common::FileSystem::basename(currentFile),"-");
-        if (currentFileParts.size() != 5)
+        if (currentInfo.fileId == 0)
         {
-            // this file name is malformed this should go to the top of the list
             return false;
         }
-
-        std::vector<std::string> newFileParts = Common::UtilityImpl::StringUtils::splitString( Common::FileSystem::basename(newFile),"-");
-        if (newFileParts.size() != 5)
-        {
-            // this file name is malformed this should go to the top of the list
-            return true;
-        }
-        std::string cTime= currentFileParts[3];
-        uint64_t newTime;
-        uint64_t currentTime;
-        try
-        {
-            currentTime = std::stoul(cTime);
-        }
-        catch (std::exception& exception)
-        {
-            // this timestamp is malformed this should go to the top of the list
-            return false;
-        }
-
-        std::string nTime = currentFileParts[4].substr(0,currentFileParts[4].find_first_of("."));
-        try
-        {
-            newTime = std::stoul(nTime);
-        }
-        catch (std::exception& exception)
-        {
-            // this timestamp is malformed this should go to the top of the list
-            return false;
-        }
-
-        if (currentTime > newTime)
+        if (currentInfo.fileId > newInfo.fileId)
         {
             return true;
         }

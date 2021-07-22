@@ -35,5 +35,6 @@ namespace Plugin
         int QUEUE_TIMEOUT = 5; // Seconds
 
         void processPolicy(const std::string& policyXml);
+
     };
 } // namespace Plugin

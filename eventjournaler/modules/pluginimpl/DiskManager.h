@@ -15,7 +15,14 @@ namespace Plugin
 
     class DiskManager
     {
+
     public:
+        struct SubjectFileInfo
+        {
+            std::string filepath;
+            u_int64_t fileId;
+            u_int64_t size;
+        };
         /**
         * compresses given file using xz format
         * @param filepath, file to be compressed
@@ -23,11 +30,11 @@ namespace Plugin
         void compressFile(const std::string filepath);
         uint64_t getDirectorySize(const std::string dirpath);
         void deleteOldJournalFiles(const std::string dirpath,uint64_t limit);
-        std::list<std::string> getSortedListOFCompressedJournalFiles(const std::string dirpath);
+        std::list<SubjectFileInfo> getSortedListOFCompressedJournalFiles(const std::string dirpath);
     private:
         bool init_encoder(lzma_stream *strm, uint32_t preset);
         bool compress(lzma_stream *strm, FILE *infile, FILE *outfile);
-        static bool isJournalFileNewer(const std::string currentFile, const std::string newFile);
+        static bool isJournalFileNewer(const SubjectFileInfo& currentInfo,const SubjectFileInfo& newInfo);
 
 
     };
