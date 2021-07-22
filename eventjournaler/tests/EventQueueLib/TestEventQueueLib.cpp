@@ -110,25 +110,25 @@ TEST_F(TestEventQueue, testEventQueuePushReturnsTrueWhenPushingToQueueThatIsNotF
     EXPECT_TRUE(eventQueueWithMaxSize5.push(data));
     auto queue = eventQueueWithMaxSize5.getQueue();
     EXPECT_EQ(queue.size(), 1);
-    EXPECT_EQ(queue.front(), data);
+    EXPECT_EQ(queue.front().data, data.data);
 }
 
 TEST_F(TestEventQueue, testEventQueuePushReturnsFalseWhenPushingToQueueThatIsFull) // NOLINT
 {
     TestableEventQueue eventQueueWithMaxSize2(2);
     auto mockedQueue = std::queue<JournalerCommon::Event>();
-    auto data1 = JournalerCommon::Event({"one", "two", "three"});
-    auto data2 = JournalerCommon::Event({"four", "five", "six"});
-    auto data3 = JournalerCommon::Event({"seven", "eight", "nine"});
+    JournalerCommon::Event data1 {JournalerCommon::EventType::THREAT_EVENT, "fake data one"};
+    JournalerCommon::Event data2 {JournalerCommon::EventType::THREAT_EVENT, "fake data two"};
+    JournalerCommon::Event data3 {JournalerCommon::EventType::THREAT_EVENT, "fake data three"};
     mockedQueue.push(data1);
     mockedQueue.push(data2);
     eventQueueWithMaxSize2.setQueue(mockedQueue);
 
     EXPECT_FALSE(eventQueueWithMaxSize2.push(data3));
     auto queue = eventQueueWithMaxSize2.getQueue();
-    EXPECT_EQ(mockedQueue, queue);
-    EXPECT_EQ(queue.front(), data1);
-    EXPECT_EQ(queue.back(), data2);
+    EXPECT_NE(&mockedQueue, &queue);
+    EXPECT_EQ(queue.front().data, data1.data);
+    EXPECT_EQ(queue.back().data, data2.data);
 }
 
 TEST_F(TestEventQueue, testEventQueuePopBlocksForTimeoutBeforeReturningEmptyOptionalWhenNoDataToPop) // NOLINT
@@ -149,9 +149,9 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksForTimeoutBeforeReturningEmptyOpti
 TEST_F(TestEventQueue, testEventQueuePopReturnsValueImmediatelyWhenThereIsDataToPop) // NOLINT
 {
     TestableEventQueue eventQueueWithMaxSize2(2);
-    auto mockedQueue = std::queue<Common::ZeroMQWrapper::data_t>();
-    auto expectedData1 = Common::ZeroMQWrapper::data_t({"one", "two", "three"});
-    auto expectedData2 = Common::ZeroMQWrapper::data_t({"four", "five", "six"});
+    auto mockedQueue = std::queue<JournalerCommon::Event>();
+    JournalerCommon::Event expectedData1 {JournalerCommon::EventType::THREAT_EVENT, "fake data one"};
+    JournalerCommon::Event expectedData2 {JournalerCommon::EventType::THREAT_EVENT, "fake data two"};
     mockedQueue.push(expectedData1);
     mockedQueue.push(expectedData2);
     eventQueueWithMaxSize2.setQueue(mockedQueue);
@@ -165,8 +165,8 @@ TEST_F(TestEventQueue, testEventQueuePopReturnsValueImmediatelyWhenThereIsDataTo
     std::optional<JournalerCommon::Event> data2 = eventQueueWithMaxSize2.pop(1000);
     std::chrono::milliseconds after2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
-    EXPECT_EQ(data1, expectedData1);
-    EXPECT_EQ(data2, expectedData2);
+    EXPECT_EQ(data1->data, expectedData1.data);
+    EXPECT_EQ(data2->data, expectedData2.data);
     EXPECT_NEAR(after1.count() - before1.count(), 0, 10);
     EXPECT_NEAR(after2.count() - before2.count(), 0, 10);
 }
@@ -174,10 +174,8 @@ TEST_F(TestEventQueue, testEventQueuePopReturnsValueImmediatelyWhenThereIsDataTo
 TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndReturningValueWhenDataIsPushed) // NOLINT
 {
     TestableEventQueue eventQueueWithMaxSize2(2);
-    auto expectedData = JournalerCommon::Event({"one", "two", "three"});
+    JournalerCommon::Event expectedData {JournalerCommon::EventType::THREAT_EVENT, "fake data"};
 
-    auto x = std::cv_status::timeout;
-    (void)x;
     auto blockWhileWaitingForData = std::async(std::launch::async,
             [&eventQueueWithMaxSize2, &expectedData]
         {
@@ -185,7 +183,7 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndRe
             std::optional<JournalerCommon::Event> data = eventQueueWithMaxSize2.pop(1000);
             std::chrono::milliseconds after = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
             EXPECT_TRUE(data.has_value());
-            EXPECT_EQ(data.value(), expectedData);
+            EXPECT_EQ(data->data, expectedData.data);
             return after.count() - before.count();
         });
 
@@ -203,15 +201,15 @@ TEST_F(TestEventQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped) // 
     SubscriberLib::IEventHandler* pusher = new SubscriberLib::EventQueuePusher(eventQueuePtr);
     EventWriterLib::IEventQueuePopper* popper = new EventWriterLib::EventQueuePopper(eventQueuePtr);
 
-    auto data1 = Common::ZeroMQWrapper::data_t({"one", "two", "three"});
-    auto data2 = Common::ZeroMQWrapper::data_t({"four", "five", "six"});
-    auto data3 = Common::ZeroMQWrapper::data_t({"seven", "eight", "nine"});
+    JournalerCommon::Event data1 {JournalerCommon::EventType::THREAT_EVENT, "fake data one"};
+    JournalerCommon::Event data2 {JournalerCommon::EventType::THREAT_EVENT, "fake data two"};
+    JournalerCommon::Event data3 {JournalerCommon::EventType::THREAT_EVENT, "fake data three"};
 
     pusher->handleEvent(data1);
     pusher->handleEvent(data2);
     pusher->handleEvent(data3);
 
-    ASSERT_EQ(data1, popper->getEvent(10));
-    ASSERT_EQ(data2, popper->getEvent(10));
-    ASSERT_EQ(data3, popper->getEvent(10));
+    ASSERT_EQ(data1.data, popper->getEvent(10)->data);
+    ASSERT_EQ(data2.data, popper->getEvent(10)->data);
+    ASSERT_EQ(data3.data, popper->getEvent(10)->data);
 }
