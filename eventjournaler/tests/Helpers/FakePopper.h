@@ -9,21 +9,16 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <optional>
 #include <mutex>
 #include <condition_variable>
-#include "modules/WriterLib/IEventQueuePopper.h"
+#include "modules/EventWriterWorkerLib/IEventQueuePopper.h"
 
-using namespace WriterLib;
+using namespace EventWriterLib;
 
-class FakePopper : public WriterLib::IEventQueuePopper
+class FakePopper : public EventWriterLib::IEventQueuePopper
 {
 public:
-    FakePopper(Common::ZeroMQWrapper::data_t fakeData, int amountOfData = 1);
-    std::optional<Common::ZeroMQWrapper::data_t> getEvent(int timeoutInMilliseconds) override;
-    void setBlock(bool block);
-    bool queueEmpty();
+    FakePopper(JournalerCommon::Event fakeData, int amountOfData = 1);
+    std::optional<JournalerCommon::Event> getEvent(int timeoutInMilliseconds) override;
 
 private:
-    std::vector<Common::ZeroMQWrapper::data_t> fake_eventQueue;
-    bool m_block;
-    std::mutex m_mutex;
-    std::condition_variable m_cond;
+    std::vector<JournalerCommon::Event> fake_eventQueue;
 };

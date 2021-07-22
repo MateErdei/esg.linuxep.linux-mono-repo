@@ -7,16 +7,16 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-//#include "modules/WriterLib/Writer.h"
+#include "modules/EventJournal/IEventJournalWriter.h"
 
 #include <gmock/gmock.h>
 
 using namespace ::testing;
-using namespace WriterLib;
+using namespace EventJournal;
 
-class MockJournalWriter // : public WriterLib::IWriter
+class MockJournalWriter : public EventJournal::IEventJournalWriter
 {
 public:
-    MockEventQueuePusher() = default;
-    MOCK_METHOD1(write, void(Common::ZeroMQWrapper::data_t));
+    MockJournalWriter() = default;
+    MOCK_METHOD2(insert, void(Subject, const std::vector<uint8_t>&));
 };
