@@ -18,5 +18,5 @@ class MockEventQueuePusher : public SubscriberLib::IEventHandler
 {
 public:
     MockEventQueuePusher() = default;
-    MOCK_METHOD1(handleEvent, void(Common::ZeroMQWrapper::data_t)) Event;
+    MOCK_METHOD1(handleEvent, void(JournalerCommon::Event));
 };

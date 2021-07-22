@@ -22,6 +22,11 @@ namespace JournalerCommon
     {
         EventType type;
         std::string data;
+
+        bool operator==(const Event& other) const
+        {
+            return type == other.type && data == other.data;
+        }
     };
 
 } // namespace JournalerCommon

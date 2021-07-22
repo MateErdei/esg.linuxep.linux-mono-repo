@@ -95,7 +95,7 @@ TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod) // NOLINT
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventQueuePusher> mockPusherPtr(mockPusher);
+    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
     SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), 123);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
@@ -261,11 +261,13 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(1);
 
-    std::vector<std::string> mockSocketValues = {"one", "two", "three", "four", "five"};
+//    std::vector<std::string> mockSocketValues = {"type", "data"};
+    std::vector<std::vector<std::string>> mockSocketValues = {{"threatEvents", "data1"}, {"threatEvents", "data2"}};
     auto sleepAndReturnData = [&mockSocketValues](){
         sleep(1);
+        auto fakeEventData = mockSocketValues.back();
         mockSocketValues.pop_back();
-        return mockSocketValues;
+        return fakeEventData;
     };
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(sleepAndReturnData));
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
@@ -292,10 +294,13 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
             .WillOnce(Return(false)) // Next time around the read loop we fake the socket being missing here
             .WillOnce(Return(false)); // stop() call in destructor
 
-    EXPECT_CALL(*mockPusher, push(Common::ZeroMQWrapper::data_t({"one", "two", "three", "four"}))).Times(1);
-    EXPECT_CALL(*mockPusher, push(Common::ZeroMQWrapper::data_t({"one", "two", "three"}))).Times(1);
-    EXPECT_CALL(*mockPusher, push(Common::ZeroMQWrapper::data_t({"one", "two"}))).Times(1);
-    EXPECT_CALL(*mockPusher, push(Common::ZeroMQWrapper::data_t({"one"}))).Times(1);
+    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "one"})).Times(1);
+    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "two"})).Times(1);
+    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "three"})).Times(1);
+    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "four"})).Times(1);
+//    EXPECT_CALL(*mockPusher, push(Common::ZeroMQWrapper::data_t({"one", "two", "three"}))).Times(1);
+//    EXPECT_CALL(*mockPusher, push(Common::ZeroMQWrapper::data_t({"one", "two"}))).Times(1);
+//    EXPECT_CALL(*mockPusher, push(Common::ZeroMQWrapper::data_t({"one"}))).Times(1);
 
     EXPECT_FALSE(subscriber.getRunningStatus());
     subscriber.start();
