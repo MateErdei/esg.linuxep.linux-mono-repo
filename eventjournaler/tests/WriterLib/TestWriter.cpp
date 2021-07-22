@@ -10,17 +10,22 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <modules/EventWriterWorkerLib/EventWriterWorker.h>
 #include <modules/EventJournal/EventJournalWriter.h>
 
-class TestWriter : public LogOffInitializedTests{};
+class TestWriter : public LogOffInitializedTests {
+};
 
 using namespace EventWriterLib;
 
 TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop) // NOLINT
 {
     JournalerCommon::Event fakeData = {JournalerCommon::EventType::THREAT_EVENT, "test data"};
-    std::vector<uint8_t> encodedFakeData = EventJournal::encode(EventJournal::Detection {"TODO", fakeData.data});
+
+    std::vector<uint8_t> encodedFakeData = EventJournal::encode(
+            EventJournal::Detection{
+                    JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(JournalerCommon::EventType::THREAT_EVENT),
+                    fakeData.data});
     std::unique_ptr<EventWriterLib::IEventQueuePopper> fakePopperPtr(new FakePopper(fakeData, 10));
 
-    MockJournalWriter*  mockJournalWriter = new StrictMock<MockJournalWriter>();
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
 
     EventWriterLib::EventWriterWorker writer(std::move(fakePopperPtr), std::move(mockJournalWriterPtr));
