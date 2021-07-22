@@ -107,6 +107,7 @@ class HttpsServer(object):
 
     def stop_https_server(self):
         if self.httpd:
+            self.httpd.server_close()
             self.httpd.shutdown()
         if self.thread:
             self.thread.join()
