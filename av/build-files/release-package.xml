@@ -11,7 +11,7 @@
             -->
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/Version_1_1_7" build-id="20210610140056-ccaccf5ca332ee7f7f08d76126e7c43316bec4cb-EvsxmZ" />
-            <development-version branch="feature/LINUXDAR-3136-manage-journal-on-disk"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
