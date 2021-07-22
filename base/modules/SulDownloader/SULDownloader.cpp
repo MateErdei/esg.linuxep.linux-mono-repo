@@ -394,7 +394,7 @@ namespace SulDownloader
 
         for (auto& product : products)
         {
-            if (product.productHasChanged() || product.forceProductReinstall())
+            if ( (product.productHasChanged() || product.forceProductReinstall()) && !product.getProductIsBeingUninstalled())
             {
                 product.install(configurationData.getInstallArguments());
             }
