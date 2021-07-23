@@ -264,7 +264,6 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
 
     Check Current Release Installed Correctly
@@ -301,6 +300,8 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -310,14 +311,11 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
 
     Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    #TODO LINUXDAR-2881 remove sleep when this defect is fixed in downgrade version- provide a time space if suldownloader is kicked off again by policy change.
-    Sleep  10
-    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs
-    ...  Check Log Contains String At Least N Times   ${SULDownloaderLog}  Update Log  Update success  1
+    ...  Check Log Contains String At Least N Times   /tmp/preserve-sul-downgrade  Downgrade Log  Update success  1
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
