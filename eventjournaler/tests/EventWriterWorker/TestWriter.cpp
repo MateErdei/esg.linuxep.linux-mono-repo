@@ -16,16 +16,6 @@ class TestWriter : public LogOffInitializedTests {
 
 using namespace EventWriterLib;
 
-// TODO
-// test list
-//------------
-// stop followed by stop
-// start followed by a start
-// restart
-// start, pop bad/malformed expect writer to stop (no throw) - DONE
-// To add to plugin adapter tests, copy this one: PluginAdapterRestartsSubscriberIfItStops -
-
-
 TEST_F(TestWriter, testWriterLogsWarningOnBadDataAndThenContinues) // NOLINT
 {
     JournalerCommon::Event goodData = {JournalerCommon::EventType::THREAT_EVENT, "good data"};

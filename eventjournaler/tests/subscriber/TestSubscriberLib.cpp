@@ -21,7 +21,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 class TestSubscriber : public LogOffInitializedTests{};
 class TestSubscriberWithLog : public LogInitializedTests{};
 
-
 TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasntStarted) // NOLINT
 {
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
@@ -57,12 +56,12 @@ TEST_F(TestSubscriber, SubscriberStartAndStop) // NOLINT
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
     std::atomic<bool> readHasBeenCalled = false;
-    // todo name
-    auto sleepAndReturnEmptyData = [&readHasBeenCalled](){
+
+    auto countReadsAndReturnSimpleEvent = [&readHasBeenCalled](){
       readHasBeenCalled = true;
       return std::vector<std::string>{"threatEvents", "data"};
     };
-    EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(sleepAndReturnEmptyData));
+    EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(countReadsAndReturnSimpleEvent));
 
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
     std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);

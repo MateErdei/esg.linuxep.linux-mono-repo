@@ -24,9 +24,9 @@ namespace JournalerCommon
         EventType type;
         std::string data;
 
-        bool operator==(const Event& other) const
+        bool operator==(const Event& rhs) const
         {
-            return type == other.type && data == other.data;
+            return type == rhs.type && data == rhs.data;
         }
     };
 

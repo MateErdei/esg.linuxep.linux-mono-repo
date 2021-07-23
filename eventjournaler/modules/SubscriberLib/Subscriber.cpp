@@ -81,8 +81,7 @@ namespace SubscriberLib
                     }
                     else
                     {
-                        // todo improve message
-                        LOGERROR("ZMQ Data arriving from pub sub did not contain the expected 2 minimum components");
+                        LOGERROR("ZMQ data arriving from pub sub could not be converted to Event");
                     }
                 }
                 else
