@@ -21,7 +21,8 @@ Mark File
     [Arguments]  ${path}
     ${content} =  Get File   ${path}
     Log  ${content}
-    [Return]  ${content.split("\n").__len__()}
+    ${mark} =  Evaluate  ${content.split("\n").__len__()} - 1
+    [Return]  ${mark}
 
 Marked File Contains
     [Arguments]  ${path}  ${input}  ${mark}
