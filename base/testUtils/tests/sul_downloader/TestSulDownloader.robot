@@ -688,6 +688,27 @@ Test Product Uninstalls If Not In Warehouse
     Should Match Regexp     ${log_contents}    INFO \\[\\d+\\] suldownloader <> Downloaded products: ServerProtectionLinux-Base
     Should Not Match Regexp     ${log_contents}    WARN \\[\\d+\\] suldownloader <> Downloaded products: ServerProtectionLinux-Base
 
+Component Being Uninstalled Should Not Be Force Reinstalled When Base Is Downgraded
+    ${UninstallMessage} =   Set Variable   UNINSTALLER EXECUTED
+    Create Uninstall File   0    ${UninstallMessage}   SSPL-RIGIDNAME-2
+    Run Process    chmod +x ${InstallProductsDir}/SSPL-RIGIDNAME-2.sh     shell=True
+
+    ${result} =  Perform Install   0  INSTALLER EXECUTED  ${tmpdir}/update_report.json  DowngradeBase=${True}
+
+    Log    "stdout = ${result.stdout}"
+    Log    "stderr = ${result.stderr}"
+    Log File  ${tmpdir}/update_report.json
+    ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
+    Should Contain  ${log_contents}  Preparing ServerProtectionLinux-Base for downgrade
+
+    Error Codes Match   ${result.rc}    ${SUCCESS}
+
+    ${output} =    Get File    ${tmpdir}/update_report.json
+    Should Contain    ${output}    SUCCESS
+    Should Contain    ${output}    UNINSTALLED
+    Should Contain    ${output}    UPGRADED
+    Should Contain    ${log_contents}    ${UninstallMessage}
+    Should Contain    ${log_contents}    INSTALLER EXECUTED
 
 Test Product Fails Uninstall If Execution Fails To Run
     ${UninstallMessage} =   Set Variable   UNINSTALLER EXECUTED
@@ -1988,6 +2009,7 @@ Create SulDownloader Config
 Perform Install
     [Arguments]  ${ExitCode}  ${Message}   ${OutputJsonFile}=${tmpdir}/update_report.json
     ...          ${ConfigRigidname}=${BASE_RIGID_NAME}   ${WarehouseRigidName}=${BASE_RIGID_NAME}
+    ...          ${DowngradeBase}=${False}
     Remove File  ${tmpdir}/sspl/logs/base/suldownloader.log
     Create Install File   ${ExitCode}   ${Message}  ${tmpdir}/TestInstallFiles/${ConfigRigidname}
     create directory   ${tmpdir}/sspl/var/
@@ -1997,6 +2019,10 @@ Perform Install
     Log  ${WarehouseRigidName}
 
     Create Warehouse for tmp product  ${ConfigRigidname}  ${WarehouseRigidName}
+#    log to console   goooo
+#    sleep  300
+    Run Keyword If  ${DowngradeBase}   Copy File  ${SOPHOS_INSTALL}/base/VERSION.ini  ${SOPHOS_INSTALL}/tmp/SDT/sspl/base/VERSION.ini
+
 
     Start Warehouse servers  ${WarehouseRigidName}
 
