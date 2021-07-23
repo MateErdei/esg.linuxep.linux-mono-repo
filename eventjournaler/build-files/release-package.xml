@@ -16,6 +16,7 @@
             <release-version branch="release/LINUXDAR-3116-journal-library" build-id="20210709113429-ef2082531af8d53ced225286ab8c6259ce538fb7-MOSomo" />
             <development-version branch="feature/LINUXDAR-3116-build-journal-library-for-linux"/>
             <include artifact-path="sed-libs-linux/JournalLib" dest-dir="input"/>
+            <include artifact-path="sed-libs-linux/JournalReader" dest-dir="input"/>
         </build-asset>
 
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
@@ -33,11 +34,6 @@
         <package name="xzutilslinux" version="5-2-4-25/222750/output" dest="input">
             <include src="xzutils.tar" dest="."/>
         </package>
-        <build-asset project="winep" repo="sed">
-            <release-version branch="release/LINUXDAR-3116-journal-library" build-id="20210709113429-ef2082531af8d53ced225286ab8c6259ce538fb7-MOSomo" />
-            <development-version branch="feature/LINUXDAR-3116-build-journal-library-for-linux"/>
-            <include artifact-path="sed-libs-linux/JournalReader" dest-dir="input"/>
-        </build-asset>
     </inputs>
     <buildcommands>
         <command mode="release">
