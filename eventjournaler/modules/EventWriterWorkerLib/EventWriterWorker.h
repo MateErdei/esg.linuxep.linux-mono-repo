@@ -16,25 +16,14 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <optional>
 #include <thread>
 
-// namespace WriterLib
-//{
-//    class EventQueuePopper : public IEventQueuePopper
-//    {
-//    public:
-//        EventQueuePopper(const std::shared_ptr<EventQueueLib::IEventQueue>& eventQueue);
-//        std::optional<Common::ZeroMQWrapper::data_t> getEvent(int timeoutInMilliseconds) override;
-//
-//    private:
-//        std::shared_ptr<EventQueueLib::IEventQueue> m_eventQueue;
-//    };
-//}
-
 namespace EventWriterLib
 {
     class EventWriterWorker : public IEventWriterWorker
     {
     public:
-        explicit EventWriterWorker(std::unique_ptr<IEventQueuePopper> eventQueuePopper,  std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter);
+        explicit EventWriterWorker(
+            std::unique_ptr<IEventQueuePopper> eventQueuePopper,
+            std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter);
         ~EventWriterWorker();
         void stop() override;
         void start() override;
@@ -51,4 +40,4 @@ namespace EventWriterLib
         void writeEvent(JournalerCommon::Event event);
         void run();
     };
-}
+} // namespace EventWriterLib

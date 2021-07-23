@@ -157,8 +157,6 @@ TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitThrows) // NOLINT
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
     EXPECT_CALL(*mockFileSystem, exists(directory)).WillOnce(Return(true));
-//    EXPECT_CALL(*mockFileSystem, exists(Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER)))
-//        .WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, isDirectory(directory)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(directory)).WillOnce(Return(std::vector{ filename }));
     EXPECT_CALL(*mockFileSystem, fileSize(filename)).WillOnce(Return(99804296));

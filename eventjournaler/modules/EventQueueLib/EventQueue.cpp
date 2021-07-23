@@ -27,14 +27,6 @@ namespace EventQueueLib
 
     bool EventQueueLib::EventQueue::push(JournalerCommon::Event event)
     {
-//        // TODO LINUXDAR-3135: Remove this logging loop when reading from the queue is implemented and testable
-//        // Logging loop used for robot tests. Not desired for released product.
-//        int index = 0;
-//        for (const auto& messagePart : event)
-//        {
-//            LOGINFO(index++ << ": " << messagePart);
-//        }
-
         std::lock_guard<std::mutex> lock(m_pushMutex);
         if (isQueueFull())
         {

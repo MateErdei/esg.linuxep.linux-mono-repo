@@ -12,8 +12,11 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/ErrorCodes.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
-#include <modules/SubscriberLib/Subscriber.h>
+#include <EventJournal/EventJournalWriter.h>
+#include <EventWriterWorkerLib/EventQueuePopper.h>
+#include <EventWriterWorkerLib/EventWriterWorker.h>
 #include <modules/SubscriberLib/EventQueuePusher.h>
+#include <modules/SubscriberLib/Subscriber.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/PluginAdapter.h>
@@ -45,16 +48,14 @@ int main()
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
-    auto context = Common::ZMQWrapperApi::createContext();
+    std::shared_ptr<EventQueueLib::EventQueue> eventQueue(new EventQueueLib::EventQueue(MAX_QUEUE_SIZE));
+    std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue));
+    std::unique_ptr<SubscriberLib::ISubscriber> subscriber(new SubscriberLib::Subscriber(Plugin::getSubscriberSocketPath(), Common::ZMQWrapperApi::createContext(), std::move(eventQueuePusher)));
+    std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(new EventWriterLib::EventQueuePopper(eventQueue));
+    std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter (new EventJournal::Writer());
+    std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter(new EventWriterLib::EventWriterWorker(std::move(eventQueuePopper), std::move(eventJournalWriter)));
 
-    EventQueueLib::IEventQueue* eventQueue = new EventQueueLib::EventQueue(MAX_QUEUE_SIZE);
-    std::shared_ptr<EventQueueLib::IEventQueue> eventQueuePtr(eventQueue);
-    SubscriberLib::IEventQueuePusher* pusher = new SubscriberLib::EventQueuePusher(eventQueuePtr);
-    std::unique_ptr<SubscriberLib::IEventQueuePusher> pusherPtr(pusher);
-
-    std::unique_ptr<SubscriberLib::ISubscriber> subscriber =
-        std::make_unique<SubscriberLib::Subscriber>(Plugin::getSubscriberSocketPath(), context, std::move(pusherPtr));
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, std::move(subscriber));
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, std::move(subscriber), std::move(eventWriter));
 
     try
     {
