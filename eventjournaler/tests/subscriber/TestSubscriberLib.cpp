@@ -217,59 +217,6 @@ TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist) // NOLINT
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("The events pub/sub socket directory does not exist:"));
 }
 
-//TEST_F(TestSubscriberWithLog, SubscriberStopsIfSocketRemovedSoThatPluginAdapterKnowsToRestartIt) // NOLINT
-//{
-//    MockZmqContext*  context = new StrictMock<MockZmqContext>();
-//    std::string fakeSocketPath = "/fake/dir/for/socketPath";
-//    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
-//    MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
-//    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
-//    EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
-//    EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
-//    EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(1);
-//
-//    auto sleepAndReturnEmptyData = [](){
-//      sleep(1);
-//      return std::vector<std::string>{"threatEvents", "data"};
-//    };
-//    EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(sleepAndReturnEmptyData));
-//    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
-//    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
-//
-//    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), 123);
-//
-//    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-//    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-//    EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath))).WillOnce(Return(true));
-//
-//    EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath))
-//        .WillOnce(Return(false)) // initial check in start(), called by test
-//        .WillOnce(Return(true)) // The check before read, the first one we allow a read
-//        .WillOnce(Return(false)) // Next time around the read loop we fake the socket being missing here
-//        .WillOnce(Return(false)); // stop() call in destructor
-//
-//    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-//    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-//            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-//    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-//    EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1);
-//
-////    The subscriber socket has been unexpectedly removed.
-//
-//    EXPECT_FALSE(subscriber.getRunningStatus());
-//    subscriber.start();
-//    // Wait for thread to be started.
-//    sleep(2);
-//    // Wait for thread to end.
-//    while(subscriber.getRunningStatus())
-//    {
-//        usleep(1);
-//    }
-//    std::string errorMsg = testing::internal::GetCapturedStderr();
-//    EXPECT_THAT(errorMsg, ::testing::HasSubstr("The subscriber socket has been unexpectedly removed."));
-//    EXPECT_FALSE(subscriber.getRunningStatus());
-//}
-
 TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSocket) // NOLINT
 {
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
@@ -287,12 +234,12 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
         {"threatEvents", "data3"},
         {"threatEvents", "data4"}
     };
-    auto sleepAndReturnData = [&mockSocketValues](){
+    auto getNextEvent = [&mockSocketValues](){
         auto fakeEventData = mockSocketValues.back();
         mockSocketValues.pop_back();
         return fakeEventData;
     };
-    EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(sleepAndReturnData));
+    EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(getNextEvent));
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 

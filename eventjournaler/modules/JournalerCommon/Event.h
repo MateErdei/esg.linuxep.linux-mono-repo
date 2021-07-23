@@ -9,7 +9,8 @@ namespace JournalerCommon
 
     enum class EventType
     {
-        THREAT_EVENT
+        THREAT_EVENT,
+        UNKNOWN
     };
 
     // Journal JSON content has two fields, subType and data, currently subType is not used by anything.

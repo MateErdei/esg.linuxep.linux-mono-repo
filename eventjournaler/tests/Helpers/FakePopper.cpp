@@ -31,7 +31,7 @@ std::optional<JournalerCommon::Event> FakePopper::getEvent(int timeoutInMillisec
         return std::nullopt;
     }
 
-    JournalerCommon::Event result = fake_eventQueue.back();
+    JournalerCommon::Event result = std::move(fake_eventQueue.back());
     fake_eventQueue.pop_back();
     return result;
 }

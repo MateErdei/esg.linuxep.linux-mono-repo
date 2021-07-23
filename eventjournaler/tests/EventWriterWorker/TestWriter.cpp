@@ -24,37 +24,61 @@ using namespace EventWriterLib;
 // start then stop
 // restart
 // start, pop events, save to journal - THIS IS ALREADY COVERED BY testWriterFinishesWritingQueueContentsAfterReceivingStop
-// start, pop bad/malformed expect writer to stop (no throw)
-// To add to plugin adapter tests, copy this one: PluginAdapterRestartsSubscriberIfItStops
+// start, pop bad/malformed expect writer to stop (no throw) - DONE
+// To add to plugin adapter tests, copy this one: PluginAdapterRestartsSubscriberIfItStops -
 
 
 TEST_F(TestWriter, testWriterLogsWarningOnBadDataAndThenContinues) // NOLINT
 {
-    JournalerCommon::Event fakeData = {JournalerCommon::EventType::THREAT_EVENT, "test data"};
+    JournalerCommon::Event goodData = {JournalerCommon::EventType::THREAT_EVENT, "good data"};
+    JournalerCommon::Event badData = {JournalerCommon::EventType::UNKNOWN, "bad data"};
 
-    std::vector<uint8_t> encodedFakeData = EventJournal::encode(
+    std::vector<uint8_t> encodedGoodData = EventJournal::encode(
         EventJournal::Detection{
-            JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(JournalerCommon::EventType::THREAT_EVENT),
-            fakeData.data});
-    std::unique_ptr<EventWriterLib::IEventQueuePopper> fakePopperPtr(new FakePopper(fakeData, 10));
+            JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(goodData.type),
+            goodData.data});
 
     MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
 
-    EventWriterLib::EventWriterWorker writer(std::move(fakePopperPtr), std::move(mockJournalWriterPtr));
+    std::vector<JournalerCommon::Event> mockSocketValues = {goodData, badData, goodData};
+    auto getNextEvent = [&mockSocketValues](int timeout){
+        usleep(timeout);
+        if (mockSocketValues.empty())
+        {
+            return std::optional<JournalerCommon::Event>();
+        }
+        JournalerCommon::Event fakeEventData = mockSocketValues.back();
+        mockSocketValues.pop_back();
+        return std::optional<JournalerCommon::Event>(fakeEventData);
+    };
 
-    EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData)).Times(10);
+    MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
+    std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
+    EXPECT_CALL(*mockPopper, getEvent(_)).WillRepeatedly(Invoke(getNextEvent));
 
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+
+    std::atomic<int> getEventCallCount = 0;
+    auto setGetEventHasBeenCalledAndReturnVoid = [&getEventCallCount](Subject, const std::vector<uint8_t>&){
+        getEventCallCount++;
+    };
+
+    EXPECT_CALL(*mockPopper, getEvent(100)).WillRepeatedly(Invoke(getNextEvent));
+    EXPECT_CALL(*mockJournalWriter, insert(_,_)).WillRepeatedly(Invoke(setGetEventHasBeenCalledAndReturnVoid));
+
+    EXPECT_FALSE(writer.getRunningStatus());
     writer.start();
-    while(!writer.getRunningStatus())
+    while (getEventCallCount < 2)
     {
         usleep(1);
     }
+
+    EXPECT_TRUE(writer.getRunningStatus());
     writer.stop();
-
-    ASSERT_FALSE(writer.getRunningStatus());
+    EXPECT_FALSE(writer.getRunningStatus());
+    ASSERT_EQ(getEventCallCount,2);
 }
-
 
 TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop) // NOLINT
 {
@@ -100,15 +124,13 @@ TEST_F(TestWriter, WriterStartAndStop) // NOLINT
     EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
 
     std::atomic<bool> getEventHasBeenCalled = false;
-    // todo name
-    auto setGetEventHasBeenCalledAndReturnVoid = [&getEventHasBeenCalled](){
+    auto setGetEventHasBeenCalledAndReturnVoid = [&getEventHasBeenCalled](Subject, const std::vector<uint8_t>&){
       getEventHasBeenCalled = true;
     };
 
-    EXPECT_CALL(*mockPopper, getEvent(100)).WillRepeatedly(Return(std::nullopt));
+    EXPECT_CALL(*mockPopper, getEvent(100)).WillOnce(Return(fakeData)).WillRepeatedly(Return(std::nullopt));
     EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData))
-    .WillOnce(Invoke(setGetEventHasBeenCalledAndReturnVoid))
-    .WillRepeatedly(Return(std::nullopt));
+        .WillRepeatedly(Invoke(setGetEventHasBeenCalledAndReturnVoid));
 
     EXPECT_FALSE(writer.getRunningStatus());
     writer.start();
