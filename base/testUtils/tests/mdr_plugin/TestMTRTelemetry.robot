@@ -146,6 +146,7 @@ MTR Plugin Counts SophosMTR Restarts Correctly And Reports In Telemetry
     Kill SophosMTR Executable
     Wait Until SophosMTR Executable Running  20
 
+    Cleanup Telemetry Server
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
