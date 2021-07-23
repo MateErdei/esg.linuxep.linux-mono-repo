@@ -136,18 +136,32 @@ namespace Plugin
 
         // Initialize the encoder. If it succeeds, compress from
         // stdin to stdout. the shoudl be file handles fro the file to compressed and the output file
+        if (!Common::FileSystem::fileSystem()->isFile(filepath))
+        {
+                LOGWARN("File does not exist, " << filepath );
+                return;
+        }
+
         FILE *myfile = fopen (filepath.c_str() , "r");
+        if (myfile == nullptr)
+        {
+            LOGWARN("Failed to open file, " << filepath );
+            return;
+        }
         std::string destPath = filepath.substr(0,filepath.find_first_of(".")) + ".xz";
 
         FILE *output = fopen (destPath.c_str() , "wb");
-
+        if (output == nullptr)
+        {
+            LOGWARN("Failed to create file, " << destPath );
+            return;
+        }
 
         bool success = init_encoder(&strm, 7);
         if (success)
         {
             compress(&strm, myfile, output);
         }
-
 
         // Free the memory allocated for the encoder. If we were encoding
 

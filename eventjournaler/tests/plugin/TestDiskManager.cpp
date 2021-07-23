@@ -20,7 +20,7 @@ class DiskManagerTest : public LogInitializedTests
 
 };
 
-TEST_F(DiskManagerTest, compress)
+TEST_F(DiskManagerTest, compressFileDoesNotThrowWhenFileDoesNotExist )
 {
     Plugin::DiskManager disk;
     EXPECT_NO_THROW(disk.compressFile("/tmp/myfile.txt"));

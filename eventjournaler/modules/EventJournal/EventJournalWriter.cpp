@@ -192,12 +192,11 @@ namespace EventJournal
         std::string firstTimestamp = list[2].substr(0,list[2].find_first_of("."));
 
         std::ostringstream oss;
-        oss << std::hex << std::setfill('0') << std::setw(16) << readHighestUniqueID(filepath);
+        uint64_t lastUniqueId = 0;
+        int64_t lasttimestamp= 0;
+        readLasttUniqueIDAndTimestamp(filepath, lastUniqueId, lasttimestamp);
+        oss << std::hex << std::setfill('0') << std::setw(16) << lastUniqueId;
         std::string lastOss = oss.str();
-
-        time_t now = time(NULL);
-        int64_t lasttimestamp = Common::UtilityImpl::TimeUtils::EpochToWindowsFileTime(now);
-
 
         std::string filename = subject + "-" + firstOss + "-" + lastOss+ "-" + firstTimestamp+ "-" +std::to_string(lasttimestamp) + ".bin";
         return Common::FileSystem::join(Common::FileSystem::dirName(filepath),filename);
@@ -218,11 +217,14 @@ namespace EventJournal
                 {
                     if (isSubjectFile(Common::FileSystem::basename(subject), Common::FileSystem::basename(file)))
                     {
-                        uint64_t id = readHighestUniqueID(file);
-
-                        if (id > uniqueID)
+                        int64_t timestamp =0;
+                        uint64_t id = 0;
+                        if (readLasttUniqueIDAndTimestamp(file, id, timestamp))
                         {
-                            uniqueID = id;
+                            if (id > uniqueID)
+                            {
+                                uniqueID = id;
+                            }
                         }
                     }
                 }
@@ -232,7 +234,7 @@ namespace EventJournal
         return uniqueID;
     }
 
-    uint64_t Writer::readHighestUniqueID(const std::string& file) const
+    bool Writer::readLasttUniqueIDAndTimestamp(const std::string& file, uint64_t& lastUniqueId, int64_t& lastTimestamp) const
     {
         std::vector<uint8_t> buffer(32);
 
@@ -246,7 +248,7 @@ namespace EventJournal
         if (bytesRemaining < (RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH))
         {
             LOGWARN("File " << Common::FileSystem::basename(file) << " not valid");
-            return 0;
+            return false;
         }
 
         f.read(reinterpret_cast<char*>(&buffer[0]), RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH);
@@ -259,7 +261,7 @@ namespace EventJournal
         if (fcc != FCC_TYPE_RIFF)
         {
             LOGWARN("File " << Common::FileSystem::basename(file) << " unexpected RIFF type 0x" << std::hex << fcc);
-            return 0;
+            return false;
         }
 
         if (length != (fileSize - RIFF_HEADER_LENGTH))
@@ -267,7 +269,7 @@ namespace EventJournal
             LOGWARN(
                 "File " << Common::FileSystem::basename(file) << " invalid RIFF length " << length << " (file size "
                         << fileSize << ")");
-            return 0;
+            return false;
         }
 
         uint32_t sjrn_length = 0;
@@ -277,7 +279,7 @@ namespace EventJournal
         if (bytesRemaining < sjrn_length)
         {
             LOGWARN("File " << Common::FileSystem::basename(file) << " invalid SJRN length " << sjrn_length);
-            return 0;
+            return false;
         }
 
         sjrn_length -= sizeof(sjrn_length);
@@ -332,7 +334,8 @@ namespace EventJournal
                 break;
             }
 
-            uniqueID = id;
+            lastUniqueId = id;
+            lastTimestamp = timestamp;
 
             if (f.eof())
             {
@@ -340,7 +343,7 @@ namespace EventJournal
             }
         }
 
-        return uniqueID;
+        return true;
     }
 
     void Writer::writeRIFFAndSJRNHeader(std::vector<uint8_t>& data, const std::string& subject) const
