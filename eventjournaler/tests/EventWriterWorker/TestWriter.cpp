@@ -15,17 +15,44 @@ class TestWriter : public LogOffInitializedTests {
 
 using namespace EventWriterLib;
 
-
+// TODO
 // test list
 //------------
 // stop followed by stop
 // start followed by a start
 // start then stop
 // restart
-// start, pop events, save to journal
+// start, pop events, save to journal - THIS IS ALREADY COVERED BY testWriterFinishesWritingQueueContentsAfterReceivingStop
 // start, pop bad/malformed expect writer to stop (no throw)
 // To add to plugin adapter tests, copy this one: PluginAdapterRestartsSubscriberIfItStops
 
+
+TEST_F(TestWriter, testWriterLogsWarningOnBadDataAndThenContinues) // NOLINT
+{
+    JournalerCommon::Event fakeData = {JournalerCommon::EventType::THREAT_EVENT, "test data"};
+
+    std::vector<uint8_t> encodedFakeData = EventJournal::encode(
+        EventJournal::Detection{
+            JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(JournalerCommon::EventType::THREAT_EVENT),
+            fakeData.data});
+    std::unique_ptr<EventWriterLib::IEventQueuePopper> fakePopperPtr(new FakePopper(fakeData, 10));
+
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
+    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+
+    EventWriterLib::EventWriterWorker writer(std::move(fakePopperPtr), std::move(mockJournalWriterPtr));
+
+    EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData)).Times(10);
+
+    writer.start();
+    while(!writer.getRunningStatus())
+    {
+        usleep(1);
+    }
+    writer.stop();
+
+    ASSERT_FALSE(writer.getRunningStatus());
+}
 
 
 TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop) // NOLINT

@@ -69,7 +69,7 @@ namespace EventWriterLib
                             break;
                         }
                         default:
-                            throw std::runtime_error("Unsupported event type");
+                            LOGWARN("Data popped from queue was not a supported event type, dropping event");
                     }
                 }
             }
