@@ -42,7 +42,7 @@ namespace SubscriberLib
 
     void Subscriber::subscribeToEvents()
     {
-
+        m_isRunning = true;
         if (!m_socket)
         {
             LOGDEBUG("Getting subscriber");
@@ -59,7 +59,7 @@ namespace SubscriberLib
         catch (const Common::FileSystem::IFileSystemException& exception)
         {
             LOGERROR("Failed to set socket permissions: " << m_socketPath << " Exception: " << exception.what());
-            m_running = false;
+            m_isRunning = false;
             return;
         }
 
@@ -67,20 +67,28 @@ namespace SubscriberLib
 
         auto fs = Common::FileSystem::fileSystem();
 
-        while (m_running)
+        while (m_shouldBeRunning)
         {
             try
             {
                 if (fs->exists(m_socketPath))
                 {
                     auto data = m_socket->read();
-                    JournalerCommon::Event event = convertZmqDataToEvent(data);
-                    m_eventHandler->handleEvent(event);
+                    std::optional<JournalerCommon::Event> event = convertZmqDataToEvent(data);
+                    if (event)
+                    {
+                        m_eventHandler->handleEvent(event.value());
+                    }
+                    else
+                    {
+                        // todo improve message
+                        LOGERROR("ZMQ Data arriving from pub sub did not contain the expected 2 minimum components");
+                    }
                 }
                 else
                 {
                     LOGERROR("The subscriber socket has been unexpectedly removed.");
-                    m_running = false;
+                    m_isRunning = false;
                     return;
                 }
             }
@@ -91,22 +99,23 @@ namespace SubscriberLib
                 if (errnoFromSocketRead != EAGAIN)
                 {
                     LOGERROR("Unexpected exception from socket read: " << exception.what());
-                    m_running = false;
+                    m_isRunning = false;
                 }
             }
             catch (const std::exception& exception)
             {
                 LOGERROR("Stopping subscriber. Exception thrown during subscriber read loop: " << exception.what());
-                m_running = false;
+                m_isRunning = false;
             }
         }
         fs->removeFile(m_socketPath);
+        m_isRunning = false;
     }
 
     void Subscriber::start()
     {
         LOGINFO("Starting Subscriber");
-
+        m_shouldBeRunning = true;
         auto fs = Common::FileSystem::fileSystem();
         std::string socketDir = Common::FileSystem::dirName(m_socketPath);
         if (fs->isDirectory(socketDir))
@@ -119,7 +128,6 @@ namespace SubscriberLib
                 }
                 catch(const std::exception& exception)
                 {
-                    m_running = false;
                     std::string msg =
                             "Subscriber start failed to remove existing socket: " + m_socketPath +
                             " Error: " + exception.what();
@@ -130,7 +138,7 @@ namespace SubscriberLib
         }
         else
         {
-            m_running = false;
+
             std::string msg = "The events pub/sub socket directory does not exist: " + socketDir;
             LOGERROR(msg);
             // If the socket dir does not exist then the whole plugin will exit. If that dir is missing then the
@@ -138,7 +146,6 @@ namespace SubscriberLib
             // So throw and let WD start us up again if needed.
             throw std::runtime_error(msg);
         }
-        m_running = true;
         m_runnerThread = std::make_unique<std::thread>(std::thread([this] { subscribeToEvents(); }));
         LOGINFO("Subscriber started");
     }
@@ -146,7 +153,7 @@ namespace SubscriberLib
     void Subscriber::stop()
     {
         LOGINFO("Stopping Subscriber");
-        m_running = false;
+        m_shouldBeRunning = false;
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->join();
@@ -183,6 +190,7 @@ namespace SubscriberLib
 
         }
         LOGINFO("Subscriber stopped");
+        m_isRunning = false;
     }
 
     void Subscriber::restart()
@@ -198,9 +206,12 @@ namespace SubscriberLib
         }
     }
 
-    bool Subscriber::getRunningStatus() { return m_running; }
+    bool Subscriber::getRunningStatus()
+    {
+        return m_isRunning;
+    }
 
-    JournalerCommon::Event Subscriber::convertZmqDataToEvent(Common::ZeroMQWrapper::data_t data)
+    std::optional<JournalerCommon::Event> Subscriber::convertZmqDataToEvent(Common::ZeroMQWrapper::data_t data)
     {
         if (data.size() == 2)
         {
@@ -208,8 +219,7 @@ namespace SubscriberLib
             JournalerCommon::Event event {type, data[1]};
             return event;
         }
-
-        throw std::runtime_error("ZMQ Data arriving from pub sub did not contain the expected 2 minimum components");
-
+        return {};
     }
+
 } // namespace SubscriberLib

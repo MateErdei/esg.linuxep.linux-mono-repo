@@ -45,3 +45,6 @@ Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
     Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\nstdout: \n${result.stdout} \n. stderr: \n${result.stderr}"
+
+Remove Subscriber Socket
+    Run Shell Process  rm -rf ${SOPHOS_INSTALL}/var/ipc/events.ipc   Removing subscriber soocket failed

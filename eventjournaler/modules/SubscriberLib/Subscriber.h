@@ -32,9 +32,10 @@ namespace SubscriberLib
 
     private:
         void subscribeToEvents();
-        JournalerCommon::Event convertZmqDataToEvent(Common::ZeroMQWrapper::data_t data);
+        std::optional<JournalerCommon::Event> convertZmqDataToEvent(Common::ZeroMQWrapper::data_t data);
         std::string m_socketPath;
-        std::atomic<bool> m_running = false;
+        std::atomic<bool> m_shouldBeRunning = false;
+        std::atomic<bool> m_isRunning = false;
         int m_readLoopTimeoutMilliSeconds;
         std::unique_ptr<std::thread> m_runnerThread;
         Common::ZMQWrapperApi::IContextSharedPtr m_context;

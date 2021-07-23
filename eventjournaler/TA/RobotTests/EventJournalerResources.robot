@@ -60,7 +60,7 @@ Check Event Journaler Log contains
     [Arguments]  ${string_to_contain}
     File Should Contain  ${EVENT_JOURNALER_LOG_PATH}  ${string_to_contain}
 
-Check Marked Event Journaler Log contains Contains
+Check Marked Event Journaler Log Contains
     [Arguments]  ${input}  ${mark}
     Marked File Contains  ${EVENT_JOURNALER_LOG_PATH}   ${input}   ${mark}
 
