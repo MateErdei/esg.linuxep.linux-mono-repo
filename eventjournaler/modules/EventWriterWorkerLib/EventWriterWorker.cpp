@@ -20,6 +20,12 @@ namespace EventWriterLib
             m_eventQueuePopper(std::move(eventQueuePopper)), m_eventJournalWriter(std::move(eventJournalWriter))
     {
     }
+
+    EventWriterWorker::~EventWriterWorker()
+    {
+        stop();
+    }
+
     void EventWriterWorker::stop()
     {
         LOGINFO("Stopping Event Writer");
@@ -35,6 +41,11 @@ namespace EventWriterLib
 
     void EventWriterWorker::start()
     {
+        if (m_runnerThread)
+        {
+            LOGWARN("EventWriterWorker thread already running, skipping start call.");
+            return;
+        }
         LOGINFO("Starting Event Writer");
         m_shouldBeRunning = true;
         m_runnerThread = std::make_unique<std::thread>(std::thread([this] { run(); }));
@@ -97,5 +108,6 @@ namespace EventWriterLib
             LOGERROR("Failed to store " << journalSubType << " event in journal: " << ex.what());
         }
     }
+
 }
 

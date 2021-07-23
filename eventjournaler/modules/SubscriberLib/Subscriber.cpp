@@ -114,6 +114,11 @@ namespace SubscriberLib
 
     void Subscriber::start()
     {
+        if (m_runnerThread)
+        {
+            LOGWARN("Subscriber thread already running, skipping start call.");
+            return;
+        }
         LOGINFO("Starting Subscriber");
         m_shouldBeRunning = true;
         auto fs = Common::FileSystem::fileSystem();

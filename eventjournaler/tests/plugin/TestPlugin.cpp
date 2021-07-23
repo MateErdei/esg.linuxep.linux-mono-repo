@@ -51,20 +51,27 @@ class PluginAdapterTests : public LogOffInitializedTests
 {
 };
 
-TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberIfItStops)
+TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberOrWriterIfTheyStop)
 {
     int subscriberRunningStatusCall = 0;
-    auto countStatusCalls = [&]()
+    auto countSubscriberStatusCalls = [&]()
     {
         subscriberRunningStatusCall++;
         return false;
+    };
+
+    int writerRunningStatusCall = 0;
+    auto countWriterStatusCalls = [&]()
+    {
+      writerRunningStatusCall++;
+      return false;
     };
 
     // Mock Subscriber
     MockSubscriberLib* mockSubscriber = new StrictMock<MockSubscriberLib>();
     EXPECT_CALL(*mockSubscriber, start).Times(1); // Plugin starting up subscriber
     EXPECT_CALL(*mockSubscriber, stop).Times(1);  // Plugin stopping subscriber on stop task
-    EXPECT_CALL(*mockSubscriber, getRunningStatus).WillRepeatedly(Invoke(countStatusCalls));
+    EXPECT_CALL(*mockSubscriber, getRunningStatus).WillRepeatedly(Invoke(countSubscriberStatusCalls));
     EXPECT_CALL(*mockSubscriber, restart).Times(1);
     std::unique_ptr<SubscriberLib::ISubscriber> mockSubscriberPtr(mockSubscriber);
 
@@ -72,7 +79,7 @@ TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberIfItStops)
     MockEventWriterWorker* mockEventWriterWorker = new StrictMock<MockEventWriterWorker>();
     EXPECT_CALL(*mockEventWriterWorker, start).Times(1); // Plugin starting up Event Writer Worker
     EXPECT_CALL(*mockEventWriterWorker, stop).Times(1);  // Plugin stopping Event Writer Worker on stop task
-    EXPECT_CALL(*mockEventWriterWorker, getRunningStatus).Times(1);
+    EXPECT_CALL(*mockEventWriterWorker, getRunningStatus).WillRepeatedly(Invoke(countWriterStatusCalls));
     EXPECT_CALL(*mockEventWriterWorker, restart).Times(1);
     std::unique_ptr<EventWriterLib::IEventWriterWorker> mockEventWriterWorkerPtr(mockEventWriterWorker);
 
@@ -83,6 +90,10 @@ TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberIfItStops)
 
     auto mainLoopFuture = std::async(std::launch::async, &TestablePluginAdapter::mainLoop, &pluginAdapter);
     while (subscriberRunningStatusCall == 0)
+    {
+        usleep(100);
+    }
+    while (writerRunningStatusCall == 0)
     {
         usleep(100);
     }
@@ -99,14 +110,9 @@ TEST_F(PluginAdapterTests, PluginAdapterMainLoopThrowsIfSocketDirDoesNotExist)
     // Mock EventWriterWorker
     MockEventWriterWorker* mockEventWriterWorker = new StrictMock<MockEventWriterWorker>();
     EXPECT_CALL(*mockEventWriterWorker, start).Times(1); // Plugin starting up subscriber
-//    EXPECT_CALL(*mockEventWriterWorker, stop).Times(1);  // Plugin stopping subscriber on stop task
-//    EXPECT_CALL(*mockEventWriterWorker, getRunningStatus).Times(1);//WillRepeatedly(Invoke(countStatusCalls));
-//    EXPECT_CALL(*mockEventWriterWorker, restart).Times(1);
     std::unique_ptr<EventWriterLib::IEventWriterWorker> mockEventWriterWorkerPtr(mockEventWriterWorker);
 
-
     auto queueTask = std::make_shared<Plugin::QueueTask>();
-
     TestablePluginAdapter pluginAdapter(queueTask, std::move(mockSubscriberPtr), std::move(mockEventWriterWorkerPtr));
 
     // Example exception on start: If the socket dir does not exist then the whole plugin will exit.

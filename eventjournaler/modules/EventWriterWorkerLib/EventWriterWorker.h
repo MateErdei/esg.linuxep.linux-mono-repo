@@ -35,6 +35,7 @@ namespace EventWriterLib
     {
     public:
         explicit EventWriterWorker(std::unique_ptr<IEventQueuePopper> eventQueuePopper,  std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter);
+        ~EventWriterWorker();
         void stop() override;
         void start() override;
         void restart() override;

@@ -21,9 +21,7 @@ using namespace EventWriterLib;
 //------------
 // stop followed by stop
 // start followed by a start
-// start then stop
 // restart
-// start, pop events, save to journal - THIS IS ALREADY COVERED BY testWriterFinishesWritingQueueContentsAfterReceivingStop
 // start, pop bad/malformed expect writer to stop (no throw) - DONE
 // To add to plugin adapter tests, copy this one: PluginAdapterRestartsSubscriberIfItStops -
 
@@ -107,7 +105,77 @@ TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop) // 
     ASSERT_FALSE(writer.getRunningStatus());
 }
 
-TEST_F(TestWriter, WriterStartAndStop) // NOLINT
+TEST_F(TestWriter, WriterStartStopStart) // NOLINT
+{
+    JournalerCommon::Event fakeData = {JournalerCommon::EventType::THREAT_EVENT, "test data"};
+
+    std::vector<uint8_t> encodedFakeData = EventJournal::encode(
+        EventJournal::Detection{
+            JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(JournalerCommon::EventType::THREAT_EVENT),
+            fakeData.data});
+
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
+    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+    MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
+    std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
+
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+
+    std::atomic<bool> getEventHasBeenCalled = false;
+    auto setGetEventHasBeenCalledAndReturnVoid = [&getEventHasBeenCalled](Subject, const std::vector<uint8_t>&){
+      getEventHasBeenCalled = true;
+    };
+
+    auto getNullEvent = [](int timeout){
+      usleep(timeout * 1000);
+      return std::optional<JournalerCommon::Event>();
+    };
+
+    EXPECT_CALL(*mockPopper, getEvent(100))
+        .WillOnce(Return(fakeData))
+        .WillOnce(Invoke(getNullEvent))
+        .WillOnce(Return(fakeData))
+        .WillOnce(Invoke(getNullEvent));
+
+    EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData))
+        .WillRepeatedly(Invoke(setGetEventHasBeenCalledAndReturnVoid));
+
+    EXPECT_FALSE(writer.getRunningStatus());
+    writer.start();
+    // Make sure we have really started, start launches a thread.
+    while (!getEventHasBeenCalled)
+    {
+        usleep(1);
+    }
+    EXPECT_TRUE(writer.getRunningStatus());
+    writer.stop();
+    EXPECT_FALSE(writer.getRunningStatus());
+    getEventHasBeenCalled = false;
+    writer.start();
+    // Make sure we have really started, start launches a thread.
+    while (!getEventHasBeenCalled)
+    {
+        usleep(1);
+    }
+    EXPECT_TRUE(writer.getRunningStatus());
+}
+
+TEST_F(TestWriter, WriterStopFollowedByStopDoesNotThrow) // NOLINT
+{
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
+    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+    MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
+    std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
+
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+    EXPECT_FALSE(writer.getRunningStatus());
+    ASSERT_NO_THROW(writer.stop());
+    EXPECT_FALSE(writer.getRunningStatus());
+    ASSERT_NO_THROW(writer.stop());
+    EXPECT_FALSE(writer.getRunningStatus());
+}
+
+TEST_F(TestWriter, WriterStartFollowedByStartDoesNotThrow) // NOLINT
 {
     JournalerCommon::Event fakeData = {JournalerCommon::EventType::THREAT_EVENT, "test data"};
 
@@ -140,6 +208,61 @@ TEST_F(TestWriter, WriterStartAndStop) // NOLINT
         usleep(1);
     }
     EXPECT_TRUE(writer.getRunningStatus());
-    writer.stop();
+    ASSERT_NO_THROW(writer.start());
+    EXPECT_TRUE(writer.getRunningStatus());
+}
+
+
+
+TEST_F(TestWriter, WriterRestart) // NOLINT
+{
+    JournalerCommon::Event fakeData = {JournalerCommon::EventType::THREAT_EVENT, "test data"};
+
+    std::vector<uint8_t> encodedFakeData = EventJournal::encode(
+        EventJournal::Detection{
+            JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(JournalerCommon::EventType::THREAT_EVENT),
+            fakeData.data});
+
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
+    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+    MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
+    std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
+
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+
+    std::atomic<bool> getEventHasBeenCalled = false;
+    auto setGetEventHasBeenCalledAndReturnVoid = [&getEventHasBeenCalled](Subject, const std::vector<uint8_t>&){
+      getEventHasBeenCalled = true;
+    };
+
+    auto getNullEvent = [](int timeout){
+      usleep(timeout * 1000);
+      return std::optional<JournalerCommon::Event>();
+    };
+
+    EXPECT_CALL(*mockPopper, getEvent(100))
+        .WillOnce(Return(fakeData))
+        .WillOnce(Invoke(getNullEvent))
+        .WillOnce(Return(fakeData))
+        .WillOnce(Invoke(getNullEvent));
+
+    EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData))
+        .WillRepeatedly(Invoke(setGetEventHasBeenCalledAndReturnVoid));
+
     EXPECT_FALSE(writer.getRunningStatus());
+    writer.start();
+    // Make sure we have really started, start launches a thread.
+    while (!getEventHasBeenCalled)
+    {
+        usleep(1);
+    }
+    EXPECT_TRUE(writer.getRunningStatus());
+    getEventHasBeenCalled = false;
+    writer.restart();
+    // Make sure we have really started, start launches a thread.
+    while (!getEventHasBeenCalled)
+    {
+        usleep(1);
+    }
+    EXPECT_TRUE(writer.getRunningStatus());
 }
