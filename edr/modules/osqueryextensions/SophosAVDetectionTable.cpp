@@ -49,9 +49,7 @@ namespace OsquerySDK
         LOGINFO("Generating data for Detections Table");
         TableRows results;
 
-        std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-
-        std::string journalDir = Common::FileSystem::join(installPath, "plugins/eventjournaler/data/event-journals");
+        std::string journalDir = Common::ApplicationConfiguration::applicationPathManager().getEventJournalsPath();
 
         std::shared_ptr<Common::EventJournalWrapper::IEventJournalReaderWrapper> journalReader =
             std::make_shared<Common::EventJournalWrapper::Reader>(journalDir);
