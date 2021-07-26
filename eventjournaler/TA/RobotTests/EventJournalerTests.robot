@@ -73,10 +73,16 @@ Event Journaler Can Receive Many Events From Publisher
         should contain   ${all_events}  {"threatName":"EICAR-AV-Test","test data":"${i}"}
     END
 
-
-Event Journaler Can Be Stopped And Started
+Event Journaler Can compress Files
+    ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/threatEvents/threatEvents-00001-00002-12092029-10202002
+    Create File   ${filePath}.bin  randomstring
+    Run Process  chown  sophos-spl-user:sophos-spl-group  ${filePath}.bin
     Restart Event Journaler
-
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  File Should exist  ${filePath}.xz
+    File Should not exist  ${filePath}.bin
 
 *** Keywords ***
 Setup

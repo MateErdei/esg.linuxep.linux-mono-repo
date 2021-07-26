@@ -8,6 +8,7 @@ Resource  GeneralResources.robot
 ${EVENT_JOURNALER_LOG_PATH}     ${COMPONENT_ROOT_PATH}/log/eventjournaler.log
 ${BASE_SDDS}                    ${TEST_INPUT_PATH}/base_sdds/
 ${EVENT_JOURNALER_SDDS}         ${COMPONENT_SDDS}
+${EVENT_JOURNALER_DATA_STORE}   ${COMPONENT_ROOT_PATH}/data/eventjournals
 
 *** Keywords ***
 Install Base For Component Tests
