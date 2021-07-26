@@ -76,7 +76,7 @@ Event Journaler Can Receive Many Events From Publisher
 Event Journaler Can compress Files
     ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/threatEvents/threatEvents-00001-00002-12092029-10202002
     Create File   ${filePath}.bin  randomstring
-    Run Process  chown  sophos-spl-user:sophos-spl-group  ${filePath}.bin
+    Run Process  chown  sophos-spl-user:sophos-spl-group  -R  ${EVENT_JOURNALER_DATA_STORE}/
     Restart Event Journaler
     Wait Until Keyword Succeeds
     ...  20 secs

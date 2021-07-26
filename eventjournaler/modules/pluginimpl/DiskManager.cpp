@@ -130,7 +130,7 @@ namespace Plugin
         }
     }
 
-    void DiskManager::compressFile(const std::string& filepath)
+    bool DiskManager::compressFile(const std::string& filepath)
     {
         lzma_stream strm = LZMA_STREAM_INIT;
 
@@ -139,22 +139,22 @@ namespace Plugin
         if (!Common::FileSystem::fileSystem()->isFile(filepath))
         {
                 LOGWARN("File does not exist, " << filepath );
-                return;
+                return false;
         }
 
         FILE *myfile = fopen (filepath.c_str() , "r");
         if (myfile == nullptr)
         {
             LOGWARN("Failed to open file, " << filepath );
-            return;
+            return false;
         }
         std::string destPath = filepath.substr(0,filepath.find_first_of(".")) + ".xz";
-
+        LOGINFO(destPath);
         FILE *output = fopen (destPath.c_str() , "wb");
         if (output == nullptr)
         {
             LOGWARN("Failed to create file, " << destPath );
-            return;
+            return false;
         }
 
         bool success = init_encoder(&strm, 7);
@@ -172,8 +172,9 @@ namespace Plugin
         fclose(myfile);
         if (fclose(output)) {
             LOGERROR( "Write error: " << strerror(errno));
-
+            return false;
         }
+        return true;
     }
     uint64_t DiskManager::getDirectorySize(const std::string& dirpath)
     {
@@ -345,10 +346,22 @@ namespace Plugin
             {
                 //closed file name should be in format  subject-uniqueID1-uniqueID2-timestamp1-timestamp2.xz
                 std::vector<std::string> fileNameParts =  Common::UtilityImpl::StringUtils::splitString( Common::FileSystem::basename(path),"-");
-                if (filesCollection.size() == 5)
+
+                if (fileNameParts.size() == 5)
                 {
-                    compressFile(path);
-                    LOGDEBUG("Compressed file: " << path);
+                    if (compressFile(path))
+                    {
+                        try
+                        {
+                            fs->removeFile(path);
+                        }
+                        catch (Common::FileSystem::IFileSystemException& exception)
+                        {
+                            LOGWARN("Failed to clean up file " << path << " after compressing due to error: " << exception.what());
+                        }
+                    }
+
+                    LOGINFO("Compressed file: " << path);
                 }
             }
         }

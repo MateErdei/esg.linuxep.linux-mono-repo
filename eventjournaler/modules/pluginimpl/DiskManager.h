@@ -32,7 +32,7 @@ namespace Plugin
         * compresses given file using xz format
         * @param filepath, file to be compressed
          */
-        void compressFile(const std::string& filepath);
+        bool compressFile(const std::string& filepath);
         uint64_t getDirectorySize(const std::string& dirpath);
         uint64_t deleteOldJournalFiles(const std::string& dirpath,uint64_t lowerLimit, uint64_t currentTotalSizeOnDisk);
         std::vector<SubjectFileInfo> getSortedListOFCompressedJournalFiles(const std::string& dirpath);
