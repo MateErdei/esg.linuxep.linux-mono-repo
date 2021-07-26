@@ -319,6 +319,11 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ...  200 secs
     ...  10 secs
     ...  Check Log Contains String At Least N Times   /tmp/preserve-sul-downgrade  Downgrade Log  Update success  1
+    #Wait for successful update (all up to date) after downgrading
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check Log Contains String At Least N Times   ${SULDownloaderLog}  Update Log  Update success  1
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted

@@ -2019,8 +2019,6 @@ Perform Install
     Log  ${WarehouseRigidName}
 
     Create Warehouse for tmp product  ${ConfigRigidname}  ${WarehouseRigidName}
-#    log to console   goooo
-#    sleep  300
     Run Keyword If  ${DowngradeBase}   Copy File  ${SOPHOS_INSTALL}/base/VERSION.ini  ${SOPHOS_INSTALL}/tmp/SDT/sspl/base/VERSION.ini
 
 
