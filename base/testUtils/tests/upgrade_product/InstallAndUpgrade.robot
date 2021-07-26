@@ -311,6 +311,9 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
 
     Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    #TODO LINUXDAR-2881 remove sleep when this defect is fixed in downgrade version- provide a time space if suldownloader is kicked off again by policy change.
+    Sleep  10
+    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  200 secs
