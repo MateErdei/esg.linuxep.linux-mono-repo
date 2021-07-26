@@ -176,6 +176,7 @@ namespace Plugin
         }
         return true;
     }
+
     uint64_t DiskManager::getDirectorySize(const std::string& dirpath)
     {
         auto fs = Common::FileSystem::fileSystem();
@@ -183,7 +184,7 @@ namespace Plugin
         if (fs->isDirectory(dirpath))
         {
             std::vector<Path> filesCollection = fs->listAllFilesInDirectoryTree(dirpath);
-            for(auto& file : filesCollection)
+            for (auto& file : filesCollection)
             {
                 totalDirectorySize += fs->fileSize(file);
             }
@@ -268,7 +269,6 @@ namespace Plugin
         }
 
         return sizeOfDeletedFiles;
-
     }
 
     std::vector<DiskManager::SubjectFileInfo> DiskManager::getSortedListOFCompressedJournalFiles(const std::string& dirpath)
@@ -278,7 +278,6 @@ namespace Plugin
         if (fs->isDirectory(dirpath))
         {
             std::vector<Path> filesCollection = fs->listAllFilesInDirectoryTree(dirpath);
-
             for (const auto& path : filesCollection)
             {
                 if (Common::UtilityImpl::StringUtils::endswith(path,".xz"))
@@ -294,8 +293,7 @@ namespace Plugin
                     }
                     else
                     {
-                        std::string cTime= fileNameParts[3];
-
+                        std::string cTime = fileNameParts[3];
                         try
                         {
                             info.fileId = std::stoul(cTime);
