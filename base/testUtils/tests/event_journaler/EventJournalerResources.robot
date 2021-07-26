@@ -8,6 +8,10 @@ Library    ${LIBS_DIRECTORY}/OSUtils.py
 Resource  ../GeneralTeardownResource.robot
 *** Variables ***
 ${EVENT_JOURNALER_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/eventjournaler/log/eventjournaler.log
+${EVENT_READER_TOOL}          ${EVENT_JOURNALER_TOOLS}/JournalReader
+${COMPONENT_ROOT_PATH}        ${SOPHOS_INSTALL}/plugins/eventjournaler
+${EVENT_JOURNAL_DIR}          ${COMPONENT_ROOT_PATH}/data/eventjournals
+${JOURNALED_EICAR}            {"details":{"filePath":"/tmp/dirty_file","sha256FileHash":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f"},"detectionName":{"short":"EICAR-AV-Test"},"items":{"1":{"path":"/tmp/dirty_file","primary":true,"sha256":"275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f","type":1}},"threatSource":1,"threatType":1,"time":
 
 
 *** Keywords ***
@@ -69,4 +73,17 @@ Check Event Journaler Installed
     ...  Check Log Contains  Entering the main loop  ${EVENT_JOURNALER_LOG_PATH}  event journaler log
     Check Event Journaler Executable Running
 
+Read First Event From Journal
+    ${result1} =   Run Process  chmod  +x  ${EVENT_READER_TOOL}
+    Should Be Equal As Integers  ${result1.rc}  0    Chmod failed with: ${result1.rc}
+    ${result2} =   Run Process  ${EVENT_READER_TOOL}  -l  ${EVENT_JOURNAL_DIR}/  -s  Detections  -p  SophosSPL  -u  -t  0  --flush-delay-disable  -c  1
+    log to console   ${result2.stdout}
+    log  ${result2.stdout}
+    log  ${result2.stderr}
+    Should Be Equal As Integers  ${result2.rc}  0    Event read process failed with: ${result2.rc}
+    [Return]   ${result2.stdout}
 
+Check Journal Contains Detection Event With Content
+    [Arguments]  ${expectedContent}
+    ${latestJournalEvent} =  Read First Event From Journal
+    Should Contain  ${latestJournalEvent}   ${expectedContent}

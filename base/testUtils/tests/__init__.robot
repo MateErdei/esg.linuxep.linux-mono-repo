@@ -69,7 +69,8 @@ Global Setup Tasks
     ${placeholder}=  PathManager.get_libs_path
     Set Global Variable  ${LIBS_DIRECTORY}  ${placeholder}
 
-
+    ${placeholder} =  Get Environment Variable  SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS  default=/tmp/system-product-test-inputs/sspl-plugin-event-journaler-manual-tools
+    Set Global Variable  ${EVENT_JOURNALER_TOOLS}  ${placeholder}
 
     ${OPENSSL_FOLDER} =  Unpack Openssl   ${TEMPORARY_DIRECTORIES}
     Set Global Variable  ${OPENSSL_BIN_PATH}            ${TEMPORARY_DIRECTORIES}/openssl/bin64
