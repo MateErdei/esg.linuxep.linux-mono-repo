@@ -65,7 +65,9 @@
         <workingdir>.</workingdir>
         <!--   Release outputs   -->
         <release-asset artifact-path="eventjournaler/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release" />
-        <release-asset artifact-path="eventjournaler/manualTools" source-dir="output/manualTools" mode="release" />
+
+        <!--   non-release outputs   -->
+        <build-asset artifact-path="eventjournaler/manualTools" source-dir="output/manualTools" mode="release" />
         <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
         <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
         <build-asset artifact-path="build_log" source-dir="output" mode="release">
