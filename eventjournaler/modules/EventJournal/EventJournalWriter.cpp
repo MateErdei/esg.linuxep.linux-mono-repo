@@ -234,7 +234,7 @@ namespace EventJournal
         return uniqueID;
     }
 
-    bool Writer::readLastUniqueIDAndTimestamp(const std::string& file, uint64_t& LastUniqueId, int64_t& LastTimestamp) const
+    bool Writer::readLastUniqueIDAndTimestamp(const std::string& file, uint64_t& lastUniqueId, int64_t& lastTimestamp) const
     {
         std::vector<uint8_t> buffer(32);
 
