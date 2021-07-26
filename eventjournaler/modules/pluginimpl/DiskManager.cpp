@@ -194,14 +194,14 @@ namespace Plugin
 
     uint64_t DiskManager::deleteOldJournalFiles(const std::string& dirpath, uint64_t lowerLimit, uint64_t currentTotalSizeOnDisk)
     {
-        std::vector<SubjectDirInfo> fileset;
-        auto fs = Common::FileSystem::fileSystem();
-        std::vector<std::string> subjects = fs->listDirectories(dirpath);
-
         if (currentTotalSizeOnDisk <= lowerLimit)
         {
             return 0;
         }
+
+        std::vector<SubjectDirInfo> fileset;
+        auto fs = Common::FileSystem::fileSystem();
+        std::vector<std::string> subjects = fs->listDirectories(dirpath);
 
         if (currentTotalSizeOnDisk == 0 || subjects.size() == 0 )
         {
@@ -209,12 +209,6 @@ namespace Plugin
         }
 
         uint64_t totalSizeToDelete = currentTotalSizeOnDisk - lowerLimit;
-
-
-        if (totalSizeToDelete == 0)
-        {
-            return 0;
-        }
 
         for (const auto& subject : subjects)
         {
@@ -244,6 +238,11 @@ namespace Plugin
                 break;
             }
             uint64_t sizeToDeleteFromEachSubject = (totalSizeToDelete-sizeOfDeletedFiles) / listOfSubjectsThatHaveFiles.size();
+            if (sizeToDeleteFromEachSubject == 0)
+            {
+                break;
+            }
+
             for (auto& subjectList: listOfSubjectsThatHaveFiles)
             {
                 uint64_t  sizeOfDeletedFilesPerSubject = 0;

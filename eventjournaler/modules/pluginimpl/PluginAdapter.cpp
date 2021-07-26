@@ -74,16 +74,7 @@ namespace Plugin
         std::string eventJournalPath = Common::ApplicationConfiguration::applicationPathManager().getEventJournalsPath();
         disk.compressClosedFiles(eventJournalPath);
         uint64_t size = disk.getDirectorySize(eventJournalPath);
-        std::vector<std::string> subjects;
-        try
-        {
-            subjects = Common::FileSystem::fileSystem()->listDirectories(eventJournalPath);
-        }
-        catch (Common::FileSystem::IFileSystemException&)
-        {
-            LOGDEBUG("No event journal subjects found");
-            return;
-        }
+
 
         disk.deleteOldJournalFiles(eventJournalPath, lowerLimit, size);
     }
