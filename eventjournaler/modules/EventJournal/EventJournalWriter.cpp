@@ -194,7 +194,7 @@ namespace EventJournal
         std::ostringstream oss;
         uint64_t lastUniqueId = 0;
         int64_t lasttimestamp= 0;
-        readLasttUniqueIDAndTimestamp(filepath, lastUniqueId, lasttimestamp);
+        readLastUniqueIDAndTimestamp(filepath, lastUniqueId, lasttimestamp);
         oss << std::hex << std::setfill('0') << std::setw(16) << lastUniqueId;
         std::string lastOss = oss.str();
 
@@ -219,7 +219,7 @@ namespace EventJournal
                     {
                         int64_t timestamp =0;
                         uint64_t id = 0;
-                        if (readLasttUniqueIDAndTimestamp(file, id, timestamp))
+                        if (readLastUniqueIDAndTimestamp(file, id, timestamp))
                         {
                             if (id > uniqueID)
                             {
@@ -234,7 +234,7 @@ namespace EventJournal
         return uniqueID;
     }
 
-    bool Writer::readLasttUniqueIDAndTimestamp(const std::string& file, uint64_t& lastUniqueId, int64_t& lastTimestamp) const
+    bool Writer::readLastUniqueIDAndTimestamp(const std::string& file, uint64_t& uniqueId, int64_t& timestamp) const
     {
         std::vector<uint8_t> buffer(32);
 

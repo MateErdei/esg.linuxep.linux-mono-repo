@@ -24,11 +24,13 @@ class DiskManagerTest : public LogInitializedTests
 TEST_F(DiskManagerTest, weCanDeleteOldJournalFiles) // NOLINT
 {
     Tests::TempDir tempDir;
-    tempDir.makeDirs("Root/subdir");
-    tempDir.makeDirs("Root/subdir1");
-    tempDir.createFile("Root/subdir1/file1.xz", "hello");
-    tempDir.createFile("Root/subdir1/file2.xz", "hello");
-    tempDir.createFile("Root/subdir/file1.xz", "hello");
+    tempDir.makeDirs("Root/producer/subdir");
+    tempDir.makeDirs("Root/producer/subdir1");
+    tempDir.makeDirs("Root/producer2/subdir1");
+
+    tempDir.createFile("Root/producer/subdir1/file1.xz", "hello");
+    tempDir.createFile("Root/producer/subdir1/file2.xz", "hello");
+    tempDir.createFile("Root/producer2/subdir1/file1.xz", "hello");
     Plugin::DiskManager disk;
     disk.deleteOldJournalFiles(tempDir.absPath("Root"),10, 20);
 

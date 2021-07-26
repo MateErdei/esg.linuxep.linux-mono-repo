@@ -50,7 +50,7 @@ namespace EventJournal
         std::string getExistingFile(const std::string& subject) const;
         std::string getClosedFilePath(const std::string& filepath) const;
         uint64_t readHighestUniqueID() const;
-        bool readLasttUniqueIDAndTimestamp(const std::string& file, uint64_t& uniqueId, int64_t& timestamp) const;
+        bool readLastUniqueIDAndTimestamp(const std::string& file, uint64_t& uniqueId, int64_t& timestamp) const;
 
         void writeRIFFAndSJRNHeader(std::vector<uint8_t>& data, const std::string& subject) const;
         void appendPbufHeader(std::vector<uint8_t>& data, uint32_t length, uint64_t producerUniqueID, uint64_t timestamp) const;

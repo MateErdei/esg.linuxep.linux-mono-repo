@@ -203,7 +203,13 @@ namespace Plugin
 
         std::vector<SubjectDirInfo> fileset;
         auto fs = Common::FileSystem::fileSystem();
-        std::vector<std::string> subjects = fs->listDirectories(dirpath);
+        std::vector<std::string> producers = fs->listDirectories(dirpath);
+        std::vector<std::string> subjects;
+        for (const auto& producer: producers)
+        {
+            std::vector<std::string> list = fs->listDirectories(producer);
+            subjects.insert(subjects.end(),list.begin(),list.end());
+        }
 
         if (currentTotalSizeOnDisk == 0 || subjects.size() == 0 )
         {
