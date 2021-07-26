@@ -35,7 +35,7 @@ TEST_F(DiskManagerTest, weCanDeleteOldJournalFiles) // NOLINT
     tempDir.createFile("Root/subdir1/file2.xz", "hello");
     tempDir.createFile("Root/subdir/file1.xz", "hello");
     Plugin::DiskManager disk;
-    disk.deleteOldJournalFiles(tempDir.absPath("Root"),10);
+    disk.deleteOldJournalFiles(tempDir.absPath("Root"),10, 20);
 
     auto fs = Common::FileSystem::fileSystem();
     std::vector<Path> fileList = fs->listAllFilesInDirectoryTree(tempDir.absPath("Root"));

@@ -29,7 +29,7 @@ namespace Plugin
          */
         void compressFile(const std::string& filepath);
         uint64_t getDirectorySize(const std::string& dirpath);
-        void deleteOldJournalFiles(const std::string& dirpath,uint64_t limit);
+        uint64_t deleteOldJournalFiles(const std::string& dirpath,uint64_t lowerLimit, uint64_t currentTotalSizeOnDisk);
         std::vector<SubjectFileInfo> getSortedListOFCompressedJournalFiles(const std::string& dirpath);
         void compressClosedFiles(const std::string& dirpath);
     private:

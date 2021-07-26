@@ -74,9 +74,28 @@ namespace Plugin
         std::string eventJournalPath = Common::ApplicationConfiguration::applicationPathManager().getEventJournalsPath();
         disk.compressClosedFiles(eventJournalPath);
         uint64_t size = disk.getDirectorySize(eventJournalPath);
-        if (size > dataLimit)
+        std::vector<std::string> subjects;
+        try
         {
-            disk.deleteOldJournalFiles(eventJournalPath, lowerLimit);
+            subjects = Common::FileSystem::fileSystem()->listDirectories(eventJournalPath);
+        }
+        catch(Common::FileSystem::IFileSystemException&)
+        {
+            LOGDEBUG("No event journal subjects found");
+            return;
+        }
+        size_t maxRetryCount = subjects.size();
+        size_t counter = 0;
+
+        while (size > dataLimit && counter < maxRetryCount)
+        {
+            uint64_t totalDeleted = disk.deleteOldJournalFiles(eventJournalPath, lowerLimit, size);
+            if (totalDeleted == 0)
+            {
+                break;
+            }
+            size = disk.getDirectorySize(eventJournalPath);
+            counter++;
         }
     }
 } // namespace Plugin

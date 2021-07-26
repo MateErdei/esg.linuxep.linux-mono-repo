@@ -192,43 +192,65 @@ namespace Plugin
 
     }
 
-    void DiskManager::deleteOldJournalFiles(const std::string& dirpath, uint64_t limit)
+    uint64_t DiskManager::deleteOldJournalFiles(const std::string& dirpath, uint64_t lowerLimit, uint64_t currentTotalSizeOnDisk)
     {
         std::vector<std::vector<SubjectFileInfo>> fileset;
         auto fs = Common::FileSystem::fileSystem();
         std::vector<std::string> subjects = fs->listDirectories(dirpath);
+
+        if(currentTotalSizeOnDisk <= lowerLimit)
+        {
+            return 0;
+        }
+
+        if (currentTotalSizeOnDisk == 0 || subjects.size() == 0 )
+        {
+            return 0;
+        }
+
+        uint64_t totalSizeToDelete = currentTotalSizeOnDisk - lowerLimit;
+        uint64_t sizeToDeleteFromEachSubject = totalSizeToDelete / subjects.size();
+
+        if(sizeToDeleteFromEachSubject == 0)
+        {
+            return 0;
+        }
+
         for (const auto& subject : subjects)
         {
             std::vector<SubjectFileInfo> files = getSortedListOFCompressedJournalFiles(subject);
             fileset.push_back(files);
         }
 
-
         uint64_t sizeOfDeletedFiles = 0;
         std::vector<std::string> filesToDelete;
-        size_t iterator = 0;
-        while (sizeOfDeletedFiles < limit)
+        //size_t iterator = 0;
+
+        while (sizeOfDeletedFiles < totalSizeToDelete)
         {
             for (const auto& subjectList: fileset)
             {
-                if (subjectList.size() > iterator)
+                uint64_t  sizeOfDeletedFilesPerSubject = 0;
+                for (auto& subjectFile : subjectList)
                 {
-                    SubjectFileInfo file = subjectList[iterator];
-                    sizeOfDeletedFiles += file.size;
-                    filesToDelete.push_back(file.filepath);
-                    if (sizeOfDeletedFiles > limit)
-                    {
-                        break;
-                    }
+                   sizeOfDeletedFiles += subjectFile.size;
+                   sizeOfDeletedFilesPerSubject += subjectFile.size;
+                   filesToDelete.push_back(subjectFile.filepath);
+
+                   if (sizeOfDeletedFilesPerSubject >= sizeToDeleteFromEachSubject)
+                   {
+                       break;
+                   }
                 }
             }
-            iterator++;
         }
 
         for (const auto& file: filesToDelete)
         {
             fs->removeFile(file);
         }
+
+        return sizeOfDeletedFiles;
 
     }
 
