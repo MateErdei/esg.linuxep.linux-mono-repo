@@ -194,11 +194,11 @@ namespace Plugin
 
     uint64_t DiskManager::deleteOldJournalFiles(const std::string& dirpath, uint64_t lowerLimit, uint64_t currentTotalSizeOnDisk)
     {
-        std::vector<std::vector<SubjectFileInfo>> fileset;
+        std::vector<SubjectDirInfo> fileset;
         auto fs = Common::FileSystem::fileSystem();
         std::vector<std::string> subjects = fs->listDirectories(dirpath);
 
-        if(currentTotalSizeOnDisk <= lowerLimit)
+        if (currentTotalSizeOnDisk <= lowerLimit)
         {
             return 0;
         }
@@ -209,34 +209,51 @@ namespace Plugin
         }
 
         uint64_t totalSizeToDelete = currentTotalSizeOnDisk - lowerLimit;
-        uint64_t sizeToDeleteFromEachSubject = totalSizeToDelete / subjects.size();
 
-        if(sizeToDeleteFromEachSubject == 0)
+
+        if (totalSizeToDelete == 0)
         {
             return 0;
         }
 
         for (const auto& subject : subjects)
         {
-            std::vector<SubjectFileInfo> files = getSortedListOFCompressedJournalFiles(subject);
-            fileset.push_back(files);
+            SubjectDirInfo dirInfo;
+            dirInfo.fileset = getSortedListOFCompressedJournalFiles(subject);
+            dirInfo.subject = subject;
+            fileset.push_back(dirInfo);
         }
 
         uint64_t sizeOfDeletedFiles = 0;
         std::vector<std::string> filesToDelete;
-        //size_t iterator = 0;
+        size_t retry = 0;
 
-        while (sizeOfDeletedFiles < totalSizeToDelete)
+        while (sizeOfDeletedFiles < totalSizeToDelete && retry <= fileset.size())
         {
-            for (const auto& subjectList: fileset)
+            retry ++;
+            std::vector<SubjectDirInfo> listOfSubjectsThatHaveFiles;
+            for (auto& subjectList: fileset)
+            {
+                if (subjectList.fileset.size() != 0)
+                {
+                    listOfSubjectsThatHaveFiles.push_back(subjectList);
+                }
+            }
+            if (listOfSubjectsThatHaveFiles.size() == 0)
+            {
+                break;
+            }
+            uint64_t sizeToDeleteFromEachSubject = (totalSizeToDelete-sizeOfDeletedFiles) / listOfSubjectsThatHaveFiles.size();
+            for (auto& subjectList: listOfSubjectsThatHaveFiles)
             {
                 uint64_t  sizeOfDeletedFilesPerSubject = 0;
-                for (auto& subjectFile : subjectList)
+                std::vector<SubjectFileInfo> list = subjectList.fileset;
+                for (auto& subjectFile : list)
                 {
                    sizeOfDeletedFiles += subjectFile.size;
                    sizeOfDeletedFilesPerSubject += subjectFile.size;
                    filesToDelete.push_back(subjectFile.filepath);
-
+                   subjectList.fileset.erase(std::next(subjectList.fileset.begin()));
                    if (sizeOfDeletedFilesPerSubject >= sizeToDeleteFromEachSubject)
                    {
                        break;

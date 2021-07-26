@@ -23,6 +23,11 @@ namespace Plugin
             u_int64_t fileId;
             u_int64_t size;
         };
+        struct SubjectDirInfo
+        {
+            std::string subject;
+            std::vector<SubjectFileInfo> fileset;
+        };
         /**
         * compresses given file using xz format
         * @param filepath, file to be compressed

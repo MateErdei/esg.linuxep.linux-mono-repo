@@ -79,23 +79,12 @@ namespace Plugin
         {
             subjects = Common::FileSystem::fileSystem()->listDirectories(eventJournalPath);
         }
-        catch(Common::FileSystem::IFileSystemException&)
+        catch (Common::FileSystem::IFileSystemException&)
         {
             LOGDEBUG("No event journal subjects found");
             return;
         }
-        size_t maxRetryCount = subjects.size();
-        size_t counter = 0;
 
-        while (size > dataLimit && counter < maxRetryCount)
-        {
-            uint64_t totalDeleted = disk.deleteOldJournalFiles(eventJournalPath, lowerLimit, size);
-            if (totalDeleted == 0)
-            {
-                break;
-            }
-            size = disk.getDirectorySize(eventJournalPath);
-            counter++;
-        }
+        disk.deleteOldJournalFiles(eventJournalPath, lowerLimit, size);
     }
 } // namespace Plugin
