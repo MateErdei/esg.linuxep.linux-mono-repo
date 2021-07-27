@@ -8,6 +8,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
 #include <cstring>
@@ -130,12 +131,12 @@ namespace Plugin
         }
     }
 
-    bool DiskManager::compressFile(const std::string& filepath)
+    bool DiskManager::compressFile(const std::string& filepath, const std::string& destPath)
     {
         lzma_stream strm = LZMA_STREAM_INIT;
 
         // Initialize the encoder. If it succeeds, compress from
-        // stdin to stdout. the shoudl be file handles fro the file to compressed and the output file
+        // stdin to stdout. the should be file handles fro the file to compressed and the output file
         if (!Common::FileSystem::fileSystem()->isFile(filepath))
         {
                 LOGWARN("File does not exist, " << filepath );
@@ -148,8 +149,7 @@ namespace Plugin
             LOGWARN("Failed to open file, " << filepath );
             return false;
         }
-        std::string destPath = filepath.substr(0,filepath.find_first_of(".")) + ".xz";
-        LOGINFO(destPath);
+
         FILE *output = fopen (destPath.c_str() , "wb");
         if (output == nullptr)
         {
@@ -194,11 +194,11 @@ namespace Plugin
 
     }
 
-    uint64_t DiskManager::deleteOldJournalFiles(const std::string& dirpath, uint64_t lowerLimit, uint64_t currentTotalSizeOnDisk)
+    void DiskManager::deleteOldJournalFiles(const std::string& dirpath, uint64_t lowerLimit, uint64_t currentTotalSizeOnDisk)
     {
         if (currentTotalSizeOnDisk <= lowerLimit)
         {
-            return 0;
+            return;
         }
 
         std::vector<SubjectDirInfo> fileset;
@@ -211,9 +211,9 @@ namespace Plugin
             subjects.insert(subjects.end(),list.begin(),list.end());
         }
 
-        if (currentTotalSizeOnDisk == 0 || subjects.size() == 0 )
+        if (subjects.size() == 0 )
         {
-            return 0;
+            return;
         }
 
         uint64_t totalSizeToDelete = currentTotalSizeOnDisk - lowerLimit;
@@ -273,8 +273,6 @@ namespace Plugin
         {
             fs->removeFile(file);
         }
-
-        return sizeOfDeletedFiles;
     }
 
     std::vector<DiskManager::SubjectFileInfo> DiskManager::getSortedListOFCompressedJournalFiles(const std::string& dirpath)
@@ -353,10 +351,21 @@ namespace Plugin
 
                 if (fileNameParts.size() == 5)
                 {
-                    if (compressFile(path))
+                    std::string compressedFileFinalPath  = path.substr(0,path.find_first_of(".")) + ".xz";
+                    std::string compressFileTempPath =
+                        Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getTempPath(), "journal.xz");
+
+                    if (fs->exists(compressFileTempPath))
+                    {
+                        fs->removeFile(compressFileTempPath);
+                    }
+
+
+                    if (compressFile(path, compressFileTempPath))
                     {
                         try
                         {
+                            fs->moveFile(compressFileTempPath,compressedFileFinalPath);
                             fs->removeFile(path);
                         }
                         catch (Common::FileSystem::IFileSystemException& exception)
