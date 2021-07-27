@@ -17,7 +17,7 @@ Test Teardown  Run Keywords
 ...            General Test Teardown
 
 Force Tags  LOAD4
-Default Tags   EVENT_JOURNALER_PLUGIN   AV_PLUGIN
+Default Tags   EVENT_JOURNALER_PLUGIN   AV_PLUGIN   EDR_PLUGIN
 
 
 *** Test Cases ***
