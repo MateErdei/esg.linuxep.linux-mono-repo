@@ -57,7 +57,12 @@ Action Applied After Policies
     Set Log Level For Component And Reset and Return Previous Log  mcs_router   DEBUG
     Register With Fake Cloud
     Check Default Policies Exist
-
+    Send Policy File  mcs  ${SUPPORT_FILES}/CentralXml/Cloud_MCS_policy_15sPollingDelay.xml
+        # Check for default of 5 seconds with tolerance of 1 seconds
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Mcsrouter Log Contains  COMMAND_CHECK_INTERVAL_MINIMUM=15
 
     Setup Filesystem Watcher  ${SOPHOS_INSTALL}  log_file_path=${FileSystemWatcherLog}
     Start Filesystem Watcher
