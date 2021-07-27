@@ -315,7 +315,7 @@ namespace Plugin
         }
         else
         {
-            LOGWARN("No files to delete");
+            LOGWARN("No files in directory :" << dirpath << " to be sorted");
         }
         std::vector<SubjectFileInfo> sortedFiles;
         for (const auto& file : list)
