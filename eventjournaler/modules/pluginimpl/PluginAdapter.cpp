@@ -50,6 +50,7 @@ namespace Plugin
                 {
                     // an hour has passed check the journalFiles
                     manageJournalDataStoreSize();
+                    lastChecked = current;
                 }
             }
             else
