@@ -42,7 +42,11 @@ namespace Common
 
         Reader::Reader(const std::string& location) : m_location(location)
         {
-            m_helper = Sophos::Journal::GetHelper(m_location);
+            std::optional<Sophos::Journal::ViewSettings> settings = Sophos::Journal::ViewSettings();
+            settings.value()[Sophos::Journal::Settings::FlushDelayKey] = "false";
+            settings.value()[Sophos::Journal::Settings::FlushDelayIntervalKey] = "0";
+            settings.value()[Sophos::Journal::Settings::JournalLocationKey] = m_location;
+            m_helper = Sophos::Journal::GetHelper(settings);
         }
 
         std::string Reader::getCurrentJRLForId(const std::string& idFilePath)

@@ -23,4 +23,5 @@ public:
     MOCK_METHOD0(GetUsedColumns, UsedColumns&());
     MOCK_METHOD0(GetAllConstraints, ConstraintMap&());
     MOCK_METHOD2(GetConstraints, std::set<std::string>(const std::string&, ConstraintOperator));
+    MOCK_METHOD3(AddConstraint, void(const std::string&, ConstraintOperator, const std::string&));
 };
