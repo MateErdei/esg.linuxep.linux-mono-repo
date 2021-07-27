@@ -109,7 +109,7 @@ Read First Event From Journal
     log to console   ${result.stdout}
     log  ${result.stdout}
     log  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
+    Should Be Equal As Integers  ${result.rc}  0    Event read process failed with: ${result.rc}
     [Return]   ${result.stdout}
 
 Read All Detection Events From Journal
