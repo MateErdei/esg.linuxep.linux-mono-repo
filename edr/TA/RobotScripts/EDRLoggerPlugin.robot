@@ -5,6 +5,7 @@ Library         Process
 Library         OperatingSystem
 Library         Collections
 Library         ../Libs/XDRLibs.py
+Library         ../Libs/InstallerUtils.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot
@@ -857,6 +858,7 @@ Add Uptime Query to Scheduled Queries
 Test Teardown
     EDR And Base Teardown
     Uninstall All
+    Unmount All Comms Component Folders
 
 Osquery Flag File Should Contain
     [Arguments]  ${stringToContain}
