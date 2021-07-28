@@ -1,13 +1,13 @@
 <?xml version="1.0" ?>
 <importspec>
 	<warehouses>
-		<warehouse id="sspl"   name="DNR_SSPL_SPRINT_2021_28"/>
+		<warehouse id="sspl"   name="DNR_SSPL_SPRINT_2021_31"/>
 	</warehouses>
 	<imports>
 		<line id="ServerProtectionLinux-Base">
-			<componentsuite id="ServerProtectionLinux-Base-1.1.7.6"
-							version="1.1.7.6"
-							artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2021-28/20210705082840-df49274e32176958cc6290152bc5365bb8248a21-20R4xT/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
+			<componentsuite id="ServerProtectionLinux-Base-1.1.7.7"
+							version="1.1.7.7"
+							artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2021-31/20210728105405-df49274e32176958cc6290152bc5365bb8248a21-IsEdlA/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
 							longdic="Sophos Linux Base"
 							shortdic="Sophos Linux Base"/>
 			<componentsuite id="ServerProtectionLinux-Base-1.1.7.2"
@@ -47,9 +47,9 @@
 					   shortdic="Sophos Linux Base"/>
 		</line>
 		<line id="ServerProtectionLinux-Plugin-EDR">
-			<component id="ServerProtectionLinux-Plugin-EDR-1.1.2.56"
-					   version="1.1.2.56"
-					   artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--2021-28/20210705072613-0a3f643c4f34c3386dd0de6bb1acbe68d51aa79c-i9b9EW/edr/SDDS-COMPONENT/"
+			<component id="ServerProtectionLinux-Plugin-EDR-1.1.2.87"
+					   version="1.1.2.87"
+					   artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--2021-31/20210728093300-f46f6c18b89a3675186dfba865075fa086a13c3f-VbXg9r/edr/SDDS-COMPONENT/"
 					   longdic="Sophos Live Discover Plugin"
 					   shortdic="Sophos Live Discover Plugin"/>
 			<component id="ServerProtectionLinux-Plugin-EDR-1.1.2.20"
@@ -74,9 +74,9 @@
 					   shortdic="Sophos Live Discover Plugin"/>
 		</line>
 		<line id="ServerProtectionLinux-Base-component">
-			<component id="ServerProtectionLinux-Base-component-1.1.7.83"
-					   version="1.1.7.83"
-					   artifact="esg-releasable-candidate/linuxep.everest-base/release--2021-28/20210702152935-ed995af73c515608b30b02507d103cdd39431ea6-ntkuxd/sspl-base/SDDS-COMPONENT/"
+			<component id="ServerProtectionLinux-Base-component-1.1.7.176"
+					   version="1.1.7.176"
+					   artifact="esg-releasable-candidate/linuxep.everest-base/release--2021-31/20210727152926-78eebf51615db9f1abcbc68dbb5b4b00af58e1c3-Cb7qND/sspl-base/SDDS-COMPONENT/"
 					   longdic="Sophos Linux Base Component"
 					   shortdic="Sophos Linux Base Component"/>
 			<component id="ServerProtectionLinux-Base-component-1.1.7.7"
@@ -128,16 +128,21 @@
 					   shortdic="Sophos Linux Live Response"/>
 		</line>
 		<line id="ServerProtectionLinux-Plugin-EventJournaler">
-			<component id="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.28"
-					   version="1.0.0.28"
-					   artifact="esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2021-28/20210702170446-3e26761bfa4e3c64ece36adb7828ea0a3781e326-13Bica/eventjournaler/SDDS-COMPONENT"
+			<component id="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.73"
+					   version="1.0.0.73"
+					   artifact="esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2021-31/20210727220604-a5063514bc75c8ffd2fe51f0a34c90cc5873d74a-j3hcRX/eventjournaler/SDDS-COMPONENT"
 					   longdic="Sophos Linux Event Journaler"
 					   shortdic="Sophos Linux Event Journaler"/>
 		</line>
 		<line id="ServerProtectionLinux-Plugin-AV">
-			<component id="ServerProtectionLinux-Plugin-AV-1.0.2.61"
-					   version="1.0.2.61"
-					   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--Version_1_0_2/20210628120806-0bc086ff597b6bcd10c33198dda73fb98c92283f-XhSoJt/sspl-plugin-anti-virus/SDDS-COMPONENT"
+			<component id="ServerProtectionLinux-Plugin-AV-1.0.2.159"
+					   version="1.0.2.159"
+					   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2021-31/20210728124940-7979f5b8b91934241031596740b274395b397938-ZnIoA7/sspl-plugin-anti-virus/SDDS-COMPONENT"
+					   longdic="Sophos Linux AntiVirus"
+					   shortdic="Sophos Linux AntiVirus"/>
+			<component id="ServerProtectionLinux-Plugin-AV-1.0.2.93"
+					   version="1.0.2.93"
+					   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--Version_1_0_2/20210707085822-7dedf149917f3109dc0e844cf9d0fbdba2defdd2-ZDuJKp/sspl-plugin-anti-virus/SDDS-COMPONENT"
 					   longdic="Sophos Linux AntiVirus"
 					   shortdic="Sophos Linux AntiVirus"/>
 			<component id="ServerProtectionLinux-Plugin-AV-1.0.1.29"
