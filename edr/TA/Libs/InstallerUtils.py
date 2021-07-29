@@ -6,19 +6,9 @@
 import os
 import shutil
 import subprocess
-# import grp
-# import pwd
-# import tempfile
-# import glob
-# import json
-# import stat
-# import xml.dom.minidom
-# import re
-# import configparser
+
 import time
-# import psutil
-#
-# import PathManager
+
 import tempfile
 
 from robot.api import logger
