@@ -578,6 +578,27 @@ class WarehouseUtils(object):
                 logger.debug("Renaming {} to {}".format(src, target))
                 os.rename(os.path.join(path, x), target)
 
+def get_importrefrence_for_component_with_tag(rigid_name, tag):
+    import xml.etree.ElementTree as ET
+    root = ET.parse("/mnt/filer6/linux/SSPL/testautomation/sdds-specs/sdds.DNR_SSPL_SPRINT_2021_31.1.pub.xml")
+    line = list(filter(lambda n: rigid_name == n.attrib["id"], root.findall("./warehouses//line")))[0]
+    for component in line.findall("./component"):
+        for release_tag in component.findall("./releasetag"):
+            if release_tag.attrib["tag"] == tag:
+                return component.attrib["importreference"]
+
+def get_version_for_component_with_importref(rigid_name, importref):
+    import xml.etree.ElementTree as ET
+    root = ET.parse("/mnt/filer6/linux/SSPL/testautomation/sdds-specs/sdds.DNR_SSPL_SPRINT_2021_31.1.import.xml")
+    line = list(filter(lambda n: rigid_name == n.attrib["id"], root.findall("./imports/line")))[0]
+    for component in line.findall("./"):
+        if component.attrib["id"] == importref:
+            return component.attrib["version"]
+
+def get_version_for_rigidname(rigid_name, tag="RECOMMENDED"):
+    importref = get_importrefrence_for_component_with_tag(rigid_name, tag)
+    version = get_version_for_component_with_importref(rigid_name, importref)
+    return version
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":
