@@ -264,6 +264,7 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
+    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
 
     Check Current Release Installed Correctly
@@ -300,9 +301,6 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
-
-    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...   300 secs
@@ -315,11 +313,6 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     Sleep  10
     Trigger Update Now
 
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
-    ...  Check Log Contains String At Least N Times   /tmp/preserve-sul-downgrade  Downgrade Log  Update success  1
-    #Wait for successful update (all up to date) after downgrading
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs
