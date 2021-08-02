@@ -70,7 +70,7 @@ namespace
 } // namespace
 
 /** this class is just to allow the tests to be executed without requiring root*/
-class NullFilePermission : public Common::FileSystem::FilePermissionsImpl
+class WDNullFilePermission : public Common::FileSystem::FilePermissionsImpl
 {
 public:
     void chown(const Path&, const std::string&, const std::string&) const override {}
@@ -82,7 +82,7 @@ class ScopedFilePermission
 public:
     ScopedFilePermission()
     {
-        Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>(new NullFilePermission()));
+        Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>(new WDNullFilePermission()));
     }
     ~ScopedFilePermission() { Tests::restoreFilePermissions(); }
 };
@@ -197,7 +197,7 @@ std::string templatePlugin(const std::string& installdir, const std::string& plu
   ],
   "executableUserAndGroup": "@@user@@:@@group@@"
 })" };
-    NullFilePermission nullFilePermission;
+    WDNullFilePermission nullFilePermission;
 
     std::string user = nullFilePermission.getUserName(::getuid());
     std::string group = nullFilePermission.getGroupName(::getgid());

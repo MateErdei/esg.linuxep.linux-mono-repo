@@ -36,7 +36,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/TempDir.h>
 
 /** this class is just to allow the tests to be executed without requiring root*/
-class NullFilePermission : public Common::FileSystem::FilePermissionsImpl
+class PluginNullFilePermission : public Common::FileSystem::FilePermissionsImpl
 {
 public:
     void chown(const Path& , const std::string& , const std::string& ) const override
@@ -56,7 +56,7 @@ class ScopedFilePermission
 public:
     ScopedFilePermission()
     {
-        Tests::replaceFilePermissions( std::unique_ptr<Common::FileSystem::IFilePermissions>( new NullFilePermission()) );
+        Tests::replaceFilePermissions( std::unique_ptr<Common::FileSystem::IFilePermissions>( new PluginNullFilePermission()) );
     }
     ~ScopedFilePermission()
     {

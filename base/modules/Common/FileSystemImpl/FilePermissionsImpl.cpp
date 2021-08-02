@@ -69,7 +69,7 @@ namespace Common
         gid_t FilePermissionsImpl::getGroupId(const std::string& groupString) const
         {
             struct group groupbuf;
-            struct group* replygroup;
+            struct group* replygroup = nullptr;
             int err = ERANGE;
             const int multiplier = 2;
             const int bufferStartSize = 1024;
@@ -107,7 +107,7 @@ namespace Common
         std::string FilePermissionsImpl::getGroupName(const gid_t& groupId) const
         {
             struct group groupbuf;
-            struct group* replygroup;
+            struct group* replygroup = nullptr;
 
             int err = ERANGE;
             const int multiplier = 2;
@@ -181,7 +181,7 @@ namespace Common
         uid_t FilePermissionsImpl::getUserId(const std::string& userString) const
         {
             struct passwd userBuf;
-            struct passwd* replyUser;
+            struct passwd* replyUser = nullptr;
             int err = ERANGE;
             const int multiplier = 2;
             const int bufferStartSize = 1024;
@@ -218,7 +218,7 @@ namespace Common
         std::string FilePermissionsImpl::getUserName(const uid_t& userId) const
         {
             struct passwd userBuf;
-            struct passwd* replyUser;
+            struct passwd* replyUser = nullptr;
             int err = ERANGE;
             const int multiplier = 2;
             const int bufferStartSize = NSS_BUFLEN_PASSWD;
