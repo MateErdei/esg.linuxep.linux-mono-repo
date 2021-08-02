@@ -6,13 +6,30 @@ function failure()
     exit 1
 }
 
+function try_command_with_backoff()
+{
+    for i in {1..5};
+    do
+      "$@"
+      if [[ $? != 0 ]]
+      then
+        EXIT_CODE=1
+        sleep 15
+      else
+        EXIT_CODE=0
+        break
+      fi
+    done
+    return $EXIT_CODE
+}
+
 SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 
 
 PIP_ARGS="-i https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple --trusted-host tap-artifactory1.eng.sophos --cert ./sophos_certs.pem"
-python3 -m pip install wheel ${PIP_ARGS}
-python3 -m pip install --upgrade build_scripts ${PIP_ARGS}  || failure "Unable to install build_scripts"
-python3 -m pip install --upgrade keyrings.alt ${PIP_ARGS} || failure "Unable to install dependency"
+try_command_with_backoff  python3 -m pip install wheel ${PIP_ARGS}
+try_command_with_backoff  python3 -m pip install --upgrade build_scripts ${PIP_ARGS}  || failure "Unable to install build_scripts"
+try_command_with_backoff  python3 -m pip install --upgrade keyrings.alt ${PIP_ARGS}  || failure "Unable to install dependency"
 
 #Update the hardcoded paths to filer 5 and filer 6 in the build scripts to work on dev machines
 BUILD_SCRIPT_INSTALL_DIR="$(python3 -m pip show build_scripts | grep "Location" | sed s/Location:\ //)/build_scripts"
