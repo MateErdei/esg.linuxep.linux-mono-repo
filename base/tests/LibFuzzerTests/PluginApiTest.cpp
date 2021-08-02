@@ -51,14 +51,14 @@ public:
     }
 };
 
-class ScopedFilePermission
+class PluginScopedFilePermission
 {
 public:
-    ScopedFilePermission()
+    PluginScopedFilePermission()
     {
         Tests::replaceFilePermissions( std::unique_ptr<Common::FileSystem::IFilePermissions>( new PluginNullFilePermission()) );
     }
-    ~ScopedFilePermission()
+    ~PluginScopedFilePermission()
     {
         Tests::restoreFilePermissions();
     }
@@ -121,7 +121,7 @@ public:
 
     DummyPluginRunner() : Runner(), m_consoleSetup{Common::Logging::LOGOFFFORTEST()}
     {
-        ScopedFilePermission scopedFilePermission;
+        PluginScopedFilePermission scopedFilePermission;
 
         Tests::TempDir tempdir("/tmp");
         tempdir.makeDirs("var/ipc/plugins/");

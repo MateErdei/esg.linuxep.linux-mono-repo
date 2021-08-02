@@ -77,14 +77,14 @@ public:
     void chmod(const Path&, __mode_t) const override {}
 };
 
-class ScopedFilePermission
+class WDScopedFilePermission
 {
 public:
-    ScopedFilePermission()
+    WDScopedFilePermission()
     {
         Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>(new WDNullFilePermission()));
     }
-    ~ScopedFilePermission() { Tests::restoreFilePermissions(); }
+    ~WDScopedFilePermission() { Tests::restoreFilePermissions(); }
 };
 
 /** FakeProcess is here to avoid requiring to really start/stop plugins. This FakeProcess simulates the execution of the
@@ -262,7 +262,7 @@ public:
         Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", "inproc://watchdog.ipc");
 
         setMainLoop([this]() {
-            ScopedFilePermission scopedFilePermission;
+            WDScopedFilePermission scopedFilePermission;
             ScopedProcess scopedProcess;
             try
             {

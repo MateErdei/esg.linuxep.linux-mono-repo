@@ -138,10 +138,10 @@ static void *watchdogmain(void * )
     return &result;
 }
 
-class WatchdogRunner
+class WatchdogWdctlRunner
 {
 public:
-    WatchdogRunner():m_thread_id{}
+    WatchdogWdctlRunner():m_thread_id{}
     {
         state = 0;
     }
@@ -161,7 +161,7 @@ public:
         state = 2;
         return result;
     }
-    ~WatchdogRunner()
+    ~WatchdogWdctlRunner()
     {
         try
         {
@@ -214,7 +214,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
 
         std::unique_lock<std::mutex> lock{ensureNotInParallel};
         testing::internal::CaptureStderr();
-        WatchdogRunner watchdogRunner;
+        WatchdogWdctlRunner watchdogRunner;
         watchdogRunner.start();
         waitPluginStarted();
         int retValue = wdctl.main_afterLogConfigured(stopArgs, false);
@@ -247,7 +247,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIsRunningDetectCanDetectStatusOfPlugins) // NO
         EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
 
         std::unique_lock<std::mutex> lock{ensureNotInParallel};
-        WatchdogRunner watchdogRunner;
+        WatchdogWdctlRunner watchdogRunner;
         watchdogRunner.start();
         waitPluginStarted();
 
