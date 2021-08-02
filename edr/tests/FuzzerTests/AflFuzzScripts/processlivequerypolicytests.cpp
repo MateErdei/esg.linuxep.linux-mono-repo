@@ -44,10 +44,10 @@ public:
     void requestPolicies(const std::string&) const override {};
 };
 
-class TestablePluginAdapter : public Plugin::PluginAdapter
+class FuzzTestablePluginAdapter : public Plugin::PluginAdapter
 {
 public:
-    TestablePluginAdapter(std::shared_ptr<Plugin::QueueTask> queueTask) :
+    FuzzTestablePluginAdapter(std::shared_ptr<Plugin::QueueTask> queueTask) :
             Plugin::PluginAdapter(
                     queueTask,
                     std::unique_ptr<Common::PluginApi::IBaseServiceApi>(new DummyServiceApli()),
@@ -123,7 +123,7 @@ int main()
     try
     {
         auto queueTask = std::make_shared<Plugin::QueueTask>();
-        TestablePluginAdapter pluginAdapter(queueTask);
+        FuzzTestablePluginAdapter pluginAdapter(queueTask);
         pluginAdapter.processLiveQueryPolicy(content);
     }
     catch (std::exception &e)
