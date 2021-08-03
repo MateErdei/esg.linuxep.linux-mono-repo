@@ -78,7 +78,7 @@ no_column_query = """{
     "name": "No column",
     "query": "SELECT name, value, invalid_column FROM osquery_flags where name=='logger_stderr'"
     }"""
-no_column_response = """{ 
+no_column_response = """{
     "type": "sophos.mgt.response.RunLiveQuery",
     "queryMetaData": {"errorCode":1,"errorMessage":"no such column: invalid_column"}
     }"""

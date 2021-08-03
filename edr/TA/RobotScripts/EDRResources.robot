@@ -230,6 +230,11 @@ Install ALC Policy
 Check Osquery Running
     Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd   OnError=osquery not running
 
+Check Osquery Not Running
+    ${result} =    Run Process  pgrep  -a  osqueryd
+    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
+    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
 Display All SSPL Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL} | grep -v python | grep -v comms | grep -v primarywarehouse | grep -v comms | grep -v temp_warehouse | grep -v TestInstallFiles | grep -v lenses   shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
@@ -282,6 +287,9 @@ Check EDR Executable Not Running
     ${result} =    Run Process  pgrep  -a  edr
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+Get Osquery pid
+    ${edr_osquery_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
+    [Return]  ${edr_osquery_pid.stdout}
 
 Restart EDR
     ${mark} =  Mark File  ${EDR_LOG_PATH}

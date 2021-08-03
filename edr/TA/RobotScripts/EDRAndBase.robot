@@ -214,7 +214,6 @@ EDR Plugin Can Run Queries For Event Journal Detection Table And Create Jrl
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
 
 
-
 EDR Plugin Stops Without Errors
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
@@ -230,6 +229,7 @@ EDR Plugin Stops Without Errors
     ...  30 secs
     ...  1 secs
     ...  Check EDR Executable Not Running
+    Check Osquery Not Running
     EDR Plugin Log Does Not Contain  ERROR [
     EDR Plugin Log Does Not Contain  WARN [
     EDR Plugin Log Does Not Contain  Operation canceled
