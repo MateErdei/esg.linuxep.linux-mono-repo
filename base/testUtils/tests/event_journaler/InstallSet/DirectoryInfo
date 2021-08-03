@@ -2,6 +2,6 @@ o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/bin
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64
 o700, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/log
+o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/data
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/data/eventjournals
 o750, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/var
-o755, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/data
