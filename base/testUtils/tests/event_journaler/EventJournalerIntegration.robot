@@ -6,8 +6,8 @@ Resource  ../event_journaler/EventJournalerResources.robot
 
 Resource    ../edr_plugin/EDRResources.robot
 Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
-Resource  ../mcs_router/McsRouterResources.robot
-Suite Setup     Setup For Fake Cloud
+
+Suite Setup     Require Installed
 Suite Teardown  Require Uninstalled
 
 Test Teardown  Run Keywords
@@ -21,15 +21,9 @@ Default Tags   EVENT_JOURNALER_PLUGIN    EDR_PLUGIN
 
 *** Test Cases ***
 Test we can query empty event journal
-    [Timeout]  10 minutes
-    Start Local Cloud Server
-    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
-    Should Be Equal As Strings  0  ${result.rc}
-    Register With Fake Cloud
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [livequery]\nVERBOSITY=DEBUG\n
     Install EDR Directly
     Install Event Journaler Directly
-
 
     Run Live Query  select * from sophos_detections_journal   simple
 
@@ -42,14 +36,3 @@ Test we can query empty event journal
     ...  10 secs
     ...  2 secs
     ...  Check Log Contains   "errorCode":0    ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   livequery_log
-
-
-*** Keywords ***
-Setup For Fake Cloud
-    Regenerate Certificates
-    Require Fresh Install
-    Set Local CA Environment Variable
-    Override LogConf File as Global Level  DEBUG
-    Check For Existing MCSRouter
-    Cleanup MCSRouter Directories
-    Cleanup Local Cloud Server Logs
