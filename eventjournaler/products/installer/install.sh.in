@@ -71,7 +71,7 @@ chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
 mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
 mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data/eventjournals"
-chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data/"*
+chmod 0750 -R "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data"
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
