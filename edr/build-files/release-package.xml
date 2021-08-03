@@ -23,7 +23,7 @@
             <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/LINUXDAR-3116-journal-library" build-id="20210709113429-ef2082531af8d53ced225286ab8c6259ce538fb7-MOSomo" />
+            <release-version branch="release/SED_2021.31_linux_libs" build-id="20210727143349-35e31b4f459329a60df6ff3e54dc17c44bf2fba9-pT7b7Z" />
             <include artifact-path="sed-libs-linux/JournalLib" dest-dir="input"/>
         </build-asset>
         <package name="capnprotolinux11" version="0-8-0-17/222740/capnproto" dest=".">
