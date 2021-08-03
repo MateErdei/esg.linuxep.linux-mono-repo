@@ -14,7 +14,7 @@
         </build-asset>
         <build-asset project="winep" repo="sed">
             <release-version branch="release/SED_2021.31_linux_libs" build-id="20210727143349-35e31b4f459329a60df6ff3e54dc17c44bf2fba9-pT7b7Z" />
-            <development-version branch="feature/LINUXDAR-3116-build-journal-library-for-linux"/>
+<!--            <development-version branch="feature/LINUXDAR-3116-build-journal-library-for-linux"/>-->
             <include artifact-path="sed-libs-linux/JournalLib" dest-dir="input"/>
             <include artifact-path="sed-libs-linux/JournalReader" dest-dir="input"/>
         </build-asset>
