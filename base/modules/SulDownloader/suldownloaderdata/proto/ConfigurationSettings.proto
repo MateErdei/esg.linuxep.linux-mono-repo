@@ -2,9 +2,6 @@ syntax = "proto2";
 
 package SulDownloaderProto;
 
-
-//FIXME LINUXEP-6537: add information about the purpose of these entries.
-
 message ConfigurationSettings
 {
     repeated string sophosURLs = 1;

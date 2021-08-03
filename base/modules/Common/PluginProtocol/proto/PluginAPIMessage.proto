@@ -2,9 +2,6 @@ syntax = "proto2";
 
 package PluginProtocolProto;
 
-
-//FIXME LINUXEP-6537: add information about the purpose of these entries.
-
 message PluginAPIMessage
 {
     optional string pluginName = 1;
