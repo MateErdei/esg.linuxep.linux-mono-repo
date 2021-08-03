@@ -97,6 +97,7 @@ Log Status Of Sophos Spl
 Log Status Of Rsyslog
     ${result} =  Run Process    systemctl  status  rsyslog
     Log  ${result.stdout}
+    Log  ${result.stderr}
 
 Check Journalctl
     Analyse Journalctl   print_always=False
