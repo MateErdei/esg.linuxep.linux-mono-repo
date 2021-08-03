@@ -232,7 +232,6 @@ Check Osquery Running
 
 Check Osquery Not Running
     ${result} =    Run Process  pgrep  -a  osqueryd
-    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Display All SSPL Files Installed

@@ -1,5 +1,15 @@
 *** Settings ***
-Documentation    Suite description
+
+
+Library     Process
+Resource    ComponentSetup.robot
+Resource    EDRResources.robot
+
+Suite Setup     Install With Base SDDS
+Suite Teardown  Uninstall And Revert Setup
+
+Test Setup      No Operation
+Test Teardown   EDR And Base Teardown
 *** Variables ***
 ${OSQUERY_FLAGS_FILE}   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
 *** Test Cases ***
@@ -21,9 +31,13 @@ EDR Plugin stops osquery when killed
     ...  1 secs
     ...  Check EDR Executable Running
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  20 secs
+    ...  5 secs
+    ...  File Should Contain  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Stopping process
+    Wait Until Keyword Succeeds
+    ...  15 secs
     ...  1 secs
-    ...  Check Osquery Has Restarted
+    ...  Check Osquery Has Restarted  ${oldPid}
 
 EDR Plugin stops osquery when killed by segv
     Check EDR Plugin Installed With Base
@@ -31,12 +45,20 @@ EDR Plugin stops osquery when killed by segv
     ...  10 secs
     ...  1 secs
     ...  Check Osquery Running
+    ${oldPid} =  Get Osquery pid
     ${result} =  Run Process  pgrep edr | xargs kill -11  shell=true
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
     ...  Check EDR Executable Not Running
-    Check Osquery Not Running
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  File Should Contain  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Stopping process
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Osquery Has Restarted  ${oldPid}
 
 EDR Plugin replaces flags file on startup
     Check EDR Plugin Installed With Base
@@ -49,7 +71,11 @@ EDR Plugin replaces flags file on startup
     Create File   ${OSQUERY_FLAGS_FILE}  content=badcontent
     Start EDR
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  20 secs
+    ...  1 secs
+    ...  Check EDR Executable Running
+    Wait Until Keyword Succeeds
+    ...  25 secs
     ...  5 secs
     ...  File Should Not Contain Only  ${OSQUERY_FLAGS_FILE}  badcontent
 
