@@ -137,7 +137,7 @@ namespace Plugin
         static bool pluginMemoryAboveThreshold();
         void dataFeedExceededCallback();
         void telemetryResetCallback(Common::Telemetry::TelemetryHelper&);
-
+        void updateExtensions();
 
         std::future<void> m_monitor;
         std::shared_ptr<Plugin::IOsqueryProcess> m_osqueryProcess;
