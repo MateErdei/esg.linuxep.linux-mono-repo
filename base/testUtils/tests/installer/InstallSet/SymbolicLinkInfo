@@ -409,7 +409,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurl.so.4.7
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurl.so.4.7.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libdirectorywatcherimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libeventreceiverimpl.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libeventtypesimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libexpat.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libexpat.so.1
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libexpat.so.1.6

@@ -52,7 +52,6 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcommscomponentimpl.s
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurl.so.4.7.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libdirectorywatcherimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libeventreceiverimpl.so.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libeventtypesimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libexpat.so.1.6.12.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libfilesystemimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libgcc_s.so.1.0
