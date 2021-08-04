@@ -10,7 +10,10 @@ Resource  ../mcs_router/McsRouterResources.robot
 Suite Setup     Setup For Fake Cloud
 Suite Teardown  Require Uninstalled
 
-Test Teardown  General Test Teardown
+Test Teardown  Run Keywords
+...             Run Keyword If Test Failed  dump_cloud_server_error_log  AND
+...             Run Keyword If Test Failed    Dump Cloud Server Log   AND
+...             General Test Teardown
 
 Force Tags  LOAD4
 Default Tags   EVENT_JOURNALER_PLUGIN    EDR_PLUGIN
