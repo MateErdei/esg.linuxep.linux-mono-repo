@@ -14,6 +14,7 @@ Suite Teardown  Require Uninstalled
 Test Teardown  Run Keywords
 ...            Run Keyword If Test Failed  Dump Teardown Log  /tmp/av_install.log  AND
 ...            Remove File  /tmp/av_install.log  AND
+...            Stop Local Cloud Server  AND
 ...            General Test Teardown
 
 Force Tags  LOAD4

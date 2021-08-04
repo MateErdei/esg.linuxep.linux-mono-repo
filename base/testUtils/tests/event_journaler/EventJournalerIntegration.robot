@@ -11,7 +11,7 @@ Suite Setup     Setup For Fake Cloud
 Suite Teardown  Require Uninstalled
 
 Test Teardown  Run Keywords
-...             Run Keyword If Test Failed  dump_cloud_server_error_log  AND
+...             Stop Local Cloud Server  AND
 ...             Run Keyword If Test Failed    Dump Cloud Server Log   AND
 ...             General Test Teardown
 
