@@ -8,3 +8,5 @@ removedFiles
 base/update/manifest.dat
 base/lib/python2.7
 python27.zip*
+publisherdatachannel.ipc*
+subscriberdatachannel.ipc*
