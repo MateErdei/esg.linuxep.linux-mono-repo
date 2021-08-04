@@ -12,8 +12,8 @@ Suite Setup     Setup For Fake Cloud
 Suite Teardown  Require Uninstalled
 
 Test Teardown  Run Keywords
-...            Run Keyword If Test Failed  Dump Teardown Log  /tmp/install.sh  AND
-...            Remove File  /tmp/install.sh  AND
+...            Run Keyword If Test Failed  Dump Teardown Log  /tmp/av_install.log  AND
+...            Remove File  /tmp/av_install.log  AND
 ...            General Test Teardown
 
 Force Tags  LOAD4
