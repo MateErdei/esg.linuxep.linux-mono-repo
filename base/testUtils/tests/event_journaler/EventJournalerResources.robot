@@ -87,3 +87,7 @@ Check Journal Contains Detection Event With Content
     [Arguments]  ${expectedContent}
     ${latestJournalEvent} =  Read First Event From Journal
     Should Contain  ${latestJournalEvent}   ${expectedContent}
+
+Check Journal Is Empty
+    ${JournalEvent} =  Read First Event From Journal
+    Should Be Empty  ${JournalEvent}

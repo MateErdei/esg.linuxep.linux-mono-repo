@@ -31,8 +31,7 @@ Test av can publish events and that journaler can receive them
     Install EDR Directly
     Install Event Journaler Directly
     Install AV Plugin Directly
-    Run Keyword And Expect Error  Event read process failed with: 1: 1 != 0   Check Journal Contains Detection Event With Content  ${JOURNALED_EICAR}
-
+    Check Journal Is Empty
     Check AV Plugin Can Scan Files
 
     Wait Until Keyword Succeeds
