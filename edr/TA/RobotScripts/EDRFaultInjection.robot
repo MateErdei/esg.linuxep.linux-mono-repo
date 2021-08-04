@@ -31,11 +31,11 @@ EDR Plugin stops osquery when killed
     ...  1 secs
     ...  Check EDR Executable Running
     Wait Until Keyword Succeeds
-    ...  20 secs
+    ...  30 secs
     ...  5 secs
     ...  File Should Contain  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Stopping process
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  25 secs
     ...  1 secs
     ...  Check Osquery Has Restarted  ${oldPid}
 
@@ -56,7 +56,7 @@ EDR Plugin stops osquery when killed by segv
     ...  5 secs
     ...  File Should Contain  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Stopping process
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  25 secs
     ...  1 secs
     ...  Check Osquery Has Restarted  ${oldPid}
 
