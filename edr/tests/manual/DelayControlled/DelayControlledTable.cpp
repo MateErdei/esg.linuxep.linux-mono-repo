@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     {
         auto flags = OsquerySDK::ParseFlags(&argc, &argv);
 
-        auto extension = OsquerySDK::CreateExtension(flags, "SophosExtension", "1.0.0");
+        auto extension = OsquerySDK::CreateExtension(flags, "SophosExtensionDelay", "1.0.0");
         extension->AddTablePlugin(std::make_unique<OsquerySDK::DelayControlledTable>());
 
         extension->Start();
