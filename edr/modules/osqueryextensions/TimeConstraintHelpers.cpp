@@ -1,0 +1,166 @@
+/******************************************************************************************************
+
+Copyright 2021 Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "TimeConstraintHelpers.h"
+
+#include "ThreatTypes.h"
+
+#include <algorithm>
+
+namespace OsquerySDK
+{
+    std::pair<uint64_t, uint64_t > TimeConstraintHelpers::GetTimeConstraints(QueryContextInterface& queryContext)
+    {
+        extractAndStoreTimeConstraint(queryContext, OsquerySDK::EQUALS);
+        extractAndStoreTimeConstraint(queryContext, OsquerySDK::GREATER_THAN);
+        extractAndStoreTimeConstraint(queryContext, OsquerySDK::LESS_THAN);
+        extractAndStoreTimeConstraint(queryContext, OsquerySDK::GREATER_THAN_OR_EQUALS);
+        extractAndStoreTimeConstraint(queryContext, OsquerySDK::LESS_THAN_OR_EQUALS);
+
+        obtainAndStoreStartAndEndTimes();
+        return std::make_pair(m_startTime, m_endTime);
+    }
+
+    void TimeConstraintHelpers::extractAndStoreTimeConstraint(
+        QueryContextInterface& queryContext,
+        OsquerySDK::ConstraintOperator constraintOperator)
+    {
+        std::set<std::string> constraints = queryContext.GetConstraints("time", constraintOperator);
+
+        for (auto& constraint : constraints)
+        {
+            TimeConstraintData constraintData;
+            constraintData.time = std::stoll(constraint);
+            constraintData.constraintType = constraintOperator;
+            if (constraintOperator == OsquerySDK::EQUALS)
+            {
+                m_timeEqualsConstraints.push_back(constraintData);
+            }
+            else
+            {
+                m_timeBoundaryConstraints.push_back(constraintData);
+            }
+        }
+    }
+
+    void TimeConstraintHelpers::obtainAndStoreStartAndEndTimes()
+    {
+        // first sort both constraint lists
+        auto compare = [](const  TimeConstraintData &a, const TimeConstraintData &b) {
+          return a.time < b.time;};
+
+        std::sort(std::begin(m_timeEqualsConstraints), std::end(m_timeEqualsConstraints), compare);
+        std::sort(std::begin(m_timeBoundaryConstraints), std::end(m_timeBoundaryConstraints), compare);
+
+        if (!m_timeEqualsConstraints.empty())
+        {
+            m_startTime = m_timeEqualsConstraints.front().time;
+            m_endTime = m_timeEqualsConstraints.back().time;
+        }
+
+        if (!m_timeBoundaryConstraints.empty())
+        {
+            uint64_t startTime;
+            uint64_t endTime;
+
+            startTime = obtainStartBoundaryTime(m_timeBoundaryConstraints.front(), m_startTime);
+            endTime = obtainEndBoundaryTime(m_timeBoundaryConstraints.back(), m_endTime);
+
+            if (startTime == 0)
+            {
+                m_startTime = 0;
+            }
+            else
+            {
+                if (m_startTime != 0 && startTime != 0)
+                {
+                    m_startTime = std::min(m_startTime, startTime);
+                }
+                else
+                {
+                    m_startTime = std::max(m_startTime, startTime);
+                }
+            }
+
+            if (endTime == 0)
+            {
+                m_endTime = 0;
+            }
+            else
+            {
+                m_endTime = std::max(m_endTime, endTime);
+            }
+        }
+
+    }
+
+    uint64_t TimeConstraintHelpers::obtainStartBoundaryTime(TimeConstraintData& timeData, uint64_t compareTime)
+    {
+        uint64_t startTime = 0;
+        if (timeData.constraintType == OsquerySDK::GREATER_THAN
+            || timeData.constraintType == OsquerySDK::GREATER_THAN_OR_EQUALS )
+        {
+            startTime = timeData.time;
+        }
+        else  if (timeData.constraintType == OsquerySDK::LESS_THAN
+                  || timeData.constraintType == OsquerySDK::LESS_THAN_OR_EQUALS)
+        {
+            return 0;
+        }
+
+        if(compareTime != 0 && startTime != 0)
+        {
+            return std::min(startTime, compareTime);
+        }
+        else
+        {
+            return std::max(startTime, compareTime);
+        }
+    }
+
+    uint64_t TimeConstraintHelpers::obtainEndBoundaryTime(TimeConstraintData& timeData, uint64_t compareTime)
+    {
+        uint64_t endTime = 0;
+        if (timeData.constraintType == OsquerySDK::LESS_THAN
+            || timeData.constraintType == OsquerySDK::LESS_THAN_OR_EQUALS)
+        {
+            endTime = timeData.time;
+        }
+        else if (timeData.constraintType == OsquerySDK::GREATER_THAN
+                 || timeData.constraintType == OsquerySDK::GREATER_THAN_OR_EQUALS )
+        {
+            return 0;
+        }
+        return std::max(endTime, compareTime);
+
+    }
+
+//    std::string TimeConstraintHelpers::GetMinTime()
+//    {
+//        /**
+//         *  >= <= < >
+//         *  if ( lowest value is < op then no min time )
+//         *  if (lowest value is > op then min time set)
+//         *
+//         *  = =
+//         *  if (= value is lower than lowest value above and < op then no min time)
+//         *
+//         */
+//    }
+//
+//    std::string TimeConstraintHelpers::GetEndTime()
+//    {
+//        /**
+//         *  >= <= < >
+//         *  if ( greatest value is > op then no end time )
+//         *  if ( greatest value is < op then set end time)
+//         *
+//         *  = =
+//         *  if ( = value is higher  than greatest value above and > op then no end time)
+//         *
+//         */
+//    }
+}

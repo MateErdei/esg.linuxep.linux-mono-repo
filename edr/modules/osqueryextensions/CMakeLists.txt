@@ -15,6 +15,8 @@ sophos_add_library(OsqueryExtensions SHARED
         SophosAVDetectionTable.cpp
         SophosExtension.h
         SophosExtension.cpp
+        TimeConstraintHelpers.h
+        TimeConstraintHelpers.cpp
         ${SQLITE_INCLUDE_DIR}/sqlite3.c
         EXTRA_PROJECTS
             eventjournalwrapperimpl

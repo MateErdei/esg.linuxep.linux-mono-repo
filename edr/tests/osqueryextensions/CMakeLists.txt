@@ -1,10 +1,11 @@
 
 SophosAddTest(TestOsqueryExtension
+        MockQueryContext.h
         TestLoggerExtension.cpp
         TestResultSender.cpp
         TestSophosServerTable.cpp
         TestSophosAVDetectionTable.cpp
-        MockQueryContext.h
+        TestTimeConstraintHelpers.cpp
         PROJECTS OsqueryExtensions pluginimpl eventjournalwrapperimpl
         LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest pluginimpl ${LZMA_LIBRARY} stdc++fs
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude} ${LZMA_INCLUDE_DIR}
