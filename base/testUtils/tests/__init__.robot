@@ -91,15 +91,10 @@ Global Setup Tasks
 
     Log To Console  \n${colored_message} \n
 
-    # Turn on the pub sub logging on all tests globally. The pub sub will then be logged in the management agent log
-    # Should in general be false.
-    Set Global Variable  ${PUB_SUB_LOGGING}  ${False}
-    Run Keyword If   ${PUB_SUB_LOGGING}   Create Full Installer With Pub Sub Logging
 
     Generate Real Warehouse Alc Files
     Set Global Variable  ${GeneratedWarehousePolicies}  ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies
 
 Global Cleanup Tasks
     Clean Up System Product Test Output
-    Run Keyword If   ${PUB_SUB_LOGGING}   Clean Up Full Installer With Pub Sub Logging
     Cleanup Temporary Folders

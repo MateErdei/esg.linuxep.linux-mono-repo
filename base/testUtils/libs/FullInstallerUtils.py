@@ -404,37 +404,6 @@ def get_glibc_version_from_full_installer():
                 return version
     raise AssertionError("Installer: {}\nDid not contain line matching: {}".format(installer, regex_pattern))
 
-def add_environment_variables_to_installer_plugin_file(distDir, fileName, keyValuePairDict):
-    targetJsonFile = os.path.join(distDir, "installer", "plugins", fileName)
-    env_dict = {"environmentVariables": []}
-    for key, value in keyValuePairDict.items():
-        env_dict["environmentVariables"].append({"name": key, "value": value})
-
-    with open(targetJsonFile) as f:
-        data = json.load(f)
-    data.update(env_dict)
-    with open(targetJsonFile, 'w+') as f:
-        json.dump(data, f)
-
-
-def create_full_installer_with_pub_sub_logging():
-    installerDir = os.path.dirname(get_full_installer())
-    print("Installer path copied for pub sub logging addition: " + str(installerDir))
-    if os.path.isdir(PUB_SUB_LOGGING_DIST_LOCATION):
-        logger.info("{} already exists so will delete it".format(PUB_SUB_LOGGING_DIST_LOCATION))
-        clean_up_full_installer_with_pub_sub_logging()
-
-    shutil.copytree(installerDir, PUB_SUB_LOGGING_DIST_LOCATION)
-
-    environmentDict = {"SOPHOS_PUB_SUB_ROUTER_LOGGING": "1"}
-    targetFile = "managementagent.json"
-    logger.info("Altering management agent file: {}  to add the following environment variables: {}.".format(targetFile, environmentDict))
-    add_environment_variables_to_installer_plugin_file(PUB_SUB_LOGGING_DIST_LOCATION, targetFile, environmentDict)
-
-
-def clean_up_full_installer_with_pub_sub_logging():
-    print("Deleting pub sub distribution folder: {}".format(PUB_SUB_LOGGING_DIST_LOCATION))
-    shutil.rmtree(PUB_SUB_LOGGING_DIST_LOCATION)
 
 
 def run_full_installer(*args):
