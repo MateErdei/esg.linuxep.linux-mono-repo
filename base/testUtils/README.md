@@ -57,7 +57,6 @@ To refresh, run step 3b then 4
 
 The following tags can be used to select which tests can be run, using the include or exclude arguments.
 * AMAZON_LINUX - Test cases which will run on AWS only
-* AUDIT_PLUGIN - Test cases which test sspl-audit
 * AV_PLUGIN - Test cases which test anti-virus plugin
 * BASE_DOWNGRADE - Test cases where base is downgraded
 * CENTRAL - Tests which run against Central or Nova
@@ -67,7 +66,6 @@ The following tags can be used to select which tests can be run, using the inclu
 * DIAGNOSE - Tests which exercise sophos_diagnose
 * EDR_PLUGIN - Tests focusing on EDR capabilities
 * EVENT_JOURNALER_PLUGIN - Tests which exercise the event journaler plugin
-* EVENT_PLUGIN - Tests which exercise the event processor plugin 
 * EXAMPLE_PLUGIN - Tests which exercise the example plugin 
 * EXCLUDE_AWS - Used to exclude the test from being run on AWS
 * EXCLUDE_CENTOS8 excludes the test from running on centos 8

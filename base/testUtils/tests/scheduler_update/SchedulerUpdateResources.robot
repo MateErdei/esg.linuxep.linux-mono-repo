@@ -13,8 +13,6 @@ Library    ${LIBS_DIRECTORY}/WarehouseUtils.py
 Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/LogControlResources.robot
 Resource  ../management_agent/ManagementAgentResources.robot
-Resource  ../management_agent-event_processor/EventProcessorResources.robot
-Resource  ../management_agent-audit_plugin/AuditPluginResources.robot
 Resource  ../GeneralTeardownResource.robot
 
 *** Variables ***
@@ -178,58 +176,6 @@ Setup Warehouse For Base
     Set Local CA Environment Variable
 
 
-Setup Warehouse For Sensors
-    Generate Update Certs
-    ${event_processor_dist} =  Get Event Processor Plugin Sdds
-    ${audit_dist} =  Get Sspl Audit Plugin Sdds
-
-    Remove Directory  ${tmpdir}/TestInstallFiles/${EVENT_PROCESSOR_RIGID_NAME}  recursive=${TRUE}
-    Copy Directory     ${event_processor_dist}  ${tmpdir}/TestInstallFiles/${EVENT_PROCESSOR_RIGID_NAME}
-
-    Remove Directory  ${tmpdir}/TestInstallFiles/${SSPL_AUDIT_RIGID_NAME}  recursive=${TRUE}
-    Copy Directory     ${audit_dist}  ${tmpdir}/TestInstallFiles/${SSPL_AUDIT_RIGID_NAME}
-
-    Clear Warehouse Config
-    Add Component Warehouse Config   ${EVENT_PROCESSOR_RIGID_NAME}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${EVENT_PROCESSOR_RIGID_NAME}  ${BASE_RIGID_NAME}
-    Add Component Warehouse Config   ${SSPL_AUDIT_RIGID_NAME}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${SSPL_AUDIT_RIGID_NAME}  ${BASE_RIGID_NAME}
-
-    Generate Warehouse   EventProcessor_FEATURES=SENSORS  AuditPlugin_FEATURES=SENSORS
-
-    Start Update Server    1233    ${tmpdir}/temp_warehouse/customer_files/
-    Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
-    Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
-    Can Curl Url    https://localhost:1233
-    Set Local CA Environment Variable
-
-Setup Warehouse For Base And Sensors
-    Generate Update Certs
-    ${base_dist} =  Get Folder With Installer
-    ${event_processor_dist} =  Get Event Processor Plugin Sdds
-    ${audit_dist} =  Get Sspl Audit Plugin Sdds
-
-    Remove Directory  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}  recursive=${TRUE}
-    Copy Directory     ${base_dist}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
-
-    Remove Directory  ${tmpdir}/TestInstallFiles/${EVENT_PROCESSOR_RIGID_NAME}  recursive=${TRUE}
-    Copy Directory     ${event_processor_dist}  ${tmpdir}/TestInstallFiles/${EVENT_PROCESSOR_RIGID_NAME}
-
-    Remove Directory  ${tmpdir}/TestInstallFiles/${SSPL_AUDIT_RIGID_NAME}  recursive=${TRUE}
-    Copy Directory     ${audit_dist}  ${tmpdir}/TestInstallFiles/${SSPL_AUDIT_RIGID_NAME}
-
-    Clear Warehouse Config
-    Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}  ${BASE_RIGID_NAME}
-    Add Component Warehouse Config   ${EVENT_PROCESSOR_RIGID_NAME}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${EVENT_PROCESSOR_RIGID_NAME}  ${BASE_RIGID_NAME}
-    Add Component Warehouse Config   ${SSPL_AUDIT_RIGID_NAME}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${SSPL_AUDIT_RIGID_NAME}  ${BASE_RIGID_NAME}
-
-    Generate Warehouse   EventProcessor_FEATURES=SENSORS  AuditPlugin_FEATURES=SENSORS
-
-    Start Update Server    1233    ${tmpdir}/temp_warehouse/customer_files/
-    Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
-    Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
-    Can Curl Url    https://localhost:1233
-    Set Local CA Environment Variable
-
-
 Setup Servers For Update Scheduler
     Setup Current Update Scheduler Environment
     Setup Warehouse For Base
@@ -281,20 +227,12 @@ Setup Environment After Warehouse Generation
 
     Start Update Scheduler
 
-Setup For Test With Warehouse Containing Base and Sensors
-    Setup Environment Before Warehouse Generation
-    Setup Warehouse For Base And Sensors
-    Setup Environment After Warehouse Generation
 
 Setup For Test With Warehouse Containing Base
     Setup Environment Before Warehouse Generation
     Setup Warehouse For Base
     Setup Environment After Warehouse Generation
 
-Setup For Test With Warehouse Containing Sensors
-    Setup Environment Before Warehouse Generation
-    Setup Warehouse For Sensors
-    Setup Environment After Warehouse Generation
 
 Log And Remove SulDownloader Log
     ${logpath} =  Set Variable  ${SOPHOS_INSTALL}/logs/base/suldownloader.log

@@ -128,25 +128,6 @@ def get_exampleplugin_sdds():
     return get_plugin_sdds("Example Plugin", "EXAMPLEPLUGIN_SDDS", candidates)
 
 
-def get_event_processor_plugin_sdds():
-    candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-eventprocessor")
-    if local_path_to_plugin:
-        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
-        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
-    return get_plugin_sdds("Event Processor Plugin", "SSPL_PLUGIN_EVENTPROCESSOR_SDDS", candidates)
-
-
-def get_sspl_audit_plugin_sdds():
-    candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-eventprocessor")
-    if local_path_to_plugin:
-        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
-        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
-    return get_plugin_sdds("SSPL Audit Plugin", "SSPL_AUDIT_PLUGIN_SDDS", candidates)
-
-
-
 class MDRSuite:
     def __init__(self, dbos, osquery, mdr_plugin, mdr_suite):
         self.dbos = dbos
