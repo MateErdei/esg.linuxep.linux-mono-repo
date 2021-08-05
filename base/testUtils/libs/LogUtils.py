@@ -83,9 +83,7 @@ class LogUtils(object):
     def dump_cloud_server_log(self):
         server_log = self.cloud_server_log
         self.dump_log(server_log)
-    def dump_cloud_server_error_log(self):
-        server_log = self.cloud_server_log
-        self.dump_log(server_log+"1")
+
     def dump_push_server_log(self):
         server_log = os.path.join(self.tmp_path, "push_server_log.log")
         self.dump_log(server_log)
