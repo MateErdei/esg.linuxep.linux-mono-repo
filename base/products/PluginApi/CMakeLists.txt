@@ -10,7 +10,6 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:procutilimplobject>
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         $<TARGET_OBJECTS:loggingobject>
-        #$<TARGET_OBJECTS:eventtypesimplobject>
         $<TARGET_OBJECTS:telemetryhelperimplobject>
         $<TARGET_OBJECTS:processmonitoringimplobject>
         $<TARGET_OBJECTS:processimplobject>

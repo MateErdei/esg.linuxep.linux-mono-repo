@@ -5,8 +5,6 @@ add_library(testhelpersobject OBJECT
         TempDir.h
         TestExecutionSynchronizer.cpp
         TestExecutionSynchronizer.h
-#        PubSubPathReplacement.cpp
-#        PubSubPathReplacement.h
         TestExecutionSynchronizer.h
         FilePermissionsReplaceAndRestore.h
         FilePermissionsReplaceAndRestore.cpp

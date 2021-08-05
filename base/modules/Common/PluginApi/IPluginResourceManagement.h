@@ -55,64 +55,6 @@ namespace Common
             virtual std::unique_ptr<IBaseServiceApi> createPluginAPI(
                 const std::string& pluginName,
                 std::shared_ptr<IPluginCallbackApi> pluginCallback) = 0;
-
-//            /**
-//             * Creates an instance of IRawDataPublisher which allows Sensors inside Plugins to send RawData which is
-//             * meant to be eventually processed by analytics platform in order to monitor EndPoint.
-//             *
-//             * Inside this project, data produced by IRawDataPublisher can be subscribed by ISubscriber to process them
-//             * as necessary.
-//             *
-//             * In its creation, IPluginResourceManagement will setup the ipc channel that IRawDataPublisher will use to
-//             * publish its data.
-//             *
-//             * @return IRawDataPublisher
-//             */
-//            virtual std::unique_ptr<IRawDataPublisher> createRawDataPublisher() = 0;
-//
-//            /**
-//             * Creates and instance of Subscriber and define the DataCategory that the subscriber is interested into.
-//             *
-//             * On creation, the IPluginResourceManagement setup the ipc subscription channel and also apply the filter
-//             * related to the category of RawData that the given subscriber is interested into.
-//             *
-//             * Whenever data arrives in the subscription channel, it will be forwarded to the
-//             * IEventVisitorCallback::processEvent
-//             *
-//             * @param dataCategorySubscription : Empty string means interested in all the categories available.
-//             *        Otherwise the subscriber will be notified only if dataCategorySubscription is a prefix of the
-//             * rawDataCategory emitted by the publisher.
-//             *        @see IRawDataPublisher::sendData
-//             *
-//             * @param eventVisitorCallback: Instance of the object that will receive the notification os data arrival
-//             * via its IEventVisitorCallback::processEvent
-//             * @return Instance of ISubscriber.
-//             */
-//            virtual std::unique_ptr<ISubscriber> createSubscriber(
-//                const std::string& dataCategorySubscription,
-//                std::shared_ptr<IEventVisitorCallback> eventVisitorCallback) = 0;
-//
-//            /**
-//             * Creates and instance of Subscriber and define the DataCategory that the subscriber is interested into.
-//             *
-//             * On creation, the IPluginResourceManagement setup the ipc subscription channel and also apply the filter
-//             * related to the category of RawData that the given subscriber is interested into.
-//             *
-//             * Whenever data arrives in the subscription channel, it will be forwarded to the
-//             * IRawDataCallback::receiveData
-//             *
-//             * @param dataCategorySubscription : Empty string means interested in all the categories available.
-//             *        Otherwise the subscriber will be notified only if dataCategorySubscription is a prefix of the
-//             * rawDataCategory emitted by the publisher.
-//             *        @see IRawDataPublisher::sendData
-//             *
-//             * @param rawDataCallback: Instance of the object that will receive the notification os data arrival via its
-//             * IRawDataCallback::receiveData
-//             * @return Instance of ISubscriber.
-//             */
-//            virtual std::unique_ptr<ISubscriber> createRawSubscriber(
-//                const std::string& dataCategorySubscription,
-//                std::shared_ptr<IRawDataCallback> rawDataCallback) = 0;
         };
 
         std::unique_ptr<IPluginResourceManagement> createPluginResourceManagement();
