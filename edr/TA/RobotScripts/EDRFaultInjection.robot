@@ -26,6 +26,7 @@ EDR Plugin stops osquery when killed
     ...  1 secs
     ...  Check EDR Executable Not Running
     Check Osquery Running
+    # wait for watchdog to bring edr back up
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
@@ -48,9 +49,15 @@ EDR Plugin stops osquery when killed by segv
     ${oldPid} =  Get Osquery pid
     ${result} =  Run Process  pgrep edr | xargs kill -11  shell=true
     Wait Until Keyword Succeeds
-    ...  30 secs
+    ...  20 secs
     ...  1 secs
     ...  Check EDR Executable Not Running
+    Check Osquery Running
+    # wait for watchdog to bring edr back up
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check EDR Executable Running
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
