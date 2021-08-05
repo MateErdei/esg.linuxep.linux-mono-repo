@@ -227,41 +227,6 @@ def setup_av_install():
     return full_av_sdds
 
 
-def get_sspl_base_sdds_version_0_5():
-    candidates = ["/uk-filer5/prodro/bir/sspl-base/0-5-0-223/213552/output/SDDS-COMPONENT/"]
-    return get_plugin_sdds("SSPL Base Version 0.5", "SSPL_BASE_SDDS_RELEASE_0_5", candidates)
-
-def get_sspl_base_sdds_version_1():  
-    candidates = ["/uk-filer5/prodro/bir/sspl-base/1-0-0-74/216976/output/SDDS-COMPONENT/"]
-    return get_plugin_sdds("SSPL Base Version 1.0.0", "SSPL_BASE_SDDS_RELEASE_1_0", candidates)
-
-
-def get_sspl_example_plugin_sdds_version_0_5():
-    candidates = ["/uk-filer5/prodro/bir/sspl-exampleplugin/0-5-0-43/213556/output/SDDS-COMPONENT/"]
-    return get_plugin_sdds("SSPL Example Plugin Version 0.5", "SSPL_EXAMPLE_PLUGIN_SDDS_RELEASE_0_5", candidates)
-
-
-def copy_exampleplugin_sdds():
-    original_location = get_exampleplugin_sdds()
-    tmpdir = os.path.join(tempfile.mkdtemp(prefix="robot-example-plugin"), "sdds")
-    shutil.copytree(original_location, tmpdir)
-    return tmpdir
-
-
-def copy_event_processor_plugin_sdds():
-    original_location = get_event_processor_plugin_sdds()
-    tmpdir = os.path.join(tempfile.mkdtemp(prefix="robot-event-processsor-plugin"), "sdds")
-    shutil.copytree(original_location, tmpdir)
-    return tmpdir
-
-
-def copy_sspl_audit_plugin_sdds():
-    original_location = get_sspl_audit_plugin_sdds()
-    tmpdir = os.path.join(tempfile.mkdtemp(prefix="robot-audit-plugin"), "sdds")
-    shutil.copytree(original_location, tmpdir)
-    return tmpdir
-
-
 def _copy_suite_entry_to(root_target_directory, mdr_entry):
     directory_name = mdr_entry.rigid_name
     src_directory = mdr_entry.sdds

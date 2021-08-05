@@ -36,52 +36,12 @@
             <include artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
             <include artifact-path="websocket_server" dest-dir="websocket_server" />
         </build-asset>
-        <!--        <package name="liveterminal_linux" version="develop/%LASTGOODBUILD%/liveterminal_linux/1.2.0/output" dest="." buildtype="dev">-->
-        <!--            <include src="SDDS-COMPONENT"   dest="liveterminal" />-->
-        <!--        </package>-->
-        <!--        <package name="liveterminal" version="develop/%LASTGOODBUILD%/liveterminal/1.1/websocket_server/" dest="." buildtype="dev">-->
-        <!--            <include src="."   dest="websocket_server" />-->
-        <!--        </package>-->
         <build-asset project="linuxep" repo="thininstaller">
             <development-version branch="develop" />
             <include artifact-path="output" dest-dir="sspl-thininstaller" />
         </build-asset>
-
-        <!--        <package name="sspl-thininstaller" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-thininstaller/1.0.4/output" dest="." buildtype="dev">-->
-        <!--            <include src="."   dest="sspl-thininstaller" />-->
-        <!--        </package>-->
-
-        <!--        <package name="sspl-thininstaller" version="sspl-thininstaller/1-0-6-5/220942/output" dest="." buildtype="prod">-->
-        <!--            <include src="." dest="sspl-thininstaller"/>-->
-        <!--        </package>-->
-
-        <package name="sspl-exampleplugin" version="develop/%LASTGOODCOMPONENTBUILD%/sspl-exampleplugin/0.5.1/output"
-                 dest="." buildtype="dev">
-            <include src="SDDS-COMPONENT" dest="sspl-exampleplugin"/>
-        </package>
-        <package name="sspl-audit" version="master/%LASTGOODCOMPONENTBUILD%/sspl-audit/0.5.1/output" dest="." buildtype="dev">
-            <include src="SDDS-COMPONENT"   dest="sspl-audit" />
-        </package>
-        <package name="sspl-eventprocessor" version="master/%LASTGOODCOMPONENTBUILD%/sspl-eventprocessor/0.5.1/output" dest="." buildtype="dev">
-            <include src="SDDS-COMPONENT"   dest="sspl-eventprocessor" />
-        </package>
-        <package name="sspl-base" version="0-5-0-223/213552/output" dest=".">
-            <include src="SDDS-COMPONENT" dest="sspl-base-0-5"/>
-        </package>
-        <package name="sspl-exampleplugin" version="0-5-0-43/213556/output" dest=".">
-            <include src="SDDS-COMPONENT" dest="sspl-exampleplugin-0-5"/>
-        </package>
-        <package name="capnprotolinux11" version="0-7-0-29/213995/output" dest=".">
-            <include src="capnproto.tar" dest="capnprotolinux11"/>
-        </package>
         <package name="openssllinux11" version="1-1-1c-16/216598/output" dest=".">
             <include src="openssl.tar" dest="openssllinux11"/>
-        </package>
-        <package name="sspl-base" version="1-0-0-74/216976/output" dest=".">
-            <include src="SDDS-COMPONENT" dest="sspl-base-1-0"/>
-        </package>
-        <package name="sspl-mdr-componentsuite" version="1-0-0-2/217070/output" dest=".">
-            <include src="." dest="sspl-mdr-componentsuite-1-0"/>
         </package>
         <package name="savlinux9-package" version="10-5-0/217084/savlinux-package" dest=".">
             <include src="sav-linux-x86-aggregated-10.5.0.0.25.tgz" dest="savlinux9-package"/>

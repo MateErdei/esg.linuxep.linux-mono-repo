@@ -30,13 +30,6 @@ check_exists ${SDDS_SSPL_MDR_COMPONENT_SUITE}
 check_exists ${SSPL_LIVERESPONSE_PLUGIN_SDDS}
 check_exists ${WEBSOCKET_SERVER}
 
-check_exists ${SSPL_BASE_SDDS_RELEASE_0_5}
-check_exists ${SSPL_EXAMPLE_PLUGIN_SDDS_RELEASE_0_5}
-
 check_exists ${OPENSSL_INPUT}
-check_exists ${CAPNP_INPUT}
-
-check_exists ${SSPL_BASE_SDDS_RELEASE_1_0}
-check_exists ${SDDS_SSPL_MDR_COMPONENT_SUITE_RELEASE_1_0}
 
 check_exists ${SAV_INPUT}

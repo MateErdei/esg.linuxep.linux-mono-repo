@@ -26,8 +26,7 @@ Global Setup Tasks
     ${CLOUD_IP} =  Get Central Ip
     Set Suite Variable    ${CLOUD_IP}     ${CLOUD_IP}   children=true
 
-    ${placeholder} =  Get Environment Variable  CAPNP_INPUT  default=/uk-filer5/prodro/bir/capnprotolinux11/0-7-0-29/213995/output
-    Set Global Variable  ${CAPNP_INPUT}  ${placeholder}
+
 
     ${placeholder} =  Get Environment Variable  SAV_INPUT  default=/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package
     Set Global Variable  ${SAV_INPUT}  ${placeholder}
