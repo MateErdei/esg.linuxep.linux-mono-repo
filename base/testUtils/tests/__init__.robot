@@ -81,7 +81,7 @@ Global Setup Tasks
     Directory Should Exist  ${OPENSSL_BIN_PATH}
     Directory Should Exist  ${OPENSSL_LIB_PATH}
 
-    ${system_product_test_tar_path}  ${system_product_test_output_path} =  Install System Product Test Output  ${CAPNP_INPUT}
+    ${system_product_test_tar_path}  ${system_product_test_output_path} =  Install System Product Test Output
     Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}  ${system_product_test_output_path}
     ${colored_message} =  Evaluate  "\\033[33mUsing the following for system product test output ${system_product_test_tar_path}\\033[0m"
     Copy File  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/libcrypto.so.1.1        ${SUPPORT_FILES}/warehouseGeneration/lib

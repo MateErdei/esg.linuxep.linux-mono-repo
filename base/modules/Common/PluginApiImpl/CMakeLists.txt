@@ -3,8 +3,6 @@ add_library(pluginapiobjects OBJECT
         ../PluginApi/IBaseServiceApi.h
         ../PluginApi/ApiException.h
         ../PluginApi/NoPolicyAvailableException.h
-        ../PluginApi/IRawDataPublisher.h
-        ../PluginApi/ISubscriber.h
         ../PluginApi/IPluginResourceManagement.h
         ../PluginApi/IPluginCallbackApi.h
         ../PluginApi/StatusInfo.h

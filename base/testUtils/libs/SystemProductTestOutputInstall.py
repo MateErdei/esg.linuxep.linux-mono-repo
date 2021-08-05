@@ -80,22 +80,11 @@ class SystemProductTestOutputInstall(object):
     def __init__(self):
         self.install_base_path = TEST_UTILS_PATH
 
-    def install_system_product_test_output(self, capnp_location):
-        LOGGER.info(TEST_UTILS_PATH)
-        system_product_test_path = getSystemProductTestOutput(self.install_base_path)
-        capnp_tar_path = os.path.join(capnp_location, "capnproto.tar")
-        LOGGER.info(f"capn tar path: {capnp_tar_path}")
-        capnp_prod_sys_test_output_path = os.path.join(self.install_base_path, "SystemProductTestOutput")
-        LOGGER.info(capnp_prod_sys_test_output_path)
-        if capnp_location == 'IGNORE':
-            return system_product_test_path, capnp_prod_sys_test_output_path
+    def install_system_product_test_output(self):
 
-        ret_code = os.system("tar -xf {} -C {} capnproto/include/capnp/ --strip-components 2 > /dev/null".format(capnp_tar_path, capnp_prod_sys_test_output_path))
-        if ret_code != 0 or not os.path.exists(os.path.join(capnp_prod_sys_test_output_path, "capnp")):
-            raise AssertionError("CAPNPROTO not extracted correctly! return is {} ".format(ret_code))
-        
-        
-        return system_product_test_path, capnp_prod_sys_test_output_path
+        system_product_test_path = getSystemProductTestOutput(self.install_base_path)
+
+        return system_product_test_path, os.path.join(self.install_base_path, "SystemProductTestOutput")
 
     def clean_up_system_product_test_output(self):
         shutil.rmtree(os.path.join(self.install_base_path, "SystemProductTestOutput"))

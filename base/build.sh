@@ -319,7 +319,6 @@ function build()
         untar_input log4cplus
         untar_input zeromq
         untar_input protobuf
-        untar_input capnproto
         untar_input python
         untar_input python-watchdog
         untar_input python-pathtools

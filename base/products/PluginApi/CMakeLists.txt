@@ -20,13 +20,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:directorywatcherimplobject>
         )
 
-target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf expat -L${EXPAT_INPUT}/lib64 -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib
-        "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libcapnp-rpc.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libcapnp.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libkj-async.a"
-        "${CAPNPROTO_LIBRARY_DIR}/libkj.a"
-        )
+target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf expat -L${EXPAT_INPUT}/lib64 -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib)
 
 add_library(sharedtesthelpers SHARED $<TARGET_OBJECTS:testhelpersobject>)
 target_link_libraries(sharedtesthelpers PUBLIC pluginapi)
@@ -51,7 +45,6 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include pluginapi/lib64
         COMMAND mkdir -p pluginapi/include/Common/ApplicationConfiguration
         COMMAND mkdir -p pluginapi/include/Common/DirectoryWatcher
-        COMMAND mkdir -p pluginapi/include/Common/EventTypes
         COMMAND mkdir -p pluginapi/include/Common/Exceptions
         COMMAND mkdir -p pluginapi/include/Common/FileSystem
         COMMAND mkdir -p pluginapi/include/Common/ProcUtilImpl
@@ -113,7 +106,6 @@ endfunction()
 
 add_copy_directory(Common/ApplicationConfiguration)
 add_copy_directory(Common/DirectoryWatcher)
-add_copy_directory(Common/EventTypes)
 add_copy_directory(Common/Exceptions)
 add_copy_directory(Common/FileSystem)
 add_copy_directory(Common/ProcUtilImpl)
