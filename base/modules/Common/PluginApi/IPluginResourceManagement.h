@@ -7,9 +7,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IBaseServiceApi.h"
-#include "IEventVisitorCallback.h"
-#include "IRawDataPublisher.h"
-#include "ISubscriber.h"
 
 #include <memory>
 #include <string>
