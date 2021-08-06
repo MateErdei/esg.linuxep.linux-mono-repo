@@ -154,8 +154,7 @@ Empty input file
     Create File    ${tmpdir}/input
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/input    ${tmpdir}/output
     Check SulDownloader Result   ${result}   ${UNSPECIFIED}
-    ...    Failed to process input settings
-    ...    Failed to process json message
+    ...    Failed to process json message with error: INVALID_ARGUMENT:Unexpected end of string. Expected a value.
 
 Unreachable warehouse server
     Create Directory    ${tmpdir}/sspl/base/update/cache/primarywarehouse
