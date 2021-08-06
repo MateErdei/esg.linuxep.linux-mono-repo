@@ -125,30 +125,4 @@ namespace OsquerySDK
         return std::max(endTime, compareTime);
 
     }
-
-//    std::string TimeConstraintHelpers::GetMinTime()
-//    {
-//        /**
-//         *  >= <= < >
-//         *  if ( lowest value is < op then no min time )
-//         *  if (lowest value is > op then min time set)
-//         *
-//         *  = =
-//         *  if (= value is lower than lowest value above and < op then no min time)
-//         *
-//         */
-//    }
-//
-//    std::string TimeConstraintHelpers::GetEndTime()
-//    {
-//        /**
-//         *  >= <= < >
-//         *  if ( greatest value is > op then no end time )
-//         *  if ( greatest value is < op then set end time)
-//         *
-//         *  = =
-//         *  if ( = value is higher  than greatest value above and > op then no end time)
-//         *
-//         */
-//    }
 }
