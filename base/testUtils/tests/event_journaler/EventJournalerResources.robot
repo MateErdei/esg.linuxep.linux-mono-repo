@@ -23,7 +23,10 @@ Install Event Journaler Directly
     Log  ${error}
     Log  ${result.stderr}
     Log  ${result.stdout}
-    Check Event Journaler Executable Running
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Event Journaler Executable Running
 
 Check Event Journaler Executable Running
     ${result} =    Run Process  pgrep eventjournaler | wc -w  shell=true
