@@ -47,7 +47,7 @@ namespace SulDownloader
     /**
      * Run ::runSULDownloader whilst handling serialization of ::DownloadReport and ::ConfigurationData.
      *
-     * @param settingsString serialized (json) version of SulDownloaderProto::ConfigurationSettings.
+     * @param inputFilePath filePath for the update_config.json
      * @param previousSettingString serialized (json) version of SulDownloaderProto::ConfigurationSettings.
      * @param previousReportData serialized (json) version of SulDownloaderProto::DownloadReport.
      * @param supplementOnly Should SulDownloader do a supplement-only update?
@@ -58,7 +58,7 @@ namespace SulDownloader
      * pass the ::verifySettingsAreValid it will not runSULDownloader and return the failure directly.s
      */
     std::tuple<int, std::string, bool> configAndRunDownloader(
-        const std::string& settingsString,
+        const std::string& inputFilePath,
         const std::string& previousSettingString,
         const std::string& previousReportData,
         bool supplementOnly=false);

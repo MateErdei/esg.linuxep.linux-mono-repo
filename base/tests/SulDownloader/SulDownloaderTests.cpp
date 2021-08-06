@@ -438,12 +438,9 @@ TEST_F(SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode)
     char* inputFileDoesNotExist[] = { const_cast<char*>("SulDownloader"),
                                       const_cast<char*>("inputfiledoesnotexists.json"),
                                       const_cast<char*>("createoutputpath.json") };
-    EXPECT_CALL(*filesystemMock, readFile("inputfiledoesnotexists.json"))
-        .WillOnce(Throw(Common::FileSystem::IFileSystemException("")));
 
     EXPECT_EQ(SulDownloader::main_entry(3, inputFileDoesNotExist), -2);
 
-    EXPECT_CALL(*filesystemMock, readFile("input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
 
     EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/directorypath")).WillOnce(Return(true));
     // directory can not be replaced by file
@@ -802,7 +799,7 @@ TEST_F( // NOLINT
 {
     auto filesystemMock = new MockFileSystem();
     m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-    EXPECT_CALL(*filesystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(*filesystemMock, readFile("/dir/input.json")).WillRepeatedly(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created")).WillOnce(Return(false));
 
@@ -826,7 +823,7 @@ TEST_F( // NOLINT
     std::string previousReportData;
     bool baseDowngraded = false;
     std::tie(exitCode, reportContent, baseDowngraded) =
-        SulDownloader::configAndRunDownloader(settingsString, previousSettingString, previousReportData);
+        SulDownloader::configAndRunDownloader("inputFile", previousSettingString, previousReportData);
 
     EXPECT_NE(exitCode, 0);
     EXPECT_THAT(

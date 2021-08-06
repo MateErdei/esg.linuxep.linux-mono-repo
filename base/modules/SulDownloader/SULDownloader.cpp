@@ -33,6 +33,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 #include <cassert>
+#include <thread>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -420,15 +421,42 @@ namespace SulDownloader
     }
 
     std::tuple<int, std::string, bool> configAndRunDownloader(
-        const std::string& settingsString,
+        const std::string& inputFilePath,
         const std::string& previousSettingString,
         const std::string& previousReportData,
         bool supplementOnly)
     {
-        LOGDEBUG("Configure and run downloader: " << settingsString);
         try
         {
-            ConfigurationData configurationData = ConfigurationData::fromJsonSettings(settingsString);
+            int readAttempt = 0;
+            int maxReadAttempt = 10;
+            auto fileSystem  = Common::FileSystem::fileSystem();
+            bool readSuccessful = false;
+            ConfigurationData configurationData;
+            do
+            {
+                readAttempt++;
+                std::string settingsString = fileSystem->readFile(inputFilePath);
+                LOGDEBUG("Configure and run downloader: " << settingsString);
+                try
+                {
+                    configurationData = ConfigurationData::fromJsonSettings(settingsString);
+                    readSuccessful = true;
+                }
+                catch (SulDownloaderException & exception)
+                {
+                    if (readAttempt == maxReadAttempt)
+                    {
+                        LOGERROR(exception.what());
+                        throw SulDownloaderException(exception.what());
+                    }
+                    else
+                    {
+                        std::this_thread::sleep_for (std::chrono::seconds(1));
+
+                    }
+                }
+            } while (!readSuccessful);
 
             ConfigurationData previousConfigurationData;
 
@@ -518,7 +546,6 @@ namespace SulDownloader
             Common::FileSystem::dirName(inputFilePath),
             Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
 
-        std::string settingsString = fileSystem->readFile(inputFilePath);
 
         bool supplementOnly = false;
         if (!supplementOnlyMarkerFilePath.empty() && fileSystem->isFile(supplementOnlyMarkerFilePath))
@@ -558,7 +585,7 @@ namespace SulDownloader
         std::string jsonReport;
         bool baseDowngraded = false;
         std::tie(exitCode, jsonReport, baseDowngraded) =
-            configAndRunDownloader(settingsString, previousSettingsString, previousReportData, supplementOnly);
+            configAndRunDownloader(inputFilePath, previousSettingsString, previousReportData, supplementOnly);
 
         if (exitCode == 0)
         {

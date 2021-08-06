@@ -18,7 +18,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <ConfigurationSettings.pb.h>
 #include <iostream>
-#include <thread>
 
 namespace
 {
@@ -303,33 +302,14 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
     ConfigurationSettings settings;
     JsonParseOptions jsonParseOptions;
-    jsonParseOptions.ignore_unknown_fields = true; 
+    jsonParseOptions.ignore_unknown_fields = true;
 
-    // Try to read config file up-to-3 times
-    // There is a small windows where a race condition can occur between update scheduler creating the
-    // update_config.json file and suldownloader reading the file.
-
-    int readAttempt = 0;
-    int maxReadAttempt = 3;
-
-    while (readAttempt != maxReadAttempt)
+    auto status = JsonStringToMessage(settingsString, &settings, jsonParseOptions);
+    if (!status.ok())
     {
-        readAttempt++;
-        auto status = JsonStringToMessage(settingsString, &settings, jsonParseOptions);
-        if (!status.ok() && (readAttempt == maxReadAttempt))
-        {
-            LOGERROR("Failed to process input settings");
-            LOGSUPPORT(status.ToString());
-            throw SulDownloaderException("Failed to process json message");
-        }
-        else if (status.ok())
-        {
-            break;
-        }
-        else
-        {
-            std::this_thread::sleep_for (std::chrono::seconds(1));
-        }
+        std::stringstream errorMsg;
+        errorMsg << "Failed to process json message with error: " << status.ToString();
+        throw SulDownloaderException(errorMsg.str());
     }
     // load input string (json) into the configuration data
     // run runSULDownloader

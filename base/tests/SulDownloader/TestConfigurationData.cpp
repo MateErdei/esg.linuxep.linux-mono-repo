@@ -131,7 +131,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidJsonStringThrows) // NOLINT
     }
     catch (SulDownloaderException& e)
     {
-        EXPECT_STREQ("Failed to process json message", e.what());
+        EXPECT_STREQ("Failed to process json message with error: INVALID_ARGUMENT:Unexpected token.\nnon json string\n^", e.what());
     }
 }
 
