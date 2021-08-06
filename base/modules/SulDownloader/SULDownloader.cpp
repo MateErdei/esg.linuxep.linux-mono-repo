@@ -426,12 +426,13 @@ namespace SulDownloader
         const std::string& previousReportData,
         bool supplementOnly)
     {
+        bool readSuccessful = false;
         try
         {
             int readAttempt = 0;
             int maxReadAttempt = 10;
             auto fileSystem  = Common::FileSystem::fileSystem();
-            bool readSuccessful = false;
+
             ConfigurationData configurationData;
             do
             {
@@ -447,7 +448,6 @@ namespace SulDownloader
                 {
                     if (readAttempt == maxReadAttempt)
                     {
-                        LOGERROR(exception.what());
                         throw SulDownloaderException(exception.what());
                     }
                     else
@@ -498,14 +498,23 @@ namespace SulDownloader
             return std::tuple<int, std::string, bool>(
                 std::get<0>(reportAndExitCode), std::get<1>(reportAndExitCode), report.wasBaseDowngraded());
         }
+        catch (Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGERROR(exception.what());
+            if (!readSuccessful)
+            {
+                throw Common::FileSystem::IFileSystemException(exception.what());
+            }
+        }
         catch (std::exception& ex)
         {
             LOGERROR(ex.what());
-            auto report = DownloadReport::Report("SulDownloader failed.");
-            auto reportAndExitCode = DownloadReport::CodeAndSerialize(report);
-            return std::tuple<int, std::string, bool>(
-                std::get<0>(reportAndExitCode), std::get<1>(reportAndExitCode), report.wasBaseDowngraded());
+
         }
+        auto report = DownloadReport::Report("SulDownloader failed.");
+        auto reportAndExitCode = DownloadReport::CodeAndSerialize(report);
+        return std::tuple<int, std::string, bool>(
+            std::get<0>(reportAndExitCode), std::get<1>(reportAndExitCode), report.wasBaseDowngraded());
     }
 
     std::string getPreviousDownloadReportData(const std::string& outputParentPath)
