@@ -215,8 +215,11 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
 
     ${query}=  Set Variable  {"name":"Crash", "failed-osquery-died-count":1, "osquery-restarts":2}
     @{queries}=  create list   ${query}
-
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  1  0  queries=@{queries}
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   5 secs
+    ...   Check EDR Log Contains  Process task OSQUERY_PROCESS_FINISHED
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  3  0  1  0  queries=@{queries}
 
 EDR Plugin Counts Osquery Database Purges
     Prepare To Run Telemetry Executable
