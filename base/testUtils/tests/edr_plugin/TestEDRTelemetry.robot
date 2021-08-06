@@ -133,7 +133,10 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     ...  100 secs
     ...  2 secs
     ...  Check Livequery Log Contains    Extension exited while running
-
+    Wait Until Keyword Succeeds
+    ...  15
+    ...  1
+    ...  Check EDR Log Contains  OSQUERY_PROCESS_FINISHED
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -141,7 +144,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     ${query}=  Set Variable  {"name":"Crash", "failed-osquery-died-count":1}
     @{queries}=  create list   ${query}
 
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  1  0  queries=@{queries}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  0  1  0  queries=@{queries}
 
 
 EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
