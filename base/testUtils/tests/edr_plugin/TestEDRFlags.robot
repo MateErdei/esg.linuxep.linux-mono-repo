@@ -49,7 +49,7 @@ EDR runs sophos extension when XDR is enabled
     Wait Until Keyword Succeeds
     ...  45
     ...  5
-    ...  Check EDR Log Contains  Starting SophosExtension
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Starting SophosExtension  2
 
     Run Live Query  ${SOPHOS_INFO_QUERY}  sophos_info
     Wait Until Keyword Succeeds
