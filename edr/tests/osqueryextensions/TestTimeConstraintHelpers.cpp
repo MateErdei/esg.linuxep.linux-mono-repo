@@ -130,8 +130,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
     std::pair<uint64_t, uint64_t > actualResult =  helper.GetTimeConstraints(context);
 
     ASSERT_EQ(actualResult.first, 3486);
-    /// Should the end time be current time?
-//    ASSERT_EQ(actualResult.second, 13589);
+    ASSERT_EQ(actualResult.second, 0);
 }
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithGreaterThanOrEqualsConstraint)
@@ -151,8 +150,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
     std::pair<uint64_t, uint64_t > actualResult =  helper.GetTimeConstraints(context);
 
     ASSERT_EQ(actualResult.first, 3486);
-    /// Should the end time be current time?
-//    ASSERT_EQ(actualResult.second, 13589);
+    ASSERT_EQ(actualResult.second, 0);
 }
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithLessThanAndGreaterThanConstraints)
@@ -193,7 +191,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
     EXPECT_CALL(context, GetConstraints("time", OsquerySDK::ConstraintOperator::GREATER_THAN_OR_EQUALS)).WillOnce(Return(emptySet));
 
     std::pair<uint64_t, uint64_t > actualResult =  helper.GetTimeConstraints(context);
-
+    // expect start and end times to have no boundary.
     ASSERT_EQ(actualResult.first, 0);
     ASSERT_EQ(actualResult.second, 0);
 }
@@ -216,6 +214,29 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
     EXPECT_CALL(context, GetConstraints("time", OsquerySDK::ConstraintOperator::GREATER_THAN_OR_EQUALS)).WillOnce(Return(greaterThanOrEqualSet));
 
     std::pair<uint64_t, uint64_t > actualResult =  helper.GetTimeConstraints(context);
+
+    // expect start and end times to have no boundary.
+    ASSERT_EQ(actualResult.first, 0);
+    ASSERT_EQ(actualResult.second, 0);
+}
+
+TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWhenConstraintIsText)
+{
+    OsquerySDK::TimeConstraintHelpers helper;
+    StrictMock<MockQueryContext> context;
+
+    // All context processing goes through the the same code to convert the string to an uint64.
+    // Therefore setting any of the contexts will provide a valid test.
+    std::set<std::string> greaterThanSet = {"HelloWorld"};
+    std::set<std::string> emptySet = {};
+
+    EXPECT_CALL(context, GetConstraints("time", OsquerySDK::ConstraintOperator::EQUALS)).WillOnce(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time", OsquerySDK::ConstraintOperator::LESS_THAN)).WillOnce(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time", OsquerySDK::ConstraintOperator::LESS_THAN_OR_EQUALS)).WillOnce(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time", OsquerySDK::ConstraintOperator::GREATER_THAN)).WillOnce(Return(greaterThanSet));
+    EXPECT_CALL(context, GetConstraints("time", OsquerySDK::ConstraintOperator::GREATER_THAN_OR_EQUALS)).WillOnce(Return(emptySet));
+    std::pair<uint64_t, uint64_t > actualResult;
+    EXPECT_NO_THROW(actualResult = helper.GetTimeConstraints(context));
 
     ASSERT_EQ(actualResult.first, 0);
     ASSERT_EQ(actualResult.second, 0);

@@ -15,6 +15,8 @@ add_executable(FuzzableResultSender
         ../../../modules/osqueryextensions/SophosExtension.cpp
         ../../../modules/EventJournalWrapperImpl/EventJournalReaderWrapper.h
         ../../../modules/EventJournalWrapperImpl/EventJournalReaderWrapper.cpp
+        ../../../modules/osqueryextensions/TimeConstraintHelpers.h
+        ../../../modules/osqueryextensions/TimeConstraintHelpers.cpp
         ${SQLITE_INCLUDE_DIR}/sqlite3.c
 
         )

@@ -18,6 +18,8 @@ namespace OsquerySDK
     class TimeConstraintHelpers
     {
     public:
+        TimeConstraintHelpers();
+        ~TimeConstraintHelpers() = default;
         std::pair<uint64_t, uint64_t >  GetTimeConstraints(QueryContextInterface& queryContext);
 
     private:
@@ -35,7 +37,7 @@ namespace OsquerySDK
         // store for
         std::vector<TimeConstraintData> m_timeEqualsConstraints;
 
-        uint64_t m_startTime = 0;
-        uint64_t m_endTime = 0;
+        uint64_t m_startTime;
+        uint64_t m_endTime;
     };
 }

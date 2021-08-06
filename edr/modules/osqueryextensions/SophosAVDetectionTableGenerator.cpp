@@ -5,9 +5,13 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "SophosAVDetectionTableGenerator.h"
-#include "ThreatTypes.h"
+
 #include "Logger.h"
+#include "ThreatTypes.h"
+#include "TimeConstraintHelpers.h"
+
 #include "OsquerySDK/OsquerySDK.h"
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <thirdparty/nlohmann-json/json.hpp>
@@ -15,11 +19,15 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 namespace OsquerySDK
 {
     OsquerySDK::TableRows SophosAVDetectionTableGenerator::GenerateData(
-        const std::string& queryId,
+        QueryContextInterface& queryContext,
         std::shared_ptr<Common::EventJournalWrapper::IEventJournalReaderWrapper> journalReader)
     {
         TableRows results;
         std::string currentJrl("");
+        std::string queryId = getQueryId(queryContext);
+
+        TimeConstraintHelpers timeConstraintHelpers;
+        std::pair<uint64_t , uint64_t> queryTimeConstraints = timeConstraintHelpers.GetTimeConstraints(queryContext);
 
         std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         std::string jrlFilePath = Common::FileSystem::join(installPath, "plugins/edr/var/jrl", queryId);
@@ -37,7 +45,7 @@ namespace OsquerySDK
         }
         else
         {
-            entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections });
+            entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections }, queryTimeConstraints.first, queryTimeConstraints.second);
         }
 
         std::string newJrl("");
@@ -120,5 +128,18 @@ namespace OsquerySDK
         }
 
         return results;
+    }
+
+    std::string SophosAVDetectionTableGenerator::getQueryId(QueryContextInterface& queryContext)
+    {
+        std::set<std::string> queryIdConstraint = queryContext.GetConstraints("query_id", OsquerySDK::EQUALS);
+        std::string queryId;
+
+        if (queryIdConstraint.size() == 1)
+        {
+            queryId = queryIdConstraint.begin()->c_str();
+        }
+
+        return queryId;
     }
 }

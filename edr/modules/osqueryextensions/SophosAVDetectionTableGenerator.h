@@ -14,8 +14,13 @@ namespace OsquerySDK
     class SophosAVDetectionTableGenerator
     {
     public:
+        SophosAVDetectionTableGenerator() = default;
+        ~SophosAVDetectionTableGenerator() = default;
+
         OsquerySDK::TableRows GenerateData(
-            const std::string& queryId,
+            QueryContextInterface& queryContext,
             std::shared_ptr<Common::EventJournalWrapper::IEventJournalReaderWrapper> journalReader);
+    private:
+        std::string getQueryId(QueryContextInterface& queryContext);
     };
 }

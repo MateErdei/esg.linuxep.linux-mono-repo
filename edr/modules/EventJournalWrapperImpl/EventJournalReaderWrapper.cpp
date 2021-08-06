@@ -76,12 +76,17 @@ namespace Common
             filesystem->writeFile(idFilePath, jrl);
         }
 
-        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter)
+        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime)
         {
-            return getEntries(subjectFilter, "");
+            return getEntries(subjectFilter, "", startTime, endTime);
         }
 
         std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl)
+        {
+            return getEntries(subjectFilter, jrl, 0, 0);
+        }
+
+        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl,  uint64_t startTime, uint64_t endTime)
         {
             std::vector<Entry> entries;
 
@@ -91,13 +96,29 @@ namespace Common
                 subjects.push_back(getSubjectName(s));
             }
             std::shared_ptr <Sophos::Journal::ViewInterface> view;
+
             if (!jrl.empty())
             {
                 view = m_helper->GetJournalView(subjects, jrl);
             }
             else
             {
-                view = m_helper->GetJournalView(subjects, Sophos::Journal::MinTime);
+                if (endTime == 0)
+                {
+                    view = m_helper->GetJournalView(
+                        subjects,
+                        EventJournalWrapper::getFileTimeFromWindowsTime(
+                            UtilityImpl::TimeUtils::EpochToWindowsFileTime(startTime)));
+                }
+                else
+                {
+                    view = m_helper->GetJournalView(
+                        subjects,
+                        EventJournalWrapper::getFileTimeFromWindowsTime(
+                            UtilityImpl::TimeUtils::EpochToWindowsFileTime(startTime)),
+                        EventJournalWrapper::getFileTimeFromWindowsTime(
+                                UtilityImpl::TimeUtils::EpochToWindowsFileTime(endTime)));
+                }
             }
 
             if (!view)
@@ -121,7 +142,6 @@ namespace Common
                 memcpy(e.data.data(), entry->GetData(), entry->GetDataSize());
                 entries.push_back(e);
             }
-
             return entries;
         }
 

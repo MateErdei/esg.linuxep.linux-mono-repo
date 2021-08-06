@@ -54,15 +54,8 @@ namespace OsquerySDK
         std::shared_ptr<Common::EventJournalWrapper::IEventJournalReaderWrapper> journalReader =
             std::make_shared<Common::EventJournalWrapper::Reader>(journalDir);
 
-        std::set<std::string> queryIdConstraint = queryContext.GetConstraints("query_id", OsquerySDK::EQUALS);
-        std::string queryId;
-
-        if (queryIdConstraint.size() == 1)
-        {
-            queryId = queryIdConstraint.begin()->c_str();
-        }
         SophosAVDetectionTableGenerator generator;
-        return generator.GenerateData(queryId, journalReader);
+        return generator.GenerateData(queryContext, journalReader);
 
     }
 }
