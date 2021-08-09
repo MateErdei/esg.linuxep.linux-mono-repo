@@ -108,7 +108,7 @@ We Can Install From A Ballista Warehouse
 
 We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  DOGFOOD
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndAvReleasePolicy}
 
@@ -706,7 +706,7 @@ Test That Only Subscriptions Appear As Subscriptions In ALC Status File
 
 We Can Upgrade AV From Dogfood To VUT Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  DOGFOOD
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndAVReleasePolicy}
 
