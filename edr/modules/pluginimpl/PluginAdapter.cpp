@@ -109,18 +109,32 @@ namespace Plugin
 
     void PluginAdapter::updateExtensions()
     {
-        m_extensionAndStateList.clear();
-        if(m_isXDR)
+        if (m_extensionAndStateList.size()<1)
         {
             auto extensionRunningStatus =
                 std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(
-                    m_loggerExtensionPtr, std::make_shared<std::atomic_bool>(false));
+                    std::make_shared<SophosExtension>(), std::make_shared<std::atomic_bool>(false));
             m_extensionAndStateList.push_back(extensionRunningStatus);
         }
-        auto extensionRunningStatus =
-            std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(
-                std::make_shared<SophosExtension>(), std::make_shared<std::atomic_bool>(false));
-        m_extensionAndStateList.push_back(extensionRunningStatus);
+        if(m_isXDR)
+        {
+            if (m_extensionAndStateList.size()<2)
+            {
+                auto extensionRunningStatus =
+                    std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(
+                        m_loggerExtensionPtr, std::make_shared<std::atomic_bool>(false));
+                m_extensionAndStateList.push_back(extensionRunningStatus);
+            }
+        }
+        else
+        {
+            if (m_extensionAndStateList.size()==2)
+            {
+                m_extensionAndStateList.back().first->Stop();
+                m_extensionAndStateList.pop_back();
+            }
+        }
+
 
     };
     void PluginAdapter::mainLoop()
