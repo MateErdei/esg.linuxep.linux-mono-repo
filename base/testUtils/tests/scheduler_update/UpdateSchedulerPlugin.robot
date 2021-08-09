@@ -273,6 +273,44 @@ Test Updatescheduler State Machine Results Show In Status Xml Message Correctly 
     Should Contain  ${StatusContent}   </lastGood></installState>
     Should Contain  ${StatusContent}   <rebootState><required>no</required></rebootState>
 
+Test Updatescheduler State Machine Data Is Reset When State Machine File Is Empty Status Still Sent
+    Setup Base Only Sync And Uptodate
+    Remove File  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json
+    Create File  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json
+    Log File  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json
+
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  downloadState
+
+    Log File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+
+    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
+    Should Contain  ${StatusContent}  <installState><state>good</state><lastGood>
+    # not checking actual value of lastGood because this is a time stamp that will change.
+    Should Contain  ${StatusContent}   </lastGood></installState>
+    Should Contain  ${StatusContent}   <rebootState><required>no</required></rebootState>
+    Log File  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json
+
+    Setup Base and Plugin Upgraded  startTime=3
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  1 minutes
+    ...  5 secs
+    ...  Check Status Report Contain  downloadState
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Log Contains In Order
+        ...  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+        ...  Reading the state machine data file failed with
+        ...  removing file to reset state machine
+        ...  Sending event to Central
+
 Test Updatescheduler Features Codes Correct After Success Failure Success Restart
     [Documentation]  Updatescheduler on success adds CORE to the feature codes in ALC status, the next update
     ...  that should install SENSORS fails and does not add SENSORS to the feature code list in ALC status. A third

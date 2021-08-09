@@ -11,6 +11,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "StateData.h"
 #include "StateMachineData.h"
+#include "StateMachineException.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -117,6 +118,20 @@ namespace UpdateSchedulerImpl::stateMachinesModule
             catch (Common::FileSystem::IFileSystemException& ex)
             {
                 LOGWARN("Failed to read the state machine data file : " << stateMachineDataPath);
+            }
+            catch (UpdateSchedulerImpl::StateData::StateMachineException& ex)
+            {
+                LOGWARN("Reading the state machine data file failed with : "
+                        << stateMachineDataPath
+                        << ". removing file to reset state machine.");
+                try
+                {
+                    fileSystem->removeFile(stateMachineDataPath);
+                }
+                catch(Common::FileSystem::IFileSystemException& ex)
+                {
+                    LOGERROR("Failed to Remove file '" << stateMachineDataPath <<"'" );
+                }
             }
         }
         else

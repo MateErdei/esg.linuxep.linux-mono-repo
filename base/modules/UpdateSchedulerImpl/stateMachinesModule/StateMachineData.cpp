@@ -138,7 +138,7 @@ namespace UpdateSchedulerImpl
                 auto status = JsonStringToMessage(serializedVersion, &protoStateMachine, jsonParseOptions);
                 if (!status.ok())
                 {
-                    LOGERROR("Failed to load state machine state serialized string");
+                    LOGWARN("Failed to load state machine state serialized string");
                     LOGSUPPORT(status.ToString());
                     throw StateMachineException("Failed to process json message");
                 }
