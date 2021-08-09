@@ -19,4 +19,6 @@ class MockJournalWriter : public EventJournal::IEventJournalWriter
 public:
     MockJournalWriter() = default;
     MOCK_METHOD2(insert, void(Subject, const std::vector<uint8_t>&));
+    MOCK_CONST_METHOD2(readFileInfo, bool(const std::string&, FileInfo&));
+    MOCK_METHOD1(pruneTruncatedEvents, void(const std::string&));
 };

@@ -22,10 +22,6 @@ namespace EventJournal
 
     std::vector<uint8_t> encode(const Detection& detection);
 
-    std::string getExistingFileFromDirectory(const std::string& location, const std::string& producer, const std::string& subject);
-    bool isSubjectFile(const std::string& subject, const std::string& filename);
-    bool isOpenSubjectFile(const std::string& subject, const std::string& filename);
-
 
     class Writer : public IEventJournalWriter
     {
@@ -35,6 +31,10 @@ namespace EventJournal
         Writer(const std::string& location, const std::string& producer);
 
         void insert(Subject subject, const std::vector<uint8_t>& data) override;
+
+        bool readFileInfo(const std::string& path, FileInfo& info) const override;
+        void pruneTruncatedEvents(const std::string& path) override;
+
     private:
         static constexpr uint32_t FCC_TYPE_RIFF = 0x46464952; // "RIFF"
         static constexpr uint32_t FCC_TYPE_SJRN = 0x6e726a73; // "sjrn"
@@ -47,14 +47,51 @@ namespace EventJournal
         static constexpr uint32_t MAX_RECORD_LENGTH  = 0x31000; // 196K
         static constexpr uint32_t MAX_FILE_SIZE      = 100000000;
 
-        std::string getNewFilename(const std::string& subject, uint64_t uniqueID, uint64_t timestamp) const;
+        struct PbufInfo
+        {
+            uint64_t firstProducerID;
+            int64_t firstTimestamp;
+            uint64_t lastProducerID;
+            int64_t lastTimestamp;
+            uint32_t count;
+            uint32_t totalLength;
+            bool truncated;
 
-        std::string getClosedFilePath(const std::string& filepath) const;
+            PbufInfo() :
+                firstProducerID(0),
+                firstTimestamp(0),
+                lastProducerID(0),
+                lastTimestamp(0),
+                count(0),
+                totalLength(0),
+                truncated(false)
+            {
+            }
+        };
+
+        std::string getNewFilename(const std::string& subject, uint64_t uniqueID, uint64_t timestamp) const;
+        bool isSubjectFile(const std::string& subject, const std::string& filename) const;
+        uint64_t parseLastUniqueID(const std::string& subject, const std::string& filename) const;
+
+        std::string getExistingFile(const std::string& subject) const;
+        std::string getClosedFilePath(const std::string& filepath, const FileInfo& header) const;
         uint64_t readHighestUniqueID() const;
-        bool readLastUniqueIDAndTimestamp(const std::string& file, uint64_t& uniqueId, int64_t& timestamp) const;
 
         void writeRIFFAndSJRNHeader(std::vector<uint8_t>& data, const std::string& subject) const;
-        void appendPbufHeader(std::vector<uint8_t>& data, uint32_t length, uint64_t producerUniqueID, uint64_t timestamp) const;
+        void appendPbufHeader(
+            std::vector<uint8_t>& data,
+            uint32_t length,
+            uint64_t producerUniqueID,
+            uint64_t timestamp) const;
+
+        bool readHeader(const std::string& path, Header& header) const;
+        bool readPbufInfo(const std::string& path, uint32_t sjrnLength, PbufInfo& info, bool logWarnings = true) const;
+
+        void closeFile(const std::string& path, const FileInfo& header) const;
+        void removeFile(const std::string& path) const;
+        bool shouldCloseFile(const FileInfo& info) const;
+        bool shouldCloseFile(const Header& header) const;
+        bool shouldRemoveFile(const FileInfo& info) const;
 
         uint64_t getAndIncrementNextUniqueID();
 

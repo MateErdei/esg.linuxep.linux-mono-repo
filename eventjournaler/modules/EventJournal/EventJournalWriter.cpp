@@ -14,10 +14,10 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/UtilityImpl/RegexUtilities.h>
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include <Event.capnp.h>
 #include <cstddef>
@@ -98,31 +98,48 @@ namespace EventJournal
         int64_t timestamp = Common::UtilityImpl::TimeUtils::EpochToWindowsFileTime(now);
         bool isNewFile = false;
 
-        auto path = getExistingFileFromDirectory(m_location, m_producer, subjectName);
+        auto path = getExistingFile(subjectName);
         if (path.empty())
         {
             path = Common::FileSystem::join(directory, getNewFilename(subjectName, producerUniqueID, timestamp));
             isNewFile = true;
-            LOGDEBUG("Create " << path);
         }
         else
         {
             auto fileSize = fs->fileSize(path);
-            if ((fileSize + PBUF_HEADER_LENGTH + data.size()) > MAX_FILE_SIZE)
-            {
-                std::string closedFile = getClosedFilePath(path);
-                try
-                {
-                    fs->moveFile(path, closedFile);
-                }
-                catch (Common::FileSystem::IFileSystemException& exception)
-                {
-                    LOGERROR("Failed to close file: "<< path<< " due to error: " << exception.what());
-                }
-                path = Common::FileSystem::join(directory, getNewFilename(subjectName, producerUniqueID, timestamp));
-                isNewFile = true;
-            }
 
+            FileInfo info;
+            if (readFileInfo(path, info))
+            {
+                bool shouldCreateFile = false;
+
+                if (((fileSize + PBUF_HEADER_LENGTH + data.size()) > MAX_FILE_SIZE) || shouldCloseFile(info))
+                {
+                    LOGDEBUG("Close " << path);
+                    closeFile(path, info);
+                    shouldCreateFile = true;
+                }
+                else if (shouldRemoveFile(info))
+                {
+                    LOGDEBUG("Remove " << path);
+                    removeFile(path);
+                    shouldCreateFile = true;
+                }
+
+                if (shouldCreateFile)
+                {
+                    path = Common::FileSystem::join(directory, getNewFilename(subjectName, producerUniqueID, timestamp));
+                    isNewFile = true;
+                }
+            }
+        }
+
+        if (isNewFile)
+        {
+            LOGDEBUG("Create " << path);
+        }
+        else
+        {
             LOGDEBUG("Update " << path);
         }
 
@@ -153,6 +170,68 @@ namespace EventJournal
         f.write(reinterpret_cast<const char*>(&length), sizeof(length));
     }
 
+    bool Writer::readFileInfo(const std::string& path, FileInfo& info) const
+    {
+        if (!readHeader(path, info.header))
+        {
+            return false;
+        }
+
+        info.size = Common::FileSystem::fileSystem()->fileSize(path);
+
+        if ((info.header.riffLength + RIFF_HEADER_LENGTH) != info.size)
+        {
+            info.riffLengthMismatch = true;
+            info.anyLengthErrors = true;
+        }
+
+        PbufInfo pbufInfo;
+        if (!readPbufInfo(path, info.header.sjrnLength, pbufInfo))
+        {
+            return false;
+        }
+
+        info.firstProducerID = pbufInfo.firstProducerID;
+        info.firstTimestamp = pbufInfo.firstTimestamp;
+        info.lastProducerID = pbufInfo.lastProducerID;
+        info.lastTimestamp = pbufInfo.lastTimestamp;
+        info.numEvents = pbufInfo.count;
+        if (pbufInfo.truncated)
+        {
+            info.truncated = true;
+            info.anyLengthErrors = true;
+        }
+
+        return true;
+    }
+
+    void Writer::pruneTruncatedEvents(const std::string& path)
+    {
+        Header header;
+        if (!readHeader(path, header))
+        {
+            return;
+        }
+
+        PbufInfo info;
+        if (readPbufInfo(path, header.sjrnLength, info, false))
+        {
+            if (info.totalLength == 0)
+            {
+                return;
+            }
+
+            uint32_t length = RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + header.sjrnLength + info.totalLength;
+
+            truncate(path.c_str(), length);
+
+            std::fstream f(path, std::ios::binary | std::ios::in | std::ios::out);
+            length -= RIFF_HEADER_LENGTH;
+            f.seekg(4, std::ios::beg);
+            f.write(reinterpret_cast<const char*>(&length), sizeof(length));
+        }
+    }
+
     std::string Writer::getNewFilename(const std::string& subject, uint64_t uniqueID, uint64_t timestamp) const
     {
         std::ostringstream oss;
@@ -161,28 +240,47 @@ namespace EventJournal
         return subject + "-" + oss.str() + "-" + std::to_string(timestamp) + ".bin";
     }
 
-    bool isSubjectFile(const std::string& subject, const std::string& filename)
+    bool Writer::isSubjectFile(const std::string& subject, const std::string& filename) const
     {
         return Common::UtilityImpl::StringUtils::startswith(filename, subject) &&
                Common::UtilityImpl::StringUtils::endswith(filename, ".bin");
     }
 
-    bool isOpenSubjectFile(const std::string& subject, const std::string& filename)
+    uint64_t Writer::parseLastUniqueID(const std::string& subject, const std::string& filename) const
     {
-        auto strings = Common::UtilityImpl::StringUtils::splitString(filename, "-");
+        if (Common::UtilityImpl::StringUtils::startswith(filename, subject) &&
+            (Common::UtilityImpl::StringUtils::endswith(filename, ".bin") ||
+             Common::UtilityImpl::StringUtils::endswith(filename, ".xz")))
+        {
+            auto strings = Common::UtilityImpl::StringUtils::splitString(filename, "-");
 
-        return !Common::UtilityImpl::returnFirstMatch(subject + R"(-([0-9a-f]{16})-([0-9]{18})\.bin)", filename).empty();
+            if (strings.size() == 5)
+            {
+                if (strings[0].compare(subject) == 0)
+                {
+                    try
+                    {
+                        return std::stoul(strings[2], nullptr, 16);
+                    }
+                    catch (...)
+                    {
+                    }
+                }
+            }
+        }
+
+        return 0;
     }
 
-    std::string getExistingFileFromDirectory(const std::string& location, const std::string& producer, const std::string& subject)
+    std::string Writer::getExistingFile(const std::string& subject) const
     {
-        auto subjectDirectory = Common::FileSystem::join(location, producer, subject);
+        auto subjectDirectory = Common::FileSystem::join(m_location, m_producer, subject);
         if (Common::FileSystem::fileSystem()->isDirectory(subjectDirectory))
         {
             auto files = Common::FileSystem::fileSystem()->listFiles(subjectDirectory);
             for (const auto& file : files)
             {
-                if (isOpenSubjectFile(subject, Common::FileSystem::basename(file)))
+                if (isSubjectFile(subject, Common::FileSystem::basename(file)))
                 {
                     return file;
                 }
@@ -192,21 +290,18 @@ namespace EventJournal
         return "";
     }
 
-    std::string Writer::getClosedFilePath(const std::string& filepath) const
+    std::string Writer::getClosedFilePath(const std::string& filepath, const FileInfo& info) const
     {
         std::vector<std::string> list = Common::UtilityImpl::StringUtils::splitString(Common::FileSystem::basename(filepath),"-");
         std::string subject  = list[0];
-        std::string firstOss = list[1];;
+        std::string firstOss = list[1];
         std::string firstTimestamp = list[2].substr(0,list[2].find_first_of("."));
 
         std::ostringstream oss;
-        uint64_t lastUniqueId = 0;
-        int64_t lasttimestamp= 0;
-        readLastUniqueIDAndTimestamp(filepath, lastUniqueId, lasttimestamp);
-        oss << std::hex << std::setfill('0') << std::setw(16) << lastUniqueId;
+        oss << std::hex << std::setfill('0') << std::setw(16) << info.lastProducerID;
         std::string lastOss = oss.str();
 
-        std::string filename = subject + "-" + firstOss + "-" + lastOss+ "-" + firstTimestamp+ "-" +std::to_string(lasttimestamp) + ".bin";
+        std::string filename = subject + "-" + firstOss + "-" + lastOss + "-" + firstTimestamp + "-" + std::to_string(info.lastTimestamp) + ".bin";
         return Common::FileSystem::join(Common::FileSystem::dirName(filepath),filename);
     }
 
@@ -225,14 +320,32 @@ namespace EventJournal
                 {
                     if (isSubjectFile(Common::FileSystem::basename(subject), Common::FileSystem::basename(file)))
                     {
-                        int64_t timestamp =0;
-                        uint64_t id = 0;
-                        if (readLastUniqueIDAndTimestamp(file, id, timestamp))
+                        FileInfo info;
+                        if (readFileInfo(file, info))
                         {
-                            if (id > uniqueID)
+                            if (info.lastProducerID > uniqueID)
                             {
-                                uniqueID = id;
+                                uniqueID = info.lastProducerID;
                             }
+
+                            if (shouldCloseFile(info))
+                            {
+                                LOGDEBUG("Close " << file);
+                                closeFile(file, info);
+                            }
+                            else if (shouldRemoveFile(info))
+                            {
+                                LOGDEBUG("Remove " << file);
+                                removeFile(file);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        uint64_t id = parseLastUniqueID(Common::FileSystem::basename(subject), Common::FileSystem::basename(file));
+                        if (id > uniqueID)
+                        {
+                            uniqueID = id;
                         }
                     }
                 }
@@ -240,118 +353,6 @@ namespace EventJournal
         }
 
         return uniqueID;
-    }
-
-    bool Writer::readLastUniqueIDAndTimestamp(const std::string& file, uint64_t& lastUniqueId, int64_t& lastTimestamp) const
-    {
-        std::vector<uint8_t> buffer(32);
-
-        std::ifstream f(file, std::ios::binary | std::ios::in);
-        f.seekg(0, std::ios::end);
-        size_t fileSize = f.tellg();
-        f.seekg(0, std::ios::beg);
-
-        size_t bytesRemaining = fileSize;
-
-        if (bytesRemaining < (RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH))
-        {
-            LOGWARN("File " << Common::FileSystem::basename(file) << " not valid");
-            return false;
-        }
-
-        f.read(reinterpret_cast<char*>(&buffer[0]), RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH);
-        bytesRemaining -= RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH;
-
-        uint32_t fcc = 0;
-        uint32_t length = 0;
-        memcpy(&fcc, &buffer[0], sizeof(fcc));
-        memcpy(&length, &buffer[4], sizeof(length));
-        if (fcc != FCC_TYPE_RIFF)
-        {
-            LOGWARN("File " << Common::FileSystem::basename(file) << " unexpected RIFF type 0x" << std::hex << fcc);
-            return false;
-        }
-
-        if (length != (fileSize - RIFF_HEADER_LENGTH))
-        {
-            LOGWARN(
-                "File " << Common::FileSystem::basename(file) << " invalid RIFF length " << length << " (file size "
-                        << fileSize << ")");
-            return false;
-        }
-
-        uint32_t sjrn_length = 0;
-        memcpy(&sjrn_length, &buffer[16], sizeof(sjrn_length));
-        sjrn_length = get64bitAlignedLength(sjrn_length);
-
-        if (bytesRemaining < sjrn_length)
-        {
-            LOGWARN("File " << Common::FileSystem::basename(file) << " invalid SJRN length " << sjrn_length);
-            return false;
-        }
-
-        sjrn_length -= sizeof(sjrn_length);
-        f.seekg(sjrn_length, std::ios::cur);
-        bytesRemaining -= sjrn_length;
-
-        uint64_t uniqueID = 0;
-
-        while (bytesRemaining > 0)
-        {
-            if (bytesRemaining < PBUF_HEADER_LENGTH)
-            {
-                LOGWARN(
-                    "File " << Common::FileSystem::basename(file) << " invalid PBUF chunk - " << bytesRemaining
-                            << " bytes remaining");
-                break;
-            }
-
-            f.read(reinterpret_cast<char*>(&buffer[0]), PBUF_HEADER_LENGTH);
-            bytesRemaining -= PBUF_HEADER_LENGTH;
-
-            uint64_t id = 0;
-            int64_t timestamp = 0;
-            memcpy(&fcc, &buffer[0], sizeof(fcc));
-            memcpy(&length, &buffer[4], sizeof(length));
-            memcpy(&id, &buffer[8], sizeof(id));
-            memcpy(&timestamp, &buffer[16], sizeof(timestamp));
-
-            if (fcc != FCC_TYPE_PBUF)
-            {
-                LOGWARN("File " << Common::FileSystem::basename(file) << " unexpected PBUF type 0x" << std::hex << fcc);
-                break;
-            }
-
-            if (bytesRemaining < (length - sizeof(id) - sizeof(timestamp)))
-            {
-                LOGWARN(
-                    "File " << Common::FileSystem::basename(file) << " invalid PBUF length " << length << " - "
-                            << bytesRemaining << " bytes remaining");
-                break;
-            }
-
-            length -= sizeof(id) + sizeof(timestamp);
-            f.seekg(length, std::ios::cur);
-            bytesRemaining -= length;
-
-            if (id <= uniqueID)
-            {
-                LOGWARN(
-                    "File " << Common::FileSystem::basename(file) << " unique ID " << id
-                            << " out-of-sequence - previous ID " << uniqueID);
-                break;
-            }
-
-            lastUniqueId = id;
-            lastTimestamp = timestamp;
-
-            if (f.eof())
-            {
-                break;
-            }
-        }
-
-        return true;
     }
 
     void Writer::writeRIFFAndSJRNHeader(std::vector<uint8_t>& data, const std::string& subject) const
@@ -410,6 +411,270 @@ namespace EventJournal
 
         data.insert(data.end(), header.begin(), header.end());
     }
+
+    bool Writer::readHeader(const std::string& path, Header& header) const
+    {
+        if (!Common::FileSystem::fileSystem()->exists(path))
+        {
+            LOGWARN("File " << Common::FileSystem::basename(path) << " does not exist");
+            return false;
+        }
+
+        std::ifstream f(path, std::ios::binary | std::ios::in);
+        f.seekg(0, std::ios::end);
+        size_t bytesRemaining = f.tellg();
+        f.seekg(0, std::ios::beg);
+
+        if (bytesRemaining < (RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + sizeof(uint16_t)))
+        {
+            LOGWARN("File " << Common::FileSystem::basename(path) << " not valid");
+            return false;
+        }
+
+        std::vector<uint8_t> buffer(32);
+        f.read(reinterpret_cast<char*>(&buffer[0]), RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + sizeof(uint16_t));
+        bytesRemaining -= RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + sizeof(uint16_t);
+
+        uint32_t riff_fcc = 0;
+        uint32_t riff_length = 0;
+        uint32_t sjrn_fcc = 0;
+        uint32_t hdr_fcc = 0;
+        uint32_t sjrn_length = 0;
+        uint16_t sjrn_version = 0;
+        memcpy(&riff_fcc, &buffer[0], sizeof(riff_fcc));
+        memcpy(&riff_length, &buffer[4], sizeof(riff_length));
+        memcpy(&sjrn_fcc, &buffer[8], sizeof(sjrn_fcc));
+        memcpy(&hdr_fcc, &buffer[12], sizeof(hdr_fcc));
+        memcpy(&sjrn_length, &buffer[16], sizeof(sjrn_length));
+        memcpy(&sjrn_version, &buffer[20], sizeof(sjrn_version));
+
+        if (riff_fcc != FCC_TYPE_RIFF)
+        {
+            LOGWARN(
+                "File " << Common::FileSystem::basename(path) << " unexpected RIFF type 0x" << std::hex << riff_fcc);
+            return false;
+        }
+        if (sjrn_fcc != FCC_TYPE_SJRN)
+        {
+            LOGWARN(
+                "File " << Common::FileSystem::basename(path) << " unexpected sjrn type 0x" << std::hex << sjrn_fcc);
+            return false;
+        }
+        if (hdr_fcc != FCC_TYPE_HDR)
+        {
+            LOGWARN("File " << Common::FileSystem::basename(path) << " unexpected hdr type 0x" << std::hex << hdr_fcc);
+            return false;
+        }
+
+        if (sjrn_length > bytesRemaining)
+        {
+            LOGWARN("File " << Common::FileSystem::basename(path) << " invalid sjrn length " << sjrn_length);
+            return false;
+        }
+
+        if (sjrn_length > 0x400) // sanity check
+        {
+            LOGWARN("File " << Common::FileSystem::basename(path) << " unexpected sjrn length " << sjrn_length);
+            return false;
+        }
+
+
+        std::vector<std::string> sjrn_header;
+        buffer.resize(sjrn_length);
+        f.read(reinterpret_cast<char*>(&buffer[0]), sjrn_length);
+
+        for (auto next = buffer.begin(); next != buffer.end(); )
+        {
+            if (sjrn_header.size() == 4)
+            {
+                break;
+            }
+
+            auto it = std::find(next, buffer.end(), 0);
+            if (it == buffer.end())
+            {
+                break;
+            }
+
+            std::string string(next, it);
+
+            if (string.empty())
+            {
+                break;
+            }
+
+            sjrn_header.push_back(string);
+
+            next = ++it;
+        }
+
+        if (sjrn_header.size() < 4)
+        {
+            LOGWARN("File " << Common::FileSystem::basename(path) << " incomplete sjrn header");
+            return false;
+        }
+
+        header.producer = sjrn_header[0];
+        header.subject = sjrn_header[1];
+        header.serialisationMethod = sjrn_header[2];
+        header.serialisationVersion = sjrn_header[3];
+        header.riffLength = riff_length;
+        header.sjrnLength = sjrn_length;
+        header.sjrnVersion = sjrn_version;
+
+        return true;
+    }
+
+    bool Writer::readPbufInfo(const std::string& path, uint32_t sjrnLength, PbufInfo& info, bool logWarnings) const
+    {
+        std::ifstream f(path, std::ios::binary | std::ios::in);
+        f.seekg(0, std::ios::end);
+        size_t bytesRemaining = f.tellg();
+
+        if (bytesRemaining < (RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + sjrnLength))
+        {
+            return false;
+        }
+
+        f.seekg(RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + sjrnLength, std::ios::beg);
+        bytesRemaining -= RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + sjrnLength;
+
+        std::vector<uint8_t> buffer(32);
+
+        while (bytesRemaining > 0)
+        {
+            if (bytesRemaining < PBUF_HEADER_LENGTH)
+            {
+                if (logWarnings)
+                {
+                    LOGWARN(
+                        "File " << Common::FileSystem::basename(path) << " invalid PBUF chunk - " << bytesRemaining
+                                << " bytes remaining");
+                }
+                info.truncated = true;
+                break;
+            }
+
+            f.read(reinterpret_cast<char*>(&buffer[0]), PBUF_HEADER_LENGTH);
+            bytesRemaining -= PBUF_HEADER_LENGTH;
+
+            if (f.eof())
+            {
+                info.truncated = true;
+                break;
+            }
+
+            uint32_t fcc = 0;
+            uint32_t length = 0;
+            uint64_t id = 0;
+            int64_t timestamp = 0;
+            memcpy(&fcc, &buffer[0], sizeof(fcc));
+            memcpy(&length, &buffer[4], sizeof(length));
+            memcpy(&id, &buffer[8], sizeof(id));
+            memcpy(&timestamp, &buffer[16], sizeof(timestamp));
+
+            if (fcc != FCC_TYPE_PBUF)
+            {
+                if (logWarnings)
+                {
+                    LOGWARN(
+                        "File " << Common::FileSystem::basename(path) << " unexpected PBUF type 0x" << std::hex << fcc);
+                }
+                info.truncated = true;
+                break;
+            }
+
+            if (length < sizeof(id) + sizeof(timestamp))
+            {
+                if (logWarnings)
+                {
+                    LOGWARN(
+                        "File " << Common::FileSystem::basename(path) << " invalid PBUF length " << length << " - "
+                                << bytesRemaining << " bytes remaining");
+                }
+                info.truncated = true;
+                break;
+            }
+
+            length -= sizeof(id) + sizeof(timestamp);
+
+            if (length > bytesRemaining)
+            {
+                if (logWarnings)
+                {
+                    LOGWARN(
+                        "File " << Common::FileSystem::basename(path) << " truncated PBUF at offset "
+                                << RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + sjrnLength + info.totalLength);
+                }
+                info.truncated = true;
+                break;
+            }
+
+            if (info.firstProducerID == 0)
+            {
+                info.firstProducerID = id;
+            }
+            if (info.firstTimestamp == 0)
+            {
+                info.firstTimestamp = timestamp;
+            }
+            info.lastProducerID = id;
+            info.lastTimestamp = timestamp;
+            info.count++;
+            info.totalLength += PBUF_HEADER_LENGTH + length;
+
+            f.seekg(length, std::ios::cur);
+            bytesRemaining -= length;
+        }
+
+        return true;
+    }
+
+    void Writer::closeFile(const std::string& path, const FileInfo& info) const
+    {
+        std::string closedFile = getClosedFilePath(path, info);
+
+        try
+        {
+            Common::FileSystem::fileSystem()->moveFile(path, closedFile);
+        }
+        catch (Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGERROR("Failed to close file: " << path << " due to error: " << exception.what());
+        }
+    }
+
+    void Writer::removeFile(const std::string& path) const
+    {
+        try
+        {
+            Common::FileSystem::fileSystem()->removeFile(path, true);
+        }
+        catch (Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGERROR("Failed to remove file: " << path << " due to error: " << exception.what());
+        }
+    }
+
+    bool Writer::shouldCloseFile(const FileInfo& info) const
+    {
+        if (shouldRemoveFile(info))
+        {
+            return false;
+        }
+
+        return shouldCloseFile(info.header) || info.anyLengthErrors;
+    }
+
+    bool Writer::shouldCloseFile(const Header& header) const
+    {
+        return (
+            (header.serialisationMethod.compare(getSerialisationMethod()) != 0) ||
+            (header.serialisationVersion.compare(getSerialisationVersion()) != 0) ||
+            (header.sjrnVersion != SJRN_VERSION));
+    }
+
+    bool Writer::shouldRemoveFile(const FileInfo& info) const { return info.numEvents == 0; }
 
     uint64_t Writer::getAndIncrementNextUniqueID() { return m_nextUniqueID.fetch_add(1); }
 
