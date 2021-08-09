@@ -71,7 +71,8 @@ generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
 
 # log dir
-mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} log dir"
+mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} log dir"
+chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log"
 
 # Blanket plugin directory recursive chown
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
