@@ -11,7 +11,6 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <SubscriberLib/Subscriber.h>
-//#include <memory>
 
 namespace Plugin
 {
