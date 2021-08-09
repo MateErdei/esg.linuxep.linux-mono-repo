@@ -574,7 +574,9 @@ namespace UpdateSchedulerImpl
             // to force an update when subscriptions and features change.
             try
             {
-                iFileSystem->copyFile(m_configfilePath, m_previousConfigFilePath);
+                std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+                Common::FileSystem::fileSystem()->writeFileAtomically(m_configfilePath, m_previousConfigFilePath, tempPath);
+
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {

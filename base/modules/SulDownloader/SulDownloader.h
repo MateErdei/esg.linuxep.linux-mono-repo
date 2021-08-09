@@ -48,7 +48,7 @@ namespace SulDownloader
      * Run ::runSULDownloader whilst handling serialization of ::DownloadReport and ::ConfigurationData.
      *
      * @param inputFilePath filePath for the update_config.json
-     * @param previousSettingString serialized (json) version of SulDownloaderProto::ConfigurationSettings.
+     * @param previousInputFilePath filePath for the previous_update_config.json
      * @param previousReportData serialized (json) version of SulDownloaderProto::DownloadReport.
      * @param supplementOnly Should SulDownloader do a supplement-only update?
      * @return Pair containing the exit code and the serialized (json) version of
@@ -59,7 +59,7 @@ namespace SulDownloader
      */
     std::tuple<int, std::string, bool> configAndRunDownloader(
         const std::string& inputFilePath,
-        const std::string& previousSettingString,
+        const std::string& previousInputFilePath,
         const std::string& previousReportData,
         bool supplementOnly=false);
 

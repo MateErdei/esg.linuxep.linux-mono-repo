@@ -422,7 +422,7 @@ namespace SulDownloader
 
     std::tuple<int, std::string, bool> configAndRunDownloader(
         const std::string& inputFilePath,
-        const std::string& previousSettingString,
+        const std::string& previousInputFilePath,
         const std::string& previousReportData,
         bool supplementOnly)
     {
@@ -434,16 +434,26 @@ namespace SulDownloader
             auto fileSystem  = Common::FileSystem::fileSystem();
 
             ConfigurationData configurationData;
+            ConfigurationData previousConfigurationData;
             do
             {
                 readAttempt++;
-                LOGERROR("READ attempt: " << readAttempt);
+                LOGINFO("READ attempt: " << readAttempt);
                 try
                 {
                     std::string settingsString = fileSystem->readFile(inputFilePath);
-                    LOGERROR("Configure and run downloader: " << settingsString);
+                    LOGINFO("Configure and run downloader: " << settingsString);
 
                     configurationData = ConfigurationData::fromJsonSettings(settingsString);
+
+                    if (fileSystem->isFile(previousInputFilePath))
+                    {
+                        std::string previousSettingString = fileSystem->readFile(previousInputFilePath);
+                        if (!previousSettingString.empty())
+                        {
+                            previousConfigurationData = ConfigurationData::fromJsonSettings(previousSettingString);
+                        }
+                    }
                     readSuccessful = true;
                 }
                 catch (Common::FileSystem::IFileSystemException& exception)
@@ -464,17 +474,12 @@ namespace SulDownloader
             } while (!readSuccessful);
             if (readSuccessful)
             {
-                LOGERROR("read successful set to true");
+                LOGINFO("read successful set to true");
             }
-            ConfigurationData previousConfigurationData;
 
-            if (!previousSettingString.empty())
+            if (!previousConfigurationData.verifySettingsAreValid())
             {
-                previousConfigurationData = ConfigurationData::fromJsonSettings(previousSettingString);
-                if (!previousConfigurationData.verifySettingsAreValid())
-                {
-                    LOGDEBUG("No previous configuration data provided");
-                }
+                LOGDEBUG("No previous configuration data provided");
             }
 
             if (!configurationData.verifySettingsAreValid())
@@ -570,18 +575,7 @@ namespace SulDownloader
             supplementOnly = true;
         }
 
-        std::string previousSettingsString;
-        if (fileSystem->isFile(previousSettingFilePath))
-        {
-            try
-            {
-                previousSettingsString = fileSystem->readFile(previousSettingFilePath);
-            }
-            catch (Common::FileSystem::IFileSystemException& ex)
-            {
-                LOGWARN("Failed to read previous update configuration file.");
-            }
-        }
+
 
         // check can create the output
         if (fileSystem->isDirectory(outputFilePath))
@@ -602,7 +596,7 @@ namespace SulDownloader
         std::string jsonReport;
         bool baseDowngraded = false;
         std::tie(exitCode, jsonReport, baseDowngraded) =
-            configAndRunDownloader(inputFilePath, previousSettingsString, previousReportData, supplementOnly);
+            configAndRunDownloader(inputFilePath, previousSettingFilePath, previousReportData, supplementOnly);
 
         if (exitCode == 0)
         {
