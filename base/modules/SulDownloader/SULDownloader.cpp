@@ -437,10 +437,12 @@ namespace SulDownloader
             do
             {
                 readAttempt++;
+                LOGERROR("READ attempt: " << readAttempt);
                 try
                 {
                     std::string settingsString = fileSystem->readFile(inputFilePath);
-                    LOGDEBUG("Configure and run downloader: " << settingsString);
+                    LOGERROR("Configure and run downloader: " << settingsString);
+
                     configurationData = ConfigurationData::fromJsonSettings(settingsString);
                     readSuccessful = true;
                 }
@@ -460,7 +462,10 @@ namespace SulDownloader
                 }
                 std::this_thread::sleep_for (std::chrono::seconds(1));
             } while (!readSuccessful);
-
+            if (readSuccessful)
+            {
+                LOGERROR("read successful set to true");
+            }
             ConfigurationData previousConfigurationData;
 
             if (!previousSettingString.empty())
