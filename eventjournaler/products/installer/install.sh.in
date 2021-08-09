@@ -69,15 +69,9 @@ generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 
 ## Setup permissions
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
-# var dir
-mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} var dir"
-chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
-# data dir
-mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data/eventjournals"
-chmod 0750 -R "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data"
+
 # log dir
-mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} log dir"
-chmod 0700 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log"
+mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} log dir"
 
 # Blanket plugin directory recursive chown
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
