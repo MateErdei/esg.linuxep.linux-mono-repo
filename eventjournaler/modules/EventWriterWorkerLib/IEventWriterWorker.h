@@ -16,5 +16,6 @@ namespace EventWriterLib
         virtual void start() = 0;
         virtual void restart() = 0;
         virtual bool getRunningStatus() = 0;
+        virtual void checkAndPruneTruncatedEvents(const std::string& path) = 0;
     };
 } // namespace EventWriterLib

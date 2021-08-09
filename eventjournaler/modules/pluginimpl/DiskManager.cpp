@@ -11,8 +11,6 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
-#include <sys/stat.h>
-
 #include <cstring>
 #include <lzma.h>
 namespace Plugin
@@ -340,7 +338,7 @@ namespace Plugin
         return false;
     }
 
-    void DiskManager::compressClosedFiles(const std::string& dirpath)
+    void DiskManager::compressClosedFiles(const std::string& dirpath, std::shared_ptr<EventWriterLib::IEventWriterWorker> worker)
     {
         auto fs = Common::FileSystem::fileSystem();
         std::vector<Path> filesCollection = fs->listAllFilesInDirectoryTree(dirpath);
@@ -362,22 +360,25 @@ namespace Plugin
                         fs->removeFile(compressFileTempPath);
                     }
 
+                    worker->checkAndPruneTruncatedEvents(path);
 
-                    if (compressFile(path, compressFileTempPath))
+                    if (fs->exists(path))
                     {
-                        try
+                        if (compressFile(path, compressFileTempPath))
                         {
-                            Common::FileSystem::filePermissions()->chmod(compressFileTempPath, S_IRUSR | S_IWUSR | S_IRGRP);
-                            fs->moveFile(compressFileTempPath,compressedFileFinalPath);
-                            fs->removeFile(path);
+                            try
+                            {
+                                fs->moveFile(compressFileTempPath,compressedFileFinalPath);
+                                fs->removeFile(path);
+                            }
+                            catch (Common::FileSystem::IFileSystemException& exception)
+                            {
+                                LOGWARN("Failed to clean up file " << path << " after compressing due to error: " << exception.what());
+                            }
                         }
-                        catch (Common::FileSystem::IFileSystemException& exception)
-                        {
-                            LOGWARN("Failed to clean up file " << path << " after compressing due to error: " << exception.what());
-                        }
-                    }
 
-                    LOGINFO("Compressed file: " << path);
+                        LOGINFO("Compressed file: " << path);
+                    }
                 }
             }
         }

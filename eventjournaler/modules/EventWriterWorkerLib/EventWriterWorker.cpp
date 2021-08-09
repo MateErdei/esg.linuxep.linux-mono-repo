@@ -61,6 +61,24 @@ namespace EventWriterLib
 
     bool EventWriterWorker::getRunningStatus() { return m_isRunning; }
 
+    void EventWriterWorker::checkAndPruneTruncatedEvents(const std::string& path)
+    {
+        EventJournal::FileInfo info;
+        if (m_eventJournalWriter->readFileInfo(path, info))
+        {
+            if (info.anyLengthErrors)
+            {
+                LOGINFO("Prune truncated events from " << path);
+                m_eventJournalWriter->pruneTruncatedEvents(path);
+            }
+        }
+        else
+        {
+            LOGINFO("Remove invalid file " << path);
+            Common::FileSystem::fileSystem()->removeFile(path);
+        }
+    }
+
     void EventWriterWorker::run()
     {
         m_isRunning = true;

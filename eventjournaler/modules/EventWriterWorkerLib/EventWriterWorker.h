@@ -30,6 +30,8 @@ namespace EventWriterLib
         void restart() override;
         bool getRunningStatus() override;
 
+        void checkAndPruneTruncatedEvents(const std::string& path) override;
+
     private:
         std::unique_ptr<IEventQueuePopper> m_eventQueuePopper;
         std::unique_ptr<EventJournal::IEventJournalWriter> m_eventJournalWriter;

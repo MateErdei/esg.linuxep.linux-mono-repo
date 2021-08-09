@@ -19,4 +19,5 @@ public:
     MOCK_METHOD0(start, void(void));
     MOCK_METHOD0(restart, void(void));
     MOCK_METHOD0(getRunningStatus, bool(void));
+    MOCK_METHOD1(checkAndPruneTruncatedEvents, void(const std::string&));
 };

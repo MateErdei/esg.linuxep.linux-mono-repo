@@ -17,6 +17,7 @@ Global Setup Tasks
     Set Global Variable  ${COMPONENT_SDDS}          ${TEST_INPUT_PATH}/event_journaler_sdds
     Set Global Variable  ${EVENT_PUB_SUB_TOOL}      ${TEST_INPUT_PATH}/manual_tools/EventPubSub
     Set Global Variable  ${EVENT_READER_TOOL}       ${TEST_INPUT_PATH}/manual_tools/JournalReader
+    Set Global Variable  ${EXAMPLE_DATA_PATH}       ${ROBOT_SCRIPTS_PATH}/data
     Set Global Variable  ${COMPONENT_ROOT_PATH}     ${SOPHOS_INSTALL}/plugins/${COMPONENT_NAME}
     Set Global Variable  ${EVENT_JOURNAL_DIR}       ${COMPONENT_ROOT_PATH}/data/eventjournals
 

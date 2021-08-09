@@ -11,6 +11,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <SubscriberLib/Subscriber.h>
+//#include <memory>
 
 namespace Plugin
 {
@@ -18,12 +19,13 @@ namespace Plugin
         std::shared_ptr<QueueTask> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback,
-        std::unique_ptr<SubscriberLib::ISubscriber> subscriber
-        ) :
+        std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
+        std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter) :
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
-        m_subscriber(std::move(subscriber))
+        m_subscriber(std::move(subscriber)),
+        m_eventWriterWorker(eventWriter)
     {
     }
 
@@ -34,6 +36,7 @@ namespace Plugin
         uint64_t lastChecked = std::stoul(time.currentEpochTimeInSeconds());
         m_callback->setRunning(true);
         LOGINFO("Entering the main loop");
+        m_eventWriterWorker->start();
         m_subscriber->start();
         while (true)
         {
@@ -44,6 +47,11 @@ namespace Plugin
                 {
                     LOGERROR("Subscriber not running, restarting it.");
                     m_subscriber->restart();
+                }
+                if (!m_eventWriterWorker->getRunningStatus())
+                {
+                    LOGERROR("Event Writer not running, restarting it.");
+                    m_eventWriterWorker->restart();
                 }
                 uint64_t current = std::stoul(time.currentEpochTimeInSeconds());
                 if ((lastChecked+3600) < current)
@@ -59,6 +67,7 @@ namespace Plugin
                 {
                     case Task::TaskType::Stop:
                         m_subscriber->stop();
+                        m_eventWriterWorker->stop();
                         return;
                     case Task::TaskType::Policy:
                         processPolicy(task.Content);
@@ -73,7 +82,7 @@ namespace Plugin
     {
         Plugin::DiskManager disk;
         std::string eventJournalPath = Common::ApplicationConfiguration::applicationPathManager().getEventJournalsPath();
-        disk.compressClosedFiles(eventJournalPath);
+        disk.compressClosedFiles(eventJournalPath, m_eventWriterWorker);
         uint64_t size = disk.getDirectorySize(eventJournalPath);
 
 

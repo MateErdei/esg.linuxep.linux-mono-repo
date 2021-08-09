@@ -3,7 +3,10 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gtest/gtest.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/LogInitializedTests.h>
+#include <Common/Helpers/MockFileSystem.h>
 #include <thread>
 #include "tests/Helpers/FakePopper.h"
 #include "MockJournalWriter.h"
@@ -255,4 +258,60 @@ TEST_F(TestWriter, WriterRestart) // NOLINT
         usleep(1);
     }
     EXPECT_TRUE(writer.getRunningStatus());
+}
+
+TEST_F(TestWriter, NonTruncatedJournalFilesAreNotPruned) // NOLINT
+{
+    const std::string filename = "detections.bin";
+
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
+    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+    MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
+    std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
+
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+
+    EXPECT_CALL(*mockJournalWriter, readFileInfo(filename, _)).WillOnce(Return(true));
+
+    writer.checkAndPruneTruncatedEvents(filename);
+}
+
+TEST_F(TestWriter, TruncatedJournalFilesArePruned) // NOLINT
+{
+    const std::string filename = "detections.bin";
+
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
+    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+    MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
+    std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
+
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+
+    EventJournal::FileInfo info;
+    info.anyLengthErrors = true;
+
+    EXPECT_CALL(*mockJournalWriter, readFileInfo(filename, _)).WillOnce(DoAll(SetArgReferee<1>(info),Return(true)));
+    EXPECT_CALL(*mockJournalWriter, pruneTruncatedEvents(filename));
+
+    writer.checkAndPruneTruncatedEvents(filename);
+}
+
+TEST_F(TestWriter, InvalidJournalFilesAreRemoved) // NOLINT
+{
+    const std::string filename = "detections.bin";
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
+    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+    MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
+    std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
+
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+
+    EXPECT_CALL(*mockFileSystem, removeFile(filename));
+    EXPECT_CALL(*mockJournalWriter, readFileInfo(filename, _)).WillOnce(Return(false));
+
+    writer.checkAndPruneTruncatedEvents(filename);
 }

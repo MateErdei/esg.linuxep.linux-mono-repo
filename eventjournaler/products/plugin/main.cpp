@@ -53,9 +53,9 @@ int main()
     std::unique_ptr<SubscriberLib::ISubscriber> subscriber(new SubscriberLib::Subscriber(Plugin::getSubscriberSocketPath(), Common::ZMQWrapperApi::createContext(), std::move(eventQueuePusher)));
     std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(new EventWriterLib::EventQueuePopper(eventQueue));
     std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter (new EventJournal::Writer());
-    std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter(new EventWriterLib::EventWriterWorker(std::move(eventQueuePopper), std::move(eventJournalWriter)));
+    std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter(new EventWriterLib::EventWriterWorker(std::move(eventQueuePopper), std::move(eventJournalWriter)));
 
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, std::move(subscriber), std::move(eventWriter));
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, std::move(subscriber), eventWriter);
 
     try
     {

@@ -6,6 +6,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <EventWriterWorkerLib/IEventWriterWorker.h>
 #include <list>
 #include <optional>
 #include <lzma.h>
@@ -36,7 +37,7 @@ namespace Plugin
         uint64_t getDirectorySize(const std::string& dirpath);
         void deleteOldJournalFiles(const std::string& dirpath,uint64_t lowerLimit, uint64_t currentTotalSizeOnDisk);
         std::vector<SubjectFileInfo> getSortedListOFCompressedJournalFiles(const std::string& dirpath);
-        void compressClosedFiles(const std::string& dirpath);
+        void compressClosedFiles(const std::string& dirpath, std::shared_ptr<EventWriterLib::IEventWriterWorker> worker);
     private:
         bool init_encoder(lzma_stream *strm, uint32_t preset);
         bool compress(lzma_stream *strm, FILE *infile, FILE *outfile);

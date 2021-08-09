@@ -69,6 +69,7 @@ Event Journaler Teardown
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Run Keyword If Test Failed  Log File  ${EVENT_JOURNALER_LOG_PATH}
+    Remove Directory  ${EVENT_JOURNALER_DATA_STORE}  recursive=True
 
 Journaler Log Contains String X Times
     [Arguments]  ${to_find}   ${xtimes}
@@ -124,3 +125,8 @@ Check Journal Contains Detection Event With Content
     [Arguments]  ${expectedContent}
     ${latestJournalEvent} =  Read First Event From Journal
     Should Contain  ${latestJournalEvent}   ${expectedContent}
+
+Check Journal Contains X Detection Events
+    [Arguments]  ${xtimes}
+    ${all_events} =  Read All Detection Events From Journal
+    Should Contain X Times  ${all_events}  Producer Unique Id:  ${xtimes}

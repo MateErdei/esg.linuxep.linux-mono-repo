@@ -23,7 +23,7 @@ namespace Plugin
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
             std::shared_ptr<PluginCallback> callback,
             std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
-            std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter);
+            std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter);
         void mainLoop();
 
     private:
@@ -31,7 +31,7 @@ namespace Plugin
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_callback;
         std::unique_ptr<SubscriberLib::ISubscriber> m_subscriber;
-        std::unique_ptr<EventWriterLib::IEventWriterWorker> m_eventWriterWorker;
+        std::shared_ptr<EventWriterLib::IEventWriterWorker> m_eventWriterWorker;
         int QUEUE_TIMEOUT = 5; // Seconds
 
         void processPolicy(const std::string& policyXml);

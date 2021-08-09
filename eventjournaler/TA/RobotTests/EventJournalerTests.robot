@@ -75,7 +75,7 @@ Event Journaler Can Receive Many Events From Publisher
 
 Event Journaler Can compress Files
     ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/threatEvents-00001-00002-12092029-10202002
-    Create File   ${filePath}.bin  randomstring
+    Copy File  ${EXAMPLE_DATA_PATH}/Detections-0000000000000001-0000000000000003-132729637080000000-132729637110000000.bin  ${filePath}.bin
     Run Process  chown  sophos-spl-user:sophos-spl-group  -R  ${EVENT_JOURNALER_DATA_STORE}/
     Restart Event Journaler
     Wait Until Keyword Succeeds
@@ -84,6 +84,39 @@ Event Journaler Can compress Files
     ...  File Should exist  ${filePath}.xz
     File Should not exist  ${filePath}.bin
     File Exists With Permissions  ${filepath}.xz  sophos-spl-user  sophos-spl-group  -rw-r-----
+
+Event Journaler Can Remove Empty Files
+    ${filePath} =  Set Variable  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/threatEvents-00001-00002-12092029-10202002
+    Create Binary File   ${filePath}.bin  ${EMPTY}
+    Run Process  chown  sophos-spl-user:sophos-spl-group  -R  ${EVENT_JOURNALER_DATA_STORE}/
+    Restart Event Journaler
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  File Should Not Exist  ${filePath}.bin
+    File Should Not Exist  ${filePath}.xz
+
+Event Journaler Can Fix Truncated Files
+    FOR  ${i}  IN RANGE  3
+        Publish Threat Event
+    END
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check Journal Contains X Detection Events  3
+
+    ${files} =  List Files In Directory  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections  Detections-*.bin
+    ${numFiles} =  Get Length  ${files}
+    Should Be Equal As Integers  ${numFiles}  1
+    Run Process  truncate  -s  -13  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections/${files[0]}
+
+    Restart Event Journaler
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check Journal Contains X Detection Events  2
 
 *** Keywords ***
 Setup
