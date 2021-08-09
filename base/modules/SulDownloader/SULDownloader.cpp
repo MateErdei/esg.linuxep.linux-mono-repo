@@ -437,12 +437,19 @@ namespace SulDownloader
             do
             {
                 readAttempt++;
-                std::string settingsString = fileSystem->readFile(inputFilePath);
-                LOGDEBUG("Configure and run downloader: " << settingsString);
                 try
                 {
+                    std::string settingsString = fileSystem->readFile(inputFilePath);
+                    LOGDEBUG("Configure and run downloader: " << settingsString);
                     configurationData = ConfigurationData::fromJsonSettings(settingsString);
                     readSuccessful = true;
+                }
+                catch (Common::FileSystem::IFileSystemException& exception)
+                {
+                    if (readAttempt == maxReadAttempt)
+                    {
+                        throw Common::FileSystem::IFileSystemException(exception.what());
+                    }
                 }
                 catch (SulDownloaderException & exception)
                 {
@@ -450,12 +457,8 @@ namespace SulDownloader
                     {
                         throw SulDownloaderException(exception.what());
                     }
-                    else
-                    {
-                        std::this_thread::sleep_for (std::chrono::seconds(1));
-
-                    }
                 }
+                std::this_thread::sleep_for (std::chrono::seconds(1));
             } while (!readSuccessful);
 
             ConfigurationData previousConfigurationData;
