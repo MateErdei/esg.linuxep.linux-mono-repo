@@ -67,9 +67,15 @@ find "$DIST/files/plugins" -type f -print0 | xargs -0 "$SOPHOS_INSTALL/base/bin/
 
 generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
 
+## Setup permissions
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/"*
-mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
+# var dir
+mkdir -p "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} var dir"
 chmod 0750 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
+# log dir
+mkdir -p ${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to create ${PLUGIN_NAME} log dir"
+
+# Blanket plugin directory recursive chown
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 
 ln -snf "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/bin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
