@@ -303,18 +303,16 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     ConfigurationSettings settings;
     JsonParseOptions jsonParseOptions;
     jsonParseOptions.ignore_unknown_fields = true;
-    LOGINFO("Setting string in ConfigurationData::fromJsonSettings "<<settingsString);
+
     auto status = JsonStringToMessage(settingsString, &settings, jsonParseOptions);
-    LOGINFO("Status: " << status.ToString());
+
     if (!status.ok())
     {
 
         std::stringstream errorMsg;
         errorMsg << "Failed to process json message with error: " << status.ToString();
-        LOGINFO(errorMsg.str());
         throw SulDownloaderException(errorMsg.str());
     }
-    LOGINFO("json parsed ok");
     // load input string (json) into the configuration data
     // run runSULDownloader
     // and serialize the DownloadReport into json and give the error code/or success
