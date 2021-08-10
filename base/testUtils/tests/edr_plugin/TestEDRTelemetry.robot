@@ -104,7 +104,10 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     ...  10s
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log   OSQUERY_PROCESS_FINISHED  1
-
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  2
     # sleep to give osquery a chance to stabilise so this test doesn't flake
     # TODO - LINUXDAR-2839 Use new logline to replace this sleep with a smarter wait
     Sleep  10s
@@ -112,14 +115,24 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     Kill OSQuery
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  3
     Restart EDR Plugin              #Check telemetry persists after restart
 
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
-
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  4
     Kill OSQuery
     Wait Until OSQuery Running  20
-
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  5
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
