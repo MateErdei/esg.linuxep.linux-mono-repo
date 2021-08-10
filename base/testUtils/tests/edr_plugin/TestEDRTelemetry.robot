@@ -62,15 +62,25 @@ EDR Plugin Produces Telemetry With OSQueryD Output Log File Not Containing Resta
 EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
-
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  1
     Kill OSQuery
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
+        Wait Until Keyword Succeeds
+        ...  10s
+        ...  2s
+        ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  2
     Restart EDR Plugin              #Check telemetry persists after restart
 
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
-
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  3
     Kill OSQuery
     Wait Until OSQuery Running  20
 
