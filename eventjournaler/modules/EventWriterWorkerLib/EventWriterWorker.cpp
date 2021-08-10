@@ -63,19 +63,27 @@ namespace EventWriterLib
 
     void EventWriterWorker::checkAndPruneTruncatedEvents(const std::string& path)
     {
-        EventJournal::FileInfo info;
-        if (m_eventJournalWriter->readFileInfo(path, info))
+        try
         {
-            if (info.anyLengthErrors)
+            EventJournal::FileInfo info;
+            if (m_eventJournalWriter->readFileInfo(path, info))
             {
-                LOGINFO("Prune truncated events from " << path);
-                m_eventJournalWriter->pruneTruncatedEvents(path);
+                if (info.anyLengthErrors)
+                {
+                    LOGINFO("Prune truncated events from " << path);
+                    m_eventJournalWriter->pruneTruncatedEvents(path);
+                }
+            }
+            else
+            {
+                LOGINFO("Remove invalid file " << path);
+                Common::FileSystem::fileSystem()->removeFile(path);
             }
         }
-        else
+        catch (const std::exception& ex)
         {
-            LOGINFO("Remove invalid file " << path);
-            Common::FileSystem::fileSystem()->removeFile(path);
+            LOGERROR("Failed to prune truncated events: " << ex.what());
+            return;
         }
     }
 
