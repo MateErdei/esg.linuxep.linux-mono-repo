@@ -10,10 +10,7 @@ Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 Suite Setup     Require Installed
 Suite Teardown  Require Uninstalled
 
-Test Teardown  Run Keywords
-...             Stop Local Cloud Server  AND
-...             Run Keyword If Test Failed    Dump Cloud Server Log   AND
-...             General Test Teardown
+Test Teardown  General Test Teardown
 
 Force Tags  LOAD4
 Default Tags   EVENT_JOURNALER_PLUGIN    EDR_PLUGIN
