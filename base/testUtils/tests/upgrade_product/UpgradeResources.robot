@@ -70,7 +70,7 @@ Cleanup Local Warehouse And Thininstaller
 Send ALC Policy And Prepare For Upgrade
     [Arguments]  ${PolicyPath}
     Prepare Installation For Upgrade Using Policy  ${PolicyPath}
-    Send Policy File  alc  ${PolicyPath}
+    Send Policy File  alc  ${PolicyPath}  wait_for_policy=${True}
 
 Prepare Installation For Upgrade Using Policy
     [Arguments]  ${PolicyPath}

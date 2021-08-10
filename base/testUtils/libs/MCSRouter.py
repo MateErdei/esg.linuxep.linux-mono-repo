@@ -601,9 +601,20 @@ class MCSRouter(object):
         conn.getresponse()
         conn.close()
 
-    def send_policy_file(self, policy_type, policy_path):
+    def send_policy_file(self, policy_type, policy_path, wait_for_policy=False):
         f = open(policy_path, 'r')
-        self.send_policy(policy_type, f.read())
+        policy_contents = f.read()
+        self.send_policy(policy_type, policy_contents)
+        if wait_for_policy:
+            for i in range(10):
+                try:
+                    self.check_policy_written("ALC-1_policy.xml", policy_contents)
+                    return
+                except Exception:
+                    pass
+                time.sleep(1)
+            else:
+                raise AssertionError(f"Policy {policy_path} not written to policy dir within 10 seconds")
 
     def send_fake_alc_policy(self):
         data = DUMMY_ALC_POLICY
