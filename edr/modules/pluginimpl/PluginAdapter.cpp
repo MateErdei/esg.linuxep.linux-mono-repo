@@ -116,7 +116,7 @@ namespace Plugin
                     std::make_shared<SophosExtension>(), std::make_shared<std::atomic_bool>(false));
             m_extensionAndStateList.push_back(extensionRunningStatus);
         }
-        if(m_isXDR)
+        if (m_isXDR)
         {
             if (m_extensionAndStateList.size()<2)
             {
@@ -134,9 +134,8 @@ namespace Plugin
                 m_extensionAndStateList.pop_back();
             }
         }
+    }
 
-
-    };
     void PluginAdapter::mainLoop()
     {
         try
@@ -212,7 +211,7 @@ namespace Plugin
             bool anyStoppedExtensions = false;
             for (auto& runningStatus : m_extensionAndStateList)
             {
-                if(runningStatus.second->load())
+                if (runningStatus.second->load())
                 {
                     anyStoppedExtensions = true;
                     break;
@@ -811,7 +810,7 @@ namespace Plugin
     bool PluginAdapter::hasScheduleEpochEnded(time_t now)
     {
         time_t scheduleEpochValue = m_scheduleEpoch.getValue();
-        if(scheduleEpochValue > now + ONE_DAY_IN_SECONDS)
+        if (scheduleEpochValue > now + ONE_DAY_IN_SECONDS)
         {
             LOGINFO( "Schedule Epoch time: " << scheduleEpochValue << " is in the future, resetting to current time.");
             return true;
