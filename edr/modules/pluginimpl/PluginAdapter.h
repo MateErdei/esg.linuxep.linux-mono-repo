@@ -146,6 +146,7 @@ namespace Plugin
         bool m_collectAuditEnabled = false;
         bool m_restartNoDelay = false;
 
-        std::list<std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>> m_extensionAndStateList;
+        std::map<std::string, std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>>
+            m_extensionAndStateMap;
     };
 } // namespace Plugin

@@ -109,29 +109,22 @@ namespace Plugin
 
     void PluginAdapter::updateExtensions()
     {
-        if (m_extensionAndStateList.size()<1)
+        if (m_extensionAndStateMap.find("SophosExtension") == m_extensionAndStateMap.end())
         {
-            auto extensionRunningStatus =
-                std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(
-                    std::make_shared<SophosExtension>(), std::make_shared<std::atomic_bool>(false));
-            m_extensionAndStateList.push_back(extensionRunningStatus);
+            m_extensionAndStateMap["SophosExtension"] = std::make_pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(
+                std::make_shared<SophosExtension>(), std::make_shared<std::atomic_bool>(false));
         }
-        if (m_isXDR)
+        if (m_isXDR && m_extensionAndStateMap.find("LoggerExtension") == m_extensionAndStateMap.end())
         {
-            if (m_extensionAndStateList.size()<2)
-            {
-                auto extensionRunningStatus =
-                    std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(
-                        m_loggerExtensionPtr, std::make_shared<std::atomic_bool>(false));
-                m_extensionAndStateList.push_back(extensionRunningStatus);
-            }
+            m_extensionAndStateMap["LoggerExtension"] = std::make_pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(
+                m_loggerExtensionPtr, std::make_shared<std::atomic_bool>(false));
         }
         else
         {
-            if (m_extensionAndStateList.size()==2)
+            if (m_extensionAndStateMap.find("LoggerExtension") != m_extensionAndStateMap.end())
             {
-                m_extensionAndStateList.back().first->Stop();
-                m_extensionAndStateList.pop_back();
+                m_extensionAndStateMap["LoggerExtension"].first->Stop();
+                m_extensionAndStateMap.erase("LoggerExtension");
             }
         }
     }
@@ -209,9 +202,9 @@ namespace Plugin
         {
             //Check extensions are still running and restart osquery if any have stopped unexpectedly
             bool anyStoppedExtensions = false;
-            for (auto& runningStatus : m_extensionAndStateList)
+            for (auto& runningStatus : m_extensionAndStateMap)
             {
-                if (runningStatus.second->load())
+                if (runningStatus.second.second->load())
                 {
                     anyStoppedExtensions = true;
                     break;
@@ -473,9 +466,9 @@ namespace Plugin
             queue->pushOsqueryProcessFinished();
         });
         // block here till osquery new instance is started.
-        for(auto extensionAndState : m_extensionAndStateList)
+        for(auto extensionAndState : m_extensionAndStateMap)
         {
-            extensionAndState.first->Stop();
+            extensionAndState.second.first->Stop();
         }
         osqueryStarted.wait_started();
 
@@ -499,15 +492,15 @@ namespace Plugin
         {
             m_loggerExtensionPtr->reloadTags();
         }
-        for (const auto& extensionAndRunningStatus :   m_extensionAndStateList)
+        for (const auto& extensionAndRunningStatus : m_extensionAndStateMap)
         {
-            auto extension = extensionAndRunningStatus.first;
-            extensionAndRunningStatus.second->store(false);
+            auto extensionPair = extensionAndRunningStatus.second;
+            extensionPair.second->store(false);
             try
             {
-                extension->Start(Plugin::osquerySocket(),
+                extensionPair.first->Start(Plugin::osquerySocket(),
                                         false,
-                                        extensionAndRunningStatus.second);
+                                           extensionPair.second);
             }
             catch (const std::exception& ex)
             {
@@ -521,9 +514,9 @@ namespace Plugin
         try
         {
             // Call stop on all extensions, this is ok to call whether running or not.
-            for (const auto& extension : m_extensionAndStateList)
+            for (const auto& extension : m_extensionAndStateMap)
             {
-                extension.first->Stop();
+                extension.second.first->Stop();
             }
             while (m_osqueryProcess && m_monitor.valid())
             {
