@@ -575,7 +575,8 @@ namespace UpdateSchedulerImpl
             try
             {
                 std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-                Common::FileSystem::fileSystem()->writeFileAtomically(m_configfilePath, m_previousConfigFilePath, tempPath);
+                std::string content = Common::FileSystem::fileSystem()->readFile(m_configfilePath);
+                Common::FileSystem::fileSystem()->writeFileAtomically(m_previousConfigFilePath, content, tempPath);
 
             }
             catch (Common::FileSystem::IFileSystemException& ex)
