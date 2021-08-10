@@ -249,6 +249,7 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLIN
     std::list<unixsocket::ScanningClientSocket> client_sockets;
     // Create client connections - more than the max
     int clientConnectionCount = server.maxClientConnections() * 2;
+    ASSERT_GT(clientConnectionCount, 0);
     for (int i=0; i < clientConnectionCount; ++i)
     {
         client_sockets.emplace_back(socketPath,clientSleepTime);
@@ -256,9 +257,11 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLIN
 
     // Can't continue test if we don't have refused connections
     ASSERT_TRUE(appenderContains("Refusing connection: Maximum number of scanner reached"));
+    ASSERT_FALSE(client_sockets.empty());
 
     // Try a scan with the last connection
     {
+        assert(!client_sockets.empty()); // make cppcheck happy
         unixsocket::ScanningClientSocket& client_socket(client_sockets.back());
         TestFile testFile("testfile");
         datatypes::AutoFd fd(testFile.open());

@@ -9,6 +9,8 @@ FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
 FAILURE_BAD_ARGUMENT=53
 FAILURE_UNIT_TESTS=54
+FAILURE_CPPCHECK=62
+FAILURE_COPY_CPPCHECK_RESULT_FAILED=63
 
 
 source /etc/profile
@@ -54,8 +56,7 @@ NO_BUILD=0
 LOCAL_GCC=0
 LOCAL_CMAKE=0
 DUMP_LAST_TEST_ON_FAILURE=1
-FAILURE_CPPCHECK=62
-CPPCHECK=0
+RUN_CPPCHECK=0
 TAP=${TAP:-tap}
 
 while [[ $# -ge 1 ]]
@@ -187,7 +188,7 @@ do
             UNITTEST=1
             ;;
         --cpp-check)
-            CPPCHECK=1
+            RUN_CPPCHECK=1
             NO_BUILD=1
             ;;
         --bullseye-upload-unittest|--bullseye-upload)
@@ -318,23 +319,24 @@ function cppcheck_build()
         "${PKG_MANAGER}" -y install python36-pygments
       ;;
       *apt*)
-        sudo "${PKG_MANAGER}" -y install python3-pygments
-        sudo "${PKG_MANAGER}" -y install cppcheck
+        sudo "${PKG_MANAGER}" -y install python3-pygments cppcheck
       ;;
     esac
 
-    CPP_XML_REPORT="err.xml"
-    CPP_REPORT_DIR="cppcheck"
+    local CPP_XML_REPORT="err.xml"
+    local CPP_REPORT_DIR="cppcheck"
+    local CPPCHECK=${CPPCHECK:-cppcheck}
     mkdir -p ${CPP_REPORT_DIR}
-    cppcheck --inline-suppr --std=c++11 --xml --quiet --force \
+    ${CPPCHECK} --inline-suppr --std=c++11 --xml --quiet --force \
     --template="[{severity}][{id}] {message} {callstack} \(On {file}:{line}\)" \
     -i tests/googletest/ -i redist/ -i tapvenv/ -i build64/ -i input/ -i sspl-plugin-anti-virus/ -i cmake-build-debug/ . 2> ${CPP_REPORT_DIR}/${CPP_XML_REPORT}
+    [[ -f ${CPP_REPORT_DIR}/${CPP_XML_REPORT} ]] || exitFailure $FAILURE_CPPCHECK "cppcheck failed to create report"
     python3 "$BASE/build/analysis/cpp_check_html_report.py" --file=${CPP_REPORT_DIR}/${CPP_XML_REPORT} --report-dir=${CPP_REPORT_DIR} --source-dir=${BASE}
-    ANALYSIS_ERRORS=$(grep 'severity="error"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
-    ANALYSIS_WARNINGS=$(grep 'severity="warning"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
-    ANALYSIS_PERFORMANCE=$(grep 'severity="performance"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
-    ANALYSIS_INFORMATION=$(grep 'severity="information"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
-    ANALYSIS_STYLE=$(grep 'severity="style"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
+    local ANALYSIS_ERRORS=$(grep 'severity="error"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
+    local ANALYSIS_WARNINGS=$(grep 'severity="warning"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
+    local ANALYSIS_PERFORMANCE=$(grep 'severity="performance"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
+    local ANALYSIS_INFORMATION=$(grep 'severity="information"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
+    local ANALYSIS_STYLE=$(grep 'severity="style"' ${CPP_REPORT_DIR}/${CPP_XML_REPORT} | wc -l)
 
     echo "The full XML static analysis report:"
     cat ${CPP_REPORT_DIR}/${CPP_XML_REPORT}
@@ -344,7 +346,7 @@ function cppcheck_build()
     echo "There are $ANALYSIS_INFORMATION static analysis information issues"
     echo "There are $ANALYSIS_STYLE static analysis style issues"
 
-    ANALYSIS_OUTPUT_DIR="${OUTPUT}/analysis/"
+    local ANALYSIS_OUTPUT_DIR="${OUTPUT}/analysis/"
     [[ -d ${ANALYSIS_OUTPUT_DIR} ]] || mkdir -p "${ANALYSIS_OUTPUT_DIR}"
     cp -a ${CPP_REPORT_DIR}  "${ANALYSIS_OUTPUT_DIR}" || exitFailure $FAILURE_COPY_CPPCHECK_RESULT_FAILED  "Failed to copy cppcheck report to output"
 
@@ -389,9 +391,9 @@ function build()
     addpath "$REDIST/cmake/bin"
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
-    if (( CPPCHECK == 1 ))
+    if (( RUN_CPPCHECK == 1 ))
     then
-      cppcheck_build  || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
+      cppcheck_build || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
     fi
 
     if (( NO_BUILD == 1 ))

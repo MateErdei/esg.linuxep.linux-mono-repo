@@ -53,12 +53,15 @@ static SusiCallbackTable my_susi_callbacks{
         .IsAllowlistedCert = isAllowlistedCert
 };
 
-class SusiGlobalHandler
+namespace
 {
-public:
-    explicit SusiGlobalHandler(const std::string& json_config);
-    ~SusiGlobalHandler() noexcept;
-};
+    class SusiGlobalHandler
+    {
+    public:
+        explicit SusiGlobalHandler(const std::string& json_config);
+        ~SusiGlobalHandler() noexcept;
+    };
+} // namespace
 
 SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
 {
@@ -76,13 +79,16 @@ SusiGlobalHandler::~SusiGlobalHandler() noexcept
     assert(res == SUSI_S_OK);
 }
 
-class SusiHolder
+namespace
 {
-public:
-    explicit SusiHolder(const std::string& scannerConfig);
-    ~SusiHolder();
-    SusiScannerHandle m_handle;
-};
+    class SusiHolder
+    {
+    public:
+        explicit SusiHolder(const std::string& scannerConfig);
+        ~SusiHolder();
+        SusiScannerHandle m_handle;
+    };
+} // namespace
 
 static void throwIfNotOk(SusiResult res, const std::string& message)
 {

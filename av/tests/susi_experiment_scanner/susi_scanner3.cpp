@@ -61,36 +61,39 @@ static SusiCallbackTable my_susi_callbacks{ //NOLINT
     .IsAllowlistedCert = isAllowlistedCert
 };
 
-class SusiGlobalHandler
+namespace
 {
-public:
-    explicit SusiGlobalHandler(const std::string& json_config);
-    ~SusiGlobalHandler() noexcept;
-};
+    class SusiGlobalHandler
+    {
+    public:
+        explicit SusiGlobalHandler(const std::string& json_config);
+        ~SusiGlobalHandler() noexcept;
+    };
 
-SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
-{
-    my_susi_callbacks.token = this;
+    SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
+    {
+        my_susi_callbacks.token = this;
 
-    SusiResult res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
-    P("Global Susi constructed res=" << std::hex << res << std::dec);
-    ASSERT(res == SUSI_S_OK);
+        SusiResult res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
+        P("Global Susi constructed res=" << std::hex << res << std::dec);
+        ASSERT(res == SUSI_S_OK);
+    }
+
+    SusiGlobalHandler::~SusiGlobalHandler() noexcept
+    {
+        SusiResult res = SUSI_Terminate();
+        P("Global Susi destroyed res=" << std::hex << res << std::dec);
+        ASSERT(res == SUSI_S_OK);
+    }
+
+    class SusiHolder
+    {
+    public:
+        explicit SusiHolder(const std::string& scannerConfig);
+        ~SusiHolder();
+        SusiScannerHandle m_handle;
+    };
 }
-
-SusiGlobalHandler::~SusiGlobalHandler() noexcept
-{
-    SusiResult res = SUSI_Terminate();
-    P("Global Susi destroyed res=" << std::hex << res << std::dec);
-    ASSERT(res == SUSI_S_OK);
-}
-
-class SusiHolder
-{
-public:
-    explicit SusiHolder(const std::string& scannerConfig);
-    ~SusiHolder();
-    SusiScannerHandle m_handle;
-};
 
 static void throwIfNotOk(SusiResult res, const std::string& message)
 {
