@@ -83,6 +83,7 @@ Event Journaler Can compress Files
     ...  1 secs
     ...  File Should exist  ${filePath}.xz
     File Should not exist  ${filePath}.bin
+    File Exists With Permissions  ${filepath}.xz  sophos-spl-user  sophos-spl-group  -rw-r-----
 
 *** Keywords ***
 Setup
@@ -100,3 +101,11 @@ Get Three Events For Multiple Publishers Test
     should contain   ${all_events}  {"threatName":"EICAR-AV-Test","test data 1"}
     should contain   ${all_events}  {"threatName":"EICAR-AV-Test","test data 2"}
     should contain   ${all_events}  {"threatName":"EICAR-AV-Test","test data 3"}
+
+File Exists With Permissions
+    [Arguments]  ${file}  ${user}  ${group}  ${permissions}
+    ${result} =  Run Process  stat  -c  "%U %G %A"  ${file}
+    @{words} =  Split String  ${result.stdout.strip('"')}
+    Should Be Equal As Strings  ${words[0]}  ${user}
+    Should Be Equal As Strings  ${words[1]}  ${group}
+    Should Be Equal As Strings  ${words[2]}  ${permissions}
