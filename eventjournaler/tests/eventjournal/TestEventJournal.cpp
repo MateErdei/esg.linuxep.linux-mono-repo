@@ -311,6 +311,24 @@ TEST_F(TestEventJournalWriter, InsertEventAfterCompressedFileReadsLastProducerID
     CheckJournalFile(Common::FileSystem::join(directory, activeFilename), 224, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
 }
 
+TEST_F(TestEventJournalWriter, InsertEventAfterInvalidFile) // NOLINT
+{
+    const uint32_t expectedSize = 224;
+
+    std::vector<uint8_t> data{ 0xef, 0xbe, 0xad, 0xde };
+    installJournalFile(journal_detections_bin_multiple_active_filename, data.data(), data.size());
+
+    m_writer->insert(EventJournal::Subject::Detections, m_eventData);
+
+    auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
+    auto files = Common::FileSystem::fileSystem()->listFiles(directory);
+    ASSERT_EQ(1, files.size());
+    auto filename = Common::FileSystem::basename(files.front());
+    EXPECT_STRNE(journal_detections_bin_multiple_active_filename.c_str(), filename.c_str());
+    CheckActiveFilename(filename, 1);
+    CheckJournalFile(files.front(), expectedSize, S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP);
+}
+
 TEST_F(TestEventJournalWriter, CreateDirectoryFailureThrows) // NOLINT
 {
     auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);

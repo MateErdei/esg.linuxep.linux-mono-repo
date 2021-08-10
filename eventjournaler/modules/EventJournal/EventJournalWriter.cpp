@@ -109,10 +109,10 @@ namespace EventJournal
             auto fileSize = fs->fileSize(path);
 
             FileInfo info;
+            bool shouldCreateFile = false;
+
             if (readFileInfo(path, info))
             {
-                bool shouldCreateFile = false;
-
                 if (((fileSize + PBUF_HEADER_LENGTH + data.size()) > MAX_FILE_SIZE) || shouldCloseFile(info))
                 {
                     LOGDEBUG("Close " << path);
@@ -126,11 +126,18 @@ namespace EventJournal
                     shouldCreateFile = true;
                 }
 
-                if (shouldCreateFile)
-                {
-                    path = Common::FileSystem::join(directory, getNewFilename(subjectName, producerUniqueID, timestamp));
-                    isNewFile = true;
-                }
+            }
+            else
+            {
+                LOGDEBUG("Remove invalid file " << path);
+                removeFile(path);
+                shouldCreateFile = true;
+            }
+
+            if (shouldCreateFile)
+            {
+                path = Common::FileSystem::join(directory, getNewFilename(subjectName, producerUniqueID, timestamp));
+                isNewFile = true;
             }
         }
 
