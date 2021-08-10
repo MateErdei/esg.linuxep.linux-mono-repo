@@ -15,6 +15,8 @@ Suite Teardown  No Operation
 
 Test Setup      Run Keywords
 ...  Install With Base SDDS  AND
+...  Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf   AND
+...  Create Debug Level Logger Config File   AND
 ...  Check EDR Plugin Installed With Base
 
 Test Teardown   Test Teardown
@@ -30,9 +32,6 @@ EDR Plugin outputs XDR results and Its Answer is available to MCSRouter
     ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
 EDR Plugin Restarts Osquery When Custom Queries Have Changed
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create Debug Level Logger Config File
-    Restart EDR
 
     Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
@@ -53,8 +52,6 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
 EDR Plugin Tags All Queries Correctly
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create Debug Level Logger Config File
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
@@ -69,9 +66,6 @@ EDR Plugin Tags All Queries Correctly
 EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     [Setup]  Install With Base SDDS With Fixed Values Queries
     Check EDR Plugin Installed With Base
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create Debug Level Logger Config File
-    Restart EDR
     Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
@@ -118,9 +112,6 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
 EDR Plugin Applies Folding Rules Based Column Value
     [Setup]  Install With Base SDDS With Random Queries
     Check EDR Plugin Installed With Base
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create Debug Level Logger Config File
-    Restart EDR
 
     Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
@@ -149,8 +140,6 @@ EDR Plugin Applies Folding Rules Based Column Value
     Should Be True  ${folded_count} < 100
 
 EDR Plugin Runs All Scheduled Queries
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create Debug Level Logger Config File
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
