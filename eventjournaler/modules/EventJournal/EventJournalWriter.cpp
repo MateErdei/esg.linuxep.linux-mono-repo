@@ -279,7 +279,7 @@ namespace EventJournal
         return 0;
     }
 
-    std::string Writer::getExistingFile(const std::string& subject) const
+    bool isOpenSubjectFile(const std::string& subject, const std::string& filename)
     {
         auto subjectDirectory = Common::FileSystem::join(m_location, m_producer, subject);
         if (Common::FileSystem::fileSystem()->isDirectory(subjectDirectory))
