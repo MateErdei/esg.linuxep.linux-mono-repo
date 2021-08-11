@@ -112,7 +112,12 @@ Install With Base SDDS
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
     Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
     Install EDR Directly from SDDS
-
+Install With Base SDDS with EDR Debug
+    [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
+    Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
+    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
+    Create Debug Level Logger Config File
+    Install EDR Directly from SDDS
 Install With Base SDDS And Marked Next And Latest Files
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
     Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}

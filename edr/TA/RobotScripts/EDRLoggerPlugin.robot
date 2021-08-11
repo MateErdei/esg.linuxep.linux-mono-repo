@@ -14,9 +14,7 @@ Suite Setup     No Operation
 Suite Teardown  No Operation
 
 Test Setup      Run Keywords
-...  Install With Base SDDS  AND
-...  Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf   AND
-...  Create Debug Level Logger Config File   AND
+...  Install With Base SDDS with EDR Debug  AND
 ...  Check EDR Plugin Installed With Base
 
 Test Teardown   Test Teardown
