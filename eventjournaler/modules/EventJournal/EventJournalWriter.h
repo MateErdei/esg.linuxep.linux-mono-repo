@@ -73,7 +73,6 @@ namespace EventJournal
         bool isSubjectFile(const std::string& subject, const std::string& filename) const;
         uint64_t parseLastUniqueID(const std::string& subject, const std::string& filename) const;
 
-        std::string getExistingFile(const std::string& subject) const;
         std::string getClosedFilePath(const std::string& filepath, const FileInfo& header) const;
         uint64_t readHighestUniqueID() const;
 
