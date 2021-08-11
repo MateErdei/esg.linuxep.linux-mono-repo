@@ -36,7 +36,7 @@ Test SSPL Will Updated To A Fixed Version When Paused Updating Is Activated And 
      Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
      # clear log
      Remove File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-     Perform Update And Check Expected Version Is Installed  ${BaseOnlyFixedVersion999Policy}   1  Product missing from warehouse: ServerProtectionLinux-Base
+     Perform Failed Update And Check Log for Expected Error  ${BaseOnlyFixedVersion999Policy}   1  Product missing from warehouse: ServerProtectionLinux-Base
 
      # update using fixed version
      Log File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
@@ -77,7 +77,6 @@ Perform Update And Check Expected Version Is Installed
     ...   1 secs
     ...   Check Update Config Contains Expected Version Value  ${version}
 
-    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...   240 secs
@@ -89,4 +88,27 @@ Perform Update And Check Expected Version Is Installed
     ...   240 secs
     ...   2 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file   ${updateSuccessLogCount}
+
+Perform Failed Update And Check Log for Expected Error
+    [Arguments]   ${policyFile}  ${updateOccurenceLogCount}  ${updateResult}=Update success
+    Send ALC Policy And Prepare For Upgrade  ${policyFile}
+
+    # Check installed version matches version from policy
+    ${version} =  Get Version From Policy   ${policyFile}
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Update Config Contains Expected Version Value  ${version}
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   2 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   ${updateResult}   ${updateOccurenceLogCount}
+
+    #  This is to make sure the update has finished in case the previous report check is does not match a string that is produced at end of the update process.
+    Wait Until Keyword Succeeds
+    ...   240 secs
+    ...   2 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file   ${updateOccurenceLogCount}
 
