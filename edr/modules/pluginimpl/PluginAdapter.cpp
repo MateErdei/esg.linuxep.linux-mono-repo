@@ -122,7 +122,7 @@ namespace Plugin
         }
         else
         {
-            if (m_extensionAndStateMap.find("LoggerExtension") != m_extensionAndStateMap.end())
+            if (!m_isXDR && m_extensionAndStateMap.find("LoggerExtension") != m_extensionAndStateMap.end())
             {
                 LOGDEBUG("Removing LoggerExtension from list of extensions");
                 m_extensionAndStateMap["LoggerExtension"].first->Stop();
