@@ -193,3 +193,66 @@ TEST_F(TestEventJournalWriter, CreateDirectoryFailureThrows) // NOLINT
 
     EXPECT_THROW(m_writer->insert(EventJournal::Subject::Detections, m_eventData), std::runtime_error);
 }
+
+TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoFiles) // NOLINT
+{
+    auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, isDirectory(directory)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(directory)).WillOnce(Return(std::vector<std::string>{""}));
+
+    EXPECT_EQ(EventJournal::getExistingFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "");
+}
+
+TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoOpenFile) // NOLINT
+{
+    auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, isDirectory(directory)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(directory)).WillOnce(Return(std::vector<std::string>{
+        "Detections-0000000000000001-0000000000033b9a-132727414310000000-132729742680000000.xz",
+        "Detections-0000000000041413-0000000000041c59-132729797430000000-132729798310000000.bin",
+        "Detections-0000000000041c5a-000000000004249f-132729798310000000-132729799230000000.bin"
+    }));
+
+    EXPECT_EQ(EventJournal::getExistingFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "");
+}
+
+TEST_F(TestEventJournalWriter, testGetExistingFileReturnsOpenSubjectFile) // NOLINT
+{
+    auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, isDirectory(directory)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, listFiles(directory)).WillOnce(Return(std::vector<std::string>{
+        "Detections-0000000000000001-0000000000033b9a-132727414310000000-132729742680000000.xz",
+        "Detections-0000000000041413-0000000000041c59-132729797430000000-132729798310000000.bin",
+        "Detections-0000000000041c5a-000000000004249f-132729798310000000-132729799230000000.bin",
+        "Detections-0000000000042ce7-132729800360000000.bin"
+    }));
+
+    EXPECT_EQ(EventJournal::getExistingFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "Detections-0000000000042ce7-132729800360000000.bin");
+}
+
+TEST_F(TestEventJournalWriter, testIsOpenSubjectFileOnlyReturnsTrueForOpenFiles) // NOLINT
+{
+    EXPECT_TRUE(EventJournal::isOpenSubjectFile("Detections", "Detections-0000000000042ce7-132729800360000000.bin"));
+
+    // compressed + closed files
+    EXPECT_FALSE(EventJournal::isOpenSubjectFile("Detections", "Detections-0000000000000001-0000000000033b9a-132727414310000000-132729742680000000.xz"));
+    EXPECT_FALSE(EventJournal::isOpenSubjectFile("Detections", "Detections-0000000000041413-0000000000041c59-132729797430000000-132729798310000000.bin"));
+    EXPECT_FALSE(EventJournal::isOpenSubjectFile("Detections", "Detections-0000000000041c5a-000000000004249f-132729798310000000-132729799230000000.bin"));
+
+    // capital hex
+    EXPECT_FALSE(EventJournal::isOpenSubjectFile("Detections", "Detections-0000000000042CE7-132729800360000000.bin"));
+    // check escape on decimal point for extension
+    EXPECT_FALSE(EventJournal::isOpenSubjectFile("Detections", "Detections-0000000000042ce7-132729800360000000dbin"));
+    // no .bin
+    EXPECT_FALSE(EventJournal::isOpenSubjectFile("Detections", "Detections-0000000000042ce7-132729800360000000.xz"));
+    // wrong extension
+    EXPECT_FALSE(EventJournal::isOpenSubjectFile("Detections", "Detections-000000000000000042ce7-132729800360000000.bin"));
+    // no uuids
+    EXPECT_FALSE(EventJournal::isOpenSubjectFile("Detections", "Detections--.bin"));
+}

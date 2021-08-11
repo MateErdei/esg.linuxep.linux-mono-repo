@@ -22,6 +22,10 @@ namespace EventJournal
 
     std::vector<uint8_t> encode(const Detection& detection);
 
+    std::string getExistingFileFromDirectory(const std::string& location, const std::string& producer, const std::string& subject);
+    bool isSubjectFile(const std::string& subject, const std::string& filename);
+    bool isOpenSubjectFile(const std::string& subject, const std::string& filename);
+
 
     class Writer : public IEventJournalWriter
     {
@@ -31,7 +35,6 @@ namespace EventJournal
         Writer(const std::string& location, const std::string& producer);
 
         void insert(Subject subject, const std::vector<uint8_t>& data) override;
-
     private:
         static constexpr uint32_t FCC_TYPE_RIFF = 0x46464952; // "RIFF"
         static constexpr uint32_t FCC_TYPE_SJRN = 0x6e726a73; // "sjrn"
@@ -45,9 +48,7 @@ namespace EventJournal
         static constexpr uint32_t MAX_FILE_SIZE      = 100000000;
 
         std::string getNewFilename(const std::string& subject, uint64_t uniqueID, uint64_t timestamp) const;
-        bool isSubjectFile(const std::string& subject, const std::string& filename) const;
 
-        std::string getExistingFile(const std::string& subject) const;
         std::string getClosedFilePath(const std::string& filepath) const;
         uint64_t readHighestUniqueID() const;
         bool readLastUniqueIDAndTimestamp(const std::string& file, uint64_t& uniqueId, int64_t& timestamp) const;
