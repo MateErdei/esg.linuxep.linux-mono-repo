@@ -9,7 +9,6 @@ SophosAddTest(TestPlugin
         TestPlugin.cpp
         TestPluginAdapter.cpp
         TestPluginCallback.cpp
-        TestPubSub.cpp
         TestStringUtils.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt
