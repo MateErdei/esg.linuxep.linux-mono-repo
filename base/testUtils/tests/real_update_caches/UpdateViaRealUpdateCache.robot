@@ -1,6 +1,9 @@
 *** Settings ***
-Suite Setup       Setup MCS Tests Nova Update cache
-Test Teardown   Post NOVA Update Teardown
+Suite Setup       Set Suite Variable    ${regCommand}     /opt/sophos-spl/base/bin/registerCentral 5ad5322e39575d3fa99cbab82562d7dffa15e89c1cdd4812fe383be5df7d77fe https://mcs2-cloudstation-eu-west-1.prod.hydra.sophos.com/sophos/management/ep   children=true
+Test Teardown   Run Keywords
+...  MCSRouter Test Teardown  AND
+...  Deregister From Central  AND
+...  Require Uninstalled
 
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
@@ -11,7 +14,7 @@ Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../mcs_router-nova/McsRouterNovaResources.robot
 Resource  ../mdr_plugin/MDRResources.robot
 
-Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS  SLOW
+Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS
 
 *** Variables ***
 ${InstalledBaseVersionFile}                 ${SOPHOS_INSTALL}/base/VERSION.ini
@@ -20,6 +23,7 @@ ${SULDownloaderLogDowngrade}                    ${SOPHOS_INSTALL}/logs/base/down
 *** Test Cases ***
 Endpoint Updates Via Update Cache Without Errors
     [Timeout]  10 minutes
+    Require Fresh Install
     Install MTR From Fake Component Suite
     Check Installed Correctly
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
@@ -30,17 +34,17 @@ Endpoint Updates Via Update Cache Without Errors
     Override LogConf File as Global Level  DEBUG
     Register With Real Update Cache and Message Relay Account
     Wait For MCS Router To Be Running
-    Wait For Server In Cloud
+
     Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
+    ...  120 secs
+    ...  10 secs
     ...  ALC contains Update Cache
 
     Wait Until Keyword Succeeds
     ...  300 secs
     ...  5 secs
     ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
-    Check Log Contains  Successfully connected to: Update cache at sspluc  ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Successfully connected to: Update cache at lnxdarwin01uc3  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
     ...  200 secs
@@ -69,7 +73,7 @@ Check SulDownloader Run Installers for Base and MTR
 
 ALC contains Update Cache
     ${alc} =  Get File  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-    Should Contain  ${alc}  hostname="sspluc
+    Should Contain  ${alc}  hostname="lnxdarwin01uc3
 
 
 Check Installed Correctly
