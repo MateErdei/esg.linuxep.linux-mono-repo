@@ -62,7 +62,7 @@ void SophosExtension::Stop()
 
 void SophosExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
 {
-    LOGDEBUG("SophosExtension running");
+    LOGINFO("SophosExtension running");
     m_extension->Wait();
     if (!m_stopped)
     {
