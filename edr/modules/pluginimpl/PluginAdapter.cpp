@@ -116,6 +116,7 @@ namespace Plugin
         }
         if (m_isXDR && m_extensionAndStateMap.find("LoggerExtension") == m_extensionAndStateMap.end())
         {
+            LOGDEBUG("Adding LoggerExtension to list of extensions");
             m_extensionAndStateMap["LoggerExtension"] = std::make_pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(
                 m_loggerExtensionPtr, std::make_shared<std::atomic_bool>(false));
         }
@@ -123,6 +124,7 @@ namespace Plugin
         {
             if (m_extensionAndStateMap.find("LoggerExtension") != m_extensionAndStateMap.end())
             {
+                LOGDEBUG("Removing LoggerExtension from list of extensions");
                 m_extensionAndStateMap["LoggerExtension"].first->Stop();
                 m_extensionAndStateMap.erase("LoggerExtension");
             }
