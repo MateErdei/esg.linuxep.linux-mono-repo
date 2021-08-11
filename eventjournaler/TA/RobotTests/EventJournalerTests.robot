@@ -62,6 +62,35 @@ Event Journaler Can Receive Events From Multiple Publishers
     ...  2 secs
     ...  Get Three Events For Multiple Publishers Test
 
+Check Closed And Compressed Journal Files Can Still Be Read
+    Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test","test data 1"}
+    assert_expected_file_in_directory  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections  expected_closed_files=${0}  expected_open_files=${1}  expected_compressed_files=${0}
+    Check Journal Contains X Detection Events  1
+    ${file_1} =  get_open_journal_file_from_directory  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections
+    Change Capnproto Version Of Journal File  ${file_1}
+
+    Restart Event Journaler
+    assert_expected_file_in_directory  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections  expected_closed_files=${0}  expected_open_files=${0}  expected_compressed_files=${1}
+    Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test","test data 2"}
+    assert_expected_file_in_directory  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections  expected_closed_files=${0}  expected_open_files=${1}  expected_compressed_files=${1}
+    Check Journal Contains X Detection Events  2
+
+    ${file_2} =  get_open_journal_file_from_directory  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections
+    Change Capnproto Version Of Journal File  ${file_2}
+
+    Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test","test data 3"}
+
+    Get Three Events For Multiple Publishers Test
+    assert_expected_file_in_directory  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections  expected_closed_files=${1}  expected_open_files=${1}  expected_compressed_files=${1}
+    Check Journal Contains X Detection Events  3
+
+    # Removing a file reduces detection events by 1
+    Remove Journal File In Directory And Expect Subsequent Journal Detections To Be N  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections  2
+    Expect N Files In Directory  2  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections
+    Remove Journal File In Directory And Expect Subsequent Journal Detections To Be N  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections  1
+    Expect N Files In Directory  1  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections
+    Remove Journal File In Directory And Expect Subsequent Journal Detections To Be N  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections  0
+    Expect N Files In Directory  0  ${EVENT_JOURNALER_DATA_STORE}/SophosSPL/Detections
 
 Event Journaler Can Receive Many Events From Publisher
     FOR  ${i}  IN RANGE  100
@@ -142,3 +171,31 @@ File Exists With Permissions
     Should Be Equal As Strings  ${words[0]}  ${user}
     Should Be Equal As Strings  ${words[1]}  ${group}
     Should Be Equal As Strings  ${words[2]}  ${permissions}
+
+Change Capnproto Version Of Journal File
+    [Arguments]  ${journal_file_full_path}
+    ${current_capn_version} =  Set Variable  0.8.0
+    ${target_capn_version} =  Set Variable  0.7.0
+    ${result} =  Run Process  sed  -i  s/${current_capn_version}/${target_capn_version}/  ${journal_file_full_path}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${result} =  Run Process  grep  0.7.0  ${journal_file_full_path}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  0  ${result.rc}
+
+Expect N Files In Directory
+    [Arguments]  ${n}  ${directory}
+    ${files} =  List Files In Directory  ${directory}
+    Log  ${files}
+    Should Be Equal As Integers  ${n}  ${files.__len__()}
+
+Remove File In Directory
+    [Arguments]  ${directory}
+    ${filenames} =  list files in directory  ${directory}
+    remove file  ${directory}/${filenames[0]}
+
+Remove Journal File In Directory And Expect Subsequent Journal Detections To Be N
+    [Arguments]  ${directory}  ${N}
+    Remove File In Directory  ${directory}
+    Check Journal Contains X Detection Events  ${N}
