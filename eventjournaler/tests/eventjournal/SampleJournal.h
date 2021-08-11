@@ -11,6 +11,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 const std::string journal_detections_bin_multiple_active_filename = "Detections-0000000000000001-132729637080000000.bin";
 const std::string journal_detections_bin_multiple_closed_filename = "Detections-0000000000000001-0000000000000003-132729637080000000-132729637110000000.bin";
+const std::string journal_detections_bin_multiple_closed_and_compressed_filename = "Detections-0000000000000001-0000000000000003-132729637080000000-132729637110000000.xz";
 
 const uint8_t journal_detections_bin_multiple[] =
 {

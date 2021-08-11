@@ -253,7 +253,9 @@ TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitClosesOldFileAndCreatesNe
     m_writer.reset(new EventJournal::Writer(m_journalDir->dirPath(), PRODUCER));
 
     auto directory = Common::FileSystem::join(m_journalDir->dirPath(), PRODUCER, SUBJECT);
-    auto filename = Common::FileSystem::join(directory, journal_detections_bin_multiple_active_filename);
+    auto filenameOpen = Common::FileSystem::join(directory, journal_detections_bin_multiple_active_filename);
+    auto filenameClosed = Common::FileSystem::join(directory, journal_detections_bin_multiple_closed_filename);
+    auto filenameClosedAndCompressed = Common::FileSystem::join(directory, journal_detections_bin_multiple_closed_and_compressed_filename);
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
     auto mockFilePermissions = new StrictMock<MockFilePermissions>();
@@ -266,8 +268,8 @@ TEST_F(TestEventJournalWriter, InsertDataAboveFileLimitClosesOldFileAndCreatesNe
     std::string closedFilePrefix("Detections-0000000000000001-0000000000000003");
     EXPECT_CALL(*mockFileSystem, exists(HasSubstr(Common::FileSystem::join(directory, detectionsFileNamePrefix)))).WillRepeatedly(Return(true));
     EXPECT_CALL(*mockFileSystem, isDirectory(directory)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, listFiles(directory)).WillOnce(Return(std::vector{ filename }));
-    EXPECT_CALL(*mockFileSystem, fileSize(filename)).WillRepeatedly(Return(99804296));
+    EXPECT_CALL(*mockFileSystem, listFiles(directory)).WillOnce(Return(std::vector{ filenameClosedAndCompressed, filenameClosed, filenameOpen }));
+    EXPECT_CALL(*mockFileSystem, fileSize(filenameOpen)).WillRepeatedly(Return(99804296));
     // moved called when closing file, check to see if the move call contains file with the correct prefix.
     EXPECT_CALL(*mockFileSystem, moveFile(HasSubstr(detectionsFileNamePrefix), HasSubstr(closedFilePrefix))).Times(1);
     EXPECT_CALL(*mockFileSystem, exists(HasSubstr(Common::FileSystem::join(directory, "Detections-0000000000000004")))).WillOnce(Return(true));
