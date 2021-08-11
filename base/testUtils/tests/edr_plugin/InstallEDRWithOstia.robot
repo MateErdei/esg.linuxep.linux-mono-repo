@@ -200,7 +200,7 @@ Install master of base and edr and mtr and upgrade to edr 999
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N Times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
