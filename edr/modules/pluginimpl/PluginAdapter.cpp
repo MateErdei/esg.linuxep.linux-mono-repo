@@ -492,6 +492,7 @@ namespace Plugin
         {
             m_loggerExtensionPtr->reloadTags();
         }
+        updateExtensions();
         for (const auto& extensionAndRunningStatus : m_extensionAndStateMap)
         {
             auto extensionPair = extensionAndRunningStatus.second;
@@ -729,7 +730,6 @@ namespace Plugin
 
         m_isXDR = getScheduledQueriesEnabledInPolicy(policyAttributesMap);
         PluginUtils::updatePluginConfWithFlag(PluginUtils::MODE_IDENTIFIER, m_isXDR, osqueryRestartNeeded);
-        updateExtensions();
         m_queryPacksInPolicy = getEnabledQueryPacksInPolicy(policyAttributesMap);
         //sets osqueryRestartNeeded to true if enabled query packs have changed
         osqueryRestartNeeded = PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy,m_loggerExtensionPtr->getDataLimitReached()) || osqueryRestartNeeded;
