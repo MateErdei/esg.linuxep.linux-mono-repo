@@ -14,6 +14,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/UtilityImpl/RegexUtilities.h>
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 #include <sys/stat.h>
@@ -98,7 +99,7 @@ namespace EventJournal
         int64_t timestamp = Common::UtilityImpl::TimeUtils::EpochToWindowsFileTime(now);
         bool isNewFile = false;
 
-        auto path = getExistingFile(subjectName);
+        auto path = getOpenFileFromDirectory(m_location, m_producer, subjectName);
         if (path.empty())
         {
             path = Common::FileSystem::join(directory, getNewFilename(subjectName, producerUniqueID, timestamp));
@@ -247,7 +248,7 @@ namespace EventJournal
         return subject + "-" + oss.str() + "-" + std::to_string(timestamp) + ".bin";
     }
 
-    bool Writer::isSubjectFile(const std::string& subject, const std::string& filename) const
+    bool isSubjectFile(const std::string& subject, const std::string& filename)
     {
         return Common::UtilityImpl::StringUtils::startswith(filename, subject) &&
                Common::UtilityImpl::StringUtils::endswith(filename, ".bin");
@@ -281,13 +282,20 @@ namespace EventJournal
 
     bool isOpenSubjectFile(const std::string& subject, const std::string& filename)
     {
-        auto subjectDirectory = Common::FileSystem::join(m_location, m_producer, subject);
+        auto strings = Common::UtilityImpl::StringUtils::splitString(filename, "-");
+
+        return !Common::UtilityImpl::returnFirstMatch(subject + R"(-([0-9a-f]{16})-([0-9]{18})\.bin)", filename).empty();
+    }
+
+    std::string getOpenFileFromDirectory(const std::string& location, const std::string& producer, const std::string& subject)
+    {
+        auto subjectDirectory = Common::FileSystem::join(location, producer, subject);
         if (Common::FileSystem::fileSystem()->isDirectory(subjectDirectory))
         {
             auto files = Common::FileSystem::fileSystem()->listFiles(subjectDirectory);
             for (const auto& file : files)
             {
-                if (isSubjectFile(subject, Common::FileSystem::basename(file)))
+                if (isOpenSubjectFile(subject, Common::FileSystem::basename(file)))
                 {
                     return file;
                 }

@@ -713,7 +713,7 @@ TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoFiles)
     EXPECT_CALL(*mockFileSystem, isDirectory(directory)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(directory)).WillOnce(Return(std::vector<std::string>{}));
 
-    EXPECT_EQ(EventJournal::getExistingFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "");
+    EXPECT_EQ(EventJournal::getOpenFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "");
 }
 
 TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoOpenFile) // NOLINT
@@ -728,7 +728,7 @@ TEST_F(TestEventJournalWriter, testGetExistingFileReturnsEmptyStringWhenNoOpenFi
         "Detections-0000000000041c5a-000000000004249f-132729798310000000-132729799230000000.bin"
     }));
 
-    EXPECT_EQ(EventJournal::getExistingFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "");
+    EXPECT_EQ(EventJournal::getOpenFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "");
 }
 
 TEST_F(TestEventJournalWriter, testGetExistingFileReturnsOpenSubjectFile) // NOLINT
@@ -744,7 +744,7 @@ TEST_F(TestEventJournalWriter, testGetExistingFileReturnsOpenSubjectFile) // NOL
         "Detections-0000000000042ce7-132729800360000000.bin"
     }));
 
-    EXPECT_EQ(EventJournal::getExistingFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "Detections-0000000000042ce7-132729800360000000.bin");
+    EXPECT_EQ(EventJournal::getOpenFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "Detections-0000000000042ce7-132729800360000000.bin");
 }
 
 TEST_F(TestEventJournalWriter, testGetExistingFileReturnsCorrectOpenSubjectFileWhenMultipleSubjectsHaveOpenFiles) // NOLINT
@@ -758,7 +758,7 @@ TEST_F(TestEventJournalWriter, testGetExistingFileReturnsCorrectOpenSubjectFileW
         "Detections-0000000000042ce7-132729800360000000.bin"
     }));
 
-    EXPECT_EQ(EventJournal::getExistingFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "Detections-0000000000042ce7-132729800360000000.bin");
+    EXPECT_EQ(EventJournal::getOpenFileFromDirectory(m_journalDir->dirPath(),PRODUCER,SUBJECT), "Detections-0000000000042ce7-132729800360000000.bin");
 }
 
 TEST_F(TestEventJournalWriter, testIsOpenSubjectFileOnlyReturnsTrueForOpenFiles) // NOLINT

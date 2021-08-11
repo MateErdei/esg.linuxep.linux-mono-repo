@@ -22,6 +22,10 @@ namespace EventJournal
 
     std::vector<uint8_t> encode(const Detection& detection);
 
+    std::string getOpenFileFromDirectory(const std::string& location, const std::string& producer, const std::string& subject);
+    bool isSubjectFile(const std::string& subject, const std::string& filename);
+    bool isOpenSubjectFile(const std::string& subject, const std::string& filename);
+
 
     class Writer : public IEventJournalWriter
     {
@@ -70,7 +74,6 @@ namespace EventJournal
         };
 
         std::string getNewFilename(const std::string& subject, uint64_t uniqueID, uint64_t timestamp) const;
-        bool isSubjectFile(const std::string& subject, const std::string& filename) const;
         uint64_t parseLastUniqueID(const std::string& subject, const std::string& filename) const;
 
         std::string getClosedFilePath(const std::string& filepath, const FileInfo& header) const;
