@@ -451,6 +451,10 @@ namespace SulDownloader
                         if (!previousSettingString.empty())
                         {
                             previousConfigurationData = ConfigurationData::fromJsonSettings(previousSettingString);
+                            if (!previousConfigurationData.verifySettingsAreValid())
+                            {
+                                LOGDEBUG("No previous configuration data provided");
+                            }
                         }
                     }
                     readSuccessful = true;
@@ -473,10 +477,7 @@ namespace SulDownloader
             } while (!readSuccessful);
 
 
-            if (!previousConfigurationData.verifySettingsAreValid())
-            {
-                LOGDEBUG("No previous configuration data provided");
-            }
+
 
             if (!configurationData.verifySettingsAreValid())
             {
