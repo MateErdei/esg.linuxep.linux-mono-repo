@@ -103,6 +103,14 @@ def getOptions():
         options.cloud_ip = None
         options.CLOUD_SERVER = "dev"
 
+    elif CENTRAL_CONFIG.endswith("-prod"):
+        options.region = 'https://p0.d.hmr.sophos.com'
+        options.proxy = None
+        options.proxy_username = None
+        options.proxy_password = None
+        options.cloud_host = None
+        options.cloud_ip = None
+        options.CLOUD_SERVER = "prod"
     return options
 
 
