@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(sspl-plugin-mav)
 
+if (POLICY CMP0115) # Visibility
+    cmake_policy(SET CMP0115 NEW)
+endif (POLICY CMP0115)
 
 set (STD_FILESYSTEM_IF_REQUIRED
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
@@ -100,6 +103,7 @@ endif()
 if(NOT DEFINED BOOSTPATH)
     SET( BOOSTPATH ${INPUT})
 endif()
+SET(Boost_NO_WARN_NEW_VERSIONS ON)
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(LOG4CPLUS_INCLUDE_DIR ${pluginapiinclude})
