@@ -3,6 +3,7 @@
 def params = [
     string(name: 'MODE', defaultValue: 'release', description: 'Build mode [release|coverage]'),
     booleanParam(name: 'run_tests', defaultValue: true, description: 'Run Test Automation (default everywhere)'),
+    booleanParam(name: 'run_centos8_tap', defaultValue: true, description: 'Run Test Automation on CentOS 8 (default everywhere)'),
     booleanParam(name: 'force_run_aws_tests', defaultValue: false, description: 'Run Test Automation in AWS (default in develop & release)'),
     booleanParam(name: 'inhibit_run_aws_tests', defaultValue: false, description: 'Do not run Test Automation in AWS (default in feature & bugfix)'),
     booleanParam(name: 'force_run_coverage', defaultValue: false, description: 'Run Coverage (default in develop & release)'),

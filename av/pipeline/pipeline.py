@@ -302,11 +302,14 @@ def bullseye_coverage_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact(coverage_results_dir, 'coverage')
 
-def get_test_machines(test_inputs):
+def get_test_machines(test_inputs, parameters: tap.Parameters):
     test_environments = {'ubuntu1804': 'ubuntu1804_x64_server_en_us',
                          'ubuntu2004': 'ubuntu2004_x64_server_en_us',
                          'centos77': 'centos77_x64_server_en_us',
-                         'centos82': 'centos82_x64_server_en_us'}
+                         }
+
+    if parameters.run_centos8_tap != 'false':
+        test_environments['centos8'] = 'centos82_x64_server_en_us'
 
     ret = []
     for name, image in test_environments.items():
@@ -394,13 +397,13 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         with stage.parallel('testing'):
             test_inputs = get_inputs(context, av_build)
             with stage.parallel('TA'):
-                for (name, machine) in get_test_machines(test_inputs):
+                for (name, machine) in get_test_machines(test_inputs, parameters):
                     stage.task(task_name=name+"_component", func=pytest_task, machine=machine)
 
-                for (name, machine) in get_test_machines(test_inputs):
+                for (name, machine) in get_test_machines(test_inputs, parameters):
                     stage.task(task_name=name+"_product", func=robot_task_product, machine=machine)
 
-                for (name, machine) in get_test_machines(test_inputs):
+                for (name, machine) in get_test_machines(test_inputs, parameters):
                     stage.task(task_name=name+"_integration", func=robot_task_integration, machine=machine)
 
             if do_coverage:
