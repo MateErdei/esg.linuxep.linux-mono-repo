@@ -11,9 +11,9 @@ Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
 Resource    ../GeneralTeardownResource.robot
 Resource  ../installer/InstallerResources.robot
-Resource  ../scheduler_update/SchedulerUpdateResources.robot
-Resource  ../mcs_router-nova/McsRouterNovaResources.robot
-
+#Resource  ../scheduler_update/SchedulerUpdateResources.robot
+#Resource  ../mcs_router-nova/McsRouterNovaResources.robot
+Resource  ../edr_plugin/EDRResources.robot
 
 Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS
 
