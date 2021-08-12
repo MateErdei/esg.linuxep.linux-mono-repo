@@ -50,7 +50,8 @@ namespace Plugin
             void processMessage(const scan_messages::ServerThreatDetected& detection) override
             {
                 m_adapter.processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
-                m_adapter.publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
+//                std::string subscriberSocketPath = Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile();
+//                m_adapter.publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
             }
 
         private:
@@ -216,6 +217,8 @@ namespace Plugin
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
         auto savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap, firstPolicy);
+
+        m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
 
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
