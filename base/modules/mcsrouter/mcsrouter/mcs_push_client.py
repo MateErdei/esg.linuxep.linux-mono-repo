@@ -281,6 +281,7 @@ class MCSPushClientInternal(threading.Thread):
                         else:
                             LOGGER.debug("Server sent ping")
                     elif key.data == 'stop':
+                        self.messages.resp.close()
                         LOGGER.info("MCS Push Client main loop finished")
                         return
         except StopIteration as stop_iteration_exception:
