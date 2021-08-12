@@ -52,7 +52,7 @@ Clear Environment Proxy
     Remove Environment Variable  http_proxy
 
 *** Test Case ***
-Thin Installer can install via Update Cache
+Thin Installer can install via Update Cache and Fallback from broken update cache
     Require Uninstalled
     Get Thininstaller
     Setup Update Cache
@@ -64,8 +64,10 @@ Thin Installer can install via Update Cache
     Build Default Creds Thininstaller From Sections
     Run Default Thininstaller  0  no_connection_address_override=${True}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains In Order
-        ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1235/sophos/customer]
+        ...  Failed to connect to warehouse at https://localhost:1235/sophos/customer
         ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1236/sophos/customer]
+        ...  Successfully downloaded installer from update cache address [localhost:1236]
+        ...  INSTALLER EXECUTED
     Check Thininstaller Log does not contain  http://dci.sophosupd.com/update
 
 Thin Installer can install via Update Cache With Bad Proxy
