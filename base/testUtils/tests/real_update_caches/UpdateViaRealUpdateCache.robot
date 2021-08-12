@@ -73,10 +73,6 @@ Endpoint Updates Via Update Cache Without Errors
 
 
 *** Keywords ***
-Check SulDownloader Run Installers for Base and MTR
-    Check Suldownloader Log Contains  Installing product: ServerProtectionLinux-Base
-    Check Suldownloader Log Contains  Installing product: ServerProtectionLinux-Plugin-MDR
-    Check SulDownloader Log Contains  Generating the report file
 
 ALC contains Update Cache
     ${alc} =  Get File  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
@@ -89,9 +85,3 @@ Check Installed Correctly
     ${result}=  Run Process  stat  -c  "%A"  /opt
     ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
-
-Post NOVA Update Teardown
-    Nova Test Teardown
-    Nova Suite Teardown
-    Remove Environment Variable  MCS_CONFIG_SET
-    Reload Cloud Options
