@@ -5,23 +5,25 @@ def get_open_journal_file_from_directory(directory, basename=False):
     files = os.listdir(directory)
     return_value = None
     for file in files:
-        if file.endswith(".bin"):
-            if len(file.split("-")) == 3:
-                if not return_value:
-                    return_value = os.path.join(directory, file)
-                else:
-                    raise AssertionError(f"Found multiple open files in directory: {directory}")
-    assert return_value, "found no open files"
+        if is_file_an_open_journal_file(file):
+            if not return_value:
+                return_value = os.path.join(directory, file)
+            else:
+                raise AssertionError(f"Found multiple open files in directory: {directory}")
+    assert return_value != None, "found no open files"
     if basename:
         return_value = os.path.basename(return_value)
     return return_value
 
+def is_file_an_open_journal_file(file_name):
+    if re.match(r"Detections-([0-9a-f]{16})-([0-9]{18})\.bin", file_name):
+        return True
 
 def get_number_of_open_files_in_directory(directory):
     n = 0
     files = os.listdir(directory)
     for file in files:
-        if re.match(r"Detections-([0-9a-f]{16})-([0-9]{18})\.bin", file):
+        if is_file_an_open_journal_file(file):
             n += 1
     return n
 
