@@ -109,7 +109,7 @@ namespace Plugin
         ThreadRunner scheduler(
             m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
         ThreadRunner sophos_threat_detector(*m_threatDetector, "threatDetector");
-        connectToThreatPublishingSocket(Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
+//        connectToThreatPublishingSocket(Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
         innerLoop();
     }
 
