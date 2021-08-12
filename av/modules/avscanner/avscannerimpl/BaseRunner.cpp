@@ -35,7 +35,14 @@ static fs::path pluginInstall()
     {
         return "/opt/sophos-spl/plugins/av";
     }
+}
 
+BaseRunner::BaseRunner()
+{
+    // Ensure signal handlers are created before logging is setup
+    std::ignore = common::SigIntMonitor::getSigIntMonitor();
+    std::ignore = common::SigTermMonitor::getSigTermMonitor();
+    std::ignore = common::SigHupMonitor::getSigHupMonitor();
 }
 
 void BaseRunner::setSocket(std::shared_ptr<unixsocket::IScanningClientSocket> ptr)

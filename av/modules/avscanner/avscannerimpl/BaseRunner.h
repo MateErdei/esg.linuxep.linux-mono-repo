@@ -25,6 +25,8 @@ namespace avscanner::avscannerimpl
         void setMountInfo(mountinfo::IMountInfoSharedPtr ptr) override;
 
     protected:
+        BaseRunner();
+        
         int m_returnCode = 0;
         std::shared_ptr<unixsocket::IScanningClientSocket> m_socket;
         mountinfo::IMountInfoSharedPtr m_mountInfo;
