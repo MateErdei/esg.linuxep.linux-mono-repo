@@ -7,28 +7,29 @@ Test Teardown   Run Keywords
 
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 
 Resource    ../GeneralTeardownResource.robot
 Resource  ../installer/InstallerResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../mcs_router-nova/McsRouterNovaResources.robot
-Resource  ../mdr_plugin/MDRResources.robot
+
 
 Default Tags  CENTRAL  MCS  UPDATE_CACHE  EXCLUDE_AWS
 
 *** Variables ***
 ${InstalledBaseVersionFile}                 ${SOPHOS_INSTALL}/base/VERSION.ini
-${InstalledMTRVersionFile}                 ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
+${InstalledEDRVersionFile}                 ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
 ${SULDownloaderLogDowngrade}                    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 *** Test Cases ***
 Endpoint Updates Via Update Cache Without Errors
     [Timeout]  10 minutes
     Require Fresh Install
-    Install MTR From Fake Component Suite
+    Install EDR Directly
     Check Installed Correctly
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMTRVersionFile}
-    Log File  ${InstalledMTRVersionFile}
+    ${edrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRVersionFile}
+    Log File  ${InstalledEDRVersionFile}
 
     Remove File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Override LogConf File as Global Level  DEBUG
@@ -49,20 +50,23 @@ Endpoint Updates Via Update Cache Without Errors
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
-    ...  Check Log Contains  wdctl <> start mtr  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctl.log
+    ...  Check Log Contains  wdctl <> start edr  ${SOPHOS_INSTALL}/logs/base/wdctl.log  wdctl.log
 
     ${NewBaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${newedrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRVersionFile}
 
     Should Not Be Equal As Strings   ${BaseDevVersion}  ${NewBaseDevVersion}
-    Log File  ${InstalledMTRVersionFile}
+    Should Not Be Equal As Strings   ${edrDevVersion}  ${newedrDevVersion}
+
 
     #This tests check updating via update cache and effectively downgrades
     #Do a sanity test to ensure Sophos MTR is in a good state after downgrading
-    Wait for MDR Executable To Be Running
-    Stop MDR Plugin
-    Check MDR Plugin Not Running
-    Start MDR Plugin
-    Wait for MDR Executable To Be Running
+    Wait Until OSQuery Running  30
+    Run Live Query  ${SIMPLE_QUERY_4_ROW}   simple
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  2 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query with name: simple  1
 
 
 *** Keywords ***
