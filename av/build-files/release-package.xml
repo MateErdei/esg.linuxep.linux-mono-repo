@@ -39,12 +39,12 @@
 
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
-            <release-version branch="release/3.82.1" build-id="20210706101701-372b5c3d0db8684173bd959152d13fd2c4e2a7e3-cO07yp"/>
+            <release-version branch="release/3.83.1" build-id="20210707160437-126dd43657b7f631b06f37e23c90aaae8bf9e260-ipSpU3"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
         </build-asset>
 
         <build-asset project="core" repo="engine">
-            <release-version branch="release/sophtainer-1.1.1" build-id="20210218060855-3061d225f712961b8d95f485ae70ab883b454f44-F8JM2R"/>
+            <release-version branch="release/3.83.1" build-id="20210707160437-126dd43657b7f631b06f37e23c90aaae8bf9e260-ipSpU3"/>
             <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
@@ -58,7 +58,7 @@
         </package>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="release/1.3" build-id="20210504141521-c14b3408cd955f8c39ac33ac3e6a94a34a0233f7-13iN5x"/>
+            <release-version branch="release/1.4" build-id="20210802114022-7db456a1204f886509d4006545064d9ce5c8e60a-ozb5UA"/>
             <include artifact-path="release/centos7/libsusi" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/updater" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/centos7/interface" dest-dir="input/susi_input/susi/include" />
@@ -66,7 +66,7 @@
         </build-asset>
 
         <build-asset project="core" repo="httpsrequester">
-            <release-version branch="release/1.2" build-id="20210503132603-d9ecd51f629ca35b20d5aee8a882fc9879eef919-sp7kkw"/>
+            <release-version branch="release/1.2" build-id="20210729120620-2b881ec3cb0a7520d80b70997f4817cc9aca200e-hzjbTx"/>
             <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 
