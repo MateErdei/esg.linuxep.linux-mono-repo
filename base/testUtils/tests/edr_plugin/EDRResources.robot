@@ -168,6 +168,12 @@ EDR Suite Teardown
 EDR Test Setup
     UpgradeResources.Test Setup
 
+Stop EDR Plugin
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  edr
+
+Start EDR Plugin
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  edr
+
 Report Audit Link Ownership
     ${result} =  Run Process   auditctl -s   shell=True
     Log  ${result.stdout}

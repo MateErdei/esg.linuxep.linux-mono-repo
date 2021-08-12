@@ -62,6 +62,7 @@ class LogUtils(object):
         self.marked_sophos_threat_detector_log = 0
         self.marked_edr_log = 0
         self.marked_edr_osquery_log = 0
+        self.marked_livequery_log = 0
 
     def log_contains_in_order(self, log_location, log_name, args, log_finds=True):
         return log_contains_in_order(log_location, log_name, args, log_finds)
@@ -410,7 +411,7 @@ class LogUtils(object):
             raise AssertionError(f"EDR did not contain: {string_to_contain}")
 
     def check_marked_mcsrouter_log_contains_string_n_times(self, string_to_contain, expected_occurence):
-        mcsrouter_log = os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
+        mcsrouter_log = self.mcs_router_log()
         contents = get_log_contents(mcsrouter_log)
 
         contents = contents[self.marked_mcsrouter_logs:]
@@ -452,6 +453,39 @@ class LogUtils(object):
 
     def check_livequery_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.livequery_log, "Livequery")
+
+    def mark_livequery_log(self, expect_log_exists=True):
+        livequery_log = self.livequery_log
+        if not expect_log_exists:
+            if not os.path.isfile(livequery_log):
+                self.marked_livequery_log = 0
+                return
+        contents = get_log_contents(livequery_log)
+        self.marked_livequery_log = len(contents)
+        logger.info(f"livequery log marked at line: {self.marked_livequery_log}")
+
+    def check_marked_livequery_log_contains(self, string_to_contain):
+        livequery_log = self.livequery_log
+        contents = get_log_contents(livequery_log)
+
+        contents = contents[self.marked_livequery_log:]
+
+        if string_to_contain not in contents:
+            self.dump_livequery_log()
+            raise AssertionError("Marked livequery log did not contain: " + string_to_contain)
+
+    def check_marked_livequery_log_contains_string_n_times(self, string_to_contain, expected_occurence):
+        livequery_log = self.livequery_log
+        contents = get_log_contents(livequery_log)
+
+        contents = contents[self.marked_livequery_log:]
+
+        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain)
+        if num_occurences != int(expected_occurence):
+            raise AssertionError(
+                "Livequery Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain,
+                                                                                              num_occurences,
+                                                                                              expected_occurence))
 
     def dump_livequery_log(self):
         self.dump_log(self.livequery_log)
