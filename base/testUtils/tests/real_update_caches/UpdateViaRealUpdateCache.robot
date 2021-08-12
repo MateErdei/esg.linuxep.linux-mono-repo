@@ -38,7 +38,7 @@ Endpoint Updates Via Update Cache Without Errors
     Wait Until Keyword Succeeds
     ...  40 seconds
     ...  5 secs
-    ...  Check Mcsrouter Log Contains  Successfully connected to mcs-push-server-eu-west-1.prod.hydra.sophos.com via http://ssplsecureproxyserver.eng.sophos:8888
+    ...  Check Mcsrouter Log Contains  Successfully connected to mcs2-cloudstation-eu-west-1.prod.hydra.sophos.com:443 via http://ssplsecureproxyserver.eng.sophos:8888
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  10 secs
