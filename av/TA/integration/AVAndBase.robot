@@ -552,6 +552,10 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
     Mark AV Log
+    Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
+    Remove File  ${SCANNOW_LOG_PATH}
+    Register On Fail  dump log  ${SCANNOW_LOG_PATH}
+
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
     ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
@@ -559,7 +563,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved
     Register Cleanup    Uninstall and full reinstall
 
-    Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central  timeout=240
+    Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central  timeout=240  interval=15
     Run Process   /bin/kill   -SIGSEGV   ${output}
 
     Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
