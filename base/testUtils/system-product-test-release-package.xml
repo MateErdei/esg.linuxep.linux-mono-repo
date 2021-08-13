@@ -3,7 +3,7 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="bugfix/LINUXDAR-3253-deduping-machines-the-machine-with-warning-icon-has-option-to-run-live-response"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
         </build-asset>
