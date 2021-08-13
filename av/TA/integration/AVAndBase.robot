@@ -548,8 +548,8 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     [Timeout]  15min
     Configure scan now
     Start Sophos Threat Detector if not running
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
-    Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   /tmp_test/many_eicars  600  stderr=STDOUT
+    Register Cleanup    Remove Directory    /tmp_test/many_eicars  recursive=True
 
     Mark AV Log
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
@@ -558,7 +558,8 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
 
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
-    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central  timeout=60  interval=6
+    ## Scan only takes ~3 seconds once scanning starts, so we need to finish this quickly
+    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central  timeout=60  interval=1
 
     Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved
     Register Cleanup    Uninstall and full reinstall
@@ -566,7 +567,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Run Process   /bin/kill   -SIGSEGV   ${pid}
 
     Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
-    ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}    interval=10
+    ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}    interval=20
 
 AV Runs Scan With SXL Lookup Enable
     Mark AV Log

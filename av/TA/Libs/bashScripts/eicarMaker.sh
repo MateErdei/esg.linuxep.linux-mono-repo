@@ -1,6 +1,34 @@
 #!/bin/sh
-mkdir -p /tmp_test/three_hundred_eicars
-for x in $(seq 1 1 300)
+DEST=${1:-/tmp_test/three_hundred_eicars}
+COUNT=${2:-300}
+
+
+EICAR=
+EICAR='H*'$EICAR
+EICAR='$H+'$EICAR
+EICAR='ST-FILE!'$EICAR
+EICAR='RUS-TE'$EICAR
+EICAR='IVI'$EICAR
+EICAR='DARD-ANT'$EICAR
+EICAR='TAN'$EICAR
+EICAR='CAR-S'$EICAR
+EICAR='CC)7}$EI'$EICAR
+EICAR='X54(P^)7'$EICAR
+EICAR='@AP[4\PZ'$EICAR
+EICAR='!P%'$EICAR
+EICAR='5O'$EICAR
+EICAR='X'$EICAR
+
+
+echoEicar()
+{
+     echo $EICAR
+     return 0
+}
+
+
+mkdir -p $DEST
+for x in $(seq 1 1 ${COUNT})
 do
-        echo "X5O!P%@AP[4\\PZX54(P^)7CC)7}\$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!\$H+H*" > /tmp_test/three_hundred_eicars/eicar$x
+        echoEicar > $DEST/eicar$x
 done
