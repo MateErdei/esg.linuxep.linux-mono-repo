@@ -7,7 +7,7 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2021-31" build-id="20210727152926-78eebf51615db9f1abcbc68dbb5b4b00af58e1c3-Cb7qND"/>
+            <release-version branch="release/2021-34" build-id="20210813144733-bc66f4a61e032de3074517ff19d993c5f6eebc61-7MAz8d"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
