@@ -478,6 +478,16 @@ Push Connection Does Not Hang Forever If Proxy Does Not Respond
 
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
 
+Push Connection Closes Cleanly When MCSRouter Is Stopped
+    Remove File  ./tmp/push_server_log.log
+    Start MCS Push Server
+    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+    Push Client started and connects to Push Server when the MCS Client receives MCS Policy
+    Send Message To Push Server And Expect It In MCSRouter Log   Single Message
+    Stop Mcsrouter If Running
+
+    Check Log Contains  Connection closed with client   ./tmp/push_server_log.log  push server log
+
 *** Keywords ***
 Test Teardown
     Push Client Test Teardown
