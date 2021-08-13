@@ -486,7 +486,10 @@ Push Connection Closes Cleanly When MCSRouter Is Stopped
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
     Stop Mcsrouter If Running
 
-    Check Log Contains  Connection closed with client   ./tmp/push_server_log.log  push server log
+    Wait Until Keyword Succeeds
+    ...  5s
+    ...  1s
+    ...  Check Log Contains  Connection closed with client   ./tmp/push_server_log.log  push server log
 
 *** Keywords ***
 Test Teardown

@@ -3,7 +3,7 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="develop"/>
+            <development-version branch="bugfix/LINUXDAR-3253-deduping-machines-the-machine-with-warning-icon-has-option-to-run-live-response"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
         </build-asset>
@@ -25,7 +25,7 @@
             <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
-            <development-version branch="develop"/>
+            <development-version branch="test/3253"/>
             <include artifact-path="output/SDDS-SSPL-DBOS-COMPONENT" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT"/>
             <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT"/>
             <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE"/>
