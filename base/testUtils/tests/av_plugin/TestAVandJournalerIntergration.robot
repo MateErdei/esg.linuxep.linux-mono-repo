@@ -99,8 +99,7 @@ Test av can publish events and that journaler can receive them after edr restart
     ...  2 secs
     ...  Check Logs Detected EICAR Event  1
 
-    Stop EDR Plugin
-    Start EDR Plugin
+    Restart EDR Plugin
 
     Mark Livequery Log
 
