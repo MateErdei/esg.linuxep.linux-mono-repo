@@ -103,20 +103,20 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
         self.assertEqual(len(sel.select(timeout=0.3)), 0)
 
 
-    # @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
-    # def test_can_start_stop(self, *mockargs):
-    #     client = self.get_client()
-    #     client.start()
-    #     time.sleep(0.3)
-    #     client.stop()
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_can_start_stop(self, *mockargs):
+        client = self.get_client()
+        client.start()
+        time.sleep(0.3)
+        client.stop()
 
-    # @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
-    # def test_can_receive_and_process_messages(self, *mockargs):
-    #     client = self.get_client()
-    #     client.start()
-    #     received_msg = self.send_and_receive_message('hello', client)
-    #     self.assertEqual(received_msg, 'hello')
-    #     client.stop()
+    @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
+    def test_can_receive_and_process_messages(self, *mockargs):
+        client = self.get_client()
+        client.start()
+        received_msg = self.send_and_receive_message('hello', client)
+        self.assertEqual(received_msg, 'hello')
+        client.stop()
 
     @mock.patch("logging.Logger.debug")
     @mock.patch("sseclient.SSEClient", new_callable=FakeSSEClientFactory)
@@ -126,13 +126,10 @@ class TestMCSPushClientInternal(SharedTestsUtilities):
         global GlobalFakeSSeClient
         GlobalFakeSSeClient.push_message('')
         GlobalFakeSSeClient.resp.raw.notify()
-        sel = selectors.DefaultSelector()
-        sel.register(client.notify_activity_pipe(), selectors.EVENT_READ, 'anything')
-        self.assertEqual(len(sel.select(timeout=0.3)), 0)
+        time.sleep(0.3)
+        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Server sent ping"))
         pending = client.pending_commands()
         self.assertEqual(len(pending), 0)
-        self.assertEqual(logging.Logger.debug.call_args_list[-1], mock.call("Server sent ping"))
-
 
 class ConfigWithoutFile( mcsrouter.utils.config.Config):
     def load(self, filename):
