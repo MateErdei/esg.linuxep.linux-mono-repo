@@ -50,7 +50,6 @@ namespace Plugin
             void processMessage(const scan_messages::ServerThreatDetected& detection) override
             {
                 m_adapter.processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
-                std::string subscriberSocketPath = Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile();
                 m_adapter.publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
             }
 
