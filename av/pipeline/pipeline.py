@@ -347,12 +347,18 @@ def decide_whether_to_run_cppcheck(parameters: tap.Parameters, context: tap.Pipe
 
 
 def decide_whether_to_build_999(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
+    branch = context.branch
+    # sspl-warehouse builds rely on these being created for the below branches
+    if branch in ('master', 'develop') or branch.startswith ('release/'):
+        return True
+    else:
+        build_999 = False
     if parameters.force_build_999 != 'false':
         return True
     if parameters.inhibit_build_999 != 'false':
         return False
-    branch = context.branch
-    return branch in ('master', "develop")
+
+    return build_999
 
 
 def get_base_version():
