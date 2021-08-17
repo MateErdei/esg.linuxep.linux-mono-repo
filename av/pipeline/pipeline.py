@@ -357,7 +357,6 @@ def decide_whether_to_build_999(parameters: tap.Parameters, context: tap.Pipelin
         return True
     if parameters.inhibit_build_999 != 'false':
         return False
-
     return build_999
 
 
