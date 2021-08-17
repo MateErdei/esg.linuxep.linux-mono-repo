@@ -13,7 +13,8 @@
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
             <development-version branch="develop"/>
-            <include artifact-path="sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
+            <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
+            <include artifact-path="eventjournaler/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
             <include artifact-path="sspl-plugin-eventjournaler-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">

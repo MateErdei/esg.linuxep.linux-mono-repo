@@ -15,6 +15,7 @@
         <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
             <development-version branch="develop"/>
             <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
+            <include artifact-path="eventjournaler/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
             <development-version branch="develop"/>
