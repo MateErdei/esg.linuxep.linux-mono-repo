@@ -32,13 +32,12 @@ Endpoint Updates Via Update Cache Without Errors
 
     Remove File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Override LogConf File as Global Level  DEBUG
-    Set Environment Variable  https_proxy   http://ssplsecureproxyserver.eng.sophos:8888
     Register With Real Update Cache and Message Relay Account
     Wait For MCS Router To Be Running
     Wait Until Keyword Succeeds
     ...  40 seconds
     ...  5 secs
-    ...  Check Mcsrouter Log Contains  Successfully connected to mcs2-cloudstation-eu-west-1.prod.hydra.sophos.com:443 via ssplsecureproxyserver.eng.sophos:8888
+    ...  Check Mcsrouter Log Contains  Successfully connected to mcs2-cloudstation-eu-west-1.prod.hydra.sophos.com:443
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  10 secs
