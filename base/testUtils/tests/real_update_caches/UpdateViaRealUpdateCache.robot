@@ -1,4 +1,5 @@
 *** Settings ***
+# This test uses the production central account linuxdarwin01@gmail.com
 Suite Setup       Set Suite Variable    ${regCommand}     /opt/sophos-spl/base/bin/registerCentral 5ad5322e39575d3fa99cbab82562d7dffa15e89c1cdd4812fe383be5df7d77fe https://mcs2-cloudstation-eu-west-1.prod.hydra.sophos.com/sophos/management/ep   children=true
 Test Teardown   Run Keywords
 ...  MCSRouter Test Teardown  AND

@@ -1,4 +1,5 @@
 *** Settings ***
+# This test uses the qa central account LinuxDarwinSSPLAutomation@mail.com
 Suite Setup       Set Suite Variable    ${regCommand}     /opt/sophos-spl/base/bin/registerCentral 8f4b3234643165725ca6a9a2b87a0893880f4041ff7d2887a89d74ca329af4ce https://mcs2-cloudstation-eu-central-1.qa.hydra.sophos.com/sophos/management/ep   children=true
 Test Teardown   Run Keywords
 ...  Remove Environment Variable  https_proxy  AND
