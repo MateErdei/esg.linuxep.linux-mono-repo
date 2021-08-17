@@ -31,8 +31,6 @@ Default Tags   EVENT_JOURNALER_PLUGIN   AV_PLUGIN   EDR_PLUGIN
 *** Test Cases ***
 Test av can publish events and that journaler can receive them
     [Timeout]  10 minutes
-#    Setup Event Journaler End To End
-
     Check Journal Is Empty
     Mark Livequery Log  False
 
@@ -44,8 +42,6 @@ Test av can publish events and that journaler can receive them
 
 Test av can publish events and that journaler can receive them after av restart
     [Timeout]  10 minutes
-#    Setup Event Journaler End To End
-
     Check Journal Is Empty
     Mark Livequery Log  False
 
@@ -69,8 +65,6 @@ Test av can publish events and that journaler can receive them after av restart
 
 Test av can publish events and that journaler can receive them after event journaler restart
     [Timeout]  10 minutes
-#    Setup Event Journaler End To End
-
     Check Journal Is Empty
     Mark Livequery Log  False
 
@@ -93,8 +87,6 @@ Test av can publish events and that journaler can receive them after event journ
 
 Test av can publish events and that journaler can receive them after edr restart
     [Timeout]  10 minutes
-#    Setup Event Journaler End To End
-
     Check Journal Is Empty
     Mark Livequery Log  False
 
