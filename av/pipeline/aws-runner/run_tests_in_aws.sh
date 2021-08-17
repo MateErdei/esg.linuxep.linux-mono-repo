@@ -363,4 +363,11 @@ mkdir -p ${LOG_RESULT_DIR}
 cp ./results/combined-log.html ${LOG_RESULT_DIR}/log.html
 cp ./results/combined-report.html ${LOG_RESULT_DIR}/report.html
 
+# window.output["stats"] = [[{"elapsed":"04:55:20","fail":6,"label":"All Tests","pass":1082,"skip":0}]
+FAIL_COUNT=$(sed -ne's/window\.output\["stats"\][^f]*"fail":\([0-9][0-9]*\).*/\1/p' ./results/combined-log.html)
+echo "Failures: $FAIL_COUNT"
+if (( FAIL_COUNT > 0 ))
+then
+    exit 1
+fi
 exit 0

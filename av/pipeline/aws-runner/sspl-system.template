@@ -39,7 +39,7 @@
             "RunCloud": {
              "Description" : "true to run Nova, false to only run test machine image",
              "Type": "String",
-             "Default": "true",
+             "Default": "false",
              "AllowedValues": [ "true", "false" ]
             },
             "RunSome": {
