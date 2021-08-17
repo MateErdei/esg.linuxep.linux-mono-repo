@@ -52,4 +52,8 @@ Setup QA account certs
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
+    ${handle}=  Start Process  ls -l ${SUPPORT_FILES}/  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
+    Log  ${result.stderr}
 
