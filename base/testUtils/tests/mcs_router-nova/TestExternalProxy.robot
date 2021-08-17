@@ -46,14 +46,12 @@ Test we can reach central through an enviroment proxy
 
 *** Keywords ***
 Setup QA account certs
-    Set Environment Variable  MCS_CA   ${SUPPORT_FILES}/CloudAutomation/hmr-qa-sha256.pem
-    Run Process  chmod  +xr  ${SUPPORT_FILES}/CloudAutomation/hmr-qa-sha256.pem
-    ${handle}=  Start Process  ls -l ${SUPPORT_FILES}/CloudAutomation/   shell=True
+    Set Environment Variable  MCS_CA   /tmp/hmr-qa-sha256.pem
+    Copy File  ${SUPPORT_FILES}/CloudAutomation/hmr-qa-sha256.pem  /tmp/hmr-qa-sha256.pem
+    Run Process  chmod  +xr  /tmp/hmr-qa-sha256.pem
+    ${handle}=  Start Process  ls -l /tmp   shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${handle}=  Start Process  ls -l ${SUPPORT_FILES}/  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    Log  ${result.stderr}
+
 
