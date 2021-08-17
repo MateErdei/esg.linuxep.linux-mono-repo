@@ -43,11 +43,13 @@ Test we can reach central through an enviroment proxy
     ...  40 seconds
     ...  5 secs
     ...  Check Mcsrouter Log Contains  Successfully connected to mcs2-cloudstation-eu-central-1.qa.hydra.sophos.com:443 via ssplsecureproxyserver.eng.sophos:8888
+
 *** Keywords ***
 Setup QA account certs
     Set Environment Variable  MCS_CA   ${SUPPORT_FILES}/CloudAutomation/hmr-qa-sha256.pem
     Run Process  chmod  +xr  ${SUPPORT_FILES}/CloudAutomation/hmr-qa-sha256.pem
-    ${handle}=  Start Process  find {SUPPORT_FILES}/CloudAutomation/ -not -type d | xargs ls -l  shell=True
+    ${handle}=  Start Process  ls -l ${SUPPORT_FILES}/CloudAutomation/   shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
+    Log  ${result.stderr}
 
