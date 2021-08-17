@@ -346,39 +346,6 @@ def decide_whether_to_run_cppcheck(parameters: tap.Parameters, context: tap.Pipe
     return not branch.startswith("release/")
 
 
-def decide_whether_to_build_999(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
-    branch = context.branch
-    # sspl-warehouse builds rely on these being created for the below branches
-    if branch in ('master', 'develop') or branch.startswith ('release/'):
-        return True
-    else:
-        build_999 = False
-    if parameters.force_build_999 != 'false':
-        return True
-    if parameters.inhibit_build_999 != 'false':
-        return False
-    return build_999
-
-
-def get_base_version():
-    import xml.dom.minidom
-    package_path = "./build-files/release-package.xml"
-    if os.path.isfile(package_path):
-        dom = xml.dom.minidom.parseString(open(package_path).read())
-        package = dom.getElementsByTagName("package")[0]
-        version = package.getAttribute("version")
-        if version:
-            logger.info("Extracted version from release-package.xml: %s", version)
-            return version
-
-    logger.info("CWD: %s", os.getcwd())
-    logger.info("DIR CWD: %s", str(os.listdir(os.getcwd())))
-
-    version = "1.0.3"
-    logger.info("Using default version: %s", version)
-    return version
-
-
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
 def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     global BRANCH_NAME
@@ -388,24 +355,23 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     run_aws_tests = decide_whether_to_run_aws_tests(parameters, context)
     do_coverage: bool = decide_whether_to_do_coverage(parameters, context)
     do_cppcheck: bool = decide_whether_to_run_cppcheck(parameters, context)
-    build_999: bool = decide_whether_to_build_999(parameters, context)
 
     coverage_build = context.artifact.build()
 
     # section include to allow classic build to continue to work. To run unified pipeline local because of this check
     # export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     if parameters.mode:
-        component = tap.Component(name='sspl-plugin-anti-virus', base_version=get_base_version())
+        component = tap.Component(name='sspl-plugin-anti-virus', base_version='1.0.2')
         build_image = 'JenkinsLinuxTemplate5'
         release_package = "./build-files/release-package.xml"
         with stage.parallel('build'):
             if do_cppcheck:
                 av_cpp_check = stage.artisan_build(name="cpp-check", component=component, image=build_image,
                                                    mode="cppcheck", release_package=release_package)
-            if build_999:
-                nine_nine_nine_mode = '999'
-                nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
-                                                           mode=nine_nine_nine_mode, release_package=release_package)
+
+            nine_nine_nine_mode = '999'
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
+                                                       mode=nine_nine_nine_mode, release_package=release_package)
 
             av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
                                            mode=parameters.mode, release_package=release_package)
