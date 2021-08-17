@@ -1387,7 +1387,6 @@ CLS Return Codes Are Correct
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 CLS Can Append Summary To Log When SigTerm Occurs
-    [Tags]  DISABLED
     ${SCAN_LOG} =    Set Variable    /tmp/sigterm_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
     Remove File  ${SCAN_LOG}
@@ -1399,11 +1398,13 @@ CLS Can Append Summary To Log When SigTerm Occurs
     Dump Log  ${SCAN_LOG}
 
     Send Signal To Process  SIGTERM  handle=${cls_handle}
+    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=terminate
 
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=30
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=1
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
 CLS Can Append Summary To Log When SigTerm Occurs Strace
+    [Tags]  STRACE  MANUAL
     ${SCAN_LOG} =    Set Variable    /tmp/sigterm_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
     Remove File  ${SCAN_LOG}
@@ -1417,7 +1418,6 @@ CLS Can Append Summary To Log When SigTerm Occurs Strace
     Dump Log  ${SCAN_LOG}
 
     Send Signal To Process  SIGTERM  handle=${cls_handle}  group=True
-
     ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=terminate
     ## The process has written everything is will
     Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=1
@@ -1426,7 +1426,6 @@ CLS Can Append Summary To Log When SigTerm Occurs Strace
     Dump Log  /tmp/sigterm_test_strace.log
 
 CLS Can Append Summary To Log When SIGHUP Is Received
-    [Tags]  DISABLED
     ${SCAN_LOG} =    Set Variable    /tmp/sighup_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
     Remove File  ${SCAN_LOG}
@@ -1438,11 +1437,13 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     Dump Log  ${SCAN_LOG}
 
     Send Signal To Process  SIGHUP  handle=${cls_handle}
+    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=terminate
 
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=30
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=1
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
 CLS Can Append Summary To Log When SIGHUP Is Received strace
+    [Tags]  STRACE   MANUAL
     ${SCAN_LOG} =    Set Variable    /tmp/sighup_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
     Remove File  ${SCAN_LOG}
@@ -1450,14 +1451,17 @@ CLS Can Append Summary To Log When SIGHUP Is Received strace
     ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sighup_test_strace.log  ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
     Register cleanup  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
+    register on fail  Dump Log  /tmp/sigterm_test_strace.log
 
     Wait Until File exists  ${SCAN_LOG}
     Dump Log  ${SCAN_LOG}
 
     Send Signal To Process  SIGHUP  handle=${cls_handle}  group=True
+    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=terminate
 
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=30
+    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=1
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
+    Dump Log  /tmp/sigterm_test_strace.log
 
 CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  /tmp/scan.log
