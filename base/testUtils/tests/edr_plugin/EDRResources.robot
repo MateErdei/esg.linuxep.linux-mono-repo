@@ -168,7 +168,6 @@ EDR Suite Teardown
 EDR Test Setup
     UpgradeResources.Test Setup
 
-
 Report Audit Link Ownership
     ${result} =  Run Process   auditctl -s   shell=True
     Log  ${result.stdout}
