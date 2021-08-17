@@ -355,6 +355,25 @@ def decide_whether_to_build_999(parameters: tap.Parameters, context: tap.Pipelin
     return branch in ('master', "develop")
 
 
+def get_base_version():
+    import xml.dom.minidom
+    package_path = "./build-files/release-package.xml"
+    if os.path.isfile(package_path):
+        dom = xml.dom.minidom.parseString(open(package_path).read())
+        package = dom.getElementsByTagName("package")[0]
+        version = package.getAttribute("version")
+        if version:
+            logger.info("Extracted version from release-package.xml: %s", version)
+            return version
+
+    logger.info("CWD: %s", os.getcwd())
+    logger.info("DIR CWD: %s", str(os.listdir(os.getcwd())))
+
+    version = "1.0.3"
+    logger.info("Using default version: %s", version)
+    return version
+
+
 @tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
 def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     global BRANCH_NAME
@@ -371,7 +390,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     # section include to allow classic build to continue to work. To run unified pipeline local because of this check
     # export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     if parameters.mode:
-        component = tap.Component(name='sspl-plugin-anti-virus', base_version='1.0.3')
+        component = tap.Component(name='sspl-plugin-anti-virus', base_version=get_base_version())
         build_image = 'JenkinsLinuxTemplate5'
         release_package = "./build-files/release-package.xml"
         with stage.parallel('build'):
