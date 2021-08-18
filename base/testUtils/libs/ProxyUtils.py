@@ -8,6 +8,7 @@ import sys
 import subprocess
 import os
 import requests
+import time
 
 import PathManager
 
@@ -119,13 +120,27 @@ def restart_Secure_Server_Proxy():
 
     output = subprocess.check_output(command)
 
+    wait_for_secure_proxy_server_to_be_up()
+
     return output
 
-def can_secure_proxy_server_contact_nova():
+def wait_for_secure_proxy_server_to_be_up():
+    i = 0
+    output = False
+    while( i < 6):
+        i += 1
+        if can_secure_proxy_server_contact_internet():
+            output = True
+            break
+        time.sleep(1)
+    return output
+
+def can_secure_proxy_server_contact_internet():
     try:
         proxies={'http':'http://ssplsecureproxyserver.eng.sophos:8888'}
-        requests.get("http://novasspl.eng.sophos", proxies=proxies)
-    except IOError:
+        requests.get("http://google.com", proxies=proxies,  timeout=5)
+    except Exception as ex:
+        logger.info(ex)
         return False
     return True
 
