@@ -66,6 +66,10 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
 
 @tap.pipeline(root_sequential=False)
 def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+    spec_only = parameters.spec_only != 'false'
+    if spec_only:
+        return
+
     mdr999 = parameters.mdr_999 != 'false'
     edr999 = parameters.edr_999 != 'false'
     base999 = parameters.base_999 != 'false'
