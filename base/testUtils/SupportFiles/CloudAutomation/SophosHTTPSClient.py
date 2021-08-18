@@ -383,6 +383,8 @@ def raw_request_url(request, verbose=True):
         response = cloud_urllib2_opener.open(request)
         return response
     except urllib.error.HTTPError as e:
+        if e.code == 401:
+            GL_COOKIE_JAR.clear()
         body = e.read()
         print('HTTP Error {code}: {reason}'.format(code=e.code, reason=e.reason),file=sys.stderr)
         print("Body: {body}".format(body=body),file=sys.stderr)
