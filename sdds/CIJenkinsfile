@@ -2,6 +2,8 @@
 library "tap-pipe"
 
 def params = [
+    booleanParam(name: 'SPEC_ONLY', defaultValue: false,
+                     description: 'Do not build any dev warehouses - spec only change'),
     booleanParam(name: 'EDR_999', defaultValue: true,
                      description: 'Build EDR-999 warehouses'),
     booleanParam(name: 'BASE_999', defaultValue: true,
