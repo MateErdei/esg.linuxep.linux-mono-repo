@@ -3,6 +3,7 @@ Documentation    Test watchdog restarts plugin after exit
 
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/Watchdog.py
 
 Resource  ../installer/InstallerResources.robot
@@ -30,6 +31,10 @@ Test watchdog restarts child after kill
     Wait For Plugin To Start  /tmp/TestWatchdogRestartsChildAfterKill  30
     ## Kill plugin
     Kill Plugin  /tmp/TestWatchdogRestartsChildAfterKill
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check Watchdog Log Contains  /opt/sophos-spl/testPlugin.sh died with 15
     ## Then waits 10 seconds and restarts
     Wait For Plugin To Start Again  /tmp/TestWatchdogRestartsChildAfterKill  30
 
