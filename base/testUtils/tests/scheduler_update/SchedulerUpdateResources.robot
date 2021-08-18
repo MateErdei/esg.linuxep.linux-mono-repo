@@ -173,7 +173,7 @@ Setup Warehouse For Base
     Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
     Can Curl Url    https://localhost:1234/catalogue/sdds.ServerProtectionLinux-Base.xml
     Can Curl Url    https://localhost:1233
-    Set Local CA Environment Variable
+
 
 
 Setup Servers For Update Scheduler
@@ -209,7 +209,7 @@ Setup Warehouse For MDR
     Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
     Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
     Can Curl Url    https://localhost:1233
-    Set Local CA Environment Variable
+
 
 Setup Environment Before Warehouse Generation
     Setup Update Scheduler Environment
