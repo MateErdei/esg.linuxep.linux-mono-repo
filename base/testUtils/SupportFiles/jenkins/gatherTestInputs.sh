@@ -22,7 +22,7 @@ elif [[ -n ${EDR_COVERAGE:-} ]]; then
 elif [[ -n ${PLUGIN_TEMPLATE_COVERAGE:-} ]]; then
   MODE=template-coverage
 elif [[ -n ${PLUGIN_EVENTJOURNALER_COVERAGE:-} ]]; then
-  MODE=journaler-coverage
+  MODE=ej-coverage
 fi
 
 # Create venv
