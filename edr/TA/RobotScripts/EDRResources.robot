@@ -253,7 +253,16 @@ Display All SSPL Files Installed
     Log  ${result.stdout}
     Log  ${result.stderr}
 
+Log Status Of Sophos Spl
+    ${result} =  Run Process    systemctl  status  sophos-spl
+    Log  ${result.stdout}
+    ${result} =  Run Process    systemctl  status  sophos-spl-update
+    Log  ${result.stdout}
+    ${result} =  Run Process    systemctl  status  sophos-spl-diagnose
+    Log  ${result.stdout}
+
 Common Teardown
+    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log Status Of Sophos Spl
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
