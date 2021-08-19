@@ -92,7 +92,6 @@ No arguments
     Check SulDownloader Result   ${result}   ${INVALIDCOMMANDLINEARGUMENTS}
     ...    Error, invalid command line arguments
     ...    Usage: SULDownloader inputpath outputpath
-    fail
 
 Suldownloader Log Has Correct Permissions
     [Documentation]    Sul Downloader log  is root owner and 0600
