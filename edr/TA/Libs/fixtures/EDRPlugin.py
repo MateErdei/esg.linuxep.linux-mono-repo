@@ -96,6 +96,7 @@ class EDRPlugin:
         # wait for edr to finish waiting for policies it will never get
         self.wait_log_contains("Plugin preparation complete", 30)
         self.wait_for_osquery_to_run()
+        time.sleep(5)
 
     def stop_edr(self):
         """
