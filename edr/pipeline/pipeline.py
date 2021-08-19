@@ -198,7 +198,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
              tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
             ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
             ("centos82", tap.Machine('centos82_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
-            # # add other distros here
+            # add other distros here
         )
         coverage_machines = (
             ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
