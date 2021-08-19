@@ -437,14 +437,14 @@ EDR Plugin Runs Next Scheduled Queries When Flags Configured To Do So
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   next_mtr_query  ${mark}
 
 EDR Plugin Hits Data Limit And Queries Resume After Period
-    [Setup]  Data Limit Test Setup  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit_with_MTR.xml  180
+    [Setup]  Data Limit Test Setup  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit_with_MTR.xml  180
     [Teardown]  Data Limit Test Teardown
 
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
     ...  EDR Plugin Log Contains  First LiveQuery policy received
-    Expect New Datalimit  100000
+    Expect New Datalimit  10000
 
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -472,7 +472,7 @@ EDR Plugin Hits Data Limit And Queries Resume After Period
     # Wait for data limit to be hit, EDR starts query pack disabling and osquery restart behaviour
     Wait Until Keyword Succeeds
     ...  100 secs
-    ...  1 secs
+    ...  5 secs
     ...  EDR Plugin Log Contains   XDR data limit for this period exceeded
 
     Wait Until Keyword Succeeds
