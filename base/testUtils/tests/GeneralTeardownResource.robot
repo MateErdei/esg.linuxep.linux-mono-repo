@@ -93,6 +93,10 @@ Log Status Of Sophos Spl
     ${result} =  Run Process    systemctl  status  sophos-spl-diagnose
     Log  ${result.stdout}
 
+Log Systemctl Timers
+    ${result} =  Run Process    systemctl  list-timers
+    Log  ${result.stdout}
+
 Log Status Of Rsyslog
     ${result} =  Run Process    systemctl  status  rsyslog
     Log  ${result.stdout}
@@ -112,8 +116,9 @@ General Test Teardown
     Run Keyword If Test Failed    Dump All Logs
     Run Keyword If Test Failed    Check and Dump Journalctl
     Run Keyword If Test Passed    Check Journalctl
-    Run Keyword If Test Failed    Log Status Of Sophos Spl
     Run Keyword If Test Failed    Log Status Of Rsyslog
+    Run Keyword If Test Failed    Log Systemctl Timers
+    Run Keyword If Test Failed    Log Status Of Sophos Spl
     Run Keyword If Test Failed    Display All SSPL Files Installed
     Run Keyword If Test Failed    Display All SSPL Plugins Files Installed
     Run Keyword If Test Failed    Dump All Sophos Processes
