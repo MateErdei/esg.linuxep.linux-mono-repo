@@ -39,6 +39,8 @@ EDR Plugin Runs Scheduled Queries And Reports Telemetry
     ...   20 secs
     ...   2 secs
     ...   Scheduled Query Log Contains  Executing query: endpoint_id
+    # endpoint_id query appears in scheduled query log slightly before telemetry is prepared for it
+    sleep  1s
 
     ${edr_telemetry} =  Get Plugin Telemetry  edr
     ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
