@@ -3,6 +3,7 @@ Library    Process
 Library    OperatingSystem
 Library    ../libs/FullInstallerUtils.py
 Library    ../libs/CommsComponentUtils.py
+Library     ../libs/UpgradeUtils.py
 
 Resource  ../GeneralTeardownResource.robot
 

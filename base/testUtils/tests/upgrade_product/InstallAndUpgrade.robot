@@ -52,10 +52,6 @@ ${BaseAndMtrAndAvVUTPolicy}                 ${GeneratedWarehousePolicies}/base_a
 
 ${LocalWarehouseDir}                        ./local_warehouses
 ${Testpolicy}                               ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_and_mtr_VUT.xml
-${base_removed_files_manifest}              ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
-${mtr_removed_files_manifest}               ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
-${base_files_to_delete}                     ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Base/filestodelete.dat
-${mtr_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Plugin-MDR/filestodelete.dat
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
@@ -203,40 +199,6 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     Check Event Journaler Executable Running
     Check Update Reports Have Been Processed
 
-VersionCopy File in the Wrong Location Is Removed
-    [Tags]  INSTALLER
-    ${Root_Install_Location} =  Set Variable   /tmp/system-product-test-inputs
-    Combine MTR 0-6-0 Component Suite
-    Combine MTR Develop Component Suite
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
-
-    #fake the file being copied to the wrong location
-    Create Directory   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
-    Create File   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0
-    ${result} =  Run Process  ln  -sf  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy
-    Should Be Equal As Integers     ${result.rc}    0
-
-    # replace version files to prove installer updated product as expected.
-
-    Create File  ${InstalledBaseVersionFile}        PRODUCT_VERSION = 0.0.0.9999
-    Create File  ${InstalledMDRPluginVersionFile}   PRODUCT_VERSION = 0.0.0.999
-
-    Log File  ${InstalledBaseVersionFile}
-    Log FIle  ${InstalledMDRPluginVersionFile}
-
-    ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
-
-    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-    Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/
-    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
-    Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
-
 We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
@@ -378,91 +340,6 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ...  file should exist  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_after_query_pack_restored} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
-
-Verify Upgrading Will Remove Files Which Are No Longer Required
-    [Tags]      INSTALLER
-    ${Root_Install_Location} =  Set Variable   /tmp/system-product-test-inputs
-    Combine MTR 0-6-0 Component Suite
-    Combine MTR Develop Component Suite
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
-    Check Files Before Upgrade
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
-    Check Files After Upgrade
-
-
-Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
-    [Tags]  INSTALLER
-    ${Root_Install_Location} =  Set Variable   /tmp/system-product-test-inputs
-    Combine MTR 0-6-0 Component Suite
-    Combine MTR Develop Component Suite
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
-    Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
-    Move File  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat  /tmp/MDR-manifest.dat
-
-    Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
-    Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
-
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
-
-    # ensure that the list of files to remove contains files which are outside of the components realm
-    ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
-    Should Contain  ${BASE_REMOVE_FILE_CONTENT}  plugins/mtr
-
-    ${MTR_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
-    Should Contain  ${MTR_REMOVE_FILE_CONTENT}  base
-
-    # ensure that the cleanup process is prevented from deleting files which are not stored in the component realm
-    # note files listed in the components filestodelete.dat file, will be deleted by that compoent, so these files need to be
-    # filtered out.
-
-    Check Files Have Not Been Removed  ${SOPHOS_INSTALL}  ${base_removed_files_manifest}  plugins/mtr  ${mtr_files_to_delete}
-    Check Files Have Not Been Removed  ${SOPHOS_INSTALL}  ${mtr_removed_files_manifest}  base   ${base_files_to_delete}
-
-
-Version Copy Versions All Changed Files When Upgrading
-    [Tags]  INSTALLER
-    ${Root_Install_Location} =  Set Variable   /tmp/system-product-test-inputs
-    Combine MTR 0-6-0 Component Suite
-    Combine MTR Develop Component Suite
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
-
-    ${BaseReleaseVersion}=  Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrReleaseVersion}=  Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-
-    ${BaseManifestPath}=  Set Variable  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
-    ${MTRPluginManifestPath}=  Set Variable  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
-
-    ${BeforeManifestBase}=  Get File  ${BaseManifestPath}
-    ${BeforeManifestPluginMdr}=  Get File  ${MTRPluginManifestPath}
-
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
-
-
-    ${BaseDevVersion} =  Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrDevVersion} =  Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
-    Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
-
-    Check Files In Versioned Copy Manifests Have Correct Symlink Versioning
-
-    ${AfterManifestBase}=  Get File  ${BaseManifestPath}
-    ${AfterManifestPluginMdr}=  Get File  ${MTRPluginManifestPath}
-
-    ${ChangedBase}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/changedFiles_manifest.dat
-    ${AddedBase}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/addedFiles_manifest.dat
-    ${combinedBaseChanges}=  Catenate  SEPARATOR=\n  ${ChangedBase}  ${AddedBase}
-    ${ChangedPluginMdr}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/changedFiles_manifest.dat
-    ${AddedPluginMdr}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/addedFiles_manifest.dat
-    ${combinedPluginMdrChanges}=  Catenate  SEPARATOR=\n  ${ChangedPluginMdr}  ${AddedPluginMdr}
-
-    Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestBase}       ${AfterManifestBase}        ${combinedBaseChanges}
-    Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestPluginMdr}  ${AfterManifestPluginMdr}   ${combinedPluginMdrChanges}
 
 Ensure Supplement Updates Only Perform A Supplement Update
     ## This can't run against real (remote) warehouses, since it modifies the warehouses to prevent product updates from working
@@ -743,86 +620,6 @@ Check Installed Correctly
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
     ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
     Check Expected Base Processes Except SDU Are Running
-
-Check Files Before Upgrade
-    # This is a selection of files from Base product, based on the version initialy installed
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999.0
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999.0
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999
-    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999.0
-
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999.0
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999.0
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999.0
-
-Check Files After Upgrade
-    # This is a selection of removed files from Base product, based on the version initialy installed
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999.0
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999.0
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999
-    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999.0
-
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999.0
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999.0
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999
-    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999.0
-
-    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/addedFiles_manifest.dat
-    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/changedFiles_manifest.dat
-    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
-    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
-
-    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/addedFiles_manifest.dat
-    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/changedFiles_manifest.dat
-    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
-    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
-
-    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
 
 Component Version has changed
     [Arguments]  ${oldVersion}  ${InstalledVersionFile}
