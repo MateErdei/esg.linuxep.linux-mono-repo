@@ -131,7 +131,8 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    ${EJReleaseVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #${EJReleaseVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndAvVUTPolicy}
     Wait Until Keyword Succeeds
@@ -191,12 +192,14 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${AVDevVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    ${EJDevVersion} =       Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #${EJDevVersion} =       Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
 
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
-    Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
     Check Event Journaler Executable Running
     Check Update Reports Have Been Processed
 
@@ -271,7 +274,8 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${AVDevVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    ${EJDevVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #${EJDevVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
     # Products that should be uninstalled after downgrade
@@ -345,12 +349,14 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${AVReleaseVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    ${EJReleaseVersion} =           Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #${EJReleaseVersion} =           Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${EdrReleaseVersion}  ${EdrDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
-    Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
 
     ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
