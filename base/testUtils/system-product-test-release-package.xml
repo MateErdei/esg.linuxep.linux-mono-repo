@@ -27,7 +27,7 @@
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
-            <development-version branch="develop"/>
+            <development-version branch="test/coverage"/>
             <include mode="system-test,base-coverage,ej-coverage,edr-coverage,lr-coverage" artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
             <include mode="mdr-coverage" artifact-path="mdr-coverage/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
             <include mode="mdr-coverage" artifact-path="mdr-coverage/covfile" dest-dir="coverage"/>
