@@ -24,7 +24,7 @@
         </build-asset>
         <build-asset project="winep" repo="sed">
             <release-version branch="release/SED_2021.34_linux_libs" build-id="20210813065226-b14b2fb7326a4b223bca878249947834adc50ed7-YtMKw9" />
-            <development-version branch="feature/WINEP-17020"/>
+            <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="input"/>
         </build-asset>
         <package name="capnprotolinux11" version="0-8-0-17/222740/capnproto" dest=".">
