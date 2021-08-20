@@ -3,7 +3,7 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="bugfix/LINUXDAR-3255-fix-mcs-tests-for-coverage-system-test-runs-2"/>
+            <development-version branch="develop"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
             <include mode="base-coverage" artifact-path="sspl-base-coverage/SDDS-COMPONENT" dest-dir="sspl-base"/>
@@ -11,7 +11,7 @@
             <include mode="base-coverage" artifact-path="sspl-base-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-            <development-version branch="test/coverage-build"/>
+            <development-version branch="develop"/>
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/covfile" dest-dir="coverage"/>
@@ -27,7 +27,7 @@
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
-            <development-version branch="test/coverage"/>
+            <development-version branch="develop"/>
             <include mode="system-test,base-coverage,ej-coverage,edr-coverage,lr-coverage" artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
             <include mode="mdr-coverage" artifact-path="mdr-coverage/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
             <include mode="mdr-coverage" artifact-path="mdr-coverage/covfile" dest-dir="coverage"/>
