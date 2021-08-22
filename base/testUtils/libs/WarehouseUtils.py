@@ -12,6 +12,9 @@ import glob
 import UpdateServer
 import robot.api.logger as logger
 from robot.libraries.BuiltIn import BuiltIn
+import xml.etree.ElementTree as ET
+import requests
+
 
 import PathManager
 
@@ -170,6 +173,113 @@ def getYesterday():
     yesterday = now - datetime.timedelta(days=1)
     return yesterday.strftime("%A")  # Returns day as week day name
 
+filer6_directory = "/mnt/filer6/linux/SSPL/testautomation/sdds-specs/"
+
+def get_importrefrence_for_component_with_tag(rigid_name, tag, pubspec):
+    line = list(filter(lambda n: rigid_name == n.attrib["id"], pubspec.findall("./warehouses//line")))[0]
+    for component in line.findall("./component"):
+        for release_tag in component.findall("./releasetag"):
+            if release_tag.attrib["tag"] == tag:
+                return component.attrib["importreference"]
+    raise AssertionError(f"Did not find {rigid_name} in {pubspec}")
+
+def get_importrefrence_for_component_with_tag_from_componentsuite(rigid_name, componentsuite_rigid_name, tag, pubspec):
+    componentsuite_importref = get_importrefrence_for_component_with_tag(componentsuite_rigid_name, tag, pubspec)
+
+    line = list(filter(lambda n: componentsuite_rigid_name == n.attrib["id"], pubspec.findall("./componentsuites/line")))[0]
+    componentsuite = list(filter(lambda n: componentsuite_importref == n.attrib["importreference"], line.findall("./componentsuite")))[0]
+    component = list(filter(lambda n: rigid_name == n.attrib["line"], componentsuite.findall("./component")))[0]
+    return component.attrib["importreference"]
+
+def get_version_for_component_with_importref(rigid_name, importref, importspec):
+    line = list(filter(lambda n: rigid_name == n.attrib["id"], importspec.findall("./imports/line")))[0]
+    for component in line.findall("./"):
+        if component.attrib["id"] == importref:
+            return component.attrib["version"]
+    raise AssertionError(f"Did not find {importref} in {importspec}")
+
+
+def get_version_for_rigidname(rigid_name, tag="RECOMMENDED"):
+    importref = get_importrefrence_for_component_with_tag(rigid_name, tag)
+    version = get_version_for_component_with_importref(rigid_name, importref)
+    return version
+
+def get_dci_xml_from_update_credentials(update_credentials):
+    dci_url = f"https://dci.sophosupd.com/update/{update_credentials[0]}/{update_credentials[1:3]}/{update_credentials}.dat"
+    r = requests.get(dci_url)
+    signature_start = r.content.find(b"-----BEGIN SIGNATURE-----")
+    xml_string = r.content[:signature_start].decode()
+    return xml_string
+
+def get_sdds_names_from_dci_xml_string(dci_xml_string):
+    root = ET.fromstring(dci_xml_string)
+    warehouse_entries = root.findall("./Warehouses/WarehouseEntry/Name")
+    sdds_names = []
+    for warehouse_entry in warehouse_entries:
+        sdds_names.append(warehouse_entry.text)
+    return sdds_names
+
+def get_sdds_names_from_update_credentials(update_credentials):
+    xml = get_dci_xml_from_update_credentials(update_credentials)
+    return get_sdds_names_from_dci_xml_string(xml)
+
+
+importspec = "importspec"
+pubspec = "publicationspec"
+
+def get_spec_type_from_spec(spec):
+    root_tag = spec.find(".").tag
+    if root_tag == importspec:
+        return importspec
+    elif root_tag == pubspec:
+        return pubspec
+    else:
+        raise AssertionError(f"expected {root_tag} to be either {importspec} or {pubspec}")
+
+def get_spec_xml_dict_from_filer6():
+    files_on_filer6 = os.listdir(filer6_directory)
+    files_on_filer6_dict = {}
+    for file_name in files_on_filer6:
+        spec = ET.parse(os.path.join(filer6_directory, file_name))
+        expected_sdds_name = ".".join(file_name.split(".")[:3])
+        spec_type = get_spec_type_from_spec(spec)
+        if not files_on_filer6_dict.get(expected_sdds_name, None):
+            files_on_filer6_dict[expected_sdds_name] = {}
+
+        if files_on_filer6_dict[expected_sdds_name].get(spec_type, None):
+            raise AssertionError(f"Found multiple {spec_type} for {expected_sdds_name}: {files_on_filer6_dict[expected_sdds_name][spec_type]} & {file_name}")
+        else:
+            files_on_filer6_dict[expected_sdds_name][spec_type] = spec
+
+    # import pprint
+    # pprint.pprint(files_on_filer6_dict)
+
+    return files_on_filer6_dict
+
+def get_version_of_component_with_tag_from_spec_xml(rigidname, tag, spec_xml_dict, relevant_sdds_names):
+    for sdds_name in relevant_sdds_names:
+        # print(sdds_name)
+        if spec_xml_dict.get(sdds_name, None):
+            importref = get_importrefrence_for_component_with_tag(rigidname, tag, spec_xml_dict[sdds_name][pubspec])
+            version = get_version_for_component_with_importref(rigidname, importref, spec_xml_dict[sdds_name][importspec])
+            return version
+    else:
+        # print(relevant_sdds_names)
+        # print(spec_xml_dict.keys())
+        raise AssertionError(f"Did not find {rigidname} in {spec_xml_dict}")
+
+def get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigid_name, tag, spec_xml_dict, relevant_sdds_names):
+    for sdds_name in relevant_sdds_names:
+        # print(sdds_name)
+        if spec_xml_dict.get(sdds_name, None):
+            importref = get_importrefrence_for_component_with_tag_from_componentsuite(rigidname, componentsuite_rigid_name, tag, spec_xml_dict[sdds_name][pubspec])
+            version = get_version_for_component_with_importref(rigidname, importref, spec_xml_dict[sdds_name][importspec])
+            return version
+    else:
+        # print(relevant_sdds_names)
+        # print(spec_xml_dict.keys())
+        raise AssertionError(f"Did not find {rigidname} in {spec_xml_dict}")
+
 
 class TemplateConfig:
 
@@ -191,6 +301,8 @@ class TemplateConfig:
             self.username = user_pass[0]
             self.password = user_pass[1]
             self.hashed_credentials = user_pass[2]
+            self.relevent_sdds_files = get_sdds_names_from_update_credentials(self.hashed_credentials)
+            print(f"{env_key}: {self.relevent_sdds_files}")
             self.remote_connection_address = BALLISTA_ADDRESS
             self.build_type = PROD_BUILD_CERTS
             self.algorithm = "AES256"
@@ -328,6 +440,9 @@ class TemplateConfig:
     def get_basename_from_url(self):
         return self.remote_connection_address.rsplit("/", 1)[-1]
 
+    def get_relevant_sdds_filenames(self):
+        return self.relevent_sdds_files
+
 class WarehouseUtils(object):
     """
     Class to setup ALC Policy files used in tests.
@@ -338,6 +453,7 @@ class WarehouseUtils(object):
     #os.environ['VUT_PREV']= "CSP7I0S0GZZE:CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=:db55fcf8898da2b3f3c06f26e9246cbb"
     os.environ['VUT_PREV']= "QA767596:CCCirMa73nCbF+rU9aHeyqCasmwZR9GpWyPav3N0ONhr56KqcJR8L7OdlrmdHJLXc08=:105f4d87e14c91142561bf3d022e55b9"
 
+    WAREHOUSE_SPEC_XML = get_spec_xml_dict_from_filer6()
     template_configuration_values = {
         "base_and_mtr_0_6_0.xml": TemplateConfig("BASE_AND_MTR_0_6_0", "mtr_user_0_6_0", PROD_BUILD_CERTS, OSTIA_0_6_0_ADDRESS),
         "base_and_edr_999.xml": TemplateConfig("BASE_AND_EDR_999", "edr_user_999", PROD_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
@@ -578,27 +694,16 @@ class WarehouseUtils(object):
                 logger.debug("Renaming {} to {}".format(src, target))
                 os.rename(os.path.join(path, x), target)
 
-def get_importrefrence_for_component_with_tag(rigid_name, tag):
-    import xml.etree.ElementTree as ET
-    root = ET.parse("/mnt/filer6/linux/SSPL/testautomation/sdds-specs/sdds.DNR_SSPL_SPRINT_2021_31.1.pub.xml")
-    line = list(filter(lambda n: rigid_name == n.attrib["id"], root.findall("./warehouses//line")))[0]
-    for component in line.findall("./component"):
-        for release_tag in component.findall("./releasetag"):
-            if release_tag.attrib["tag"] == tag:
-                return component.attrib["importreference"]
+    def get_version_from_warehouse_for_rigidname(self, template_policy, rigidname, tag="RECOMMENDED"):
+        template_config = self._get_template_config_from_dictionary_using_filename(template_policy)
+        relevant_sdds_files = template_config.get_relevant_sdds_filenames()
+        return get_version_of_component_with_tag_from_spec_xml(rigidname, tag, self.WAREHOUSE_SPEC_XML, relevant_sdds_files)
 
-def get_version_for_component_with_importref(rigid_name, importref):
-    import xml.etree.ElementTree as ET
-    root = ET.parse("/mnt/filer6/linux/SSPL/testautomation/sdds-specs/sdds.DNR_SSPL_SPRINT_2021_31.1.import.xml")
-    line = list(filter(lambda n: rigid_name == n.attrib["id"], root.findall("./imports/line")))[0]
-    for component in line.findall("./"):
-        if component.attrib["id"] == importref:
-            return component.attrib["version"]
+    def get_version_from_warehouse_for_rigidname_in_componentsuite(self, template_policy, rigidname, componentsuite_rigidname, tag="RECOMMENDED"):
+        template_config = self._get_template_config_from_dictionary_using_filename(template_policy)
+        relevant_sdds_files = template_config.get_relevant_sdds_filenames()
+        return get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigidname, tag, self.WAREHOUSE_SPEC_XML, relevant_sdds_files)
 
-def get_version_for_rigidname(rigid_name, tag="RECOMMENDED"):
-    importref = get_importrefrence_for_component_with_tag(rigid_name, tag)
-    version = get_version_for_component_with_importref(rigid_name, importref)
-    return version
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":
