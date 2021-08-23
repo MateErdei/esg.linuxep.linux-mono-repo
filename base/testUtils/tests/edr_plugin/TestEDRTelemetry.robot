@@ -244,15 +244,6 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     @{queries}=  create list   ${query}
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  3  0  1  0  queries=@{queries}
 
-EDR Plugin Counts Osquery Database Purges
-    Prepare To Run Telemetry Executable
-    Trigger EDR Osquery Database Purge
-    Restart EDR Plugin
-    Wait For EDR Osquery To Purge Database
-    ${file_number} =  Count Files In Directory  /opt/sophos-spl/plugins/edr/var/osquery.db/
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  1  0  0  ignore_cpu_restarts=True  ignore_memory_restarts=True
 
 EDR Plugin Produces Telemetry With OSQuery Max Events Override Value
     Prepare To Run Telemetry Executable
