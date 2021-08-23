@@ -168,7 +168,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     @{queries}=  create list   ${query}
 
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  1  0  queries=@{queries}
-    fail
+
 
 
 EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
