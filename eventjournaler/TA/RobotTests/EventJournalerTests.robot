@@ -5,6 +5,19 @@ Test Teardown   Event Journaler Teardown
 Suite Teardown  Uninstall Base
 
 *** Test Cases ***
+
+Event Journal Files Are Not Deleted When Downgrading
+    ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/threatEvents-00001-00002-12092029-10202002
+    Create Journal Test File  ${filePath}
+    Downgrade Event Journaler
+    # prove that the file is not removed when performing a downgrade
+    Should Exist  ${filePath}.bin
+    Install Event Journaler Directly from SDDS
+    # Journal File may be compressed, so just check we have at 1 file in the event journal
+    ${files} =  List Files In Directory  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/
+    Log  ${files}
+    Should Be Equal As Integers  1  ${files.__len__()}
+
 Event Journaler Can Receive Events
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -104,8 +117,7 @@ Event Journaler Can Receive Many Events From Publisher
 
 Event Journaler Can compress Files
     ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/threatEvents-00001-00002-12092029-10202002
-    Copy File  ${EXAMPLE_DATA_PATH}/Detections-0000000000000001-0000000000000003-132729637080000000-132729637110000000.bin  ${filePath}.bin
-    Run Process  chown  sophos-spl-user:sophos-spl-group  -R  ${EVENT_JOURNALER_DATA_STORE}/
+    Create Journal Test File  ${filePath}
     Restart Event Journaler
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -199,3 +211,8 @@ Remove Journal File In Directory And Expect Subsequent Journal Detections To Be 
     [Arguments]  ${directory}  ${N}
     Remove File In Directory  ${directory}
     Check Journal Contains X Detection Events  ${N}
+
+Create Journal Test File
+    [Arguments]  ${filePath}
+    Copy File  ${EXAMPLE_DATA_PATH}/Detections-0000000000000001-0000000000000003-132729637080000000-132729637110000000.bin  ${filePath}.bin
+    Run Process  chown  sophos-spl-user:sophos-spl-group  -R  ${EVENT_JOURNALER_DATA_STORE}/

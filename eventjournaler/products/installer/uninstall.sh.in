@@ -37,7 +37,20 @@ SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE
 
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
 
-rm -rf "$UNINSTALLDIR"
+if [[ ${DOWNGRADE} == 1 ]]
+then
+  paths_to_delete=$(ls ${UNINSTALLDIR})
+  for path in ${paths_to_delete}
+  do
+    if [[ ${path} != "data" ]]
+    then
+      rm -rf "${UNINSTALLDIR}/${path}"
+    fi
+  done
+else
+  rm -rf "$UNINSTALLDIR"
+fi
+
 rm -r "$SYMLINK"
 rm -r "$SYMLINKVERSION"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc

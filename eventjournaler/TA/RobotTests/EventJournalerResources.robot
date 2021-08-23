@@ -29,6 +29,10 @@ Uninstall Event Journaler
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/eventjournaler/bin/uninstall.sh --force   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall Event Journaler.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
 
+Downgrade Event Journaler
+    ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/eventjournaler/bin/uninstall.sh --downgrade   shell=True   timeout=20s
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to downgrade Event Journaler.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+
 Check Event Journaler Executable Running
     ${result} =    Run Process  pgrep eventjournaler | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
