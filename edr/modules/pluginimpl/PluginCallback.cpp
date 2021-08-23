@@ -123,6 +123,10 @@ namespace Plugin
         telemetry.increment(plugin::telemetryOsqueryRestarts, 0L);
         telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 0L);
         telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 0L);
+        telemetry.increment(plugin::telemetryOSQueryDatabasePurges, 0L);
+        telemetry.increment(plugin::telemetryExtensionRestarts, 0L);
+        telemetry.increment(plugin::telemetryExtensionRestartsCPU, 0L);
+        telemetry.increment(plugin::telemetryExtensionRestartsMemory, 0L);
     }
     void PluginCallback::setRunning(bool running)
     {

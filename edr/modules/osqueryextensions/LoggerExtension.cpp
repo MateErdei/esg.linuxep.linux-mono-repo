@@ -7,6 +7,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "LoggerExtension.h"
 #include "Logger.h"
 
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <SophosLoggerPlugin.h>
 #include <functional>
@@ -117,6 +118,8 @@ void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
         }
 
         LOGWARN("Service extension stopped unexpectedly. Calling reset.");
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        telemetry.increment("extension-restarts", 1L);
         extensionFinished->store(true);
     }
 }

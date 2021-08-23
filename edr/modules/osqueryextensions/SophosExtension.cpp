@@ -9,6 +9,8 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "SophosServerTable.h"
 #include "SophosAVDetectionTable.h"
 
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+
 #include <functional>
 
 SophosExtension::~SophosExtension()
@@ -20,6 +22,7 @@ SophosExtension::~SophosExtension()
 void SophosExtension::Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished)
 {
     LOGINFO("Starting SophosExtension");
+
 
     if (m_stopped)
     {
@@ -35,6 +38,8 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
         m_extension->AddTablePlugin(std::make_unique<OsquerySDK::SophosAVDetectionTable>());
         LOGDEBUG("Extension Added");
         m_extension->Start();
+
+
         m_stopped = false;
         m_runnerThread = std::make_unique<std::thread>(std::thread([this, extensionFinished] { Run(extensionFinished); }));
         LOGDEBUG("Sophos Extension running in thread");
@@ -43,18 +48,16 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
 
 void SophosExtension::Stop()
 {
-    if (!m_stopped && !m_stopping)
+    if (!m_stopped)
     {
         LOGINFO("Stopping SophosExtension");
-        m_stopping = true;
+        m_stopped = true;
         m_extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->join();
             m_runnerThread.reset();
         }
-        m_stopped = true;
-        m_stopping = false;
         LOGINFO("SophosExtension::Stopped");
     }
 }
@@ -62,14 +65,8 @@ void SophosExtension::Stop()
 void SophosExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
 {
     LOGINFO("SophosExtension running");
-
-    // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
-    if (!m_stopping)
-    {
-        m_extension->Wait();
-    }
-
-    if (!m_stopped && !m_stopping)
+    m_extension->Wait();
+    if (!m_stopped)
     {
         const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();
         if (!healthCheckMessage.empty())
@@ -77,13 +74,9 @@ void SophosExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
             LOGWARN(healthCheckMessage);
         }
 
-
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        telemetry.increment("extension-restarts", 1L);
         LOGWARN("Service extension stopped unexpectedly. Calling reset.");
         extensionFinished->store(true);
     }
-}
-
-int SophosExtension::GetExitCode()
-{
-   return m_extension->GetReturnCode();
 }

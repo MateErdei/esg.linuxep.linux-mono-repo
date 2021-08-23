@@ -58,13 +58,30 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
     if (Common::UtilityImpl::StringUtils::isSubstring(
         logLine, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
     {
-        LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsCPU);
-        telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);
+        if (Common::UtilityImpl::StringUtils::startswith(logLine, "osquery extension"))
+        {
+            LOGDEBUG("Increment telemetry: " << plugin::telemetryExtensionRestartsCPU);
+            telemetry.increment(plugin::telemetryExtensionRestartsCPU, 1L);
+        }
+        else
+        {
+            LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsCPU);
+            telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);
+        }
+
     }
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Memory limits exceeded:"))
     {
-        LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsMemory);
-        telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
+        if (Common::UtilityImpl::StringUtils::startswith(logLine, "osquery extension"))
+        {
+            LOGDEBUG("Increment telemetry: " << plugin::telemetryExtensionRestartsMemory);
+            telemetry.increment(plugin::telemetryExtensionRestartsMemory, 1L);
+        }
+        else
+        {
+            LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsMemory);
+            telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
+        }
     }
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Error executing scheduled query "))
     {
