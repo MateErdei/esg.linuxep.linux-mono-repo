@@ -112,21 +112,44 @@ namespace EventJournal
             FileInfo info;
             bool shouldCreateFile = false;
 
-            if (readFileInfo(path, info))
+            if (readHeader(path, info.header))
             {
-                if (((fileSize + PBUF_HEADER_LENGTH + data.size()) > MAX_FILE_SIZE) || shouldCloseFile(info))
+                info.size = fileSize;
+                checkHeader(info);
+
+                PbufInfo pbufInfo;
+                if (readPbufInfo(path, info.header.sjrnLength, pbufInfo, 1))
                 {
-                    LOGDEBUG("Close " << path);
-                    closeFile(path, info);
-                    shouldCreateFile = true;
+                    copyPbufInfo(info, pbufInfo);
+
+                    if (((fileSize + PBUF_HEADER_LENGTH + data.size()) > MAX_FILE_SIZE) || shouldCloseFile(info))
+                    {
+                        LOGDEBUG("Close " << path);
+                        FileInfo fullInfo;
+                        if (readFileInfo(path, fullInfo))
+                        {
+                            closeFile(path, fullInfo);
+                        }
+                        else
+                        {
+                            LOGWARN("Failed to read full file info from " << path);
+                            closeFile(path, info);
+                        }
+                        shouldCreateFile = true;
+                    }
+                    else if (shouldRemoveFile(info))
+                    {
+                        LOGDEBUG("Remove " << path);
+                        removeFile(path);
+                        shouldCreateFile = true;
+                    }
                 }
-                else if (shouldRemoveFile(info))
+                else
                 {
-                    LOGDEBUG("Remove " << path);
+                    LOGDEBUG("Remove invalid file " << path);
                     removeFile(path);
                     shouldCreateFile = true;
                 }
-
             }
             else
             {
@@ -187,11 +210,7 @@ namespace EventJournal
 
         info.size = Common::FileSystem::fileSystem()->fileSize(path);
 
-        if ((info.header.riffLength + RIFF_HEADER_LENGTH) != info.size)
-        {
-            info.riffLengthMismatch = true;
-            info.anyLengthErrors = true;
-        }
+        checkHeader(info);
 
         PbufInfo pbufInfo;
         if (!readPbufInfo(path, info.header.sjrnLength, pbufInfo))
@@ -199,16 +218,7 @@ namespace EventJournal
             return false;
         }
 
-        info.firstProducerID = pbufInfo.firstProducerID;
-        info.firstTimestamp = pbufInfo.firstTimestamp;
-        info.lastProducerID = pbufInfo.lastProducerID;
-        info.lastTimestamp = pbufInfo.lastTimestamp;
-        info.numEvents = pbufInfo.count;
-        if (pbufInfo.truncated)
-        {
-            info.truncated = true;
-            info.anyLengthErrors = true;
-        }
+        copyPbufInfo(info, pbufInfo);
 
         return true;
     }
@@ -222,7 +232,7 @@ namespace EventJournal
         }
 
         PbufInfo info;
-        if (readPbufInfo(path, header.sjrnLength, info, false))
+        if (readPbufInfo(path, header.sjrnLength, info, 0, false))
         {
             if (info.totalLength == 0)
             {
@@ -540,7 +550,7 @@ namespace EventJournal
         return true;
     }
 
-    bool Writer::readPbufInfo(const std::string& path, uint32_t sjrnLength, PbufInfo& info, bool logWarnings) const
+    bool Writer::readPbufInfo(const std::string& path, uint32_t sjrnLength, PbufInfo& info, uint32_t limit, bool logWarnings) const
     {
         std::ifstream f(path, std::ios::binary | std::ios::in);
         f.seekg(0, std::ios::end);
@@ -640,9 +650,38 @@ namespace EventJournal
 
             f.seekg(length, std::ios::cur);
             bytesRemaining -= length;
+
+            if (limit && (info.count >= limit))
+            {
+                break;
+            }
         }
 
         return true;
+    }
+
+    void Writer::checkHeader(FileInfo& info) const
+    {
+        if ((info.header.riffLength + RIFF_HEADER_LENGTH) != info.size)
+        {
+            info.riffLengthMismatch = true;
+            info.anyLengthErrors = true;
+        }
+    }
+
+    void Writer::copyPbufInfo(FileInfo& info, const PbufInfo& pbufInfo) const
+    {
+        info.firstProducerID = pbufInfo.firstProducerID;
+        info.firstTimestamp = pbufInfo.firstTimestamp;
+        info.lastProducerID = pbufInfo.lastProducerID;
+        info.lastTimestamp = pbufInfo.lastTimestamp;
+        info.numEvents = pbufInfo.count;
+
+        if (pbufInfo.truncated)
+        {
+            info.truncated = true;
+            info.anyLengthErrors = true;
+        }
     }
 
     void Writer::closeFile(const std::string& path, const FileInfo& info) const

@@ -87,7 +87,9 @@ namespace EventJournal
             uint64_t timestamp) const;
 
         bool readHeader(const std::string& path, Header& header) const;
-        bool readPbufInfo(const std::string& path, uint32_t sjrnLength, PbufInfo& info, bool logWarnings = true) const;
+        bool readPbufInfo(const std::string& path, uint32_t sjrnLength, PbufInfo& info, uint32_t limit = 0, bool logWarnings = true) const;
+        void checkHeader(FileInfo& info) const;
+        void copyPbufInfo(FileInfo& info, const PbufInfo& pbufInfo) const;
 
         void closeFile(const std::string& path, const FileInfo& header) const;
         void removeFile(const std::string& path) const;
