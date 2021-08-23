@@ -105,11 +105,7 @@ namespace Plugin
         static void disableQueryPack(const std::string& queryPackFilePath);
         static void disableAllQueryPacks();
 
-        /**
-         *  Get a list of all the osquery database files.
-         * @return Vector of full file paths to all files in the osquery DB dir. Empty vector if dir does not exist.
-         */
-        static std::vector<std::string> getOsqueryFilesToPurge();
+
 
         inline static const std::string MODE_IDENTIFIER = "running_mode";
         inline static const std::string NETWORK_TABLES_AVAILABLE = "network_tables";

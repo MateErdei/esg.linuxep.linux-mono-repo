@@ -108,7 +108,6 @@ namespace Plugin
         const time_t ONE_DAY_IN_SECONDS = 86400;
         const time_t SCHEDULE_EPOCH_DURATION = ONE_DAY_IN_SECONDS * 6;
         static bool isQueryPackEnabled(Path queryPackPathWhenEnabled);
-        void databasePurge();
 
     private:
         void innerMainLoop();

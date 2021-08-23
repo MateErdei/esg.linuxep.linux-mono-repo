@@ -8,26 +8,6 @@ from .test_edr_basic import detect_failure
 # the start up to enter the clean up
 
 
-@detect_failure
-def test_edr_plugin_purges_database_when_threshold_reached(sspl_mock, edr_plugin_instance):
-    edr_plugin_instance.prepare_for_test()
-    i = 105
-
-    # Make sure the directory for the db files is there so we can put the test files in place
-    os.makedirs(edr_plugin_instance.osquery_database_path(), exist_ok=True)
-    while i > 0:
-        db_path = edr_plugin_instance.osquery_database_path()
-        path = os.path.join(db_path, str(i))
-        with open(path, 'a')as file:
-            file.write("blah")
-        i -= 1
-
-    edr_plugin_instance.start_edr()
-
-    assert edr_plugin_instance.wait_log_contains("Purging Database")
-    assert edr_plugin_instance.wait_log_contains("Purging Done", 15)
-    files = os.listdir(db_path)
-    assert len(files) < 10
 
 @detect_failure
 def test_edr_plugin_rotates_logfiles_when_threshold_reached(sspl_mock, edr_plugin_instance):

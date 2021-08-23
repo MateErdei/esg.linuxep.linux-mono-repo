@@ -427,17 +427,5 @@ namespace Plugin
 
         return customQueries != oldCustomQueries;
     }
-    std::vector<std::string> PluginUtils::getOsqueryFilesToPurge()
-    {
-        auto fs = Common::FileSystem::fileSystem();
-        std::string databasePath = Plugin::osQueryDataBasePath();
-        if (fs->isDirectory(databasePath))
-        {
-            return fs->listFiles(databasePath);
-        }
-
-        LOGDEBUG("Osquery database does not exist");
-        return {};
-    }
 
 }
