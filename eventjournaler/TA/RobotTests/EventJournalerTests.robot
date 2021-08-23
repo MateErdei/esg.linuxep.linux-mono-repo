@@ -10,8 +10,14 @@ Event Journal Files Are Not Deleted When Downgrading
     ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/threatEvents-00001-00002-12092029-10202002
     Create Journal Test File  ${filePath}
     Downgrade Event Journaler
+
     # prove that the file is not removed when performing a downgrade
     Should Exist  ${filePath}.bin
+    ${leftover_directory_contents} =  List Directory  ${SOPHOS_INSTALL}/plugins/eventjournaler
+    Log  ${leftover_directory_contents}
+    Should Be Equal As Integers  1  ${leftover_directory_contents.__len__()}
+    Should Contain  ${leftover_directory_contents}  data
+
     Install Event Journaler Directly from SDDS
     # Journal File may be compressed, so just check we have at 1 file in the event journal
     ${files} =  List Files In Directory  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/
