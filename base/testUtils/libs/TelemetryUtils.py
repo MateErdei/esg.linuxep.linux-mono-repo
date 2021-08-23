@@ -123,13 +123,24 @@ class TelemetryUtils:
 
         return telemetry
 
-    def generate_edr_telemetry_dict(self, num_osquery_restarts, num_osquery_restarts_cpu,
-                                    num_osquery_restarts_memory, xdr_is_enabled, events_max, queries , scheduled_queries):
+    def generate_edr_telemetry_dict(self, num_osquery_restarts, num_database_purges, num_osquery_restarts_cpu,
+                                    num_osquery_restarts_memory,
+                                    num_extension_restarts,
+                                    num_extension_restarts_cpu,
+                                    num_extension_restarts_memory,
+                                    xdr_is_enabled,
+                                    events_max,
+                                    queries,
+                                    scheduled_queries):
         version = get_plugin_version("edr")
         telemetry = {
             "osquery-restarts": int(num_osquery_restarts),
+            "extension-restarts": int(num_extension_restarts),
+            "extension-restarts-cpu": int(num_extension_restarts_cpu),
+            "extension-restarts-memory": int(num_extension_restarts_memory),
             "version": version,
             "events-max": events_max,
+            "osquery-database-purges": int(num_database_purges),
             "xdr-is-enabled": xdr_is_enabled,
             "reached-max-process-events" : True,
             "reached-max-selinux-events" : True,
@@ -381,8 +392,12 @@ class TelemetryUtils:
 
     def check_edr_telemetry_json_is_correct(self, json_string,
                                             num_osquery_restarts=0,
+                                            num_database_purges=0,
                                             num_osquery_restarts_cpu=0,
                                             num_osquery_restarts_memory=0,
+                                            num_extension_restarts=0,
+                                            num_extension_restarts_cpu=0,
+                                            num_extension_restarts_memory=0,
                                             xdr_is_enabled=False,
                                             events_max='100000',
                                             ignore_cpu_restarts=False,
@@ -396,8 +411,12 @@ class TelemetryUtils:
                                             ignore_socket_events=True,
                                             ignore_user_events=True):
         expected_edr_telemetry_dict = self.generate_edr_telemetry_dict(num_osquery_restarts,
+                                                                       num_database_purges,
                                                                        num_osquery_restarts_cpu,
                                                                        num_osquery_restarts_memory,
+                                                                       num_extension_restarts,
+                                                                       num_extension_restarts_cpu,
+                                                                       num_extension_restarts_memory,
                                                                        xdr_is_enabled,
                                                                        events_max,
                                                                        queries,
