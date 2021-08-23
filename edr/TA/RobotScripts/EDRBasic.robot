@@ -39,7 +39,7 @@ EDR plugin Can Send Status
     Should Contain  ${edrStatus}   RevID
 
     ${edrTelemetry}=  Get Plugin Telemetry  edr
-    Should Contain  ${edrTelemetry}   osquery-database-purges
+    Should Contain  ${edrTelemetry}   osquery-restarts
 
     ${result} =   Terminate Process  ${handle}
 
