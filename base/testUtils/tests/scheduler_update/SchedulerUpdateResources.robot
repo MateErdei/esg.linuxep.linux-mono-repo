@@ -173,8 +173,6 @@ Setup Warehouse For Base
     Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
     Can Curl Url    https://localhost:1234/catalogue/sdds.ServerProtectionLinux-Base.xml
     Can Curl Url    https://localhost:1233
-    Regenerate Certificates
-    Set Local CA Environment Variable
 
 
 
@@ -228,6 +226,8 @@ Setup Environment After Warehouse Generation
     Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
     Start Update Scheduler
+    Regenerate Certificates
+    Set Local CA Environment Variable
 
 
 Setup For Test With Warehouse Containing Base
