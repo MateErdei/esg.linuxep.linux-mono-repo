@@ -14,6 +14,7 @@ import robot.api.logger as logger
 from robot.libraries.BuiltIn import BuiltIn
 import xml.etree.ElementTree as ET
 import requests
+import subprocess
 
 
 import PathManager
@@ -259,10 +260,13 @@ def get_spec_xml_dict_from_filer6():
 def get_version_of_component_with_tag_from_spec_xml(rigidname, tag, spec_xml_dict, relevant_sdds_names):
     for sdds_name in relevant_sdds_names:
         # print(sdds_name)
-        if spec_xml_dict.get(sdds_name, None):
-            importref = get_importrefrence_for_component_with_tag(rigidname, tag, spec_xml_dict[sdds_name][pubspec])
-            version = get_version_for_component_with_importref(rigidname, importref, spec_xml_dict[sdds_name][importspec])
-            return version
+        try:
+            if spec_xml_dict.get(sdds_name, None):
+                importref = get_importrefrence_for_component_with_tag(rigidname, tag, spec_xml_dict[sdds_name][pubspec])
+                version = get_version_for_component_with_importref(rigidname, importref, spec_xml_dict[sdds_name][importspec])
+                return version
+        except:
+            pass
     else:
         # print(relevant_sdds_names)
         # print(spec_xml_dict.keys())
@@ -271,10 +275,13 @@ def get_version_of_component_with_tag_from_spec_xml(rigidname, tag, spec_xml_dic
 def get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigid_name, tag, spec_xml_dict, relevant_sdds_names):
     for sdds_name in relevant_sdds_names:
         # print(sdds_name)
-        if spec_xml_dict.get(sdds_name, None):
-            importref = get_importrefrence_for_component_with_tag_from_componentsuite(rigidname, componentsuite_rigid_name, tag, spec_xml_dict[sdds_name][pubspec])
-            version = get_version_for_component_with_importref(rigidname, importref, spec_xml_dict[sdds_name][importspec])
-            return version
+        try:
+            if spec_xml_dict.get(sdds_name, None):
+                importref = get_importrefrence_for_component_with_tag_from_componentsuite(rigidname, componentsuite_rigid_name, tag, spec_xml_dict[sdds_name][pubspec])
+                version = get_version_for_component_with_importref(rigidname, importref, spec_xml_dict[sdds_name][importspec])
+                return version
+        except:
+            pass
     else:
         # print(relevant_sdds_names)
         # print(spec_xml_dict.keys())
@@ -302,7 +309,6 @@ class TemplateConfig:
             self.password = user_pass[1]
             self.hashed_credentials = user_pass[2]
             self.relevent_sdds_files = get_sdds_names_from_update_credentials(self.hashed_credentials)
-            print(f"{env_key}: {self.relevent_sdds_files}")
             self.remote_connection_address = BALLISTA_ADDRESS
             self.build_type = PROD_BUILD_CERTS
             self.algorithm = "AES256"
@@ -488,6 +494,15 @@ class WarehouseUtils(object):
         "base_only_VUT_without_SDU_Feature.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_beta_only.xml": TemplateConfig("BASE_ONLY_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_BETA_ONLY_ADDRESS),
         "base_edr_old_wh_format.xml": TemplateConfig("BASE_EDR_OLD_WH", "base_user_vut", PROD_BUILD_CERTS, OSTIA_BASE_EDR_OLD_WH_ADDRESS),
+    }
+
+    RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES = {
+        "ServerProtectionLinux-Plugin-AV": "Sophos Server Protection Linux - av",
+        "ServerProtectionLinux-Plugin-liveresponse": "Sophos Live Response",
+        "ServerProtectionLinux-MDR-Control-Component": "Sophos Managed Threat Response plug-in" ,
+        "ServerProtectionLinux-Plugin-EventJournaler": "EventJournaler",
+        "ServerProtectionLinux-Base-component": "Sophos Server Protection Linux - Base Component",
+        "ServerProtectionLinux-Plugin-EDR": "Sophos Endpoint Detection and Response plug-in"
     }
 
 
@@ -695,15 +710,20 @@ class WarehouseUtils(object):
                 os.rename(os.path.join(path, x), target)
 
     def get_version_from_warehouse_for_rigidname(self, template_policy, rigidname, tag="RECOMMENDED"):
-        template_config = self._get_template_config_from_dictionary_using_filename(template_policy)
+        template_config = self._get_template_config_from_dictionary_using_path(template_policy)
         relevant_sdds_files = template_config.get_relevant_sdds_filenames()
         return get_version_of_component_with_tag_from_spec_xml(rigidname, tag, self.WAREHOUSE_SPEC_XML, relevant_sdds_files)
 
     def get_version_from_warehouse_for_rigidname_in_componentsuite(self, template_policy, rigidname, componentsuite_rigidname, tag="RECOMMENDED"):
-        template_config = self._get_template_config_from_dictionary_using_filename(template_policy)
+        template_config = self._get_template_config_from_dictionary_using_path(template_policy)
         relevant_sdds_files = template_config.get_relevant_sdds_filenames()
         return get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigidname, tag, self.WAREHOUSE_SPEC_XML, relevant_sdds_files)
 
+    def get_version_for_rigidname_in_vut_warehouse(self, rigidname):
+        warehouse_root = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse", "develop", "warehouse", "warehouse")
+        product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
+        version = subprocess.check_output(f'grep -r "PRODUCT_NAME = {product_name}" /tmp/system-product-test-inputs/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/ | awk -F: \'{{print $1}}\' | xargs grep "PRODUCT_VERSION" | sed "s/PRODUCT_VERSION\ =\ //"', shell=True)
+        return version.strip().decode()
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":

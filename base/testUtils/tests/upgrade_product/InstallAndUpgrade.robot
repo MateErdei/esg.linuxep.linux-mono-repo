@@ -52,6 +52,10 @@ ${BaseAndMtrAndAvVUTPolicy}                 ${GeneratedWarehousePolicies}/base_a
 
 ${LocalWarehouseDir}                        ./local_warehouses
 ${Testpolicy}                               ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_and_mtr_VUT.xml
+${base_removed_files_manifest}              ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base/removedFiles_manifest.dat
+${mtr_removed_files_manifest}               ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
+${base_files_to_delete}                     ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Base/filestodelete.dat
+${mtr_files_to_delete}                      ${SOPHOS_INSTALL}/base/update/cache/primary/ServerProtectionLinux-Plugin-MDR/filestodelete.dat
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
@@ -124,10 +128,17 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
 
     Check EAP Release With AV Installed Correctly
+    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    Should Be Equal As Strings  ${ExpectedBaseReleaseVersion}  ${BaseReleaseVersion}
+    ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedMtrReleaseVersion}  ${MtrReleaseVersion}
+    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Plugin-AV
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    Should Be Equal As Strings  ${ExpectedAVReleaseVersion}  ${AVReleaseVersion}
+
+    #TODO LINUXDAR-3183 enable check for EJ version
     #${EJReleaseVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndAvVUTPolicy}
@@ -166,12 +177,10 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     #TODO LINUXDAR-2972 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-    #TODO LINUXDAR-3191 remove when this defect is closed
+    #avp tries to pick up the policy after it starts, if the policy is not there it logs the error and then waits 10s for the policy to show up.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
     #this is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
     #TODO LINUXDAR-3187 remove when this defect is fixed
@@ -186,19 +195,72 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
 
     Check Current Release With AV Installed Correctly
 
+    ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseDevVersion}
+    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrDevVersion}
+    ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
     ${AVDevVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
+
+    #TODO LINUXDAR-3183 enable check for EJ version
     #${EJDevVersion} =       Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
 
-    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
-    Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
-    Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
-    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #TODO LINUXDAR-3183 enable check for EJ version
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
     Check Event Journaler Executable Running
     Check Update Reports Have Been Processed
+
+VersionCopy File in the Wrong Location Is Removed
+    [Timeout]  10 minutes
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
+
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
+    Override LogConf File as Global Level  DEBUG
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
+
+    Check EAP Release Installed Correctly
+
+    #fake the file being copied to the wrong location
+    Create Directory   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
+    Create File   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0
+    ${result} =  Run Process  ln  -sf  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy.0  ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin/versionedcopy
+    Should Be Equal As Integers     ${result.rc}    0
+
+    ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
+
+    Mark Watchdog Log
+    Mark Managementagent Log
+
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+
+    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/opt/
+    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
+    Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
 
 We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
@@ -222,7 +284,7 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${AVDevVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #TODO LINUXDAR-3183 enable check for EJ version
     #${EJDevVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
@@ -250,6 +312,7 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
+    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...   300 secs
@@ -297,13 +360,13 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${AVReleaseVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
-    #${EJReleaseVersion} =           Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #TODO LINUXDAR-3183 enable check for EJ version
+    #${EJDevVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
     Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
     Should Not Be Equal As Strings  ${EdrReleaseVersion}  ${EdrDevVersion}
     Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
-    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #TODO LINUXDAR-3183 enable check for EJ version
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
 
     ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
@@ -341,6 +404,245 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ...  file should exist  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_after_query_pack_restored} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
+
+Verify Upgrading Will Remove Files Which Are No Longer Required
+    [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Timeout]   10 minutes
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
+
+    Should Not Exist    ${SOPHOS_INSTALL}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
+
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Check Files Before Upgrade
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
+
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  320 secs
+    ...  5 secs
+    ...  Check Files After Upgrade
+
+
+
+Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
+    [Tags]      INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Timeout]   10 minutes
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
+
+    Should Not Exist    ${SOPHOS_INSTALL}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    # Swap old manifest files around, this will make the cleanup process mark files for delete which should not be
+    # deleted, because the files are outside of the components realm
+
+    Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
+    Move File  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat  /tmp/MDR-manifest.dat
+
+    Move File  /tmp/MDR-manifest.dat    ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
+    Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+
+    # ensure that the list of files to remove contains files which are outside of the components realm
+    ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
+    Should Contain  ${BASE_REMOVE_FILE_CONTENT}  plugins/mtr
+
+    ${MTR_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
+    Should Contain  ${MTR_REMOVE_FILE_CONTENT}  base
+
+    # ensure that the cleanup process is prevented from deleting files which are not stored in the component realm
+    # note files listed in the components filestodelete.dat file, will be deleted by that compoent, so these files need to be
+    # filtered out.
+
+    Check Files Have Not Been Removed  ${SOPHOS_INSTALL}  ${base_removed_files_manifest}  plugins/mtr  ${mtr_files_to_delete}
+    Check Files Have Not Been Removed  ${SOPHOS_INSTALL}  ${mtr_removed_files_manifest}  base   ${base_files_to_delete}
+
+
+Version Copy Versions All Changed Files When Upgrading
+    [Tags]      INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Documentation]  LINUXDAR-771 - check versioned copy works as expected.
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
+
+    # Wrapped in a wait to keep trying for a bit if ostia is intermittent
+    Wait Until Keyword Succeeds
+    ...  3 mins
+    ...  30 secs
+    ...  Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
+
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   5 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Check EAP Release Installed Correctly
+    ${BaseReleaseVersion}=  Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${MtrReleaseVersion}=  Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+
+    ${BaseManifestPath}=  Set Variable  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
+    ${MTRPluginManifestPath}=  Set Variable  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
+
+    ${BeforeManifestBase}=  Get File  ${BaseManifestPath}
+    ${BeforeManifestPluginMdr}=  Get File  ${MTRPluginManifestPath}
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrVUTPolicy}
+
+    Mark Watchdog Log
+    Mark Managementagent Log
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+
+
+    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+    # FIXME LINUXDAR-2136 remove this line
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to connect to the warehouse
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed
+    #TODO LINUXDAR-2972 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+
+    Check Mtr Reconnects To Management Agent After Upgrade
+
+    Check for Management Agent Failing To Send Message To MTR And Check Recovery
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+    Check Current Release Installed Correctly
+
+    ${BaseDevVersion} =  Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${MtrDevVersion} =  Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
+    Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
+
+    Check Files In Versioned Copy Manifests Have Correct Symlink Versioning
+
+    ${AfterManifestBase}=  Get File  ${BaseManifestPath}
+    ${AfterManifestPluginMdr}=  Get File  ${MTRPluginManifestPath}
+
+    ${ChangedBase}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/changedFiles_manifest.dat
+    ${AddedBase}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/addedFiles_manifest.dat
+    ${combinedBaseChanges}=  Catenate  SEPARATOR=\n  ${ChangedBase}  ${AddedBase}
+    ${ChangedPluginMdr}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/changedFiles_manifest.dat
+    ${AddedPluginMdr}=  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/addedFiles_manifest.dat
+    ${combinedPluginMdrChanges}=  Catenate  SEPARATOR=\n  ${ChangedPluginMdr}  ${AddedPluginMdr}
+
+    Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestBase}       ${AfterManifestBase}        ${combinedBaseChanges}
+    Compare Before And After Manifests With Changed Files Manifest  ${BeforeManifestPluginMdr}  ${AfterManifestPluginMdr}   ${combinedPluginMdrChanges}
+
+
+Update Will Be Forced When Feature List Changes Without Unexpected Errors
+    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUT_Without_SDU_Policy}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUT_Without_SDU_Policy}
+
+
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
+
+    Simulate Previous Scheduled Update Success
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseOnlyVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseOnlyVUTPolicy}
+
+    # Update should be automatically invoke due to policy
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
+
+
+Update Will Be Forced When Subscription List Changes Without Unexpected Errors
+    [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
+
+    Log File  /etc/hosts
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
+
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   1
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    1
+
+    Simulate Previous Scheduled Update Success
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndEdrVUTPolicy}
+
+     # Update should be automatically invoke due to policy
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
+    Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
 
 Ensure Supplement Updates Only Perform A Supplement Update
     ## This can't run against real (remote) warehouses, since it modifies the warehouses to prevent product updates from working
@@ -383,6 +685,22 @@ Ensure Supplement Updates Only Perform A Supplement Update
 
     Check Log Does Not Contain  Doing product and supplement update   ${SULDownloaderLog}  SulDownloaderLog
     Check Log Does Not Contain  Forcing product update due previous update failure or change in configuration   ${SULDownloaderLog}  SulDownloaderLog
+
+Ensure Download Report Content Contains Sub Component Entries
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndEdrVUTPolicy}
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndEdrVUTPolicy}
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Check Current Release Installed Correctly
+    # Make sure that the minimum components are listed.
+    # This will ensure sub components are listed in the report when a sub component has it's own installer.
+    Check Download Report Contains Minimum Products
 
 Test That Only Subscriptions Appear As Subscriptions In ALC Status File
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
@@ -579,6 +897,73 @@ Redirect Sulconfig To Use Local Warehouse
     Replace Sophos URLS to Localhost  config_path=${UPDATE_CONFIG}
     Replace Username And Password In Sulconfig  config_path=${UPDATE_CONFIG}
 
+Setup Warehouse For Latest Release
+    Stop Update Server
+    ${LocalWarehouse} =  Add Temporary Directory  ReleaseWarehouse
+
+    ${PathToBase} =  Get Sspl Base Sdds Version 1
+#    ${PathToBase} =  Get Folder With Installer
+    ${PathToMDRSuite} =  Get Sspl Mdr Component Suite 1
+
+    Setup Warehouse With Args  ${LocalWarehouse}  ${PathToBase}  ${PathToMDRSuite}
+    [Return]  ${LocalWarehouse}
+
+Setup Warehouse For 0 5 Release
+    Stop Update Server
+    ${LocalWarehouse} =  Add Temporary Directory  Warehouse05
+
+    ${PathToBaseRelease_0_5} =  Get Sspl Base Sdds Version 0 5
+    Remove Directory  ${LocalWarehouse}/TestInstallFiles/${BASE_RIGID_NAME}  recursive=${TRUE}
+    Copy Directory     ${PathToBaseRelease_0_5}  ${LocalWarehouse}/TestInstallFiles/${BASE_RIGID_NAME}
+    ${PathToExamplePluginRelease_0_5} =  Get Sspl Example Plugin Sdds Version 0 5
+    Remove Directory  ${LocalWarehouse}/TestInstallFiles/${EXAMPLE_PLUGIN_RIGID_NAME}  recursive=${TRUE}
+    Copy Directory     ${PathToExamplePluginRelease_0_5}  ${LocalWarehouse}/TestInstallFiles/${EXAMPLE_PLUGIN_RIGID_NAME}
+
+    Clear Warehouse Config
+    Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${LocalWarehouse}/TestInstallFiles/    ${LocalWarehouse}/temp_warehouse/   ${BASE_RIGID_NAME}  ${BASE_RIGID_NAME}
+    Add Component Warehouse Config   ${EXAMPLE_PLUGIN_RIGID_NAME}  ${LocalWarehouse}/TestInstallFiles/    ${LocalWarehouse}/temp_warehouse/   ${EXAMPLE_PLUGIN_RIGID_NAME}  ${BASE_RIGID_NAME}
+
+    Generate Warehouse
+
+    Start Update Server    1233    ${LocalWarehouse}/temp_warehouse/customer_files/
+    Start Update Server    1234    ${LocalWarehouse}/temp_warehouse/warehouses/sophosmain/
+    Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
+    Can Curl Url    https://localhost:1233
+
+Setup Warehouse For Master
+    Stop Update Server
+    ${LocalWarehouse} =  Add Temporary Directory  MasterWarehouse
+    ${PathToBase} =  Get Folder With Installer
+    ${PathToMDRSuite} =  Get SSPL MDR Component Suite
+
+    Setup Warehouse With Args  ${LocalWarehouse}  ${PathToBase}  ${PathToMDRSuite}
+    [Return]  ${LocalWarehouse}
+
+Setup Warehouse With Args
+    [Arguments]  ${warehousedir}  ${PathToBase}  ${PathToMDRSuite}
+    Clear Warehouse Config
+
+    Remove Directory  ${warehousedir}/TestInstallFiles/${BASE_RIGID_NAME}  recursive=${TRUE}
+    Copy Directory     ${PathToBase}  ${warehousedir}/TestInstallFiles/${BASE_RIGID_NAME}
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt  ${warehousedir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/rootcerts/rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${warehousedir}/TestInstallFiles/${BASE_RIGID_NAME}/files/base/update/rootcerts/ps_rootca.crt
+
+    Copy MDR Component Suite To   ${warehousedir}/TestInstallFiles   mdr_component_suite=${PathToMDRSuite}
+
+    Clear Warehouse Config
+    Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${warehousedir}/TestInstallFiles/    ${warehousedir}/temp_warehouse/   ${BASE_RIGID_NAME}  Warehouse1
+    Add Component Suite Warehouse Config   ${PathToMDRSuite.mdr_suite.rigid_name}  ${warehousedir}/TestInstallFiles/    ${warehousedir}/temp_warehouse/   Warehouse1
+    Add Component Warehouse Config   ${PathToMDRSuite.mdr_plugin.rigid_name}  ${warehousedir}/TestInstallFiles/    ${warehousedir}/temp_warehouse/  ${PathToMDRSuite.mdr_suite.rigid_name}  Warehouse1
+    Add Component Warehouse Config   ${PathToMDRSuite.dbos.rigid_name}  ${warehousedir}/TestInstallFiles/    ${warehousedir}/temp_warehouse/  ${PathToMDRSuite.mdr_suite.rigid_name}  Warehouse1
+    Add Component Warehouse Config   ${PathToMDRSuite.osquery.rigid_name}  ${warehousedir}/TestInstallFiles/    ${warehousedir}/temp_warehouse/  ${PathToMDRSuite.mdr_suite.rigid_name}  Warehouse1
+
+    Generate Warehouse
+
+    Start Update Server    1233    ${warehousedir}/temp_warehouse/customer_files/
+    Start Update Server    1234    ${warehousedir}/temp_warehouse/warehouses/sophosmain/
+    Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
+    Can Curl Url    https://localhost:1233
+
 Check Old MCS Router Running
     ${pid} =  Check MCS Router Process Running  require_running=True
     [return]  ${pid}
@@ -621,6 +1006,87 @@ Check Installed Correctly
     Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
     ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
     Check Expected Base Processes Except SDU Are Running
+
+Check Files Before Upgrade
+    # This is a selection of files from Base product, based on the version initialy installed
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999.0
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999.0
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999
+    File Should Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999.0
+
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999.0
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999.0
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999.0
+
+Check Files After Upgrade
+    # This is a selection of removed files from Base product, based on the version initialy installed
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/also_a_fake_lib.so.5.86.999.0
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/fake_lib.so.1.66.999.0
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/base/lib64/faker_lib.so.2.23.999.0
+
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999.0
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/fake_lib.so.1.66.999.0
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999
+    File Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr/lib64/faker_lib.so.2.23.999.0
+
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/addedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/changedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
+
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/addedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/changedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
+    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
+
+    File Should Exist   ${UPDATE_CONFIG}
+    File Should Exist   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat
 
 Component Version has changed
     [Arguments]  ${oldVersion}  ${InstalledVersionFile}
