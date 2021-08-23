@@ -400,44 +400,9 @@ namespace Plugin
     void PluginAdapter::cleanUpOldOsqueryFiles()
     {
         LOGSUPPORT("Cleanup Old Osquery Files");
-        databasePurge();
         m_DataManager.cleanUpOsqueryLogs();
     }
 
-    void PluginAdapter::databasePurge()
-    {
-        auto* ifileSystem = Common::FileSystem::fileSystem();
-        try
-        {
-            LOGSUPPORT("Checking osquery database size");
-            std::vector<std::string> paths = PluginUtils::getOsqueryFilesToPurge();
-
-            if (paths.size() > MAX_THRESHOLD)
-            {
-                LOGINFO("Purging Database");
-                stopOsquery();
-                std::string databasePath = Plugin::osQueryDataBasePath();
-                std::string movedDatabasePath = databasePath + ".moved";
-                if (ifileSystem->exists(movedDatabasePath))
-                {
-                    ifileSystem->removeFileOrDirectory(movedDatabasePath);
-                }
-                ifileSystem->moveFile(databasePath, movedDatabasePath);
-                ifileSystem->removeFileOrDirectory(movedDatabasePath);
-                auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-                telemetry.increment(plugin::telemetryOSQueryDatabasePurges, 1L);
-
-                LOGDEBUG("Purging Done");
-
-                // osquery will automatically be restarted, make sure there is no delay.
-                m_restartNoDelay = true;
-            }
-        }
-        catch (Common::FileSystem::IFileSystemException& e)
-        {
-            LOGERROR("Database cannot be purged due to exception: " << e.what());
-        }
-    }
 
     void PluginAdapter::setUpOsqueryMonitor()
     {
