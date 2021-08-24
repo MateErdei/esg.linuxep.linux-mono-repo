@@ -16,4 +16,5 @@ public:
             bool verbose,
             std::shared_ptr<std::atomic_bool> extensionFinished) = 0;
     virtual void Stop() = 0;
+    virtual int GetExitCode() = 0;
 };

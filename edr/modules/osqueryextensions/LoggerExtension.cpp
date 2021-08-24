@@ -172,3 +172,8 @@ std::vector<std::string> LoggerExtension::getFoldableQueries() const
 
     return queries;
 }
+
+int LoggerExtension::GetExitCode()
+{
+    return m_extension->GetReturnCode();
+}

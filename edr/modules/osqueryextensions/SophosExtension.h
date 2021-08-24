@@ -17,7 +17,7 @@ public:
     void Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished) override;
     // cppcheck-suppress virtualCallInConstructor
     void Stop() override;
-
+    int GetExitCode() override;
 private:
     void Run(std::shared_ptr<std::atomic_bool> extensionFinished);
 

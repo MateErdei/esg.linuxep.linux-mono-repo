@@ -40,7 +40,7 @@ public:
     std::vector<Json::Value> getCurrentFoldingRules();
     bool compareFoldingRules(const std::vector<Json::Value>& newFoldingRules);
     std::vector<std::string> getFoldableQueries() const;
-
+    int GetExitCode() override;
 private:
     void Run(std::shared_ptr<std::atomic_bool> extensionFinished);
     ResultsSender m_resultsSender;
