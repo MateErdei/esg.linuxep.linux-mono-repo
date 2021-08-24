@@ -403,7 +403,7 @@ function build()
         make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
             local EXITCODE=$?
             echo "Unit tests failed with $EXITCODE"
-            cat Testing/Temporary/LastTest.log || true
+#            cat Testing/Temporary/LastTest.log || true
             exitFailure $FAILURE_UNIT_TESTS "Unit tests failed for $PRODUCT"
         }
     fi

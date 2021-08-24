@@ -1,19 +1,51 @@
-configure_file(config.h.in config.h )
-
 sophos_add_library(pluginimpl SHARED
         PluginCallback.cpp
         PluginCallback.h
-        ApplicationPaths.cpp
-        ApplicationPaths.h
         QueueTask.cpp
         QueueTask.h
+        ScheduledQueryLogger.h
+        ScheduledQueryLogger.cpp
+        OsqueryLogStringUtil.cpp
+        OsqueryLogStringUtil.h
         Logger.h
         Logger.cpp
+        OsqueryDataManager.cpp
+        OsqueryDataManager.h
         PluginAdapter.cpp
         PluginAdapter.h
+        PluginUtils.cpp
+        PluginUtils.h
         Telemetry.cpp
         Telemetry.h
-        config.h
-        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
-        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib}
+        ApplicationPaths.h
+        ApplicationPaths.cpp
+        OsqueryProcessImpl.h
+        OsqueryProcessImpl.cpp
+        OsqueryLogger.h
+        OsqueryLogger.cpp
+        IOsqueryProcess.h
+        TelemetryConsts.h
+        OsqueryStarted.h
+        OsqueryStarted.cpp
+        OsqueryConfigurator.h
+        OsqueryConfigurator.cpp
+        SystemConfigurator.h
+        SystemConfigurator.cpp
+        OsqueryLogIngest.h
+        OsqueryLogIngest.cpp
+        LiveQueryPolicyParser.cpp
+        LiveQueryPolicyParser.h
+        EXTRA_PROJECTS queryrunnerimpl OsqueryExtensions osqueryclient
+        EXTRA_INCLUDES ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${BOOST_INCLUDE_DIR} ${OSQUERYSDK}/include ${INPUT}/jsoncpp/include
+        EXTRA_LIBS ${zmqlib}
+            ${log4cpluslib}
+            ${protobuflib}
+            ${expatlib}
+            ${zlib}
+            ${JSONCPP_LIBRARY}
+            ${GFLAG_LIBRARY}
+            ${GLOG_LIBRARY}
+            dl
+            ${OPENSSL_LIBRARY}
+            ${THRIFT_LIBRARY}
 )

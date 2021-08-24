@@ -179,11 +179,11 @@ namespace Plugin
         LOGINFO("Entering the main loop");
         m_callback->initialiseTelemetry();
         ensureMCSCanReadOldResponses();
-        std::string alcPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "ALC");
+//        std::string alcPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "ALC");
         std::string liveQueryPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "LiveQuery");
         std::string flagsPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "FLAGS");
 
-        processALCPolicy(alcPolicy, true);
+//        processALCPolicy(alcPolicy, true);
         processFlags(flagsPolicy, true);
         processLiveQueryPolicy(liveQueryPolicy, true);
 //      Send Status On Startup
@@ -197,22 +197,14 @@ namespace Plugin
         auto lastCleanUpTime = std::chrono::steady_clock::now();
         auto cleanupPeriod = std::chrono::minutes(10);
 
-        auto lastTimeQueriedMtr = std::chrono::steady_clock::now();
-        auto mtrConfigQueryPeriod = std::chrono::minutes(1);
-
         while (true)
         {
             //Check extensions are still running and restart osquery if any have stopped unexpectedly
             bool anyStoppedExtensions = false;
-            bool osqueryStopped = false;
             for (auto& runningStatus : m_extensionAndStateMap)
             {
                 if (runningStatus.second.second->load())
                 {
-                    if (runningStatus.second.first->GetExitCode() == 1)
-                    {
-                        osqueryStopped = true;
-                    }
                     anyStoppedExtensions = true;
                     break;
                 }
@@ -223,11 +215,6 @@ namespace Plugin
                 LOGINFO("Restarting OSQuery after unexpected extension exit");
                 stopOsquery();
                 m_restartNoDelay = true;
-                if (!osqueryStopped) // if the extension crashed due to a cpu or memory restart we do not want to increment osquery-restarts field
-                {
-                    m_expectedOsqueryRestart = true;
-                }
-
             }
             // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
             // make sure that the query pack is either still enabled or becomes enabled.
@@ -251,8 +238,8 @@ namespace Plugin
                     LOGINFO("Previous schedule_epoch: " << m_scheduleEpoch.getValue() << ", has ended. Starting new schedule_epoch: " << now);
                     m_scheduleEpoch.setValueAndForceStore(now);
                     // osquery will automatically be restarted but set this to make sure there is no delay.
-                    m_queueTask->pushOsqueryRestart("Restarting osquery due schedule_epoch updating");
-                    m_expectedOsqueryRestart = true;
+                    m_restartNoDelay = true;
+                    stopOsquery();
                 }
             }
 
@@ -260,17 +247,6 @@ namespace Plugin
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
                 auto timeNow = std::chrono::steady_clock::now();
-
-                // only attempt MTR config query every 1 min
-                if (timeNow > (lastTimeQueriedMtr + mtrConfigQueryPeriod))
-                {
-                    lastTimeQueriedMtr = timeNow;
-                    if (m_osqueryConfigurator.checkIfReconfigurationRequired())
-                    {
-                        m_queueTask->pushOsqueryRestart("Restarting due to MTR Configuration change");
-                        m_expectedOsqueryRestart = true;
-                    }
-                }
 
                 // only attempt cleanup after the 10 minute period has elapsed
                 if (timeNow > (lastCleanUpTime + cleanupPeriod))
@@ -303,22 +279,17 @@ namespace Plugin
                         LOGDEBUG("Process task QUEUE_OSQUERY_RESTART");
                         LOGINFO("Restarting osquery, reason: " << task.m_content);
                         m_restartNoDelay = true;
-                        m_expectedOsqueryRestart = true;
                         stopOsquery();
                         break;
                     case Task::TaskType::OSQUERY_PROCESS_FINISHED:
                     {
                         LOGDEBUG("Process task OSQUERY_PROCESS_FINISHED");
                         m_timesOsqueryProcessFailedToStart = 0;
-                        if (!m_expectedOsqueryRestart)
-                        {
-                            Common::Telemetry::TelemetryHelper::getInstance().increment(
-                                plugin::telemetryOsqueryRestarts, 1UL);
-                        }
+                        Common::Telemetry::TelemetryHelper::getInstance().increment(
+                            plugin::telemetryOsqueryRestarts, 1UL);
 
                         int64_t delay = m_restartNoDelay ? 0 : 10;
                         m_restartNoDelay = false;
-                        m_expectedOsqueryRestart = false;
                         LOGINFO("osquery stopped. Scheduling its restart in " << delay <<" seconds.");
                         m_delayedRestart.reset( // NOLINT
                             new WaitUpTo(
@@ -330,10 +301,6 @@ namespace Plugin
                         if (task.m_appId == "FLAGS")
                         {
                             processFlags(task.m_content, false);
-                        }
-                        else if (task.m_appId == "ALC")
-                        {
-                            processALCPolicy(task.m_content, false);
                         }
                         else if (task.m_appId == "LiveQuery")
                         {
@@ -412,9 +379,44 @@ namespace Plugin
     void PluginAdapter::cleanUpOldOsqueryFiles()
     {
         LOGSUPPORT("Cleanup Old Osquery Files");
+        databasePurge();
         m_DataManager.cleanUpOsqueryLogs();
     }
 
+    void PluginAdapter::databasePurge()
+    {
+        auto* ifileSystem = Common::FileSystem::fileSystem();
+        try
+        {
+            LOGSUPPORT("Checking osquery database size");
+            std::vector<std::string> paths = PluginUtils::getOsqueryFilesToPurge();
+
+            if (paths.size() > MAX_THRESHOLD)
+            {
+                LOGINFO("Purging Database");
+                stopOsquery();
+                std::string databasePath = Plugin::osQueryDataBasePath();
+                std::string movedDatabasePath = databasePath + ".moved";
+                if (ifileSystem->exists(movedDatabasePath))
+                {
+                    ifileSystem->removeFileOrDirectory(movedDatabasePath);
+                }
+                ifileSystem->moveFile(databasePath, movedDatabasePath);
+                ifileSystem->removeFileOrDirectory(movedDatabasePath);
+                auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+                telemetry.increment(plugin::telemetryOSQueryDatabasePurges, 1L);
+
+                LOGDEBUG("Purging Done");
+
+                // osquery will automatically be restarted, make sure there is no delay.
+                m_restartNoDelay = true;
+            }
+        }
+        catch (Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR("Database cannot be purged due to exception: " << e.what());
+        }
+    }
 
     void PluginAdapter::setUpOsqueryMonitor()
     {
@@ -541,30 +543,6 @@ namespace Plugin
     void PluginAdapter::processQuery(const std::string& queryJson, const std::string& correlationId)
     {
         m_parallelQueryProcessor.addJob(queryJson, correlationId);
-    }
-
-    void PluginAdapter::processALCPolicy(const std::string& policy, bool firstTime)
-    {
-        LOGINFO("Processing ALC Policy");
-        m_osqueryConfigurator.loadALCPolicy(policy);
-        bool enableAuditDataCollection = m_osqueryConfigurator.enableAuditDataCollection();
-        if (firstTime)
-        {
-            m_collectAuditEnabled = enableAuditDataCollection;
-            return;
-        }
-
-        std::string option{ enableAuditDataCollection ?"true":"false"};
-        if (enableAuditDataCollection != m_collectAuditEnabled)
-        {
-            m_collectAuditEnabled = enableAuditDataCollection;
-            LOGDEBUG("Option to enable audit collection changed to "<< option);
-            m_queueTask->pushOsqueryRestart("Restarting osquery due to auditd collection configuration change");
-        }
-        else
-        {
-            LOGDEBUG("Option to enable audit collection remains "<< option);
-        }
     }
 
     void PluginAdapter::processFlags(const std::string& flagsContent, bool firstTime)

@@ -22,7 +22,6 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 namespace Plugin
 {
     OsqueryConfigurator::OsqueryConfigurator()
-        : m_mtrMonitor(MtrMonitor(std::make_unique<osqueryclient::OsqueryClientImpl>()))
     {
     }
 
@@ -195,7 +194,7 @@ namespace Plugin
     void OsqueryConfigurator::prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch)
     {
         m_disableAuditDInPluginConfig = retrieveDisableAuditDFlagFromSettingsFile();
-        bool disableAuditDataGathering = enableAuditDataCollection();
+        bool disableAuditDataGathering = shouldAuditDataCollectionBeEnabled();
 
         SystemConfigurator::setupOSForAudit(m_disableAuditDInPluginConfig);
 
@@ -228,54 +227,18 @@ namespace Plugin
         return disableAuditD;
     }
 
-    bool OsqueryConfigurator::ALCContainsMTRFeature(const std::string& alcPolicyXMl)
+    bool OsqueryConfigurator::shouldAuditDataCollectionBeEnabled() const
     {
-        using namespace Common::XmlUtilities;
-        if (alcPolicyXMl.empty())
-        {
-            return false;
-        }
-        try
-        {
-            AttributesMap attributesMap = parseXml(alcPolicyXMl);
-            const std::string expectedMTRFeaturePath { "AUConfigurations/Features/Feature#MDR" };
-            Attributes attributes = attributesMap.lookup(expectedMTRFeaturePath);
-            return !attributes.empty();
-        }
-        catch (XmlUtilitiesException& ex)
-        {
-            std::string reason = ex.what();
-            LOGWARN("Failed to parse ALC policy: " << reason);
-        }
-        return false;
-    }
-
-    bool OsqueryConfigurator::enableAuditDataCollection() const
-    {
-        bool enableAuditDataCollection = enableAuditDataCollectionInternal(
-            m_disableAuditDInPluginConfig,
-            m_mtrInAlcPolicy,
-            m_mtrHasScheduledQueries);
-
-        if (enableAuditDataCollection)
+        if (m_disableAuditDInPluginConfig)
         {
             LOGDEBUG("Plugin should gather data from audit subsystem netlink");
+            return true;
         }
         else
         {
             LOGDEBUG("Plugin should not gather data from audit subsystem netlink");
+            return false;
         }
-        return enableAuditDataCollection;
-    }
-
-    void OsqueryConfigurator::loadALCPolicy(const std::string& alcPolicy)
-    {
-        m_mtrInAlcPolicy = ALCContainsMTRFeature(alcPolicy);
-    }
-
-    bool OsqueryConfigurator::getPresenceOfMtrInAlcPolicy() const
-    {
-        return m_mtrInAlcPolicy;
     }
 
     void OsqueryConfigurator::addTlsServerCertsOsqueryFlag(std::vector<std::string>& flags)
@@ -291,60 +254,6 @@ namespace Plugin
             }
         }
         LOGWARN("CA path not found");
-    }
-
-    bool OsqueryConfigurator::checkIfReconfigurationRequired()
-    {
-        if (m_mtrInAlcPolicy)
-        {
-            bool mtrHasScheduledQueries = m_mtrMonitor.hasScheduledQueriesConfigured();
-            if (m_mtrHasScheduledQueries.has_value())
-            {
-                if (m_mtrHasScheduledQueries.value() != mtrHasScheduledQueries)
-                {
-                    LOGINFO("Triggering reconfiguration of OSQuery due to a change in MTR");
-                    m_mtrHasScheduledQueries = mtrHasScheduledQueries;
-                    return true;
-                }
-            }
-            else
-            {
-                m_mtrHasScheduledQueries = mtrHasScheduledQueries;
-                if (!mtrHasScheduledQueries)
-                {
-                    LOGINFO("Triggering reconfiguration of OSQuery due to a change in MTR");
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    bool OsqueryConfigurator::enableAuditDataCollectionInternal(bool disableAuditDInPluginConfig, bool mtrInAlcPolicy, std::optional<bool> mtrHasScheduledQueries)
-    {
-        // If EDR configured not to disable AuditD then we don't want the netlink
-        if (!disableAuditDInPluginConfig)
-        {
-            return false;
-        }
-
-        // If MTR in ALC Policy and MTR has not yet been queried by EDR
-        if (mtrInAlcPolicy && !mtrHasScheduledQueries.has_value())
-        {
-            return false;
-        }
-        // If MTR in ALC Policy and MTR running queries
-        if (mtrInAlcPolicy && mtrHasScheduledQueries.has_value() && mtrHasScheduledQueries.value())
-        {
-            return false;
-        }
-        // If MTR in ALC Policy and MTR not running queries
-        if (mtrInAlcPolicy && mtrHasScheduledQueries.has_value() && !mtrHasScheduledQueries.value())
-        {
-            return true;
-        }
-        return true;
-
     }
 
 } // namespace Plugin

@@ -21,7 +21,6 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
 {
     LOGINFO("Starting SophosExtension");
 
-
     if (m_stopped)
     {
         m_flags.socket = socket;

@@ -7,7 +7,6 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IOsqueryProcess.h"
-#include "MtrMonitor.h"
 #include "OsqueryConfigurator.h"
 #include "OsqueryDataManager.h"
 #include "PluginCallback.h"
@@ -89,7 +88,6 @@ namespace Plugin
          * be started, hence, it will not update the queue with a require restart.
          * But, on arrival of policies, (firstTime=false) it may also push to the queue a RestartRequired.
          */
-        void processALCPolicy(const std::string&, bool firstTime);
         void processLiveQueryPolicy(const std::string&, bool firstTime);
         void processFlags(const std::string& flagsContent, bool firstTime);
         virtual void applyLiveQueryPolicy(
