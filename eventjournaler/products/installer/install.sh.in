@@ -45,7 +45,7 @@ GROUP_NAME=sophos-spl-group
 
 function is_already_installed()
 {
-    [[ -d "$SOPHOS_INSTALL/plugins/${PLUGIN_NAME}" ]]
+    [[ -f "$SOPHOS_INSTALL/plugins/${PLUGIN_NAME}/bin/eventjournaler" ]]
 }
 
 [[ -d $SOPHOS_INSTALL ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find installation directory: $SOPHOS_INSTALL"
