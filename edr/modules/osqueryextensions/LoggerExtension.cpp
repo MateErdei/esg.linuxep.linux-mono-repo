@@ -108,7 +108,7 @@ void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
         m_extension->Wait();
     }
 
-    if (!m_stopped)
+    if (!m_stopped && !m_stopping)
     {
         const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();
         if (!healthCheckMessage.empty())
