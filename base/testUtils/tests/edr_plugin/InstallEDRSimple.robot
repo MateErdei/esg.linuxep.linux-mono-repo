@@ -237,11 +237,15 @@ EDR Osquery restarts mtr extension when killed
     Wait Until Keyword Succeeds
     ...  70 secs
     ...  10 secs
+    ...  Check EDR Log Contains  Increment telemetry: extension-restarts
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log   edr_osquery_log  Created and monitoring extension child  2
-        Wait Until Keyword Succeeds
-        ...  5 secs
-        ...  1 secs
-        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  2
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  2
     Run Live Query  ${GREP}   simple
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -261,6 +265,7 @@ EDR Osquery restarts mtr extension when killed
     ...  30 secs
     ...  2 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query  3
+
 
 
 *** Keywords ***
