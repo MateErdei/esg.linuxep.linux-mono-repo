@@ -112,7 +112,7 @@
                 <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.110"/>
             </line>
             <line id="ServerProtectionLinux-Plugin-AV">
-                <component importreference="ServerProtectionLinux-Plugin-AV-1.0.2.159">
+                <component importreference="ServerProtectionLinux-Plugin-AV-1.0.3.19">
                     <releasetag baseversion="" tag="RECOMMENDED"/>
                     <genericsupplement
                             decodepath="files/plugins/av/chroot/susi/update_source/vdl"
@@ -124,29 +124,18 @@
                             decodepath="files/plugins/av/chroot/susi/update_source/model"
                             line="ML_MODEL_LINUX" tag="LINUX_SCAN" warehousename="ml_models"/>
                 </component>
+                <component importreference="ServerProtectionLinux-Plugin-AV-1.0.3.13">
+                    <genericsupplement
+                            decodepath="files/plugins/av/chroot/susi/update_source/vdl"
+                            line="VDL" tag="LATEST" warehousename="VDB_supp"/>
+                    <genericsupplement
+                            decodepath="files/plugins/av/chroot/susi/update_source/reputation"
+                            line="LocalRepData" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
+                    <genericsupplement
+                            decodepath="files/plugins/av/chroot/susi/update_source/model"
+                            line="ML_MODEL_LINUX" tag="LINUX_SCAN" warehousename="ml_models"/>
+                </component>
                 <component importreference="ServerProtectionLinux-Plugin-AV-1.0.2.93">
-                    <genericsupplement
-                            decodepath="files/plugins/av/chroot/susi/update_source/vdl"
-                            line="VDL" tag="LATEST" warehousename="VDB_supp"/>
-                    <genericsupplement
-                            decodepath="files/plugins/av/chroot/susi/update_source/reputation"
-                            line="LocalRepData" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
-                    <genericsupplement
-                            decodepath="files/plugins/av/chroot/susi/update_source/model"
-                            line="ML_MODEL_LINUX" tag="LINUX_SCAN" warehousename="ml_models"/>
-                </component>
-                <component importreference="ServerProtectionLinux-Plugin-AV-1.0.1.29">
-                    <genericsupplement
-                            decodepath="files/plugins/av/chroot/susi/update_source/vdl"
-                            line="VDL" tag="LATEST" warehousename="VDB_supp"/>
-                    <genericsupplement
-                            decodepath="files/plugins/av/chroot/susi/update_source/reputation"
-                            line="LocalRepData" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
-                    <genericsupplement
-                            decodepath="files/plugins/av/chroot/susi/update_source/model"
-                            line="ML_MODEL_LINUX" tag="LINUX_SCAN" warehousename="ml_models"/>
-                </component>
-                <component importreference="ServerProtectionLinux-Plugin-AV-1.0.0.520">
                     <genericsupplement
                             decodepath="files/plugins/av/chroot/susi/update_source/vdl"
                             line="VDL" tag="LATEST" warehousename="VDB_supp"/>
