@@ -206,11 +206,10 @@ class Datafeeds(object):
     def send_datafeed_files(all_datafeeds, comms):
         total_size = 0
         for datafeed in all_datafeeds:
-            total_size += datafeed.get_total_size()
             if datafeed.has_results():
                 LOGGER.debug(f"Datafeed results present for datafeed ID: {datafeed.get_feed_id()}")
                 try:
-                    comms.send_datafeeds(datafeed)
+                    total_size += comms.send_datafeeds(datafeed)
                 except Exception as df_exception:
                     LOGGER.error(
                         f"Failed to send datafeed results, datafeed ID: {datafeed.get_feed_id()}, error: {str(df_exception)}")

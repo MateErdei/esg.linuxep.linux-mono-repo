@@ -386,8 +386,9 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch("os.remove")
     def test_mcs_purges_datafeeds_after_receiving_429_from_central(self, *mockargs):
         start_of_test = datetime.datetime.now().timestamp()
+        # fake that the headers were converted to lowercase
         headers = {
-            "Retry-After": 100
+            "retry-after": 100
         }
         side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpTooManyRequestsException(429, headers, '{"purge":true}')
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect = side_effects
@@ -440,8 +441,9 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result")
     @mock.patch("os.remove")
     def test_mcs_purges_datafeeds_after_receiving_429_from_central_purge_false_retry_header_set(self, *mockargs):
+        # fake that the headers were converted to lowercase
         headers = {
-            "Retry-After": 100
+            "retry-after": 100
         }
         side_effects = mcsrouter.mcsclient.mcs_connection.MCSHttpTooManyRequestsException(429, headers, '{"purge":false}')
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect=side_effects

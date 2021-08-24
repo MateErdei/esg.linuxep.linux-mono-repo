@@ -690,7 +690,7 @@ class MCSConnection:
                 response.reason, body))
             raise MCSHttpPayloadException(response.status, response_headers, body)
         if response.status == http.client.TOO_MANY_REQUESTS:
-            LOGGER.warning("HTTP Too Many Requests (429): {} ({})".format(response.reason, body))
+            LOGGER.warning("HTTP Too Many Requests (429): {} ({}) ({})".format(response.reason, body, response_headers))
             raise MCSHttpTooManyRequestsException(response.status, response_headers, body)
         if response.status != http.client.OK:
             LOGGER.error("Bad response from server {}: {} ({})".format(
@@ -1092,7 +1092,7 @@ class MCSConnection:
             except Exception as exception:
                 log_exception_error(response.m_app_id, response.m_correlation_id, exception)
 
-    def send_datafeeds(self, datafeeds: datafeeds.Datafeeds):
+    def send_datafeeds(self, datafeeds: datafeeds.Datafeeds) -> int:
         """
         This method is used in mcs.py to trigger the processing and sending of datafeed results.
         """
@@ -1167,11 +1167,15 @@ class MCSConnection:
                 if purge:
                     LOGGER.warning("Purging all datafeed files due to 429 code from Sophos Central")
                     datafeeds.purge()
+                else:
+                    LOGGER.debug("Central requested that we do not purge datafeed files after 429 code")
 
                 # Handle Retry-After
                 try:
-                    retry_after = float(exception_429.headers().get("Retry-After", 60))
+                    # The header "Retry-After" is converted to lowercase by part of the generic response handling
+                    retry_after = float(exception_429.headers().get("retry-after", 60))
                     datafeeds.set_backoff_until_time(datetime.datetime.now().timestamp() + retry_after)
+                    LOGGER.debug(f"Datafeed backoff set to {retry_after} seconds from now")
                 except Exception:
                     LOGGER.warning("Failed read Retry-After in response headers from datafeed when handling {} code".format(exception_429.error_code()))
 
@@ -1194,6 +1198,8 @@ class MCSConnection:
         next_normal_send_at = datetime.datetime.now().timestamp() + datafeeds.get_max_send_freq()
         if next_normal_send_at > datafeeds.get_backoff_until_time():
             datafeeds.set_backoff_until_time(next_normal_send_at)
+
+        return sent_so_far
 
     def send_datafeed_result(self, datafeed):
         """
