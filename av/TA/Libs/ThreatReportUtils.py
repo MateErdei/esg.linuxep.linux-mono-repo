@@ -287,6 +287,10 @@ def find_eicars(eicar_directory):
     ret = []
     for base, _, files in os.walk(eicar_directory):
         ret += [ convert_to_escaped_unicode(os.path.join(base, f)) for f in files ]
+
+    if len(ret) == 0:
+        raise AssertionError("Failed to find any eicars in %s" % eicar_directory)
+
     return ret
 
 
