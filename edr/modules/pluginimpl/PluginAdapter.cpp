@@ -210,7 +210,9 @@ namespace Plugin
                 if (runningStatus.second.second->load())
                 {
                     if (runningStatus.second.first->GetExitCode() == 1)
-                    { osqueryStopped = true;}
+                    {
+                        osqueryStopped = true;
+                    }
                     anyStoppedExtensions = true;
                     break;
                 }
@@ -218,7 +220,7 @@ namespace Plugin
 
             if (anyStoppedExtensions)
             {
-                if (!osqueryStopped)
+                if (!osqueryStopped) // if the extension return an exit code of 1 then osquery has crashed and edr should restart it
                 {
                     LOGINFO("Restarting OSQuery after unexpected extension exit");
                     stopOsquery();

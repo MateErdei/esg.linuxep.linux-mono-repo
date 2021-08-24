@@ -72,7 +72,7 @@ void SophosExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
             LOGWARN(healthCheckMessage);
         }
 
-        m_extension->GetReturnCode();
+
         LOGWARN("Service extension stopped unexpectedly. Calling reset.");
         extensionFinished->store(true);
     }
