@@ -146,7 +146,7 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  3  0  0  0  3
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  3  0  0  0  4
 
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
