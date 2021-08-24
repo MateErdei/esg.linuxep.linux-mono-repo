@@ -127,7 +127,7 @@ def restart_Secure_Server_Proxy():
 def wait_for_secure_proxy_server_to_be_up():
     i = 0
     output = False
-    while( i < 6):
+    while i < 15:
         i += 1
         if can_secure_proxy_server_contact_internet():
             output = True

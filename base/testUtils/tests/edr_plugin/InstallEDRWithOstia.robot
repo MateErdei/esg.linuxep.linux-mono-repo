@@ -179,7 +179,6 @@ Install master of base and edr and mtr and upgrade to edr 999
 
     Mark Edr Log
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
-    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  150 secs
@@ -245,7 +244,7 @@ Install master of base and edr and mtr and upgrade to new query pack
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
     Send ALC Policy And Prepare For Upgrade  ${querypackPolicy}
-    Trigger Update Now
+
 
 
     Wait Until Keyword Succeeds
