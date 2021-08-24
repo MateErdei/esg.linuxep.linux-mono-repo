@@ -71,18 +71,21 @@ void LoggerExtension::Start(
 
 void LoggerExtension::Stop()
 {
+    m_stopping = true;
     if (!m_stopped)
     {
         LOGINFO("Stopping LoggerExtension");
-        m_stopped = true;
+
         m_extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->join();
             m_runnerThread.reset();
         }
+        m_stopped = true;
         LOGINFO("LoggerExtension::Stopped");
     }
+    m_stopping = false;
 }
 void LoggerExtension::reloadTags()
 {
@@ -99,7 +102,12 @@ void LoggerExtension::reloadTags()
 void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
 {
     LOGDEBUG("LoggerExtension running");
-    m_extension->Wait();
+    // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
+    if (!m_stopping)
+    {
+        m_extension->Wait();
+    }
+
     if (!m_stopped)
     {
         const auto healthCheckMessage = m_extension->GetHealthCheckFailureMessage();

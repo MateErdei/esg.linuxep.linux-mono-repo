@@ -46,6 +46,7 @@ private:
     void Run(std::shared_ptr<std::atomic_bool> extensionFinished);
     ResultsSender m_resultsSender;
     bool m_stopped = { true };
+    bool m_stopping = { false };
     std::unique_ptr<std::thread> m_runnerThread;
     OsquerySDK::Flags m_flags;
     std::unique_ptr<OsquerySDK::ExtensionInterface> m_extension;
