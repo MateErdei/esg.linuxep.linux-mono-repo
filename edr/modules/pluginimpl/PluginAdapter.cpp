@@ -299,8 +299,11 @@ namespace Plugin
                     {
                         LOGDEBUG("Process task OSQUERY_PROCESS_FINISHED");
                         m_timesOsqueryProcessFailedToStart = 0;
-                        Common::Telemetry::TelemetryHelper::getInstance().increment(
-                            plugin::telemetryOsqueryRestarts, 1UL);
+                        if (!m_restartNoDelay)
+                        {
+                            Common::Telemetry::TelemetryHelper::getInstance().increment(
+                                plugin::telemetryOsqueryRestarts, 1UL);
+                        }
 
                         int64_t delay = m_restartNoDelay ? 0 : 10;
                         m_restartNoDelay = false;
