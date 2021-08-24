@@ -58,7 +58,7 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
     if (Common::UtilityImpl::StringUtils::isSubstring(
         logLine, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
     {
-        if (Common::UtilityImpl::StringUtils::startswith(logLine, "osquery extension"))
+        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "osquery extension"))
         {
             LOGDEBUG("Increment telemetry: " << plugin::telemetryExtensionRestartsCPU);
             telemetry.increment(plugin::telemetryExtensionRestartsCPU, 1L);
@@ -72,7 +72,7 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
     }
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Memory limits exceeded:"))
     {
-        if (Common::UtilityImpl::StringUtils::startswith(logLine, "osquery extension"))
+        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "osquery extension"))
         {
             LOGDEBUG("Increment telemetry: " << plugin::telemetryExtensionRestartsMemory);
             telemetry.increment(plugin::telemetryExtensionRestartsMemory, 1L);
@@ -82,6 +82,15 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
             LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsMemory);
             telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
         }
+    }
+    else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Cannot find process"))
+    {
+        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "osquery extension"))
+        {
+            LOGDEBUG("Increment telemetry: " << plugin::telemetryExtensionRestarts);
+            telemetry.increment(plugin::telemetryExtensionRestarts, 1L);
+        }
+        //osquery extension /opt/sophos-spl/plugins/edr/extensions/SophosMTR.ext (30991) stopping: Cannot find process
     }
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Error executing scheduled query "))
     {
