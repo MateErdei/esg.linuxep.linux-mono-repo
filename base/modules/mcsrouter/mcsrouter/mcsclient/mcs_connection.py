@@ -1130,9 +1130,10 @@ class MCSConnection:
         ok_to_send_after = datafeeds.get_backoff_until_time()
         now = datetime.datetime.now().timestamp()
         if ok_to_send_after > now:
-            return
+            return 0
 
         sent_so_far = 0
+        compressed_sent_so_far = 0
         for datafeed_result in datafeeds.get_datafeeds():
             if sent_so_far + datafeed_result.m_json_body_size > max_upload_at_once:
                 LOGGER.debug("Can't send anymore datafeed results, at limit for now. Limit: {}".format(max_upload_at_once))
@@ -1143,6 +1144,7 @@ class MCSConnection:
                 LOGGER.debug(
                     f"Result content for datafeed ID: {datafeeds.get_feed_id()}, content: {datafeed_result.m_json_body}")
                 sent_so_far += datafeed_result.m_json_body_size
+                compressed_sent_so_far += datafeed_result.get_compressed_body_size()
                 datafeed_result.remove_datafeed_file()
 
             except MCSHttpPayloadException:
@@ -1199,7 +1201,7 @@ class MCSConnection:
         if next_normal_send_at > datafeeds.get_backoff_until_time():
             datafeeds.set_backoff_until_time(next_normal_send_at)
 
-        return sent_so_far
+        return compressed_sent_so_far
 
     def send_datafeed_result(self, datafeed):
         """
