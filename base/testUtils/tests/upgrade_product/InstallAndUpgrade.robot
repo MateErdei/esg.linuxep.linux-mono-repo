@@ -128,12 +128,15 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
 
     Check EAP Release With AV Installed Correctly
+    ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
     ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseReleaseVersion}  ${BaseReleaseVersion}
+    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
     ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrReleaseVersion}  ${MtrReleaseVersion}
+    ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
     ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Plugin-AV
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVReleaseVersion}  ${AVReleaseVersion}
@@ -150,18 +153,13 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
+    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
-
-    # Make sure the second update performs an upgrade.
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Base-component Upgraded  1
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-liveresponse Upgraded  1
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-MDR Upgraded  1
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-AV Upgraded  1
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  1
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -195,13 +193,10 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
 
     Check Current Release With AV Installed Correctly
 
-    ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseDevVersion}
-    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrDevVersion}
-    ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
     ${AVDevVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
 
@@ -217,10 +212,10 @@ VersionCopy File in the Wrong Location Is Removed
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrReleasePolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrWithFakeLibs}
 
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrReleasePolicy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrWithFakeLibs}
     Override LogConf File as Global Level  DEBUG
     Wait Until Keyword Succeeds
     ...   200 secs
