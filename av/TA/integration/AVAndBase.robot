@@ -402,7 +402,6 @@ AV Plugin Reports encoded eicars To Base
          ...  check_number_of_events_matches  ${expected_count}
 
    check_all_eicars_are_found  /tmp_test/encoded_eicars/
-   check_multiple_different_threat_events  ${expected_count}   encoded_eicars
 
 
 AV Plugin uninstalls
