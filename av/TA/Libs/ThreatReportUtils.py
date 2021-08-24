@@ -4,6 +4,7 @@
 # All rights reserved.
 
 import os
+import time
 import xml.dom.minidom
 
 try:
@@ -14,6 +15,8 @@ except ImportError:
     import logging
 
     logger = logging.getLogger("ThreatReportUtils")
+
+from robot.libraries.BuiltIn import BuiltIn
 
 GL_MCS_EVENTS_DIRECTORY = "/opt/sophos-spl/base/mcs/event/"
 
@@ -341,3 +344,49 @@ def check_all_eicars_are_found(eicar_directory):
 
     if errors_found:
         raise AssertionError("Eicars reported in events don't match eicars found on disk in %s" % eicar_directory)
+
+def _list_eicars_not_in_av_log(expected_raw_xml_strings):
+    builtin = BuiltIn()
+    marked_log = builtin.run_keyword("get_marked_av_log")
+
+    missing = []
+
+    for e in expected_raw_xml_strings:
+        if e not in marked_log:
+            missing.append(e)
+
+    return missing
+
+def _xml_escape(s):
+    for src, rep in [
+        ('&', "&amp;"),
+        ('"', "&quot;"),
+        ("'", "&apos;"),
+        ("<", "&lt;"),
+        (">", "&gt;"),
+            ]:
+        s = s.replace(src, rep)
+    return s
+
+def _expected_raw_xml_string(eicars_on_disk):
+    ret = []
+    for e in eicars_on_disk:
+        # expected String: <item file="SingleDoubleQuote-&quot;-VIRUS.com" path="/tmp_test/encoded_eicars/"/>
+        e = _xml_escape(e)
+        (d, b) = os.path.split(e)
+        assert not d.endswith("/")
+        ret.append('<item file="%s" path="%s"/>' % (b, d+"/"))
+    return ret
+
+
+def wait_for_all_eicars_are_reported_in_av_log(eicar_directory, limit=15):
+    start = time.time()
+    eicars_on_disk = find_eicars(eicar_directory)
+    expected_strings = _expected_raw_xml_string(eicars_on_disk)
+    while time.time() < start + limit:
+        missing = _list_eicars_not_in_av_log(expected_strings)
+        if len(missing) == 0:
+            # all good
+            return True
+        time.sleep(1)
+    raise AssertionError("Failed to find all eicars within limit: %s" % missing)

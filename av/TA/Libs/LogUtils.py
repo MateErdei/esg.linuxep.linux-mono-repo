@@ -523,6 +523,12 @@ File Log Contains
         contents = _get_log_contents(sophos_threat_detector_log)
         return contents[self.marked_sophos_threat_detector_log:]
 
+    def get_marked_av_log(self):
+        av_log = self.av_log
+        contents = _get_log_contents(av_log)
+        contents = contents[self.marked_av_log:]
+        return contents
+
     def check_marked_av_log_contains(self, string_to_contain, mark):
         av_log = self.av_log
         contents = _get_log_contents(av_log)

@@ -10,6 +10,7 @@ Library         ../Libs/FakeManagement.py
 Library         ../Libs/AVScanner.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
+Library         ../Libs/ThreatReportUtils.py
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
@@ -608,11 +609,7 @@ CLS Encoded Eicars
     #Threat Detector Does Not Log Contain  Failed to parse response from SUSI
     AV Plugin Log Contains With Offset  Sending threat detection notification to central
 
-    ${FILE_CONTENT}=    Get File  ${SUPPORT_FILES_PATH}/list_of_expected_encoded_eicars
-    @{eicar_names_list}=    Split to lines  ${FILE_CONTENT}
-    FOR  ${item}  IN  @{eicar_names_list}
-        Wait Until AV Plugin Log Contains With Offset  ${item}
-    END
+    wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars
 
     Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
     Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
