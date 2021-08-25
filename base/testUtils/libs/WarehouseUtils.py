@@ -175,7 +175,7 @@ def getYesterday():
     yesterday = now - datetime.timedelta(days=1)
     return yesterday.strftime("%A")  # Returns day as week day name
 
-filer6_directory = "/mnt/filer6/linux/SSPL/testautomation/sdds-specs/"
+sdds_specs_directory = "/tmp/system-product-test-inputs/sdds-specs"
 
 def get_importrefrence_for_component_with_tag(rigid_name, tag, pubspec):
     line = list(filter(lambda n: rigid_name == n.attrib["id"], pubspec.findall("./warehouses//line")))[0]
@@ -239,10 +239,10 @@ def get_spec_type_from_spec(spec):
         raise AssertionError(f"expected {root_tag} to be either {importspec} or {pubspec}")
 
 def get_spec_xml_dict_from_filer6():
-    files_on_filer6 = os.listdir(filer6_directory)
+    files_on_filer6 = os.listdir(sdds_specs_directory)
     files_on_filer6_dict = {}
     for file_name in files_on_filer6:
-        spec = ET.parse(os.path.join(filer6_directory, file_name))
+        spec = ET.parse(os.path.join(sdds_specs_directory, file_name))
         expected_sdds_name = ".".join(file_name.split(".")[:3])
         spec_type = get_spec_type_from_spec(spec)
         if not files_on_filer6_dict.get(expected_sdds_name, None):
