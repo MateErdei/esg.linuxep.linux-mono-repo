@@ -7,7 +7,8 @@ echo $msg 1>&2
 exit 1
 }
 
-sudo rm -rf /tmp/system-product-test-inputs/
+[[ -z $SYSTEMPRODUCT_TEST_INPUT ]] && SYSTEMPRODUCT_TEST_INPUT=/tmp/system-product-test-inputs
+sudo rm -rf $SYSTEMPRODUCT_TEST_INPUT
 
 TEST_PACKAGE_XML=system-product-test-release-package.xml
 if [[ -n ${BASE_COVERAGE:-} ]]; then
@@ -32,7 +33,7 @@ python3 -m venv "${VENV}" && source "${VENV}/bin/activate"
   "$TEST_UTILS/SupportFiles/jenkins/SetupCIBuildScripts.sh" || fail 'Error: Failed to get CI scripts'
   export BUILD_JWT=$(cat "$TEST_UTILS/SupportFiles/jenkins/jwt_token.txt")
   python3 -m build_scripts.artisan_fetch "$TEST_UTILS/$TEST_PACKAGE_XML" || fail "Error: Failed to fetch inputs"
-  cp -r /mnt/filer6/linux/SSPL/testautomation/sdds-specs/ /tmp/system-product-test-inputs/ || fail "Error: Failed to fetch inputs"
+  cp -r /mnt/filer6/linux/SSPL/testautomation/sdds-specs $SYSTEMPRODUCT_TEST_INPUT/sdds-specs || fail "Error: Failed to fetch inputs"
 deactivate && rm -rf "${VENV}"
 # restore bash strictness (for scripts that source this one)
 set -e
