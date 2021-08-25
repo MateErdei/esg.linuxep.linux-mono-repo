@@ -15,6 +15,7 @@ from robot.libraries.BuiltIn import BuiltIn
 import xml.etree.ElementTree as ET
 import requests
 import subprocess
+from packaging import version
 
 
 import PathManager
@@ -724,6 +725,9 @@ class WarehouseUtils(object):
         product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
         version = subprocess.check_output(f'grep -r "PRODUCT_NAME = {product_name}" /tmp/system-product-test-inputs/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/ | awk -F: \'{{print $1}}\' | xargs grep "PRODUCT_VERSION" | sed "s/PRODUCT_VERSION\ =\ //"', shell=True)
         return version.strip().decode()
+
+    def second_version_is_lower(self, version1, version2):
+        return version.parse(version1) > version.parse(version2)
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":

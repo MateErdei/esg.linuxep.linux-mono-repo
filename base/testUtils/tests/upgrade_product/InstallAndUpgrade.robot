@@ -270,17 +270,30 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
 
     Check Current Release Installed Correctly
-    # products that should change version
-    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-    ${EdrDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
-    ${AVDevVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
+    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
+    ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${ExpectBaseDowngrade} =  second_version_is_lower  ${ExpectedBaseDevVersion}  ${ExpectedBaseReleaseVersion}
+    Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
+    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
+    ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
+    ${MtrVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrVersion}
+    ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
+    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Plugin-AV
+    ${AVVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVVersion}
+    ${ExpectedEDRDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEDRReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Plugin-EDR
+    ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
     #TODO LINUXDAR-3183 enable check for EJ version
     #${EJDevVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
     # Products that should be uninstalled after downgrade
@@ -312,10 +325,12 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+    ...   Check Log Contains   Update success    /tmp/preserve-sul-downgrade   suldownloader log
 
     Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
-    Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Run Keyword If  ${ExpectBaseDowngrade}
+    ...  Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
+
     #TODO LINUXDAR-2881 remove sleep when this defect is fixed in downgrade version- provide a time space if suldownloader is kicked off again by policy change.
     Sleep  10
     Trigger Update Now
@@ -357,16 +372,17 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ${AVReleaseVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     #TODO LINUXDAR-3183 enable check for EJ version
     #${EJDevVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
-    Should Not Be Equal As Strings  ${MtrReleaseVersion}  ${MtrDevVersion}
-    Should Not Be Equal As Strings  ${EdrReleaseVersion}  ${EdrDevVersion}
-    Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
+    Should Be Equal As Strings  ${BaseReleaseVersion}  ${ExpectedBaseReleaseVersion}
+    Should Be Equal As Strings  ${MtrReleaseVersion}  ${ExpectedMtrReleaseVersion}
+    Should Be Equal As Strings  ${EdrReleaseVersion}  ${ExpectedEDRReleaseVersion}
+    Should Be Equal As Strings  ${AVReleaseVersion}  ${ExpectedAVReleaseVersion}
     #TODO LINUXDAR-3183 enable check for EJ version
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
 
     ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
 
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=tru
     # Upgrade back to master to check we can upgrade from a downgraded product
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Trigger Update Now
@@ -374,23 +390,18 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...  150 secs
     ...  10 secs
-    ...  Component Version has changed  ${BaseReleaseVersion}    ${InstalledBaseVersionFile}
+    ...  Check Log Contains   Update success    /tmp/preserve-sul-downgrade   Suldownloader log
 
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Component Version has changed  ${MtrReleaseVersion}    ${InstalledMDRPluginVersionFile}
+    ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
+    ${MtrVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrVersion}
+    ${AVVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVVersion}
+    ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
+    #TODO LINUXDAR-3183 add check for EJ version
 
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Component Version has changed  ${EdrReleaseVersion}    ${InstalledEDRPluginVersionFile}
-
-    #wait for AV plugin to be running before attempting uninstall
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  5 secs
-    ...  Component Version has changed  ${AVReleaseVersion}    ${InstalledAVPluginVersionFile}
 
     #the query pack should have been re-installed
     Wait Until Keyword Succeeds
@@ -639,7 +650,8 @@ Update Will Be Forced When Subscription List Changes Without Unexpected Errors
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Installing product: ServerProtectionLinux-Base   2
     Check Log Contains String N Times   ${SULDownloaderLog}   SULDownloader Log   Product installed: ServerProtectionLinux-Base    2
 
-Ensure Supplement Updates Only Perform A Supplement Update
+Ensure Supplement Updates Only Perform A Supplement Update#
+
     ## This can't run against real (remote) warehouses, since it modifies the warehouses to prevent product updates from working
     [Tags]  MANUAL
     [TearDown]  Cleanup Warehouse And Test Teardown
@@ -732,9 +744,19 @@ We Can Upgrade AV From Dogfood To VUT Without Unexpected Errors
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
 
     Check AV Plugin Installed
-    ${BaseReleaseVersion} =      Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
 
+    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndAVReleasePolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
+    ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
+    ${BaseReleaseVersion} =      Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${ExpectBaseUpgrade} =  second_version_is_lower  ${ExpectedBaseDevVersion}  ${ExpectedBaseReleaseVersion}
+    Should Be Equal As Strings  ${ExpectedBaseReleaseVersion}  ${BaseReleaseVersion}
+    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseAndAVReleasePolicy}  ServerProtectionLinux-Plugin-AV
+    ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
+    ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    ${ExpectAVUpgrade} =  second_version_is_lower  ${ExpectedAVDevVersion}  ${ExpectedAVReleaseVersion}
+    Should Be Equal As Strings  ${ExpectedAVReleaseVersion}  ${AVReleaseVersion}
+
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=tru
     Send ALC Policy And Prepare For Upgrade  ${BaseAndAVVUTPolicy}
 
     Wait Until Keyword Succeeds
@@ -749,12 +771,13 @@ We Can Upgrade AV From Dogfood To VUT Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  1
 
     # Make sure the second update performs an upgrade.
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Base-component Upgraded  1
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-liveresponse Upgraded  1
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-AV Upgraded  1
+    Run Keyword If  ${ExpectBaseUpgrade}
+    ...     Check Log Contains String N times    /tmp/preserve-sul-downgrade   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Base-component Upgraded  1
+    Run Keyword If  ${ExpectAVUpgrade}
+    ...     Check Log Contains String N times    /tmp/preserve-sul-downgrade   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-AV Upgraded  1
 
     Check AV Plugin Installed
 
@@ -777,8 +800,8 @@ We Can Upgrade AV From Dogfood To VUT Without Unexpected Errors
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${AVDevVersion} =   Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
 
-    Should Not Be Equal As Strings  ${BaseReleaseVersion}  ${BaseDevVersion}
-    Should Not Be Equal As Strings  ${AVReleaseVersion}  ${AVDevVersion}
+    Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseDevVersion}
+    Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
 
     Check AV Plugin Permissions
     Check AV Plugin Can Scan Files
