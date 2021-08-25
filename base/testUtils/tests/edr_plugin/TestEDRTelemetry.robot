@@ -103,7 +103,7 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
     Wait Until Keyword Succeeds
-    ...  10s
+    ...  20s
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log   OSQUERY_PROCESS_FINISHED  1
     Wait Until Keyword Succeeds
