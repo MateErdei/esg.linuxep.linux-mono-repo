@@ -220,10 +220,10 @@ namespace Plugin
 
             if (anyStoppedExtensions)
             {
-                if (!osqueryStopped) // if the extension return an exit code of 1 then osquery has crashed and edr should restart it
+                LOGINFO("Restarting OSQuery after unexpected extension exit");
+                stopOsquery();
+                if (!osqueryStopped) // if the extension return an exit code of 1 then osquery has crashed not the extension
                 {
-                    LOGINFO("Restarting OSQuery after unexpected extension exit");
-                    stopOsquery();
                     m_restartNoDelay = true;
                 }
 
