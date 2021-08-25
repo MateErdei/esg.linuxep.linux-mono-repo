@@ -44,10 +44,10 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
 
 void SophosExtension::Stop()
 {
-    m_stopping = true;
-    if (!m_stopped)
+    if (!m_stopped && !m_stopping)
     {
         LOGINFO("Stopping SophosExtension");
+        m_stopping = true;
         m_extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())
         {
@@ -55,9 +55,9 @@ void SophosExtension::Stop()
             m_runnerThread.reset();
         }
         m_stopped = true;
+        m_stopping = false;
         LOGINFO("SophosExtension::Stopped");
     }
-    m_stopping = false;
 }
 
 void SophosExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)

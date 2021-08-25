@@ -71,10 +71,10 @@ void LoggerExtension::Start(
 
 void LoggerExtension::Stop()
 {
-    m_stopping = true;
-    if (!m_stopped)
+    if (!m_stopped && !m_stopping)
     {
         LOGINFO("Stopping LoggerExtension");
+        m_stopping = true;
 
         m_extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())
@@ -83,9 +83,9 @@ void LoggerExtension::Stop()
             m_runnerThread.reset();
         }
         m_stopped = true;
+        m_stopping = false;
         LOGINFO("LoggerExtension::Stopped");
     }
-    m_stopping = false;
 }
 void LoggerExtension::reloadTags()
 {

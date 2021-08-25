@@ -9,7 +9,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <OsquerySDK/OsquerySDK.h>
 #include <thread>
-#include <mutex>
 
 class SophosExtension   :   public IServiceExtension
 {
