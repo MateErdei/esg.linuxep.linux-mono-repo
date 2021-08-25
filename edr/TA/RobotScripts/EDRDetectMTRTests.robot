@@ -70,9 +70,9 @@ EDR Is Stable When Changing Osquery Configurations As Per ALC Policy Changes
 
     #Ensure there is only one restart
     Run Keyword And Expect Error   *
-    ...   Wait EDR Plugin Log Contains X Times  edr <> Restarting osquery  2
+    ...   Wait EDR Plugin Log Contains X Times  edr <> Restarting osquery, reason: Restarting osquery due to auditd collection configuration change  2
     #verify the expected single restart
-    EDR Plugin Log Contains X Times   edr <> Restarting osquery   1
+    EDR Plugin Log Contains X Times   edr <> Restarting osquery, reason: Restarting osquery due to auditd collection configuration change   1
 
 *** Keywords ***
 Check MTR in ALC Policy Forces Disable Audit Data Collection
