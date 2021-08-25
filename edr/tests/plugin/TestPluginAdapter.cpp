@@ -140,14 +140,16 @@ TEST_F(TestPluginAdapterWithLogger, processALCPolicyShouldInstructRestartOnChang
     pluginAdapter.processALCPolicy(PolicyWithMTRFeature(), false);
     EXPECT_FALSE(pluginAdapter.osqueryConfigurator().enableAuditDataCollection());
     Plugin::Task task;
-    EXPECT_FALSE(queueTask->pop(task, 2));
-    std::string detectFirstChange{"INFO Option to enable audit collection changed to false"};
+    EXPECT_TRUE(queueTask->pop(task, 2));
+    ASSERT_EQ(task.m_taskType , Plugin::Task::TaskType::QUEUE_OSQUERY_RESTART);
+    std::string detectFirstChange{"DEBUG Option to enable audit collection changed to false"};
 
     // new policy without MTR feature, toggle the enableAuditDataCollection and instruct restart query
     pluginAdapter.processALCPolicy(PolicyWithoutMTRFeatureOrSubscription(), false);
     EXPECT_TRUE(pluginAdapter.osqueryConfigurator().enableAuditDataCollection());
-    EXPECT_FALSE(queueTask->pop(task, 2));
-    std::string detectSecondChange{"INFO Option to enable audit collection changed to true"};
+    EXPECT_TRUE(queueTask->pop(task, 2));
+    ASSERT_EQ(task.m_taskType , Plugin::Task::TaskType::QUEUE_OSQUERY_RESTART);
+    std::string detectSecondChange{"DEBUG Option to enable audit collection changed to true"};
 
     // another policy without MTR feature does not toggle the enableAuditDataCollection and hence, should not restart
     // query

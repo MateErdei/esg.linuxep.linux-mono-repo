@@ -558,9 +558,8 @@ namespace Plugin
         if (enableAuditDataCollection != m_collectAuditEnabled)
         {
             m_collectAuditEnabled = enableAuditDataCollection;
-            std::stringstream message;
-            message << "Option to enable audit collection changed to " << option << ". Scheduling osquery STOP";
-            m_queueTask->pushOsqueryRestart(message.str());
+            LOGDEBUG("Option to enable audit collection changed to "<< option);
+            m_queueTask->pushOsqueryRestart("Restarting osquery due to auditd collection configuration change");
         }
         else
         {
