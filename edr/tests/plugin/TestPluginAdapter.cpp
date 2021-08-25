@@ -114,56 +114,6 @@ public:
 class TestPluginAdapterWithLogger : public LogInitializedTests{};
 class TestPluginAdapterWithoutLogger : public LogOffInitializedTests{};
 
-//TEST_F(TestPluginAdapterWithLogger, processALCPolicyShouldInstructRestartOnChangePolicy)
-//{ // NOLINT
-//    testing::internal::CaptureStderr();
-//
-//    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-//    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
-//    EXPECT_CALL(*mockFileSystem, exists(_)).Times(10);
-//    EXPECT_CALL(*mockFileSystem, isFile(_)).Times(8);
-//    EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(5);
-//
-//    Tests::TempDir tempDir("/tmp");
-//    // set the config file to enable audit by default. Hence, the rest is configured by policy.
-//    tempDir.createFile("plugins/edr/etc/plugin.conf", "disable_auditd=1\n");
-//    Common::ApplicationConfiguration::applicationConfiguration().setData(
-//        Common::ApplicationConfiguration::SOPHOS_INSTALL, tempDir.dirPath());
-//
-//    auto queueTask = std::make_shared<Plugin::QueueTask>();
-//    TestablePluginAdapter pluginAdapter(queueTask);
-//
-//    pluginAdapter.processALCPolicy(PolicyWithoutMTRFeatureButWithSubscription(), true);
-//    EXPECT_TRUE(pluginAdapter.osqueryConfigurator().shouldAuditDataCollectionBeEnabled());
-//
-//    // processing new policy that now has MTR feature, does not schedule a restart task
-//    pluginAdapter.processALCPolicy(PolicyWithMTRFeature(), false);
-//    EXPECT_FALSE(pluginAdapter.osqueryConfigurator().shouldAuditDataCollectionBeEnabled());
-//    Plugin::Task task;
-//    EXPECT_FALSE(queueTask->pop(task, 2));
-//    std::string detectFirstChange{"INFO Option to enable audit collection changed to false"};
-//
-//    // new policy without MTR feature, toggle the shouldAuditDataCollectionBeEnabled and instruct restart query
-//    pluginAdapter.processALCPolicy(PolicyWithoutMTRFeatureOrSubscription(), false);
-//    EXPECT_TRUE(pluginAdapter.osqueryConfigurator().shouldAuditDataCollectionBeEnabled());
-//    EXPECT_FALSE(queueTask->pop(task, 2));
-//    std::string detectSecondChange{"INFO Option to enable audit collection changed to true"};
-//
-//    // another policy without MTR feature does not toggle the shouldAuditDataCollectionBeEnabled and hence, should not restart
-//    // query
-//    pluginAdapter.processALCPolicy(PolicyWithoutMTRFeatureButWithSubscription(), false);
-//    EXPECT_TRUE(pluginAdapter.osqueryConfigurator().shouldAuditDataCollectionBeEnabled());
-//    // timeout as there is no entry in the queue
-//    EXPECT_FALSE(queueTask->pop(task, 1));
-//    std::string detectNoChange{"DEBUG Option to enable audit collection remains true"};
-//
-//    std::string logMessage = testing::internal::GetCapturedStderr();
-//    EXPECT_THAT(logMessage, ::testing::HasSubstr(detectFirstChange));
-//    EXPECT_THAT(logMessage, ::testing::HasSubstr(detectSecondChange));
-//    EXPECT_THAT(logMessage, ::testing::HasSubstr(detectNoChange));
-//    EXPECT_LT( logMessage.find(detectFirstChange), logMessage.find(detectSecondChange) );
-//    EXPECT_LT( logMessage.find(detectSecondChange), logMessage.find(detectNoChange) );
-//}
 
 Plugin::Task defaultQueryTask()
 {
