@@ -41,7 +41,7 @@ EDR Plugin Produces Telemetry When XDR is enabled
     ...   5 secs
     ...   Check EDR Log Contains  Updating running_mode flag settings to: 1
     Wait Until Keyword Succeeds
-    ...   20 secs
+    ...   30 secs
     ...   5 secs
     ...   Check EDR Log Contains  Process task OSQUERY_PROCESS_FINISHED
     Wait Until OSQuery Running  20
@@ -61,10 +61,10 @@ EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     Kill OSQuery
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
-        Wait Until Keyword Succeeds
-        ...  10s
-        ...  2s
-        ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  2
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  2
     Restart EDR Plugin              #Check telemetry persists after restart
 
     Wait Until OSQuery Running  20
@@ -92,6 +92,10 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     ...  20s
     ...  2s
     ...  Check EDR Log Contains   LiveQuery policy has not been sent to the plugin
+    Wait Until Keyword Succeeds
+    ...  16s
+    ...  2s
+    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  1
     Drop LiveQuery Policy Into Place
 
     Wait Until Keyword Succeeds
@@ -100,12 +104,17 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     ...   Check Log Contains In Order
             ...  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
             ...  Updating running_mode flag settings to: 1
-    Wait Until OSQuery Running  20
-    Wait Until Osquery Socket Exists
+    Wait Until Keyword Succeeds
+    ...  20s
+    ...  2s
+    ...  Check EDR Log Contains  Restarting osquery, reason: LiveQuery policy has changed. Restarting osquery to apply changes
     Wait Until Keyword Succeeds
     ...  20s
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log   OSQUERY_PROCESS_FINISHED  1
+    Wait Until OSQuery Running  20
+    Wait Until Osquery Socket Exists
+
     Wait Until Keyword Succeeds
     ...  10s
     ...  2s
@@ -130,9 +139,8 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  4
     Kill OSQuery
-    Wait Until OSQuery Running  20
     Wait Until Keyword Succeeds
-    ...  10s
+    ...  30s
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  5
     Prepare To Run Telemetry Executable
@@ -212,14 +220,14 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Wait Until Osquery Socket Exists
     Kill OSQuery
     Wait Until Keyword Succeeds
-    ...  10s
+    ...  20s
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  OSQUERY_PROCESS_FINISHED  1
     Wait Until OSQuery Running  20
     Wait Until Osquery Socket Exists
     Kill OSQuery
     Wait Until Keyword Succeeds
-    ...  10s
+    ...  20s
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  OSQUERY_PROCESS_FINISHED  2
     Wait Until OSQuery Running  20
