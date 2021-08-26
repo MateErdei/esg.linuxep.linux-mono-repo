@@ -394,6 +394,10 @@ class LogUtils(object):
         contents = get_log_contents(self.edr_log)
         self.marked_edr_logs = len(contents)
 
+    def mark_edr_osquery_log(self):
+        contents = get_log_contents(self.edr_osquery_log)
+        self.marked_edr_osquery_log = len(contents)
+
     def check_marked_edr_log_contains(self, string_to_contain):
         contents = get_log_contents(self.edr_log)
 
