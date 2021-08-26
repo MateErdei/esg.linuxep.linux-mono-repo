@@ -239,8 +239,10 @@ def get_spec_type_from_spec(spec):
         raise AssertionError(f"expected {root_tag} to be either {importspec} or {pubspec}")
 
 def get_spec_xml_dict_from_filer6():
-    files_on_filer6 = os.listdir(sdds_specs_directory)
     files_on_filer6_dict = {}
+    if not  os.path.isdir(sdds_specs_directory):
+        return files_on_filer6_dict
+    files_on_filer6 = os.listdir(sdds_specs_directory)
     for file_name in files_on_filer6:
         spec = ET.parse(os.path.join(sdds_specs_directory, file_name))
         expected_sdds_name = ".".join(file_name.split(".")[:3])
