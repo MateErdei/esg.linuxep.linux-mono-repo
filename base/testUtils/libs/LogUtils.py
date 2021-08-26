@@ -857,6 +857,11 @@ class LogUtils(object):
         logger.error("Version String Not Found")
         raise AssertionError("Version String Not Found")
 
+    def version_number_in_ini_file_should_be(self, file, expected_version):
+        actual_version = self.get_version_number_from_ini_file(file)
+        if actual_version != expected_version:
+            raise AssertionError(f"Expected version {actual_version} to be {expected_version}")
+
     def all_should_be_equal(self, *args):
         assert len(args) > 1, "Error: should have more than 1 argument"
         master = args[0]

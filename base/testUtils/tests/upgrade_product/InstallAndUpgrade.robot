@@ -382,7 +382,7 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
 
-    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=tru
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     # Upgrade back to master to check we can upgrade from a downgraded product
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Trigger Update Now
@@ -390,7 +390,23 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...  150 secs
     ...  10 secs
-    ...  Check Log Contains   Update success    /tmp/preserve-sul-downgrade   Suldownloader log
+    ...  version_number_in_ini_file_should_be  ${InstalledBaseVersionFile}    ${ExpectedBaseDevVersion}
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  version_number_in_ini_file_should_be  ${InstalledMDRPluginVersionFile}    ${ExpectedMtrDevVersion}
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  version_number_in_ini_file_should_be  ${InstalledEDRPluginVersionFile}    ${ExpectedEDRDevVersion}
+
+    #wait for AV plugin to be running before attempting uninstall
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  version_number_in_ini_file_should_be  ${InstalledAVPluginVersionFile}    ${ExpectedAVDevVersion}
 
     ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
