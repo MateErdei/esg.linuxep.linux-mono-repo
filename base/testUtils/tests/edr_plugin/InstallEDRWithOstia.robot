@@ -69,7 +69,6 @@ Install all plugins 999 then downgrade to all plugins develop
     Override LogConf File as Global Level  DEBUG
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
-    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...   200 secs
@@ -142,7 +141,7 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
-
+    Wait for first update
     Prepare Installation For Upgrade Using Policy   ${BaseAndEdrAndMtrVUTPolicy}
 
     Override LogConf File as Global Level  DEBUG
@@ -437,7 +436,6 @@ Install master of base and edr and mtr and upgrade to base 999
     Send ALC Policy And Prepare For Upgrade  ${Base999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
-    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -485,7 +483,6 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
 
     # Install EDR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Trigger Update Now
 
     Wait for first update
     Wait Until Keyword Succeeds
@@ -503,7 +500,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
 
     # Install MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
-    Trigger Update Now
+
 
     Wait Until Keyword Succeeds
     ...  40 secs
@@ -548,7 +545,6 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Override Local LogConf File Using Content  [global]\nVERBOSITY = DEBUG\n
     # Install EDR And MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
-    Trigger Update Now
 
     Wait for first update
 
@@ -558,7 +554,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
 
     # Transition to EDR Only
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-    Trigger Update Now
+
 
     Wait Until Keyword Succeeds
     ...  60 secs
