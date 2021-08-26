@@ -55,10 +55,3 @@ class FilesystemWatcher(object):
     def clear_filesystem_watcher_log(self):
         if os.path.exists(self.log_file_path):
             os.remove(self.log_file_path)
-
-if __name__ == "__main__":
-    x = FilesystemWatcher()
-    x.setup_filesystem_watcher("/tmp/", log_file_path="/tmp/fsw.log")
-    x.start_filesystem_watcher()
-    while True:
-        pass
