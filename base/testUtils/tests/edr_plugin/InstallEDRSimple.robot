@@ -119,7 +119,12 @@ EDR Handles Live Query
 
     Wdctl Stop Plugin  edr
     Override LogConf File as Global Level  DEBUG
+    mark_edr_log
     Wdctl Start Plugin  edr
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check Marked EDR Log Contains  Plugin preparation complete
 
     Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
     mark_edr_log
@@ -127,15 +132,11 @@ EDR Handles Live Query
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Marked EDR Log Contains  Restarting osquery, reason: LiveQuery policy has changed
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check Marked EDR Log Contains  Extensions <> SophosExtension::Stopped
+    ...  Check Marked EDR Log Contains  Applying new policy with APPID: LiveQuery
     mark_edr_log
     Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
+    ...  30 secs
+    ...  3 secs
     ...  Check Marked EDR Log Contains  SophosExtension running
 
     Send Query From Fake Cloud  Test Query Special  select name from processes  command_id=firstcommand
