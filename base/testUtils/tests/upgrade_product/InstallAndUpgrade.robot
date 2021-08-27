@@ -159,7 +159,7 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  1
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  2
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
