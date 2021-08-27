@@ -90,7 +90,6 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
             LOGDEBUG("Increment telemetry: " << plugin::telemetryMTRExtensionRestarts);
             telemetry.increment(plugin::telemetryMTRExtensionRestarts, 1L);
         }
-        //osquery extension /opt/sophos-spl/plugins/edr/extensions/SophosMTR.ext (30991) stopping: Cannot find process
     }
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Error executing scheduled query "))
     {
