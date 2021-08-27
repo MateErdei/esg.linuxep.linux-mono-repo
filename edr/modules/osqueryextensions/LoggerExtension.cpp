@@ -119,7 +119,7 @@ void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
 
         LOGWARN("Service extension stopped unexpectedly. Calling reset.");
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        telemetry.increment("extension-restarts", 1L);
+        telemetry.increment("logger-extension-restarts", 1L);
         extensionFinished->store(true);
     }
 }

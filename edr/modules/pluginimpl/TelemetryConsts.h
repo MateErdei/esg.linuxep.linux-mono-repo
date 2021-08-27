@@ -11,9 +11,11 @@ namespace plugin
     const char* const telemetryOSQueryRestartsCPU = "osquery-restarts-cpu";
     const char* const telemetryOSQueryRestartsMemory = "osquery-restarts-memory";
     const char* const telemetryOSQueryDatabaseSize = "osquery-database-size";
-    const char* const telemetryExtensionRestarts = "extension-restarts";
-    const char* const telemetryExtensionRestartsCPU = "extension-restarts-cpu";
-    const char* const telemetryExtensionRestartsMemory = "extension-restarts-memory";
+    const char* const telemetryMTRExtensionRestarts = "mtr-extension-restarts";
+    const char* const telemetrySophosExtensionRestarts = "sophos-extension-restarts";
+    const char* const telemetryLoggerExtensionRestarts = "logger-extension-restarts";
+    const char* const telemetryMTRExtensionRestartsCPU = "mtr-extension-restarts-cpu";
+    const char* const telemetryMTRExtensionRestartsMemory = "mtr-extension-restarts-memory";
     const char* const telemetrySuccessfulQueries = "successful-count";
     const char* const telemetryFailedQueriesOsqueryError = "failed-osquery-error-count";
     const char* const telemetryFailedQueriesLimitExceeded = "failed-exceed-limit-count";
