@@ -90,23 +90,85 @@ class CloudClient(object):
         'linux': 'https://linux.cloud.sandbox',
     }
 
+    id_hosts = {
+        'p': 'https://id.sophos.com',
+        'q': 'https://test-id.sophos.com',
+        'd': 'https://dev-id.sophos.com',
+    }
+
+    api_hosts = {
+        'p': 'https://api.central.sophos.com',
+        'q': 'https://api.qa.central.sophos.com',
+        'd': 'https://api.dev.central.sophos.com',
+    }
+
     def __init__(self, options):
         self.options = options
         self.host = self.hosts.get(self.options.region, self.options.region)
+        self.id_host = self.id_hosts.get(self.options.region, self.options.region)
 
         hostname = self.host.split("://")[1]
+        id_hostname = self.id_host.split("://")[1]
 
         # fix up SSL
         wrap_ssl_socket(hostname)
+        wrap_ssl_socket(id_hostname)
 
         set_proxy(self.options.proxy, self.options.proxy_username, self.options.proxy_password)
 
         set_ssl_context(True)
         self.upe_api = None
-        self.loadExistingCredentials()
+        self.api_host = None
+        if self.options.client_id is None or self.options.client_secret is None:
+            self.loadExistingCredentials()
 
-        if self.upe_api is None:
-            self.login()
+            if self.upe_api is None:
+                self.login()
+        else:
+            self.get_bearer_token()
+            self.get_tenant_id()
+
+
+    def get_bearer_token(self):
+        client_id = self.options.client_id
+        client_secret = self.options.client_secret
+
+        print("Authenticating as %s at %s" % (client_id, self.id_host), file=sys.stderr)
+
+        self.default_headers.pop('Authorization', None)
+        self.default_headers.pop('X-Tenant-ID', None)
+        self.default_headers.pop('X-Requested-With', None)
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+        data = {}
+        data['grant_type'] = 'client_credentials'
+        data['client_id'] = client_id
+        data['client_secret'] = client_secret
+        data['scope'] = 'token'
+        data = urlencode(data)
+        data = data.encode('ascii')
+
+        request = urllib.request.Request(self.id_host + '/api/v2/oauth2/token', data, headers=headers)
+        response = request_url(request, verbose=False)
+        json_response = json_loads(response)
+        if json_response['errorCode'] != 'success':
+            raise Exception("Failed to get bearer token: {errorCode}".format(errorCode=json_response['errorCode']))
+        if json_response['token_type'] != 'bearer':
+            raise Exception("Unexpected token type {token_type}".format(token_type=json_response['token_type']))
+        self.default_headers['Authorization'] = 'Bearer ' + json_response['access_token']
+
+
+    def get_tenant_id(self):
+        api_host = self.api_hosts.get(self.options.region, self.options.region)
+        request = urllib.request.Request(api_host + '/whoami/v1', headers=self.default_headers)
+        response = request_url(request)
+        json_response = json_loads(response)
+        if json_response['idType'] != 'tenant':
+            raise Exception("Unexpected ID type {idType}".format(idType=json_response['idType']))
+        self.default_headers['X-Tenant-ID'] = json_response['id']
+        self.api_host = json_response['apiHosts']['dataRegion']
+
 
     def isConfiguredWithUpdateCache(self):
         # In Central Utils; CENTRAL_CONFIG->ucmr uses the email below
@@ -360,19 +422,24 @@ class CloudClient(object):
     ## ServersController (/api/servers)
 
     def getServers(self, limit=None, offset=None, q=None):
-        url = self.upe_api + "/servers"
-        query = {}
-        if limit is not None:
-            query["limit"] = limit
-        if offset is not None:
-            query["offset"] = offset
-        if q is not None:
-            query["q"] = q
-        if any(query):
-            url += "?" + urlencode(query)
+        if self.api_host is None:
+            url = self.upe_api + "/servers"
+            query = {}
+            if limit is not None:
+                query["limit"] = limit
+            if offset is not None:
+                query["offset"] = offset
+            if q is not None:
+                query["q"] = q
+            if any(query):
+                url += "?" + urlencode(query)
 
-        request = urllib.request.Request(url, headers=self.default_headers)
-        response = self.retry_request_url(request)
+            request = urllib.request.Request(url, headers=self.default_headers)
+            response = self.retry_request_url(request)
+        else:
+            url = self.api_host + '/endpoint/v1/endpoints'
+            request = urllib.request.Request(url, headers=self.default_headers)
+            response = request_url(request)
 
         return self._getItems(response)
 
@@ -394,14 +461,20 @@ class CloudClient(object):
         servers = self.getServers(q=hostname)
         # Below line is required if one hostname is a subset of another
         ## e.g. abelard, abelardRHEL67vm
-        servers = [s for s in servers if s['name'] == hostname]
+        servers = [s for s in servers if 'name' in s and s['name'] == hostname]
 
         if len(servers) == 0:
             serverList = []
             for s in self.getServers():  ## Check all servers just in case
-                serverList.append(s['name'])
-                if s['name'] == hostname:
-                    return s['id']
+                if 'name' in s:
+                    serverList.append(s['name'])
+                    if s['name'] == hostname:
+                        return s['id']
+                elif 'type' in s and s['type'] == 'server':
+                    if 'hostname' in s:
+                        serverList.append(s['hostname'])
+                        if s['hostname'] == hostname:
+                            return s['id']
             print("No server found with name %s, Found: [%s]" % (hostname, str(serverList)), file=sys.stderr)
             return None
 
@@ -436,9 +509,15 @@ class CloudClient(object):
         if serverId is None:
             raise Exception("Invalid machine ID")
 
-        url = self.upe_api + "/servers/" + str(serverId)
-        request = urllib.request.Request(url, headers=self.default_headers)
-        response = self.retry_request_url(request)
+        if self.api_host is None:
+            url = self.upe_api + "/servers/" + str(serverId)
+            request = urllib.request.Request(url, headers=self.default_headers)
+            response = self.retry_request_url(request)
+        else:
+            url = self.api_host + '/endpoint/v1/endpoints/' + serverId
+            request = urllib.request.Request(url, headers=self.default_headers)
+            response = request_url(request)
+
         return json_loads(response)
 
     def getMachineId(self, hostname=None):
@@ -1972,35 +2051,55 @@ class CloudClient(object):
         if server is None:
             return
 
-        url = self.upe_api + '/v1/live-query/executions'
-        query_json = {"name": query_name, "template": query_string}
-        data = json.dumps({"endpointIds": [self.get_java_id_from_endpoint_id(server['id'])], "adHocQuery": query_json}, separators=(',', ': ')).encode('UTF-8')
-        request = urllib.request.Request(url, data=data, headers=self.default_headers)
-        request.get_method = lambda: "POST"
-        response_obj = self.retry_request_url(request)
+        if self.api_host is None:
+            url = self.upe_api + '/v1/live-query/executions'
+            query_json = {"name": query_name, "template": query_string}
+            data = json.dumps({"endpointIds": [self.get_java_id_from_endpoint_id(server['id'])], "adHocQuery": query_json}, separators=(',', ': ')).encode('UTF-8')
+            request = urllib.request.Request(url, data=data, headers=self.default_headers)
+            request.get_method = lambda: "POST"
+            response_obj = self.retry_request_url(request)
+        else:
+            url = self.api_host + '/live-discover/v1/queries/runs'
+            query_json = {'name': query_name, 'template': query_string}
+            data = json.dumps({'matchEndpoints': {'all':False, 'filters': [{'ids': [server['id']]}]}, 'adHocQuery': query_json}).encode('UTF-8')
+            request = urllib.request.Request(url, data=data, headers=self.default_headers)
+            request.get_method = lambda: "POST"
+            response_obj = request_url(request)
 
         return response_obj
 
     def wait_for_live_query_response(self, pending_query_response):
         response_obj = json.loads(pending_query_response)
         query_id = response_obj["id"]
-        url = self.upe_api + '/v1/live-query/executions/{}/endpoints'.format(query_id)
+        if self.api_host is None:
+            url = self.upe_api + '/v1/live-query/executions/{}/endpoints'.format(query_id)
+        else:
+            url = self.api_host + '/live-discover/v1/queries/runs/' + query_id
         timeout = time.time() + response_obj["maxDurationInSeconds"]
         results = []
         while time.time() < timeout:
-            request = urllib.request.Request(url, headers=self.default_headers)
-            response = self.retry_request_url(request)
-            endpoints_doing_query = json.loads(response)
-            if len(endpoints_doing_query["items"]) > 0:
-                still_waiting = False
-                for ep in endpoints_doing_query["items"]:
-                    if ep["status"] != "finished":
-                        still_waiting = True
-                if not still_waiting:
-                    logger.info("Query status: {}".format(ep["result"]))
+            if self.api_host is None:
+                request = urllib.request.Request(url, headers=self.default_headers)
+                response = self.retry_request_url(request)
+                endpoints_doing_query = json.loads(response)
+                if len(endpoints_doing_query["items"]) > 0:
+                    still_waiting = False
+                    for ep in endpoints_doing_query["items"]:
+                        if ep["status"] != "finished":
+                            still_waiting = True
+                    if not still_waiting:
+                        logger.info("Query status: {}".format(ep["result"]))
+                        results.append(self.get_live_query_results(pending_query_response))
+                        return results
+            else:
+                request = urllib.request.Request(url, headers=self.default_headers)
+                response = request_url(request)
+                json_response = json_loads(response)
+                if json_response['status'] == 'finished':
+                    logger.info('Query status: {}'.format(json_response['result']))
                     results.append(self.get_live_query_results(pending_query_response))
                     return results
-            time.sleep(0.01)
+            time.sleep(0.5)
 
         logger.warning("timed out running".format(query_id))
         return None
@@ -2008,18 +2107,25 @@ class CloudClient(object):
     def get_live_query_results(self, pending_query_response):
         response_obj = json.loads(pending_query_response)
         query_id = response_obj["id"]
-        url = self.upe_api + '/v1/live-query/executions/{}/result-set'.format(query_id)
+        if self.api_host is None:
+            url = self.upe_api + '/v1/live-query/executions/{}/result-set'.format(query_id)
+        else:
+            url = self.api_host + '/live-discover/v1/queries/runs/' + query_id + '/results'
 
         timeout = time.time() + 5
         while time.time() < timeout:
-            request = urllib.request.Request(url, headers=self.default_headers)
-            response = self.retry_request_url(request)
+            if self.api_host is None:
+                request = urllib.request.Request(url, headers=self.default_headers)
+                response = self.retry_request_url(request)
+            else:
+                request = urllib.request.Request(url, headers=self.default_headers)
+                response = request_url(request)
             results = json.loads(response)
             if "items" in results:
                 items = results["items"] 
                 if items and len(items) > 0:
                     return items 
-            time.sleep(0.01)
+            time.sleep(0.5)
         return None
 
     def run_live_query_and_wait_for_response(self, query_name, query_string, hostname=None):

@@ -375,7 +375,7 @@ def raw_request_url(request, verbose=True):
         if data is not None:
             try:
                 # pretty print the data, if it's actually JSON
-                data = json.dumps(json_loads(str(data.decode('UTF-8'))), indent=2, sort_keys=True)
+                data = json.dumps(json.loads(str(data.decode('UTF-8'))), indent=2, sort_keys=True)
             except ValueError:
                 pass
             if VERBOSE or verbose:
