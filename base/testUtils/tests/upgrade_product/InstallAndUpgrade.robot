@@ -359,6 +359,9 @@ We Can Downgrade From Develop to Dogfood Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
     #avp tries to pick up the policy after it starts, if the policy is not there it logs the error and then waits 10s for the policy to show up.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
+    #TODO LINUXDAR-3425  remove line below when dogfood has build with edr install checks for binary not just root plugin path to see if
+    # event journaler in installed.
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log   wdctlActions <> Plugin "eventjournaler" not in registry
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
