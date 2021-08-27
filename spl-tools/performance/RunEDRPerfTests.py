@@ -161,9 +161,9 @@ def run_local_live_query_perf_test():
         record_result(event_name, date_time, result["start_time"], result["end_time"])
 
 
-def run_central_live_query_perf_test(email, password, region):
-    if not email:
-        logging.error("Please enter email, use -h for help.")
+def run_central_live_query_perf_test(client_id, email, password, region):
+    if client_id is None and email is None:
+        logging.error("Please enter API client ID or email, use -h for help.")
         return
     if not password:
         logging.error("Please enter password, use -h for help.")
@@ -185,13 +185,22 @@ def run_central_live_query_perf_test(email, password, region):
 
     for (name, query) in queries_to_run:
         date_time = get_current_date_time_string()
-        command = ['python3', central_live_query_script,
-                   '--region', region,
-                   '--email', email,
-                   '--password', password,
-                   '--name', name,
-                   '--query', query,
-                   '--machine', target_machine]
+        if client_id is None:
+            command = ['python3', central_live_query_script,
+                       '--region', region,
+                       '--email', email,
+                       '--password', password,
+                       '--name', name,
+                       '--query', query,
+                       '--machine', target_machine]
+        else:
+            command = ['python3', central_live_query_script,
+                       '--region', region,
+                       '--client-id', client_id,
+                       '--password', password,
+                       '--name', name,
+                       '--query', query,
+                       '--machine', target_machine]
         process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
         if process_result.returncode != 0:
             logging.error("Running live query through central failed. return code: {}, stdout: {}, stderr: {}".format(
@@ -262,10 +271,12 @@ def add_options():
                                  'local-liveresponse_x10'],
                         help="Select which performance test suite to run")
 
+    parser.add_argument('-i', '--client-id', action='store', help="Central account API client ID to use to run live queries")
+
     parser.add_argument('-e', '--email', default='darwinperformance@sophos.xmas.testqa.com', action='store',
                         help="Central account email address to use to run live queries")
 
-    parser.add_argument('-p', '--password', action='store', help="Central account password to use to run live queries")
+    parser.add_argument('-p', '--password', action='store', help="Central account API client secret or password to use to run live queries")
 
     parser.add_argument('-r', '--region', action='store', help="Central region (q, p)")
     return parser
@@ -303,7 +314,7 @@ def main():
     elif args.suite == 'local-livequery':
         run_local_live_query_perf_test()
     elif args.suite == 'central-livequery':
-        run_central_live_query_perf_test(args.email, args.password, args.region)
+        run_central_live_query_perf_test(args.client_id, args.email, args.password, args.region)
     elif args.suite == 'local-liveresponse_x1':
         run_local_live_response_test(1, 0)
         run_local_live_response_test(1, 300)

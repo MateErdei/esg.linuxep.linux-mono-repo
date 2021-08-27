@@ -21,6 +21,19 @@ class Options(object):
         return o
 
 
+def get_api_options(client_id, client_secret, region):
+    options = get_options(None, None, region)
+    options.client_id = client_id
+    options.client_secret = client_secret
+
+    return options
+
+
+def get_api_client(client_id, client_secret, region):
+    options = get_api_options(client_id, client_secret, region)
+    return cloudClient.CloudClient(options)
+
+
 def get_options(email, password, region):
     options = Options()
     options.wait_for_host = False
@@ -28,6 +41,8 @@ def get_options(email, password, region):
     options.hostname = None
     options.wait = 30
 
+    options.client_id = None
+    options.client_secret = None
     options.email = email
     options.password = password
     options.region = region
@@ -51,8 +66,9 @@ def get_current_unix_epoch_in_seconds():
 
 def add_options():
     parser = argparse.ArgumentParser(description='Runs Live Queries via Central')
-    parser.add_argument('-e', '--email', required=True, action='store', help="Central account email address to use")
-    parser.add_argument('-p', '--password', required=True, action='store', help="Central account password to use to run live queries")
+    parser.add_argument('-i', '--client-id', required=False, action='store', help="Central account API client ID")
+    parser.add_argument('-e', '--email', required=False, action='store', help="Central account email address to use")
+    parser.add_argument('-p', '--password', required=True, action='store', help="Central account API client secret or password to use to run live queries")
     parser.add_argument('-r', '--region', required=True, action='store', help="Central region (q, p)")
     parser.add_argument('-n', '--name', required=True, action='store', help="Query name")
     parser.add_argument('-q', '--query', required=True, action='store', help="Query string (q, p)")
@@ -64,7 +80,10 @@ def main():
     parser = add_options()
     args = parser.parse_args()
 
-    client = get_client(args.email, args.password, args.region)
+    if args.client_id is None:
+        client = get_client(args.email, args.password, args.region)
+    else:
+        client = get_api_client(args.client_id, args.password, args.region)
     response = client.run_live_query_and_wait_for_response("test", "SELECT system_info.hostname, system_info.local_hostname FROM system_info;", args.machine)
 
     try:
@@ -72,8 +91,12 @@ def main():
     except Exception as ex:
         return 1
 
-    if args.machine not in response:
-        return 1
+    if args.client_id is None:
+        if args.machine not in response:
+            return 1
+    else:
+        if args.machine not in response.values():
+            return 1
 
     start_time = get_current_unix_epoch_in_seconds()
     response = client.run_live_query_and_wait_for_response(args.name, args.query, args.machine)
