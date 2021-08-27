@@ -10,6 +10,7 @@ ${CRASH_QUERY} =  WITH RECURSIVE counting (curr, next) AS ( SELECT 1,1 UNION ALL
 ${SOPHOS_INFO_QUERY} =  SELECT endpoint_id from sophos_endpoint_info;
 ${SIMPLE_QUERY_1_ROW} =  SELECT * from users limit 1;
 ${GREP} =  SELECT * FROM grep WHERE path = '/opt/sophos-spl/plugins/edr/VERSION.ini' AND pattern = 'VERSION';
+${GREP_CRASH} =  SELECT * FROM grep WHERE pattern = 'a' AND path = '/dev/urandom';
 ${SIMPLE_QUERY_2_ROW} =  SELECT * from users limit 2;
 ${SIMPLE_QUERY_4_ROW} =  SELECT * from users limit 4;
 ${EDR_PLUGIN_PATH}    ${SOPHOS_INSTALL}/plugins/edr
