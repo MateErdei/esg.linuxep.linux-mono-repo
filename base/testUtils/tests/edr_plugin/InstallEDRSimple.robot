@@ -237,7 +237,7 @@ EDR Osquery restarts mtr extension when killed
     Wait Until Keyword Succeeds
     ...  70 secs
     ...  10 secs
-    ...  Check EDR Log Contains  Increment telemetry: extension-restarts
+    ...  Check EDR Log Contains  Increment telemetry: mtr-extension-restarts
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  5 secs
