@@ -555,7 +555,7 @@ else  # sspl not installed
     fi
 fi
 # Check there is enough disk space
-check_free_storage 1024
+check_free_storage 1536
 
 # Check that the install path has valid permission on the existing directories
 check_install_path_has_correct_permissions
