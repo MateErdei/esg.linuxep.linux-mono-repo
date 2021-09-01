@@ -667,6 +667,9 @@ class MCSRouter(object):
             with open(filename, "wb") as f:
                 f.write(r2.read())
 
+    def trigger_migration_now(self):
+        self.send_cmd_to_fake_cloud("action/migrate")
+
     def trigger_update_now(self):
         self.send_cmd_to_fake_cloud("action/updatenow")
 

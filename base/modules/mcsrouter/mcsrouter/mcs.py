@@ -49,6 +49,7 @@ from .utils import signal_handler
 from .utils import timestamp
 from .utils import handle_json
 from .utils import flags
+from .utils import migration
 
 from .utils.get_ids import get_gid, get_uid
 
@@ -623,6 +624,35 @@ class MCS:
                     if comms is None:
                         self.startup()
                         comms = self.__m_comms
+
+                    if os.path.exists(path_manager.migration_action_path()):
+                        migration_data = migration.Migrate()
+                        migration_data.read_migrate_action()
+                        try:
+                            response = self.__m_comms.send_migration_request(
+                                migration_data.get_migrate_url(), migration_data.get_token(), self.__m_agent.get_status_xml()
+                            )
+                            try:
+                                self.__m_comms.send_migration_event(migration_data.create_success_response_body())
+                            except Exception as exception:
+                                LOGGER.warning("Migration succeeded message failed to send: {}".format(exception))
+                            self.__m_computer.clear_cache()
+                            endpoint_id, device_id, tenant_id, password = migration_data.extract_values(response)
+                            config.set("MCSURL", migration_data.get_migrate_url())
+                            config.set("MCSID", endpoint_id)
+                            config.set("MCSPassword", password)
+                            config.set("tenant_id", tenant_id)
+                            config.set("device_id", device_id)
+                            config.save()
+                            comms.clear_jwt_token()
+                            comms = None
+
+                        except Exception as exception:
+                            LOGGER.error("Migration request failed: {}".format(exception))
+                            self.__m_comms.send_migration_event(migration_data.create_failed_response_body(exception))
+                        finally:
+                            os.remove(path_manager.migration_action_path())
+                        continue
 
                     if reregister:
                         LOGGER.info("Re-registering with MCS")

@@ -1069,6 +1069,16 @@ class MCSConnection:
         except mcsrouter.utils.xml_helper.XMLException:
             LOGGER.warning("Event xml rejected")
 
+    def send_migration_event(self, event):
+        """
+        send_migration_event
+        """
+        try:
+            event_xml = event.xml()
+            self.send_message_with_id("/events/migrate/", event_xml, "PUT")
+        except mcsrouter.utils.xml_helper.XMLException:
+            LOGGER.warning("Event xml rejected")
+
     def send_responses(self, responses):
         """
         This method is used in mcs.py to trigger the sending of LiveQuery responses to central
@@ -1226,6 +1236,31 @@ class MCSConnection:
         (headers, body) = self.__request(command_path, headers, datafeed.m_compressed_body, "POST")
         return body
 
+    def send_migration_request(self, server_url, jwt_token, request_body):
+        """
+        prepare a HTTP request to a different Central account requesting a migration
+        :param server_url: URL of target Central server.
+        :param jwt_token: JWT token for migration request, provided by current Central account
+        :param request_body: standard V2 API request body
+        :return: The response body of the migration request
+        """
+        request_url = server_url + "/v2/migrate"
+        headers = {
+            "Authorization": "Bearer {}".format(jwt_token),
+            "Accept": "application/json",
+            # "Accept-Encoding": None,
+            "Content-Length": len(request_body),
+            "X-Device-ID": self.m_device_id,
+            "X-Tenant-ID": self.m_tenant_id
+        }
+        LOGGER.debug(
+            "MCS request url={} body size={}".format(
+                request_url,
+                len(request_body))
+        )
+        (headers, body) = self.__request(request_url, headers, request_body, "POST")
+        return body
+
     def extract_commands_from_xml(self, commands_xml):
         assert commands_xml is not None
         try:
@@ -1269,6 +1304,9 @@ class MCSConnection:
         self.send_message(
             "/commands/endpoint/{}/{}".format(self.get_id(), command_id),
             "", "DELETE")
+
+    def clear_jwt_token(self):
+        self.m_jwt_token = None
 
     def get_policy(self, app_id, policy_id):
         """

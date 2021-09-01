@@ -5,12 +5,15 @@ mcs_adapter Module
 
 import datetime
 import logging
+import os
+import stat
 
 import mcsrouter.adapters.adapter_base
 import mcsrouter.adapters.mcs.mcs_policy_handler
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.xml_helper
 from mcsrouter.utils.xml_helper import toxml_utf8
+from mcsrouter.mcsclient.mcs_exception import MCSException
 
 LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +27,8 @@ TEMPLATE_STATUS_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?
         </ns:mcsStatus>
 """
 
+class FailedToProcessActionException(MCSException):
+    pass
 
 class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
     """
@@ -118,14 +123,37 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         process_command
         """
         try:
-            LOGGER.debug("MCS Adapter processing %s", str(command))
-            try:
+            command_str = str(command)
+            LOGGER.debug("MCS Adapter processing %s", command_str)
+
+            if "sophos.mgt.mcs.migrate" in command_str:
+                LOGGER.debug("{} adaptor processing as action".format(self.get_app_id()))
+                return MCSAdapter._process_action(self, command)
+            else:
                 policy = command.get_policy()
                 return self.__process_policy(policy)
-            except NotImplementedError:
-                # If we start processing actions in MCS we should add a method
-                # to this class to process it. For now we log an error.
-                LOGGER.error("Got action for the MCS adapter: %s", str(command))
-                return None
         finally:
             command.complete()
+
+    def _process_action(self, command):
+        """
+        Process the actions by creating the file
+        """
+        LOGGER.debug("Received %s action", self.get_app_id())
+
+        body = command.get("body")
+        LOGGER.debug("Action body: {}".format(body))
+        # Only MCS action currently is to migrate.
+        action_name = "migration_action.xml"
+        # Writing action to tmp directory to avoid Management Agent processing
+        action_path_tmp = self._write_action_to_tmp(action_name, body)
+        LOGGER.debug(f"{self.get_app_id()} action saved to path {action_path_tmp}")
+        return []
+
+    def _write_action_to_tmp(self, action_name, body):
+        action_path_tmp = os.path.join(path_manager.temp_dir(), action_name)
+        mcsrouter.utils.utf8_write.utf8_write(action_path_tmp, body)
+
+        # Make sure that action is group readable so that Management Agent (or plugins) can read the file.
+        os.chmod(action_path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP )
+        return action_path_tmp

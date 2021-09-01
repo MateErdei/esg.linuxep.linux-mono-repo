@@ -477,6 +477,7 @@ class MCSEndpointManager(object):
         self.__m_policyID = "INITIAL_MCS_POLICY_ID"
         self.__m_policy = INITIAL_MCS_POLICY
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
+        self.__m_migration = None
 
     def policyPending(self):
         return self.__m_policyID is not None
@@ -486,6 +487,14 @@ class MCSEndpointManager(object):
 
     def commandDeleted(self):
         self.__m_policyID = None
+        self.__m_migration = None
+
+    def migrationPending(self):
+        return self.__m_migration is not None
+
+    def migrate(self):
+        logger.info("Triggering a migration action")
+        self.__m_migration = True
 
     def updatePolicy(self, body):
         self.__m_policyID = "MCS%f"%(time.time())
@@ -514,7 +523,7 @@ class ALCEndpointManager(object):
     def commandDeleted(self):
         self.__m_policyID = []
         self.__m_updateNow = None
-    
+
     def updateNowPending(self):
         return self.__m_updateNow is not None
     
@@ -774,7 +783,24 @@ class Endpoint(object):
         <ttl>PT10000S</ttl>
         <body>{}</body>
       </command>""".format(creation_time, xml.sax.saxutils.escape(body))
-      
+
+    def migrateCommand(self, creation_time="FakeTime"):
+        body = r"""<?xml version="1.0" ?>
+<action type="sophos.mgt.mcs.migrate">
+  <server>https://localhost:4443/mcs</server>
+  <token>11111111-aaaa-1234-abcd-1a1a1a1a1a</token>
+</action>
+"""
+
+        return r"""<command>
+        <id>MCS</id>
+        <seq>1</seq>
+        <appId>MCS</appId>
+        <creationTime>{}</creationTime>
+        <ttl>PT10000S</ttl>
+        <body>{}</body>
+      </command>""".format(creation_time, xml.sax.saxutils.escape(body))
+
     def scanNowCommand(self):
         body = r"""<?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>"""
         
@@ -845,6 +871,8 @@ class Endpoint(object):
             commands.append(self.liveQueryCommand())
         if "MCS" in apps and self.__mcs.policyPending():
             commands.append(self.policyCommand("MCS", self.__mcs.policyID()))
+        if "MCS" in apps and self.__mcs.migrationPending():
+            commands.append(self.migrateCommand())
         if "ALC" in apps and self.__alc.policyPending():
             for policy_id in self.__alc.policiesID():
                 commands.append(self.policyCommand("ALC", policy_id))
@@ -911,7 +939,10 @@ class Endpoint(object):
             self.__mdr.updatePolicy(body)
         elif adapter == "LiveQuery":
             self.__livequery.updatePolicy(body)
-            
+
+    def migrate(self):
+        self.__mcs.migrate()
+
     def updateNow(self):
         self.__alc.updateNow()
 
@@ -1030,6 +1061,10 @@ class Endpoints(object):
 
     def updateMcsPolicy(self, policy):
         return self.updatePolicy("MCS",policy)
+
+    def migrate(self):
+        for e in self.__m_endpoints.values():
+            e.migrate()
 
     def getPolicy(self, adapter):
         for e in self.__m_endpoints.values():
@@ -1357,6 +1392,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("Unknown Error command path, should be /error", code=500)
             
     def do_GET_action(self):
+        if self.path == "/action/migrate":
+            logger.info("Received migrate trigger")
+            GL_ENDPOINTS.migrate()
+            return self.ret("")
         if self.path == "/action/updatenow":
             logger.info("Received update now trigger")
             GL_ENDPOINTS.updateNow()
