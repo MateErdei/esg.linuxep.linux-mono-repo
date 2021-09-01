@@ -6,16 +6,22 @@ Resource  ../upgrade_product/UpgradeResources.robot
 *** Variables ***
 #EDR Telemetry variables
 ${COMPONENT_TEMP_DIR}  /tmp/edr_component
+${MEMORY_CRASH_TABLE}  ${EDR_PLUGIN_MANUAL_TOOLS}/MemoryCrashTable
 ${CRASH_QUERY} =  WITH RECURSIVE counting (curr, next) AS ( SELECT 1,1 UNION ALL SELECT next, curr+1 FROM counting LIMIT 10000000000 ) SELECT group_concat(curr) FROM counting;
 ${SOPHOS_INFO_QUERY} =  SELECT endpoint_id from sophos_endpoint_info;
 ${SIMPLE_QUERY_1_ROW} =  SELECT * from users limit 1;
 ${GREP} =  SELECT * FROM grep WHERE path = '/opt/sophos-spl/plugins/edr/VERSION.ini' AND pattern = 'VERSION';
-${GREP_CRASH} =  SELECT * FROM grep WHERE pattern = 'a' AND path = '/dev/urandom';
+${GREP_CRASH} =  SELECT * FROM memorycrashtable;
 ${SIMPLE_QUERY_2_ROW} =  SELECT * from users limit 2;
 ${SIMPLE_QUERY_4_ROW} =  SELECT * from users limit 4;
 ${EDR_PLUGIN_PATH}    ${SOPHOS_INSTALL}/plugins/edr
 
 *** Keywords ***
+Replace SophoMTR.ext with MemoryCrashTable
+    Remove File  /opt/sophos-spl/plugins/edr/extensions/SophosMTR.ext
+    Copy File  ${MEMORY_CRASH_TABLE}  /opt/sophos-spl/plugins/edr/extensions/SophosMTR.ext
+    Run Process  chmod  +x  /opt/sophos-spl/plugins/edr/extensions/SophosMTR.ext
+
 Wait For EDR to be Installed
     Wait Until Keyword Succeeds
     ...   40 secs

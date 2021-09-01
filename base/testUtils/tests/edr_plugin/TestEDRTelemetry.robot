@@ -170,6 +170,16 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  1  0  0  1  0  0  0  queries=@{queries}
 
 EDR Plugin Reports Telemetry Correctly For MTR extension crash
+    Replace SophoMTR.ext with MemoryCrashTable
+    Restart EDR Plugin
+    Wait Until Keyword Succeeds
+    ...  30s
+    ...  2s
+    ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log  osquery_log  Extension memorycrash started  1
+    sleep  5
+    Run Live Query  ${GREP_CRASH}  Crash
+    Run Live Query  ${GREP_CRASH}  Crash
+    Run Live Query  ${GREP_CRASH}  Crash
     Run Live Query  ${GREP_CRASH}  Crash
 
     Wait Until Keyword Succeeds
@@ -180,7 +190,7 @@ EDR Plugin Reports Telemetry Correctly For MTR extension crash
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
 
-    ${query}=  Set Variable  {"name":"Crash", "failed-osquery-error-count":1}
+    ${query}=  Set Variable  {"name":"Crash", "failed-osquery-error-count":4}
     @{queries}=  create list   ${query}
 
     Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  0  0  0  1  queries=@{queries}

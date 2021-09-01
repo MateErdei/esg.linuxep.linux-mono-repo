@@ -70,7 +70,8 @@ Global Setup Tasks
 
     ${placeholder} =  Get Environment Variable  SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS  default=/tmp/system-product-test-inputs/sspl-plugin-event-journaler-manual-tools
     Set Global Variable  ${EVENT_JOURNALER_TOOLS}  ${placeholder}
-
+    ${placeholder} =  Get Environment Variable  SSPL_EDR_PLUGIN_MANUAL_TOOLS  default=/tmp/system-product-test-inputs/sspl-edr-plugin-manual-tools
+    Set Global Variable  ${EDR_PLUGIN_MANUAL_TOOLS}  ${placeholder}
     ${OPENSSL_FOLDER} =  Unpack Openssl   ${TEMPORARY_DIRECTORIES}
     Set Global Variable  ${OPENSSL_BIN_PATH}            ${TEMPORARY_DIRECTORIES}/openssl/bin64
     Set Global Variable  ${OPENSSL_LIB_PATH}            ${TEMPORARY_DIRECTORIES}/openssl/lib64

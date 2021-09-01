@@ -9,6 +9,7 @@ else
 fi
 export EXAMPLEPLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-exampleplugin"
 export SSPL_EDR_PLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-edr-plugin"
+export SSPL_EDR_PLUGIN_MANUAL_TOOLS="$SYSTEMPRODUCT_TEST_INPUT/sspl-edr-plugin-manual-tools"
 export SSPL_EVENT_JOURNALER_PLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-plugin-event-journaler"
 export SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS="$SYSTEMPRODUCT_TEST_INPUT/sspl-plugin-event-journaler-manual-tools"
 export SSPL_ANTI_VIRUS_PLUGIN_SDDS="$SYSTEMPRODUCT_TEST_INPUT/sspl-plugin-anti-virus"
