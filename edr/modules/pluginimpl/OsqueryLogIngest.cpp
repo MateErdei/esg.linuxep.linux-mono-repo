@@ -73,7 +73,7 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Memory limits exceeded:"))
     {
         if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "osquery extension")
-               && Common::UtilityImpl::StringUtils::isSubstring(logLine, "SophosMTE.ext"))
+               && Common::UtilityImpl::StringUtils::isSubstring(logLine, "SophosMTR.ext"))
         {
             LOGDEBUG("Increment telemetry: " << plugin::telemetryMTRExtensionRestartsMemory);
             telemetry.increment(plugin::telemetryMTRExtensionRestartsMemory, 1L);
@@ -87,7 +87,7 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Cannot find process"))
     {
         if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "osquery extension")
-            && Common::UtilityImpl::StringUtils::isSubstring(logLine, "SophosMTE.ext"))
+            && Common::UtilityImpl::StringUtils::isSubstring(logLine, "SophosMTR.ext"))
         {
             LOGDEBUG("Increment telemetry: " << plugin::telemetryMTRExtensionRestarts);
             telemetry.increment(plugin::telemetryMTRExtensionRestarts, 1L);
