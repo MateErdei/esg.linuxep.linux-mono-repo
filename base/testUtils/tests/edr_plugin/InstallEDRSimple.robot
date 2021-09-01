@@ -119,7 +119,7 @@ EDR Handles Live Query
 
     Wdctl Stop Plugin  edr
     Override LogConf File as Global Level  DEBUG
-    mark_edr_log
+    Mark Edr Log
     Wdctl Start Plugin  edr
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -127,13 +127,13 @@ EDR Handles Live Query
     ...  Check Marked EDR Log Contains  Plugin preparation complete
 
     Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
-    mark_edr_log
+    Mark Edr Log
     Register With Fake Cloud
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
     ...  Check Marked EDR Log Contains  Applying new policy with APPID: LiveQuery
-    mark_edr_log
+    Mark Edr Log
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  3 secs
