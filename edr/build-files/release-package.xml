@@ -30,7 +30,7 @@
         <package name="capnprotolinux11" version="0-8-0-17/222740/capnproto" dest=".">
             <include src="capnproto.tar" dest="input"/>
         </package>
-        <package name="boostlinux11" version="1-77-0-1/222696/output" dest="input">
+        <package name="boostlinux11" version="1-77-0-1/222969/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
