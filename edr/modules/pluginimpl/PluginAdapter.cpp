@@ -222,9 +222,9 @@ namespace Plugin
             {
                 LOGINFO("Restarting OSQuery after unexpected extension exit");
                 stopOsquery();
-                if (!osqueryStopped) // if the extension return an exit code of 1 then osquery has crashed not the extension
+                if (!osqueryStopped) // if the extension crashed due to a cpu or memory restart we do not want to increment osquery-restarts field
                 {
-                    m_restartNoDelay = true;
+                    m_expectedOsqueryRestart = true;
                 }
 
             }
@@ -250,8 +250,8 @@ namespace Plugin
                     LOGINFO("Previous schedule_epoch: " << m_scheduleEpoch.getValue() << ", has ended. Starting new schedule_epoch: " << now);
                     m_scheduleEpoch.setValueAndForceStore(now);
                     // osquery will automatically be restarted but set this to make sure there is no delay.
-                    m_restartNoDelay = true;
-                    stopOsquery();
+                    m_queueTask->pushOsqueryRestart("Restarting osquery due schedule_epoch updating");
+                    m_expectedOsqueryRestart = true;
                 }
             }
 
@@ -266,8 +266,8 @@ namespace Plugin
                     lastTimeQueriedMtr = timeNow;
                     if (m_osqueryConfigurator.checkIfReconfigurationRequired())
                     {
-                        m_restartNoDelay = true;
-                        stopOsquery();
+                        m_queueTask->pushOsqueryRestart("Restarting due to MTR Configuration change");
+                        m_expectedOsqueryRestart = true;
                     }
                 }
 
@@ -302,13 +302,14 @@ namespace Plugin
                         LOGDEBUG("Process task QUEUE_OSQUERY_RESTART");
                         LOGINFO("Restarting osquery, reason: " << task.m_content);
                         m_restartNoDelay = true;
+                        m_expectedOsqueryRestart = true;
                         stopOsquery();
                         break;
                     case Task::TaskType::OSQUERY_PROCESS_FINISHED:
                     {
                         LOGDEBUG("Process task OSQUERY_PROCESS_FINISHED");
                         m_timesOsqueryProcessFailedToStart = 0;
-                        if (!m_restartNoDelay)
+                        if (!m_expectedOsqueryRestart)
                         {
                             LOGDEBUG("Increment telemetry " << plugin::telemetryOsqueryRestarts);
                             Common::Telemetry::TelemetryHelper::getInstance().increment(
@@ -317,6 +318,7 @@ namespace Plugin
 
                         int64_t delay = m_restartNoDelay ? 0 : 10;
                         m_restartNoDelay = false;
+                        m_expectedOsqueryRestart = false;
                         LOGINFO("osquery stopped. Scheduling its restart in " << delay <<" seconds.");
                         m_delayedRestart.reset( // NOLINT
                             new WaitUpTo(
@@ -556,10 +558,8 @@ namespace Plugin
         if (enableAuditDataCollection != m_collectAuditEnabled)
         {
             m_collectAuditEnabled = enableAuditDataCollection;
-            LOGINFO(
-                "Option to enable audit collection changed to " << option << ". Scheduling osquery STOP");
-            stopOsquery();
-            m_restartNoDelay = true;
+            LOGDEBUG("Option to enable audit collection changed to "<< option);
+            m_queueTask->pushOsqueryRestart("Restarting osquery due to auditd collection configuration change");
         }
         else
         {
