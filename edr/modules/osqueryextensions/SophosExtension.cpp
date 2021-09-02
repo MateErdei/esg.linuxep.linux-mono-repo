@@ -28,8 +28,8 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
     {
         m_flags.socket = socket;
         m_flags.verbose = verbose;
-        m_flags.interval = 3;
-        m_flags.timeout = 3;
+        m_flags.interval = 5;
+        m_flags.timeout = 5;
         m_extension = OsquerySDK::CreateExtension(m_flags, "SophosExtension", "1.0.0");
 
         LOGDEBUG("Adding Sophos Server Table");

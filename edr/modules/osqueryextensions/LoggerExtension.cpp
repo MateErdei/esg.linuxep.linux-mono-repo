@@ -39,8 +39,8 @@ LoggerExtension::LoggerExtension(
     m_maxBatchBytes(maxBatchBytes),
     m_maxBatchSeconds(maxBatchSeconds)
 {
-    m_flags.interval = 3;
-    m_flags.timeout = 3;
+    m_flags.interval = 5;
+    m_flags.timeout = 5;
 }
 
 LoggerExtension::~LoggerExtension()
