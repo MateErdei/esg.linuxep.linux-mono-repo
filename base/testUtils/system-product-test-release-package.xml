@@ -12,11 +12,10 @@
             <include mode="base-coverage" artifact-path="sspl-base-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-            <development-version branch="feature/LINUXDAR-2902-edr-log-and-telemetry-to-show-the-difference-when-osquery-extensions"/>
+            <development-version branch="develop"/>
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage,edr-coverage" artifact-path="componenttests" dest-dir="sspl-edr-plugin-manual-tools"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
-
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
