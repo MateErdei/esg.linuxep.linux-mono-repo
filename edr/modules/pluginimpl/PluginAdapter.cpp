@@ -197,15 +197,10 @@ namespace Plugin
         {
             //Check extensions are still running and restart osquery if any have stopped unexpectedly
             bool anyStoppedExtensions = false;
-            bool osqueryStopped = false;
             for (auto& runningStatus : m_extensionAndStateMap)
             {
                 if (runningStatus.second.second->load())
                 {
-                    if (runningStatus.second.first->GetExitCode() == 1)
-                    {
-                        osqueryStopped = true;
-                    }
                     anyStoppedExtensions = true;
                     break;
                 }
@@ -215,10 +210,7 @@ namespace Plugin
             {
                 LOGINFO("Restarting OSQuery after unexpected extension exit");
                 stopOsquery();
-                if (!osqueryStopped) // if the extension crashed due to a cpu or memory restart we do not want to increment osquery-restarts field
-                {
-                    m_expectedOsqueryRestart = true;
-                }
+
 
             }
             // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
