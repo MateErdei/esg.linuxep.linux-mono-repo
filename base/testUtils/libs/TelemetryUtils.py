@@ -108,18 +108,12 @@ class TelemetryUtils:
 
         return telemetry
 
-    def generate_mtr_telemetry_dict(self, num_SophosMTR_restarts, num_database_purges, num_osquery_restarts_cpu,
-                                    num_osquery_restarts_memory):
+    def generate_mtr_telemetry_dict(self, num_SophosMTR_restarts):
         version = get_mtr_version()
         telemetry = {
             "sophosmtr-restarts": int(num_SophosMTR_restarts),
-            "version": version,
-            "osquery-database-purges": int(num_database_purges)
+            "version": version
         }
-        if int(num_osquery_restarts_cpu) > -1:
-            telemetry["osquery-restarts-cpu"] = int(num_osquery_restarts_cpu)
-        if int(num_osquery_restarts_memory) > -1:
-            telemetry["osquery-restarts-memory"] = int(num_osquery_restarts_memory)
 
         return telemetry
 
@@ -369,14 +363,9 @@ class TelemetryUtils:
 
     def check_mtr_telemetry_json_is_correct(self, json_string,
                                             num_sophos_mtr_restarts=0,
-                                            num_database_purges=0,
-                                            num_osquery_restarts_cpu=0,
-                                            num_osquery_restarts_memory=0,
                                             ignore_cpu_restarts=False,
                                             ignore_memory_restarts=False):
-        expected_mtr_telemetry_dict = self.generate_mtr_telemetry_dict(num_sophos_mtr_restarts, num_database_purges,
-                                                                       num_osquery_restarts_cpu,
-                                                                       num_osquery_restarts_memory)
+        expected_mtr_telemetry_dict = self.generate_mtr_telemetry_dict(num_sophos_mtr_restarts)
         actual_mtr_telemetry_dict = json.loads(json_string)["mtr"]
 
         if ignore_cpu_restarts:
