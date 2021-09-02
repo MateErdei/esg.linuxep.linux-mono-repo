@@ -143,6 +143,7 @@ def send_and_receive_query_and_verify(query_to_send, mock_management_agent, edr_
 @detect_failure
 def test_edr_plugin_expected_responses_to_livequery(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
+    edr_plugin_instance.wait_log_contains("osquery initialized", 25)
     send_and_receive_query_and_verify(top_2_processes_query, sspl_mock.management, edr_plugin_instance, top_2_processes_response)
     send_and_receive_query_and_verify(hex_to_int_query, sspl_mock.management, edr_plugin_instance, hex_to_int_response)
     send_and_receive_query_and_verify(grep_query, sspl_mock.management, edr_plugin_instance, grep_response)
