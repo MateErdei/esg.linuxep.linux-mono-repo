@@ -17,16 +17,16 @@
         <package name="versig" version="2-0-0-89/222099/output" dest="input">
             <include src="versig.tar" dest="."/>
         </package>
-        <package name="curllinux11" version="7-74-0-4/222029/output" dest="input">
+        <package name="curllinux11" version="7-78-0-3/222970/output" dest="input">
             <include src="curl.tar" dest="."/>
         </package>
-        <package name="sullinux11" version="1-0-0-70/222031/output" dest="input">
+        <package name="sullinux11" version="1-0-0-76/222976/output" dest="input">
             <include src="SUL.tar" dest="."/>
         </package>
-        <package name="boostlinux11" version="1-75-0-4/222018/output" dest="input">
+        <package name="boostlinux11" version="1-77-0-1/222969/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
-        <package name="expatlinux11" version="2-2-10-4/221623/output" dest="input">
+        <package name="expatlinux11" version="2-4-1-1/222964/output" dest="input">
             <include src="expat.tar" dest="."/>
         </package>
         <package name="zliblinux11" version="1-2-11-4/219630/output" dest="input">
