@@ -177,10 +177,10 @@ EDR Plugin Reports Telemetry Correctly For MTR extension crash
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log  osquery_log  Extension memorycrash started  1
     sleep  5
-    Run Live Query  ${GREP_CRASH}  Crash
-    Run Live Query  ${GREP_CRASH}  Crash
-    Run Live Query  ${GREP_CRASH}  Crash
-    Run Live Query  ${GREP_CRASH}  Crash
+    Run Live Query  ${EXTENSION_CRASH}  Crash
+    Run Live Query  ${EXTENSION_CRASH}  Crash
+    Run Live Query  ${EXTENSION_CRASH}  Crash
+    Run Live Query  ${EXTENSION_CRASH}  Crash
 
     Wait Until Keyword Succeeds
     ...  100 secs
