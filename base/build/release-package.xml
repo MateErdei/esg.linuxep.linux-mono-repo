@@ -46,7 +46,7 @@
         <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input">
             <include src="ps_rootca.crt" dest="."/>
         </package>
-        <package name="pythonlinux11" version="3-9-2-1/222045/output" dest="input">
+        <package name="pythonlinux11" version="3-9-7-1/222972/output" dest="input">
             <include src="python.tar" dest="." />
         </package>
         <package name="python-watchdog" version="2-0-2-3/222028/watchdog" dest="input">
