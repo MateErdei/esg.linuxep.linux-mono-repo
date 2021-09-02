@@ -35,7 +35,7 @@ namespace OsquerySDK
         long pages = sysconf(_SC_PHYS_PAGES);
         long page_size = sysconf(_SC_PAGE_SIZE);
         uint64_t totalSize = pages * page_size;
-        int limit = (0.8 * totalSize)/20;
+        int limit = (0.8 * totalSize)/100;
 
 
         int i = 0;
