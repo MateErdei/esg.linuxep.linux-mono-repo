@@ -593,7 +593,10 @@ class Endpoint(object):
     def __init__(self, status):
         global ID
         self.__m_id = "ThisIsAnMCSID+%d"%ID
+        self.__m_tenant_id = "ThisIsATenantID+%d"%ID
+        self.__m_device_id = "ThisIsADeviceID+%d"%ID
         ID += 1
+        self.__m_password= "ThisIsAPassword"
         self.__hb = HeartbeatEndpointManager()
         self.__sav = SAVEndpointManager()
         self.__edr = EDREndpointManager()
@@ -737,6 +740,15 @@ class Endpoint(object):
 
     def id(self):
         return self.__m_id
+
+    def tenant_id(self):
+        return self.__m_tenant_id
+
+    def device_id(self):
+        return self.__m_device_id
+
+    def password(self):
+        return self.__m_password
 
     def getElementText(self, nodeName):
         element = self.__m_doc.getElementsByTagName(nodeName)[0]
@@ -995,6 +1007,13 @@ class Endpoints(object):
         e = Endpoint(status)
         self.__m_endpoints[e.name()] = e
         return e.id()
+
+    def migration_register(self, status):
+        logger.debug("MIGRATION BODY:%s", status)
+        action_log.debug("MIGRATE")
+        e = Endpoint(status)
+        self.__m_endpoints[e.name()] = e
+        return e
 
     def computers(self):
         results = []
@@ -1648,6 +1667,26 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         logger.info(f"returning: {json_string}")
         return self.ret(json_string)
 
+    def mcs_migrate(self):
+        logger.info("POST MIGRATE")
+        auth = self.headers['Authorization']
+        if auth.startswith("Bearer "):
+            auth = auth[len("Bearer "):]
+            logger.info("Migrating with JWT token: %s", auth)
+        # global MIGRATE_401
+        # if MIGRATE_401:
+        #     return self.send_401()
+
+        status = self.getBody()
+        endpoint = GL_ENDPOINTS.migration_register(status)
+        message = {
+            "endpoint_id": endpoint.id(),
+            "device_id": endpoint.device_id(),
+            "tenant_id": endpoint.tenant_id(),
+            "password": endpoint.password()}
+        migrate_response = json.dumps(message, sort_keys=True)
+        return self.ret(migrate_response)
+
     def mcs_event(self):
         match_object = re.match(r"/mcs/events/endpoint/([^/]+)", self.path)
         if not match_object:
@@ -1729,6 +1768,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("")
         elif self.path == "/mcs/install/deployment-info/2":
             return self.mcs_deployment()
+        elif self.path == "/mcs/v2/migrate":
+            return self.mcs_migrate()
 
         user_agent = self.headers.get("User-Agent", "<unknown>").split('/', 1)[0]
         logger.debug("PUT - %s (%s); Cookie=%s", self.path, user_agent,
@@ -1834,6 +1875,15 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                 return self.send_401()
             else:
                 return self.mcs_update_status()
+
+        if self.path.startswith("/mcs/events/migrate/"):
+            return self.ret("OK", code=200)
+            # # # if MCSRequestHandler.options.reregister or REREGISTER_NEXT:
+            # # #     REREGISTER_NEXT = False
+            # #     return self.send_401()
+            # # else:
+            #     return self.mcs_update_status()
+        # TODO add handler: /mcs/events/migrate/ThisIsAnMCSID+1001
 
         logger.warn("unknown do_PUT_mcs: %s", self.path)
         message = "<html><body>UNKNOWN PUT REQUEST %s</body></html>"%self.path

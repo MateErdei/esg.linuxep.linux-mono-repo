@@ -39,9 +39,8 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     File Exists With Permissions  ${SOPHOS_INSTALL}/logs/base/register_central.log  root  root  -rw-------
 
     Trigger Migration Now
-
-    Log To Console  Sleeping
-    Sleep   300
+    sleep  60
+    FAIL
 
     # Create Migration Action
     # Migrate via sending MCS action

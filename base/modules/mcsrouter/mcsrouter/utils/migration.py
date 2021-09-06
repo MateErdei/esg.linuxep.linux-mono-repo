@@ -24,6 +24,9 @@ class Migrate(object):
     def get_migrate_url(self):
         return self.migrate_url
 
+    def get_command_path(self):
+        return "/v2/migrate"
+
     def read_migrate_action(self):
         try:
             doc = xml.dom.minidom.parse(path_manager.migration_action_path())
@@ -44,6 +47,13 @@ class Migrate(object):
   <token>{}</token>
 </event>""".format(timestamp.timestamp(), self.get_token())
 
+
+
+# TODO after lunch! check:
+#MIGRATION RESPONSE FROM NEW ACCOUNT: {"device_id": "ThisIsADeviceID+1002", "endpoint_id": "ThisIsAnMCSID+1002", "password": "ThisIsAPassword", "tenant_id": "ThisIsATenantID+1002"}
     def extract_values(self, response):
-        response_json = json.load(response)
+        logging.info(response)
+        #{"device_id": "ThisIsADeviceID+1002", "endpoint_id": "ThisIsAnMCSID+1002", "password": "ThisIsAPassword", "tenant_id": "ThisIsATenantID+1002"}
+        response_json = json.loads(response)
         return response_json['endpoint_id'], response_json['device_id'], response_json['tenant_id'], response_json['password']
+

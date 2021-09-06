@@ -17,6 +17,7 @@ import socket
 import shutil
 import time
 import json
+import copy
 
 from . import computer
 from . import mcs_push_client
@@ -628,28 +629,113 @@ class MCS:
                     if os.path.exists(path_manager.migration_action_path()):
                         migration_data = migration.Migrate()
                         migration_data.read_migrate_action()
+                        migrate_comms = None
                         try:
-                            response = self.__m_comms.send_migration_request(
-                                migration_data.get_migrate_url(), migration_data.get_token(), self.__m_agent.get_status_xml()
+                            # Make new MCS object
+                            migrate_config = copy.deepcopy(config)
+                            migrate_comms = mcs_connection.MCSConnection(
+                                migrate_config,
+                                install_dir=path_manager.install_dir(),
+                                migrate_mode=True
                             )
+                            # Set new comms object to use the MCS URL sent down in migrate action
+                            migrate_config.set("MCSURL", migration_data.get_migrate_url())
+
+                            LOGGER.info("NEW CONFIG VALUES:")
+                            LOGGER.info(migrate_config.get_options())
+
+                            # migrate_config.set("MCSURL", "SOPHOS")
+                            # Configure (safely) to talk to new Central
+                            response = migrate_comms.send_migration_request(
+                                migration_data.get_command_path(), migration_data.get_token(), self.__m_agent.get_status_xml()
+                            )
+                            LOGGER.info("MIGRATION RESPONSE FROM NEW ACCOUNT: " + str(response))
+
                             try:
-                                self.__m_comms.send_migration_event(migration_data.create_success_response_body())
+                                LOGGER.info("Sending succeeded event to old account")
+                                comms.send_migration_event(str(migration_data.create_success_response_body()))
+                                LOGGER.info("SENT succeeded event to old account")
                             except Exception as exception:
-                                LOGGER.warning("Migration succeeded message failed to send: {}".format(exception))
+                                LOGGER.warning("'Migration succeeded' message failed to send: {}".format(exception))
+
+                            # SUCCESS
+                            # Close old comms
+                            comms.close()
+                            # delete config files
+                            # delete current proxy file?
+
+                            # purge all events
+
+                            def wrapped_remove(file_path_to_delete: str):
+                                try:
+                                    if os.path.isfile(file_path_to_delete):
+                                        os.remove(file_path_to_delete)
+                                except (FileNotFoundError, PermissionError) as exception:
+                                    LOGGER.error('Failed to delete file {} due to error {}'.format(file_path_to_delete, str(exception)))
+
+                            def purge_files_in_dir(dir_path: str):
+                                for file in os.listdir(dir_path):
+                                    file_path_to_delete = os.path.join(dir_path, file)
+                                    wrapped_remove(file_path_to_delete)
+
+                            # Purge all events
+                            purge_files_in_dir(os.path.join(path_manager.event_dir()))
+
+                            # Purge all actions
+                            purge_files_in_dir(os.path.join(path_manager.action_dir()))
+
+                            # Purge all policies
+                            purge_files_in_dir(os.path.join(path_manager.policy_dir()))
+
+                            # Purge all statuses
+                            purge_files_in_dir(os.path.join(path_manager.status_dir()))
+
+                            # Purge all statuses
+                            purge_files_in_dir(os.path.join(path_manager.status_cache_dir()))
+
+                            # Purge all datafeed files
+                            purge_files_in_dir(os.path.join(path_manager.datafeed_dir()))
+
+                            # Remove config based on MCS policy
+                            wrapped_remove(path_manager.mcs_policy_config())
+
+                            # Remove current proxy file
+                            wrapped_remove(path_manager.mcs_current_proxy())
+
+                            # Remove flags
+                            wrapped_remove(path_manager.mcs_flags_file())
+                            wrapped_remove(path_manager.warehouse_flags_file())
+                            wrapped_remove(path_manager.combined_flags_file())
+
+                            # TODO pre-signed URLS?
+
+                            # status are sent for all components
+                            # new polices come down ASAP
+
+                            # All settings in MCS remapper namespaces are preserved to allow continuation of protections.
+                            # Namespaces are updated as new policies arrive and the old content is purged.
+
+                            self.__m_comms = migrate_comms
+                            comms = migrate_comms
+
                             self.__m_computer.clear_cache()
+                            migrate_comms.set_migrate_mode(False)
                             endpoint_id, device_id, tenant_id, password = migration_data.extract_values(response)
-                            config.set("MCSURL", migration_data.get_migrate_url())
-                            config.set("MCSID", endpoint_id)
-                            config.set("MCSPassword", password)
-                            config.set("tenant_id", tenant_id)
-                            config.set("device_id", device_id)
-                            config.save()
-                            comms.clear_jwt_token()
-                            comms = None
+                            migrate_config.set("MCSID", endpoint_id)
+                            migrate_config.set("MCSPassword", password)
+                            migrate_config.set("tenant_id", tenant_id)
+                            migrate_config.set("device_id", device_id)
+                            migrate_config.save()
+
+                            config = migrate_config
+                            self.__m_config = migrate_config
 
                         except Exception as exception:
                             LOGGER.error("Migration request failed: {}".format(exception))
-                            self.__m_comms.send_migration_event(migration_data.create_failed_response_body(exception))
+                            import traceback
+                            traceback.print_exc()
+                            self.__m_comms.send_migration_event(str(migration_data.create_failed_response_body(exception)))
+                            if migrate_comms: migrate_comms.close()
                         finally:
                             os.remove(path_manager.migration_action_path())
                         continue

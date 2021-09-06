@@ -185,7 +185,7 @@ class MCSConnection:
     """
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, config, product_version="unknown", install_dir=".."):
+    def __init__(self, config, product_version="unknown", install_dir="..", migrate_mode=False):
         """
         __init__
         """
@@ -195,6 +195,7 @@ class MCSConnection:
         self.__m_connection = None
         self.__m_mcs_url = None
         self.__m_current_path = ""
+        self.__m_migrate_mode = migrate_mode
         path_manager.INST = install_dir
 
         cafile = path_manager.root_ca_path()
@@ -273,6 +274,12 @@ class MCSConnection:
                 "message_relay_address%d" %
                 index, False)
         return message_relay_list
+
+    def get_migrate_mode(self):
+        return self.__m_migrate_mode
+
+    def set_migrate_mode(self, migrate_mode: bool):
+        self.__m_migrate_mode = migrate_mode
 
     def __message_relays_changed(self):
         """
@@ -458,9 +465,12 @@ class MCSConnection:
         """
         __get_urls
         """
+        mcs_url = self.__m_config.get_default('MCSURL', None)
+        if self.get_migrate_mode():
+            # Ignore policy URLs when attempting to migrate
+            return [mcs_url]
         self.__m_policy_urls = self.__get_policy_urls()
         urls = self.__m_policy_urls[:]
-        mcs_url = self.__m_config.get_default('MCSURL', None)
         if mcs_url is not None and mcs_url not in urls:
             urls.append(mcs_url)
         return urls
@@ -596,7 +606,8 @@ class MCSConnection:
             self.__m_current_proxy = proxy
             self.__m_config.set("current_relay_id", proxy.relay_id())
             mcsrouter.utils.handle_json.write_current_proxy_info(proxy)
-            self.__m_config.save()
+            if not self.get_migrate_mode():
+                self.__m_config.save()
 
         return connection
 
@@ -867,8 +878,7 @@ class MCSConnection:
                 self.__m_current_proxy = None
 
             if self.__policy_urls_changed():
-                # Need to close the current connection, because the policy has
-                # changed
+                # Need to close the current connection, because the policy has changed
                 LOGGER.info("Re-evaluating MCS URL due to changed policy")
                 self.close()
                 self.__m_mcs_url = None
@@ -1074,7 +1084,8 @@ class MCSConnection:
         send_migration_event
         """
         try:
-            event_xml = event.xml()
+            # TODO make sure this is the correct XML string
+            event_xml = event
             self.send_message_with_id("/events/migrate/", event_xml, "PUT")
         except mcsrouter.utils.xml_helper.XMLException:
             LOGGER.warning("Event xml rejected")
@@ -1162,7 +1173,8 @@ class MCSConnection:
             except MCSHttpForbiddenException:
                 self.m_jwt_token = None
                 self.__m_config.remove("jwt_token")
-                self.__m_config.save()
+                if not self.get_migrate_mode():
+                    self.__m_config.save()
                 LOGGER.warning("Purging all datafeed files due to 403 code from Sophos Central")
                 datafeeds.purge()
             except MCSHttpTooManyRequestsException as exception_429:
@@ -1196,7 +1208,8 @@ class MCSConnection:
                 LOGGER.error("Failed to send datafeed: {}".format(exception))
                 self.m_jwt_token = None
                 self.__m_config.remove("jwt_token")
-                self.__m_config.save()
+                if not self.get_migrate_mode():
+                    self.__m_config.save()
                 break
             except Exception as exception:
                 LOGGER.error("Failed to send datafeed: {}".format(exception))
@@ -1244,7 +1257,6 @@ class MCSConnection:
         :param request_body: standard V2 API request body
         :return: The response body of the migration request
         """
-        request_url = server_url + "/v2/migrate"
         headers = {
             "Authorization": "Bearer {}".format(jwt_token),
             "Accept": "application/json",
@@ -1255,10 +1267,10 @@ class MCSConnection:
         }
         LOGGER.debug(
             "MCS request url={} body size={}".format(
-                request_url,
+                server_url,
                 len(request_body))
         )
-        (headers, body) = self.__request(request_url, headers, request_body, "POST")
+        (headers, body) = self.__request(server_url, headers, request_body, "POST")
         return body
 
     def extract_commands_from_xml(self, commands_xml):
@@ -1304,9 +1316,6 @@ class MCSConnection:
         self.send_message(
             "/commands/endpoint/{}/{}".format(self.get_id(), command_id),
             "", "DELETE")
-
-    def clear_jwt_token(self):
-        self.m_jwt_token = None
 
     def get_policy(self, app_id, policy_id):
         """
@@ -1375,7 +1384,8 @@ class MCSConnection:
             self.__m_config.set("tenant_id", token_dict["tenant_id"])
             self.m_tenant_id = token_dict["tenant_id"]
 
-        self.__m_config.save()
+        if not self.get_migrate_mode():
+            self.__m_config.save()
 
         try:
             self.m_jwt_expiration_timestamp = time.time() + token_dict["expires_in"]
