@@ -27,7 +27,6 @@ Force Tags  LOAD1
 
 
 *** Variables ***
-${BaseAndMtrReleasePolicy}          ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${BaseAndMtrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${querypackPolicy}              ${GeneratedWarehousePolicies}/old_query_pack.xml
 ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml

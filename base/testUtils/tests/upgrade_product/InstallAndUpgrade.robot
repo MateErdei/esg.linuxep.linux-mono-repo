@@ -34,7 +34,6 @@ Resource    ../GeneralTeardownResource.robot
 Resource    UpgradeResources.robot
 
 *** Variables ***
-${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${BaseAndAVReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_av_VUT-1.xml
 ${BaseEdrAndMtrReleasePolicy}               ${GeneratedWarehousePolicies}/base_edr_and_mtr_VUT-1.xml
 ${BaseEdrAndMtrAndAVDogfoodPolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
