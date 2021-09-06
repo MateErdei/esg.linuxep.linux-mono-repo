@@ -91,23 +91,9 @@ void verifyTelemetryJsonToMap(const std::string & input)
     try
     {
         auto map = Common::Telemetry::flatJsonToMap(input);
-        for( const auto & entry: map)
-        {
-            if (input.find(entry.first) == std::string::npos)
-            {
-                // the only case this is not true is for inputs that are vector.
-                // in which case all the entries 0,1,...,map(size)-1 should be keys of the map
-                for( size_t i =0; i<map.size(); i++)
-                {
-                    std::string key{std::to_string(i)};
-                    if( map.find(key) == map.end())
-                    {
-                        throw std::logic_error( "Each key must be present in the original json file");
-                    }
-                }
-            }
-        }
-    }catch ( std::runtime_error& ex)
+
+    }
+    catch ( std::runtime_error& ex)
     {
         std::string reason{ex.what()};
         if ( reason.find("JSON conversion to map failed") == std::string::npos)
