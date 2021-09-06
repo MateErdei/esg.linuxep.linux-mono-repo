@@ -49,7 +49,7 @@ EDR Plugin Produces Telemetry When XDR is enabled
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  0  0  0  0  True  ignore_xdr=False
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  0  0  True  ignore_xdr=False
 
 EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     Wait Until OSQuery Running  20
@@ -79,7 +79,7 @@ EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0  2
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0
 
 EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In Telemetry
     [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
@@ -146,7 +146,7 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0  2  2  0  0  True  ignore_xdr=False
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0  0  0  True  ignore_xdr=False
 
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
@@ -167,7 +167,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     ${query}=  Set Variable  {"name":"Crash", "failed-osquery-died-count":1}
     @{queries}=  create list   ${query}
 
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  1  0  0  1  0  0  0  queries=@{queries}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  1  0  0  0  0  queries=@{queries}
 
 EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
     Run Live Query  ${SIMPLE_QUERY_1_ROW}   simple
@@ -247,7 +247,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
 
     ${query}=  Set Variable  {"name":"Crash", "failed-osquery-died-count":1, "osquery-restarts":2}
     @{queries}=  create list   ${query}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  3  1  0  0  3  0  0  0  queries=@{queries}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  3  1  0  0  0  0  queries=@{queries}
 
 
 EDR Plugin Produces Telemetry With OSQuery Max Events Override Value
