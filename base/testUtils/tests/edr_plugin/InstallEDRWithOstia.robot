@@ -560,8 +560,8 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Wait Until MDR Uninstalled
 
     Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
+    ...  60 secs
+    ...  5 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     # ensure EDR still running after update
