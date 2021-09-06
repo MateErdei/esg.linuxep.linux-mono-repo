@@ -33,7 +33,7 @@ EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not 
     [Teardown]  EDR Uninstall Teardown
     Run Full Installer
     Install EDR Directly
-    Wait Until OSQuery Running
+    Wait Until EDR OSQuery Running
     ${systemctlResult} =  Run Process   systemctl stop sophos-spl   shell=yes
     Check Watchdog Not Running
     Should Be Equal As Strings  ${systemctlResult.rc}  0
@@ -44,7 +44,7 @@ EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not 
 EDR Removes Ipc And Status Files When Uninstalled
     Run Full Installer
     Install EDR Directly
-    Wait Until OSQuery Running
+    Wait Until EDR OSQuery Running
     Stop Management Agent Via WDCTL
     Start Management Agent Via WDCTL
     Wait for EDR Status
@@ -73,7 +73,7 @@ EDR Installer Directories And Files
 ## -----------------------------------------------------------------------------------------------------
     Run Full Installer
     Install EDR Directly
-    Wait Until OSQuery Running
+    Wait Until EDR OSQuery Running
 
     # Install query packs
     Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
@@ -115,7 +115,7 @@ EDR Handles Live Query
 
     Run Full Installer
     Install EDR Directly
-    Wait Until OSQuery Running
+    Wait Until EDR OSQuery Running
 
     Wdctl Stop Plugin  edr
     Override LogConf File as Global Level  DEBUG
@@ -181,7 +181,7 @@ EDR Does Not Trigger Query On Update Now Action
     [Tags]  EDR_PLUGIN  MANAGEMENT_AGENT
     Run Full Installer
     Install EDR Directly
-    Wait Until OSQuery Running
+    Wait Until EDR OSQuery Running
 
     ${edr_log} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
     ${edr_length_1} =  Get Length  ${edr_log}
@@ -205,7 +205,7 @@ EDR plugin restarts mtr extension when killed
     Run Full Installer
     Override LogConf File as Global Level  DEBUG
     Install EDR Directly
-    Wait Until OSQuery Running
+    Wait Until EDR OSQuery Running
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  2 secs
@@ -236,7 +236,7 @@ EDR Osquery restarts mtr extension when killed
     Run Full Installer
     Override LogConf File as Global Level  DEBUG
     Install EDR Directly
-    Wait Until OSQuery Running
+    Wait Until EDR OSQuery Running
     Run Live Query  ${GREP}   simple
     Wait Until Keyword Succeeds
     ...  30 secs

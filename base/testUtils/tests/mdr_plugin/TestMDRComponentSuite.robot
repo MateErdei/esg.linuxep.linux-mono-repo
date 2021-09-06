@@ -35,7 +35,10 @@ Test Install From Fake Component Suite And SophosMDR Starts and Stops Correctly
     ...  1 secs
     ...  File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/var/policy/mtr.xml
     Wait Until SophosMTR Executable Running  20
-
+    Wait Until Keyword Succeeds
+    ...  35 secs
+    ...  1 secs
+    ...  Check EDR Osquery Executable Running
 
     # sleep for five sconds as golang seems to take some time before it can kill a process
     sleep  5
@@ -51,7 +54,36 @@ Test Install From Fake Component Suite And SophosMDR Starts and Stops Correctly
     ...  1 secs
     ...  Check SophosMTR Executable Not Running
 
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Osquery Executable Not Running
 
+Test That Killing SophosMTR Does Not Cause It To Hang
+    Override LogConf File as Global Level   DEBUG
+    Block Connection Between EndPoint And FleetManager
+    Install Directly From Component Suite
+    Check MDR Component Suite Installed Correctly
+    Insert MTR Policy
+    Wait for MDR Executable To Be Running
+    Wait Until Keyword Succeeds
+    ...  35 secs
+    ...  1 sec
+    ...  Check EDR Osquery Executable Running
+
+    # given that kill issue the -9 to the sophosmtr
+    # it will leave the previous children running ( osquery)
+    Kill SophosMTR Executable
+    Check EDR Osquery Executable Running
+
+    Wait for MDR Executable To Be Running
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  3 secs
+    ...  MDR Plugin Log Contains  Stopping process (osquery)
+    Uninstall MDR Plugin
+    Wait Until Keyword Succeeds  5 secs  1 secs  Check Osquery Executable Not Running
 
 
 Remove Plugin Registration Stops All Sophos MTR Processes
@@ -59,7 +91,11 @@ Remove Plugin Registration Stops All Sophos MTR Processes
     Setup of Tests for Checkup MTR Remove Previously Running Processes
 
     Start MDR Plugin
-    Wait Until SophosMTR Executable Running  20
+    Wait Until Keyword Succeeds
+    ...   35
+    ...   5
+    ...   Check EDR Osquery Executable Running
+    sleep  2 secs
 
     ${result}=  Run Process  /opt/sophos-spl/bin/wdctl  removePluginRegistration  mtr
     Run Keyword If   ${result.rc} != 0  Log  "Result: ${result.rc}. Stdout: ${result.stdout}. Stderr: ${result.stderr}"

@@ -51,7 +51,7 @@ ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.co
 Install all plugins 999 then downgrade to all plugins develop
     [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
     Install EDR  ${BaseAndMTREdr999Policy}
-    Wait Until EDR and MTR OSQuery Running  30
+    Wait Until EDR OSQuery Running  30
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
@@ -516,10 +516,6 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
 
     # ensure Plugins are running after update
     Check MDR Plugin Running
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check MTR Osquery Executable Running
     Check MDR and Base Components Inside The ALC Status
 
     EDR Plugin Is Running

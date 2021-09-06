@@ -25,7 +25,7 @@ Flags Are Only Sent To EDR and Not MTR
     ...  30
     ...  1
     ...  Check MCS Router Running
-    Wait Until OSQuery Running  30
+    Wait Until EDR OSQuery Running  30
 
     Wait Until Keyword Succeeds
     ...  10

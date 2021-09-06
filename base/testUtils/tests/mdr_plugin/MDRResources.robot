@@ -94,6 +94,10 @@ Check MDR component suite running
     ...  15 secs
     ...  1 secs
     ...  Check SophosMTR Executable Running
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check MTR Osquery Executable Running
 
 Check MDR Plugin Running
     ${result} =    Run Process  pgrep  mtr
@@ -120,19 +124,12 @@ Wait For MDR Status
     ...  1
     ...  File Should Exist  ${SOPHOS_INSTALL}/base/mcs/status/MDR_status.xml
 
-Wait Until EDR and MTR OSQuery Running
-    [Arguments]  ${WaitInSecs}=10
-    Wait Until Keyword Succeeds
-    ...  ${WaitInSecs} secs
-    ...  1 secs
-    ...  Check EDR And MTR Osquery Executable Running
-
-Wait Until OSQuery Running
+Wait Until EDR OSQuery Running
     [Arguments]  ${WaitInSecs}=30
     Wait Until Keyword Succeeds
     ...  ${WaitInSecs} secs
     ...  1 secs
-    ...  Check Osquery Executable Running
+    ...  Check EDR Osquery Executable Running
 
 Wait Until EDR Running
     [Arguments]  ${WaitInSecs}=30
@@ -150,14 +147,9 @@ Check SophosMTR Executable Not Running
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
-Check EDR And MTR Osquery Executable Running
-    #Check ALL EDR And MTR osquery instances are running
-    ${result} =    Run Process  pgrep osquery | wc -w  shell=true
-    Should Be Equal As Integers    ${result.stdout}    4       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-
-Check Osquery Executable Running
+Check EDR Osquery Executable Running For MTR
     #Check both osquery instances are running
-    ${result} =    Run Process  pgrep osquery | wc -w  shell=true
+    ${result} =    Run Process  pgrep -af edr/bin/osquery | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check MTR Osquery Executable Running
@@ -403,24 +395,7 @@ Install MTR From Fake Component Suite
     ...  1 secs
     ...  File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/var/policy/mtr.xml
     Wait Until SophosMTR Executable Running  20
-
-
-Install Functional MTR From Fake Component Suite
-    Block Connection Between EndPoint And FleetManager
-    Install Directly From Component Suite
-
-    Check MDR Component Suite Installed Correctly
-    Insert Functional MTR Policy
-
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
-    Component Suite Version Ini File Contains Proper Format   ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/var/policy/mtr.xml
-    Wait Until SophosMTR Executable Running  20
     Wait Until Keyword Succeeds
     ...  35 secs
     ...  1 secs
-    ...  Check MTR Osquery Executable Running
+    ...  Check EDR Osquery Executable Running For MTR

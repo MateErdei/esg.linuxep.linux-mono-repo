@@ -64,7 +64,7 @@ Endpoint Updates Via Update Cache Without Errors
 
     #This tests check updating via update cache and effectively downgrades
     #Do a sanity test to ensure Sophos MTR is in a good state after downgrading
-    Wait Until OSQuery Running  30
+    Wait Until EDR OSQuery Running  30
     Run Live Query  ${SIMPLE_QUERY_4_ROW}   simple
     Wait Until Keyword Succeeds
     ...  100 secs
