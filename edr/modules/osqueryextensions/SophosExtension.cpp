@@ -74,8 +74,6 @@ void SophosExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
             LOGWARN(healthCheckMessage);
         }
 
-        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-        telemetry.increment("sophos-extension-restarts", 1L);
         LOGWARN("Service extension stopped unexpectedly. Calling reset.");
         extensionFinished->store(true);
     }

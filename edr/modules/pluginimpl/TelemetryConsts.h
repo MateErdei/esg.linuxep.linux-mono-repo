@@ -12,9 +12,6 @@ namespace plugin
     const char* const telemetryOSQueryRestartsMemory = "osquery-restarts-memory";
     const char* const telemetryOSQueryDatabaseSize = "osquery-database-size";
     const char* const telemetryMTRExtensionRestarts = "mtr-extension-restarts";
-    // the following two variables are also defined in osqueryextensions to avoid circular dependencies
-    const char* const telemetrySophosExtensionRestarts = "sophos-extension-restarts";
-    const char* const telemetryLoggerExtensionRestarts = "logger-extension-restarts";
     const char* const telemetryMTRExtensionRestartsCPU = "mtr-extension-restarts-cpu";
     const char* const telemetryMTRExtensionRestartsMemory = "mtr-extension-restarts-memory";
     const char* const telemetrySuccessfulQueries = "successful-count";

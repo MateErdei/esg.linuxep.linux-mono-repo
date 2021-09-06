@@ -124,8 +124,6 @@ namespace Plugin
         telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 0L);
         telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 0L);
         telemetry.increment(plugin::telemetryMTRExtensionRestarts, 0L);
-        telemetry.increment(plugin::telemetrySophosExtensionRestarts, 0L);
-        telemetry.increment(plugin::telemetryLoggerExtensionRestarts, 0L);
         telemetry.increment(plugin::telemetryMTRExtensionRestartsCPU, 0L);
         telemetry.increment(plugin::telemetryMTRExtensionRestartsMemory, 0L);
     }
