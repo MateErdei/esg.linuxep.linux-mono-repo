@@ -55,10 +55,6 @@ public:
     {
 
     }
-    void processALCPolicy(const std::string& policy, bool firstTime)
-    {
-        Plugin::PluginAdapter::processALCPolicy(policy, firstTime);
-    }
 
     Plugin::OsqueryConfigurator& osqueryConfigurator()
     {
