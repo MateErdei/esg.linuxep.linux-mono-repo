@@ -129,9 +129,8 @@ def get_exampleplugin_sdds():
 
 
 class MDRSuite:
-    def __init__(self, dbos, osquery, mdr_plugin, mdr_suite):
+    def __init__(self, dbos, mdr_plugin, mdr_suite):
         self.dbos = dbos
-        self.osquery = osquery
         self.mdr_plugin = mdr_plugin
         self.mdr_suite = mdr_suite
 
@@ -141,10 +140,9 @@ def get_sspl_mdr_component_suite():
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "output"))
     dbos = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-DBOS-Component",  "SDDS_SSPL_DBOS_COMPONENT", candidates)
-    osquery = get_component_suite_sdds_entry("SDDS-SSPL-OSQUERY-COMPONENT",  "SDDS_SSPL_OSQUERY_COMPONENT", candidates)
     mdr_plugin = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-Control",  "SDDS_SSPL_MDR_COMPONENT", candidates)
     mdr_suite = get_component_suite_sdds_entry("ServerProtectionLinux-Plugin-MDR",  "SDDS_SSPL_MDR_COMPONENT_SUITE", candidates)
-    return MDRSuite(dbos, osquery, mdr_plugin, mdr_suite)
+    return MDRSuite(dbos, mdr_plugin, mdr_suite)
 
 def get_sspl_mdr_component_suite_1():
     release_1_override = os.environ.get("SDDS_SSPL_MDR_COMPONENT_SUITE_RELEASE_1_0", None)
@@ -154,10 +152,10 @@ def get_sspl_mdr_component_suite_1():
     else:
         candidates = [release_1_override]
     dbos = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-DBOS-Component",  "SDDS_SSPL_DBOS_COMPONENT", candidates, use_env_overrides=False)
-    osquery = get_component_suite_sdds_entry("SDDS-SSPL-OSQUERY-COMPONENT",  "SDDS_SSPL_OSQUERY_COMPONENT", candidates, use_env_overrides=False)
+
     mdr_plugin = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-Control",  "SDDS_SSPL_MDR_COMPONENT", candidates, use_env_overrides=False)
     mdr_suite = get_component_suite_sdds_entry("ServerProtectionLinux-Plugin-MDR",  "SDDS_SSPL_MDR_COMPONENT_SUITE", candidates, use_env_overrides=False)
-    return MDRSuite(dbos, osquery, mdr_plugin, mdr_suite)
+    return MDRSuite(dbos,  mdr_plugin, mdr_suite)
 
 def get_sspl_mdr_plugin_sdds():
     candidates = []
@@ -250,7 +248,6 @@ def _copy_suite_entry_to(root_target_directory, mdr_entry):
 
 def copy_mdr_component_suite_to(target_directory, mdr_component_suite):
     _copy_suite_entry_to(target_directory, mdr_component_suite.dbos)
-    _copy_suite_entry_to(target_directory, mdr_component_suite.osquery)
     _copy_suite_entry_to(target_directory, mdr_component_suite.mdr_plugin)
     _copy_suite_entry_to(target_directory, mdr_component_suite.mdr_suite)
     list_entries = ','.join(os.listdir(target_directory))
@@ -799,7 +796,6 @@ def version_ini_file_contains_proper_format_for_product_name(file, product_name)
 def component_suite_version_ini_file_contains_proper_format(file):
     """
     DBOS_VERSION = 1.0.0
-    OSQUERY_VERSION = 3.3.2
     """
 
     dbos_pattern = "^SOPHOSMTR_VERSION = ([0-9]*\.)*[0-9]*\n\Z"

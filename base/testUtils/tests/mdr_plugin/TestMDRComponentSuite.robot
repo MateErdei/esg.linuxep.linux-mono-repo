@@ -14,9 +14,6 @@ Test Teardown  Test Teardown
 Default Tags   MDR_PLUGIN   MANAGEMENT_AGENT
 Force Tags  LOAD4
 
-*** Variables ***
-${OSQUERYPATH}        ${MDR_PLUGIN_PATH}/osquery/bin/osquery
-
 *** Test Cases ***
 
 Test Install From Fake Component Suite And SophosMDR Starts and Stops Correctly
@@ -105,8 +102,6 @@ Remove Plugin Registration Stops All Sophos MTR Processes
     ...   5
     ...   Check SophosMTR Executable Not Running
 
-    # We can't guarantee that OSquery will be stopped by the removePluginRegistration command so we don't check.
-    # This is accepted behaviour (LINUXDAR-883)
 
 
 MDR Plugin Stops Any Previously Running SophosMTR before starting another
@@ -131,27 +126,6 @@ MDR Plugin Stops Any Previously Running SophosMTR before starting another
     # the first log demonstrate that it detected the old SophosMTR
     MDR Plugin Log Contains  Stopping process (SophosMTR)
 
-MDR Plugin Stops Any Previously Running osquery before starting another
-    [Teardown]  Append Kill To Teardown
-    Setup of Tests for Checkup MTR Remove Previously Running Processes
-
-    ${handle}=  Start Process  ${OSQUERYPATH}
-    ${pid}=  Get Process Id  ${handle}
-    Report on Pid  ${pid}
-
-    Start MDR Plugin
-    ${result}=  Wait For Process  ${handle}  timeout=30
-    Should Not Be Equal As Integers  ${result.rc}  0  msg="Osquery was expected to be forced to shutdown: ${result.stdout} ${result.stderr}"
-
-    Wait Until Keyword Succeeds
-    ...  15
-    ...  5
-    ...  MDR Plugin Log Contains  Stopping process (osquery)
-
-    Wait Until Keyword Succeeds
-    ...  15
-    ...  5
-    ...  MDR Plugin Log Contains  Run SophosMTR
 
 
 *** Keywords ***

@@ -201,9 +201,8 @@ Setup Warehouse For MDR
     Add Component Suite Warehouse Config   ${mdr_component_suite.mdr_suite.rigid_name}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   Warehouse1
     Add Component Warehouse Config   ${mdr_component_suite.mdr_plugin.rigid_name}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/  ${mdr_component_suite.mdr_suite.rigid_name}  Warehouse1
     Add Component Warehouse Config   ${mdr_component_suite.dbos.rigid_name}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/  ${mdr_component_suite.mdr_suite.rigid_name}  Warehouse1
-    Add Component Warehouse Config   ${mdr_component_suite.osquery.rigid_name}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/  ${mdr_component_suite.mdr_suite.rigid_name}  Warehouse1
 
-    Generate Warehouse   MDR_FEATURES=MDR  MDR_Control_FEATURES=MDR  MDR_DBOS_Component_FEATURES=MDR  SDDS_SSPL_OSQUERY_COMPONENT_FEATURES=MDR
+    Generate Warehouse   MDR_FEATURES=MDR  MDR_Control_FEATURES=MDR  MDR_DBOS_Component_FEATURES=MDR
 
     Start Update Server    1233    ${tmpdir}/temp_warehouse/customer_files/
     Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
@@ -383,8 +382,6 @@ Check MDR Installed
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/var/policy
     File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/dbos/SophosMTR
     File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/certificate.crt
-    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/osquery
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/osquery/bin/osquery
     Check MDR Plugin Installed
 
 Check Sensors Installed
