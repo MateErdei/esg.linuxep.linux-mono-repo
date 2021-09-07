@@ -8,7 +8,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2021-34" build-id="20210813144733-bc66f4a61e032de3074517ff19d993c5f6eebc61-7MAz8d"/>
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-3051-upgrade-3rd-parties"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
