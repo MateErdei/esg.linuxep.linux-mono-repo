@@ -133,16 +133,9 @@ namespace Plugin
 
     void PluginAdapter::mainLoop()
     {
-        try
-        {
-            m_callback->setRunning(true);
-            m_baseService->requestPolicies("ALC");
-        }
-        catch (const Common::PluginApi::NoPolicyAvailableException&)
-        {
-            LOGINFO("No policy available right now for app: ALC");
-            // Ignore no Policy Available errors
-        }
+
+        m_callback->setRunning(true);
+
 
         try
         {
