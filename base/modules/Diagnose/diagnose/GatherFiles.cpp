@@ -23,7 +23,7 @@ namespace
         std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
 
         static const std::vector<std::string> interestingExtensions{ ".xml", ".json", ".txt",   ".conf", ".config",
-                                                                     ".log", ".dat",  ".flags", ".ini" };
+                                                                     ".log", ".dat",  ".flags", ".ini", ".yaml" };
 
         for (const auto& type : interestingExtensions)
         {
