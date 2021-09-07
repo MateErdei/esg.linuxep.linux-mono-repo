@@ -360,7 +360,7 @@ def inner_main(argv):
     config = utils_config.Config(
         path_manager.root_config(),
         mode=0o640,
-        user_id=get_uid("root"),
+        user_id=get_uid("sophos-spl-local"),
         group_id=get_gid("sophos-spl-group")
     )
 

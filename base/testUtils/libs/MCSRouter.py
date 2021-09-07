@@ -670,6 +670,12 @@ class MCSRouter(object):
     def trigger_migration_now(self):
         self.send_cmd_to_fake_cloud("action/migrate")
 
+    def set_migrate_to_reply_with_401_flag(self):
+        self.send_cmd_to_fake_cloud("controller/migrate401on")
+
+    def unset_migrate_to_reply_with_401_flag(self):
+        self.send_cmd_to_fake_cloud("controller/migrate401off")
+
     def trigger_update_now(self):
         self.send_cmd_to_fake_cloud("action/updatenow")
 

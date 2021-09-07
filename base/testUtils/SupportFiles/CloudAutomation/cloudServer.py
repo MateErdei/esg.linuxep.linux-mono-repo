@@ -216,6 +216,7 @@ SERVER_504 = False
 SERVER_404 = False
 SERVER_403 = False
 SERVER_413 = False
+MIGRATE_401 = False
 
 
 def readCert(basename):
@@ -1033,7 +1034,7 @@ class Endpoints(object):
             results.append(e.report())
         return results
 
-    def getEndpointByID(self, eid):
+    def getEndpointByID(self, eid) -> Endpoint:
         for e in self.__m_endpoints.values():
             if e.id() == eid:
                 return e
@@ -1150,6 +1151,7 @@ def reset_cookies():
 
 REREGISTER_NEXT = False
 REGISTER_401 = False
+
 
 class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
     """
@@ -1295,15 +1297,26 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         return self.ret(FLAGS)
 
     def mcs_jwt_token(self):
-        JWT = r"""{
-    "access_token":"PLACEHOLDER",
-    "token_type":"Bearer",
-    "expires_in":30,
-    "role":"endpoint",
-    "device_id":"example-device-id",
-    "tenant_id":"example-tenant-id"
-}"""
-        return self.ret(JWT)
+        match_object = re.match(r"/mcs/authenticate/endpoint/([^/]+)", self.path)
+        if not match_object:
+            return self.ret("Bad JWT Authenticate URI path", 400)
+        eid = match_object.group(1)
+        endpoint = GL_ENDPOINTS.getEndpointByID(eid)
+
+        if endpoint is None:
+            return self.ret("Event for unknown endpoint", 400)
+
+        token = f"JWT_TOKEN-{endpoint.id()}"
+        JWT = {
+            "access_token":token,
+            "token_type":"Bearer",
+            "expires_in":30,
+            "role":"endpoint",
+            "device_id":"example-device-id",
+            "tenant_id":"example-tenant-id"
+        }
+
+        return self.ret(json.dumps(JWT, sort_keys=True))
 
     def mcs_policy(self):
         mo = re.match(r"/mcs/policy/application/([^/]+)/([^/]+)", self.path)
@@ -1518,6 +1531,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                      cookie, COOKIE, AWSCOOKIE)
 
     def do_GET_controller(self):
+        global MIGRATE_401
         if self.path == "/controller/reregisterNext":
             global REREGISTER_NEXT
             REREGISTER_NEXT = True
@@ -1532,6 +1546,14 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/controller/register401":
             global REGISTER_401
             REGISTER_401 = not REGISTER_401
+            return self.ret("")
+        elif self.path == "/controller/migrate401on":
+
+            MIGRATE_401 = True
+            return self.ret("")
+        elif self.path == "/controller/migrate401off":
+            # global MIGRATE_401
+            MIGRATE_401 = False
             return self.ret("")
 
 
@@ -1673,9 +1695,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         if auth.startswith("Bearer "):
             auth = auth[len("Bearer "):]
             logger.info("Migrating with JWT token: %s", auth)
-        # global MIGRATE_401
-        # if MIGRATE_401:
-        #     return self.send_401()
+        if MIGRATE_401:
+            return self.send_401()
 
         status = self.getBody()
         endpoint = GL_ENDPOINTS.migration_register(status)

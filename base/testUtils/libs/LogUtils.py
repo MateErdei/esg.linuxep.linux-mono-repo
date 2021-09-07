@@ -1,6 +1,8 @@
 import os
 import glob
 import subprocess
+
+import configparser
 import dateutil.parser
 from robot.api import logger
 import robot.libraries.BuiltIn
@@ -902,3 +904,14 @@ class LogUtils(object):
         content = content.replace(old_string, new_string)
         with open(file, "wt") as f:
             f.write(content)
+
+    def get_value_from_ini_file(self, key: str, file: str, section: str = "fake_section") -> str:
+        config = configparser.ConfigParser()
+        try:
+            config.read(file)
+        except configparser.MissingSectionHeaderError:
+            with open(file) as f:
+                file_content = '[fake_section]\n' + f.read()
+                config = configparser.RawConfigParser()
+                config.read_string(file_content)
+        return config[section][key]

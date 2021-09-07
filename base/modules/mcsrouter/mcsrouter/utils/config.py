@@ -30,6 +30,9 @@ class Config(object):
         self.__m_filename = filename
         self.__m_parent_config = parent_config
 
+    def clear(self):
+        self.__m_options = {}
+
     def get_options(self):
         return self.__m_options
 
@@ -111,6 +114,23 @@ class Config(object):
         finally:
             os.umask(old_umask)
         self.__m_filename = filename
+
+    def save_non_atomic(self, filename=None):
+        """
+        save_non_atomic saves the config without using move
+        """
+        if filename is None:
+            filename = self.__m_filename
+        assert filename is not None
+        old_umask = os.umask(0o777 ^ self.__mode)
+        try:
+            file_to_write = open(filename, "w")
+            for (key, value) in self.__m_options.items():
+                file_to_write.write("{}={}\n".format(key, value))
+            file_to_write.close()
+            os.chown(filename, self.__user_id, self.__group_id)
+        finally:
+            os.umask(old_umask)
 
     def load(self, filename=None):
         """

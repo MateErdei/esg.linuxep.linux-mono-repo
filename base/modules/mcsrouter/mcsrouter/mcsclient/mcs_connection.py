@@ -275,7 +275,7 @@ class MCSConnection:
                 index, False)
         return message_relay_list
 
-    def get_migrate_mode(self):
+    def get_migrate_mode(self) -> bool:
         return self.__m_migrate_mode
 
     def set_migrate_mode(self, migrate_mode: bool):
@@ -1249,27 +1249,25 @@ class MCSConnection:
         (headers, body) = self.__request(command_path, headers, datafeed.m_compressed_body, "POST")
         return body
 
-    def send_migration_request(self, server_url, jwt_token, request_body):
+    def send_migration_request(self, server_url, jwt_token, request_body, old_device_id, old_tenant_id):
         """
         prepare a HTTP request to a different Central account requesting a migration
         :param server_url: URL of target Central server.
         :param jwt_token: JWT token for migration request, provided by current Central account
         :param request_body: standard V2 API request body
+        :param old_device_id: device id of pre-migrate account
+        :param old_tenant_id: tenant id of pre-migrate account
         :return: The response body of the migration request
         """
         headers = {
             "Authorization": "Bearer {}".format(jwt_token),
             "Accept": "application/json",
-            # "Accept-Encoding": None,
             "Content-Length": len(request_body),
-            "X-Device-ID": self.m_device_id,
-            "X-Tenant-ID": self.m_tenant_id
+            "X-Device-ID": old_device_id,
+            "X-Tenant-ID": old_tenant_id
         }
-        LOGGER.debug(
-            "MCS request url={} body size={}".format(
-                server_url,
-                len(request_body))
-        )
+        LOGGER.debug(f"MCS request url={server_url} body size={len(request_body)} headers={headers}")
+
         (headers, body) = self.__request(server_url, headers, request_body, "POST")
         return body
 

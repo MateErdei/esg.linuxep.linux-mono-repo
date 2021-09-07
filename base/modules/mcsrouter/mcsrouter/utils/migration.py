@@ -37,7 +37,7 @@ class Migrate(object):
             LOGGER.error("Failed migrate with: {}".format(e))
 
     def create_failed_response_body(self, error):
-        return """<event type="sophos.mgt.mcs.migrate.succeeded" ts="{}">
+        return """<event type="sophos.mgt.mcs.migrate.failed" ts="{}">
   <token>{}</token>
   <errorMessage>{}</errorMessage>
 </event>""".format(timestamp.timestamp(), self.get_token(), error)
