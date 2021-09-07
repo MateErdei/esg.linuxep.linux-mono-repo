@@ -281,8 +281,6 @@ Check MDR Component Suite Installed Correctly
     File Should Exist  ${MDR_PLUGIN_PATH}/dbos/data/certificate.crt.0
     File Should Exist  ${MDR_PLUGIN_PATH}/dbos/SophosMTR
     File Should Exist  ${MDR_PLUGIN_PATH}/dbos/SophosMTR.0
-    File Should Exist  ${MDR_PLUGIN_PATH}/osquery/bin/osquery
-    File Should Exist  ${MDR_PLUGIN_PATH}/osquery/bin/osquery.0
     Directory Should Exist  ${MDR_PLUGIN_PATH}/var/policy
 
 Check SSPL Installed
