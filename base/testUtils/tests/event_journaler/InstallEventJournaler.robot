@@ -8,7 +8,9 @@ Resource  ../watchdog/WatchdogResources.robot
 Suite Setup     Require Fresh Install
 Suite Teardown  Require Uninstalled
 
-Test Teardown  General Test Teardown
+Test Teardown  Run Keywords
+...            General Test Teardown   AND
+...            Uninstall Event Journaler
 
 Default Tags   EVENT_JOURNALER_PLUGIN
 
@@ -65,6 +67,7 @@ Verify That Event Journaler Logging Can Be Set Individually
 Event Journaler Tests Teardown With Installed File Replacement
     Run Keyword If Test Failed  Save Current Event Journaler InstalledFiles To Local Path
     General Test Teardown
+    Uninstall Event Journaler
 
 Save Current Event Journaler InstalledFiles To Local Path
     Create File  ${ROBOT_TESTS_DIR}/event_journaler/InstallSet/FileInfo  ${FileInfo}

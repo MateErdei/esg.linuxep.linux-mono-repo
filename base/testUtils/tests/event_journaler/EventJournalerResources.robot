@@ -28,6 +28,11 @@ Install Event Journaler Directly
     ...  1 secs
     ...  Check Event Journaler Executable Running
 
+Uninstall Event Journaler
+    ${result} =  Run Process     ${COMPONENT_ROOT_PATH}/bin/uninstall.sh
+    Should Be Equal As Strings   ${result.rc}  0
+    [Return]  ${result}
+
 Check Event Journaler Executable Running
     ${result} =    Run Process  pgrep eventjournaler | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
