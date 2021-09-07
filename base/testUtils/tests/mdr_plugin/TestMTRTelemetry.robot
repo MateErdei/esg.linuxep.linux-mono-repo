@@ -20,17 +20,7 @@ Suite Teardown   MTR Telemetry Suite Teardown
 Default Tags   MDR_PLUGIN  MANAGEMENT_AGENT  TELEMETRY
 Force Tags  LOAD6
 
-*** Variables ***
-${PURGE_DATABASE_FILE_CONTENT} =  {"caller":"osquery.go:186","component":"dbos","level":"info","msg":"Osquery database watcher purge completed","publisher":"sophos","timestamp":"2019-10-09T10:09:35.535726746Z"}
-${OSQUERY_RESTART_MEMORY} =  Aug 08 22:14:48 osquery: osqueryd worker (15319) stopping: Memory limits exceeded: 272292000
-${OSQUERY_RESTART_CPU} =  Aug 08 22:12:25 osquery: osqueryd worker (28137) stopping: Maximum sustainable CPU utilization limit exceeded: 12
-${OSQUERY_WATCHER_LOG} =  ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/logs/osquery.watcher.log
-${OSQUERYD_OUTPUT_LOG} =  ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/logs/osqueryd.output.log
-
-
 *** Test Cases ***
-
-
 MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart And Also Uses Cached Values From Disk
     Install MTR From Fake Component Suite
     Kill SophosMTR Executable
