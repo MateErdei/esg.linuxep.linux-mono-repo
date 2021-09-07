@@ -36,11 +36,7 @@ ssplmdr-dbos-component:
     canonical-name: ServerProtectionLinux-MDR-DBOS-Component
     line-id: ServerProtectionLinux-MDR-DBOS-Component
     mountpoint: .
-ssplmdr-osquery-component:
-    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-OSQUERY-COMPONENT
-    canonical-name: ServerProtectionLinux-MDR-osquery-Component
-    line-id: ServerProtectionLinux-MDR-osquery-Component
-    mountpoint: .
+
 sspl-av:
     fileset: ..\redist\sspl-plugin-anti-virus
     canonical-name: ServerProtectionLinuxPlugin-AV

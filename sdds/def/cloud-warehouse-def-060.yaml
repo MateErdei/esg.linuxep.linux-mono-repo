@@ -34,7 +34,6 @@ warehouses:
         subcomponents:
           ssplmdr-control-component:
           ssplmdr-dbos-component:
-          ssplmdr-osquery-component:
 customer-files:
   -   warehouse: sspl-release-0-6-0-wh
       user: base_user_0_6_0

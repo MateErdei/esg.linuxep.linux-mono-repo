@@ -47,7 +47,6 @@ warehouses:
                 subcomponents:
                     ssplmdr-control-component:
                     ssplmdr-dbos-component:
-                    ssplmdr-osquery-component:
 
 customer-files:
     - warehouse: sspl-wh

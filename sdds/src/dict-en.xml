@@ -84,15 +84,6 @@
     </Identity>
     <Identity>
       <Label>
-        <Token>ServerProtectionLinux-MDR-osquery-Component</Token>
-        <Language lang="en">
-          <LongDesc>Server Protection for Linux MTR osquery Component</LongDesc>
-          <ShortDesc>SSPL MTR osquery Component</ShortDesc>
-        </Language>
-      </Label>
-    </Identity>
-    <Identity>
-      <Label>
         <Token>ServerProtectionLinux-Plugin-Example</Token>
         <Language lang="en">
           <LongDesc>Server Protection for Linux Plugin Example</LongDesc>
