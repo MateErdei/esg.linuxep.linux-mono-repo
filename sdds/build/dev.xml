@@ -42,19 +42,16 @@
         <include artifact-path="eventjournaler-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-event-journaler" mode="release-package-edr-mdr-999"/>
     </build-asset>
       <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
-        <development-version branch="develop"/>
+        <development-version branch="feature/LINUXDAR-3430-remove-any-usage-reference-of-osquery-from-mtr-plugin"/>
         <include artifact-path="output/SDDS-SSPL-DBOS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT" mode="release-package,release-package-base-999,release-package-edr-999,release-package-query-pack"/>
         <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT" mode="release-package,release-package-base-999,release-package-edr-999,release-package-query-pack"/>
         <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE" mode="release-package,release-package-base-999,release-package-edr-999,release-package-query-pack"/>
-        <include artifact-path="output/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT" mode="release-package,release-package-base-999,release-package-edr-999,release-package-query-pack"/>
         <include artifact-path="output-999/SDDS-SSPL-DBOS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT" mode="release-package-mdr-999,release-package-edr-mdr-999"/>
         <include artifact-path="output-999/SDDS-SSPL-MDR-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT" mode="release-package-mdr-999,release-package-edr-mdr-999"/>
         <include artifact-path="output-999/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE" mode="release-package-mdr-999,release-package-edr-mdr-999"/>
-        <include artifact-path="output-999/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT" mode="release-package-mdr-999,release-package-edr-mdr-999"/>
         <include artifact-path="output-060/SDDS-SSPL-DBOS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT" mode="release-package-060"/>
         <include artifact-path="output-060/SDDS-SSPL-MDR-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT" mode="release-package-060"/>
         <include artifact-path="output-060/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE" mode="release-package-060"/>
-        <include artifact-path="output-060/SDDS-SSPL-OSQUERY-COMPONENT" dest-dir="redist/sspl-plugin-mdr-componentsuite/SDDS-SSPL-OSQUERY-COMPONENT" mode="release-package-060"/>
       </build-asset>
 
       <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
