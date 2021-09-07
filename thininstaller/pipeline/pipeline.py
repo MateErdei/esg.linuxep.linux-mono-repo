@@ -3,7 +3,7 @@ import tap.v1 as tap
 
 @tap.pipeline(version=1, component='sspl-thininstaller')
 def sspl_thininstaller(stage: tap.Root, parameters: tap.Parameters):
-    component = tap.Component(name='sspl-thininstaller', base_version='1.1.1')
+    component = tap.Component(name='sspl-thininstaller', base_version='1.1.2')
     mode = parameters.mode or 'release'
 
     #export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
