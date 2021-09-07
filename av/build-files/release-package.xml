@@ -10,12 +10,13 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/Version_1_1_7" build-id="20210610140056-ccaccf5ca332ee7f7f08d76126e7c43316bec4cb-EvsxmZ" />
+            <release-version branch="release/2021-31" build-id="20210727152926-78eebf51615db9f1abcbc68dbb5b4b00af58e1c3-Cb7qND"/>
+            <development-version branch="feature/LINUXDAR-3051-upgrade-3rd-parties"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
 
-        <package name="boostlinux11" version="1-76-0-4/222616/output" dest="input">
+        <package name="boostlinux11" version="1-77-0-1/222969/output" dest="input">
             <include src="boost.tar" dest="."/>
         </package>
         <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
@@ -31,7 +32,7 @@
         <package name="capnprotolinux11" version="0-8-0-3/222233/output" dest="input">
             <include src="capnproto.tar" dest="."/>
         </package>
-        <package name="openssllinux11" branch="LINUXEP" version="1-1-1k-2/222232/output" dest="input">
+        <package name="openssllinux11" version="1-1-1l-1/222963/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
 
