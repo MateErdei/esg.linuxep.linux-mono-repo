@@ -19,6 +19,7 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
 #include <Common/ProcUtilImpl/ProcUtilities.h>
+#include <Common/ZeroMQWrapper/IIPCException.h>
 
 #include <cmath>
 #include <unistd.h>
@@ -146,6 +147,10 @@ namespace Plugin
             LOGINFO("No policy available right now for app: LiveQuery");
             // Ignore no Policy Available errors
         }
+        catch (const Common::ZeroMQWrapper::IIPCException& exception)
+        {
+            LOGERROR("Failed to request LiveQuery policy with error: "<< exception.what());
+        }
 
         try
         {
@@ -155,6 +160,10 @@ namespace Plugin
         {
             LOGINFO("No policy available right now for app: FLAGS");
             // Ignore no Policy Available errors
+        }
+        catch (const Common::ZeroMQWrapper::IIPCException& exception)
+        {
+            LOGERROR("Failed to request FLAGS policy with error: "<< exception.what());
         }
 
         try
