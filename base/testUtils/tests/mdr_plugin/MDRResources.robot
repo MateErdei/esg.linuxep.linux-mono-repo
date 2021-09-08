@@ -19,7 +19,6 @@ ${MTR_MESSAGE_RELAY_CONFIG_FILE}    ${SOPHOS_INSTALL}/var/sophosspl/mcs/current_
 ${MCS_POLICY_CONFIG}                ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
 ${MCS_CONFIG}                       ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 ${COMPONENT_TEMP_DIR}  /tmp/mdr_component
-${OSqueryPurgeMsg}     Osquery database watcher purge completed
 
 *** Keywords ***
 
@@ -36,7 +35,7 @@ Install MDR Directly
 Install MDR Directly with Fake SophosMTR
     ${MDR_SDDS_DIR} =  Get SSPL MDR Plugin SDDS
     ${result} =    Run Process  bash  ${MDR_SDDS_DIR}/install.sh
-    # installer will report version copy error since osquery is not present
+    # installer will report version copy error since SophosMTR is not present
     Should Be Equal As Integers    ${result.rc}    20
     Log  ${result.stdout}
     Log  ${result.stderr}
@@ -79,10 +78,6 @@ Check MDR Plugin Uninstalled
     ...  15 secs
     ...  1 secs
     ...  Check SophosMTR Executable Not Running
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check MTR Osquery Executable Not Running
 
 Check MDR component suite running
     Directory Should Exist  ${MDR_PLUGIN_PATH}
@@ -94,10 +89,6 @@ Check MDR component suite running
     ...  15 secs
     ...  1 secs
     ...  Check SophosMTR Executable Running
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check MTR Osquery Executable Running
 
 Check MDR Plugin Running
     ${result} =    Run Process  pgrep  mtr
@@ -152,23 +143,12 @@ Check EDR Osquery Executable Running For MTR
     ${result} =    Run Process  pgrep -af edr/bin/osquery | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
-Check MTR Osquery Executable Running
-    #Check both osquery instances are running
-    ${result} =    Run Process  pgrep -a osquery | grep plugins/mtr | wc -l  shell=true
-    Should Be Equal As Integers    ${result.stdout}    2       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-
-Check MTR Osquery Executable Not Running
-    ${result} =    Run Process  pgrep  -a  osquery | grep plugins/mtr  shell=true
-    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
-    Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
-
 Check Osquery Executable Not Running
     ${result} =    Run Process  pgrep  -a  osquery
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Check EDR Executable Running
-    #Check both osquery instances are running
     ${result} =    Run Process  pgrep edr | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
@@ -271,7 +251,7 @@ Restore Connection Between EndPoint and FleetManager
     Run Process   iptables   -D   INPUT   -s   10.10.10.10   -j   DROP
 
 Block Connection Between EndPoint And FleetManager
-    #we do not want a connection to dbos backend for testing that dbos executable will start osquery,
+    #we do not want a connection to dbos backend for testing that dbos executable will start up
     #without a connection to backend the dbos executable will continute running for 10-20 minutes
     Run Process   iptables   -A   INPUT   -s   10.10.10.10   -j   DROP
 
@@ -345,8 +325,6 @@ Install Directly From Component Suite
     Should Be Equal As Integers    ${result.rc}    0    Failed to copy ${MDR_COMPONENT_SUITE.mdr_plugin.sdds} to ${COMPONENT_TEMP_DIR}
     ${result} =  Run Process    rsync   -r   -v   ${MDR_COMPONENT_SUITE.dbos.sdds}/  ${COMPONENT_TEMP_DIR}/
     Should Be Equal As Integers    ${result.rc}    0    Failed to copy ${MDR_COMPONENT_SUITE.dbos.sdds} to ${COMPONENT_TEMP_DIR}
-    ${result} =  Run Process    rsync   -r   -v   ${MDR_COMPONENT_SUITE.osquery.sdds}/  ${COMPONENT_TEMP_DIR}/
-    Should Be Equal As Integers    ${result.rc}    0    Failed to copy ${MDR_COMPONENT_SUITE.osquery.sdds} to ${COMPONENT_TEMP_DIR}
     ${result} =  Run Process    rsync   -r   -v   ${MDR_COMPONENT_SUITE.mdr_suite.sdds}/  ${COMPONENT_TEMP_DIR}/
     Should Be Equal As Integers    ${result.rc}    0    Failed to copy ${MDR_COMPONENT_SUITE.mdr_suite.sdds} to ${COMPONENT_TEMP_DIR}
     LIST FILES IN DIRECTORY  ${COMPONENT_TEMP_DIR}
@@ -363,20 +341,6 @@ Insert Functional MTR Policy
     Create File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${MDRPolicy}
     Move File  ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy
 
-Trigger Osquery Database Purge
-    ${result} =  Run Process  dd if\=/dev/urandom bs\=1024 count\=200 | split -a 4 -b 1k - /opt/sophos-spl/plugins/mtr/dbos/data/osquery.db/mtrtelemetrytest_file.  shell=true
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    Should Be Equal As Strings  ${result.rc}  0
-
-Wait For Osquery To Purge Database
-    Wait Until Keyword Succeeds
-    ...  120s
-    ...  10s
-    ...  Osquery Watcher Log Should Contain  ${OSqueryPurgeMsg}
-
-Osquery Has Not Purged Database
-    Osquery Watcher Log Should Not Contain  ${OSqueryPurgeMsg}
 
 Install MTR From Fake Component Suite
     Block Connection Between EndPoint And FleetManager
@@ -393,7 +357,3 @@ Install MTR From Fake Component Suite
     ...  1 secs
     ...  File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/var/policy/mtr.xml
     Wait Until SophosMTR Executable Running  20
-    Wait Until Keyword Succeeds
-    ...  35 secs
-    ...  1 secs
-    ...  Check EDR Osquery Executable Running For MTR
