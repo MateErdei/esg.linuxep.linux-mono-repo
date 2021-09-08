@@ -63,7 +63,7 @@
         <package name="thriftlinux11" version="0-14-2-2/222974/output" dest="input">
             <include src="thrift.tar" dest="."/>
         </package>
-        <package name="sqlite-amalgamation" version="3-34-1-4/221901" dest="input">
+        <package name="sqlite-amalgamation" version="3-36-0-4/222981" dest="input">
             <include src="sqlite-amalgamation" dest="sqlite-amalgamation"/>
         </package>
         <package name="jsoncpplinux11" version="1-8-4-17/220379/output" dest="input">
