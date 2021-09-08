@@ -116,7 +116,6 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    Directory should exist   /opt/sophos-spl/plugins/mtr/osquery/bin/osquery
     Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
     Override LogConf File as Global Level  DEBUG
     Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
@@ -197,7 +196,7 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrDevVersion}
     ${AVDevVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
-    Directory should not exist   /opt/sophos-spl/plugins/mtr/osquery/bin/osquery
+
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #${EJDevVersion} =       Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
 
