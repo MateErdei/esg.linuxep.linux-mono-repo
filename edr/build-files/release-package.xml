@@ -47,7 +47,7 @@
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
-        <trusted-asset artifact-path="com.osquery/osquery/4.6.0/osquery-4.6.0-linux" dest-dir="input/osquery"/>
+        <trusted-asset artifact-path="com.osquery/osquery/4.8.0/osquery-4.8.0-linux" dest-dir="input/osquery"/>
         <package name="openssllinux11" version="1-1-1l-1/222963/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>
