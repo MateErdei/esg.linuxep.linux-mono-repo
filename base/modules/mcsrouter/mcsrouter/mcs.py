@@ -583,14 +583,10 @@ class MCS:
 
         def attempt_migration(old_comms, live_config, root_config) -> bool:
             LOGGER.info("Attempting Central migration")
-            migration_success = False
             migration_data = migration.Migrate()
             migration_data.read_migrate_action()
             migrate_comms = None
             try:
-                # Make new MCS object
-                # TODO: do we need the deepcopy?
-                # migrate_config = copy.deepcopy(live_config)
                 migrate_config = copy.copy(live_config)
                 migrate_comms = mcs_connection.MCSConnection(
                     migrate_config,
@@ -617,11 +613,6 @@ class MCS:
 
                 # TODO pre-signed URLS?
 
-                # status are sent for all components
-                # new polices come down ASAP
-                # All settings in MCS remapper namespaces are preserved to allow continuation of protections.
-                # Namespaces are updated as new policies arrive and the old content is purged.
-
                 self.__m_computer.clear_cache()
                 migrate_comms.set_migrate_mode(False)
                 endpoint_id, device_id, tenant_id, password = migration_data.extract_values(response)
@@ -631,10 +622,10 @@ class MCS:
                 migrate_config.set("device_id", device_id)
                 migrate_config.save()
 
-                # root_config.clear()
-                # root_config.set("MCSURL", migration_data.get_migrate_url())
-                # root_config.set("MCSURL", migration_data.get_migrate_url())
-                # root_config.save_non_atomic()
+                # TODO This might break reregistration - we could need a new token from Central
+                root_config.remove("MCSToken")
+                root_config.set("MCSURL", migration_data.get_migrate_url())
+                root_config.save_non_atomic()
 
                 self.stop_push_client(push_client)
 

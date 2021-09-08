@@ -30,9 +30,6 @@ class Config(object):
         self.__m_filename = filename
         self.__m_parent_config = parent_config
 
-    def clear(self):
-        self.__m_options = {}
-
     def get_options(self):
         return self.__m_options
 
