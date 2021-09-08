@@ -147,9 +147,6 @@ Successful Register With Cloud And Migrate To Another Cloud Server
 Register With Cloud And Fail To Migrate To Another Cloud Server
     [Tags]  AMAZON_LINUX  MCS  MCS_ROUTER  FAKE_CLOUD
 
-#    TODO if we need debug we can turn it on but I want to see what the logs look like in normal state to tody up logging code.
-#    Override LogConf File as Global Level  DEBUG
-
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Start MCS Push Server
     Wait For MCS Router To Be Running
@@ -158,27 +155,23 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     Check Cloud Server Log Does Not Contain  Processing deployment api call
     Check Cloud Server Log Contains  Register with ::ThisIsARegToken
 
-
     ${original_mcsid}  get_value_from_ini_file  MCSID  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
     Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
     ${mcs_policy_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
 
-    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    ${mcs_config_content_orig}   get file   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-#    ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
-
-
-    # TODO we need ot modify base installer for to delete this config.
      Log File  ${SOPHOS_INSTALL}/base/etc/mcs.config
      ${mcs_root_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/mcs.config
 
-    # Populate purge directories with garbage
-    Create File  ${MCS_DIR}/event/garbage_event  Please recycle
+     Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+     ${mcs_config_content_orig}   get file   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+
+    # Populate some of the purge directories with garbage to prove they are purged during a migration
+    # Events and datfeed rsults not included here beacuse the product removes them if they are invalid
+    # or will send them and then remove them if they are valid so.
     Create File  ${MCS_DIR}/action/garbage_action  Please recycle
     Create File  ${MCS_DIR}/policy/garbage_policy  Please recycle
-    Create File  ${MCS_DIR}/datafeed/garbage_result  Please recycle
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy  Please recycle
 
     Set Migrate To Reply With 401 Flag
@@ -215,9 +208,11 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     ${mcs_root_config_ts_new}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/mcs.config
 
     Should Be Equal As Strings  ${mcs_policy_config_ts_new}  ${mcs_policy_config_ts_orig}
-    # this one does get written to - check content instead?
-    #    Should Be Equal As Strings  ${mcs_config_ts_new}  ${mcs_config_ts_orig}
     Should Be Equal As Strings  ${mcs_root_config_ts_new}  ${mcs_root_config_ts_orig}
+
+    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${mcs_config_content_new}   get file   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Should Be Equal As Strings  ${mcs_config_content_new}  ${mcs_config_content_orig}
 
     ${new_mcsid}  get_value_from_ini_file  MCSID  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     ${new_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
@@ -225,10 +220,8 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     Should Be Equal As Strings  ${original_mcsid}  ${new_mcsid}
     Should Be Equal As Strings  ${original_jwt_token}  ${new_jwt_token}
 
-#    File Should Exist  ${MCS_DIR}/event/garbage_event
     File Should Exist  ${MCS_DIR}/action/garbage_action
     File Should Exist  ${MCS_DIR}/policy/garbage_policy
-#    File Should Exist  ${MCS_DIR}/datafeed/garbage_result
     File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
 
     # Check push connection has been re-established
