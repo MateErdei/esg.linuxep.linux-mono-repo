@@ -31,9 +31,6 @@ Force Tags  LOAD3
 Successful Register With Cloud And Migrate To Another Cloud Server
     [Tags]  MCS  MCS_ROUTER  FAKE_CLOUD
 
-#    TODO if we need debug we can turn it on but I want to see what the logs look like in normal state to tody up logging code.
-#    Override LogConf File as Global Level  DEBUG
-
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Start MCS Push Server
     Wait For MCS Router To Be Running
