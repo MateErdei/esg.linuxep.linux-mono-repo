@@ -11,7 +11,7 @@
             -->
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2021-31" build-id="20210727152926-78eebf51615db9f1abcbc68dbb5b4b00af58e1c3-Cb7qND"/>
-            <development-version branch="feature/LINUXDAR-3051-upgrade-3rd-parties"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
