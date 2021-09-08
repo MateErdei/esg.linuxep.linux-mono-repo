@@ -911,7 +911,7 @@ class LogUtils(object):
             config.read(file)
         except configparser.MissingSectionHeaderError:
             with open(file) as f:
-                file_content = '[fake_section]\n' + f.read()
+                file_content = f'[{section}]\n' + f.read()
                 config = configparser.RawConfigParser()
                 config.read_string(file_content)
         return config[section][key]

@@ -611,8 +611,6 @@ class MCS:
 
                 migration_file_purge()
 
-                # TODO pre-signed URLS?
-
                 self.__m_computer.clear_cache()
                 migrate_comms.set_migrate_mode(False)
                 endpoint_id, device_id, tenant_id, password = migration_data.extract_values(response)
@@ -622,7 +620,9 @@ class MCS:
                 migrate_config.set("device_id", device_id)
                 migrate_config.save()
 
-                # TODO This might break reregistration - we could need a new token from Central
+                # Remove old MCS token from root config
+                # Rely on the one that is sent via policy and stored in mcs policy config
+                # Update root config URL to latest known good one
                 root_config.remove("MCSToken")
                 root_config.set("MCSURL", migration_data.get_migrate_url())
                 root_config.save_non_atomic()
@@ -635,7 +635,6 @@ class MCS:
                 except Exception as exception:
                     LOGGER.warning("'Migration succeeded' event failed to send: {}".format(exception))
 
-                # Close old comms object
                 old_comms.close()
 
                 self.__m_config = migrate_config
@@ -685,10 +684,6 @@ class MCS:
             # Remove config based on MCS policy
             wrapped_remove(path_manager.mcs_policy_config())
             wrapped_remove(path_manager.sophosspl_config())
-
-            # # Clear out the root config to make sure any old details are removed, we cannot delete it without making base/etc writable by group
-            with open(path_manager.root_config(), 'w') as root_config:
-                root_config.write("")
 
             # Remove current proxy file
             wrapped_remove(path_manager.mcs_current_proxy())
