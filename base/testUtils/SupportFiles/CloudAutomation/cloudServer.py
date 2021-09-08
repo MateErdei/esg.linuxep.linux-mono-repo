@@ -1899,12 +1899,6 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
 
         if self.path.startswith("/mcs/events/migrate/"):
             return self.ret("OK", code=200)
-            # # # if MCSRequestHandler.options.reregister or REREGISTER_NEXT:
-            # # #     REREGISTER_NEXT = False
-            # #     return self.send_401()
-            # # else:
-            #     return self.mcs_update_status()
-        # TODO add handler: /mcs/events/migrate/ThisIsAnMCSID+1001
 
         logger.warn("unknown do_PUT_mcs: %s", self.path)
         message = "<html><body>UNKNOWN PUT REQUEST %s</body></html>"%self.path
