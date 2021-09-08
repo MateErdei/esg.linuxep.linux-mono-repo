@@ -178,7 +178,7 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     Trigger Migration Now
 
     # Long wait due to Push Server triggering reduced polling
-     Wait Until Keyword Succeeds
+    Wait Until Keyword Succeeds
     ...  120s
     ...  10s
     ...  Check MCS Router Log Contains  Attempting Central migration

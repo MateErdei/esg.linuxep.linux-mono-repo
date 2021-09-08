@@ -1079,13 +1079,11 @@ class MCSConnection:
         except mcsrouter.utils.xml_helper.XMLException:
             LOGGER.warning("Event xml rejected")
 
-    def send_migration_event(self, event):
+    def send_migration_event(self, event_xml: str):
         """
         send_migration_event
         """
         try:
-            # TODO make sure this is the correct XML string
-            event_xml = event
             self.send_message_with_id("/events/migrate/", event_xml, "PUT")
         except mcsrouter.utils.xml_helper.XMLException:
             LOGGER.warning("Event xml rejected")
