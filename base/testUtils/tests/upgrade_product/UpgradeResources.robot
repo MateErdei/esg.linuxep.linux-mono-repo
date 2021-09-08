@@ -119,7 +119,6 @@ Check MDR and Base Components Inside The ALC Status
     Should Contain  ${statusContent}  ServerProtectionLinux-MDR-DBOS-Component
     Should Contain  ${statusContent}  ServerProtectionLinux-MDR-Control-Component
     Should Contain  ${statusContent}  ServerProtectionLinux-Base
-    Should Contain  ${statusContent}  ServerProtectionLinux-MDR-osquery-Component
 
 Check Status Has Changed
      [Arguments]  ${status1}

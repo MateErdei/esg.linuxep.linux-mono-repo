@@ -878,7 +878,6 @@ Check Installed Version In Status Message Is Correctly Reported Based On Version
     Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Plugin-liveresponse  ${EMPTY}  ${status_file}
     Check Status File Component Installed Version Is Correct  ServerProtectionLinux-MDR-Control-Component  1.0.0.234  ${status_file}
     Check Status File Component Installed Version Is Correct  ServerProtectionLinux-MDR-DBOS-Component  1.0.0.345  ${status_file}
-    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-MDR-osquery-Component  1.0.0.456  ${status_file}
 
 *** Keywords ***
 
