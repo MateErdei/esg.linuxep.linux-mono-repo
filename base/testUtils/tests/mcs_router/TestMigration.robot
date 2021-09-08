@@ -23,13 +23,13 @@ Test Teardown    Run Keywords
 ...			     Stop System Watchdog  AND
 ...              Push Server Test Teardown
 
-Default Tags  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER
+Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
 Force Tags  LOAD3
 
 *** Test Case ***
 
 Successful Register With Cloud And Migrate To Another Cloud Server
-    [Tags]  AMAZON_LINUX  MCS  MCS_ROUTER  FAKE_CLOUD
+    [Tags]  MCS  MCS_ROUTER  FAKE_CLOUD
 
 #    TODO if we need debug we can turn it on but I want to see what the logs look like in normal state to tody up logging code.
 #    Override LogConf File as Global Level  DEBUG
@@ -145,7 +145,7 @@ Successful Register With Cloud And Migrate To Another Cloud Server
 
 
 Register With Cloud And Fail To Migrate To Another Cloud Server
-    [Tags]  AMAZON_LINUX  MCS  MCS_ROUTER  FAKE_CLOUD
+    [Tags]  MCS  MCS_ROUTER  FAKE_CLOUD
 
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Start MCS Push Server
