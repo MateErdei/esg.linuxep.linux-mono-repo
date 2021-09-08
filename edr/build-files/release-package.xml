@@ -23,7 +23,7 @@
             <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/SED_2021.34_linux_libs" build-id="20210813065226-b14b2fb7326a4b223bca878249947834adc50ed7-YtMKw9" />
+            <release-version branch="release/SED_3.0.1_linux_libs" build-id="20210906121224-45cfc06d2dfb00b0e1b05ffc768d4874d9ec1713-v0yv8V" />
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="input"/>
         </build-asset>
