@@ -289,9 +289,10 @@ function build()
         untar_input JournalLib
         untar_input protobuf
         untar_input capnproto
-        mkdir -p $REDIST/xzutils
-        tar xf  ${INPUT}/xzutils.tar -C "$REDIST/xzutils"
-        cp -r "${INPUT}/sqlite-amalgamation" "${REDIST}/sqlite"
+        mkdir -p "${REDIST}/xzutils"
+        tar xf  "${INPUT}/xzutils.tar" -C "${REDIST}/xzutils"
+        mkdir -p "${REDIST}/sqlite"
+        unzip "${INPUT}/sqlite-amalgamation/*" -d "${REDIST}/sqlite"
 
         mkdir -p "$REDIST"/osquery
         cp  -r ${INPUT}/osquery/osquery/*  "$REDIST"/osquery

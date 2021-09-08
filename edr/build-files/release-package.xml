@@ -14,7 +14,7 @@
         </build-asset>
         <build-asset project="winep" repo="livequery">
             <release-version branch="release/2021.19" build-id="20210504124607-bf8d67823e02dcb218affc74fe23f17b87fc4460-juSRV9"/>
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-3051-use-new-sqlite"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <build-asset project="winep" repo="dbos">
