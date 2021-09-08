@@ -2,8 +2,8 @@ o777, root, root, /opt/sophos-spl/plugins/mtr/bin/mtr
 o777, root, root, /opt/sophos-spl/plugins/mtr/bin/uninstall.sh
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so.1
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so.1.6
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so.1.6.12
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so.1.8
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libexpat.so.1.8.1
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libgcc_s.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libgcc_s.so.1
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/liblog4cplus-2.0.so
@@ -14,9 +14,9 @@ o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libpluginapi.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libpluginimpl.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprocimpl.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.25
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.25.0
-o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.25.0.0
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.28
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.28.0
+o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libprotobuf.so.28.0.3
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libstdc++.so
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libstdc++.so.6
 o777, root, root, /opt/sophos-spl/plugins/mtr/lib64/libstdc++.so.6.0
