@@ -36,7 +36,7 @@ Resource    UpgradeResources.robot
 ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
 ${BaseAndAVReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_av_VUT-1.xml
 ${BaseEdrAndMtrReleasePolicy}               ${GeneratedWarehousePolicies}/base_edr_and_mtr_VUT-1.xml
-${BaseEdrAndMtrAndAVReleasePolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
+${BaseEdrAndMtrAndAVDogfoodPolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
 ${BaseAndMtrAndAvReleasePolicy}             ${GeneratedWarehousePolicies}/base_and_mtr_and_av_VUT-1.xml
 ${BaseAndEDROldWHFormat}                    ${GeneratedWarehousePolicies}/base_edr_old_wh_format.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
@@ -106,9 +106,9 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndAvReleasePolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVDogfoodPolicy}
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndAvReleasePolicy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVDogfoodPolicy}
     Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
 
     Wait Until Keyword Succeeds
@@ -123,15 +123,15 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Check EAP Release With AV Installed Correctly
     ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
-    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
+    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseReleaseVersion}  ${BaseReleaseVersion}
     ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
-    ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
+    ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrReleaseVersion}  ${MtrReleaseVersion}
     ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
-    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Plugin-AV
+    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-AV
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVReleaseVersion}  ${AVReleaseVersion}
 
@@ -225,20 +225,20 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     Check Current Release Installed Correctly
     ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
-    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
+    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
     ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${ExpectBaseDowngrade} =  second_version_is_lower  ${ExpectedBaseDevVersion}  ${ExpectedBaseReleaseVersion}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
     ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
-    ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
+    ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
     ${MtrVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrVersion}
     ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
-    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Plugin-AV
+    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-AV
     ${AVVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVVersion}
     ${ExpectedEDRDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
-    ${ExpectedEDRReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseAndMtrAndAvReleasePolicy}  ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEDRReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-EDR
     ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
@@ -262,11 +262,11 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Run Process  chown  -R  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action/testfile
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVReleasePolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVDogfoodPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVReleasePolicy}
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVDogfoodPolicy}
 
     Mark Watchdog Log
     Mark Managementagent Log
