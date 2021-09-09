@@ -78,7 +78,7 @@ check for processed tar files
     ${count} =  Count Files In Directory  ${SOPHOS_INSTALL}/base/remote-diagnose/output
     Should Be Equal As Integers  2   ${count}
 Setup Fake Cloud
-    Start Local Cloud Server  --initial-alc-policy  ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
+    Start Local Cloud Server
     Generate Local Fake Cloud Certificates
     Regenerate Certificates
     Set Local CA Environment Variable

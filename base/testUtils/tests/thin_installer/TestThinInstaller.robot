@@ -146,7 +146,7 @@ ${CUSTOM_DIR_BASE} =  /CustomPath
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{FORCE_ARGUMENT} =  --force
 @{PRODUCT_MDR_ARGUMENT} =  --products\=mdr
-${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
+${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_base_only.xml
 
 *** Test Case ***
 Thin Installer can download test file from warehouse and execute it
@@ -357,7 +357,7 @@ Thin Installer Attempts Install And Register Through Message Relays
     # Add Message Relays to Thin Installer
     Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
     Build Default Creds Thininstaller From Sections
-    #Configure And Run TCredentialshininstaller Using Real Warehouse Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem
+    #Configure And Run Thininstaller Using Policy  0  ${BaseVUTPolicy}  mcs_ca=/tmp/root-ca.crt.pem
     Run Default Thininstaller  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
     # Check current proxy file is written with correct content and permissions.
