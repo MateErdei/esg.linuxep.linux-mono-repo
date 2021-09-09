@@ -7,13 +7,13 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2021-34" build-id="20210813144733-bc66f4a61e032de3074517ff19d993c5f6eebc61-7MAz8d"/>
+            <release-version branch="release/2021-37" build-id="20210909085843-bc2df48544d87e246dc235cea17b967159add9de-9NgrOA"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2021.19" build-id="20210504124607-bf8d67823e02dcb218affc74fe23f17b87fc4460-juSRV9"/>
+            <release-version branch="release/2021.37-linux" build-id="20210909124845-4ba2bf3fe29b7ca6b54c83d0d9811fe9c53f511b-UFRT6N"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
