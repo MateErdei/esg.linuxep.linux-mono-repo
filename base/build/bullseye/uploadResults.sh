@@ -72,6 +72,7 @@ then
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
   set -x
+  find -name "*test_coverage.json"
   sudo cp $BULLSEYE_DIR/bin/covxml /usr/local/bin/covxml
   ln -s $BULLSEYE_DIR/bin/covxml covxml
   touch /opt/test/results/coverage/test_coverage.json
