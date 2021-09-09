@@ -102,13 +102,12 @@ We Can Install From A Ballista Warehouse
 #    Force A failure If you want to check for anything with the teardown logs
 #    Fail
 
-We Can Upgrade From Dogfood to Develop Without Unexpected Errors
+We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrAndAvReleasePolicy}
 
-    Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrAndAvReleasePolicy}
     Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
 
@@ -204,9 +203,11 @@ We Can Upgrade From Dogfood to Develop Without Unexpected Errors
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
     Check Event Journaler Executable Running
+    Check AV Plugin Permissions
+    Check AV Plugin Can Scan Files
     Check Update Reports Have Been Processed
 
-We Can Downgrade From Develop to Dogfood Without Unexpected Errors
+We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
 
@@ -444,89 +445,6 @@ Test That Only Subscriptions Appear As Subscriptions In ALC Status File
 
     Only Subscriptions In Policy Are In Alc Status Subscriptions
 
-We Can Upgrade AV From Dogfood To VUT Without Unexpected Errors
-    [Timeout]  10 minutes
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndAVReleasePolicy}
-
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndAVReleasePolicy}
-
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
-    Override LogConf File as Global Level  DEBUG
-    Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
-
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
-
-    Check AV Plugin Installed
-
-    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseAndAVReleasePolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
-    ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
-    ${BaseReleaseVersion} =      Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${ExpectBaseUpgrade} =  second_version_is_lower  ${ExpectedBaseDevVersion}  ${ExpectedBaseReleaseVersion}
-    Should Be Equal As Strings  ${ExpectedBaseReleaseVersion}  ${BaseReleaseVersion}
-    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseAndAVReleasePolicy}  ServerProtectionLinux-Plugin-AV
-    ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
-    ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    ${ExpectAVUpgrade} =  second_version_is_lower  ${ExpectedAVDevVersion}  ${ExpectedAVReleaseVersion}
-    Should Be Equal As Strings  ${ExpectedAVReleaseVersion}  ${AVReleaseVersion}
-
-    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=tru
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndAVVUTPolicy}
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndAVVUTPolicy}
-    Wait until threat detector running
-
-    Mark Watchdog Log
-    Mark Managementagent Log
-
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  1
-
-    # Make sure the second update performs an upgrade.
-    Run Keyword If  ${ExpectBaseUpgrade}
-    ...     Check Log Contains String N times    /tmp/preserve-sul-downgrade   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Base-component Upgraded  1
-    Run Keyword If  ${ExpectAVUpgrade}
-    ...     Check Log Contains String N times    /tmp/preserve-sul-downgrade   suldownloader_log   Product Report for product downloaded: ServerProtectionLinux-Plugin-AV Upgraded  1
-
-    Check AV Plugin Installed
-
-    #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-    #TODO LINUXDAR-2972 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-    #TODO LINUXDAR-3191 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
-    #this is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
-    Run Keyword And Expect Error  *
-    ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
-    #TODO LINUXDAR-3188 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  UnixSocket <> Failed to write Process Control Request to socket. Exception caught: Environment interruption
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
-
-    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${AVDevVersion} =   Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-
-    Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseDevVersion}
-    Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
-
-    Check AV Plugin Permissions
-    Check AV Plugin Can Scan Files
 
 Check Installed Version In Status Message Is Correctly Reported Based On Version Ini File
     [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
