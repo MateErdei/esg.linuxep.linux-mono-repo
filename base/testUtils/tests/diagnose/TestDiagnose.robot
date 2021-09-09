@@ -12,6 +12,7 @@ Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../edr_plugin/EDRResources.robot
 Resource    ../liveresponse_plugin/LiveResponseResources.robot
 Resource    DiagnoseResources.robot
+Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
 
 Suite Setup  Require Fresh Install
 Suite Teardown  Ensure Uninstalled
