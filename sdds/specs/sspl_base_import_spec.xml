@@ -135,9 +135,9 @@
 					   shortdic="Sophos Linux Event Journaler"/>
 		</line>
 		<line id="ServerProtectionLinux-Plugin-AV">
-			<component id="ServerProtectionLinux-Plugin-AV-1.0.3.19"
-					   version="1.0.3.19"
-					   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2021-34/20210824133915-5bff2a61c387df34250aa6a68ab773e61ca78b44-ro4u4i/sspl-plugin-anti-virus/SDDS-COMPONENT"
+			<component id="ServerProtectionLinux-Plugin-AV-1.0.3.32"
+					   version="1.0.3.32"
+					   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2021-37/20210909175722-1f436004ba1d3d8e52142910dc140e8865dfd1b9-DCdEYL/sspl-plugin-anti-virus/SDDS-COMPONENT"
 					   longdic="Sophos Linux AntiVirus"
 					   shortdic="Sophos Linux AntiVirus"/>
 			<component id="ServerProtectionLinux-Plugin-AV-1.0.3.13"
