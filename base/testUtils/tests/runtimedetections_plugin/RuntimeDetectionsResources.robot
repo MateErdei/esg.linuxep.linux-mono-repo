@@ -1,6 +1,7 @@
 *** Settings ***
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Resource  ../upgrade_product/UpgradeResources.robot
+Resource  ../runtimedetections_plugin/RuntimeDetectionsResources.robot
 
 
 *** Variables ***
@@ -33,13 +34,13 @@ RuntimeDetections Plugin Is Not Running
 
 Restart RuntimeDetections Plugin
     [Arguments]  ${clearLog}=False
-    Wdctl Stop Plugin  edr
+    Wdctl Stop Plugin  capsule8-sensor
     Run Keyword If   ${clearLog}   Remove File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   1 secs
     ...   RuntimeDetections Plugin Is Not Running
-    Wdctl Start Plugin  edr
+    Wdctl Start Plugin  capsule8-sensor
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   1 secs
@@ -88,16 +89,16 @@ Uninstall RuntimeDetections Plugin
     Should Be Equal As Strings   ${result.rc}  0
     [Return]  ${result}
 
-Wait For EDR Status
-    Wait Until Keyword Succeeds
-    ...  30
-    ...  1
-    ...  File Should Exist  ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
+#Wait For RuntimeDetections Status
+#    Wait Until Keyword Succeeds
+#    ...  30
+#    ...  1
+#    ...  File Should Exist  ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
 
 Install RuntimeDetections Directly
     ${RUNTIMEDETECTIONS_SDDS_DIR} =  Get SSPL RuntimeDetections Plugin SDDS
-    ${result} =    Run Process  bash -x ${RUNTIMEDETECTIONS_SDDS_DIR}/install.sh 2> /tmp/edr_install.log   shell=True
-    ${stderr} =   Get File  /tmp/edr_install.log
+    ${result} =    Run Process  bash -x ${RUNTIMEDETECTIONS_SDDS_DIR}/install.sh 2> /tmp/c8_install.log   shell=True
+    ${stderr} =   Get File  /tmp/c8_install.log
     Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr} ${stderr}"
     Log  ${result.stdout}
     Log  ${stderr}

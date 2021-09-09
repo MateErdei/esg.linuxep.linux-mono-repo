@@ -198,7 +198,7 @@ Diagnose Tool Gathers C8 Logs When Run From Installation
 
     Create Directory  ${TAR_FILE_DIRECTORY}
 
-    Install C8 Directly
+    Install RuntimeDetections Directly
 
     Wait Until Keyword Succeeds
         ...   10 secs
