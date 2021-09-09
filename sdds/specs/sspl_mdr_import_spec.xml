@@ -1,10 +1,16 @@
 <?xml version="1.0" ?>
 <importspec>
   <warehouses>
-    <warehouse id="ssplmdr" name="DNR_SSPL_MDR_SPRINT_2021_22"/>
+    <warehouse id="ssplmdr" name="DNR_SSPL_MDR_SPRINT_2021_37"/>
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Plugin-MDR">
+      <componentsuite
+              id="ServerProtectionLinux-Plugin-MDR-1.0.9.30"
+              version="1.0.9.30"
+              artifact="esg-releasable-candidate/linuxep.sspl-plugin-mdr-componentsuite/release--2021-37/20210909144722-3dc127a381e9a1237200d86d10268bd35c8a278d-aId6UW/output/SDDS-SSPL-MDR-COMPONENT-SUITE"
+              longdic="Sophos Server Protection for Linux MTR" shortdic="Sophos Server Protection for Linux MTR"
+              marketingversion="SSPL 1.0.9 MTR" />
       <componentsuite
               id="ServerProtectionLinux-Plugin-MDR-1.0.9.7"
               version="1.0.9.7"
@@ -50,6 +56,11 @@
     </line>
     <line id="ServerProtectionLinux-MDR-Control-Component">
       <component
+              id="ServerProtectionLinux-MDR-Control-Component-1.0.9.49"
+              version="1.0.9.49"
+              artifact="esg-releasable-candidate/linuxep.sspl-plugin-mdr-componentsuite/release--2021-37/20210909144722-3dc127a381e9a1237200d86d10268bd35c8a278d-aId6UW/output/SDDS-SSPL-MDR-COMPONENT"
+              longdic="Sophos Managed Threat Response plug-in" shortdic="Sophos Managed Threat Response plug-in" />
+      <component
               id="ServerProtectionLinux-MDR-Control-Component-1.0.9.10"
               version="1.0.9.10"
               artifact="esg-releasable-candidate/linuxep.sspl-plugin-mdr-componentsuite/release--Version_1_0_9/20210521170818-727724bec1244eff9c765ba00ce1e2be7a55e528-Q1ao76/output/SDDS-SSPL-MDR-COMPONENT"
@@ -86,6 +97,11 @@
               longdic="Sophos Managed Threat Response plug-in" shortdic="Sophos Managed Threat Response plug-in" />
     </line>
     <line id="ServerProtectionLinux-MDR-DBOS-Component">
+      <component
+              id="ServerProtectionLinux-MDR-DBOS-Component-2.3.0.97"
+              version="2.3.0.97"
+              artifact="esg-releasable-candidate/linuxep.sspl-plugin-mdr-componentsuite/release--2021-37/20210909144722-3dc127a381e9a1237200d86d10268bd35c8a278d-aId6UW/output/SDDS-SSPL-DBOS-COMPONENT"
+              longdic="Sophos Managed Threat Response for Linux" shortdic="Sophos Managed Threat Response for Linux" />
       <component
               id="ServerProtectionLinux-MDR-DBOS-Component-2.1.0.65"
               version="2.1.0.65"
