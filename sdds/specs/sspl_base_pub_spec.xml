@@ -112,7 +112,7 @@
                 <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.131"/>
             </line>
             <line id="ServerProtectionLinux-Plugin-AV">
-                <component importreference="ServerProtectionLinux-Plugin-AV-1.0.3.19">
+                <component importreference="ServerProtectionLinux-Plugin-AV-1.0.3.32">
                     <releasetag baseversion="" tag="RECOMMENDED"/>
                     <genericsupplement
                             decodepath="files/plugins/av/chroot/susi/update_source/vdl"
