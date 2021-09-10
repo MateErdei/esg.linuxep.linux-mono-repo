@@ -54,15 +54,21 @@ Test Remote Diagnose can process SDU action
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/remote-diagnose/output
 
 Test Remote Diagnose can handle two SDU actions
+    [Timeout]  7 minutes
     Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  sdu
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  sdu
-    Simulate SDU Action Now
-    Simulate SDU Action Now
     Wait Until Keyword Succeeds
-            ...  280 secs
-            ...  5 secs
-            ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose  Diagnose finished   2
+    ...  10 secs
+    ...  1 secs
+    ...  Check Log Contains  Entering the main loop  ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log  SDU Log
+
+    Simulate SDU Action Now  action_suffix=1
+    Simulate SDU Action Now  action_suffix=2
+    Wait Until Keyword Succeeds
+    ...  320 secs
+    ...  5 secs
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log   Remote Diagnose  Diagnose finished   2
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/remote-diagnose/output
 
 
@@ -93,7 +99,8 @@ Teardown
     cleanup_system_ca_certs
 
 Simulate SDU Action Now
+    [Arguments]  ${action_suffix}=1
     Copy File   ${SUPPORT_FILES}/CentralXml/SDUAction.xml  ${SOPHOS_INSTALL}/tmp
     ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/SDUAction.xml    shell=True
     Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
-    Move File   ${SOPHOS_INSTALL}/tmp/SDUAction.xml  ${SOPHOS_INSTALL}/base/mcs/action/SDU_action_1.xml
+    Move File   ${SOPHOS_INSTALL}/tmp/SDUAction.xml  ${SOPHOS_INSTALL}/base/mcs/action/SDU_action_${action_suffix}.xml
