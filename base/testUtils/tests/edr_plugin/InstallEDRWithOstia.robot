@@ -599,7 +599,7 @@ Upgrade Installs EDR Twice
 
 Wait for first update
     Wait Until Keyword Succeeds
-        ...   60 secs
+        ...   90 secs
         ...   10 secs
         ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
