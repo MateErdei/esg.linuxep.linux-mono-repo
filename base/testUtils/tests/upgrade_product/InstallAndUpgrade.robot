@@ -37,6 +37,7 @@ ${BaseAndMtrReleasePolicy}                  ${GeneratedWarehousePolicies}/base_a
 ${BaseAndAVReleasePolicy}                  ${GeneratedWarehousePolicies}/base_and_av_VUT-1.xml
 ${BaseEdrAndMtrReleasePolicy}               ${GeneratedWarehousePolicies}/base_edr_and_mtr_VUT-1.xml
 ${BaseEdrAndMtrAndAVDogfoodPolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
+${BaseEdrAndMtrAndAVReleasePolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_Release.xml
 ${BaseAndMtrAndAvReleasePolicy}             ${GeneratedWarehousePolicies}/base_and_mtr_and_av_VUT-1.xml
 ${BaseAndEDROldWHFormat}                    ${GeneratedWarehousePolicies}/base_edr_old_wh_format.xml
 ${BaseAndMtrVUTPolicy}                      ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
@@ -308,6 +309,290 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     #TODO LINUXDAR-3503 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr <> Failed to start extension, extension.Start threw: Failed to register extension: Failed adding registry: Duplicate extension
 
+    #TODO LINUXDAR-2972 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry/edr.json
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry/edr.json'
+    #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    #TODO LINUXDAR-3191 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
+    #TODO LINUXDAR-3425  remove line below when dogfood has build with edr install checks for binary not just root plugin path to see if
+    # event journaler in installed.
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log   wdctlActions <> Plugin "eventjournaler" not in registry
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+    Log File  /tmp/preserve-sul-downgrade
+    Check EAP Release With AV Installed Correctly
+
+    ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    ${AVReleaseVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #${EJReleaseVersion} =           Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    Should Be Equal As Strings  ${BaseReleaseVersion}  ${ExpectedBaseReleaseVersion}
+    Should Be Equal As Strings  ${MtrReleaseVersion}  ${ExpectedMtrReleaseVersion}
+    Should Be Equal As Strings  ${EdrReleaseVersion}  ${ExpectedEDRReleaseVersion}
+    Should Be Equal As Strings  ${AVReleaseVersion}  ${ExpectedAVReleaseVersion}
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
+
+    ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
+    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
+
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    # Upgrade back to master to check we can upgrade from a downgraded product
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  150 secs
+    ...  10 secs
+    ...  version_number_in_ini_file_should_be  ${InstalledBaseVersionFile}    ${ExpectedBaseDevVersion}
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  version_number_in_ini_file_should_be  ${InstalledMDRPluginVersionFile}    ${ExpectedMtrDevVersion}
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  version_number_in_ini_file_should_be  ${InstalledEDRPluginVersionFile}    ${ExpectedEDRDevVersion}
+
+    #wait for AV plugin to be running before attempting uninstall
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  version_number_in_ini_file_should_be  ${InstalledAVPluginVersionFile}    ${ExpectedAVDevVersion}
+
+    ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
+    ${MtrVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrVersion}
+    ${AVVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVVersion}
+    ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
+    #TODO LINUXDAR-3183 add check for EJ version
+
+
+    #the query pack should have been re-installed
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  file should exist  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_after_query_pack_restored} =  Get Edr OsQuery PID
+    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
+
+We Can Upgrade From Release to VUT Without Unexpected Errors
+    [Timeout]  10 minutes
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVReleasePolicy}
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVReleasePolicy}
+    Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
+    Override LogConf File as Global Level  DEBUG
+    Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
+
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
+
+    Check EAP Release With AV Installed Correctly
+    ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
+    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
+    ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    Should Be Equal As Strings  ${ExpectedBaseReleaseVersion}  ${BaseReleaseVersion}
+    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
+    ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
+    ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedMtrReleaseVersion}  ${MtrReleaseVersion}
+    ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
+    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Plugin-AV
+    ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedAVReleaseVersion}  ${AVReleaseVersion}
+
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #${EJReleaseVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndAvVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrAndAvVUTPolicy}
+    Wait until threat detector running
+
+    Mark Watchdog Log
+    Mark Managementagent Log
+    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  2
+
+    #confirm that the warehouse flags supplement is installed when upgrading
+    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
+
+    Check Mtr Reconnects To Management Agent After Upgrade
+    Check for Management Agent Failing To Send Message To MTR And Check Recovery
+
+    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+    #TODO LINUXDAR-2972 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
+    #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    #TODO LINUXDAR-3191 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
+    #this is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
+    #TODO LINUXDAR-3187 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 15
+    #TODO LINUXDAR-3188 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  UnixSocket <> Failed to write Process Control Request to socket. Exception caught: Environment interruption
+    Run Keyword And Expect Error  *
+    ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+    Check Current Release With AV Installed Correctly
+
+    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseDevVersion}
+    ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrDevVersion}
+    ${AVDevVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
+
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #${EJDevVersion} =       Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
+    Check Event Journaler Executable Running
+    Check AV Plugin Permissions
+    Check AV Plugin Can Scan Files
+    Check Update Reports Have Been Processed
+
+
+We Can Downgrade From VUT to Release Without Unexpected Errors
+    [Timeout]  10 minutes
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVVUTPolicy}
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
+
+    Check Current Release Installed Correctly
+    ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
+    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
+    ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${ExpectBaseDowngrade} =  second_version_is_lower  ${ExpectedBaseDevVersion}  ${ExpectedBaseReleaseVersion}
+    Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
+    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
+    ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
+    ${MtrVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrVersion}
+    ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
+    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Plugin-AV
+    ${AVVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVVersion}
+    ${ExpectedEDRDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEDRReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Plugin-EDR
+    ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
+    #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
+    #${EJDevVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+
+    # Products that should be uninstalled after downgrade
+    Should Exist  ${InstalledLRPluginVersionFile}
+
+    #the query pack should have been installed with EDR VUT
+    Should Exist  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_before_query_pack_removed} =  Get Edr OsQuery PID
+
+
+    # Changing the policy here will result in an automatic update
+    # Note when downgrading from a release with live response to a release without live response
+    # results in a second update.
+    Override LogConf File as Global Level  DEBUG
+    Create File  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Run Process  chown  -R  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVReleasePolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVReleasePolicy}
+
+    Mark Watchdog Log
+    Mark Managementagent Log
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Log Contains   Update success    /tmp/preserve-sul-downgrade   suldownloader log
+
+    Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Run Keyword If  ${ExpectBaseDowngrade}
+    ...  Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
+
+    #TODO LINUXDAR-2881 remove sleep when this defect is fixed in downgrade version- provide a time space if suldownloader is kicked off again by policy change.
+    Sleep  10
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check Log Contains String At Least N Times   /tmp/preserve-sul-downgrade  Downgrade Log  Update success  1
+    #Wait for successful update (all up to date) after downgrading
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check Log Contains String At Least N Times   ${SULDownloaderLog}  Update Log  Update success  1
+
+    Check for Management Agent Failing To Send Message To MTR And Check Recovery
+    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+     #TODO LINUXDAR-2881 remove when this defect is fixed in downgrade version
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
     #TODO LINUXDAR-2972 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
