@@ -131,19 +131,27 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrReleaseVersion}  ${MtrReleaseVersion}
+    ${ExpectedEdrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEdrReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-EDR
+    ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedEdrReleaseVersion}  ${EdrReleaseVersion}
+    ${ExpectedLRDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedLRReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-liveresponse  ServerProtectionLinux-Base
+    ${LrReleaseVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedLRReleaseVersion}  ${LRReleaseVersion}
     ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
     ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-AV
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVReleaseVersion}  ${AVReleaseVersion}
 
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
-    #${EJReleaseVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #${EJReleaseVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndAvVUTPolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrAndAvVUTPolicy}
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait until threat detector running
 
     Mark Watchdog Log
@@ -195,11 +203,15 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseDevVersion}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrDevVersion}
+    ${EDRDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EDRDevVersion}
+    ${LRDevVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LRDevVersion}
     ${AVDevVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
 
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
-    #${EJDevVersion} =       Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #${EJDevVersion} =       Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
 
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
@@ -242,8 +254,12 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${ExpectedEDRReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-EDR
     ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
+    ${ExpectedLRDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedLRReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-liveresponse  ServerProtectionLinux-Base
+    ${LrDevVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LrDevVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
-    #${EJDevVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #${EJDevVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
 
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
@@ -333,12 +349,14 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${AVReleaseVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    ${LRReleaseVersion} =       Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
-    #${EJReleaseVersion} =           Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #${EJReleaseVersion} =           Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings  ${BaseReleaseVersion}  ${ExpectedBaseReleaseVersion}
     Should Be Equal As Strings  ${MtrReleaseVersion}  ${ExpectedMtrReleaseVersion}
     Should Be Equal As Strings  ${EdrReleaseVersion}  ${ExpectedEDRReleaseVersion}
     Should Be Equal As Strings  ${AVReleaseVersion}  ${ExpectedAVReleaseVersion}
+    Should Be Equal As Strings  ${LRReleaseVersion}  ${ExpectedLRReleaseVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
 
@@ -422,15 +440,23 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Plugin-AV
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVReleaseVersion}  ${AVReleaseVersion}
+    ${ExpectedEdrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEdrReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Plugin-EDR
+    ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedEdrReleaseVersion}  ${EdrReleaseVersion}
+    ${ExpectedLRDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedLRReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Plugin-liveresponse  ServerProtectionLinux-Base
+    ${LrReleaseVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedLRReleaseVersion}  ${LRReleaseVersion}
 
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
-    #${EJReleaseVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #${EJReleaseVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
 
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndMtrAndAvVUTPolicy}
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseAndMtrAndAvVUTPolicy}
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait until threat detector running
 
     Mark Watchdog Log
@@ -483,9 +509,12 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrDevVersion}
     ${AVDevVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
-
+    ${EDRDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EDRDevVersion}
+    ${LRDevVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LRDevVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
-    #${EJDevVersion} =       Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #${EJDevVersion} =       Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
 
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
@@ -529,8 +558,12 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ${ExpectedEDRReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Plugin-EDR
     ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
+    ${ExpectedLRDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedLRReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Plugin-liveresponse  ServerProtectionLinux-Base
+    ${LrDevVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LrDevVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
-    #${EJDevVersion} =      Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #${EJDevVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
 
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
@@ -617,12 +650,13 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${AVReleaseVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    ${LRReleaseVersion} =       Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
-    #${EJReleaseVersion} =           Get Version Number From Ini File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    #${EJReleaseVersion} =           Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings  ${BaseReleaseVersion}  ${ExpectedBaseReleaseVersion}
     Should Be Equal As Strings  ${MtrReleaseVersion}  ${ExpectedMtrReleaseVersion}
     Should Be Equal As Strings  ${EdrReleaseVersion}  ${ExpectedEDRReleaseVersion}
-    Should Be Equal As Strings  ${AVReleaseVersion}  ${ExpectedAVReleaseVersion}
+    Should Be Equal As Strings  ${LRReleaseVersion}  ${ExpectedLRReleaseVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
 

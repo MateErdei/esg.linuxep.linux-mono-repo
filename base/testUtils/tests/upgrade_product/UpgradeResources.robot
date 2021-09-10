@@ -25,6 +25,7 @@ ${InstalledAVPluginVersionFile}             ${SOPHOS_INSTALL}/plugins/av/VERSION
 ${InstalledMDRSuiteVersionFile}             ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
 ${InstalledEDRPluginVersionFile}            ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
 ${InstalledLRPluginVersionFile}             ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
+${InstalledEJPluginVersionFile}             ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
 ${WarehouseBaseVersionFileExtension}        ./TestInstallFiles/ServerProtectionLinux-Base/files/base/VERSION.ini
 ${WarehouseMDRPluginVersionFileExtension}   ./TestInstallFiles/ServerProtectionLinux-MDR-Control/files/plugins/mtr/VERSION.ini
 ${WarehouseMDRSuiteVersionFileExtension}    ./TestInstallFiles/ServerProtectionLinux-MDR-DBOS-Component/files/plugins/mtr/dbos/data/VERSION.ini
