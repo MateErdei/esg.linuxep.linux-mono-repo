@@ -2099,7 +2099,7 @@ class CloudClient(object):
                     logger.info('Query status: {}'.format(json_response['result']))
                     results.append(self.get_live_query_results(pending_query_response))
                     return results
-            time.sleep(0.5)
+            time.sleep(0.2)
 
         logger.warning("timed out running".format(query_id))
         return None
@@ -2125,7 +2125,7 @@ class CloudClient(object):
                 items = results["items"] 
                 if items and len(items) > 0:
                     return items 
-            time.sleep(0.5)
+            time.sleep(0.2)
         return None
 
     def run_live_query_and_wait_for_response(self, query_name, query_string, hostname=None):
