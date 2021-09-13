@@ -161,6 +161,7 @@ def main():
     # print("Results")
     # print(results)
     print("Done")
+    print(f"Please look in: {results_dir} for all results")
 
     return 0
 
