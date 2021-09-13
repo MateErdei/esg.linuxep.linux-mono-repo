@@ -2132,6 +2132,32 @@ class CloudClient(object):
         pending_query_response = self.run_live_query(query_name, query_string, hostname)
         return self.wait_for_live_query_response(pending_query_response)
 
+
+    def get_all_saved_queries(self):
+        url = self.api_host + '/live-discover/v1/queries?pageSize=250'
+        request = urllib.request.Request(url, headers=self.default_headers)
+        # request.get_method = lambda: "GET"
+        response_obj = request_url(request)
+        return response_obj
+
+    def run_canned_query(self, query_id: str, hostname: None):
+        if hostname is None:
+            hostname = self.options.hostname
+        logger.info(f"running query_id:{query_id}, hostname:{hostname}")
+        server = self.getServerByName(hostname, get_most_recently_active=True)
+        if server is None:
+            return
+        url = self.api_host + '/live-discover/v1/queries/runs'
+        data = json.dumps({"savedQuery": {"queryId": query_id}, "matchEndpoints": {"filters": [{"hostnameContains": hostname}]}}).encode('UTF-8')
+        request = urllib.request.Request(url, data=data, headers=self.default_headers)
+        request.get_method = lambda: "POST"
+        response_obj = request_url(request)
+        return response_obj
+
+    def run_canned_query_and_wait_for_response(self, query_id: str, hostname: None):
+        pending_query_response = self.run_canned_query(query_id, hostname)
+        return self.wait_for_live_query_response(pending_query_response)
+
     def move_machine_to_edr_eap(self, hostname=None):
         if hostname is None:
             hostname = self.options.hostname
