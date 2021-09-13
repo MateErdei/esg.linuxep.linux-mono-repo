@@ -52,13 +52,22 @@ def get_time_string_from_log_line(line):
         reg = re.compile(pattern)
         try:
             t = reg.findall(line)[0]
+            t = t.replace('T', ' ')
+            t = t.replace('[', '')
+            t = t.replace(']', '')
+            t = t.split('.')[0]
         except:
-            print("Could not find date in:{}".format(line))
-            return ""
-        t = t.replace('T', ' ')
-        t = t.replace('[', '')
-        t = t.replace(']', '')
-        t = t.split('.')[0]
+            print("Could not find date using SSPL format in:{}".format(line))
+            #2021-07-12T11:30:22.882Z
+            pattern = "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]Z"
+            reg = re.compile(pattern)
+            try:
+                t = reg.findall(line)[0]
+                t = t.replace('T', ' ')
+                t = t.split('.')[0]
+            except:
+                print("Could not find date in susi format either:{}".format(line))
+                return ""
     return t
 
 
@@ -86,10 +95,13 @@ def send_log_line_to_db(line, log_path, db, ip, hostname, latest_time, last_id, 
 
     else:
 
-        if latest_time > datetime.datetime.strptime(extracted_time, '%Y-%m-%d %H:%M:%S'):
+        extracted_time_as_date = datetime.datetime.strptime(extracted_time, '%Y-%m-%d %H:%M:%S')
+        if latest_time > extracted_time_as_date:
             print("Not inserting log line we have already seen from: {}".format(extracted_time))
             return last_id
-
+        if extracted_time_as_date < (datetime.datetime.now() - datetime.timedelta(days=10)):
+            print(f"Not inserting log line as it's older than 10 days: {extracted_time_as_date}")
+            return last_id
         df_sql = "INSERT INTO dogfood_logs (log_time, log_msg, log_path, log_name, hostname, ip, base_version, edr_version, mtr_version) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
         df_val = (extracted_time, line, "diagnose", os.path.basename(log_path), hostname, ip, product_base_version, product_edr_version, product_mtr_version)
         cursor.execute(df_sql, df_val)
@@ -318,7 +330,7 @@ def process_diagnose_file(tar_path):
     dogfood_db = mysql.connector.connect(
         host="sspl-alex-1",
         user="dogfoodrw",
-        passwd="mason-R8Chu",
+        passwd="shake-VpBHq",
         database="dogfood"
     )
 
@@ -329,8 +341,8 @@ def process_diagnose_file(tar_path):
 
     # CURRENTLY DISABLED, need to speed this up and then we can re-enable it.
     # TODO LINUXDAR-1402
-    #for sys_file in system_files:
-    #    process_system_file(hostname, dogfood_db, ip, sys_file)
+    for sys_file in system_files:
+        process_system_file(hostname, dogfood_db, ip, sys_file)
 
     mark_tar_as_processed(tar_path)
 
@@ -365,13 +377,30 @@ def process_log_file(hostname, db, ip, log_file_path, product_base_version, prod
 
     last_id = None
 
-    with io.open(log_file_path, mode="r", encoding="utf-8") as log:
-        for line in log:
-            last_id = send_log_line_to_db(line, log_file_path, db, ip, hostname, latest_time, last_id, product_base_version, product_edr_version, product_mtr_version)
+    encodings = ["latin1", "utf-8"]
+    read_log = False
+    while not read_log and len(encodings) > 0:
+        try:
+            encoding = encodings.pop()
+            with io.open(log_file_path, mode="r", encoding=encoding) as log:
+                for line in log:
+                    last_id = send_log_line_to_db(line, log_file_path, db, ip, hostname, latest_time, last_id, product_base_version, product_edr_version, product_mtr_version)
+            read_log = True
 
+        except UnicodeDecodeError as exception:
+            print(f"Failed to decode part of: {log_file_path}, using encoding {encoding}, exception: {exception}")
+
+    if not read_log:
+        raise Exception(f"Could not read in: {log_file_path} for {hostname}")
 
 def process_system_file(hostname, db, ip, sys_file_path):
     print("Processing system file: {}, {}".format(hostname, sys_file_path))
+
+    # TODO LINUXDAR-1402, don't just import dmesg output
+    if "dmesg" not in sys_file_path:
+        print("skipping non dmesg sys file import for now")
+        return
+
     if 'text' not in magic.from_file(sys_file_path):
         print("Log file is not a text file, skipping it.")
         return
