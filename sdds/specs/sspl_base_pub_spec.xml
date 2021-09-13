@@ -2,11 +2,11 @@
 <publicationspec importspec="sspl_base_import_spec.xml">
     <componentsuites>
         <line id="ServerProtectionLinux-Base">
-            <componentsuite importreference="ServerProtectionLinux-Base-1.1.7.15">
+            <componentsuite importreference="ServerProtectionLinux-Base-1.1.7.16">
                 <component importreference="ServerProtectionLinux-Base-component-1.1.7.387" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
                 <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.4.0.53" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
                 <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.131" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
-                <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-0.1.0.13" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
+                <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-0.1.0.16" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
             </componentsuite>
             <componentsuite importreference="ServerProtectionLinux-Base-1.1.7.2">
                 <component importreference="ServerProtectionLinux-Base-component-1.1.7.7" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
@@ -33,7 +33,7 @@
     <warehouses>
         <warehouse furcatedentitlement="LINUX_SSPL" id="sspl">
             <line id="ServerProtectionLinux-Base">
-                <component importreference="ServerProtectionLinux-Base-1.1.7.15">
+                <component importreference="ServerProtectionLinux-Base-1.1.7.16">
                     <releasetag baseversion="" tag="BETA2"/>
                     <releasetag baseversion="" tag="RECOMMENDED"/>
                     <releasetag baseversion="" tag="BETA"/>
@@ -113,7 +113,7 @@
                 <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.131"/>
             </line>
             <line id="ServerProtectionLinux-Plugin-RuntimeDetections">
-                <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-0.1.0.13"/>
+                <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-0.1.0.16"/>
             </line>
             <line id="ServerProtectionLinux-Plugin-AV">
                 <component importreference="ServerProtectionLinux-Plugin-AV-1.0.3.32">
