@@ -161,7 +161,7 @@ Verify Saved Environment Proxy File is created correctly
     Require Fresh Install
     File Should Exist  ${SOPHOS_INSTALL}/base/etc/savedproxy.config
     ${SavedProxyFileContents}=  Get File  ${SOPHOS_INSTALL}/base/etc/savedproxy.config
-    Should Contain  ${SavedProxyFileContents}  ${HttpsProxyAddress}
+    Should Be Equal  ${SavedProxyFileContents}  ${HttpsProxyAddress}
 
 
 Verify repeat installation doesnt change permissions
