@@ -88,6 +88,7 @@ namespace RemoteDiagnoseImpl
         {
             m_diagnoseRunner->triggerDiagnose();
         }
+        else
         {
             LOGWARN("sophos_diagnose is currently running, we will not try to start it again");
         }
