@@ -27,22 +27,7 @@ except:
         cloud_automation_dir = os.path.realpath(os.path.join(script_dir, "../SupportFiles/CloudAutomation"))
         if os.path.isdir(cloud_automation_dir):
             sys.path.append(cloud_automation_dir)
-            import cloudClient
-        else:
-            print(f"not a dir: {cloud_automation_dir}")
-        # except:
-            # try:
-            #     # running this script next to cloudClient dir
-            #     mock_darkbytes_dir = os.path.realpath(os.path.join(script_dir, "mock_darkbytes"))
-            #     if os.path.isdir(mock_darkbytes_dir):
-            #         import cloudClient
-            # except:
-            #     print("Can't find dark bytes scripts.")
-            #     exit(1)
-
-# # from . import cloudClient
-# import cloudClient
-
+        import cloudClient
 
 class Options(object):
     def copy(self):
@@ -87,10 +72,6 @@ def get_client(email, password, region):
     return cloudClient.CloudClient(options)
 
 
-# def get_current_unix_epoch_in_seconds():
-#     return time.time()
-
-
 def add_options():
     parser = argparse.ArgumentParser(description='Runs Live Queries via Central')
     parser.add_argument('-i', '--client-id', required=False, action='store', help="Central account API client ID")
@@ -98,7 +79,6 @@ def add_options():
     parser.add_argument('-r', '--region', required=True, action='store', help="Central region (q, d, p)")
     parser.add_argument('-m', '--machine', required=True, action='store', help="Hostname of the target machine")
     return parser
-
 
 def main():
     parser = add_options()
@@ -114,10 +94,9 @@ def main():
     print("----------------------------------------------")
     print("----------------------------------------------")
     print("----------------------------------------------")
-    time.sleep(3)
     print("Everything should be working ok if we got here.")
-    time.sleep(3)
-    print("Here is a summary of all the canned queries:")
+    time.sleep(5)
+    print("\nHere is a summary of all the canned queries:")
     for item in response["items"]:
         if "linuxServer" in item["supportedOSes"]:
             if len(item["variables"]) > 0:
@@ -125,8 +104,7 @@ def main():
             else:
                 print(item['name'])
 
-    print()
-    print("Will run all queries in 20 seconds, ctrl-c to quit this if you want to stop and read the above.")
+    print("\nWill run all queries in 20 seconds, ctrl-c to quit this if you want to stop and read the above.")
     for i in range(-20, 0):
         time.sleep(1)
         print(abs(i))
@@ -138,13 +116,11 @@ def main():
 
     results_dir = "canned_query_results"
     os.makedirs(results_dir, exist_ok=True)
-    # results = {}
     for item in response["items"]:
         if "linuxServer" in item["supportedOSes"]:
             print(item["name"])
             if len(item["variables"]) > 0:
                 print("Skipping because query needs variables set")
-                #results[item["name"]] = f"Skipped, requires these variables to be set: {item['variables']}"
                 file_name = os.path.join(results_dir, f"SKIPPED-{item['code']}")
                 with open(file_name, "w") as result_file:
                     result_file.write(json.dumps({"name": item["name"], "result": f"Skipped, requires these variables to be set: {item['variables']}"}, indent=4))
@@ -152,14 +128,10 @@ def main():
                 time.sleep(2)
                 canned_query_response = client.run_canned_query_and_wait_for_response(item["id"], hostname=args.machine)
                 print(canned_query_response)
-                #results[item["name"]] = canned_query_response
                 file_name = os.path.join(results_dir, str(item["code"]))
                 with open(file_name, "w") as result_file:
                     result_file.write(json.dumps({"name": item["name"], "result": canned_query_response}, indent=4))
 
-    # print("-------------------------------")
-    # print("Results")
-    # print(results)
     print("Done")
     print(f"Please look in: {results_dir} for all results")
 
