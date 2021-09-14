@@ -31,7 +31,7 @@ namespace Plugin
         using std::runtime_error::runtime_error;
     };
 
-    unsigned int getDataLimit(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
+    long long int getDataLimit(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
     std::string getRevId(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap);
     bool getCustomQueries(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap, std::optional<std::string>& customQueries);
     bool getFoldingRules(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap, std::vector<Json::Value>& foldingRules);

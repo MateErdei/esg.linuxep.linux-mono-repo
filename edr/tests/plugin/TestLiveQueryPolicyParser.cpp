@@ -20,7 +20,7 @@ bool testableGetFoldingRules(const std::string& policy, std::vector<Json::Value>
     return Plugin::getFoldingRules(attributeMap, foldingRules);
 }
 
-unsigned int testableGetDataLimit(const std::string& policy)
+long long int testableGetDataLimit(const std::string& policy)
 {
     Common::XmlUtilities::AttributesMap attributeMap = Common::XmlUtilities::parseXml(policy);
     return Plugin::getDataLimit(attributeMap);
@@ -620,7 +620,18 @@ TEST_F(TestLiveQueryPolicyParser, testGetDataLimit)
                                         "    </configuration>\n"
                                         "</policy>";
     EXPECT_EQ(testableGetDataLimit(liveQueryPolicy234567), 234567);
-
+    std::string liveQueryPolicy1000GB = "<?xml version=\"1.0\"?>\n"
+                                        "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
+                                        "    <configuration>\n"
+                                        "        <scheduled>\n"
+                                        "            <dailyDataLimit>100000000000</dailyDataLimit>\n"
+                                        "            <queryPacks>\n"
+                                        "                <queryPack id=\"queryPackId\" />\n"
+                                        "            </queryPacks>\n"
+                                        "        </scheduled>\n"
+                                        "    </configuration>\n"
+                                        "</policy>";
+    EXPECT_EQ(testableGetDataLimit(liveQueryPolicy1000GB), 100000000000LL);
     std::string validXmlWithMissingField = "<?xml version=\"1.0\"?>\n"
                                            "<policy type=\"LiveQuery\" RevID=\"revId\" policyType=\"56\">\n"
                                            "    <configuration>\n"
