@@ -716,10 +716,10 @@ fi
 
 if [[ -n ${https_proxy} ]]
 then
-    echo "${https_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
+    echo -n "${https_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 elif [[ -n ${http_proxy} ]]
 then
-    echo "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
+    echo -n "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 fi
 
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}

@@ -422,6 +422,13 @@ Thin Installer Digest Proxy
     Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://username:password@localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://username:password@localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
     Check Root Directory Permissions Are Not Changed
 
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  2 secs
+    ...  Check SulDownloader Log Contains   Try connection: Sophos at http://dci.sophosupd.com/update via proxy: localhost:10000
+
+    Check Log Does Not Contain  Try connection: Sophos at http://dci.sophosupd.com/update via proxy: localhost:10000\n\n  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader log
+
 Thin Installer Environment Proxy
     [Teardown]  Teardown With Temporary Directory Clean
     Setup For Test With Warehouse Containing Product
