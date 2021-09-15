@@ -411,6 +411,12 @@ then
     chmod 600 "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json"
 fi
 
+if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/datafeed_tracker" ]]
+then
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/datafeed_tracker"
+    chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json"
+fi
+
 if [[ -f "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse" ]]
 then
     chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse"

@@ -543,3 +543,6 @@ def running_processes_should_match_the_count(comm_name, match_dir_path, count):
 def is_ubuntu():
     return platform.dist()[0] == "Ubuntu"
 
+def get_uid_from_username(username):
+    return pwd.getpwnam(username).pw_uid
+

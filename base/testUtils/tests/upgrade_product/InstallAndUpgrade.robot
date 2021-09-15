@@ -274,6 +274,10 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Exist  ${Sophos_Scheduled_Query_Pack}
     ${osquery_pid_before_query_pack_removed} =  Get Edr OsQuery PID
 
+    ${sspl_user_uid} =  Get UID From Username  sophos-spl-user
+    ${sspl_local_uid} =  Get UID From Username  sophos-spl-local
+    ${sspl_network_uid} =  Get UID From Username  sophos-spl-network
+    ${sspl_update_uid} =  Get UID From Username  sophos-spl-updatescheduler
 
     # Changing the policy here will result in an automatic update
     # Note when downgrading from a release with live response to a release without live response
@@ -302,8 +306,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Run Keyword If  ${ExpectBaseDowngrade}
     ...  Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
-    #TODO LINUXDAR-2881 remove sleep when this defect is fixed in downgrade version- provide a time space if suldownloader is kicked off again by policy change.
-    Sleep  10
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -322,9 +324,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-     #TODO LINUXDAR-2881 remove when this defect is fixed in downgrade version
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
     #TODO LINUXDAR-3503 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr <> Failed to start extension, extension.Start threw: Failed to register extension: Failed adding registry: Duplicate extension
@@ -367,6 +366,16 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
+
+    #Check users haven't been removed and added back
+    ${new_sspl_user_uid} =  Get UID From Username  sophos-spl-user
+    ${new_sspl_local_uid} =  Get UID From Username  sophos-spl-local
+    ${new_sspl_network_uid} =  Get UID From Username  sophos-spl-network
+    ${new_sspl_update_uid} =  Get UID From Username  sophos-spl-updatescheduler
+    Should Be Equal As Integers  ${sspl_user_uid}  ${new_sspl_user_uid}
+    Should Be Equal As Integers  ${sspl_local_uid}  ${new_sspl_local_uid}
+    Should Be Equal As Integers  ${sspl_network_uid}  ${new_sspl_network_uid}
+    Should Be Equal As Integers  ${sspl_update_uid}  ${new_sspl_update_uid}
 
     Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     # Upgrade back to master to check we can upgrade from a downgraded product
