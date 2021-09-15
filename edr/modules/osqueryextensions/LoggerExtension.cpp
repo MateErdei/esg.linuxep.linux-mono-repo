@@ -21,7 +21,7 @@ LoggerExtension::LoggerExtension(
         const std::string& osqueryMTRConfigFilePath,
         const std::string& osqueryCustomConfigFilePath,
         const std::string& pluginVarDir,
-        unsigned int dataLimit,
+        long long int dataLimit,
         unsigned int periodInSeconds,
         std::function<void(void)> dataExceededCallback,
         unsigned int maxBatchSeconds,
@@ -123,7 +123,7 @@ void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
     }
 }
 
-void LoggerExtension::setDataLimit(unsigned int limitBytes)
+void LoggerExtension::setDataLimit(long long int limitBytes)
 {
     LOGDEBUG("Setting Data Limit to " << limitBytes);
     m_resultsSender.setDataLimit(limitBytes);

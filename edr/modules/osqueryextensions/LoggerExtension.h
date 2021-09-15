@@ -21,7 +21,7 @@ public:
             const std::string& osqueryMTRConfigFilePath,
             const std::string& osqueryCustomConfigFilePath,
             const std::string& pluginVarDir,
-            unsigned int dataLimit,
+            long long int dataLimit,
             unsigned int periodInSeconds,
             std::function<void(void)> dataExceededCallback,
             unsigned int maxBatchSeconds,
@@ -30,11 +30,11 @@ public:
     void Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished) override;
     // cppcheck-suppress virtualCallInConstructor
     void Stop() override;
-    void setDataLimit(unsigned int limitBytes);
+    void setDataLimit(long long int limitBytes);
     void setDataPeriod(unsigned int periodSeconds);
     bool checkDataPeriodHasElapsed();
     bool getDataLimitReached();
-    int getDataLimit();
+    long long int getDataLimit();
     void reloadTags();
     void setFoldingRules(const std::vector<Json::Value>& foldingRules);
     std::vector<Json::Value> getCurrentFoldingRules();

@@ -71,7 +71,7 @@ public:
     {
         return m_liveQueryRevId;
     }
-    unsigned int getLiveQueryDataLimit()
+    long long int getLiveQueryDataLimit()
     {
         return m_dataLimit;
     }
@@ -86,7 +86,7 @@ public:
         Plugin::PluginAdapter::processFlags(policy, false);
     }
 
-    void setDataLmit(const int& limit)
+    void setDataLmit(const long long int& limit)
     {
         m_loggerExtensionPtr->setDataLimit(limit);
     }

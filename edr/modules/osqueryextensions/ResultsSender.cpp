@@ -24,7 +24,7 @@ ResultsSender::ResultsSender(
     const std::string& osqueryMTRConfigFilePath,
     const std::string& osqueryCustomConfigFilePath,
     const std::string& pluginVarDir,
-    unsigned int dataLimit,
+    long long int dataLimit,
     unsigned int periodInSeconds,
     std::function<void(void)> dataExceededCallback) :
     m_intermediaryPath(intermediaryPath),
@@ -281,7 +281,7 @@ void ResultsSender::loadScheduledQueryTags()
     m_scheduledQueryTagMap = queryTagMap;
 }
 
-void ResultsSender::setDataLimit(unsigned int limitbytes)
+void ResultsSender::setDataLimit(long long int limitbytes)
 {
     m_dataLimit = limitbytes;
 }
