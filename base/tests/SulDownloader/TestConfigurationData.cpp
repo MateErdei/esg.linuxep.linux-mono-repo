@@ -420,8 +420,8 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyS
 {
     auto& fileSystem = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(true));
-    std::string savedURL("https://user:password@savedProxy.com");
-    EXPECT_CALL(fileSystem, readFile(_)).WillOnce(Return(savedURL));
+    std::vector<std::string> savedURL{"https://user:password@savedProxy.com"};
+    EXPECT_CALL(fileSystem, readLines(_)).WillOnce(Return(savedURL));
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
@@ -437,8 +437,8 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxySh
 {
     auto& fileSystem = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(true));
-    std::string savedURL("http://savedProxy.com");
-    EXPECT_CALL(fileSystem, readFile(_)).WillOnce(Return(savedURL));
+    std::vector<std::string> savedURL{"http://savedProxy.com"};
+    EXPECT_CALL(fileSystem, readLines(_)).WillOnce(Return(savedURL));
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
@@ -457,8 +457,8 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLo
 
     auto& fileSystem = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(true));
-    std::string savedURL("www.user:password@invalidsavedProxy.com");
-    EXPECT_CALL(fileSystem, readFile(_)).WillOnce(Return(savedURL));
+    std::vector<std::string> savedURL{"www.user:password@invalidsavedProxy.com"};
+    EXPECT_CALL(fileSystem, readLines(_)).WillOnce(Return(savedURL));
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 

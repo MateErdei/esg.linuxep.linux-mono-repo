@@ -423,12 +423,17 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
         Common::ApplicationConfiguration::applicationPathManager().getSavedEnvironmentProxyFilePath();
     if (Common::FileSystem::fileSystem()->isFile(savedProxyFilePath))
     {
-        std::string savedProxyURL = Common::FileSystem::fileSystem()->readFile(savedProxyFilePath);
-
-        auto savedProxyOpt = proxyFromSavedProxyUrl(savedProxyURL);
-        if(savedProxyOpt.has_value())
+        std::vector<std::string> proxyFileContent = Common::FileSystem::fileSystem()->readLines(savedProxyFilePath);
+        if (!proxyFileContent.empty())
         {
-            options.emplace_back(savedProxyOpt.value());
+            std::string savedProxyURL = proxyFileContent[0];
+            Common::UtilityImpl::StringUtils::replaceAll(savedProxyURL," ","");
+
+            auto savedProxyOpt = proxyFromSavedProxyUrl(savedProxyURL);
+            if (savedProxyOpt.has_value())
+            {
+                options.emplace_back(savedProxyOpt.value());
+            }
         }
     }
     options.emplace_back(Proxy(Proxy::NoProxy));
