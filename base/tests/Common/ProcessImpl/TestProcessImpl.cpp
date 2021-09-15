@@ -81,12 +81,6 @@ namespace
         process->waitUntilProcessEnds();
         if (process->output() != "")
         {
-            if (process->output().find("Inherited 10 file descriptors from parent process: expected 5, child process") != std::string::npos)
-            {
-                // TODO LINUXDAR-3005 This warning is an expected possibility that will be investigated under this ticket.
-                // This warning cannot be logged if there has been a deadlock so is fine to ignore the warning in these tests.
-                return 0;
-            }
             return 1;
         }
         if (process->exitCode(), 0)
