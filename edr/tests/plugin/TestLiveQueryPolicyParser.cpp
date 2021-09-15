@@ -20,7 +20,7 @@ bool testableGetFoldingRules(const std::string& policy, std::vector<Json::Value>
     return Plugin::getFoldingRules(attributeMap, foldingRules);
 }
 
-long long int testableGetDataLimit(const std::string& policy)
+unsigned long long int testableGetDataLimit(const std::string& policy)
 {
     Common::XmlUtilities::AttributesMap attributeMap = Common::XmlUtilities::parseXml(policy);
     return Plugin::getDataLimit(attributeMap);

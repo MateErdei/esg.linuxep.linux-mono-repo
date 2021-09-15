@@ -17,9 +17,9 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
-    long long int getDataLimit(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap)
+    unsigned long long int getDataLimit(const std::optional<Common::XmlUtilities::AttributesMap> &liveQueryPolicyMap)
     {
-        long long int policyDataLimitAsInt = 262144000;
+        unsigned long long int policyDataLimitAsInt = 262144000;
         try
         {
             const std::string dataLimitPath{"policy/configuration/scheduled/dailyDataLimit"};

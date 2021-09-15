@@ -28,7 +28,7 @@ public:
         const std::string& osqueryMTRConfigFilePath,
         const std::string& osqueryCustomConfigFilePath,
         const std::string& pluginVarDir,
-        long long int dataLimit,
+        unsigned long long int dataLimit,
         unsigned int periodInSeconds
         ,std::function<void(void)> dataExceededCallback
         );
@@ -38,9 +38,9 @@ public:
     void Send() override;
     void Reset() override;
     void loadScheduledQueryTags();
-    void setDataLimit(long long int limitBytes);
+    void setDataLimit(unsigned long long int limitBytes);
     bool getDataLimitReached();
-    long long int getDataLimit();
+    unsigned long long int getDataLimit();
     void setDataPeriod(unsigned int periodSeconds);
     Json::Value PrepareBatchResults() override;
     void SaveBatchResults(const Json::Value& results) override;
@@ -65,7 +65,7 @@ private:
     std::string m_osqueryCustomConfigFilePath;
     Common::PersistentValue<unsigned int> m_currentDataUsage;
     Common::PersistentValue<unsigned int> m_periodStartTimestamp;
-    long long int m_dataLimit;
+    unsigned long long int m_dataLimit;
     Common::PersistentValue<unsigned int> m_periodInSeconds;
     std::function<void(void)> m_dataExceededCallback;
 

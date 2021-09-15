@@ -97,7 +97,7 @@ namespace Plugin
         OsqueryConfigurator& osqueryConfigurator();
 
         std::string m_liveQueryRevId = "";
-        long long int m_dataLimit;
+        unsigned long long int m_dataLimit;
         std::string m_liveQueryStatus = "NoRef";
 
         std::shared_ptr<LoggerExtension> m_loggerExtensionPtr;
