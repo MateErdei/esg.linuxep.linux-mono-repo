@@ -57,7 +57,7 @@ void Common::Logging::ConsoleFileLoggingSetup::setupConsoleFileLoggingWithPath(c
 
     log4cplus::tstring datePattern;
     const long maxFileSize = 10 * 1024 * 1024;
-    const int maxBackupIndex = 10;
+    const int maxBackupIndex = 3;
     const bool immediateFlush = true;
     const bool createDirs = true;
 
