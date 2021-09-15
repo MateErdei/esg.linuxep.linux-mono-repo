@@ -124,7 +124,7 @@ namespace diagnose
             systemCommands.runCommand("journalctl", { logCollectionInterval, "-u", "auditd" }, "journalctl-auditd");
             systemCommands.runCommand(
                 "journalctl", { logCollectionInterval, "_TRANSPORT=audit" }, "journalctl_TRANSPORT=audit");
-            systemCommands.runCommand("journalctl", { "--since=yesterday" }, "journalctl-yesterday");
+            systemCommands.runCommand("journalctl", { "--since=-10days" }, "journalctl-last10days");
             systemCommands.runCommand("ps", { "-ef" }, "ps");
             systemCommands.runCommand("getenforce", {}, "getenforce");
             systemCommands.runCommand("ldd", { "--version" }, "ldd-version");

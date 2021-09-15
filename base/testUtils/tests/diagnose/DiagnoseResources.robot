@@ -119,7 +119,7 @@ Check Diagnose Output For System Command Files
     Should Contain  ${Files}    journalctl-sophos-spl
     Should Contain  ${Files}    journalctl-auditd
     Should Contain  ${Files}    journalctl_TRANSPORT=audit
-    Should Contain  ${Files}    journalctl-yesterday
+    Should Contain  ${Files}    journalctl-last10days
     Should Contain  ${Files}    ps
     Should Contain  ${Files}    getenforce
     Should Contain  ${Files}    ldd-version
