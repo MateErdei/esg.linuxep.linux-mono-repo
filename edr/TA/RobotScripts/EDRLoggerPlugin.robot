@@ -137,6 +137,35 @@ EDR Plugin Applies Folding Rules Based Column Value
     Should Be True  ${folded_count} > 1
     Should Be True  ${folded_count} < 100
 
+EDR Plugin Applies Regex Folding Rules
+    [Setup]  Install With Base SDDS With Random Queries
+    Check EDR Plugin Installed With Base
+
+    Enable XDR
+    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+
+    # Inject policy with folding rules
+    Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_regex_foldingrules_100kB_limit.xml
+
+    # Throw away one set of results here so that we are certain they are not from before the folding rules were applied
+    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
+
+    # Wait for a result we know will contain folded and non-folded results
+    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
+    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
+    Check Query Results Are Folded  ${query_results}  random  number
+
+    # Telemetry
+    ${edr_telemetry} =  Get Plugin Telemetry  edr
+    ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
+    ${foldable_queries} =  Set Variable  ${telemetry_json['foldable-queries']}
+    List Should Contain Value  ${foldable_queries}  random
+    ${query_json} =  Set Variable  ${telemetry_json['scheduled-queries']['random']}
+    Dictionary Should Contain Key  ${query_json}  folded-count
+    ${folded_count} =  Get From Dictionary  ${query_json}  folded-count
+    Should Be True  ${folded_count} > 1
+    Should Be True  ${folded_count} < 100
+
 EDR Plugin Runs All Scheduled Queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
@@ -861,7 +890,7 @@ Clear Datafeed Dir And Wait For Next Result File
     [Return]  ${QueryFile}
 
 Check Query Results Are Folded
-    [Arguments]  ${result_string}  ${query_name}  ${column_name}  ${column_value}
+    [Arguments]  ${result_string}  ${query_name}  ${column_name}  ${column_value}=${None}
     ${IsFolded} =  Check Query Results Folded  ${result_string}  ${query_name}  ${column_name}  ${column_value}
     Should Be True  ${IsFolded}
 

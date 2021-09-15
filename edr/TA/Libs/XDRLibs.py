@@ -147,7 +147,7 @@ def check_all_query_results_contain_correct_tag(results_directory: str, *config_
             assert(query_dict["tag"] == results_dict[query_name]["tag"])
 
 
-def check_query_results_folded(query_result: str, expected_query: str, expected_column_name: str, expected_column_value: str):
+def check_query_results_folded(query_result: str, expected_query: str, expected_column_name: str, expected_column_value: str = None):
     query_json = json.loads(query_result)
     is_folded = False
     if isinstance(query_json, list):
@@ -156,12 +156,16 @@ def check_query_results_folded(query_result: str, expected_query: str, expected_
         query_found = False
         for result in query_json:
             if result['name'] == expected_query and expected_column_name in result['columns']:
-                if result['columns'][expected_column_name] == expected_column_value:
+                if expected_column_value:
+                    if result['columns'][expected_column_name] == expected_column_value:
+                        query_found = True
+                else:
                     query_found = True
+                if query_found:
                     if 'folded' in result and result['folded'] > 1:
                         is_folded = True
         if not query_found:
-            raise AssertionError(f"query {expected_query} not found")
+            raise AssertionError(f"query {expected_query} not found in: {query_result}")
     else:
         raise AssertionError("query not list")
     return is_folded

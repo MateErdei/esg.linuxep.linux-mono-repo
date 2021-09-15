@@ -1298,3 +1298,37 @@ TEST_F(TestLiveQueryPolicyParser, testUpdateCustomQueriesGoodBadGoodScenario)
     EXPECT_TRUE(customQueriesLast.has_value());
     EXPECT_EQ(customQueriesLast.value(), expected2);
 }
+
+TEST_F(TestLiveQueryPolicyParser, testProcessLiveQueryFoldingRulesWithRegex)
+{
+
+    std::string liveQueryPolicyWithRegex{R"(<?xml version="1.0"?>
+                                 <policy type="LiveQuery" RevID="abc123" policyType="56">
+                                    <configuration>
+                                        <scheduled>
+                                            <dailyDataLimit>100</dailyDataLimit>
+                                            <queryPacks>
+                                                <queryPack id="XDR"/>
+                                                <queryPack id="MTR"/>
+                                            </queryPacks>
+                                            <foldingRules>
+                                                [
+                                                    {
+                                                        "query_name":"test_folding_query",
+                                                         "regex":{
+                                                                "column_name": "[0-9]+"
+                                                        }
+                                                    }
+                                                ]
+                                            </foldingRules>
+                                        </scheduled>
+                                    </configuration>
+                                 </policy>)"};
+
+    std::vector<Json::Value> foldingRules;
+    bool changeFoldingRules = testableGetFoldingRules(liveQueryPolicyWithRegex, foldingRules);
+    EXPECT_EQ(changeFoldingRules, true);
+    EXPECT_EQ(foldingRules.size(),1);
+    EXPECT_EQ(foldingRules[0]["query_name"], "test_folding_query");
+    EXPECT_EQ(foldingRules[0]["regex"]["column_name"], "[0-9]+");
+}

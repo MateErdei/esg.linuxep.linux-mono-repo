@@ -214,9 +214,15 @@ namespace Plugin
                     hasBadRule = true;
                     continue;
                 }
-                if (!it->isMember("query_name") || !it->isMember("values"))
+                if (!it->isMember("query_name"))
                 {
-                    LOGWARN("Invalid folding rule");
+                    LOGWARN("Invalid folding rule, query_name missing");
+                    hasBadRule = true;
+                    continue;
+                }
+                if (!it->isMember("values") && !it->isMember("regex"))
+                {
+                    LOGWARN("Invalid folding rule, 'values' or 'regex' must be specified");
                     hasBadRule = true;
                     continue;
                 }

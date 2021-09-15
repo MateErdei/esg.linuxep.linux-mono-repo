@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<policy type="LiveQuery" RevID="revId" policyType="56">
+    <configuration>
+        <scheduled>
+            <dailyDataLimit>100000</dailyDataLimit>
+            <enabled>true</enabled>
+            <queryPacks>
+                <queryPack id="XDR" />
+            </queryPacks>
+            <foldingRules>
+               [
+                   {
+                       "query_name":"random",
+                       "regex":{
+                           "number": "[0-9]+"
+                       }
+                   }
+               ]
+            </foldingRules>
+        </scheduled>
+    </configuration>
+</policy>
