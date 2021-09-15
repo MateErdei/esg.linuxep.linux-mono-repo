@@ -25,7 +25,7 @@ namespace Plugin
             const std::string dataLimitPath{"policy/configuration/scheduled/dailyDataLimit"};
             Common::XmlUtilities::Attributes attributes = liveQueryPolicyMap.value().lookup(dataLimitPath);
             std::string policyDataLimitAsString = attributes.contents();
-            policyDataLimitAsInt = std::stoll(policyDataLimitAsString);
+            policyDataLimitAsInt = std::stoull(policyDataLimitAsString);
             LOGDEBUG("Using dailyDataLimit from LiveQuery Policy: " << policyDataLimitAsInt);
         }
         catch (const std::exception& e)
