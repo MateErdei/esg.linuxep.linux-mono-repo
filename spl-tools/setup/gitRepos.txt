@@ -13,3 +13,4 @@ ssh://git@stash.sophos.net:7999/linuxep/sspl-aws-runner.git
 ssh://git@stash.sophos.net:7999/linuxep/versig.git
 ssh://git@stash.sophos.net:7999/linuxep/sul.git
 ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-edr-component.git
+ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-event-journaler.git
