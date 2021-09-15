@@ -156,7 +156,7 @@ def check_query_results_folded(query_result: str, expected_query: str, expected_
         query_found = False
         for result in query_json:
             if result['name'] == expected_query and expected_column_name in result['columns']:
-                if expected_column_value:
+                if expected_column_value is not None:
                     if result['columns'][expected_column_name] == expected_column_value:
                         query_found = True
                 else:

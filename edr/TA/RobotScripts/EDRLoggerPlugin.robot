@@ -469,14 +469,14 @@ EDR Plugin Runs Next Scheduled Queries When Flags Configured To Do So
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   next_mtr_query  ${mark}
 
 EDR Plugin Hits Data Limit And Queries Resume After Period
-    [Setup]  Data Limit Test Setup  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit_with_MTR.xml  180
+    [Setup]  Data Limit Test Setup  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_50kB_limit_with_MTR.xml  180
     [Teardown]  Data Limit Test Teardown
 
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
     ...  EDR Plugin Log Contains  First LiveQuery policy received
-    Expect New Datalimit  10000
+    Expect New Datalimit  50000
 
     Wait Until Keyword Succeeds
     ...  20 secs
