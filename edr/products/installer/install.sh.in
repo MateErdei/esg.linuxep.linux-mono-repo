@@ -271,7 +271,7 @@ then
     then
       cp ${SOPHOS_INSTALL}/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf /etc/rsyslog.d/
 
-      if [[ $(which getenforce) == 0 ]]
+      if [[ $(which getenforce) ]]
       then
         semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
         restorecon -Fv /opt/sophos-spl/shared/syslog_pipe
