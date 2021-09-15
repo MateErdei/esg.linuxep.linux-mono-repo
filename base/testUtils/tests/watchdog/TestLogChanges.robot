@@ -6,6 +6,7 @@ Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/Watchdog.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  WatchdogResources.robot
 Resource  ../installer/InstallerResources.robot
@@ -13,7 +14,8 @@ Resource  LogControlResources.robot
 
 Test Setup  Require Fresh Install
 Test Teardown  Wdctl Test Teardown
-
+*** Variables ***
+${watchdog_log}     ${SOPHOS_INSTALL}/logs/base/watchdog.log
 *** Test Cases ***
 Logger Conf should Control Log Level of Management Agent
     [Tags]  MANAGEMENT_AGENT
@@ -27,7 +29,26 @@ Logger Conf should Control Log Level of Management Agent
     Should Not Contain   ${WARNLevelLogs}  DEBUG
     Should Contain   ${debugLevelLogs}  DEBUG
 
+Logger Conf should only rotate three times
+    [Teardown]  CleanUp Mock Logs
+    Run Process   systemctl  stop  sophos-spl
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Watchdog Not Running
 
+    Remove File  ${watchdog_log}
+
+    generate_file  ${watchdog_log}  10240
+    create File  ${watchdog_log}.1
+    create File  ${watchdog_log}.2
+
+    Run Process   systemctl  start  sophos-spl
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Watchdog Log Contains  ProcessMonitoringImpl
+    File should not exist   ${SOPHOS_INSTALL}/logs/base/watchdog.log.3
 Logger Conf should control Log Level of Plugins and their internal Components
     [Tags]  UPDATE_SCHEDULER
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log  updatescheduler   WARN  pluginapi=DEBUG
@@ -120,11 +141,18 @@ Logger Conf should not Control Log Level of MCS Router if no verbosity fields
 
 
 *** Keywords ***
+
+
 Check UpdateScheduler issues a plugin api Log
     ${content} =  Get Log Content For Component   updatescheduler
     Should Contain  ${content}  pluginapi
 
 
+CleanUp Mock Logs
+    Remove File  ${watchdog_log}.1
+    Remove File  ${watchdog_log}.2
+    Remove File  ${watchdog_log}
+    Wdctl Test Teardown
 Check UpdateScheduler report its log level
     [Arguments]  ${logLevelName}
     ${content} =  Get Log Content For Component   updatescheduler

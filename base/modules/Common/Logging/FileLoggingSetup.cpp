@@ -59,7 +59,7 @@ void Common::Logging::FileLoggingSetup::setupFileLoggingWithPath(const std::stri
 
     log4cplus::tstring datePattern;
     const long maxFileSize = 10 * 1024 * 1024;
-    const int maxBackupIndex = 3;
+    const int maxBackupIndex = 2;
     const bool immediateFlush = true;
     const bool createDirs = true;
     log4cplus::SharedAppenderPtr appender(

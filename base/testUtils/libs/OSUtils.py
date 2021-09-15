@@ -457,6 +457,11 @@ def append_to_file_if_not_in_file(file_path, to_append):
         if to_append not in contents:
             f.write("\n{}".format(to_append))
 
+def generate_file(file_path, size_in_mb):
+    with open(file_path, 'wb') as fout:
+        for i in range(1024):
+            fout.write(os.urandom(int(size_in_mb)))
+
 class ETCHostsWarehouseHandler:
     INTERNAL_WAREHOUSE_IP = '10.1.200.228'
     INTERNAL_WAREHOUSE_NAMES = ['dci.sophosupd.com', 'dci.sophosupd.net',
