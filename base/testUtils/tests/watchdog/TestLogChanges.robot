@@ -16,6 +16,7 @@ Test Setup  Require Fresh Install
 Test Teardown  Wdctl Test Teardown
 *** Variables ***
 ${watchdog_log}     ${SOPHOS_INSTALL}/logs/base/watchdog.log
+
 *** Test Cases ***
 Logger Conf should Control Log Level of Management Agent
     [Tags]  MANAGEMENT_AGENT
@@ -49,6 +50,7 @@ Logger Conf should only rotate three times
     ...  1 secs
     ...  Check Watchdog Log Contains  ProcessMonitoringImpl
     File should not exist   ${SOPHOS_INSTALL}/logs/base/watchdog.log.3
+
 Logger Conf should control Log Level of Plugins and their internal Components
     [Tags]  UPDATE_SCHEDULER
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log  updatescheduler   WARN  pluginapi=DEBUG
@@ -141,18 +143,16 @@ Logger Conf should not Control Log Level of MCS Router if no verbosity fields
 
 
 *** Keywords ***
-
-
 Check UpdateScheduler issues a plugin api Log
     ${content} =  Get Log Content For Component   updatescheduler
     Should Contain  ${content}  pluginapi
-
 
 CleanUp Mock Logs
     Remove File  ${watchdog_log}.1
     Remove File  ${watchdog_log}.2
     Remove File  ${watchdog_log}
     Wdctl Test Teardown
+
 Check UpdateScheduler report its log level
     [Arguments]  ${logLevelName}
     ${content} =  Get Log Content For Component   updatescheduler
