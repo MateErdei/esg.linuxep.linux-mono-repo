@@ -292,7 +292,7 @@ function build()
         mkdir -p "${REDIST}/xzutils"
         tar xf  "${INPUT}/xzutils.tar" -C "${REDIST}/xzutils"
         mkdir -p "${REDIST}/sqlite"
-        unzip "${INPUT}/sqlite-amalgamation/*" -d "${REDIST}/sqlite"
+        unzip -o "${INPUT}/sqlite-amalgamation/*" -d "${REDIST}/sqlite"
 
         mkdir -p "$REDIST"/osquery
         cp  -r ${INPUT}/osquery/osquery/*  "$REDIST"/osquery
