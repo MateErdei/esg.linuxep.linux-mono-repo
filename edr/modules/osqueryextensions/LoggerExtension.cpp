@@ -144,7 +144,7 @@ bool LoggerExtension::getDataLimitReached()
     return m_resultsSender.getDataLimitReached();
 }
 
-int LoggerExtension::getDataLimit()
+long long int LoggerExtension::getDataLimit()
 {
     return m_resultsSender.getDataLimit();
 }

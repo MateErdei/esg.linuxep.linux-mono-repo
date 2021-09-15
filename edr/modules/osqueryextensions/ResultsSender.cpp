@@ -311,7 +311,7 @@ bool ResultsSender::getDataLimitReached()
     return m_hitLimitThisPeriod.getValue();
 }
 
-int ResultsSender::getDataLimit()
+long long int ResultsSender::getDataLimit()
 {
     return m_dataLimit;
 }
