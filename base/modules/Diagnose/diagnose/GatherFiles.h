@@ -55,7 +55,7 @@ namespace diagnose
 
         /*
          * Copies files with endings ".xml", ".json", ".txt", ".conf", ".config",
-         * ".log", ".log.1", ".dat"
+         * ".log", ".log.1", ".dat", ".yaml"
          * from directory dirPath to the destination folder
          */
         void copyAllOfInterestFromDir(const Path& dirPath, const Path& destination);

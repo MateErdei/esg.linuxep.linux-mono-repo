@@ -24,7 +24,6 @@ namespace
 
         static const std::vector<std::string> interestingExtensions{ ".xml", ".json", ".txt",   ".conf", ".config",
                                                                      ".log", ".dat",  ".flags", ".ini", ".yaml" };
-        LOGINFO(filename);
         for (const auto& type : interestingExtensions)
         {
             if (Common::UtilityImpl::StringUtils::isSubstring(filename, type))
@@ -132,11 +131,13 @@ namespace diagnose
 
     void GatherFiles::copyAllOfInterestFromDir(const Path& dirPath, const Path& destination)
     {
+        LOGINFO("Checking Directory " << dirPath)
         if (m_fileSystem->isDirectory(dirPath))
         {
             std::vector<std::string> files = m_fileSystem->listFiles(dirPath);
             for (const auto& file : files)
             {
+                LOGINFO("Checking File " << dirPath << " -- " << isFileOfInterest(file))
                 if (isFileOfInterest(file))
                 {
                     copyFileIntoDirectory(file, destination);
