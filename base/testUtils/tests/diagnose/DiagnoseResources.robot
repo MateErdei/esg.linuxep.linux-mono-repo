@@ -99,6 +99,16 @@ Check Diagnose Output For Additional LR Plugin Files
     Should Contain   ${LRLogFiles}   liveresponse.log
     Should Contain   ${LRLogFiles}   sessions.log
 
+Check Diagnose Output For Additional RuntimeDetections Plugin Files
+    ${RuntimeDetectionsFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/runtimedetections
+    ${RuntimeDetectionsConfFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/runtimedetections/etc
+
+    Should Contain  ${RuntimeDetectionsFiles}    runtimedetections.log
+    Should Contain  ${RuntimeDetectionsFiles}    VERSION.ini
+    Should Contain  ${RuntimeDetectionsConfFiles}  capsule8-sensor.yaml
+    Should Contain  ${RuntimeDetectionsConfFiles}  capsule8-analytics.yaml
+    
+
 Check Diagnose Output For System Command Files
     ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/SystemFiles
     Should Contain  ${Files}    df

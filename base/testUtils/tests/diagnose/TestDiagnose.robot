@@ -212,21 +212,20 @@ Diagnose Tool Gathers RuntimeDetections Logs When Run From Installation
     # Check diagnose tar created
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
     ${fileCount} =    Get length    ${Files}
-    Should Be Equal As Numbers  ${fileCount}  2
+    Should Be Equal As Numbers  ${fileCount}  1
     # Untar diagnose tar to check contents
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
     Should Be Equal As Strings   ${result.rc}  0
 
     log file  /tmp/diagnose.log
-    Check Diagnose Output For Additional RuntimeDetections Plugin File
+    Check Diagnose Output For Additional RuntimeDetections Plugin Files
     Check Diagnose Output For System Command Files
     Check Diagnose Output For System Files
 
     ${contents} =  Get File  /tmp/diagnose.log
     Should Not Contain  ${contents}  error  ignore_case=True
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
-    Should Contain  ${contents}   Created tarfile: ${Files[1]} in directory ${TAR_FILE_DIRECTORY}
 
 Diagnose Tool Help Text
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  --help
