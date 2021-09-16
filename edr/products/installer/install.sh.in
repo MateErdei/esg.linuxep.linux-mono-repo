@@ -190,15 +190,21 @@ then
     echo ${AUDITD_OPTION} >> "${CONFIG_FILE}"
 fi
 
-if ! -f "${CONFIG_FILE}" || ! grep -q "running_mode" "${CONFIG_FILE}"
+if [[ -f "${CONFIG_FILE}" ]]
   then
+    if ! grep -q "running_mode" "${CONFIG_FILE}"
+    then
+        echo "running_mode=0" >> "${CONFIG_FILE}"
+    fi
+    if ! grep -q "network_tables" "${CONFIG_FILE}"
+    then
+        echo "network_tables=0" >> "${CONFIG_FILE}"
+    fi
+  else
     echo "running_mode=0" >> "${CONFIG_FILE}"
-fi
-
-if ! -f "${CONFIG_FILE}" || ! grep -q "network_tables" "${CONFIG_FILE}"
-  then
     echo "network_tables=0" >> "${CONFIG_FILE}"
 fi
+
 
 #After install start the plugin
 "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
