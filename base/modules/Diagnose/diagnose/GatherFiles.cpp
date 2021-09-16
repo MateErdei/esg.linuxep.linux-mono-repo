@@ -24,7 +24,7 @@ namespace
 
         static const std::vector<std::string> interestingExtensions{ ".xml", ".json", ".txt",   ".conf", ".config",
                                                                      ".log", ".dat",  ".flags", ".ini", ".yaml" };
-
+        LOGINFO(filename);
         for (const auto& type : interestingExtensions)
         {
             if (Common::UtilityImpl::StringUtils::isSubstring(filename, type))
