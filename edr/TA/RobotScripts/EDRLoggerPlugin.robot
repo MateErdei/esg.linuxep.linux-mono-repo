@@ -123,6 +123,7 @@ EDR Plugin Applies Folding Rules Based Column Value
     # Wait for a result we know will contain folded and non-folded results
     ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
     ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
+    Log  ${query_results}
     Check Query Results Are Folded  ${query_results}  random  number  0
     Check Query Results Are Not Folded  ${query_results}  random  number  1
 
