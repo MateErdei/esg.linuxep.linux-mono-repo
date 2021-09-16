@@ -193,8 +193,8 @@ Diagnose Tool Gathers EDR Logs When Run From Installation
     Should Not Contain  ${contents}  error  ignore_case=True
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
 
-Diagnose Tool Gathers C8 Logs When Run From Installation
-    [Tags]  DIAGNOSE  C8_PLUGIN
+Diagnose Tool Gathers RuntimeDetections Logs When Run From Installation
+    [Tags]  DIAGNOSE  RUNTIMEDETECTIONS_PLUGIN
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
 
     Create Directory  ${TAR_FILE_DIRECTORY}
@@ -204,7 +204,7 @@ Diagnose Tool Gathers C8 Logs When Run From Installation
     Wait Until Keyword Succeeds
         ...   10 secs
         ...   1 secs
-        ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/c8/log/c8.log
+        ...   File Should Exist  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
 
     ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
     Should Be Equal As Integers   ${retcode}  0
@@ -219,7 +219,7 @@ Diagnose Tool Gathers C8 Logs When Run From Installation
     Should Be Equal As Strings   ${result.rc}  0
 
     log file  /tmp/diagnose.log
-    Check Diagnose Output For Additional C8 Plugin File
+    Check Diagnose Output For Additional RuntimeDetections Plugin File
     Check Diagnose Output For System Command Files
     Check Diagnose Output For System Files
 
