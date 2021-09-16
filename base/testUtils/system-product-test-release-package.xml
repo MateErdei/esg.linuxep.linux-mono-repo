@@ -3,8 +3,8 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-<!--            <development-version branch="feature/LINUXDAR-3319-add-tests-for-c8-logs-in-diagnose"/>-->
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-3319-add-tests-for-c8-logs-in-diagnose"/>
+            <!--<development-version branch="develop"/>-->
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage,base-coverage" artifact-path="sspl-base-060/SDDS-COMPONENT" dest-dir="sspl-base-0-6-0"/>
