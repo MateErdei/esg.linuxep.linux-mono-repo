@@ -30,7 +30,7 @@ Logger Conf should Control Log Level of Management Agent
     Should Not Contain   ${WARNLevelLogs}  DEBUG
     Should Contain   ${debugLevelLogs}  DEBUG
 
-Logger Conf should only rotate three times
+Logger should rotate after a log file reachs 1Mb
     [Teardown]  CleanUp Mock Logs
     Run Process   systemctl  stop  sophos-spl
     Wait Until Keyword Succeeds
@@ -40,17 +40,43 @@ Logger Conf should only rotate three times
 
     Remove File  ${watchdog_log}
 
-    generate_file  ${watchdog_log}  10240
-    create File  ${watchdog_log}.1
-    create File  ${watchdog_log}.2
+    generate_file  ${watchdog_log}  1024
 
     Run Process   systemctl  start  sophos-spl
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
     ...  Check Watchdog Log Contains  ProcessMonitoringImpl
-    File should not exist   ${SOPHOS_INSTALL}/logs/base/watchdog.log.3
+    File should exist   ${SOPHOS_INSTALL}/logs/base/watchdog.log.1
 
+Logger should not rotate more than 10 times
+    [Teardown]  CleanUp Mock Logs
+    Run Process   systemctl  stop  sophos-spl
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Watchdog Not Running
+
+    Remove File  ${watchdog_log}
+
+    generate_file  ${watchdog_log}  1024
+    Create file  ${watchdog_log}.1
+    Create file  ${watchdog_log}.2
+    Create file  ${watchdog_log}.3
+    Create file  ${watchdog_log}.4
+    Create file  ${watchdog_log}.5
+    Create file  ${watchdog_log}.6
+    Create file  ${watchdog_log}.7
+    Create file  ${watchdog_log}.8
+    Create file  ${watchdog_log}.9
+    Create file  ${watchdog_log}.10
+
+    Run Process   systemctl  start  sophos-spl
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Watchdog Log Contains  ProcessMonitoringImpl
+    File should not exist   ${SOPHOS_INSTALL}/logs/base/watchdog.log.11
 Logger Conf should control Log Level of Plugins and their internal Components
     [Tags]  UPDATE_SCHEDULER
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log  updatescheduler   WARN  pluginapi=DEBUG
@@ -148,8 +174,6 @@ Check UpdateScheduler issues a plugin api Log
     Should Contain  ${content}  pluginapi
 
 CleanUp Mock Logs
-    Remove File  ${watchdog_log}.1
-    Remove File  ${watchdog_log}.2
     Remove File  ${watchdog_log}
     Wdctl Test Teardown
 
