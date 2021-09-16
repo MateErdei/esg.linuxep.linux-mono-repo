@@ -131,13 +131,11 @@ namespace diagnose
 
     void GatherFiles::copyAllOfInterestFromDir(const Path& dirPath, const Path& destination)
     {
-        LOGINFO("Checking Directory " << dirPath)
         if (m_fileSystem->isDirectory(dirPath))
         {
             std::vector<std::string> files = m_fileSystem->listFiles(dirPath);
             for (const auto& file : files)
             {
-                LOGINFO("Checking File " << dirPath << " -- " << isFileOfInterest(file))
                 if (isFileOfInterest(file))
                 {
                     copyFileIntoDirectory(file, destination);
