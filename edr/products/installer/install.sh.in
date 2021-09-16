@@ -190,12 +190,12 @@ then
     echo ${AUDITD_OPTION} >> "${CONFIG_FILE}"
 fi
 
-if ! grep -q "running_mode" "${CONFIG_FILE}"
+if ! -f "${CONFIG_FILE}" || ! grep -q "running_mode" "${CONFIG_FILE}"
   then
     echo "running_mode=0" >> "${CONFIG_FILE}"
 fi
 
-if ! grep -q "network_tables" "${CONFIG_FILE}"
+if ! -f "${CONFIG_FILE}" || ! grep -q "network_tables" "${CONFIG_FILE}"
   then
     echo "network_tables=0" >> "${CONFIG_FILE}"
 fi
