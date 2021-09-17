@@ -49,3 +49,9 @@ scheduled-query-pack:
     fileset: ..\redist\scheduled-query-pack-sdds
     canonical-name: ScheduledQueryPack
     line-id: ScheduledQueryPack
+
+sspl-runtimedetections:
+    fileset: ..\redist\runtimedetections\SDDS-SSPL-DBOS-COMPONENT
+    canonical-name: ServerProtectionLinux-Plugin-RuntimeDetections
+    line-id: ServerProtectionLinux-Plugin-RuntimeDetections
+    mountpoint: .
