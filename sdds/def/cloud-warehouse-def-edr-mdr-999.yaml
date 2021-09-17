@@ -22,6 +22,7 @@ warehouses:
                             - ssplflags-supp
                     sspl-liveterminal:
                     sspl-event-journaler:
+                    sspl-runtimedetections:
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
@@ -71,6 +72,7 @@ warehouses:
                             - ssplflags-supp
                     sspl-liveterminal:
                     sspl-event-journaler:
+                    sspl-runtimedetections:
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
