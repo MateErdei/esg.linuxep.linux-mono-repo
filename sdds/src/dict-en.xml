@@ -30,7 +30,7 @@
     </Identity>
     <Identity>
       <Label>
-        <Token>ServerProtectionLinux-Plugin-RuntimeDetections"</Token>
+        <Token>ServerProtectionLinux-Plugin-RuntimeDetections</Token>
         <Language lang="en">
           <LongDesc>Sophos Linux Runtime Detection Plugin</LongDesc>
           <ShortDesc>Sophos Linux Runtime Detection Plugin</ShortDesc>
