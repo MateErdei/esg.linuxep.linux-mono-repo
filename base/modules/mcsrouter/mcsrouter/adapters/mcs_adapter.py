@@ -144,7 +144,7 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
 
     def _process_action(self, command):
         """
-        Process the actions by creating the file
+        Process migrate action by storing the action XML for mcs.py to pick up.
         """
         LOGGER.debug("Received %s action", self.get_app_id())
         action_body = command.get("body")

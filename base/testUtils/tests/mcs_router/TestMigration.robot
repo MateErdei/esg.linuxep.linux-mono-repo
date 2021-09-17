@@ -180,6 +180,8 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     ...  10s
     ...  Check MCS Router Log Contains  Attempting Central migration
 
+    File Should Not Exist  ${SOPHOS_INSTALL}/tmp/migration_action.xml
+
     Wait Until Keyword Succeeds
     ...  60s
     ...  5s
