@@ -51,11 +51,11 @@ Create Empty SulDownloader Config
 
 Telemetry Test Setup
     Prepare To Run Telemetry Executable
-    Drop MCS Config Into Place
+
 
 Telemetry Test Setup With Broken Put Requests
     Prepare To Run Telemetry Executable With Broken Put Requests
-    Drop MCS Config Into Place
+
 
 Telemetry Test Teardown
     Kill Telemetry If Running
