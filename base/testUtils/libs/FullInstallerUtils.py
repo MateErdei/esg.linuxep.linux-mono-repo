@@ -183,11 +183,10 @@ def get_sspl_edr_plugin_sdds():
 
 def get_sspl_runtimedetections_plugin_sdds():
     candidates = []
-    # todo for local builds
-    # local_path_to_plugin = PathManager.find_local_component_dir_path("capsule8-sensor")
-    # if local_path_to_plugin:
-    #     candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
-    #     candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
+    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-runtimedetections-component")
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     return get_plugin_sdds("SSPL Runtime Detections Plugin", "SSPL_RUNTIMEDETECTIONS_PLUGIN_SDDS", candidates)
 
 def get_sspl_event_journaler_plugin_sdds():
