@@ -382,7 +382,7 @@ Connection is lost between endpoint and proxy
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...  Check Mcsrouter Log Contains   Push Server service reported: Push client lost connection to server
+    ...  Check Mcsrouter Log Contains   MCS push client stopped
 
     Start Proxy Server With Basic Auth    1235   username   password
 
