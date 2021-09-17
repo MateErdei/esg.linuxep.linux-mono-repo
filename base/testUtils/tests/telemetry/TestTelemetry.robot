@@ -12,7 +12,7 @@ Resource  TelemetryResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../installer/InstallerResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
-
+Resource  ../comms_component/CommsComponentResources.robot
 
 Suite Setup      Setup Telemetry Tests
 Suite Teardown   Cleanup Telemetry Tests
@@ -33,6 +33,8 @@ Setup Telemetry Tests
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Copy Telemetry Config File in To Place
+    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [comms_network]\nVERBOSITY=DEBUG\n[comms_component]\nVERBOSITY=DEBUG\n
+    Restart Comms
 
 
 ### Suite Cleanup
@@ -83,12 +85,6 @@ Reset MachineID Permissions
 Telemetry Executable Generates System Base and Watchdog Telemetry
     [Tags]  SMOKE  TELEMETRY  TAP_TESTS
     [Documentation]    Telemetry Executable Generates Telemetry
-    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [comms_network]\nVERBOSITY=DEBUG\n
-    Run Process   systemctl  restart  sophos-spl
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Expected Base Processes Are Running
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}

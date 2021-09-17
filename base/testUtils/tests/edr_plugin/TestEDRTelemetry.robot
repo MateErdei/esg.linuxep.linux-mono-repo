@@ -12,7 +12,7 @@ Resource  ../telemetry/TelemetryResources.robot
 Resource  EDRResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
 Resource  ../mdr_plugin/MDRResources.robot
-
+Resource  ../comms_component/CommsComponentResources.robot
 
 Test Setup  EDR Telemetry Test Setup
 Test Teardown  EDR Telemetry Test Teardown
@@ -271,6 +271,7 @@ EDR Plugin Produces Telemetry With OSQuery Max Events Override Value
 EDR Telemetry Suite Setup
     Require Fresh Install
     Override LogConf File as Global Level  DEBUG
+    Restart Comms
     Copy Telemetry Config File in To Place
 
 

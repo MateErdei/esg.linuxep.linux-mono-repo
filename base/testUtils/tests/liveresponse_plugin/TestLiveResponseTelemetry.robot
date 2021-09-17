@@ -12,7 +12,7 @@ Resource  ../telemetry/TelemetryResources.robot
 Resource  LiveResponseResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
 Resource  ../mdr_plugin/MDRResources.robot
-
+Resource  ../comms_component/CommsComponentResources.robot
 
 Test Setup  LiveResponse Telemetry Test Setup
 Test Teardown  LiveResponse Telemetry Test Teardown
@@ -187,8 +187,10 @@ Liveresponse Plugin saves mutiple session with different thumbprints in telemetr
 *** Keywords ***
 LiveResponse Telemetry Suite Setup
     Require Fresh Install
-    Override LogConf File as Global Level  DEBUG
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log   liveresponse   DEBUG
+    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [global]\nVERBOSITY=DEBUG\n[comms_component]\nVERBOSITY=DEBUG\n
+    Override LogConf File as Global Level  DEBUG
+    Restart Comms
     Liveresponse Suite Setup
     Copy Telemetry Config File in To Place
 

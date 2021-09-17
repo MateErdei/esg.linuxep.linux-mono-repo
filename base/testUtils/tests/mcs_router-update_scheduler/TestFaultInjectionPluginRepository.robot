@@ -13,6 +13,7 @@ Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/WatchdogResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
+Resource  ../comms_component/CommsComponentResources.robot
 
 Suite Teardown   Require Uninstalled
 
@@ -114,6 +115,8 @@ Install And Wait System Stable
     Set Local CA Environment Variable
     Start Local Cloud Server
     Register With Local Cloud Server
+    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [comms_network]\nVERBOSITY=DEBUG\n[comms_component]\nVERBOSITY=DEBUG\n
+    Restart Comms
     Check Correct MCS Password And ID For Local Cloud Saved
     Wait For Update Status File To Contain RevId
     Prepare To Run Telemetry Executable

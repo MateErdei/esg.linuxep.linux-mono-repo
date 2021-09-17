@@ -909,21 +909,21 @@ def unmount_all_comms_component_folders(skip_stop_proc=False):
         if code != 0 and not 'Watchdog is not running' in stdout:
             logger.info(stdout)
 
-    if not os.path.exists('/opt/sophos-spl/bin/wdctl'):
-        return
-    # stop the comms component as it could be holding the mounted paths and 
-    # would not allow them to be unmounted. 
-    counter = 0
-    while not skip_stop_proc and counter < 5:
-        counter = counter + 1
-        stdout, errcode = run_proc_with_safe_output(['pidof', 'CommsComponent'])
-        if errcode == 0:
-            logger.info("Commscomponent running {}".format(stdout))
-            _stop_commscomponent()    
-            time.sleep(1)
-        else:
-            logger.info("Skip stop comms componenent")
-            break
+    if os.path.exists('/opt/sophos-spl/bin/wdctl'):
+
+        # stop the comms component as it could be holding the mounted paths and
+        # would not allow them to be unmounted.
+        counter = 0
+        while not skip_stop_proc and counter < 5:
+            counter = counter + 1
+            stdout, errcode = run_proc_with_safe_output(['pidof', 'CommsComponent'])
+            if errcode == 0:
+                logger.info("Commscomponent running {}".format(stdout))
+                _stop_commscomponent()
+                time.sleep(1)
+            else:
+                logger.info("Skip stop comms componenent")
+                break
 
     dirpath = '/opt/sophos-spl/var/sophos-spl-comms/'
     

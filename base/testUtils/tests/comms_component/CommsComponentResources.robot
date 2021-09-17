@@ -41,6 +41,15 @@ Cleanup mounts
     Run Process  umount  ${jailPath}/base/mcs/certs/
     Run Process  umount  ${jailPath}/etc/pki/ca-trust/extracted
 
+Restart Comms
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop   commscomponent
+    Check Comms Component Not Running
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  commscomponent
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...  Check Comms Component Is Running
+
 Check Not A MountPoint
     [Arguments]  ${mount}
     ${res} =  Run Process  findmnt  -M  ${mount}

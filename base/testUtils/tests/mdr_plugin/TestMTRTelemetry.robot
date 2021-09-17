@@ -8,6 +8,7 @@ Resource  ../GeneralTeardownResource.robot
 Resource  ../watchdog/LogControlResources.robot
 Resource  ../watchdog/WatchdogResources.robot
 Resource  ../telemetry/TelemetryResources.robot
+Resource  ../comms_component/CommsComponentResources.robot
 Resource  MDRResources.robot
 
 
@@ -65,6 +66,8 @@ MTR Plugin Counts SophosMTR Restarts Correctly And Reports In Telemetry
 MTR Telemetry Suite Setup
     Require Fresh Install
     Copy Telemetry Config File in To Place
+    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [comms_network]\nVERBOSITY=DEBUG\n[comms_component]\nVERBOSITY=DEBUG\n
+    Restart Comms
 
 MTR Telemetry Suite Teardown
     Uninstall SSPL
