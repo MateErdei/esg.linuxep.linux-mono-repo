@@ -49,12 +49,19 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             path_manager.install_dir(), policy_config, applied_config)
         self.__m_relay_id = None
         self.app_id = "MCS"
+        self.__m_migrate_action = None
 
     def get_app_id(self):
         """
         get_app_id
         """
         return self.app_id
+
+    def get_migrate_action(self):
+        return self.__m_migrate_action
+
+    def clear_migrate_action(self):
+        self.__m_migrate_action = None
 
     def __set_compliance(self, comp_node):
         """
@@ -140,14 +147,10 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         Process the actions by creating the file
         """
         LOGGER.debug("Received %s action", self.get_app_id())
-
-        body = command.get("body")
-        LOGGER.debug("Action body: {}".format(body))
-        # Only MCS action currently is to migrate.
-        action_name = "migration_action.xml"
-        # Writing action to tmp directory to avoid Management Agent processing
-        action_path_tmp = self._write_action_to_tmp(action_name, body)
-        LOGGER.debug(f"{self.get_app_id()} action saved to path {action_path_tmp}")
+        action_body = command.get("body")
+        LOGGER.debug(f"Action body: {action_body}")
+        if "sophos.mgt.mcs.migrate" in action_body:
+            self.__m_migrate_action = action_body
         return []
 
     def _write_action_to_tmp(self, action_name, body):

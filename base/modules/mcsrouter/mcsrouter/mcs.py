@@ -579,14 +579,14 @@ class MCS:
             datafeeds_module.Datafeeds.send_datafeed_files(all_datafeeds, comms)
 
         def should_we_migrate() -> bool:
-            return os.path.exists(path_manager.migration_action_path())
+            return self.__m_mcs_adapter.get_migrate_action() is not None
 
         def attempt_migration(old_comms, live_config, root_config) -> bool:
             LOGGER.info("Attempting Central migration")
             migration_data = migration.Migrate()
-            migration_data.read_migrate_action()
             migrate_comms = None
             try:
+                migration_data.read_migrate_action(self.__m_mcs_adapter.get_migrate_action())
                 migrate_config = copy.copy(live_config)
                 migrate_comms = mcs_connection.MCSConnection(
                     migrate_config,
@@ -647,7 +647,7 @@ class MCS:
                 if migrate_comms:
                     migrate_comms.close()
             finally:
-                os.remove(path_manager.migration_action_path())
+                self.__m_mcs_adapter.clear_migrate_action()
 
             if migration_success:
                 LOGGER.info("Successfully migrated Sophos Central account")

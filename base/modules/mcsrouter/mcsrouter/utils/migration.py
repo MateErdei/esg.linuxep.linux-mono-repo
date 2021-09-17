@@ -27,14 +27,11 @@ class Migrate(object):
     def get_command_path(self):
         return "/v2/migrate"
 
-    def read_migrate_action(self):
-        try:
-            doc = xml.dom.minidom.parse(path_manager.migration_action_path())
-            action_node = doc.getElementsByTagName("action")[0]
-            self.token = xml_helper.get_text_node_text(action_node, "token")
-            self.migrate_url = xml_helper.get_text_node_text(action_node, "server")
-        except Exception as e:
-            LOGGER.error("Failed migrate with: {}".format(e))
+    def read_migrate_action(self, migrate_action):
+        doc = xml.dom.minidom.parseString(migrate_action)
+        action_node = doc.getElementsByTagName("action")[0]
+        self.token = xml_helper.get_text_node_text(action_node, "token")
+        self.migrate_url = xml_helper.get_text_node_text(action_node, "server")
 
     def create_failed_response_body(self, error):
         return """<event type="sophos.mgt.mcs.migrate.failed" ts="{}">

@@ -343,12 +343,6 @@ def actions_temp_dir():
     """
     return os.path.join(install_dir(), 'tmp', 'actions')
 
-def migration_action_path():
-    """
-    path where migration_action.xml is stored
-    """
-    return os.path.join(temp_dir(), "migration_action.xml")
-
 # base/lib:base/lib64
 
 
