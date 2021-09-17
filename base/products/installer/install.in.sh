@@ -363,12 +363,37 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl"
 
 if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log" ]]
 then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log"
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log"*
 fi
 
 if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log" ]]
 then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log"
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log"*
+fi
+
+if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log" ]]
+then
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log"*
+fi
+
+if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log" ]]
+then
+    chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log"*
+fi
+
+if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log" ]]
+then
+    chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log"*
+fi
+
+if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log" ]]
+then
+    chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log"*
+fi
+
+if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/tscheduler.log" ]]
+then
+    chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/tscheduler.log"*
 fi
 
 if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config" ]]
@@ -414,7 +439,7 @@ fi
 if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/datafeed_tracker" ]]
 then
     chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/datafeed_tracker"
-    chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json"
+    chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/datafeed_tracker"
 fi
 
 if [[ -f "${SOPHOS_INSTALL}/tmp/.upgradeToNewWarehouse" ]]
@@ -464,6 +489,30 @@ then
   rm -rf ${SOPHOS_INSTALL}/base/update/var/processedReports
 fi
 chown -R "${UPDATESCHEDULER_USER_NAME}:root" "${SOPHOS_INSTALL}/base/update/var/updatescheduler"
+
+if [[ -f "${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.jso" ]]
+then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.jso"
+    chmod 600 "${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.jso"
+fi
+
+if [[ -f "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json" ]]
+then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json"
+    chmod 600 "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json"
+fi
+
+if [[ -f "${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json" ]]
+then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json"
+    chmod 600 "${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json"
+fi
+
+if [[ -n "$(ls -A "${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports/" 2>/dev/null)" ]]
+then
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports/"update*.json
+    chmod 600 "${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports/"update*.json
+fi
 
 makedir 711 "${SOPHOS_INSTALL}/base/bin"
 makedir 711 "${SOPHOS_INSTALL}/base/lib64"
