@@ -291,8 +291,9 @@ function build()
         untar_input capnproto
         mkdir -p "${REDIST}/xzutils"
         tar xf  "${INPUT}/xzutils.tar" -C "${REDIST}/xzutils"
+        rm -rf "${REDIST}/sqlite"
         mkdir -p "${REDIST}/sqlite"
-        unzip -o "${INPUT}/sqlite-amalgamation/*" -d "${REDIST}/sqlite"
+        unzip ${INPUT}/sqlite-amalgamation/*.zip -d "${REDIST}/sqlite"
 
         mkdir -p "$REDIST"/osquery
         cp  -r ${INPUT}/osquery/osquery/*  "$REDIST"/osquery
