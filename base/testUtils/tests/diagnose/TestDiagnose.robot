@@ -218,7 +218,6 @@ Diagnose Tool Gathers RuntimeDetections Logs When Run From Installation
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
     Should Be Equal As Strings   ${result.rc}  0
 
-    log file  /tmp/diagnose.log
     Check Diagnose Output For Additional RuntimeDetections Plugin Files
     Check Diagnose Output For System Command Files
     Check Diagnose Output For System Files
