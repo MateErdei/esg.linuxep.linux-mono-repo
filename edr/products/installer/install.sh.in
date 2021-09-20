@@ -241,6 +241,12 @@ function is_rsyslog_running()
     systemctl is-active rsyslog | grep -q -w active
 }
 
+function enable_access_for_rsyslog_to_shared_pipe()
+{
+    semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
+    restorecon -Fv /opt/sophos-spl/shared/syslog_pipe
+}
+
 # Check key files have been installed
 [[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/edr" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr executable failed to be installed"
 [[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr osquery executable failed to be installed"
@@ -271,10 +277,14 @@ then
     then
       cp ${SOPHOS_INSTALL}/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf /etc/rsyslog.d/
 
-      if [[ $(which getenforce) ]]
+      if which getenforce
       then
-        semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
-        restorecon -Fv /opt/sophos-spl/shared/syslog_pipe
+        if which semanage
+        then
+          enable_access_for_rsyslog_to_shared_pipe || echo "WARNING: Failed to add var_log_t context to /opt/sophos-spl/shared/syslog_pipe"
+        else
+          echo "WARNING: Detected selinux is present on system, but could not find semanage executable to add var_log_t context to /opt/sophos-spl/shared/syslog_pipe"
+        fi
       fi
       systemctl restart rsyslog
     fi
