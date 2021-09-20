@@ -304,7 +304,7 @@ class TestMCSConnection(unittest.TestCase):
     def test_send_datafeeds_sends_result_when_body_valid(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
@@ -317,7 +317,7 @@ class TestMCSConnection(unittest.TestCase):
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect = side_effects
         mcs_connection = TestMCSResponse.dummyMCSConnection(save=False)
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
@@ -330,7 +330,7 @@ class TestMCSConnection(unittest.TestCase):
     def test_send_datafeeds_does_not_send_old_result_files(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
         datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
@@ -342,7 +342,7 @@ class TestMCSConnection(unittest.TestCase):
     def test_send_datafeeds_does_not_send_result_files_that_are_too_large(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
         datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
@@ -356,7 +356,7 @@ class TestMCSConnection(unittest.TestCase):
     def test_send_datafeeds_prunes_backlog_before_sending(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = 2601033100
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
         for i in range(4):
@@ -372,7 +372,7 @@ class TestMCSConnection(unittest.TestCase):
     def test_send_datafeeds_prunes_backlog_before_sending(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = 2601033100
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
         for i in range(4):
@@ -394,7 +394,7 @@ class TestMCSConnection(unittest.TestCase):
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect = side_effects
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
 
@@ -411,7 +411,7 @@ class TestMCSConnection(unittest.TestCase):
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect=side_effects
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
 
@@ -428,7 +428,7 @@ class TestMCSConnection(unittest.TestCase):
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect=side_effects
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
 
@@ -449,7 +449,7 @@ class TestMCSConnection(unittest.TestCase):
         mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.side_effect=side_effects
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
 
@@ -458,10 +458,11 @@ class TestMCSConnection(unittest.TestCase):
             mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertEqual(os.remove.call_count, 0)
 
+    @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeed.get_compressed_body", return_value="a string so file not read")
     def test_mcs_sends_correct_datafeed_headers(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
         mcs_connection.m_jwt_token = "token"
@@ -469,10 +470,10 @@ class TestMCSConnection(unittest.TestCase):
         mcs_connection.m_tenant_id = "tenant_id"
 
         with self.assertLogs(level="DEBUG") as logs:
-            with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
+            with mock.patch("os.path.isfile", return_value=False) as isfile_mock:
                 datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
                 mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
-                expected_header_string = "request headers={'Authorization': 'Bearer token', 'Accept': 'application/json', 'Content-Length': 32, 'Content-Encoding': 'deflate', 'X-Uncompressed-Content-Length': 32, 'X-Device-ID': 'device_id', 'X-Tenant-ID': 'tenant_id', 'User-Agent': 'Sophos MCS Client"
+                expected_header_string = "request headers={'Authorization': 'Bearer token', 'Accept': 'application/json', 'Content-Length': 34, 'Content-Encoding': 'deflate', 'X-Uncompressed-Content-Length': 36, 'X-Device-ID': 'device_id', 'X-Tenant-ID': 'tenant_id', 'User-Agent': 'Sophos MCS Client"
                 assert_message_in_logs(expected_header_string, logs.output, log_level="DEBUG")
 
     def test_set_jwt_token_settings_returns_none_when_no_endpoint_id(self, *mockargs):

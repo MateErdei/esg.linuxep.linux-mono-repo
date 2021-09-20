@@ -76,7 +76,6 @@ class dummyMCSConnection(mcsrouter.mcsclient.mcs_connection.MCSConnection):
         self.m_jwt_expiration_timestamp = 1585708424.2720187
 
     def _MCSConnection__create_connection_and_get_response(self, requestData):
-        print("in good one")
         if not self._MCSConnection__m_connection:
             self._MCSConnection__m_connection = dummyConnection(**self.__m_kwargs)
         return self._MCSConnection__get_response(requestData)

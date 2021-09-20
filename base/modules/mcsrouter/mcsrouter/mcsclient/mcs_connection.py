@@ -1160,8 +1160,6 @@ class MCSConnection:
             try:
                 self.send_datafeed_result(datafeed_result)
                 LOGGER.debug(f"Sent result, datafeed ID: {datafeeds.get_feed_id()}, file: {datafeed_result.m_file_path}")
-                LOGGER.debug(
-                    f"Result content for datafeed ID: {datafeeds.get_feed_id()}, content: {datafeed_result.m_json_body}")
                 sent_so_far += datafeed_result.m_json_body_size
                 compressed_sent_so_far += datafeed_result.get_compressed_body_size()
                 datafeed_result.remove_datafeed_file()
@@ -1244,7 +1242,12 @@ class MCSConnection:
             "MCS request url={} body size={}".format(
                 command_path,
                 datafeed.m_compressed_body_size))
-        (headers, body) = self.__request(command_path, headers, datafeed.m_compressed_body, "POST")
+
+        compressed_body = datafeed.get_compressed_body()
+        if compressed_body is None or compressed_body == "":
+            LOGGER.error("Datafeed result compressed body was empty, not sending")
+            return None
+        (headers, body) = self.__request(command_path, headers, compressed_body, "POST")
         return body
 
     def send_migration_request(self, server_url, jwt_token, request_body, old_device_id, old_tenant_id):

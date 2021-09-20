@@ -12,7 +12,7 @@ logger = logging.getLogger("TestDatafeeds")
 class TestDatafeeds(unittest.TestCase):
     def test_datafeed_results_can_added(self):
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1601033100", content)
         datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1601033200", content)
@@ -21,18 +21,18 @@ class TestDatafeeds(unittest.TestCase):
         self.assertEqual(len(datafeed_results), 3)
         self.assertEqual(datafeed_results[0].m_file_path, "/tmp/filepath1")
         self.assertEqual(datafeed_results[0].m_creation_time, "1601033100")
-        self.assertEqual(datafeed_results[0].m_json_body, content)
+        self.assertEqual(datafeed_results[0].get_json_body_size(), 36)
         self.assertEqual(datafeed_results[1].m_file_path, "/tmp/filepath2")
         self.assertEqual(datafeed_results[1].m_creation_time, "1601033200")
-        self.assertEqual(datafeed_results[1].m_json_body, content)
+        self.assertEqual(datafeed_results[1].get_json_body_size(), 36)
         self.assertEqual(datafeed_results[2].m_file_path, "/tmp/filepath3")
         self.assertEqual(datafeed_results[2].m_creation_time, "1601033300")
-        self.assertEqual(datafeed_results[2].m_json_body, content)
+        self.assertEqual(datafeed_results[2].get_json_body_size(), 36)
 
 
     def test_datafeed_results_can_be_sorted(self):
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1601033100", content)
         datafeeds.add_datafeed_result("/tmp/filepath3", feed_id, "1601033300", content)
@@ -43,13 +43,13 @@ class TestDatafeeds(unittest.TestCase):
         datafeeds.sort_oldest_to_newest()
         self.assertEqual(datafeed_results[0].m_file_path, "/tmp/filepath1")
         self.assertEqual(datafeed_results[0].m_creation_time, "1601033100")
-        self.assertEqual(datafeed_results[0].m_json_body, content)
+        self.assertEqual(datafeed_results[0].get_json_body_size(), 36)
         self.assertEqual(datafeed_results[1].m_file_path, "/tmp/filepath2")
         self.assertEqual(datafeed_results[1].m_creation_time, "1601033200")
-        self.assertEqual(datafeed_results[1].m_json_body, content)
+        self.assertEqual(datafeed_results[1].get_json_body_size(), 36)
         self.assertEqual(datafeed_results[2].m_file_path, "/tmp/filepath3")
         self.assertEqual(datafeed_results[2].m_creation_time, "1601033300")
-        self.assertEqual(datafeed_results[2].m_json_body, content)
+        self.assertEqual(datafeed_results[2].get_json_body_size(), 36)
 
         datafeeds.sort_newest_to_oldest()
         self.assertEqual(datafeed_results[0].m_file_path, "/tmp/filepath3")
@@ -61,7 +61,7 @@ class TestDatafeeds(unittest.TestCase):
 
     def test_prune_old_datafeed_files_are_removed(self):
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1501033100", content)
         datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1501033200", content)
@@ -87,7 +87,7 @@ class TestDatafeeds(unittest.TestCase):
 
     def test_prune_old_datafeed_files_passes_if_no_old_files(self):
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
 
         # This timestamp (2601033300) is far in the future (2052) so will be not too old.
@@ -105,7 +105,7 @@ class TestDatafeeds(unittest.TestCase):
 
     def test_datafeed_result_is_alive_for_old_and_new_files(self):
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1501033100", content)
         datafeeds.add_datafeed_result("/tmp/filepath2", feed_id, "1501033200", content)
@@ -152,16 +152,19 @@ class TestDatafeeds(unittest.TestCase):
 
     def test_datafeed_compression_is_deflate(self):
         feed_id = "feed_id"
-        content = '{key1: "value1", key2: "value2"}'
+        content = '{"key1": "value1", "key2": "value2"}'
         datafeeds = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeeds.add_datafeed_result("/tmp/filepath1", feed_id, "1601033100", content)
         datafeed_results = datafeeds.get_datafeeds()
         self.assertEqual(len(datafeed_results), 1)
         self.assertEqual(datafeed_results[0].m_file_path, "/tmp/filepath1")
         self.assertEqual(datafeed_results[0].m_creation_time, "1601033100")
-        self.assertEqual(datafeed_results[0].m_json_body, content)
+        self.assertEqual(datafeed_results[0].get_json_body_size(), 36)
         expected_compressed = zlib.compress(bytes(content, "utf-8"))
-        self.assertEqual(expected_compressed, datafeed_results[0].m_compressed_body)
+
+        with mock.patch("builtins.open", mock.mock_open(read_data=content)) as mock_file:
+            self.assertEqual(expected_compressed, datafeed_results[0].get_compressed_body())
+
         self.assertEqual(len(expected_compressed), datafeed_results[0].m_compressed_body_size)
 
     @mock.patch("mcsrouter.utils.handle_json.update_datafeed_size", return_value="jake is cool af")
@@ -184,7 +187,13 @@ class TestDatafeeds(unittest.TestCase):
         mocked_datafeeds[0].add_datafeed_result("/tmp/filepath2", "scheduled_query", "1601033100", body2)
         mocked_datafeeds[1].add_datafeed_result("/tmp/filepath3", "not_scheduled_query", "1601033100", body3)
 
+        def mocked_send(datafeeds):
+            total = 0
+            for datafeed_result in datafeeds.get_datafeeds():
+                total += datafeed_result.get_compressed_body_size()
+            return total
+
         comms = mock.Mock()
-        comms.send_datafeeds = lambda x, y: True
+        comms.send_datafeeds = mocked_send
         mcsrouter.mcsclient.datafeeds.Datafeeds.send_datafeed_files(mocked_datafeeds, comms)
         mcsrouter.utils.handle_json.update_datafeed_size.assert_called_with(size_total)

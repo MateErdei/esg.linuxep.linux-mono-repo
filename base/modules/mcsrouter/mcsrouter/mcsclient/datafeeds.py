@@ -22,10 +22,10 @@ class Datafeed(object):
         self.m_file_path = file_path
         self.m_datafeed_id = datafeed_id_name
         self.m_creation_time = creation_time
-        self.m_json_body = body
-        self.m_compressed_body = self._get_compressed_json()
-        self.m_json_body_size = self._get_decompressed_body_size()
-        self.m_compressed_body_size = self._get_compressed_body_size()
+
+        # Do not store the body. We only need result metadata to perform purging.
+        self.m_json_body_size = self._get_decompressed_body_size(body)
+        self.m_compressed_body_size = self._get_compressed_body_size(body)
 
     def remove_datafeed_file(self):
         if os.path.isfile(self.m_file_path):
@@ -54,14 +54,30 @@ class Datafeed(object):
     def get_compressed_body_size(self):
         return self.m_compressed_body_size
 
-    def _get_compressed_body_size(self):
-        return len(self.m_compressed_body)
+    def get_compressed_body(self):
+        try:
+            with open(self.m_file_path, 'r', encoding="utf-8") as file_to_read:
+                body = file_to_read.read()
+                # Verify that the file is valid json here - we've already done this when we added it to the list,
+                # however this guards against it being tampered with between MCS queuing the file and sending it.
+                json.loads(body)
+                return self._compress_json(body)
+        except (json.JSONDecodeError, UnicodeDecodeError) as error:
+            LOGGER.error(f"Failed to read datafeed json file '{self.m_file_path}'. Error: {str(error)}")
+            self.remove_datafeed_file()
+        except Exception as error:
+            LOGGER.error(f"Failed to compress datafeed json file content '{self.m_file_path}'. Error: {str(error)}")
+            self.remove_datafeed_file()
+        return None
 
-    def _get_decompressed_body_size(self):
-        return len(self.m_json_body)
+    def _get_compressed_body_size(self, json_body: str):
+        return len(self._compress_json(json_body))
 
-    def _get_compressed_json(self):
-        return zlib.compress(bytes(self.m_json_body, 'utf-8'))
+    def _get_decompressed_body_size(self, json_body: str):
+        return len(json_body)
+
+    def _compress_json(self, json_body: str):
+        return zlib.compress(bytes(json_body, 'utf-8'))
 
 class Datafeeds(object):
     def __init__(self, feed_id: str):
