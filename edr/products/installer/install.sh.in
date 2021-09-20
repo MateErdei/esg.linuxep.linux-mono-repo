@@ -276,9 +276,9 @@ then
     then
       cp ${SOPHOS_INSTALL}/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf /etc/rsyslog.d/
 
-      if which getenforce
+      if which getenforce > /dev/null
       then
-        if which semanage
+        if which semanage > /dev/null
         then
           enable_access_for_rsyslog_to_shared_pipe || echo "WARNING: Failed to add var_log_t context to /opt/sophos-spl/shared/syslog_pipe"
         else
