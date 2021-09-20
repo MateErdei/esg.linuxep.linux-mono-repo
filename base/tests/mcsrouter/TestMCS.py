@@ -1,6 +1,3 @@
-
-
-
 import os
 import unittest
 import mock
@@ -83,6 +80,9 @@ class FakeMCSConnection(object):
         pass
 
     def set_jwt_token_settings(self):
+        pass
+
+    def send_migration_event(self, event):
         pass
 
 
@@ -278,6 +278,31 @@ class TestMCS(unittest.TestCase):
         """
         # When No Token
         self.assertRaises(mcsrouter.mcs.DeploymentApiException, m.process_deployment_response_body, BODY_WITHOUT_TOKEN)
+
+    @mock.patch('mcsrouter.utils.path_manager.mcs_flags_file', return_value=FLAG_FILE)
+    @mock.patch('mcsrouter.utils.directory_watcher.DirectoryWatcher.add_watch', side_effect=pass_function)
+    @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
+    @mock.patch('mcsrouter.adapters.mcs_adapter.MCSAdapter.get_migrate_action', return_value="this is not xml")
+    def testMalformedMigrationActionIsIgnored(self, *mockargs):
+
+        # General setup for MCS tests that need a comms object
+        config = mcsrouter.utils.config.Config()
+        config.set("MCSToken","MCSTOKEN")
+        config.set("MCSID","FOO")
+        config.set("MCSPassword","BAR")
+        config.set("COMMAND_CHECK_INTERVAL_MINIMUM","0")
+        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM","0")
+        config.set("COMMAND_CHECK_BASE_RETRY_DELAY","0")
+        config.set("COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY","0")
+        m = self.createMCS(config)
+        try:
+            ret = m.startup()
+        except EscapeException:
+            pass
+
+        # The XML parsing error is expected to be caught safely within attempt_migration
+        m.attempt_migration(None, None, None, None)
+
 class TestCommandCheckInterval(unittest.TestCase):
     def testCreation(self):
         config = mcsrouter.utils.config.Config()

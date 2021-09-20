@@ -502,6 +502,126 @@ class MCS:
                 return True
         return False
 
+    def status_updated(self, reason=None):
+        """
+        status_updated, indicate to MCS that the EP status has changed.
+        """
+        LOGGER.debug("Checking for status update due to %s", reason or "unknown reason")
+        self.__m_status_timer.status_updated()
+        LOGGER.debug("Next status update in %.2f s", self.__m_status_timer.relative_time())
+
+    def migration_file_purge(self):
+        def wrapped_remove(file_path_to_delete: str):
+            try:
+                if os.path.isfile(file_path_to_delete):
+                    os.remove(file_path_to_delete)
+            except (FileNotFoundError, PermissionError) as exception:
+                LOGGER.error('Failed to delete file {} due to error {}'.format(file_path_to_delete, str(exception)))
+
+        def purge_files_in_dir(dir_path: str):
+            for file in os.listdir(dir_path):
+                file_path_to_delete = os.path.join(dir_path, file)
+                wrapped_remove(file_path_to_delete)
+
+        # Purge all events
+        purge_files_in_dir(os.path.join(path_manager.event_dir()))
+
+        # Purge all actions
+        purge_files_in_dir(os.path.join(path_manager.action_dir()))
+
+        # Purge all policies
+        purge_files_in_dir(os.path.join(path_manager.policy_dir()))
+
+        # We want to make sure all statuses are re-sent after
+        self.status_updated(reason="migration")
+
+        # Purge all datafeed files
+        purge_files_in_dir(os.path.join(path_manager.datafeed_dir()))
+
+        # Remove config based on MCS policy
+        wrapped_remove(path_manager.mcs_policy_config())
+        wrapped_remove(path_manager.sophosspl_config())
+
+        # Remove current proxy file
+        wrapped_remove(path_manager.mcs_current_proxy())
+
+        # Remove flags
+        wrapped_remove(path_manager.mcs_flags_file())
+        wrapped_remove(path_manager.warehouse_flags_file())
+        wrapped_remove(path_manager.combined_flags_file())
+
+    def attempt_migration(self, old_comms, live_config, root_config, push_client) -> bool:
+        LOGGER.info("Attempting Central migration")
+        migration_data = migration.Migrate()
+        migrate_comms = None
+        try:
+            migration_data.read_migrate_action(self.__m_mcs_adapter.get_migrate_action())
+            migrate_config = copy.copy(live_config)
+            migrate_comms = mcs_connection.MCSConnection(
+                migrate_config,
+                install_dir=path_manager.install_dir(),
+                migrate_mode=True
+            )
+
+            # Set new comms object to use the MCS URL sent down in migrate action
+            migrate_config.set("MCSURL", migration_data.get_migrate_url())
+
+            # Configure (safely) to talk to new Central
+            response = migrate_comms.send_migration_request(
+                migration_data.get_command_path(),
+                migration_data.get_token(),
+                self.__m_agent.get_status_xml(),
+                old_comms.m_device_id,
+                old_comms.m_tenant_id
+            )
+
+            # Ensure that the old comms does not read or write the existing config files
+            old_comms.set_migrate_mode(True)
+
+            self.migration_file_purge()
+
+            self.__m_computer.clear_cache()
+            migrate_comms.set_migrate_mode(False)
+            endpoint_id, device_id, tenant_id, password = migration_data.extract_values(response)
+            migrate_config.set("MCSID", endpoint_id)
+            migrate_config.set("MCSPassword", password)
+            migrate_config.set("tenant_id", tenant_id)
+            migrate_config.set("device_id", device_id)
+            migrate_config.save()
+
+            # Remove old MCS token from root config
+            # Rely on the one that is sent via policy and stored in mcs policy config
+            # Update root config URL to latest known good one
+            root_config.remove("MCSToken")
+            root_config.set("MCSURL", migration_data.get_migrate_url())
+            root_config.save_non_atomic()
+
+            self.stop_push_client(push_client)
+
+            try:
+                old_comms.send_migration_event(str(migration_data.create_success_response_body()))
+                LOGGER.info("Sent 'Migration succeeded' event to previous Central account")
+            except Exception as exception:
+                LOGGER.warning("'Migration succeeded' event failed to send: {}".format(exception))
+
+            old_comms.close()
+
+            self.__m_config = migrate_config
+            migration_success = True
+
+        except Exception as exception:
+            migration_success = False
+            LOGGER.error("Migration request failed: {}".format(exception))
+            self.__m_comms.send_migration_event(str(migration_data.create_failed_response_body(exception)))
+            if migrate_comms:
+                migrate_comms.close()
+        finally:
+            self.__m_mcs_adapter.clear_migrate_action()
+
+        if migration_success:
+            LOGGER.info("Successfully migrated Sophos Central account")
+        return migration_success
+
     def run(self):
         """
         run
@@ -581,130 +701,6 @@ class MCS:
         def should_we_migrate() -> bool:
             return self.__m_mcs_adapter.get_migrate_action() is not None
 
-        def attempt_migration(old_comms, live_config, root_config) -> bool:
-            LOGGER.info("Attempting Central migration")
-            migration_data = migration.Migrate()
-            migrate_comms = None
-            try:
-                migration_data.read_migrate_action(self.__m_mcs_adapter.get_migrate_action())
-                migrate_config = copy.copy(live_config)
-                migrate_comms = mcs_connection.MCSConnection(
-                    migrate_config,
-                    install_dir=path_manager.install_dir(),
-                    migrate_mode=True
-                )
-
-                # Set new comms object to use the MCS URL sent down in migrate action
-                migrate_config.set("MCSURL", migration_data.get_migrate_url())
-
-                # Configure (safely) to talk to new Central
-                response = migrate_comms.send_migration_request(
-                    migration_data.get_command_path(),
-                    migration_data.get_token(),
-                    self.__m_agent.get_status_xml(),
-                    old_comms.m_device_id,
-                    old_comms.m_tenant_id
-                )
-
-                # Ensure that the old comms does not read or write the existing config files
-                old_comms.set_migrate_mode(True)
-
-                migration_file_purge()
-
-                self.__m_computer.clear_cache()
-                migrate_comms.set_migrate_mode(False)
-                endpoint_id, device_id, tenant_id, password = migration_data.extract_values(response)
-                migrate_config.set("MCSID", endpoint_id)
-                migrate_config.set("MCSPassword", password)
-                migrate_config.set("tenant_id", tenant_id)
-                migrate_config.set("device_id", device_id)
-                migrate_config.save()
-
-                # Remove old MCS token from root config
-                # Rely on the one that is sent via policy and stored in mcs policy config
-                # Update root config URL to latest known good one
-                root_config.remove("MCSToken")
-                root_config.set("MCSURL", migration_data.get_migrate_url())
-                root_config.save_non_atomic()
-
-                self.stop_push_client(push_client)
-
-                try:
-                    old_comms.send_migration_event(str(migration_data.create_success_response_body()))
-                    LOGGER.info("Sent 'Migration succeeded' event to previous Central account")
-                except Exception as exception:
-                    LOGGER.warning("'Migration succeeded' event failed to send: {}".format(exception))
-
-                old_comms.close()
-
-                self.__m_config = migrate_config
-                migration_success = True
-
-            except Exception as exception:
-                migration_success = False
-                LOGGER.error("Migration request failed: {}".format(exception))
-                self.__m_comms.send_migration_event(str(migration_data.create_failed_response_body(exception)))
-                if migrate_comms:
-                    migrate_comms.close()
-            finally:
-                self.__m_mcs_adapter.clear_migrate_action()
-
-            if migration_success:
-                LOGGER.info("Successfully migrated Sophos Central account")
-            return migration_success
-
-        def migration_file_purge():
-            def wrapped_remove(file_path_to_delete: str):
-                try:
-                    if os.path.isfile(file_path_to_delete):
-                        os.remove(file_path_to_delete)
-                except (FileNotFoundError, PermissionError) as exception:
-                    LOGGER.error('Failed to delete file {} due to error {}'.format(file_path_to_delete, str(exception)))
-
-            def purge_files_in_dir(dir_path: str):
-                for file in os.listdir(dir_path):
-                    file_path_to_delete = os.path.join(dir_path, file)
-                    wrapped_remove(file_path_to_delete)
-
-            # Purge all events
-            purge_files_in_dir(os.path.join(path_manager.event_dir()))
-
-            # Purge all actions
-            purge_files_in_dir(os.path.join(path_manager.action_dir()))
-
-            # Purge all policies
-            purge_files_in_dir(os.path.join(path_manager.policy_dir()))
-
-            # We want to make sure all statuses are re-sent after
-            status_updated(reason="migration")
-
-            # Purge all datafeed files
-            purge_files_in_dir(os.path.join(path_manager.datafeed_dir()))
-
-            # Remove config based on MCS policy
-            wrapped_remove(path_manager.mcs_policy_config())
-            wrapped_remove(path_manager.sophosspl_config())
-
-            # Remove current proxy file
-            wrapped_remove(path_manager.mcs_current_proxy())
-
-            # Remove flags
-            wrapped_remove(path_manager.mcs_flags_file())
-            wrapped_remove(path_manager.warehouse_flags_file())
-            wrapped_remove(path_manager.combined_flags_file())
-
-        def status_updated(reason=None):
-            """
-            status_updated
-            """
-            LOGGER.debug(
-                "Checking for status update due to %s",
-                reason or "unknown reason")
-
-            self.__m_status_timer.status_updated()
-            LOGGER.debug(
-                "Next status update in %.2f s",
-                self.__m_status_timer.relative_time())
 
         # setup signal handler before connecting
         signal_handler.setup_signal_handler()
@@ -741,7 +737,7 @@ class MCS:
                         comms = self.__m_comms
 
                     if should_we_migrate():
-                        if attempt_migration(comms, config, self.__m_root_config):
+                        if self.attempt_migration(comms, config, self.__m_root_config, push_client):
                             comms = None
                             continue
 
@@ -753,7 +749,7 @@ class MCS:
                         error_count = 0
                         # If re-registering due to a de-dupe from Central,
                         # clear cache and re-send status.
-                        status_updated(reason="reregistration")
+                        self.status_updated(reason="reregistration")
 
                     self.check_registry_and_update_apps()
                     push_commands = push_client.pending_commands()
@@ -794,9 +790,8 @@ class MCS:
 
                         mcs_token_before_commands = self.__get_mcs_token()
 
-                        if self.__m_computer.run_commands(
-                                commands):  # To run any pending commands as well
-                            status_updated(reason="applying commands")
+                        if self.__m_computer.run_commands(commands):  # To run any pending commands as well
+                            self.status_updated(reason="applying commands")
                             mcs_token_after_commands = self.__get_mcs_token()
                             if mcs_token_before_commands != mcs_token_after_commands:
                                 self.__update_user_agent()
@@ -824,10 +819,8 @@ class MCS:
                     timeout_compensation = (time.time() - last_command_time_check)
 
                     # Check to see if any adapters have new status
-                    if self.__m_computer.has_status_changed() \
-                            or self.__m_mcs_adapter.has_new_status():
-                        status_updated(
-                            reason="adapter reporting status change")
+                    if self.__m_computer.has_status_changed() or self.__m_mcs_adapter.has_new_status():
+                        self.status_updated(reason="adapter reporting status change")
 
                     # get all pending events
                     for app_id, event_time, event in event_receiver.receive():

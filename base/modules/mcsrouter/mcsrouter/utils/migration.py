@@ -27,7 +27,9 @@ class Migrate(object):
     def get_command_path(self):
         return "/v2/migrate"
 
-    def read_migrate_action(self, migrate_action):
+    # Load this Migration class object with migrate action values from migrate_action xml string.
+    # This method may throw on malformed XML, so callers must use in a try/catch.
+    def read_migrate_action(self, migrate_action: str):
         doc = xml.dom.minidom.parseString(migrate_action)
         action_node = doc.getElementsByTagName("action")[0]
         self.token = xml_helper.get_text_node_text(action_node, "token")
