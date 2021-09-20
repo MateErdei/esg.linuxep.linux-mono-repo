@@ -97,7 +97,7 @@ Create Fake System Executable
     Run Keyword If   "${executable_path}" != ""
     ...  Backup System Executable  ${executable_path}
     ${executable_path} =  Set Variable If  "${executable_path}" == ""
-    ...  /bin/${executable_name}
+    ...  /usr/bin/${executable_name}
     ...  ${executable_path}
     log to console  copying ${mock_file} to ${executable_path}
     Copy File  ${mock_file}  ${executable_path}
