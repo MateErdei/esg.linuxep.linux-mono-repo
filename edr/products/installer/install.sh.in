@@ -243,8 +243,7 @@ function is_rsyslog_running()
 
 function enable_access_for_rsyslog_to_shared_pipe()
 {
-    semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
-    restorecon -Fv /opt/sophos-spl/shared/syslog_pipe
+    semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe && restorecon -Fv /opt/sophos-spl/shared/syslog_pipe
 }
 
 # Check key files have been installed
@@ -290,9 +289,3 @@ then
     fi
   fi
 fi
-
-
-
-
-
-
