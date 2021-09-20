@@ -76,17 +76,17 @@ namespace Common
             filesystem->writeFile(idFilePath, jrl);
         }
 
-        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime)
+        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable)
         {
-            return getEntries(subjectFilter, "", startTime, endTime);
+            return getEntries(subjectFilter, "", startTime, endTime, limit, moreAvailable);
         }
 
-        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl)
+        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl, uint32_t limit, bool& moreAvailable)
         {
-            return getEntries(subjectFilter, jrl, 0, 0);
+            return getEntries(subjectFilter, jrl, 0, 0, limit, moreAvailable);
         }
 
-        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl,  uint64_t startTime, uint64_t endTime)
+        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl,  uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable)
         {
             std::vector<Entry> entries;
 
@@ -126,12 +126,19 @@ namespace Common
                 throw std::runtime_error("");
             }
 
+            uint32_t count = 0;
+            bool more = false;
             for (auto it = view->cbegin(); it != view->cend(); ++it)
             {
                 auto entry = *it;
                 if (!entry)
                 {
                     continue;
+                }
+                if (limit && (count >= limit))
+                {
+                    more = true;
+                    break;
                 }
 
                 Entry e;
@@ -141,7 +148,10 @@ namespace Common
                 e.data.resize(entry->GetDataSize());
                 memcpy(e.data.data(), entry->GetData(), entry->GetDataSize());
                 entries.push_back(e);
+
+                count++;
             }
+            moreAvailable = more;
             return entries;
         }
 

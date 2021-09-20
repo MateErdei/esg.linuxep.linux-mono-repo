@@ -38,14 +38,20 @@ namespace OsquerySDK
         }
 
         std::vector<Common::EventJournalWrapper::Entry> entries;
+        bool moreEntriesAvailable = false;
 
         if (!currentJrl.empty())
         {
-            entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections }, currentJrl);
+            entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections }, currentJrl, MAX_EVENTS_PER_QUERY, moreEntriesAvailable);
         }
         else
         {
-            entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections }, queryTimeConstraints.first, queryTimeConstraints.second);
+            entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections }, queryTimeConstraints.first, queryTimeConstraints.second, MAX_EVENTS_PER_QUERY, moreEntriesAvailable);
+        }
+
+        if (queryId.empty() && moreEntriesAvailable)
+        {
+            throw std::runtime_error("maximum detections exceeded");
         }
 
         std::string newJrl("");

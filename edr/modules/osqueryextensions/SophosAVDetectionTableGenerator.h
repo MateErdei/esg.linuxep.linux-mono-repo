@@ -21,6 +21,8 @@ namespace OsquerySDK
             QueryContextInterface& queryContext,
             std::shared_ptr<Common::EventJournalWrapper::IEventJournalReaderWrapper> journalReader);
     private:
+        static const uint32_t MAX_EVENTS_PER_QUERY = 5000;
+
         std::string getQueryId(QueryContextInterface& queryContext);
     };
 }

@@ -45,9 +45,9 @@ namespace Common
             virtual std::string getCurrentJRLForId(const std::string& idFilePath) = 0;
             virtual void updateJrl(const std::string& idFilePath, const std::string& jrl) = 0;
 
-            virtual std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, const std::string& jrl) = 0;
+            virtual std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, const std::string& jrl, uint32_t limit, bool& moreAvailable) = 0;
 
-            virtual std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime) = 0;
+            virtual std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable) = 0;
 
             virtual  std::pair<bool, Detection> decode(const std::vector<uint8_t>& data) = 0;
         };
