@@ -1,4 +1,7 @@
 *** Settings ***
+Library    FuzzerSupport.py
+Library    OperatingSystem
+
 Suite Setup   Fuzzer Tests Global Setup
 Suite Teardown   Fuzzer Tests Global TearDown
 *** Keywords ***
