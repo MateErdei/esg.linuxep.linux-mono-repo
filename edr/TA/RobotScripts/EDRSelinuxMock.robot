@@ -65,6 +65,7 @@ Test Teardown
     Restore System Executable  getenforce
     Restore System Executable  semanage
     Restore System Executable  restorecon
+    Common Teardown
 
 
 Backup System Executable
