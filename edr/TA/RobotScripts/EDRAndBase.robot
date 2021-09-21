@@ -248,28 +248,6 @@ EDR Plugin Returns Query Error If Event Journal Contains Too Many Detections
     ...  5 secs
     ...  Check Sophos Detections Journal Queries Return Maximum Exceeded Error
 
-EDR Plugin Can Run Queries And Create Jrl If Event Journal Contains Too Many Detections
-    # Need to make sure test starts of fresh
-    Reinstall With Base
-    Check EDR Plugin Installed With Base
-    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
-
-    Wait Until Keyword Succeeds
-    ...  100 secs
-    ...  5 secs
-    ...  Number Of SST Database Files Is Greater Than  1
-
-    Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
-    Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
-    Run Process  chown  -R  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/plugins/eventjournaler/
-
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  5 secs
-    ...  Check Sophos Detections Journal Queries Work With Query Id
-
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
-
 
 EDR Plugin Stops Without Errors
     Check EDR Plugin Installed With Base
