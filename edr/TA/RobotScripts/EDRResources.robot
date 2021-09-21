@@ -403,7 +403,7 @@ Run Live Query and Return Result
     ...  15 secs
     ...  1 secs
     ...  File Should Exist    ${response}
-    ${response} =  Get File  ${response}
+    ${contents} =  Get File  ${response}
     Remove File  ${response}
     Remove File  ${EXAMPLE_DATA_PATH}/temp.json
-    [Return]  ${response}
+    [Return]  ${contents}
