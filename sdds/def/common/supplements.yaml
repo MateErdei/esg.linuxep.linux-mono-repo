@@ -9,6 +9,14 @@ ssplflags-supp:
     tag: RECOMMENDED
     warehouse: ssplflags-wh
 
+sspl-runtimedetections-detectionrules-supp:
+    base-version: 1
+    canonical-name: RuntimeDetectionRules
+    decode-path: files/plugins/runtimedetections/etc
+    line-id: RuntimeDetectionRules
+    tag: RECOMMENDED
+    warehouse: sspl-runtimedetections-detectionrules-supp-wh
+
 scheduled-query-pack-supp:
     base-version: 1
     canonical-name: ScheduledQueryPack

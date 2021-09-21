@@ -27,6 +27,7 @@
       <build-asset project="linuxep" repo="capsule8-sensor" >
         <development-version branch="master"/>
           <include artifact-path="SDDS-COMPONENT" dest-dir="redist/runtimedetections"/>
+          <include artifact-path="sspl-rdrules" dest-dir="redist/runtimedetections-supplement"/>
       </build-asset>
 
       <build-asset project="winep" repo="liveterminal" >

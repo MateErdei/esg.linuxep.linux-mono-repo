@@ -19,6 +19,8 @@ warehouses:
           sspl-liveterminal:
           sspl-event-journaler:
           sspl-runtimedetections:
+            supplements:
+              - sspl-runtimedetections-detectionrules-supp
   ssplmdr-release-0-6-0-wh:
     components:
       ssplmdr-suite:
