@@ -182,7 +182,7 @@ def get_sspl_edr_plugin_sdds():
     return get_plugin_sdds("SSPL EDR Plugin", "SSPL_EDR_PLUGIN_SDDS", candidates)
 
 def get_sspl_runtimedetections_plugin_sdds():
-    candidates = []
+    candidates = ["/tmp/system-product-test-inputs/sspl-runtimedetections-plugin",]
     local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-runtimedetections-component")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
