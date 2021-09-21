@@ -129,6 +129,15 @@
     </Identity>
     <Identity>
       <Label>
+        <Token>RuntimeDetectionRules</Token>
+        <Language lang="en">
+          <LongDesc>SSPL Runtimedetection Rules</LongDesc>
+          <ShortDesc>RuntimeDetectionRules</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
         <Token>SSPLFLAGS</Token>
         <Language lang="en">
           <LongDesc>SSPL Endpoint Warehouse Flags</LongDesc>
