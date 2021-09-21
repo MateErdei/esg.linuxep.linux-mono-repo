@@ -16,7 +16,11 @@ def trigger_endpoint_terminal(path: str):
     trigger = {"url": "https://localhost:4443/{}".format(path),
                "thumbprint": "2d03c43bfc9ebe133e0c22df61b840f94b3a3bd5b05d1d715cc92b2debcb6f9d",
                "endpoint_id": "endpointid",
-               "customer_id": "customerid"
+               "customer_id": "customerid",
+               "jwt_token": "jwt-token",
+               "device_id": "deviceid",
+               "tenant_id": "tenantid",
+               "user_agent": "useragent"
                }
     with open(path_to_write_file, 'w') as trigger_file:
         trigger_file.write(json.dumps(trigger))
