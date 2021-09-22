@@ -12,7 +12,7 @@ ssplflags-supp:
 sspl-runtimedetections-detectionrules-supp:
     base-version: 1
     canonical-name: RuntimeDetectionRules
-    decode-path: files/plugins/runtimedetections/etc
+    decode-path: content_rules
     line-id: RuntimeDetectionRules
     tag: RECOMMENDED
     warehouse: sspl-runtimedetections-detectionrules-supp-wh
