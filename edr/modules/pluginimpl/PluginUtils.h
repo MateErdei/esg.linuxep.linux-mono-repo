@@ -63,7 +63,10 @@ namespace Plugin
         * @param useNextQueryPack
         */
         static void setQueryPacksInPlace(const bool& useNextQueryPack);
-
+        /**
+        * Removes all files in jrl folder
+        */
+        static void clearAllJRLMarkers();
         /**
         * Update plugin.conf file for a given flag setting and set whether the flag has changed
         * @param flagName

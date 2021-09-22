@@ -4,17 +4,20 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Logger.h"
 #include "PluginUtils.h"
+
 #include "ApplicationPaths.h"
-#include "OsqueryConfigurator.h"
 #include "LiveQueryPolicyParser.h"
+#include "Logger.h"
+#include "OsqueryConfigurator.h"
+
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/UtilityImpl/FileUtils.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/FileUtils.h>
-#include <Common/FileSystem/IFileSystemException.h>
 
 namespace Plugin
 {
@@ -263,6 +266,12 @@ namespace Plugin
             flagsHaveChanged = true;
         }
 
+    }
+    void PluginUtils::clearAllJRLMarkers()
+    {
+        std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        std::string jrlFolderPath = Common::FileSystem::join(installPath, "plugins/edr/var/jrl");
+        Common::FileSystem::fileSystem()->removeFilesInDirectory(jrlFolderPath);
     }
 
     bool PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(std::vector<std::string> enabledQueryPacks, bool dataLimitHit)

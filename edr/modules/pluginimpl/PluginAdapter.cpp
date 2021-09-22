@@ -704,6 +704,12 @@ namespace Plugin
 
         m_isXDR = getScheduledQueriesEnabledInPolicy(policyAttributesMap);
         PluginUtils::updatePluginConfWithFlag(PluginUtils::MODE_IDENTIFIER, m_isXDR, osqueryRestartNeeded);
+
+        if (!m_isXDR && osqueryRestartNeeded)
+        {
+            // xdr mode has been disabled clearing jrl markers
+            PluginUtils::clearAllJRLMarkers();
+        }
         m_queryPacksInPolicy = getEnabledQueryPacksInPolicy(policyAttributesMap);
         //sets osqueryRestartNeeded to true if enabled query packs have changed
         osqueryRestartNeeded = PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy,m_loggerExtensionPtr->getDataLimitReached()) || osqueryRestartNeeded;
