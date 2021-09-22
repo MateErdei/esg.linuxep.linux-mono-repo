@@ -9,14 +9,6 @@ ssplflags-supp:
     tag: RECOMMENDED
     warehouse: ssplflags-wh
 
-sspl-runtimedetections-detectionrules-supp:
-    base-version: 4
-    canonical-name: RuntimeDetectionRules
-    decode-path: content_rules
-    line-id: RuntimeDetectionRules
-    tag: LATEST
-    warehouse: sspl-runtimedetections-detectionrules-supp-wh
-
 scheduled-query-pack-supp:
     base-version: 1
     canonical-name: ScheduledQueryPack
@@ -279,3 +271,10 @@ dataseta-data:
     line-id: DataSetA
     tag: NEXT
     warehouse: ixdata
+
+sspl-runtimedetections-detectionrules-supp:
+    canonical-name: RuntimeDetectionRules
+    decode-path: files/plugins/runtimedetections/etc
+    line-id: RuntimeDetectionRules
+    tag: LATEST
+    warehouse: rd_rules
