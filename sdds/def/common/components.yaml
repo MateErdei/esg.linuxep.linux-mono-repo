@@ -55,7 +55,3 @@ sspl-runtimedetections:
     canonical-name: ServerProtectionLinux-Plugin-RuntimeDetections
     line-id: ServerProtectionLinux-Plugin-RuntimeDetections
     mountpoint: ServerProtectionLinux-Plugin-runtimedetections
-sspl-runtimedetections-detectionrules:
-    fileset: ..\redist\runtimedetections-supplement
-    canonical-name: RuntimeDetectionRules
-    line-id: RuntimeDetectionRules
