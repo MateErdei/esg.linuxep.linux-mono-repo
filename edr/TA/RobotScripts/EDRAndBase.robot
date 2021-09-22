@@ -131,7 +131,22 @@ EDR Plugin Can Have Logging Level Changed Based On Components
         ...  EDR Plugin Log Contains   Logger edr_osquery configured for level: INFO
     EDR Plugin Log Contains   Logger edr configured for level: DEBUG
 
+EDR clears jrl files when scheduled queries are disabled
+    Check EDR Plugin Installed With Base
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
+    Wait Until Keyword Succeeds
+        ...  15 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains   Updating running_mode flag settings to: 1
+    File Should exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_disabled.xml
 
+    Wait Until Keyword Succeeds
+        ...  15 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains   Updating running_mode flag settings to: 0
+    File Should not exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
 EDR Recovers From Incomplete Database Purge
     Check EDR Plugin Installed With Base
     Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml

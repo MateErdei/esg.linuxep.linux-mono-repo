@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<policy type="LiveQuery" RevID="revId" policyType="56">
+    <configuration>
+        <scheduled>
+            <enabled>false</enabled>
+            <dailyDataLimit>250000000</dailyDataLimit>
+        </scheduled>
+    </configuration>
+</policy>
