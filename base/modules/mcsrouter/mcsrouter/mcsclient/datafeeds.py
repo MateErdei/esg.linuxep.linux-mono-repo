@@ -193,7 +193,7 @@ class Datafeeds(object):
         for datafeed_result in self.__m_datafeeds:
             current_backlog_size += datafeed_result.get_json_body_size()
             if current_backlog_size > self.get_max_backlog():
-                LOGGER.debug(f"Current backlog size exceeded max {self.get_max_backlog()} bytes, deleting: {datafeed_result.m_file_path}")
+                LOGGER.warning(f"Current backlog size exceeded max {self.get_max_backlog()} bytes, deleting: {datafeed_result.m_file_path}")
                 datafeed_result.remove_datafeed_file()
             else:
                 datafeed_results_to_keep.append(datafeed_result)

@@ -7,14 +7,14 @@ Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 
 Resource  McsRouterResources.robot
 
+
+Test Setup  Test Setup
 Test Teardown  Test Teardown
 
 Suite Setup       Run Keywords
-...               Setup MCS Tests  AND
-...               Start Local Cloud Server
+...               Setup MCS Tests
 
 Suite Teardown    Run Keywords
-...               Stop Local Cloud Server  AND
 ...               Uninstall SSPL Unless Cleanup Disabled
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS
@@ -52,17 +52,30 @@ MCSRouter Handles Response File With Special Characters Without Crashing
     ${mcsrouter_pid_2} =  Get MCSRouter PID
     Should Be Equal  ${mcsrouter_pid_1}  ${mcsrouter_pid_2}
 
+Test Response Given 500 From Central Is Not Retried
+    Override LogConf File as Global Level  DEBUG
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter
+    Send Command From Fake Cloud    error/server500
+    ${expected_body} =  Send EDR Response     LiveQuery  f291664d-112a-328b-e3ed-f920012cdea1
+    Check Cloud Server Log For EDR Response   LiveQuery  f291664d-112a-328b-e3ed-f920012cdea1
+    Check Cloud Server Log Contains   Internal Server Error
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check MCSRouter Log Contains  Discarding response 'f291664d-112a-328b-e3ed-f920012cdea1' due to rejection by central
+
 *** Keywords ***
+Test Teardown
+    MCSRouter Default Test Teardown
+    Stop Local Cloud Server
+    Cleanup Temporary Folders
+
+Test Setup
+    Start Local Cloud Server
+
 Make Garbage File
     [Arguments]  ${destination}
     ${r} =  Run Process  dd  if\=/dev/urandom  of\=${destination}  bs\=1M  count\=10
     Should Be Equal As Strings  ${r.rc}  0
-
-Test Teardown
-    MCSRouter Default Test Teardown
-    Cleanup Temporary Folders
-
-Get MCSRouter PID
-    ${r} =  Run Process  pgrep  -f  mcsrouter
-    Should Be Equal As Strings  ${r.rc}  0
-    [Return]  ${r.stdout}

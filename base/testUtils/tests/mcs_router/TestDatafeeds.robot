@@ -4,6 +4,7 @@ Library   OperatingSystem
 Library   Process
 Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/ProcessUtils.py
 
 Resource  McsRouterResources.robot
 
@@ -309,6 +310,32 @@ MCS Sends Data Using V2 Method Regardless of Flags
     Check Mcsrouter Log Does Not Contain  MCS request url=/data_feed/endpoint/ThisIsAnMCSID+1001/feed_id/scheduled_query
 
 
+MCS Does Not Crash When There Is A Large Volume Of Datafeed Results
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Stop MCSRouter If Running
+    Generate Large Amount Of Datafeed Results
+    Start MCSRouter
+
+    ${mcsrouter_pid_1} =  Get MCSRouter PID
+
+    Wait Until Keyword Succeeds
+    ...  120s
+    ...  1s
+    ...  Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Current backlog size exceeded max
+
+    ${mcsrouter_mem}=    get_process_memory    ${mcsrouter_pid_1}
+    log    ${mcsrouter_mem}
+    Should Be True  int(${mcsrouter_mem})/1000000 < int(500)
+
+    Wait Until Keyword Succeeds
+    ...  60s
+    ...  5s
+    ...  Datafeed Dir Less Than 1GB
+
+    ${mcsrouter_pid_2} =  Get MCSRouter PID
+    Should Be Equal  ${mcsrouter_pid_1}  ${mcsrouter_pid_2}
+
 *** Keywords ***
 Test Teardown
     MCSRouter Default Test Teardown
@@ -317,3 +344,7 @@ Test Teardown
 
 Test Setup
     Start Local Cloud Server
+
+Datafeed Dir Less Than 1GB
+    ${size_mb}=    Get Datafeed Directory Size In MB
+    Should Be True  ${size_mb} < 1000

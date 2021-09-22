@@ -2,6 +2,7 @@ import subprocess
 import os
 import shutil
 import PathManager
+import psutil
 
 class ProcessUtils(object):
     def spawn_sleep_process(self, process_name="PickYourPoison", run_from_location="/tmp"):
@@ -16,4 +17,12 @@ class ProcessUtils(object):
         os.remove(destination)
 
         return process.pid, process_name, destination
+
+    def get_process_memory(self, pid):
+        # Deal with robot passing pid as string.
+        pid = int(pid)
+        process = psutil.Process(pid)
+
+        # in bytes
+        return process.memory_info().rss
 

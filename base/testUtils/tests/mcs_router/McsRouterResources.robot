@@ -3,6 +3,7 @@ Documentation    Shared keywords for MCS Router tests
 
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
 
@@ -321,3 +322,8 @@ Check Current Proxy Is Created With Correct Content And Permissions
     ${currentProxyContents} =  Get File  ${currentProxyFilePath}
     Should Contain  ${currentProxyContents}  ${content}
     Ensure Owner and Group Matches  ${currentProxyFilePath}  sophos-spl-local  sophos-spl-group
+
+Get MCSRouter PID
+    ${r} =  Run Process  pgrep  -f  mcsrouter
+    Should Be Equal As Strings  ${r.rc}  0
+    [Return]  ${r.stdout}

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-
+from datetime import datetime
 import subprocess
 import sys
 import os
@@ -780,6 +779,35 @@ class MCSRouter(object):
             f.write(content)
         shutil.move(datafeed_file, os.path.join(self.mcs_dir, "datafeed", file_name))
         return content
+
+    def generate_large_amount_of_datafeed_results(self):
+        target_dir = os.path.join(self.mcs_dir, "datafeed")
+
+        if not os.path.isdir(target_dir):
+            raise AssertionError(f"{target_dir} does not exist so can't generate datafeed results")
+
+        # Get the disk usage statistics
+        stat = shutil.disk_usage(target_dir)
+        free_disk_space_mb = stat.free / 1000000
+
+        if free_disk_space_mb < 5000:
+            raise AssertionError(f"Not enough disk space available on machine: {free_disk_space_mb}MB")
+
+        now_timestamp = int(datetime.utcnow().timestamp())
+        target_timestamp = now_timestamp + 1500
+        result_file_to_copy = os.path.join(PathManager.get_support_file_path(), "scheduled_query_results", "scheduled_query-2MB.json")
+        for i in range(now_timestamp, target_timestamp):
+            target_file_name = f"scheduled_query-{i}.json"
+            target_file_path = os.path.join(self.mcs_dir, "datafeed", target_file_name)
+            shutil.copy(result_file_to_copy, target_file_path)
+
+    def get_datafeed_directory_size_in_mb(self):
+        total_size = 0
+        for dirpath, dirnames, filenames in os.walk(f"{self.mcs_dir}/datafeed"):
+            for f in filenames:
+                fp = os.path.join(dirpath, f)
+                total_size += os.path.getsize(fp)
+        return total_size / 1000000
 
     def send_alc_status(self, res):
         status_file = os.path.join(self.tmp_path, self.alc_status_file)
