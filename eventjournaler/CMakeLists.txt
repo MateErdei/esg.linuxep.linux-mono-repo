@@ -118,6 +118,7 @@ file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
 
+include(cppcheck.cmake)
 add_subdirectory(modules)
 add_subdirectory(products)
 add_subdirectory(tests)

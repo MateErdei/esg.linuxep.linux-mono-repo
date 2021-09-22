@@ -4,9 +4,9 @@ from tap._pipeline.tasks import ArtisanInput
 import os
 import requests
 
-SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Plugin-Event-Journaler-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
-COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-eventjournaler-unit.cov'
-COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-plugin-eventjournaler-tap.cov'
+SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Plugin-Template-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
+COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-template-unit.cov'
+COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-plugin-template-tap.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
@@ -18,7 +18,7 @@ def combined_task(machine: tap.Machine):
         tests_dir = str(machine.inputs.test_scripts)
 
         # upload unit test coverage html results to allegro (and the .cov file which is in unitest_htmldir)
-        unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-plugin-eventjournaler-unittest")
+        unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-plugin-template-unittest")
         machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
         machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
 
@@ -47,7 +47,7 @@ def combined_task(machine: tap.Machine):
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
         # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
-        tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-plugin-eventjournaler-taptest')
+        tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-plugin-template-taptest')
         machine.run ('mkdir', tap_htmldir)
         machine.run('cp', COVFILE_TAPTESTS, tap_htmldir)
         machine.run('bash', '-x', UPLOAD_SCRIPT,
@@ -73,6 +73,7 @@ def get_package_version(package_path):
 
 PACKAGE_PATH = './build-files/release-package.xml'
 PACKAGE_VERSION = get_package_version(PACKAGE_PATH)
+
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
@@ -100,74 +101,78 @@ def robot_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
 
-def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str):
+def get_inputs(context: tap.PipelineContext, template_plugin_build: ArtisanInput, mode: str):
     test_inputs = None
     if mode == 'release':
         test_inputs = dict(
-            test_scripts=context.artifact.from_folder('./TA'),
-            event_journaler_sdds=ej_build / 'eventjournaler/SDDS-COMPONENT',
-            manual_tools=ej_build / 'eventjournaler/manualTools',
-            base_sdds=ej_build / 'base/base-sdds'
+            test_scripts = context.artifact.from_folder('./TA'),
+            template_plugin_sdds = template_plugin_build / 'template/SDDS-COMPONENT',
+            base_sdds=template_plugin_build / 'base/base-sdds',
         )
     if mode == 'coverage':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./TA'),
-            event_journaler_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT',
-            manual_tools=ej_build / 'sspl-plugin-eventjournaler-coverage/manualTools',
+            template_plugin_sdds=template_plugin_build / 'sspl-plugin-template-coverage/SDDS-COMPONENT',
             bullseye_files=context.artifact.from_folder('./build/bullseye'),
-            coverage=ej_build / 'sspl-plugin-eventjournaler-coverage/covfile',
-            coverage_unittest=ej_build / 'sspl-plugin-eventjournaler-coverage/unittest-htmlreport',
-            base_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/base/base-sdds',
+            coverage=template_plugin_build / 'sspl-plugin-template-coverage/covfile',
+            coverage_unittest=template_plugin_build / 'sspl-plugin-template-coverage/unittest-htmlreport',
+            base_sdds=template_plugin_build / 'sspl-plugin-template-coverage/base/base-sdds',
         )
     return test_inputs
 
-@tap.pipeline(version=1, component='sspl-event-journaler-plugin')
-def event_journaler(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    component = tap.Component(name='sspl-event-journaler-plugin', base_version=PACKAGE_VERSION)
+@tap.pipeline(version=1, component='sspl-plugin-template')
+def template_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+    component = tap.Component(name='sspl-plugin-template', base_version=PACKAGE_VERSION)
 
     release_mode = 'release'
+    analysis_mode = 'analysis'
     coverage_mode = 'coverage'
     nine_nine_nine_mode = '999'
     zero_six_zero_mode = '060'
 
     mode = parameters.mode or release_mode
 
-    release_build = None
+    template_build = None
     with stage.parallel('build'):
-        if mode == release_mode:
-            ej_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate6',
+        if mode == release_mode or mode == analysis_mode:
+            template_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate5',
                                             mode=release_mode, release_package=PACKAGE_PATH)
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate6',
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate5',
                                                        mode=nine_nine_nine_mode, release_package=PACKAGE_PATH)
-            zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image='JenkinsLinuxTemplate6',
+            zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image='JenkinsLinuxTemplate5',
                                                 mode=zero_six_zero_mode, release_package=PACKAGE_PATH)
+            analysis_build = stage.artisan_build(name=analysis_mode, component=component, image='JenkinsLinuxTemplate5',
+                                                 mode=analysis_mode, release_package=PACKAGE_PATH)
         elif mode == coverage_mode:
-            release_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate6',
-                                                mode=release_mode, release_package=PACKAGE_PATH)
-            ej_build = stage.artisan_build(name=coverage_mode, component=component, image='JenkinsLinuxTemplate6',
+            release_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate5',
+                                                 mode=release_mode, release_package=PACKAGE_PATH)
+            template_build = stage.artisan_build(name=coverage_mode, component=component, image='JenkinsLinuxTemplate5',
                                                  mode=coverage_mode, release_package=PACKAGE_PATH)
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate6',
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate5',
                                                        mode=nine_nine_nine_mode, release_package=PACKAGE_PATH)
-            zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image='JenkinsLinuxTemplate6',
+            zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image='JenkinsLinuxTemplate5',
                                                 mode=zero_six_zero_mode, release_package=PACKAGE_PATH)
+
+    if mode == analysis_mode:
+        return
 
     with stage.parallel('test'):
         machines = (
             ("ubuntu1804",
-             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, ej_build, mode), platform=tap.Platform.Linux)),
-            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, ej_build, mode), platform=tap.Platform.Linux)),
-            ("centos82", tap.Machine('centos82_x64_server_en_us', inputs=get_inputs(context, ej_build, mode), platform=tap.Platform.Linux)),
+             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, template_build, mode), platform=tap.Platform.Linux)),
+            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, template_build, mode), platform=tap.Platform.Linux)),
+            ("centos82", tap.Machine('centos82_x64_server_en_us', inputs=get_inputs(context, template_build, mode), platform=tap.Platform.Linux)),
             # add other distros here
         )
         coverage_machines = (
-            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, ej_build, mode), platform=tap.Platform.Linux)),
+            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, template_build, mode), platform=tap.Platform.Linux)),
         )
 
-    if mode == 'coverage':
-        with stage.parallel('combined'):
-            for template_name, machine in coverage_machines:
-                stage.task(task_name=template_name, func=combined_task, machine=machine)
-    else:
-        with stage.parallel('integration'):
-            for template_name, machine in machines:
-                stage.task(task_name=template_name, func=robot_task, machine=machine)
+        if mode == 'coverage':
+            with stage.parallel('combined'):
+                for template_name, machine in coverage_machines:
+                    stage.task(task_name=template_name, func=combined_task, machine=machine)
+        else:
+            with stage.parallel('integration'):
+                for template_name, machine in machines:
+                    stage.task(task_name=template_name, func=robot_task, machine=machine)

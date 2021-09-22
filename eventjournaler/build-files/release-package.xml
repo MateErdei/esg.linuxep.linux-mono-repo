@@ -55,7 +55,12 @@
             <program>/bin/bash</program>
             <args>./build.sh --clean --name eventjournaler --bullseye</args>
         <workingdir>.</workingdir>
-    </command>
+        </command>
+        <command mode="analysis">
+            <program>/bin/bash</program>
+            <args>./build.sh --no-build --name sspl-template-plugin --analysis</args>
+            <workingdir>.</workingdir>
+        </command>
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>

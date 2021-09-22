@@ -7,6 +7,9 @@ FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
 FAILURE_BAD_ARGUMENT=53
+FAILURE_COPY_SDDS_FAILED=60
+FAILURE_COPY_CPPCHECK_RESULT_FAILED=61
+FAILURE_CPPCHECK=62
 
 set -ex
 set -o pipefail
@@ -67,6 +70,9 @@ do
             ;;
         --no-build)
             NO_BUILD=1
+            ;;
+        --analysis)
+            ANALYSIS=1
             ;;
         --no-unpack)
             NO_UNPACK=1
@@ -203,6 +209,54 @@ function untar_input()
     fi
 }
 
+function cppcheck_build()
+{
+    local BUILD_BITS_DIR=$1
+
+    PKG_MANAGER="$( command -v yum || command -v apt-get )"
+    case "${PKG_MANAGER}" in
+      *yum*)
+        "${PKG_MANAGER}" -y install cppcheck
+        "${PKG_MANAGER}" -y install python36-pygments
+      ;;
+      *apt*)
+        sudo "${PKG_MANAGER}" -y install python3-pygments
+        sudo "${PKG_MANAGER}" -y install cppcheck
+      ;;
+    esac
+
+    [[ -d ${BUILD_BITS_DIR} ]] || mkdir -p ${BUILD_BITS_DIR}
+    CURR_WD=$(pwd)
+    cd ${BUILD_BITS_DIR}
+    cmake "${BASE}"
+    CPP_XML_REPORT="err.xml"
+    CPP_REPORT_DIR="cppcheck"
+    make cppcheck 2> ${CPP_XML_REPORT}
+    python3 "$BASE/build/analysis/cppcheck-htmlreport.py" --file=${CPP_XML_REPORT} --report-dir=${CPP_REPORT_DIR} --source-dir=${BASE}
+    ANALYSIS_ERRORS=$(grep 'severity="error"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_WARNINGS=$(grep 'severity="warning"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_PERFORMANCE=$(grep 'severity="performance"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_INFORMATION=$(grep 'severity="information"' ${CPP_XML_REPORT} | wc -l)
+    ANALYSIS_STYLE=$(grep 'severity="style"' ${CPP_XML_REPORT} | wc -l)
+
+    echo "The full XML static analysis report:"
+    cat ${CPP_XML_REPORT}
+    echo "There are $ANALYSIS_ERRORS static analysis error issues"
+    echo "There are $ANALYSIS_WARNINGS static analysis warning issues"
+    echo "There are $ANALYSIS_PERFORMANCE static analysis performance issues"
+    echo "There are $ANALYSIS_INFORMATION static analysis information issues"
+    echo "There are $ANALYSIS_STYLE static analysis style issues"
+
+    ANALYSIS_OUTPUT_DIR="${OUTPUT}/analysis/"
+    [[ -d ${ANALYSIS_OUTPUT_DIR} ]] || mkdir -p "${ANALYSIS_OUTPUT_DIR}"
+    cp -a ${CPP_REPORT_DIR}  "${ANALYSIS_OUTPUT_DIR}" || exitFailure $FAILURE_COPY_CPPCHECK_RESULT_FAILED  "Failed to copy cppcheck report to output"
+    cd "${CURR_WD}"
+
+     # Fail the build if there are any static analysis warnings or errors.
+    [[ $ANALYSIS_ERRORS == 0 ]] || exitFailure $FAILURE_CPPCHECK "Build failed. There are $ANALYSIS_ERRORS static analysis errors"
+    [[ $ANALYSIS_WARNINGS == 0 ]] || exitFailure $FAILURE_CPPCHECK "Build failed. There are $ANALYSIS_WARNINGS static analysis warnings"
+}
+
 function build()
 {
 
@@ -262,6 +316,12 @@ function build()
     [[ -n $CXX ]] || CXX=$(which g++)
     export CC
     export CXX
+
+    # Run static analysis
+    if [[ $ANALYSIS == 1 ]]
+    then
+      cppcheck_build  build64 || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
+    fi
 
     if (( $NO_BUILD == 1 ))
     then
