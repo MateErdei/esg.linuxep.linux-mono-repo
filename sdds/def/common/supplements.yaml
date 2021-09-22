@@ -10,6 +10,7 @@ ssplflags-supp:
     warehouse: ssplflags-wh
 
 sspl-runtimedetections-detectionrules-supp:
+    base-version: 0
     canonical-name: RuntimeDetectionRules
     decode-path: content_rules
     line-id: RuntimeDetectionRules
