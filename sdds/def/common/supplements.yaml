@@ -14,7 +14,7 @@ sspl-runtimedetections-detectionrules-supp:
     canonical-name: RuntimeDetectionRules
     decode-path: content_rules
     line-id: RuntimeDetectionRules
-    tag: RECOMMENDED
+    tag: LATEST
     warehouse: sspl-runtimedetections-detectionrules-supp-wh
 
 scheduled-query-pack-supp:
