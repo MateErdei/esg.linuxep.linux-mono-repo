@@ -10,7 +10,13 @@ using namespace ::testing;
 
 class TestTimeConstraintHelpers : public ::testing::Test
 {
+protected:
+    time_t getDefaultStartTime()
+    {
+        auto now = std::chrono::system_clock::now();
 
+        return std::chrono::system_clock::to_time_t(now-std::chrono::minutes(15));
+    }
 };
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithNoConstraint)
@@ -26,9 +32,12 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
     EXPECT_CALL(context, GetConstraints("time", OsquerySDK::ConstraintOperator::GREATER_THAN)).WillOnce(Return(emptySet));
     EXPECT_CALL(context, GetConstraints("time", OsquerySDK::ConstraintOperator::GREATER_THAN_OR_EQUALS)).WillOnce(Return(emptySet));
 
+    time_t expectedStartTime = getDefaultStartTime();
+
     std::pair<uint64_t, uint64_t > actualResult =  helper.GetTimeConstraints(context);
 
-    ASSERT_EQ(actualResult.first, 0);
+    ASSERT_GE(actualResult.first, expectedStartTime);
+    ASSERT_LE(actualResult.first, expectedStartTime+1);
     ASSERT_EQ(actualResult.second, 0);
 }
 

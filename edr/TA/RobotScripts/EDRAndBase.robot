@@ -131,22 +131,6 @@ EDR Plugin Can Have Logging Level Changed Based On Components
         ...  EDR Plugin Log Contains   Logger edr_osquery configured for level: INFO
     EDR Plugin Log Contains   Logger edr configured for level: DEBUG
 
-EDR clears jrl files when scheduled queries are disabled
-    Check EDR Plugin Installed With Base
-    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
-    Wait Until Keyword Succeeds
-        ...  15 secs
-        ...  1 secs
-        ...  EDR Plugin Log Contains   Updating running_mode flag settings to: 1
-    File Should exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
-    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_disabled.xml
-
-    Wait Until Keyword Succeeds
-        ...  15 secs
-        ...  1 secs
-        ...  EDR Plugin Log Contains   Updating running_mode flag settings to: 0
-    File Should not exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
 
 EDR Recovers From Incomplete Database Purge
     Check EDR Plugin Installed With Base
@@ -270,9 +254,90 @@ EDR Plugin Can Run Queries And Create Jrl If Event Journal Contains Too Many Det
     ...  Check Sophos Detections Journal Queries Work With Query Id
 
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl_tracker/test_query1
-    ${contents}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl_tracker/test_query1
-    Should be equal as Strings  ${contents}   1
+
+EDR Plugin Can Run Queries For Event Journal Detection Table With Start Time
+    # Need to make sure test starts of fresh
+    Reinstall With Base
+    Check EDR Plugin Installed With Base
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  Number Of SST Database Files Is Greater Than  1
+
+    Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
+    Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
+    Run Process  chown  -R  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/plugins/eventjournaler/
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check Sophos Detections Journal Queries Work With Time Greater Than  1632144665  32
+
+EDR Plugin Can Run Queries For Event Journal Detection Table With End Time
+    # Need to make sure test starts of fresh
+    Reinstall With Base
+    Check EDR Plugin Installed With Base
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  Number Of SST Database Files Is Greater Than  1
+
+    Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
+    Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
+    Run Process  chown  -R  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/plugins/eventjournaler/
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check Sophos Detections Journal Queries Work With Time Less Than  1632144278  12
+
+EDR Plugin Can Run Queries For Event Journal Detection Table With Start Time And Create Jrl
+    # Need to make sure test starts of fresh
+    Reinstall With Base
+    Check EDR Plugin Installed With Base
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  Number Of SST Database Files Is Greater Than  1
+
+    Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
+    Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
+    Run Process  chown  -R  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/plugins/eventjournaler/
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  1632144665  32
+
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+
+EDR Plugin Can Run Queries For Event Journal Detection Table With End Time And Create Jrl
+    # Need to make sure test starts of fresh
+    Reinstall With Base
+    Check EDR Plugin Installed With Base
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  Number Of SST Database Files Is Greater Than  1
+
+    Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
+    Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
+    Run Process  chown  -R  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/plugins/eventjournaler/
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Less Than  1632144278  12
+
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
 
 
 EDR Plugin Stops Without Errors
@@ -306,16 +371,36 @@ Check Simple Query Works
     Should Contain  ${response}  "errorCode":0,"errorMessage":"OK"
 
 Check Sophos Detections Journal Queries Work
-        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal
+        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal WHERE time > 0
         Should Contain  ${response}  "errorCode":0,"errorMessage":"OK"
+
+Check Sophos Detections Journal Queries Work With Time Greater Than
+        [Arguments]  ${start_time}  ${expected_count}
+        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal WHERE time > ${start_time}
+        Should Contain  ${response}  "errorCode":0,"errorMessage":"OK","rows":${expected_count}
+
+Check Sophos Detections Journal Queries Work With Time Less Than
+        [Arguments]  ${end_time}  ${expected_count}
+        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal WHERE time < ${end_time}
+        Should Contain  ${response}  "errorCode":0,"errorMessage":"OK","rows":${expected_count}
 
 Check Sophos Detections Journal Queries Work With Query Id
-        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal WHERE query_id = 'test_query1'
+        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal WHERE time > 0 AND query_id = 'test_query1'
         Should Contain  ${response}  "errorCode":0,"errorMessage":"OK"
 
+Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than
+        [Arguments]  ${start_time}  ${expected_count}
+        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal WHERE time > ${start_time} AND query_id = 'test_query1'
+        Should Contain  ${response}  "errorCode":0,"errorMessage":"OK","rows":${expected_count}
+
+Check Sophos Detections Journal Queries Work With Query Id And Time Less Than
+        [Arguments]  ${end_time}  ${expected_count}
+        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal WHERE time < ${end_time} AND query_id = 'test_query1'
+        Should Contain  ${response}  "errorCode":0,"errorMessage":"OK","rows":${expected_count}
+
 Check Sophos Detections Journal Queries Return Maximum Exceeded Error
-        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal
-        Should Contain  ${response}  "errorCode":1,"errorMessage":"Query returned too many events, please restrict search period to a shorter time period"
+        ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal WHERE time > 0
+        Should Contain  ${response}  "errorCode":1,"errorMessage":"maximum detections exceeded"
 
 Number Of SST Database Files Is Greater Than
     [Arguments]  ${min_sst_files_for_test}

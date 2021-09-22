@@ -136,6 +136,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNo
 {
     std::string queryId("");
     TableRows expectedResults; // Empty resultset
+    std::set<std::string> greaterThanSet = {"0"};
     std::set<std::string> emptySet = {};
 
     auto MockReaderWrapper = std::make_shared<MockJournalReaderWrapper>();
@@ -147,6 +148,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNo
         std::make_pair(true, detection);
     NiceMock<MockQueryContext> context;
     EXPECT_CALL(context, GetConstraints("time",_)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
     EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(emptySet));
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLForId(_)).Times(0);
     EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,_,_)).WillOnce(Return(entries));
@@ -192,9 +194,11 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNo
     detection.data = getSampleJson();
     std::pair<bool, Common::EventJournalWrapper::Detection> detectionResult =
         std::make_pair(true, detection);
+    std::set<std::string> greaterThanSet = {"0"};
     std::set<std::string> emptySet = {};
     NiceMock<MockQueryContext> context;
     EXPECT_CALL(context, GetConstraints("time",_)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
     EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(emptySet));
     EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,_,_)).WillOnce(Return(entries));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillRepeatedly(Return(detectionResult));
@@ -250,9 +254,11 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithMu
     detection2.data = getSampleJson2();
     std::pair<bool, Common::EventJournalWrapper::Detection> detectionResult2 =
         std::make_pair(true, detection2);
+    std::set<std::string> greaterThanSet = {"0"};
     std::set<std::string> emptySet = {};
     NiceMock<MockQueryContext> context;
     EXPECT_CALL(context, GetConstraints("time",_)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
     EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(emptySet));
     EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,_,_)).WillOnce(Return(entries));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillOnce(Return(detectionResult2));
@@ -270,9 +276,11 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationWithTooManyEntriesThrows)
 
     std::vector<Common::EventJournalWrapper::Entry> entries;
     NiceMock<MockQueryContext> context;
+    std::set<std::string> greaterThanSet = {"0"};
     std::set<std::string> emptySet = {};
     bool more = true;
     EXPECT_CALL(context, GetConstraints("time",_)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
     EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(emptySet));
     EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,EXPECTED_MAX_EVENTS_PER_QUERY,_)).WillOnce(DoAll(SetArgReferee<4>(more),Return(entries)));
 
@@ -315,9 +323,11 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
         std::make_pair(true, detection);
     NiceMock<MockQueryContext> context;
     std::set<std::string> contextSet = {"query_id_1"};
+    std::set<std::string> greaterThanSet = {"0"};
     std::set<std::string> emptySet = {};
     bool more = true;
     EXPECT_CALL(context, GetConstraints("time",_)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
     EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(contextSet));
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLForId(_)).WillOnce(Return(""));
     EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,EXPECTED_MAX_EVENTS_PER_QUERY,_)).WillOnce(DoAll(SetArgReferee<4>(more),Return(entries)));
@@ -418,9 +428,11 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     std::pair<bool, Common::EventJournalWrapper::Detection> detectionResult =
         std::make_pair(true, detection);
     std::set<std::string> contextSet = {"query_id_1"};
+    std::set<std::string> greaterThanSet = {"0"};
     std::set<std::string> emptySet = {};
     NiceMock<MockQueryContext> context;
     EXPECT_CALL(context, GetConstraints("time",_)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
     EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(contextSet));
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLForId(_)).WillOnce(Return(""));
     EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,_,_)).WillOnce(Return(entries));
@@ -467,9 +479,11 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     std::pair<bool, Common::EventJournalWrapper::Detection> detectionResult =
         std::make_pair(true, detection);
     std::set<std::string> contextSet = {"query_id_1"};
+    std::set<std::string> greaterThanSet = {"0"};
     std::set<std::string> emptySet = {};
     NiceMock<MockQueryContext> context;
     EXPECT_CALL(context, GetConstraints("time",_)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
     EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(contextSet));
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLForId(_)).WillOnce(Return("current_jrl"));
     EXPECT_CALL(*MockReaderWrapper, getEntries(_,"current_jrl",_,_)).WillOnce(Return(entries));

@@ -23,6 +23,7 @@ namespace OsquerySDK
         std::pair<uint64_t, uint64_t >  GetTimeConstraints(QueryContextInterface& queryContext);
 
     private:
+        const uint32_t DEFAULT_START_TIME_OFFSET_MINUTES = 15;
 
         void extractAndStoreTimeConstraint(
             QueryContextInterface& queryContext,

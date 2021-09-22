@@ -82,6 +82,12 @@ namespace OsquerySDK
             m_startTime = obtainStartBoundaryTime(m_timeBoundaryConstraints.front(), m_startTime);
             m_endTime = obtainEndBoundaryTime(m_timeBoundaryConstraints.back(), m_endTime);
         }
+
+        if (m_timeEqualsConstraints.empty() && m_timeBoundaryConstraints.empty())
+        {
+            auto now = std::chrono::system_clock::now();
+            m_startTime = std::chrono::system_clock::to_time_t(now-std::chrono::minutes(DEFAULT_START_TIME_OFFSET_MINUTES));
+        }
     }
 
     uint64_t TimeConstraintHelpers::obtainStartBoundaryTime(TimeConstraintData& timeData, uint64_t compareTime)
