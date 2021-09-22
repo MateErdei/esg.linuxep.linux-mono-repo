@@ -490,10 +490,10 @@ then
 fi
 chown -R "${UPDATESCHEDULER_USER_NAME}:root" "${SOPHOS_INSTALL}/base/update/var/updatescheduler"
 
-if [[ -f "${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.jso" ]]
+if [[ -f "${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json" ]]
 then
-    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.jso"
-    chmod 600 "${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.jso"
+    chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json"
+    chmod 600 "${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json"
 fi
 
 if [[ -f "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json" ]]
