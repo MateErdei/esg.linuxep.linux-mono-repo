@@ -505,7 +505,8 @@ class WarehouseUtils(object):
         "ServerProtectionLinux-MDR-Control-Component": "Sophos Managed Threat Response plug-in" ,
         "ServerProtectionLinux-Plugin-EventJournaler": "EventJournaler",
         "ServerProtectionLinux-Base-component": "Sophos Server Protection Linux - Base Component",
-        "ServerProtectionLinux-Plugin-EDR": "Sophos Endpoint Detection and Response plug-in"
+        "ServerProtectionLinux-Plugin-EDR": "Sophos Endpoint Detection and Response plug-in",
+        "ServerProtectionLinux-Plugin-RuntimeDetections": "Sophos Linux Runtime Detection Plugin"
     }
 
 
