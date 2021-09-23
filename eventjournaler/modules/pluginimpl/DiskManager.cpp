@@ -154,6 +154,7 @@ namespace Plugin
         if (output == nullptr)
         {
             LOGWARN("Failed to create file, " << destPath );
+            fclose(myfile);
             return false;
         }
 

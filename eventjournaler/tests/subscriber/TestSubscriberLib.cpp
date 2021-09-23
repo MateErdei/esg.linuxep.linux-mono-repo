@@ -60,22 +60,22 @@ TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasn
 
 TEST_F(TestSubscriber, SubscriberStartAndStop) // NOLINT
 {
-    MockZmqContext*  context = new StrictMock<MockZmqContext>();
-    std::string fakeSocketPath = "/a/b/FakeSocketPath";
-    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
-    EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
-    EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
-    EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(1);
-    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
-    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
-
     std::atomic<bool> readHasBeenCalled = false;
 
     auto countReadsAndReturnSimpleEvent = [&readHasBeenCalled](){
       readHasBeenCalled = true;
       return std::vector<std::string>{"threatEvents", "data"};
     };
+
+    MockZmqContext*  context = new StrictMock<MockZmqContext>();
+    std::string fakeSocketPath = "/a/b/FakeSocketPath";
+    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
+    EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
+    EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
+    EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(1);
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(countReadsAndReturnSimpleEvent));
+    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
+    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
     std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
