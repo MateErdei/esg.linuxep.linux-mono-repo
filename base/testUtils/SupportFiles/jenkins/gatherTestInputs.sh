@@ -11,18 +11,19 @@ exit 1
 sudo rm -rf $SYSTEMPRODUCT_TEST_INPUT
 
 TEST_PACKAGE_XML=system-product-test-release-package.xml
+MODE=system-test
 if [[ -n ${BASE_COVERAGE:-} ]]; then
-  TEST_PACKAGE_XML=system-product-test-base-coverage.xml
+  MODE=base-coverage
 elif [[ -n ${MDR_COVERAGE:-} ]]; then
-  TEST_PACKAGE_XML=system-product-test-mdr-coverage.xml
+  MODE=mdr-coverage
 elif [[ -n ${LIVERESPONSE_COVERAGE:-} ]]; then
-  TEST_PACKAGE_XML=system-product-test-liveresponse-coverage.xml
+  MODE=lr-coverage
 elif [[ -n ${EDR_COVERAGE:-} ]]; then
-  TEST_PACKAGE_XML=system-product-test-edr-coverage.xml
+  MODE=edr-coverage
 elif [[ -n ${PLUGIN_TEMPLATE_COVERAGE:-} ]]; then
-  TEST_PACKAGE_XML=system-product-test-plugin-template-coverage.xml
+  MODE=template-coverage
 elif [[ -n ${PLUGIN_EVENTJOURNALER_COVERAGE:-} ]]; then
-  TEST_PACKAGE_XML=system-product-test-plugin-eventjournaler-coverage.xml
+  MODE=ej-coverage
 fi
 
 # Create venv
@@ -32,8 +33,8 @@ set +e
 python3 -m venv "${VENV}" && source "${VENV}/bin/activate"
   "$TEST_UTILS/SupportFiles/jenkins/SetupCIBuildScripts.sh" || fail 'Error: Failed to get CI scripts'
   export BUILD_JWT=$(cat "$TEST_UTILS/SupportFiles/jenkins/jwt_token.txt")
-  python3 -m build_scripts.artisan_fetch "$TEST_UTILS/$TEST_PACKAGE_XML" || fail "Error: Failed to fetch inputs"
-  cp -r /mnt/filer6/linux/SSPL/testautomation/sdds-specs $SYSTEMPRODUCT_TEST_INPUT/sdds-specs || fail "Error: Failed to fetch inputs"
+  python3 -m build_scripts.artisan_fetch -m "$MODE" "$TEST_UTILS/$TEST_PACKAGE_XML" || fail "Error: Failed to fetch inputs"
 deactivate && rm -rf "${VENV}"
+cp -r /mnt/filer6/linux/SSPL/testautomation/sdds-specs $SYSTEMPRODUCT_TEST_INPUT/sdds-specs || fail "Error: Failed to fetch inputs"
 # restore bash strictness (for scripts that source this one)
 set -e
