@@ -308,7 +308,8 @@ class TestMCSConnection(unittest.TestCase):
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
-        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        with mock.patch("os.path.exists", return_value=True) as exists_mock:
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
@@ -321,7 +322,8 @@ class TestMCSConnection(unittest.TestCase):
         some_time_in_the_future = "2601033100"
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds(feed_id)
         datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
-        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        with mock.patch("os.path.exists", return_value=True) as exists_mock:
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.called)
         self.assertIsNone(mcs_connection.m_jwt_token)
 
@@ -363,7 +365,8 @@ class TestMCSConnection(unittest.TestCase):
             timestamp = str(some_time_in_the_future + i)
             file_path = f"{feed_id}-{timestamp}.json"
             self.assertTrue(datafeed_container.add_datafeed_result(file_path, feed_id, timestamp, content))
-        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        with mock.patch("os.path.exists", return_value=True) as exists_mock:
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.call_count, 3)
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result", return_value="")
@@ -379,7 +382,8 @@ class TestMCSConnection(unittest.TestCase):
             timestamp = str(some_time_in_the_future + i)
             file_path = f"{feed_id}-{timestamp}.json"
             self.assertTrue(datafeed_container.add_datafeed_result(file_path, feed_id, timestamp, content))
-        mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+        with mock.patch("os.path.exists", return_value=True) as exists_mock:
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result.call_count, 3)
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result")
@@ -399,8 +403,9 @@ class TestMCSConnection(unittest.TestCase):
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
 
         with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
-            datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
-            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+            with mock.patch("os.path.exists", return_value=True) as exists_mock:
+                datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+                mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertEqual(os.remove.call_count, 1)
         self.assertGreaterEqual(datafeed_container.get_backoff_until_time(), start_of_test + 100)
 
@@ -416,8 +421,9 @@ class TestMCSConnection(unittest.TestCase):
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
 
         with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
-            datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
-            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+            with mock.patch("os.path.exists", return_value=True) as exists_mock:
+                datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+                mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertEqual(os.remove.call_count, 1)
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeed_result")
@@ -433,8 +439,9 @@ class TestMCSConnection(unittest.TestCase):
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
 
         with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
-            datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
-            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+            with mock.patch("os.path.exists", return_value=True) as exists_mock:
+                datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+                mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertEqual(os.remove.call_count, 1)
 
 
@@ -454,8 +461,9 @@ class TestMCSConnection(unittest.TestCase):
         datafeed_container = mcsrouter.mcsclient.datafeeds.Datafeeds("feed_id")
 
         with mock.patch("os.path.isfile", return_value=True) as isfile_mock:
-            datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
-            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+            with mock.patch("os.path.exists", return_value=True) as exists_mock:
+                datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+                mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
         self.assertEqual(os.remove.call_count, 0)
 
     @mock.patch("mcsrouter.mcsclient.datafeeds.Datafeed.get_compressed_body", return_value="a string so file not read")
@@ -471,10 +479,11 @@ class TestMCSConnection(unittest.TestCase):
 
         with self.assertLogs(level="DEBUG") as logs:
             with mock.patch("os.path.isfile", return_value=False) as isfile_mock:
-                datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
-                mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
-                expected_header_string = "request headers={'Authorization': 'Bearer token', 'Accept': 'application/json', 'Content-Length': 34, 'Content-Encoding': 'deflate', 'X-Uncompressed-Content-Length': 36, 'X-Device-ID': 'device_id', 'X-Tenant-ID': 'tenant_id', 'User-Agent': 'Sophos MCS Client"
-                assert_message_in_logs(expected_header_string, logs.output, log_level="DEBUG")
+                with mock.patch("os.path.exists", return_value=True) as exists_mock:
+                    datafeed_container.add_datafeed_result("filepath", feed_id, some_time_in_the_future, content)
+                    mcsrouter.mcsclient.mcs_connection.MCSConnection.send_datafeeds(mcs_connection, datafeed_container)
+                    expected_header_string = "request headers={'Authorization': 'Bearer token', 'Accept': 'application/json', 'Content-Length': 34, 'Content-Encoding': 'deflate', 'X-Uncompressed-Content-Length': 36, 'X-Device-ID': 'device_id', 'X-Tenant-ID': 'tenant_id', 'User-Agent': 'Sophos MCS Client"
+                    assert_message_in_logs(expected_header_string, logs.output, log_level="DEBUG")
 
     def test_set_jwt_token_settings_returns_none_when_no_endpoint_id(self, *mockargs):
         with self.assertLogs(level="WARNING") as logs:
