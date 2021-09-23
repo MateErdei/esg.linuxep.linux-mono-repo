@@ -147,6 +147,7 @@ EDR clears jrl files when scheduled queries are disabled
         ...  1 secs
         ...  EDR Plugin Log Contains   Updating running_mode flag settings to: 0
     File Should not exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
+
 EDR Recovers From Incomplete Database Purge
     Check EDR Plugin Installed With Base
     Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
@@ -269,6 +270,9 @@ EDR Plugin Can Run Queries And Create Jrl If Event Journal Contains Too Many Det
     ...  Check Sophos Detections Journal Queries Work With Query Id
 
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl_tracker/test_query1
+    ${contents}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl_tracker/test_query1
+    Should be equal as Strings  ${contents}   1
 
 
 EDR Plugin Stops Without Errors
@@ -311,7 +315,7 @@ Check Sophos Detections Journal Queries Work With Query Id
 
 Check Sophos Detections Journal Queries Return Maximum Exceeded Error
         ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal
-        Should Contain  ${response}  "errorCode":1,"errorMessage":"maximum detections exceeded"
+        Should Contain  ${response}  "errorCode":1,"errorMessage":"Query returned too many events, please restrict search period to a shorter time period"
 
 Number Of SST Database Files Is Greater Than
     [Arguments]  ${min_sst_files_for_test}

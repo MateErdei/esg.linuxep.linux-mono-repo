@@ -54,7 +54,7 @@ namespace OsquerySDK
         {
             if (queryId.empty())
             {
-                throw std::runtime_error("maximum detections exceeded");
+                throw std::runtime_error("Query returned too many events, please restrict search period to a shorter time period");
             }
 
             u_int32_t attempts = journalReader->getCurrentJRLAttemptsForId(jrlAttemptFilePath);
