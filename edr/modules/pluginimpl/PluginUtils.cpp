@@ -271,7 +271,14 @@ namespace Plugin
     {
         std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         std::string jrlFolderPath = Common::FileSystem::join(installPath, "plugins/edr/var/jrl");
-        Common::FileSystem::fileSystem()->removeFilesInDirectory(jrlFolderPath);
+        try
+        {
+            Common::FileSystem::fileSystem()->removeFilesInDirectory(jrlFolderPath);
+        }
+        catch (const Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGWARN("Unable to clear jrl files in directory " << jrlFolderPath << " with error: " << ex.what());
+        }
     }
 
     bool PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(std::vector<std::string> enabledQueryPacks, bool dataLimitHit)

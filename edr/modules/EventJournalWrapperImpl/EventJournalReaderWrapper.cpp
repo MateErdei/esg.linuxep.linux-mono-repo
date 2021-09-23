@@ -142,7 +142,7 @@ namespace Common
             }
             catch (const Common::FileSystem::IFileSystemException& ex)
             {
-                LOGWARN("Failed toe remove file " << filePath << " with error: " << ex.what());
+                LOGWARN("Failed to remove file " << filePath << " with error: " << ex.what());
             }
         }
         std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable)
