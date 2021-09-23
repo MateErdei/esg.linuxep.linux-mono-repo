@@ -12,7 +12,7 @@ warehouses:
         components:
             sspl-runtimedetections-detectionrules:
                 release-tags:
-                    - base-version: 0
+                    - base-version: 4
                       tag: LATEST
 
     scheduled-query-pack-wh:
