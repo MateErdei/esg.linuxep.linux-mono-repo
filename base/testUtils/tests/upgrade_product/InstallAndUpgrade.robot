@@ -28,6 +28,7 @@ Resource    ../example_plugin/ExamplePluginResources.robot
 Resource    ../av_plugin/AVResources.robot
 Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../edr_plugin/EDRResources.robot
+Resource    ../runtime_detections/RuntimeDetectionsResources.robot
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    UpgradeResources.robot
@@ -462,6 +463,8 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ${ExpectedLRReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Plugin-liveresponse  ServerProtectionLinux-Base
     ${LrReleaseVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedLRReleaseVersion}  ${LRReleaseVersion}
+    ${ExpectedRuntimedetectionsDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
+    Check Runtime Detections Plugin Not Installed
 
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #${EJReleaseVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
@@ -533,10 +536,13 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LRDevVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #${EJDevVersion} =       Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
+    ${RuntimedetectionsVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimedetectionsVersion}
 
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
     Check Event Journaler Executable Running
+    Check Runtime Detections Plugin Installed
     Check AV Plugin Permissions
     Check AV Plugin Can Scan Files
     Check Update Reports Have Been Processed
@@ -580,6 +586,10 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ${ExpectedLRReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Plugin-liveresponse  ServerProtectionLinux-Base
     ${LrDevVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LrDevVersion}
+    ${ExpectedRuntimedetectionsDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
+    ${RuntimeDetectionsDevVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsDevVersion}
+
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #${EJDevVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
 
@@ -681,6 +691,10 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Should Be Equal As Strings  ${LRReleaseVersion}  ${ExpectedLRReleaseVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
+    Check Runtime Detections Plugin Not Installed
+
+    Check Log Contains   Uninstalling plugin ServerProtectionLinux-Plugin-RuntimeDetections since it was removed from warehouse  /tmp/preserve-sul-downgrade  Downgrade Log
+    Check Log Contains   Uninstalling plugin ServerProtectionLinux-Plugin-EventJournaler since it was removed from warehouse     /tmp/preserve-sul-downgrade  Downgrade Log
 
     ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
@@ -705,6 +719,11 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...  5 secs
     ...  version_number_in_ini_file_should_be  ${InstalledEDRPluginVersionFile}    ${ExpectedEDRDevVersion}
 
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  version_number_in_ini_file_should_be  ${InstalledRuntimedetectionsPluginVersionFile}    ${ExpectedRuntimedetectionsDevVersion}
+
     #wait for AV plugin to be running before attempting uninstall
     Wait Until Keyword Succeeds
     ...  200 secs
@@ -719,6 +738,8 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVVersion}
     ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
+    ${RuntimedetectionsVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimedetectionsVersion}
     #TODO LINUXDAR-3183 add check for EJ version
 
 
@@ -978,3 +999,5 @@ Check Mtr Reconnects To Management Agent After Upgrade
     ...  mtr <> Entering the main loop
     ...  Received new policy
     ...  RevID of the new policy
+
+Runtime Detections Plugin Is Installed And Running

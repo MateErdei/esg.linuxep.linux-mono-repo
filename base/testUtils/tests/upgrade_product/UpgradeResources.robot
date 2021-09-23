@@ -18,17 +18,18 @@ Resource    ../liveresponse_plugin/LiveResponseResources.robot
 
 
 *** Variables ***
-${warehousedir}                             ./tmp
-${InstalledBaseVersionFile}                 ${SOPHOS_INSTALL}/base/VERSION.ini
-${InstalledMDRPluginVersionFile}            ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
-${InstalledAVPluginVersionFile}             ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
-${InstalledMDRSuiteVersionFile}             ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
-${InstalledEDRPluginVersionFile}            ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
-${InstalledLRPluginVersionFile}             ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
-${InstalledEJPluginVersionFile}             ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
-${WarehouseBaseVersionFileExtension}        ./TestInstallFiles/ServerProtectionLinux-Base/files/base/VERSION.ini
-${WarehouseMDRPluginVersionFileExtension}   ./TestInstallFiles/ServerProtectionLinux-MDR-Control/files/plugins/mtr/VERSION.ini
-${WarehouseMDRSuiteVersionFileExtension}    ./TestInstallFiles/ServerProtectionLinux-MDR-DBOS-Component/files/plugins/mtr/dbos/data/VERSION.ini
+${warehousedir}                                 ./tmp
+${InstalledBaseVersionFile}                     ${SOPHOS_INSTALL}/base/VERSION.ini
+${InstalledMDRPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
+${InstalledAVPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
+${InstalledMDRSuiteVersionFile}                 ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
+${InstalledEDRPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
+${InstalledRuntimedetectionsPluginVersionFile}  ${SOPHOS_INSTALL}/plugins/runtimedetections/VERSION.ini
+${InstalledLRPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
+${InstalledEJPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
+${WarehouseBaseVersionFileExtension}            ./TestInstallFiles/ServerProtectionLinux-Base/files/base/VERSION.ini
+${WarehouseMDRPluginVersionFileExtension}       ./TestInstallFiles/ServerProtectionLinux-MDR-Control/files/plugins/mtr/VERSION.ini
+${WarehouseMDRSuiteVersionFileExtension}        ./TestInstallFiles/ServerProtectionLinux-MDR-DBOS-Component/files/plugins/mtr/dbos/data/VERSION.ini
 
 
 *** Keywords ***
