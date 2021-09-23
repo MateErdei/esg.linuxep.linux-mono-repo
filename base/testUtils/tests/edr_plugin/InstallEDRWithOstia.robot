@@ -96,6 +96,8 @@ Install all plugins 999 then downgrade to all plugins develop
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     #TODO LINUXDAR-3503 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr <> Failed to start extension, extension.Start threw: Failed to register extension: Failed adding registry: Duplicate extension
+    #TODO LINUXDAR-3490 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/capsule8-sensor died with 1
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
@@ -138,6 +140,8 @@ Install edr 999 and downgrade to current edr
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    #TODO LINUXDAR-3490 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/capsule8-sensor died with 1
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
@@ -167,6 +171,8 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    #TODO LINUXDAR-3490 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/capsule8-sensor died with 1
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
@@ -283,6 +289,8 @@ Install master of base and edr and mtr and upgrade to new query pack
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    #TODO LINUXDAR-3490 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/capsule8-sensor died with 1
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
@@ -439,6 +447,8 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     #TODO LINUXDAR-3191 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
+    #TODO LINUXDAR-3490 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/capsule8-sensor died with 1
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
@@ -487,6 +497,8 @@ Install master of base and edr and mtr and upgrade to base 999
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    #TODO LINUXDAR-3490 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/capsule8-sensor died with 1
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
@@ -551,6 +563,8 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    #TODO LINUXDAR-3490 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/capsule8-sensor died with 1
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
@@ -597,6 +611,8 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
+    #TODO LINUXDAR-3490 remove when this defect is fixed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/capsule8-sensor died with 1
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
