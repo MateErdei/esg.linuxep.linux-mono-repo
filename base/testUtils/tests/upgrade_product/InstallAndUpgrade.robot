@@ -144,6 +144,10 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-AV
     ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVReleaseVersion}  ${AVReleaseVersion}
+    ${ExpectedRuntimedetectionsDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
+    ${ExpectedRuntimedetectionsReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-RuntimeDetections  ServerProtectionLinux-Base
+    ${RuntimeDetectionsReleaseVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedRuntimedetectionsReleaseVersion}  ${RuntimeDetectionsReleaseVersion}
 
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #${EJReleaseVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
@@ -203,6 +207,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check All Product Logs Do Not Contain Critical
 
     Check Current Release With AV Installed Correctly
+    Check Runtime Detections Plugin Installed
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseDevVersion}
@@ -214,6 +219,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LRDevVersion}
     ${AVDevVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
+    ${RuntimedetectionsVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimedetectionsVersion}
 
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #${EJDevVersion} =       Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
@@ -265,6 +272,10 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LrDevVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #${EJDevVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
+    ${ExpectedRuntimedetectionsDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
+    ${ExpectedRuntimedetectionsReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-RuntimeDetections  ServerProtectionLinux-Base
+    ${RuntimeDetectionsDevVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsDevVersion}
 
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
@@ -350,18 +361,20 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Log File  /tmp/preserve-sul-downgrade
     Check EAP Release With AV Installed Correctly
 
-    ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-    ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
-    ${AVReleaseVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    ${LRReleaseVersion} =       Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
+    ${BaseReleaseVersion} =                     Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${MtrReleaseVersion} =                      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    ${EdrReleaseVersion} =                      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    ${AVReleaseVersion} =                       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    ${LRReleaseVersion} =                       Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
+    ${RuntimedetectionsReleaseVersion} =        Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #${EJReleaseVersion} =           Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
-    Should Be Equal As Strings  ${BaseReleaseVersion}  ${ExpectedBaseReleaseVersion}
-    Should Be Equal As Strings  ${MtrReleaseVersion}  ${ExpectedMtrReleaseVersion}
-    Should Be Equal As Strings  ${EdrReleaseVersion}  ${ExpectedEDRReleaseVersion}
-    Should Be Equal As Strings  ${AVReleaseVersion}  ${ExpectedAVReleaseVersion}
-    Should Be Equal As Strings  ${LRReleaseVersion}  ${ExpectedLRReleaseVersion}
+    Should Be Equal As Strings  ${BaseReleaseVersion}               ${ExpectedBaseReleaseVersion}
+    Should Be Equal As Strings  ${MtrReleaseVersion}                ${ExpectedMtrReleaseVersion}
+    Should Be Equal As Strings  ${EdrReleaseVersion}                ${ExpectedEDRReleaseVersion}
+    Should Be Equal As Strings  ${AVReleaseVersion}                 ${ExpectedAVReleaseVersion}
+    Should Be Equal As Strings  ${LRReleaseVersion}                 ${ExpectedLRReleaseVersion}
+    Should Be Equal As Strings  ${RuntimedetectionsReleaseVersion}  ${ExpectedRuntimedetectionsReleaseVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
 
@@ -404,6 +417,11 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  5 secs
     ...  version_number_in_ini_file_should_be  ${InstalledAVPluginVersionFile}    ${ExpectedAVDevVersion}
 
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  version_number_in_ini_file_should_be  ${InstalledRuntimedetectionsPluginVersionFile}    ${ExpectedRuntimedetectionsDevVersion}
+
     ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
     ${MtrVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -412,6 +430,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVVersion}
     ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
+    ${RuntimeDetectionsVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsVersion}
     #TODO LINUXDAR-3183 add check for EJ version
 
 
