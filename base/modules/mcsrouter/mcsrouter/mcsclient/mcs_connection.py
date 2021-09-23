@@ -1142,6 +1142,8 @@ class MCSConnection:
             f"Sorting datafeed files oldest to newest ready for sending, datafeed ID: {datafeeds.get_feed_id()}")
         datafeeds.sort_oldest_to_newest()
 
+        datafeeds.prune_results_with_no_files()
+
         max_upload_at_once = datafeeds.get_max_upload_at_once()
         LOGGER.debug(
             f"Maximum single batch upload size is {max_upload_at_once} bytes, datafeed ID: {datafeeds.get_feed_id()}")
