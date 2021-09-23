@@ -344,6 +344,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
 TEST_F(TestSophosAVDetectionTable, testTableGenerationClearsJRLWhenTenEventMaxsAreHitForQuery)
 {
     std::string queryId("query_id_1");
+    std::set<std::string> greaterThanSet = {"0"};
     TableRows expectedResults;
     TableRow r;
     r["time"] = "123123123";
@@ -378,6 +379,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationClearsJRLWhenTenEventMaxsA
     std::set<std::string> emptySet = {};
     bool more = true;
     EXPECT_CALL(context, GetConstraints("time", _)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
     EXPECT_CALL(context, GetConstraints("query_id", _)).WillOnce(Return(contextSet));
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLForId(_)).WillOnce(Return(""));
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLAttemptsForId(_)).WillOnce(Return(10));
