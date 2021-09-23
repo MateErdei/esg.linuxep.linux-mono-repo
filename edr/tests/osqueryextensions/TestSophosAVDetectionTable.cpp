@@ -323,11 +323,65 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,EXPECTED_MAX_EVENTS_PER_QUERY,_)).WillOnce(DoAll(SetArgReferee<4>(more),Return(entries)));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillRepeatedly(Return(detectionResult));
     EXPECT_CALL(*MockReaderWrapper, updateJrl("/opt/sophos-spl/plugins/edr/var/jrl/query_id_1", "jrl")).Times(1);
+    EXPECT_CALL(*MockReaderWrapper, updateJRLAttempts("/opt/sophos-spl/plugins/edr/var/jrl_tracker/query_id_1", 1)).Times(1);
 
     OsquerySDK::SophosAVDetectionTableGenerator generator;
     auto actualResults = generator.GenerateData(context, MockReaderWrapper);
 
     EXPECT_EQ(expectedResults,actualResults);
+}
+
+TEST_F(TestSophosAVDetectionTable, testTableGenerationClearsJRLWhenTenEventMaxsAreHitForQuery)
+{
+    std::string queryId("query_id_1");
+    TableRows expectedResults;
+    TableRow r;
+    r["time"] = "123123123";
+    r["rowid"] = "0";
+    r["query_id"] = queryId;
+    r["raw"] = getSampleJson();
+    r["primary_item"] = getPrimaryItemJson();
+    r["primary_item_type"] = "FILE";
+    r["primary_item_name"] = "/opt/testdir/file.sh";
+    r["detection_thumbprint"] = "c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9";
+    r["primary_item_spid"] = "";
+    r["detection_name"] = "ML/PE-A";
+    r["threat_source"] = "ML";
+    r["threat_type"] = "Malware";
+    r["sid"] = "";
+    r["monitor_mode"] = "0"; // optional, ask whether it is a field on its own, or a json field
+    expectedResults.push_back(std::move(r));
+
+    auto MockReaderWrapper = std::make_shared<MockJournalReaderWrapper>();
+
+    Common::EventJournalWrapper::Entry entry;
+    entry.timestamp = 123123123;
+    entry.producerUniqueID = 0;
+    entry.data = std::vector<uint8_t> {};
+    entry.jrl = "jrl";
+    std::vector<Common::EventJournalWrapper::Entry> entries = { entry };
+    Common::EventJournalWrapper::Detection detection;
+    detection.data = getSampleJson();
+    std::pair<bool, Common::EventJournalWrapper::Detection> detectionResult = std::make_pair(true, detection);
+    NiceMock<MockQueryContext> context;
+    std::set<std::string> contextSet = { "query_id_1" };
+    std::set<std::string> emptySet = {};
+    bool more = true;
+    EXPECT_CALL(context, GetConstraints("time", _)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("query_id", _)).WillOnce(Return(contextSet));
+    EXPECT_CALL(*MockReaderWrapper, getCurrentJRLForId(_)).WillOnce(Return(""));
+    EXPECT_CALL(*MockReaderWrapper, getCurrentJRLAttemptsForId(_)).WillOnce(Return(10));
+    EXPECT_CALL(*MockReaderWrapper, getEntries(_, 0, 0, EXPECTED_MAX_EVENTS_PER_QUERY, _))
+        .WillOnce(DoAll(SetArgReferee<4>(more), Return(entries)));
+    EXPECT_CALL(*MockReaderWrapper, decode(_)).WillRepeatedly(Return(detectionResult));
+    EXPECT_CALL(*MockReaderWrapper, updateJrl("/opt/sophos-spl/plugins/edr/var/jrl/query_id_1", "jrl")).Times(1);
+    EXPECT_CALL(*MockReaderWrapper, clearJRLFile("/opt/sophos-spl/plugins/edr/var/jrl/query_id_1")).Times(1);
+    EXPECT_CALL(*MockReaderWrapper, clearJRLFile("/opt/sophos-spl/plugins/edr/var/jrl_tracker/query_id_1")).Times(1);
+
+    OsquerySDK::SophosAVDetectionTableGenerator generator;
+    auto actualResults = generator.GenerateData(context, MockReaderWrapper);
+
+    EXPECT_EQ(expectedResults, actualResults);
 }
 
 TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQueryIdReturnsDataCorrectly)
@@ -372,6 +426,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,_,_)).WillOnce(Return(entries));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillRepeatedly(Return(detectionResult));
     EXPECT_CALL(*MockReaderWrapper, updateJrl("/opt/sophos-spl/plugins/edr/var/jrl/query_id_1", "jrl")).Times(1);
+    EXPECT_CALL(*MockReaderWrapper, clearJRLFile("/opt/sophos-spl/plugins/edr/var/jrl_tracker/query_id_1")).Times(1);
     OsquerySDK::SophosAVDetectionTableGenerator generator;
     auto actualResults = generator.GenerateData(context, MockReaderWrapper);
 
