@@ -314,6 +314,7 @@ MCS Sends Data Using V2 Method Regardless of Flags
 
 
 MCS Does Not Crash When There Is A Large Volume Of Datafeed Results
+    Override LogConf File as Global Level  INFO
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Stop MCSRouter If Running
