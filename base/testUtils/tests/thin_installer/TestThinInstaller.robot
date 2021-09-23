@@ -12,6 +12,7 @@ Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Library     Process
+Library     DateTime
 Library     OperatingSystem
 
 Resource  ../installer/InstallerResources.robot
@@ -588,10 +589,13 @@ Thin Installer Force Works
     Unmount All Comms Component Folders
     Remove Directory  /opt/sophos-spl  recursive=True
     Should Not Exist  ${REGISTER_CENTRAL}
-
+    ${time} =  Get Current Date  exclude_millis=true
+    ${message} =  Set Variable  Reloading.
     Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Should Exist  ${REGISTER_CENTRAL}
     Check Thininstaller Log Contains  Installation complete, performing post install steps
+    Should Have A Given Message In Journalctl Since Certain Time  ${message}  ${time}
+    Should Have Set KillMode To Mixed
     Remove Thininstaller Log
     Check Root Directory Permissions Are Not Changed
 
