@@ -44,7 +44,9 @@ namespace Common
             virtual ~IEventJournalReaderWrapper() = default;
             virtual std::string getCurrentJRLForId(const std::string& idFilePath) = 0;
             virtual void updateJrl(const std::string& idFilePath, const std::string& jrl) = 0;
-
+            virtual u_int32_t getCurrentJRLAttemptsForId(const std::string& trackerFilePath) = 0;
+            virtual void updateJRLAttempts(const std::string& trackerFilePath, const u_int32_t attempts) = 0;
+            virtual void clearJRLFile(const std::string& filePath) = 0;
             virtual std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, const std::string& jrl, uint32_t limit, bool& moreAvailable) = 0;
 
             virtual std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable) = 0;

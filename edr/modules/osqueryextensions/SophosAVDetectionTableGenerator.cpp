@@ -31,6 +31,7 @@ namespace OsquerySDK
 
         std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         std::string jrlFilePath = Common::FileSystem::join(installPath, "plugins/edr/var/jrl", queryId);
+        std::string jrlAttemptFilePath = Common::FileSystem::join(installPath, "plugins/edr/var/jrl_tracker", queryId);
 
         if (!queryId.empty())
         {
@@ -49,9 +50,29 @@ namespace OsquerySDK
             entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections }, queryTimeConstraints.first, queryTimeConstraints.second, MAX_EVENTS_PER_QUERY, moreEntriesAvailable);
         }
 
-        if (queryId.empty() && moreEntriesAvailable)
+        if (moreEntriesAvailable)
         {
-            throw std::runtime_error("maximum detections exceeded");
+            if (queryId.empty())
+            {
+                throw std::runtime_error("maximum detections exceeded");
+            }
+
+            u_int32_t attempts = journalReader->getCurrentJRLAttemptsForId(jrlAttemptFilePath);
+            attempts = attempts + 1;
+            if (attempts > 10)
+            {
+                LOGWARN("Exceeded detection event limit for query ID " << queryId << " more than 10 times, resetting JRL");
+                journalReader->clearJRLFile(jrlAttemptFilePath);
+                journalReader->clearJRLFile(jrlFilePath);
+            }
+            else
+            {
+                journalReader->updateJRLAttempts(jrlAttemptFilePath,attempts);
+            }
+        }
+        else if (!queryId.empty())
+        {
+            journalReader->clearJRLFile(jrlAttemptFilePath);
         }
 
         std::string newJrl("");

@@ -9,6 +9,7 @@ Copyright 2021 Sophos Limited. All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/FileUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 
@@ -53,13 +54,20 @@ namespace Common
         {
             std::string jrl("");
             auto filesystem = Common::FileSystem::fileSystem();
-
-            if (filesystem->isFile(idFilePath))
+            try
             {
-                jrl = filesystem->readFile(idFilePath);
+                if (filesystem->isFile(idFilePath))
+                {
+                    jrl = filesystem->readFile(idFilePath);
+                }
+            }
+            catch (const Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to read jrl file " << idFilePath << " with error: " << ex.what());
             }
             return jrl;
         }
+
         void Reader::updateJrl(const std::string& idFilePath, const std::string& jrl)
         {
             if (idFilePath.empty())
@@ -67,15 +75,76 @@ namespace Common
                 return;
             }
             auto filesystem = Common::FileSystem::fileSystem();
-
-            if (filesystem->isFile(idFilePath))
+            try
             {
-                filesystem->removeFile(idFilePath);
-            }
+                if (filesystem->isFile(idFilePath))
+                {
+                    filesystem->removeFile(idFilePath);
+                }
 
-            filesystem->writeFile(idFilePath, jrl);
+                filesystem->writeFile(idFilePath, jrl);
+            }
+            catch (const Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to update jrl file "<< idFilePath << " with error: " << ex.what());
+            }
         }
 
+        u_int32_t Reader::getCurrentJRLAttemptsForId(const std::string& trackerFilePath)
+        {
+            u_int32_t attempts = 0;
+            auto filesystem = Common::FileSystem::fileSystem();
+            try
+            {
+                if (filesystem->isFile(trackerFilePath))
+                {
+                    attempts = std::stoul(filesystem->readFile(trackerFilePath));
+                }
+            }
+            catch (const Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to read jrl tracker file " << trackerFilePath << " with error: " << ex.what());
+            }
+            catch (const std::exception& ex)
+            {
+                LOGWARN("Failed to convert contents of tracker file " << trackerFilePath << " to int with error: " << ex.what());
+            }
+            return attempts;
+        }
+
+        void Reader::updateJRLAttempts(const std::string& trackerFilePath, const u_int32_t attempts)
+        {
+            auto filesystem = Common::FileSystem::fileSystem();
+            try
+            {
+                if (filesystem->isFile(trackerFilePath))
+                {
+                    filesystem->removeFile(trackerFilePath);
+                }
+
+                filesystem->writeFile(trackerFilePath, std::to_string(attempts));
+            }
+            catch (const Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to update jrl tracker file " << trackerFilePath << " with error: " << ex.what());
+            }
+        }
+
+        void Reader::clearJRLFile(const std::string& filePath)
+        {
+            auto fs = Common::FileSystem::fileSystem();
+            try
+            {
+                if (fs->isFile(filePath))
+                {
+                    fs->removeFile(filePath);
+                }
+            }
+            catch (const Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed toe remove file " << filePath << " with error: " << ex.what());
+            }
+        }
         std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable)
         {
             return getEntries(subjectFilter, "", startTime, endTime, limit, moreAvailable);

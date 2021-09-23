@@ -32,7 +32,9 @@ namespace Common
             Reader(const std::string& location);
             std::string getCurrentJRLForId(const std::string& idFilePath) override;
             void updateJrl(const std::string& idFilePath, const std::string& jrl) override;
-
+            u_int32_t getCurrentJRLAttemptsForId(const std::string& trackerFilePath) override;
+            void updateJRLAttempts(const std::string& trackerFilePath, const u_int32_t attempts) override;
+            void clearJRLFile(const std::string& filePath) override;
             std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable) override;
             std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, const std::string& jrl, uint32_t limit, bool& moreAvailable) override;
 
