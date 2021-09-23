@@ -207,7 +207,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check All Product Logs Do Not Contain Critical
 
     Check Current Release With AV Installed Correctly
-    Check Runtime Detections Plugin Installed
+    Wait For RuntimeDetections to be Installed
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseDevVersion}
@@ -484,7 +484,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ${LrReleaseVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedLRReleaseVersion}  ${LRReleaseVersion}
     ${ExpectedRuntimedetectionsDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
-    Check Runtime Detections Plugin Not Installed
+    Check RuntimeDetections Plugin Uninstalled
 
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #${EJReleaseVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
@@ -562,7 +562,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
     Check Event Journaler Executable Running
-    Check Runtime Detections Plugin Installed
+    Wait For RuntimeDetections to be Installed
     Check AV Plugin Permissions
     Check AV Plugin Can Scan Files
     Check Update Reports Have Been Processed
@@ -711,7 +711,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Should Be Equal As Strings  ${LRReleaseVersion}  ${ExpectedLRReleaseVersion}
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
-    Check Runtime Detections Plugin Not Installed
+    Check RuntimeDetections Plugin Uninstalled
 
     Check Log Contains   Uninstalling plugin ServerProtectionLinux-Plugin-RuntimeDetections since it was removed from warehouse  /tmp/preserve-sul-downgrade  Downgrade Log
     Check Log Contains   Uninstalling plugin ServerProtectionLinux-Plugin-EventJournaler since it was removed from warehouse     /tmp/preserve-sul-downgrade  Downgrade Log
