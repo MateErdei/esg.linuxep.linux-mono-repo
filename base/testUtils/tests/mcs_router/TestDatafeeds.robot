@@ -9,10 +9,13 @@ Library    ${LIBS_DIRECTORY}/ProcessUtils.py
 Resource  McsRouterResources.robot
 
 Test Setup  Test Setup
-Test Teardown  Test Teardown
+Test Teardown  Run Keywords
+...            Test Teardown    AND
+...            Create File  ${SOPHOS_INSTALL}/base/etc/datafeed-config-scheduled_query.json  ${SCHEDULED_QUERY_DATAFEED_CONFIG}
 
-Suite Setup       Run Keywords
-...               Setup MCS Tests
+Suite Setup   Run Keywords
+...           Setup MCS Tests  AND
+...           Store Original Datafeed Config
 
 Suite Teardown    Run Keywords
 ...               Uninstall SSPL Unless Cleanup Disabled
@@ -316,7 +319,7 @@ MCS Does Not Crash When There Is A Large Volume Of Datafeed Results
     Stop MCSRouter If Running
     Generate Large Amount Of Datafeed Results
     Start MCSRouter
-
+    Wait For MCS Router To Be Running
     ${mcsrouter_pid_1} =  Get MCSRouter PID
 
     Wait Until Keyword Succeeds
@@ -347,4 +350,8 @@ Test Setup
 
 Datafeed Dir Less Than 1GB
     ${size_mb}=    Get Datafeed Directory Size In MB
-    Should Be True  ${size_mb} < 1000
+    Should Be True  ${size_mb} < 1024
+
+Store Original Datafeed Config
+    ${scheduled_query_config_orignal_content}=    Get File   ${SOPHOS_INSTALL}/base/etc/datafeed-config-scheduled_query.json
+    Set Suite Variable    ${SCHEDULED_QUERY_DATAFEED_CONFIG}   ${scheduled_query_config_orignal_content}
