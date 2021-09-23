@@ -28,7 +28,7 @@ Resource    ../example_plugin/ExamplePluginResources.robot
 Resource    ../av_plugin/AVResources.robot
 Resource    ../mdr_plugin/MDRResources.robot
 Resource    ../edr_plugin/EDRResources.robot
-Resource    ../runtime_detections/RuntimeDetectionsResources.robot
+Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    UpgradeResources.robot
