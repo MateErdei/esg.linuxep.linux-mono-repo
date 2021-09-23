@@ -11,3 +11,4 @@ o700, root, root, /opt/sophos-spl/plugins/edr/osquery
 o700, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses
 o700, root, root, /opt/sophos-spl/plugins/edr/var
 o700, root, root, /opt/sophos-spl/plugins/edr/var/jrl
+o700, root, root, /opt/sophos-spl/plugins/edr/var/jrl_tracker
