@@ -1175,6 +1175,7 @@ class MCSConnection:
                     self.__m_config.save()
                 LOGGER.warning("Purging all datafeed files due to 403 code from Sophos Central")
                 datafeeds.purge()
+                break
             except MCSHttpTooManyRequestsException as exception_429:
                 # Handle HTTP 429 (too many requests) from central
                 # Handle purging
