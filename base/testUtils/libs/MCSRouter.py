@@ -781,6 +781,7 @@ class MCSRouter(object):
         return content
 
     def generate_large_amount_of_datafeed_results(self):
+        # This test will generate 3GB worth of data so we need that much space on the disk.
         target_dir = os.path.join(self.mcs_dir, "datafeed")
 
         if not os.path.isdir(target_dir):
@@ -790,7 +791,7 @@ class MCSRouter(object):
         stat = shutil.disk_usage(target_dir)
         free_disk_space_mb = stat.free / 1000000
 
-        if free_disk_space_mb < 5000:
+        if free_disk_space_mb < 3200:
             raise AssertionError(f"Not enough disk space available on machine: {free_disk_space_mb}MB")
 
         now_timestamp = int(datetime.utcnow().timestamp())
