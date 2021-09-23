@@ -30,10 +30,10 @@ PUB_SUB_LOGGING_DIST_LOCATION = "/tmp/pub_sub_logging_dist"
 # using the subprocess.PIPE can make the robot test to hang as the buffer could be filled up. 
 # this auxiliary method ensure that this does not happen. It also uses a temporary file in 
 # order not to keep files or other stuff around. 
-def run_proc_with_safe_output(args):
+def run_proc_with_safe_output(args, shell=False):
     logger.debug('Run Command: {}'.format(args))
     with tempfile.TemporaryFile(dir=os.path.abspath('.')) as tmpfile: 
-        p = subprocess.Popen(args, stdout=tmpfile, stderr=tmpfile)
+        p = subprocess.Popen(args, stdout=tmpfile, stderr=tmpfile, shell=True)
         p.wait()        
         tmpfile.seek(0)
         output = tmpfile.read().decode()
@@ -417,6 +417,10 @@ def Uninstall_SSPL(installdir=None):
                 if returncode != 0:
                     logger.error(output)
                     time.sleep(1)
+                    #try to kill hanging sophos processes
+                    if "Device or resource busy" in output:
+                        output, returncode = run_proc_with_safe_output("lsof +D /opt/sophos-spl/ -t | xargs -i ps -p {} -o cmd= | grep sophos-spl | xargs -i pkill -f {} -e", shell=True)
+                        logger.info(output)
             except Exception as ex:
                 logger.error(str(ex))
                 time.sleep(1)
