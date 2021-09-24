@@ -274,7 +274,11 @@ Should Have A Given Message In Journalctl Since Certain Time
     Should Contain    ${result.stdout}    ${message}
 
 Should Have Set KillMode To Mixed
-    ${result}=  Run Process  systemctl show sophos-spl   shell=True
+    ${result}=  Run Process  systemctl show sophos-spl | grep KillMode  shell=True
     Log  ${result.stdout}
     Log  ${result.stderr}
-    Should Contain  ${result.stdout}  KillMode=mixed
+    ${result1}=  Run Process  systemctl cat sophos-spl   shell=True
+    Log  ${result1.stdout}
+    Log  ${result1.stderr}
+    Run Keyword if    "${result.stdout}" != "Kill1Mode=mixed"    Should Contain  ${result1.stdout}  KillMode=mixed
+
