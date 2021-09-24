@@ -122,7 +122,7 @@ Test Comms Component Will Not Launch If Chroot Directory Is Not Empty
     Unmount Test Directory
     #wait for comms to run
     Wait Until Keyword Succeeds
-        ...  20 secs
+        ...  24 secs
         ...  2 secs
         ...  Check Comms Component Is Running
 

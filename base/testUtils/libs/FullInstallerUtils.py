@@ -33,7 +33,7 @@ PUB_SUB_LOGGING_DIST_LOCATION = "/tmp/pub_sub_logging_dist"
 def run_proc_with_safe_output(args, shell=False):
     logger.debug('Run Command: {}'.format(args))
     with tempfile.TemporaryFile(dir=os.path.abspath('.')) as tmpfile: 
-        p = subprocess.Popen(args, stdout=tmpfile, stderr=tmpfile, shell=True)
+        p = subprocess.Popen(args, stdout=tmpfile, stderr=tmpfile, shell=shell)
         p.wait()        
         tmpfile.seek(0)
         output = tmpfile.read().decode()
