@@ -280,6 +280,6 @@ Should Have Set KillMode To Mixed
     ${result1}=  Run Process  systemctl cat sophos-spl   shell=True
     Log  ${result1.stdout}
     Log  ${result1.stderr}
-    Run Keyword if    "${result.stdout}" != "KillMode=mixed"    Should Contain  ${result1.stdout}  KillMode=mixed
+    Run Keyword if    "KillMode" not in "${result.stdout}"    Should Contain  ${result1.stdout}  KillMode=mixed
     Run Keyword if    "KillMode" in "${result.stdout}"    Should Contain  ${result.stdout}  KillMode=mixed
 
