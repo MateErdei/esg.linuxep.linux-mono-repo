@@ -417,9 +417,9 @@ def Uninstall_SSPL(installdir=None):
                 if returncode != 0:
                     logger.error(output)
                     time.sleep(1)
-                    #try to kill hanging sophos processes
+                    # try to unmount leftover tmpfs
                     if "Device or resource busy" in output:
-                        output, returncode = run_proc_with_safe_output("lsof +D /opt/sophos-spl/ -t | xargs -i ps -p {} -o cmd= | grep sophos-spl | xargs -i pkill -f {} -e", shell=True)
+                        output, returncode = run_proc_with_safe_output("mount | grep \"tmpfs on /opt/sophos-spl/\" | awk '{print $3}' | xargs umount", shell=True)
                         logger.info(output)
             except Exception as ex:
                 logger.error(str(ex))
