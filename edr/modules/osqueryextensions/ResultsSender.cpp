@@ -192,11 +192,12 @@ Json::Value ResultsSender::readJsonFile(const std::string& path)
     auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
     Json::Value root;
     std::string errors;
+    std::string jsonFileContent;
     try
     {
         auto filesystem = Common::FileSystem::fileSystem();
-        std::string jsonFile = filesystem->readFile(path);
-        reader->parse(jsonFile.c_str(), jsonFile.c_str() + jsonFile.size(), &root, &errors);
+        jsonFileContent = filesystem->readFile(path);
+        reader->parse(jsonFileContent.c_str(), jsonFileContent.c_str() + jsonFileContent.size(), &root, &errors);
     }
     catch (const std::exception& err)
     {
@@ -205,7 +206,8 @@ Json::Value ResultsSender::readJsonFile(const std::string& path)
 
     if (!errors.empty())
     {
-        LOGWARN("Failed to parse " << path << " Error:" << errors);
+        LOGDEBUG("JSON content that failed to be parsed: " << jsonFileContent);
+        throw std::runtime_error("Failed to parse " + path + " Error:" + errors);
     }
 
     return root;

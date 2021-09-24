@@ -759,7 +759,7 @@ TEST_F(TestResultSender, prepareBatchResultsAppendsBracketAndReturnsJsonObject) 
     EXPECT_EQ(actualResults, expectedResults);
 }
 
-TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfJsonInvalid) // NOLINT
+TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfJsonInvalidAndDeleteIntermediaryFile) // NOLINT
 {
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -781,6 +781,7 @@ TEST_F(TestResultSender, prepareBatchResultsReturnsEmptyJsonObjectIfJsonInvalid)
     EXPECT_CALL(*mockFileSystem, exists(INTERMEDIARY_PATH)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, appendFile(INTERMEDIARY_PATH, "]")).Times(1);
     EXPECT_CALL(*mockFileSystem, readFile(INTERMEDIARY_PATH)).WillOnce(Return("this is not json"));
+    EXPECT_CALL(*mockFileSystem, removeFile(INTERMEDIARY_PATH));
     auto actualResults = resultsSender.PrepareBatchResults();
     Json::Value emptyValue;
     EXPECT_EQ(actualResults, emptyValue);
