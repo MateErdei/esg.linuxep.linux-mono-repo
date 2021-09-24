@@ -276,4 +276,5 @@ Should Have A Given Message In Journalctl Since Certain Time
 Should Have Set KillMode To Mixed
     ${result}=  Run Process  systemctl show sophos-spl   shell=True
     Log  ${result.stdout}
+    Log  ${result.stderr}
     Should Contain  ${result.stdout}  KillMode=mixed
