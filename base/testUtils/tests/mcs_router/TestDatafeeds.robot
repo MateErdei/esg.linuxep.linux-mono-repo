@@ -321,14 +321,14 @@ MCS Does Not Crash When There Is A Large Volume Of Datafeed Results
     Generate Large Amount Of Datafeed Results
     Start MCSRouter
     Wait For MCS Router To Be Running
-    ${mcsrouter_pid_1} =  Get MCSRouter PID
+    ${mcsrouter_pid} =  Get MCSRouter PID
 
     Wait Until Keyword Succeeds
     ...  120s
     ...  1s
     ...  Check MCS Router Log Contains  mcsrouter.mcsclient.datafeeds <> Current backlog size exceeded max
 
-    ${mcsrouter_mem}=    get_process_memory    ${mcsrouter_pid_1}
+    ${mcsrouter_mem}=    get_process_memory    ${mcsrouter_pid}
     log    ${mcsrouter_mem}
     Should Be True  int(${mcsrouter_mem})/1000000 < int(500)
 
@@ -337,8 +337,6 @@ MCS Does Not Crash When There Is A Large Volume Of Datafeed Results
     ...  5s
     ...  Datafeed Dir Less Than 1GB
 
-    ${mcsrouter_pid_2} =  Get MCSRouter PID
-    Should Be Equal  ${mcsrouter_pid_1}  ${mcsrouter_pid_2}
 
 *** Keywords ***
 Test Teardown

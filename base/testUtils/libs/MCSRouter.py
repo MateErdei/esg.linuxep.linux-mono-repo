@@ -791,11 +791,12 @@ class MCSRouter(object):
         stat = shutil.disk_usage(target_dir)
         free_disk_space_mb = stat.free / 1000000
 
-        if free_disk_space_mb < 3200:
+        if free_disk_space_mb < 1500:
             raise AssertionError(f"Not enough disk space available on machine: {free_disk_space_mb}MB")
 
         now_timestamp = int(datetime.utcnow().timestamp())
-        target_timestamp = now_timestamp + 1500
+        # each new file will be 2MB so 650 * 2MB = 1.3GB
+        target_timestamp = now_timestamp + 650
         result_file_to_copy = os.path.join(PathManager.get_support_file_path(), "scheduled_query_results", "scheduled_query-2MB.json")
         for i in range(now_timestamp, target_timestamp):
             target_file_name = f"scheduled_query-{i}.json"
