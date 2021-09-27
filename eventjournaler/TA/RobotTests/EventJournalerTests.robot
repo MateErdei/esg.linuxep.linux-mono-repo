@@ -1,5 +1,7 @@
 *** Settings ***
 Resource  EventJournalerResources.robot
+Library         ../Libs/EventjournalerUtils.py
+
 Suite Setup  Setup
 Test Teardown   Event Journaler Teardown
 Suite Teardown  Uninstall Base
@@ -126,7 +128,8 @@ Event Journaler Can Receive Malformed Events From Publisher without crashing
     Publish Threat Event With Specific Data  {}
     Publish Threat Event With Specific Data  ""
     Publish Threat Event With Specific Data  {nisndisodwkpo
-    ${result}=   Get File  ${EXAMPLE_DATA_PATH}/Detections-0000000000000001-0000000000000003-132729637080000000-132729637110000000.bin
+    generate_file   /tmp/generatedfile   1
+    ${result}=   Get File  /tmp/generatedfile
     Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test","test data":"${result.stdout}","filepath":"/mnt/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"}
     Check Event Journaler Executable Running
 
