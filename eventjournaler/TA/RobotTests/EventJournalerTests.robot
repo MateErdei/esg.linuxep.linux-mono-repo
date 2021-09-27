@@ -128,14 +128,14 @@ Event Journaler Can Receive Malformed Events From Publisher without crashing
     Publish Threat Event With Specific Data  ""
     Publish Threat Event With Specific Data  {nisndisodwkpo
     Publish Threat Event With Specific Data  "threatName":"EICAR-AV-Test","filepath":"こんにちは"}
-    generate_file   /tmp/generatedfile   1024
+    generate_file   /tmp/generatedfile   50
     ${result}=   Get File  /tmp/generatedfile
     Publish Threat Event With Specific Data From File   /tmp/generatedfile
     Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test1"}
     ${all_events} =  Read All Detection Events From Journal
     should contain   ${all_events}  {"threatName":"EICAR-AV-Test1"}
     Check Event Journaler Executable Running
-    fail
+    Remove File  /tmp/generatedfile
 
 Event Journaler Can compress Files
     ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/threatEvents-00001-00002-12092029-10202002

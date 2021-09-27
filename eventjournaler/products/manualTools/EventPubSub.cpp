@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
                 // Output the text from the file
                 data << myText;
             }
-            std::cout << dataString;
+
             dataString = data.str();
         }
         auto socket = context->getPublisher();
