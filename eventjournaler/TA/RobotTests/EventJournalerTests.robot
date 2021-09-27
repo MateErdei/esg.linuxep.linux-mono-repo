@@ -122,6 +122,7 @@ Event Journaler Can Receive Many Events From Publisher
     END
 
 Event Journaler Can Receive Malformed Events From Publisher without crashing
+    [Tags]  DO
     Publish Threat Event With Specific Data  {}
     Publish Threat Event With Specific Data  ""
     Publish Threat Event With Specific Data  {nisndisodwkpo
