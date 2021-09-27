@@ -121,6 +121,13 @@ Event Journaler Can Receive Many Events From Publisher
         should contain   ${all_events}  {"threatName":"EICAR-AV-Test","test data":"${i}"}
     END
 
+Event Journaler Can Receive Malformed Events From Publisher without crashing
+    Publish Threat Event With Specific Data  {}
+    Publish Threat Event With Specific Data  ""
+    Publish Threat Event With Specific Data  {nisndisodwkpo
+    Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test","test data":"${i}","filepath":"/mnt/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"}
+    Check Event Journaler Executable Running
+
 Event Journaler Can compress Files
     ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/threatEvents-00001-00002-12092029-10202002
     Create Journal Test File  ${filePath}
