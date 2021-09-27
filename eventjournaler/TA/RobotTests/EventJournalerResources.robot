@@ -106,6 +106,10 @@ Publish Threat Event With Specific Data
     [Arguments]  ${msg}
     Run Shell Process  ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/var/ipc/events.ipc send -d '${msg}'  OnError=Failed to run EventPubSub binary   timeout=60s
 
+Publish Threat Event With Specific Data From File
+    [Arguments]  ${msg}
+    Run Shell Process  ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/var/ipc/events.ipc send -f '${msg}'  OnError=Failed to run EventPubSub binary   timeout=60s
+
 Publish Threat Events In Background Process
     [Arguments]  ${msg}  ${count}
     Start Process 	timeout 30s ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/var/ipc/events.ipc send -d '${msg}' -c ${count}  shell=True

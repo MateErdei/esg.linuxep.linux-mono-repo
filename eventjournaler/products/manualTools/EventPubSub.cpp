@@ -12,6 +12,8 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <cstdlib>
 #include <cassert>
 
+#include <sstream>
+#include <fstream>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -30,7 +32,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 void printUsageAndExit(const std::string name)
 {
-    std::cout << "usage: " << name << " [-c <count> -s <socket path> -u <user> -d <data>] send | listen" << std::endl;
+    std::cout << "usage: " << name << " [-c <count> -s <socket path> -u <user> -d <data> -f <file path of data>] send | listen" << std::endl;
     exit(EXIT_FAILURE);
 }
 
@@ -68,11 +70,12 @@ int main(int argc, char* argv[])
     std::string socketPath = "event.sock";
     std::string user;
     std::string dataString;
+    std::string filepath;
     bool customDataSet = false;
     int count = 1;
     int opt = 0;
 
-    while ((opt = getopt(argc, argv, "c:s:u:d:")) != -1)
+    while ((opt = getopt(argc, argv, "c:s:u:d:f:")) != -1)
     {
         switch (opt)
         {
@@ -87,6 +90,10 @@ int main(int argc, char* argv[])
                 break;
             case 'd':
                 dataString = optarg;
+                customDataSet = true;
+                break;
+            case 'f':
+                filepath = optarg;
                 customDataSet = true;
                 break;
             default:
@@ -104,6 +111,20 @@ int main(int argc, char* argv[])
         if (!customDataSet)
         {
             dataString = R"({"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"})";
+        }
+        if(!filepath.empty())
+        {
+            std::stringstream data;
+            std::string myText;
+
+// Read from the text file
+            std::ifstream MyReadFile(filepath);
+            while (getline (MyReadFile, myText)) {
+                // Output the text from the file
+                data << myText;
+            }
+            std::cout << dataString;
+            dataString = data.str();
         }
         auto socket = context->getPublisher();
         assert(socket.get());

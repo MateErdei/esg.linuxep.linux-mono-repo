@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 
 def get_open_journal_file_from_directory(directory, basename=False):
     files = os.listdir(directory)
@@ -44,9 +45,10 @@ def get_number_of_compressed_files_in_directory(directory):
     return n
 
 def generate_file(file_path, size_in_mb):
+    size = int(size_in_mb)
     with open(file_path, 'wb') as fout:
-        for i in range(1024):
-            fout.write(os.urandom(int(size_in_mb)))
+        for i in range(1024*size):
+            fout.write("a".encode("utf-8"))
 
 def assert_expected_file_in_directory(directory, expected_closed_files=0, expected_compressed_files=0, expected_open_files=0):
     actual_closed_files = get_number_of_closed_files_in_directory(directory)
