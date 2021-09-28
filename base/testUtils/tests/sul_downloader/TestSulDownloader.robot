@@ -659,9 +659,9 @@ Can Use Authenticated Proxy Saved In Savedproxy Config
 
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
 
-    Should Contain    ${log_contents}    Try connection: Sophos at https://localhost:1233 via proxy: ${proxy_domain_and_port}
-    Should Contain    ${log_contents}    Successfully connected to: Sophos at https://localhost:1233 via proxy: ${proxy_domain_and_port}
-    Should Not Contain    ${log_contents}    Failed to connect to Sophos at https://localhost:1233 via proxy: ${proxy_domain_and_port}
+    Should Contain    ${log_contents}    Try connection: Sophos at https://localhost:1233 via proxy: http://${proxy_domain_and_port}
+    Should Contain    ${log_contents}    Successfully connected to: Sophos at https://localhost:1233 via proxy: http://${proxy_domain_and_port}
+    Should Not Contain    ${log_contents}    Failed to connect to Sophos at https://localhost:1233 via proxy: http://${proxy_domain_and_port}
 
 
 Test Product Uninstalls If Not In Warehouse
