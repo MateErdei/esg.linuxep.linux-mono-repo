@@ -7,6 +7,23 @@ echo $msg 1>&2
 exit 1
 }
 
+function try_command_with_backoff()
+{
+    for i in {1..5};
+    do
+      "$@"
+      if [[ $? != 0 ]]
+      then
+        EXIT_CODE=1
+        sleep 15
+      else
+        EXIT_CODE=0
+        break
+      fi
+    done
+    return $EXIT_CODE
+}
+
 [[ -z $SYSTEMPRODUCT_TEST_INPUT ]] && SYSTEMPRODUCT_TEST_INPUT=/tmp/system-product-test-inputs
 sudo rm -rf $SYSTEMPRODUCT_TEST_INPUT
 
@@ -35,6 +52,6 @@ python3 -m venv "${VENV}" && source "${VENV}/bin/activate"
   export BUILD_JWT=$(cat "$TEST_UTILS/SupportFiles/jenkins/jwt_token.txt")
   python3 -m build_scripts.artisan_fetch -m "$MODE" "$TEST_UTILS/$TEST_PACKAGE_XML" || fail "Error: Failed to fetch inputs"
 deactivate && rm -rf "${VENV}"
-cp -r /mnt/filer6/linux/SSPL/testautomation/sdds-specs $SYSTEMPRODUCT_TEST_INPUT/sdds-specs || fail "Error: Failed to fetch inputs"
+try_command_with_backoff cp -r /mnt/filer6/linux/SSPL/testautomation/sdds-specs $SYSTEMPRODUCT_TEST_INPUT/sdds-specs || fail "Error: Failed to fetch inputs"
 # restore bash strictness (for scripts that source this one)
 set -e
