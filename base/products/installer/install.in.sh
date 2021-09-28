@@ -686,6 +686,14 @@ chmod 700 "${SOPHOS_INSTALL}/base/update/versig."*
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base/VERSION.ini"
 chmod 640 "${SOPHOS_INSTALL}/base/VERSION.ini"
 
+if [[ -n ${https_proxy} ]]
+then
+    echo -n "${https_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
+elif [[ -n ${http_proxy} ]]
+then
+    echo -n "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
+fi
+
 unset LD_LIBRARY_PATH
 
 for F in "$DIST/installer/plugins"/*
@@ -769,13 +777,7 @@ else
     fi
 fi
 
-if [[ -n ${https_proxy} ]]
-then
-    echo -n "${https_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
-elif [[ -n ${http_proxy} ]]
-then
-    echo -n "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
-fi
+
 
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 

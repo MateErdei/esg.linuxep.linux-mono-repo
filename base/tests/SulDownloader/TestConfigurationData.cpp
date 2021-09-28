@@ -444,7 +444,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxySh
 
     configurationData.verifySettingsAreValid();
 
-    std::vector<Proxy> expectedProxyList = { Proxy("http://savedProxy.com"), Proxy(Proxy::NoProxy) };
+    std::vector<Proxy> expectedProxyList = { Proxy("savedProxy.com"), Proxy(Proxy::NoProxy) };
     std::vector<Proxy> actualProxyList = configurationData.proxiesList();
     EXPECT_EQ(actualProxyList, expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());

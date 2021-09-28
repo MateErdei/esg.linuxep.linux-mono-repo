@@ -558,9 +558,9 @@ std::optional<Proxy> ConfigurationData::proxyFromSavedProxyUrl(const std::string
         std::vector<std::string> proxyDetails = Common::UtilityImpl::StringUtils::splitString(savedProxyURL, "@");
         if (proxyDetails.size() == 1)
         {
-            return Proxy(savedProxyURL);
+            return Proxy(Common::UtilityImpl::StringUtils::splitString(savedProxyURL, "//")[1]);
         }
-        else if(proxyDetails.size() == 2)
+        else if (proxyDetails.size() == 2)
         {
             std::string proxyUser;
             std::string  proxyPassword;

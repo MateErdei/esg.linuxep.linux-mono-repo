@@ -452,6 +452,10 @@ Thin Installer Environment Proxy
     Check Thininstaller Log Does Not Contain  ERROR
     Check Thininstaller Log Contains  DEBUG: Checking we can connect to Sophos Central (at https://localhost:4443/mcs via http://localhost:10000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: http://localhost:10000\nDEBUG: Successfully got [No error] from Sophos Central
     Check Root Directory Permissions Are Not Changed
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  2 secs
+    ...  Check SulDownloader Log Contains   Try connection: Sophos at http://dci.sophosupd.com/update via proxy: localhost:10000
 
 
 Thin Installer Parses Update Caches Correctly
