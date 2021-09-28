@@ -426,9 +426,9 @@ Thin Installer Digest Proxy
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  2 secs
-    ...  Check SulDownloader Log Contains   Try connection: Sophos at http://dci.sophosupd.com/update via proxy: localhost:10000
+    ...  Check SulDownloader Log Contains   Try connection: Sophos at http://dci.sophosupd.com/update via proxy: http://localhost:10000
 
-    Check Log Does Not Contain  Try connection: Sophos at http://dci.sophosupd.com/update via proxy: localhost:10000\n\n  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader log
+    Check Log Does Not Contain  Try connection: Sophos at http://dci.sophosupd.com/update via proxy: http://localhost:10000\n\n  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader log
 
 Thin Installer Environment Proxy
     [Teardown]  Teardown With Temporary Directory Clean
@@ -455,7 +455,7 @@ Thin Installer Environment Proxy
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  2 secs
-    ...  Check SulDownloader Log Contains   Try connection: Sophos at http://dci.sophosupd.com/update via proxy: localhost:10000
+    ...  Check SulDownloader Log Contains   Try connection: Sophos at http://dci.sophosupd.com/update via proxy: http://localhost:10000
 
 
 Thin Installer Parses Update Caches Correctly

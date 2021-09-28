@@ -570,9 +570,7 @@ std::optional<Proxy> ConfigurationData::proxyFromSavedProxyUrl(const std::string
             if(proxyCredentials.size() == 2)
             {
                 std::vector<std::string> user_password = Common::UtilityImpl::StringUtils::splitString(proxyCredentials[1], ":");
-                proxyAddress= proxyCredentials[0] + "//"+ proxyAddress;
-                std::cout << proxyAddress << std::endl;
-                std::cout << "user password size" << user_password.size()  << std::endl;
+                proxyAddress = proxyCredentials[0] + "//"+ proxyAddress;
                 if (user_password.size() == 2)
                 {
                     proxyUser = user_password[0];
