@@ -26,7 +26,7 @@ Suite Teardown  MDR Install And Upgrade Teardown
 Test Setup     Test Setup MDR Install And Upgrade
 Test Teardown  Test Teardown MDR Install And Upgrade
 
-Default Tags  MDR_REGRESSION_TESTS
+Default Tags  MDR_REGRESSION_TESTS  TESTFAILURE
 
 
 *** Variables ***

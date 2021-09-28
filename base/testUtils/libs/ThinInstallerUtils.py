@@ -256,7 +256,11 @@ class ThinInstallerUtils(object):
         else:            
             sophos_certs_dir = certs_dir
         if not mcs_ca:
-            mcs_ca = os.path.join(PathManager.get_support_file_path(), "CloudAutomation/root-ca.crt.pem")
+            env_cert = os.environ["MCS_CA"]
+            if os.path.isfile(env_cert):
+                mcs_ca = env_cert
+            else:
+                mcs_ca = os.path.join(PathManager.get_support_file_path(), "CloudAutomation/root-ca.crt.pem")
         if sophos_certs_dir == "system":
             logger.info("do not set override_sophos_certs")
             try:
