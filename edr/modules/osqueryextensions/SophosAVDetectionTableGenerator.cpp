@@ -40,6 +40,7 @@ namespace OsquerySDK
 
         std::vector<Common::EventJournalWrapper::Entry> entries;
         bool moreEntriesAvailable = false;
+        bool clearJrl = false;
 
         if (!currentJrl.empty())
         {
@@ -62,6 +63,7 @@ namespace OsquerySDK
             if (attempts > 10)
             {
                 LOGWARN("Exceeded detection event limit for query ID " << queryId << " more than 10 times, resetting JRL");
+                clearJrl = true;
                 journalReader->clearJRLFile(jrlAttemptFilePath);
                 journalReader->clearJRLFile(jrlFilePath);
             }
@@ -149,7 +151,7 @@ namespace OsquerySDK
             newJrl = entry.jrl;
         }
 
-        if(!queryId.empty())
+        if(!queryId.empty() && !clearJrl)
         {
             journalReader->updateJrl(jrlFilePath, newJrl);
         }

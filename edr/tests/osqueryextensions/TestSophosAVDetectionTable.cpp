@@ -386,7 +386,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationClearsJRLWhenTenEventMaxsA
     EXPECT_CALL(*MockReaderWrapper, getEntries(_, 0, 0, EXPECTED_MAX_EVENTS_PER_QUERY, _))
         .WillOnce(DoAll(SetArgReferee<4>(more), Return(entries)));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillRepeatedly(Return(detectionResult));
-    EXPECT_CALL(*MockReaderWrapper, updateJrl("/opt/sophos-spl/plugins/edr/var/jrl/query_id_1", "jrl")).Times(1);
+    EXPECT_CALL(*MockReaderWrapper, updateJrl("/opt/sophos-spl/plugins/edr/var/jrl/query_id_1", "jrl")).Times(0);
     EXPECT_CALL(*MockReaderWrapper, clearJRLFile("/opt/sophos-spl/plugins/edr/var/jrl/query_id_1")).Times(1);
     EXPECT_CALL(*MockReaderWrapper, clearJRLFile("/opt/sophos-spl/plugins/edr/var/jrl_tracker/query_id_1")).Times(1);
 
