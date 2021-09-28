@@ -112,18 +112,16 @@ int main(int argc, char* argv[])
         {
             dataString = R"({"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"})";
         }
-        if(!filepath.empty())
+        if (!filepath.empty())
         {
             std::stringstream data;
-            std::string myText;
+            std::string contents;
 
-// Read from the text file
-            std::ifstream MyReadFile(filepath);
-            while (getline (MyReadFile, myText)) {
-                // Output the text from the file
-                data << myText;
+            std::ifstream dataFile(filepath);
+            while (getline (dataFile, contents))
+            {
+                data << contents;
             }
-
             dataString = data.str();
         }
         auto socket = context->getPublisher();
