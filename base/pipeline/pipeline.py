@@ -180,22 +180,22 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     if INCLUDE_BUILD_IN_PIPELINE:
         with stage.parallel('build'):
             if mode == RELEASE_MODE or mode == ANALYSIS_MODE:
-                analysis_build = stage.artisan_build(name=ANALYSIS_MODE, component=component, image='JenkinsLinuxTemplate5',
+                analysis_build = stage.artisan_build(name=ANALYSIS_MODE, component=component, image='JenkinsLinuxTemplate6',
                                                  mode=ANALYSIS_MODE, release_package='./build/release-package.xml')
-                base_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                base_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate6',
                                                  mode=RELEASE_MODE, release_package='./build/release-package.xml')
-                nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image='JenkinsLinuxTemplate6',
                                                            mode=NINE_NINE_NINE_MODE, release_package='./build/release-package.xml')
-                zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image='JenkinsLinuxTemplate5',
+                zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image='JenkinsLinuxTemplate6',
                                                            mode=ZERO_SIX_ZERO_MODE, release_package='./build/release-package.xml')
             elif mode == COVERAGE_MODE:
-                base_build = stage.artisan_build(name=COVERAGE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                base_build = stage.artisan_build(name=COVERAGE_MODE, component=component, image='JenkinsLinuxTemplate6',
                                              mode=COVERAGE_MODE, release_package='./build/release-package.xml')
-                release_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                release_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate6',
                                                     mode=RELEASE_MODE, release_package='./build/release-package.xml')
-                nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image='JenkinsLinuxTemplate5',
+                nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image='JenkinsLinuxTemplate6',
                                                            mode=NINE_NINE_NINE_MODE, release_package='./build/release-package.xml')
-                zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image='JenkinsLinuxTemplate5',
+                zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image='JenkinsLinuxTemplate6',
                                                           mode=ZERO_SIX_ZERO_MODE, release_package='./build/release-package.xml')
     else:
         base_build = context.artifact.build()
