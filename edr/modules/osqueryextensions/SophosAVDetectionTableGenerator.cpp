@@ -77,7 +77,7 @@ namespace OsquerySDK
             journalReader->clearJRLFile(jrlAttemptFilePath);
         }
 
-        std::string newJrl("");
+        std::string newJrl(currentJrl);
 
         for (auto& entry : entries)
         {
@@ -151,7 +151,7 @@ namespace OsquerySDK
             newJrl = entry.jrl;
         }
 
-        if(!queryId.empty() && !clearJrl)
+        if(!queryId.empty() && !clearJrl && !newJrl.empty())
         {
             journalReader->updateJrl(jrlFilePath, newJrl);
         }

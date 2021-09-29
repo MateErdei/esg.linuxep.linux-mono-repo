@@ -212,6 +212,21 @@ EDR Plugin Can Run Queries For Event Journal Detection Table And Create Jrl
     ...  Check Sophos Detections Journal Queries Work With Query Id
 
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    ${jrl1}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+
+    # Perform a second query to make sure the last JRL is stored
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check Sophos Detections Journal Queries Work With Query Id
+
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    ${jrl2}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+
+    Should Be Equal As Strings  ${jrl1}  ${jrl2}
+
 
 EDR Plugin Returns Query Error If Event Journal Contains Too Many Detections
     # Need to make sure test starts of fresh
