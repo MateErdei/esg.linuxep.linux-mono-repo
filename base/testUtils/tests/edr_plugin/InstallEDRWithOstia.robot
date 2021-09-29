@@ -27,17 +27,14 @@ Force Tags  LOAD1
 
 
 *** Variables ***
-${BaseAndMtrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${querypackPolicy}              ${GeneratedWarehousePolicies}/old_query_pack.xml
 ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
 ${BaseAndEdrAndMtrVUTPolicy}        ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseEdrAndMtrAndAVVUTPolicy}      ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
-${BaseAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_and_edr_999.xml
 ${BaseMtrAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_mtr_vut_and_edr_999.xml
 ${Base999Policy}              ${GeneratedWarehousePolicies}/mtr_edr_vut_and_base_999.xml
 ${BaseAndMTREdr999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_999.xml
 ${BaseAndMTREdrAV999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_av_999.xml
-${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
 ${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
