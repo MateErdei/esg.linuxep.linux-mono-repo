@@ -375,7 +375,41 @@ EDR Plugin Stops Without Errors
     EDR Plugin Log Does Not Contain  WARN [
     EDR Plugin Log Does Not Contain  Operation canceled
 
+EDR Plugin Can clean up old osquery info and warning files
+    Check EDR Plugin Installed With Base
+    Stop EDR
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1001
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1002
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1003
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1004
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1005
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1006
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1007
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1008
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1009
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1010
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1011
 
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1001
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1002
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1003
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1004
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1005
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1006
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1007
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1008
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1009
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1010
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1011
+    Start EDR
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Removed old osquery WARNING file:
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Removed old osquery INFO file:
 *** Keywords ***
 Reinstall With Base
     Uninstall All

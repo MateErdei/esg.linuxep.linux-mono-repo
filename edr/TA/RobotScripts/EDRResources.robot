@@ -13,6 +13,7 @@ Resource    ComponentSetup.robot
 ${EDR_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${EDR_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${EDR_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/edr.log
+${EDR_LOG_DIR}      ${EDR_PLUGIN_PATH}/log
 ${SCHEDULED_QUERY_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/scheduledquery.log
 ${LIVEQUERY_LOG_PATH}     ${EDR_PLUGIN_PATH}/log/livequery.log
 ${BASE_SDDS}        ${TEST_INPUT_PATH}/base_sdds/

@@ -716,12 +716,16 @@ EDR Plugin Respects Data Limit When Applying New Live Query Policy With Differen
     MTR Pack Should Be Disabled
     Custom Pack Should Be Disabled
 
+    ${mark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
     Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit_and_different_custom_queries_with_xdr_only.xml
 
     XDR Pack Should Be Disabled
     MTR Pack Should Be Disabled
     Custom Pack Should Be Disabled
-
+    Wait Until Keyword Succeeds
+    ...  20s
+    ...  2s
+    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Sophos Extension running in thread  ${mark}
     Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
 
     XDR Pack Should Be Disabled
