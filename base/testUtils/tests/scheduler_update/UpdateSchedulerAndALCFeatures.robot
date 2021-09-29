@@ -21,9 +21,6 @@ Default Tags   SULDOWNLOADER  UPDATE_SCHEDULER
 Force Tags  LOAD6
 
 *** Variables ***
-${MDR_RIGID_NAME}   ServerProtectionLinux-Plugin-MDR
-${MDR_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_and_mtr_VUT.xml
-${BASE_VUT_POLICY}   ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies/base_only_VUT.xml
 ${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 *** Test Cases ***

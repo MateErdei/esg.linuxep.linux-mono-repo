@@ -18,6 +18,8 @@
         <cloud_subscriptions>
             <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
             <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/>
+            <subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/>
+            <subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="RECOMMENDED"/>
         </cloud_subscriptions>
         <delay_supplements enabled="true"/>
     </AUConfig>

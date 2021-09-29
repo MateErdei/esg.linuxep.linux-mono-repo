@@ -127,7 +127,6 @@ def _install_upgrade_certs(root_ca, ps_root_ca):
     logger.info("root_ca:  {}".format(root_ca))
     logger.info("ps_root_ca:  {}".format(ps_root_ca))
 
-    # todo consider making this better
     try:
         shutil.copy(root_ca, os.path.join(sophos_install_path, ROOT_CA_INSTALLATION_EXTENSION))
         shutil.copy(ps_root_ca, os.path.join(sophos_install_path, PS_ROOT_CA_INSTALLATION_EXTENSION))
@@ -448,36 +447,28 @@ class WarehouseUtils(object):
 
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     ROBOT_LISTENER_API_VERSION = 2
-    #os.environ['VUT_PREV']= "CSP7I0S0GZZE:CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=:db55fcf8898da2b3f3c06f26e9246cbb"
-    os.environ['VUT_PREV']= "QA767596:CCCirMa73nCbF+rU9aHeyqCasmwZR9GpWyPav3N0ONhr56KqcJR8L7OdlrmdHJLXc08=:105f4d87e14c91142561bf3d022e55b9"
+    os.environ['VUT_PREV_RELEASE']= "CSP7I0S0GZZE:CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=:db55fcf8898da2b3f3c06f26e9246cbb"
+    os.environ['VUT_PREV_DOGFOOD']= "QA767596:CCCirMa73nCbF+rU9aHeyqCasmwZR9GpWyPav3N0ONhr56KqcJR8L7OdlrmdHJLXc08=:105f4d87e14c91142561bf3d022e55b9"
 
     WAREHOUSE_SPEC_XML = get_spec_xml_dict_from_filer6()
     template_configuration_values = {
-        "base_and_edr_999.xml": TemplateConfig("BASE_AND_EDR_999", "edr_user_999", PROD_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
         "mtr_edr_vut_and_base_999.xml": TemplateConfig("BASE_999", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_BASE_999_ADDRESS),
         "old_query_pack.xml": TemplateConfig("QUERY_PACK", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_QUERY_PACK_ADDRESS),
-        "base_edr_vut_and_mtr_999.xml": TemplateConfig("BASE_EDR_AND_MTR_999", "mtr_user_999", PROD_BUILD_CERTS, OSTIA_MTR_999_ADDRESS ),
         "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "user_mtr_vut_edr_999", PROD_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
         "base_vut_and_mtr_edr_999.xml": TemplateConfig("BASE_AND_MTR_EDR_999", "mtr_and_edr_user_999", PROD_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
         "base_vut_and_mtr_edr_av_999.xml": TemplateConfig("BASE_AND_MTR_EDR_AV_999", "av_user_999", PROD_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
         "base_and_mtr_VUT.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_and_av_VUT.xml": TemplateConfig("BALLISTA_VUT", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_and_av_VUT-1.xml": TemplateConfig("VUT_PREV", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-        "base_and_mtr_and_av_VUT.xml": TemplateConfig("BASE_AND_MTR_AND_AV_VUT", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_and_mtr_and_av_VUT-1.xml": TemplateConfig("VUT_PREV", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
+        ## check what is being used
         "base_edr_and_mtr_and_av_VUT.xml": TemplateConfig("BASE_EDR_AND_MTR_AND_AV_VUT", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_edr_and_mtr_and_av_VUT-1.xml": TemplateConfig("VUT_PREV", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-        "base_edr_and_mtr_VUT-1.xml": TemplateConfig("VUT_PREV", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
+        "base_edr_and_mtr_and_av_VUT-1.xml": TemplateConfig("VUT_PREV_DOGFOOD", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
+        "base_edr_and_mtr_and_av_Release.xml": TemplateConfig("VUT_PREV_RELEASE", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_and_edr_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_edr_and_mtr.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_fixed_version_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_fixed_version_999.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_weeklyScheduleVUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_VUT_no_ballista_override.xml": TemplateConfig("NO_OVERRIDE", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_VUT-1.xml": TemplateConfig("VUT_PREV", "base_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-        "base_VUT_and_fake_plugins.xml": TemplateConfig("BALLISTA_VUT", "fake_plugin_user", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_VUT_without_SDU_Feature.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_only_VUT_no_ballista_override.xml": TemplateConfig("NO_OVERRIDE", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS)
     }
 
     RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES = {
@@ -486,7 +477,8 @@ class WarehouseUtils(object):
         "ServerProtectionLinux-MDR-Control-Component": "Sophos Managed Threat Response plug-in" ,
         "ServerProtectionLinux-Plugin-EventJournaler": "EventJournaler",
         "ServerProtectionLinux-Base-component": "Sophos Server Protection Linux - Base Component",
-        "ServerProtectionLinux-Plugin-EDR": "Sophos Endpoint Detection and Response plug-in"
+        "ServerProtectionLinux-Plugin-EDR": "Sophos Endpoint Detection and Response plug-in",
+        "ServerProtectionLinux-Plugin-RuntimeDetections": "Sophos Linux Runtime Detection Plugin"
     }
 
 

@@ -109,7 +109,7 @@ EDR Installer Directories And Files
     Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
 
 EDR Handles Live Query
-    Start Local Cloud Server  --initial-alc-policy  ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
+    Start Local Cloud Server
     Regenerate Certificates
     Set Local CA Environment Variable
 
