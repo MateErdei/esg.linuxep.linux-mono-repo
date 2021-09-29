@@ -124,16 +124,24 @@ Event Journaler Can Receive Many Events From Publisher
     END
 
 Event Journaler Can Receive Malformed Events From Publisher without crashing
+    #empty json
     Publish Threat Event With Specific Data  {}
+    #empty data
     Publish Threat Event With Specific Data  ""
+    # malfromed json
     Publish Threat Event With Specific Data  {nisndisodwkpo
-    Publish Threat Event With Specific Data  "threatName":"EICAR-AV-Test","filepath":"こんにちは"}
+    # non acis data
+    Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test","filepath":"こんにちは"}
+    # long filepath
+    Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test","filepath":"/ooooooooooooo/sssssssssssssssssssssss/sssssssssssssssssssssssss/ssssssssssssssssssss/sssssssssssss/s/ssssssssssssssssse"}
     generate_file   /tmp/generatedfile   50
     ${result}=   Get File  /tmp/generatedfile
+    # large data
     Publish Threat Event With Specific Data From File   /tmp/generatedfile
+    # last event to check ej is still running
     Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test1"}
     ${all_events} =  Read All Detection Events From Journal
-    should contain   ${all_events}  {"threatName":"EICAR-AV-Test1"}
+    Should Contain   ${all_events}  {"threatName":"EICAR-AV-Test1"}
     Check Event Journaler Executable Running
     Remove File  /tmp/generatedfile
 
