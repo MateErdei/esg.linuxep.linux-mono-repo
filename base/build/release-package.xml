@@ -93,7 +93,7 @@
         <!--<command  buildtype="prod"> -->
         <command mode="release,oldci">
             <program>/bin/bash</program>
-            <args>./build.sh --clean </args>
+            <args>./build.sh --clean --parallel-test 1</args>
             <workingdir>.</workingdir>
         </command>
 

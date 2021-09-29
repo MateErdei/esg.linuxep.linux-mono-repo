@@ -142,6 +142,10 @@ do
         -j*)
             NPROC=${1#-j}
             ;;
+        --parallel-test)
+            shift
+            TEST_NPROC=$1
+            ;;
         --valgrind)
             VALGRIND=1
             ;;
@@ -462,13 +466,14 @@ function build()
             echo 'Valgrind test finished'
             exit 0
 
+        [[ -n ${TEST_NPROC:-} ]] || TEST_NPROC=$NPROC
         elif (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))
         then
             ## If we are doing bullseye system tests then don't run unit test first
             ## Otherwise run the unit-tests now
             ctest \
                 --test-action test \
-                --parallel ${NPROC} \
+                --parallel ${TEST_NPROC} \
                 --no-compress-output --output-on-failure \
                 --timeout 300 \
                 || {
