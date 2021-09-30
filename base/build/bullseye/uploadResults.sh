@@ -78,7 +78,6 @@ then
   find -name "*test_coverage.json"
   sudo cp $BULLSEYE_DIR/bin/covxml /usr/local/bin/covxml
   ln -s $BULLSEYE_DIR/bin/covxml covxml
-  touch /opt/test/results/coverage/test_coverage.json
   sudo -E python3 -u $COVERAGE_SCRIPT                           \
       --output /opt/test/results/coverage/test_coverage.json    \
       --min-function 70                                         \
