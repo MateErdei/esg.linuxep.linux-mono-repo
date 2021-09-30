@@ -21,13 +21,32 @@
             <subscription Id="EDR" RigidName="ServerProtectionLinux-Plugin-EDR" Tag="RECOMMENDED"/>
             <subscription Id="CloudAV" RigidName="ServerProtectionLinux-Plugin-AV" Tag="RECOMMENDED"/>
         </cloud_subscriptions>
-        <delay_supplements enabled="true"/>
+        <delay_supplements enabled="false"/>
     </AUConfig>
     <Features>
+        <Feature id="APPCNTRL"/>
+        <Feature id="AV"/>
+        <Feature id="CLEAN"/>
         <Feature id="CORE"/>
+        <Feature id="DLP"/>
+        <Feature id="DVCCNTRL"/>
+        <Feature id="EFW"/>
+        <Feature id="HBT"/>
+        <Feature id="LIVEQUERY"/>
+        <Feature id="LIVETERMINAL"/>
         <Feature id="MDR"/>
+        <Feature id="MTD"/>
+        <Feature id="NTP"/>
+        <Feature id="SAV"/>
         <Feature id="SDU"/>
+        <Feature id="WEBCNTRL"/>
+        <Feature id="XPD"/>
     </Features>
-    <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+    <Products>
+        <Product id="antivirus"/>
+        <Product id="intercept"/>
+        <Product id="mdr"/>
+    </Products>
+    <automatic_sdu_submission Enabled="true"/>
     <customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/>
 </AUConfigurations>

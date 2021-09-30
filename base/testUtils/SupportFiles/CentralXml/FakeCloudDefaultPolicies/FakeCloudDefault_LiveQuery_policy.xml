@@ -2,12 +2,13 @@
 <policy type="LiveQuery" RevID="revId" policyType="56">
     <configuration>
         <scheduled>
-            <dailyDataLimit>262144000</dailyDataLimit>
+            <dailyDataLimit>2147483647</dailyDataLimit>
             <enabled>true</enabled>
             <queryPacks>
                 <queryPack id="XDR" />
                 <queryPack id="MTR" />
             </queryPacks>
+            <foldingRules>[{"query_name":"running_processes_windows_sophos","values":{"cmdline":"cmd /c tasklist.exe /NH /FI \"IMAGENAME eq wapptunneld.exe\""}},{"query_name":"running_processes_windows_sophos","values":{"cmdline":"tasklist.exe  /NH /FI \"IMAGENAME eq wapptunneld.exe\""}},{"query_name":"stopped_processes_windows_sophos","values":{"cmdline":"cmd /c tasklist.exe /NH /FI \"IMAGENAME eq wapptunneld.exe\""}},{"query_name":"stopped_processes_windows_sophos","values":{"cmdline":"tasklist.exe  /NH /FI \"IMAGENAME eq wapptunneld.exe\""}}]</foldingRules>
         </scheduled>
     </configuration>
 </policy>
