@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ComponentData>
     <Component>
-        <Name>Sophos Linux Runtime Detection Plugin Rules Supplement</Name>
+        <Name>rd_rules</Name>
         <RigidName>rd_rules</RigidName>
         <Version>1.0.0</Version>
         <Build>0</Build>
@@ -16,6 +16,7 @@
         </Platforms>
         <Features/>
         <FileList/>
+        <Comment>[0]</Comment>
     </Component>
     <Dictionary>
         <Name>
