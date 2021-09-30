@@ -80,6 +80,12 @@
             <include src="sav-linux-x86-aggregated-10.5.0.0.25.tgz" dest="savlinux9-package"/>
         </package>
 
+        <!--        pull the scripts from mono-repo to get the coverage uploaded to redash-->
+        <build-asset project="em" repo="esg">
+            <!-- release-version fetches for all branches with no development-version -->
+            <release-version branch="release--bazeltools-linux"/>
+            <include mode="base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="bazel-tools" dest-dir="bazel-tools" />
+        </build-asset>
 
         <!--
                     local warehouses

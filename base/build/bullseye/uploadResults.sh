@@ -75,7 +75,6 @@ then
   find
   echo "Go CAS GO!"
   env
-  sleep 100000000000000000000000000000
   find -name "*test_coverage.json"
   sudo cp $BULLSEYE_DIR/bin/covxml /usr/local/bin/covxml
   ln -s $BULLSEYE_DIR/bin/covxml covxml
