@@ -149,8 +149,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ${RuntimeDetectionsReleaseVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsReleaseVersion}  ${RuntimeDetectionsReleaseVersion}
     ${ExpectedEJDevVersion} =    get_version_for_rigidname_in_vut_warehouse    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedEJReleaseVersion} =    get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVDogfoodPolicy} ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
-    ${EJReleaseVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
+    ${ExpectedEJReleaseVersion} =    get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVDogfoodPolicy}    ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
+    ${EJReleaseVersion} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJReleaseVersion}    ${EJReleaseVersion}
 
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
@@ -222,7 +222,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
     ${RuntimedetectionsVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimedetectionsVersion}
-    ${EJDevVersion} =       Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
+    ${EJDevVersion} =       Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJDevVersion}
 
     Check Event Journaler Executable Running
@@ -269,8 +269,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${LrDevVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LrDevVersion}
     ${ExpectedEJDevVersion} =    get_version_for_rigidname_in_vut_warehouse    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedEJReleaseVersion} =    get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVDogfoodPolicy} ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
-    ${EJDevVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
+    ${ExpectedEJReleaseVersion} =    get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVDogfoodPolicy}    ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
+    ${EJDevVersion} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJDevVersion}
     ${ExpectedRuntimedetectionsDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
     ${ExpectedRuntimedetectionsReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-RuntimeDetections  ServerProtectionLinux-Base
@@ -485,8 +485,8 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ${ExpectedRuntimedetectionsDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
     Check RuntimeDetections Plugin Uninstalled
     ${ExpectedEJDevVersion} =    get_version_for_rigidname_in_vut_warehouse    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedEJReleaseVersion} =    get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVReleasePolicy} ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
-    ${EJReleaseVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
+    ${ExpectedEJReleaseVersion} =    get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVReleasePolicy}    ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
+    ${EJReleaseVersion} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJReleaseVersion}    ${EJReleaseVersion}
 
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
@@ -556,8 +556,8 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LRDevVersion}
     ${RuntimedetectionsVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimedetectionsVersion}
-    ${EJDevVersion} =       Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedEJDevVersion}  ${EJDevVersion}
+    ${EJDevVersion} =       Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedEJDevVersion}    ${EJDevVersion}
 
     Check Event Journaler Executable Running
     Wait For RuntimeDetections to be Installed
@@ -608,8 +608,8 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ${RuntimeDetectionsDevVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsDevVersion}
     ${ExpectedEJDevVersion} =    get_version_for_rigidname_in_vut_warehouse    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedEJReleaseVersion} =    get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVReleasePolicy} ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
-    ${EJDevVersion} =      Get Version Number From Ini File  ${InstalledEJPluginVersionFile}
+    ${ExpectedEJReleaseVersion} =    get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVReleasePolicy}    ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
+    ${EJDevVersion} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJDevVersion}
 
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
