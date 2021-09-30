@@ -64,7 +64,7 @@ Only One Policy Is Distributed When Receiving Multiple ALC Policies On Command P
     Send Policy File  alc  ${FirstALCPolicy}
     ${SecondALCPolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct.xml
     Send Policy File  alc  ${SecondALCPolicy}
-    ${ThirdALCPolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_base_and_example_plugin.xml
+    ${ThirdALCPolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_policy_delayed_updating.xml
     Send Policy File  alc  ${ThirdALCPolicy}
     ${FourthALCPolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
     Send Policy File  alc  ${FourthALCPolicy}

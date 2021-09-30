@@ -146,7 +146,7 @@ ${CUSTOM_DIR_BASE} =  /CustomPath
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{FORCE_ARGUMENT} =  --force
 @{PRODUCT_MDR_ARGUMENT} =  --products\=mdr
-${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_base_only.xml
+${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
 
 *** Test Case ***
 Thin Installer can download test file from warehouse and execute it

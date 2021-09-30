@@ -168,7 +168,7 @@ Test Updatescheduler Adds Features That Get Installed On Subsequent Update
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
-    ...  Check Status Report Contain  Feature id="SENSORS"
+    ...  Check Status Report Contain  Feature id="MDR"
 
 
 Test Updatescheduler Does Not Add Features That Failed To Install
@@ -612,7 +612,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Subscripti
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
-    Send Policy To UpdateScheduler  ALC_policy_direct_base_and_example_plugin.xml
+    Send Policy To UpdateScheduler  ALC_policy_direct.xml
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
     Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
 
@@ -677,7 +677,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
-    Send Policy To UpdateScheduler  ALC_policy_direct_base_and_example_plugin_beta.xml
+    Send Policy To UpdateScheduler  ALC_policy_direct.xml
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
 
     Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
@@ -699,7 +699,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
-    Send Policy To UpdateScheduler  ALC_policy_direct_base_and_example_plugin_FixedVersion.xml
+    Send Policy To UpdateScheduler  ALC_BaseOnlyFixedVersionPolicy.xml
     ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
 
     Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
