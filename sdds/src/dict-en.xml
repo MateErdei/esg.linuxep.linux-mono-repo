@@ -129,7 +129,7 @@
     </Identity>
     <Identity>
       <Label>
-        <Token>RuntimeDetectionRules</Token>
+        <Token>rd_rules</Token>
         <Language lang="en">
           <LongDesc>SSPL Runtimedetection Rules</LongDesc>
           <ShortDesc>RuntimeDetectionRules</ShortDesc>
