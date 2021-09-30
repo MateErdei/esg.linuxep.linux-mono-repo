@@ -24,6 +24,7 @@
     </AUConfig>
     <Features>
         <Feature id="CORE"/>
+        <Feature id="MDR"/>
     </Features>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
     <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>

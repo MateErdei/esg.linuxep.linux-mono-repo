@@ -125,7 +125,7 @@ class FakeSulDownloader(object):
     def __base_and_plugin_report(self, **kwargs):
         report = downloadReportDict(**kwargs)
         base = productDict(**kwargs)
-        plugin = productDict(rigidName="ServerProtectionLinux-Plugin",productName="ServerProtectionLinux-Plugin#0.5", **kwargs)
+        plugin = productDict(rigidName="ServerProtectionLinux-Plugin-MDR",productName="ServerProtectionLinux-Plugin-MDR#0.5", **kwargs)
         addProduct(report, base)
         addProduct(report, plugin)
         return report

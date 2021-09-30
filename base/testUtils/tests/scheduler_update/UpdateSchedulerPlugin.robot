@@ -161,10 +161,10 @@ Test Updatescheduler Adds Features That Get Installed On Subsequent Update
     ...  1 minutes
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
-    Check Status Report Does Not Contain  Feature id="SENSORS"
+    Check Status Report Does Not Contain  Feature id="MDR"
 
     Setup Base And Plugin Sync And Uptodate
-    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Send Policy To UpdateScheduler  ALC_policy_direct.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
@@ -179,16 +179,16 @@ Test Updatescheduler Does Not Add Features That Failed To Install
     ...  1 minutes
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
-    Check Status Report Does Not Contain  Feature id="SENSORS"
+    Check Status Report Does Not Contain  Feature id="MDR"
 
     Setup Plugin Install Failed
     Remove File  ${statusPath}
-    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Send Policy To UpdateScheduler  ALC_policy_direct.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
-    Check Status Report Does Not Contain  Feature id="SENSORS"
+    Check Status Report Does Not Contain  Feature id="MDR"
 
 Test Updatescheduler State Machine Results Show In Status Xml Message Correctly
     Setup Base Only Sync And Uptodate
@@ -313,8 +313,8 @@ Test Updatescheduler State Machine Data Is Reset When State Machine File Is Empt
 
 Test Updatescheduler Features Codes Correct After Success Failure Success Restart
     [Documentation]  Updatescheduler on success adds CORE to the feature codes in ALC status, the next update
-    ...  that should install SENSORS fails and does not add SENSORS to the feature code list in ALC status. A third
-    ...  update happens that does install SENSORS correctly and then that feature code is added to ALC status.
+    ...  that should install MDR fails and does not add MDR to the feature code list in ALC status. A third
+    ...  update happens that does install MDR correctly and then that feature code is added to ALC status.
     ...  On a restart we prove that the feature codes that were saved to disk are being loaded in by forcing a
     ...  status to be generated from what is in updateschedulerprocessor memory.
 
@@ -324,15 +324,15 @@ Test Updatescheduler Features Codes Correct After Success Failure Success Restar
     ...  1 minutes
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
-    Check Status Report Does Not Contain  Feature id="SENSORS"
+    Check Status Report Does Not Contain  Feature id="MDR"
     Remove File  ${statusPath}
     Setup Plugin Install Failed  startTime=2
-    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Send Policy To UpdateScheduler  ALC_policy_direct.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
-    Check Status Report Does Not Contain  Feature id="SENSORS"
+    Check Status Report Does Not Contain  Feature id="MDR"
 
     Remove File  ${statusPath}
     Setup Base and Plugin Upgraded  startTime=3
@@ -341,7 +341,7 @@ Test Updatescheduler Features Codes Correct After Success Failure Success Restar
     ...  1 minutes
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
-    Check Status Report Contain  Feature id="SENSORS"
+    Check Status Report Contain  Feature id="MDR"
 
     # Restart update scheduler and management, also delete old status to force a new one to be generated so we can
     # check that the feature codes have been correctly read from disk after a restart.
@@ -356,7 +356,7 @@ Test Updatescheduler Features Codes Correct After Success Failure Success Restar
     ...  1 minutes
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
-    Check Status Report Contain  Feature id="SENSORS"
+    Check Status Report Contain  Feature id="MDR"
 
 Test Status Is Sent On Consecutive Successful Updates With Policy Changes
     Override LogConf File as Global Level  DEBUG
@@ -366,16 +366,16 @@ Test Status Is Sent On Consecutive Successful Updates With Policy Changes
     ...  1 minutes
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
-    Check Status Report Does Not Contain  Feature id="SENSORS"
+    Check Status Report Does Not Contain  Feature id="MDR"
 
     Remove File  ${statusPath}
     Setup Base And Plugin Sync And Uptodate
-    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
+    Send Policy To UpdateScheduler  ALC_policy_direct.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
-    Check Status Report Contain  Feature id="SENSORS"
+    Check Status Report Contain  Feature id="MDR"
 
     Remove File  ${statusPath}
     Setup Base And Plugin Sync And Uptodate
@@ -384,7 +384,7 @@ Test Status Is Sent On Consecutive Successful Updates With Policy Changes
     ...  1 minutes
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
-    Check Status Report Does Not Contain  Feature id="SENSORS"
+    Check Status Report Does Not Contain  Feature id="MDR"
 
 
 UpdateScheduler Report Failure to Update Multiple Times In Telemetry
@@ -706,98 +706,6 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
 
 
 *** Keywords ***
-
-Check Event Source
-    [Arguments]   ${eventPath}   ${expectedSource}
-    ${fileContent}  Get File  ${eventPath}
-    Should Contain  ${fileContent}  ${expectedSource}  msg="Event does not report Source: ${expectedSource}"
-
-Check Update Scheduler Run as Sophos-spl-user
-    ${Pid} =   Run Process   pidof UpdateScheduler   shell=yes
-    ${UpdateSchedulerProcess} =  Run Process   ps -o user\= -p ${Pid.stdout}    shell=yes
-    Should Contain   ${UpdateSchedulerProcess.stdout}   sophos-spl-updatescheduler   msg="Failed to detect process ownership of UpdateScheduler. Expected it to run as sophos-spl-updatescheduler. ${UpdateSchedulerProcess.stdout}. Err: ${UpdateSchedulerProcess.stderr}"
-
-
-Management Agent Contains
-    [Arguments]  ${Contents}
-    ${ManagementAgentLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log
-    Should Contain  ${ManagementAgentLog}  ${Contents}
-
-Configure Hosts File
-    Copy File  /etc/hosts  /etc/hosts.bk
-    Append To File  /etc/hosts  127.0.0.1 dci.sophosupd.net\n127.0.0.1 dci.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d1.sophosupd.net\n127.0.0.1 d1.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d2.sophosupd.net\n127.0.0.1 d2.sophosupd.com\n
-    Append To File  /etc/hosts  127.0.0.1 d3.sophosupd.net\n127.0.0.1 d3.sophosupd.com
-    Append To File  /etc/hosts  127.0.0.1 es-web.sophos.com\n
-
-
-
-Check report was a product update
-    [Arguments]  ${reportPath}
-    ${contents} =    Get File  ${reportPath}
-    Should Contain  ${contents}  "supplementOnlyUpdate": false
-
-Check report was supplement-only update
-    [Arguments]  ${reportPath}
-    ${contents} =    Get File  ${reportPath}
-    Should Contain  ${contents}  "supplementOnlyUpdate": true
-
-Check Sul Downloader log contains
-    [Arguments]  ${contents}
-    Check Log Contains   ${contents}    ${SULDOWNLOADER_LOG_PATH}   ${SULDOWNLOADER_LOG_PATH}
-
-Fail Update Install And Check Status Shows Good Install State
-    Remove File    ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Setup Plugin Install Failed  startTime=2
-    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
-    Simulate Update Now
-    Wait Until Keyword Succeeds
-    ...  1 minutes
-    ...  5 secs
-    ...  Should Exist  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-
-    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
-    Should Contain  ${StatusContent}  <installState><state>good</state><lastGood>
-    Should Contain  ${StatusContent}  </lastGood></installState>
-    Should Not Contain  ${StatusContent}  <installState><state>bad</state><failedSince>
-
-Fail Update Install And Check Status Not ReGenerated
-    Remove File    ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Setup Plugin Install Failed  startTime=2
-    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
-    Simulate Update Now
-    Sleep  5
-    Should Not Exist   ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-
-Fail Update Install And Check Status Shows Bad Install State
-    Setup Plugin Install Failed  startTime=2
-    Send Policy To UpdateScheduler  ALC_policy_for_upgrade_test_base_and_example_plugin.xml
-    Simulate Update Now
-    Wait Until Keyword Succeeds
-    ...  1 minutes
-    ...  5 secs
-    ...  Check Status Contains Bad State
-
-
-Check Status Contains Bad State
-    ${StatusContent} =  Get File  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Should Contain  ${StatusContent}  <downloadState><state>good</state></downloadState>
-    Should Not Contain  ${StatusContent}  <installState><state>good</state><lastGood>
-    Should Contain  ${StatusContent}  <installState><state>bad</state><failedSince>
-    # not checking actual value of lastGood because this is a time stamp that will change.
-    Should Contain  ${StatusContent}   </failedSince></installState>
-
-
-Convert report to success
-    [Arguments]  ${reportPath}
-    ${contents} =    Get File  ${reportPath}
-    ${contents} =  Replace String  ${contents}  "status": "CONNECTIONERROR",  "status": "SUCCESS",
-    ${contents} =  Replace String  ${contents}  "errorDescription": "Failed to connect to warehouse",  "errorDescription": "",
-    Create File   ${reportPath}  ${contents}
-
-
 Teardown For Test
     Log SystemCtl Update Status
     Run Keyword If Test Failed  Log File  /opt/sophos-spl/tmp/fakesul.log

@@ -187,7 +187,7 @@ Preventing MDR From Creating Config File Generates An Error In The MTR Log
     Create Directory  ${SOPHOS_INSTALL}/plugins/mtr/var/policy/mtr.xml
 
     # Simulate Updating MDR Policy
-    Copy File   ${SUPPORT_FILES}/CentralXml/MDR_policy.xml  ${SOPHOS_INSTALL}/tmp
+    Copy File   ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MDR_policy.xml  ${SOPHOS_INSTALL}/tmp
     Move File   ${SOPHOS_INSTALL}/tmp/MDR_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/MDR_policy.xml
 
     Wait Until Keyword Succeeds
