@@ -13,7 +13,7 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/SED_3.0.1_linux_libs" build-id="20210906121224-45cfc06d2dfb00b0e1b05ffc768d4874d9ec1713-v0yv8V" />
+            <release-version branch="release/SED_3.0.1_linux_libs" build-id="20210929204637-2500f58d99d60db61f6c2f61f9f2a02c533f50da-GFlHOK" />
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="input"/>
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="input"/>
