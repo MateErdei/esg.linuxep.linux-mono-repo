@@ -274,7 +274,7 @@ dataseta-data:
 
 sspl-runtimedetections-detectionrules-supp:
     canonical-name: RuntimeDetectionRules
-    decode-path: files/plugins/runtimedetections/etc
+    decode-path: content_rules
     line-id: RuntimeDetectionRules
     tag: LATEST
-    warehouse: rd_rules
+    warehouse: runtime_detections
