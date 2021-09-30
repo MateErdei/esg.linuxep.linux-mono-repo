@@ -277,4 +277,4 @@ sspl-runtimedetections-detectionrules-supp:
     decode-path: content_rules
     line-id: rd_rules
     tag: LATEST
-    warehouse: runtime_detections
+    warehouse: runtime_detection
