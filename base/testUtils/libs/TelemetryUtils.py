@@ -192,7 +192,7 @@ class TelemetryUtils:
 
     def generate_update_scheduler_telemetry(self, number_failed_updates, most_recent_update_successful,
                                             successful_update_time, base_fixed_version, base_tag,
-                                            mtr_fixed_version, mtr_tag, sddsid):
+                                            mtr_fixed_version, mtr_tag, sddsid,set_edr,set_av):
         telemetry = {
             "failed-update-count": int(number_failed_updates),
             "failed-downloader-count": 0
@@ -206,7 +206,13 @@ class TelemetryUtils:
 
         subscriptions = [{"fixedversion": base_fixed_version, "tag": base_tag, "rigidname": "ServerProtectionLinux-Base"},
                          {"fixedversion": mtr_fixed_version, "tag": mtr_tag, "rigidname": "ServerProtectionLinux-Plugin-MDR"}]
+        if set_edr:
+            edr = {"fixedversion": "", "tag": "RECOMMENDED", "rigidname": "ServerProtectionLinux-Plugin-EDR"}
+            subscriptions.append(edr)
 
+        if set_av:
+            av = {"fixedversion": "", "tag": "RECOMMENDED", "rigidname": "ServerProtectionLinux-Plugin-AV"}
+            subscriptions.append(av)
         warehouse = {"sddsid": sddsid, "subscriptions": subscriptions}
 
         telemetry["warehouse"] = warehouse
@@ -303,13 +309,14 @@ class TelemetryUtils:
                                                          most_recent_update_successful=None,
                                                          successful_update_time=None, timing_tolerance=10,
                                                          base_fixed_version="", base_tag="RECOMMENDED",
-                                                         mtr_fixed_version="", mtr_tag="RECOMMENDED", sddsid=""):
+                                                         mtr_fixed_version="", mtr_tag="RECOMMENDED", sddsid="",
+                                                         set_edr=False, set_av=False):
         expected_update_scheduler_telemetry_dict = self.generate_update_scheduler_telemetry(number_failed_updates,
                                                                                             most_recent_update_successful,
                                                                                             successful_update_time,
                                                                                             base_fixed_version, base_tag,
                                                                                             mtr_fixed_version, mtr_tag,
-                                                                                            sddsid)
+                                                                                            sddsid,set_edr,set_av)
         actual_update_scheduler_telemetry_dict = json.loads(json_string)["updatescheduler"]
 
         self.check_update_scheduler_telemetry_is_correct(actual_update_scheduler_telemetry_dict,

@@ -106,7 +106,7 @@ Telemetry Executable Generates Update Scheduler Telemetry
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log File   ${TELEMETRY_OUTPUT_JSON}
-    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0   sddsid=NotAUserName
+    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0   sddsid=NotAUserName  set_edr=True  set_av=True
 
 Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version And Tag In Policy
     # Make sure there are no left over update telemetry items.
