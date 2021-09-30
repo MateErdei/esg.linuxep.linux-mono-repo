@@ -586,7 +586,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Features
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
 
     # Now we know we are in a good state simulate previous update state for the test
-    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_CORE_SENSORS_featues_and_base_only.json   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
+    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_subscription_only.json   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
@@ -673,7 +673,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
 
     # Now we know we are in a good state simulate previous update state for the test
-    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_and_example_plugin.json   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
+    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_subscription_only.json   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
@@ -695,7 +695,7 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
     Should Contain  ${UpdateSchedulerLog}  Attempting to update from warehouse
 
     # Now we know we are in a good state simulate previous update state for the test
-    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_and_example_plugin.json   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
+    Copy File  ${SUPPORT_FILES}/update_config/previous_update_config_base_subscription_only.json   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
     Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/previous_update_config.json
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.

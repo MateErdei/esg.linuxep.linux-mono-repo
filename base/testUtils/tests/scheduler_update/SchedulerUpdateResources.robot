@@ -384,11 +384,6 @@ Check MDR Installed
     File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/certificate.crt
     Check MDR Plugin Installed
 
-Check Sensors Installed
-    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/AuditPlugin/bin
-    File Should Exist   ${SOPHOS_INSTALL}/plugins/AuditPlugin/bin/sophosauditplugin
-    Directory Should Exist   ${SOPHOS_INSTALL}/plugins/EventProcessor/bin
-
 Check Sensors Not Installed
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/AuditPlugin/bin
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/EventProcessor/bin

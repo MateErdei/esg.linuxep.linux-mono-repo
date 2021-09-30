@@ -33,19 +33,19 @@ UpdateScheduler Delayed Updating
     ...  1 secs
     ...  Check Log Contains   Scheduling product updates for Sunday 12:00    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
 
-UpdateScheduler Should Fail if Warehouse Does not Have Required Feature
+UpdateScheduler Should Fail if Warehouse is missing multiple packages
     [Setup]  Setup For Test With Warehouse Containing Base
-    ${eventPath} =  Send Policy With Host Redirection And Run Update And Return Event Path     features=SENSORS  remove_subscriptions=MDR
+    ${eventPath} =  Send Policy With Host Redirection And Run Update And Return Event Path     features=LIVEQUERY  remove_subscriptions=MDR
     ${content} =   Get File  ${eventPath}
     Should Contain   ${content}  <number>113</number>   msg=Error does not contain missing package
-    Check Sensors Not Installed
+    Directory Should be empty  ${SOPHOS_INSTALL}/plugins
 
 
 UpdateScheduler Install Base and MDR With the ALC Policy With MDR
     [Tags]  SULDOWNLOADER  UPDATE_SCHEDULER  MDR_PLUGIN
     [Setup]  Setup For Test With Warehouse Containing Base and MDR
     Remove Files In Directory  /opt/sophos-spl/base/mcs/event/
-    Send Policy With Host Redirection And Run Update And Check Success Of Oldest Event     add_features=MDR   remove_subscriptions=SENSORS
+    Send Policy With Host Redirection And Run Update And Check Success Of Oldest Event     add_features=MDR
     Check MDR Installed
     Check ALC Status Sent To Central Contains MDR Subscription
 

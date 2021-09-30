@@ -38,7 +38,7 @@ def create_config(rigidname="ServerProtectionLinux-Base",
         "products": [
             {"rigidName": "ServerProtectionLinux-Plugin-Example", "tag": "RECOMMENDED"}
         ],
-        "features": ["CORE", "SENSORS"],
+        "features": ["CORE"],
         "logLevel": "VERBOSE"
     }
 

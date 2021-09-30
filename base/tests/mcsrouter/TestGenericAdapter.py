@@ -53,8 +53,6 @@ policyContent = """<?xml version="1.0"?>
         <cloud_subscriptions>
             <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
             <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/>
-            <subscription Id="SENSORS" RigidName="ServerProtectionLinux-Plugin-AuditPlugin" Tag="RECOMMENDED"/>
-            <subscription Id="SENSORS" RigidName="ServerProtectionLinux-Plugin-EventProcessor" Tag="RECOMMENDED"/>
         </cloud_subscriptions>
         <delay_supplements enabled="false"/>
     </AUConfig>

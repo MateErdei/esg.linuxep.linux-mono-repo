@@ -27,8 +27,6 @@ RIGIDNAMES_TO_ID = {
     "ServerProtectionLinux-Base": "Base",
     "ServerProtectionLinux-Plugin-MDR": "MDR",
     "ServerProtectionLinux-Plugin-FDR": "FDR",
-    "ServerProtectionLinux-Plugin-EventProcessor": "SENSORS",
-    "ServerProtectionLinux-Plugin-AuditPlugin": "SENSORS"
 }
 class UpdateSchedulerHelper(object):
     def __init__(self):
@@ -342,8 +340,8 @@ class UpdateSchedulerHelper(object):
     def simulate_send_policy(self, original_file, **kwargs):
         """Usage: simulate_send_policy( path_to_xml, features to be added). For example:
 
-        simulate_send_policy( ALC_policy_direct.xml, add_features="MDR SENSORS", remove_subscriptions="" )
-        remove_subscriptions could be any of: Base, MDR, SENSORS
+        simulate_send_policy( ALC_policy_direct.xml, add_features="MDR", remove_subscriptions="" )
+        remove_subscriptions could be any of: Base, MDR
         """
         temp_alc_path = os.path.join(self.get_install(), 'tmp/ALC-1_policy.xml')
         xml_content = self._get_content_of_policy(original_file, **kwargs)

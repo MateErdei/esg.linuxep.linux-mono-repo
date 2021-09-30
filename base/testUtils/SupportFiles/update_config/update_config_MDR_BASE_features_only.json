@@ -19,6 +19,6 @@
     "tag": "RECOMMENDED"
   },
   "products": [],
-  "features": ["CORE", "MDR", "SENSORS"],
+  "features": ["CORE", "MDR"],
   "logLevel": "VERBOSE"
 }
