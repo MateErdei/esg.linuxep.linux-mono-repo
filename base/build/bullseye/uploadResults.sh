@@ -72,6 +72,10 @@ then
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
   set -x
+  find
+  echo "Go CAS GO!"
+  env
+  sleep 100000000000000000000000000000
   find -name "*test_coverage.json"
   sudo cp $BULLSEYE_DIR/bin/covxml /usr/local/bin/covxml
   ln -s $BULLSEYE_DIR/bin/covxml covxml
