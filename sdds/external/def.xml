@@ -115,6 +115,12 @@
                 <Instance version="2.0.0.0" fileset="..\external\pdata"/>
             </Instances>
         </Line>
+        <Line id="rd_rules">
+            <CanonicalName name="rd_rules"/>
+            <Instances>
+                <Instance version="1.0.0" fileset="..\external\runtime_detection"/>
+            </Instances>
+        </Line>
     </Assemblies>
     <Publications>
         <Publication id="external">
@@ -245,6 +251,19 @@
                                         <Instance version="2.0.0.0">
                                             <ReleaseTags>
                                                 <ReleaseTag tag="LATEST"  baseversion="2"/>
+                                            </ReleaseTags>
+                                        </Instance>
+                                    </Instances>
+                                </Line>
+                            </Lines>
+                        </Warehouse>
+                        <Warehouse id="runtime_detection" type="sdds2" snapshot="false">
+                            <Lines>
+                                <Line id="rd_rules">
+                                    <Instances>
+                                        <Instance version="1.0.0">
+                                            <ReleaseTags>
+                                                <ReleaseTag tag="LATEST"  baseversion="1"/>
                                             </ReleaseTags>
                                         </Instance>
                                     </Instances>
