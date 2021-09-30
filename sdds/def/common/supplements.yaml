@@ -273,8 +273,8 @@ dataseta-data:
     warehouse: ixdata
 
 sspl-runtimedetections-detectionrules-supp:
-    canonical-name: RuntimeDetectionRules
+    canonical-name: rd_rules
     decode-path: content_rules
-    line-id: RuntimeDetectionRules
+    line-id: rd_rules
     tag: LATEST
     warehouse: runtime_detections
