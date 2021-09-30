@@ -131,6 +131,22 @@ EDR Plugin Can Have Logging Level Changed Based On Components
         ...  EDR Plugin Log Contains   Logger edr_osquery configured for level: INFO
     EDR Plugin Log Contains   Logger edr configured for level: DEBUG
 
+EDR clears jrl files when scheduled queries are disabled
+    Check EDR Plugin Installed With Base
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
+    Wait Until Keyword Succeeds
+        ...  15 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains   Updating running_mode flag settings to: 1
+    File Should exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
+    Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_disabled.xml
+
+    Wait Until Keyword Succeeds
+        ...  15 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains   Updating running_mode flag settings to: 0
+    File Should not exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
 
 EDR Recovers From Incomplete Database Purge
     Check EDR Plugin Installed With Base
@@ -212,21 +228,6 @@ EDR Plugin Can Run Queries For Event Journal Detection Table And Create Jrl
     ...  Check Sophos Detections Journal Queries Work With Query Id
 
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
-    File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
-    ${jrl1}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
-
-    # Perform a second query to make sure the last JRL is stored
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  5 secs
-    ...  Check Sophos Detections Journal Queries Work With Query Id
-
-    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
-    File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
-    ${jrl2}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
-
-    Should Be Equal As Strings  ${jrl1}  ${jrl2}
-
 
 EDR Plugin Returns Query Error If Event Journal Contains Too Many Detections
     # Need to make sure test starts of fresh
@@ -248,7 +249,7 @@ EDR Plugin Returns Query Error If Event Journal Contains Too Many Detections
     ...  5 secs
     ...  Check Sophos Detections Journal Queries Return Maximum Exceeded Error
 
-EDR Plugin Can Run Queries And Create Jrl If Event Journal Contains Too Many Detections
+EDR Plugin Can Run Event Journal Scheduled Queries And Create Jrl When Data Is Greater Than Maximum Entries
     # Need to make sure test starts of fresh
     Reinstall With Base
     Check EDR Plugin Installed With Base
@@ -266,9 +267,25 @@ EDR Plugin Can Run Queries And Create Jrl If Event Journal Contains Too Many Det
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  5 secs
-    ...  Check Sophos Detections Journal Queries Work With Query Id
+    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  0  5000
 
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    ${jrl}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    Should Contain  ${jrl}  Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl_tracker/test_query1
+    ${contents}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl_tracker/test_query1
+    Should be equal as Strings  ${contents}   1
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  0  2680
+
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    ${jrl}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    Should Contain  ${jrl}  Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz
 
 EDR Plugin Can Run Queries For Event Journal Detection Table With Start Time
     # Need to make sure test starts of fresh
@@ -375,41 +392,7 @@ EDR Plugin Stops Without Errors
     EDR Plugin Log Does Not Contain  WARN [
     EDR Plugin Log Does Not Contain  Operation canceled
 
-EDR Plugin Can clean up old osquery info and warning files
-    Check EDR Plugin Installed With Base
-    Stop EDR
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1001
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1002
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1003
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1004
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1005
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1006
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1007
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1008
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1009
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1010
-    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1011
 
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1001
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1002
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1003
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1004
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1005
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1006
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1007
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1008
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1009
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1010
-    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1011
-    Start EDR
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  Removed old osquery WARNING file:
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  Removed old osquery INFO file:
 *** Keywords ***
 Reinstall With Base
     Uninstall All
@@ -449,7 +432,7 @@ Check Sophos Detections Journal Queries Work With Query Id And Time Less Than
 
 Check Sophos Detections Journal Queries Return Maximum Exceeded Error
         ${response} =  Run Live Query and Return Result  SELECT * from sophos_detections_journal WHERE time > 0
-        Should Contain  ${response}  "errorCode":1,"errorMessage":"maximum detections exceeded"
+        Should Contain  ${response}  "errorCode":1,"errorMessage":"Query returned too many events, please restrict search period to a shorter time period"
 
 Number Of SST Database Files Is Greater Than
     [Arguments]  ${min_sst_files_for_test}
