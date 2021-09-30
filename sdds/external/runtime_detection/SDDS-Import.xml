@@ -11,9 +11,7 @@
             <TargetType Name="ENDPOINT"/>
         </TargetTypes>
         <Roles/>
-        <Platforms>
-            <Platform Name="LINUX_INTEL_LIBC6"/>
-        </Platforms>
+        <Platforms/>
         <Features/>
         <FileList/>
         <Comment>[0]</Comment>

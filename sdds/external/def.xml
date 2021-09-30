@@ -263,7 +263,7 @@
                                     <Instances>
                                         <Instance version="1.0.0">
                                             <ReleaseTags>
-                                                <ReleaseTag tag="LATEST"  baseversion="1"/>
+                                                <ReleaseTag tag="LATEST"/>
                                             </ReleaseTags>
                                         </Instance>
                                     </Instances>
