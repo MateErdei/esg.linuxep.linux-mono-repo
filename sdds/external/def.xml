@@ -257,19 +257,6 @@
                                 </Line>
                             </Lines>
                         </Warehouse>
-                        <Warehouse id="runtime_detection" type="sdds2" snapshot="false">
-                            <Lines>
-                                <Line id="rd_rules">
-                                    <Instances>
-                                        <Instance version="1.0.0">
-                                            <ReleaseTags>
-                                                <ReleaseTag tag="LATEST"/>
-                                            </ReleaseTags>
-                                        </Instance>
-                                    </Instances>
-                                </Line>
-                            </Lines>
-                        </Warehouse>
                     </Warehouses>
                 </Repository>
                 <Repository id="external-d3">
@@ -405,6 +392,19 @@
                                                 <ReleaseTag tag="USER_SCAN"/>
                                                 <ReleaseTag tag="SVR_SCAN"/>
                                                 <ReleaseTag tag="SVR_TELEM"/>
+                                            </ReleaseTags>
+                                        </Instance>
+                                    </Instances>
+                                </Line>
+                            </Lines>
+                        </Warehouse>
+                        <Warehouse id="runtime_detection" type="sdds2" snapshot="false">
+                            <Lines>
+                                <Line id="rd_rules">
+                                    <Instances>
+                                        <Instance version="1.0.0">
+                                            <ReleaseTags>
+                                                <ReleaseTag tag="LATEST"/>
                                             </ReleaseTags>
                                         </Instance>
                                     </Instances>
