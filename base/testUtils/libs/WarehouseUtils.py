@@ -458,7 +458,6 @@ class WarehouseUtils(object):
         "base_vut_and_mtr_edr_999.xml": TemplateConfig("BASE_AND_MTR_EDR_999", "mtr_and_edr_user_999", PROD_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
         "base_vut_and_mtr_edr_av_999.xml": TemplateConfig("BASE_AND_MTR_EDR_AV_999", "av_user_999", PROD_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
         "base_and_mtr_VUT.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        ## check what is being used
         "base_edr_and_mtr_and_av_VUT.xml": TemplateConfig("BASE_EDR_AND_MTR_AND_AV_VUT", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_edr_and_mtr_and_av_VUT-1.xml": TemplateConfig("VUT_PREV_DOGFOOD", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
         "base_edr_and_mtr_and_av_Release.xml": TemplateConfig("VUT_PREV_RELEASE", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
