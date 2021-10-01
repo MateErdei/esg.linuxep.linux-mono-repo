@@ -296,6 +296,10 @@ Increase Threat Detector Log To Max Size
     [Arguments]  ${remaining}=1
     increase_threat_detector_log_to_max_size_by_path  ${THREAT_DETECTOR_LOG_PATH}  ${remaining}
 
+Increase AV Log To Max Size
+    [Arguments]  ${remaining}=1
+    increase_threat_detector_log_to_max_size_by_path  ${AV_LOG_PATH}  ${remaining}
+
 Wait Until AV Plugin Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15    ${interval}=2
     Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}  interval=${interval}
@@ -804,7 +808,7 @@ Check If The Logs Are Close To Rotating
     ${AV_LOG_SIZE}=  Get File Size   ${AV_LOG_PATH}
     ${THREAT_DETECTOR_LOG_SIZE}=  Get File Size   ${THREAT_DETECTOR_LOG_PATH}
     ${SUSI_DEBUG_LOG_SIZE}=  Get File Size   ${SUSI_DEBUG_LOG_PATH}
-    ${av_evaluation}=  Evaluate  ${AV_LOG_SIZE} / ${1000000} > ${9}
+    ${av_evaluation}=  Evaluate  ${AV_LOG_SIZE} / ${1000000} > ${1}
     ${susi_evaluation}=  Evaluate  ${SUSI_DEBUG_LOG_SIZE} / ${1000000} > ${9}
     ${threat_detector_evaluation}=  Evaluate  ${THREAT_DETECTOR_LOG_SIZE} / ${1000000} > ${9}
 

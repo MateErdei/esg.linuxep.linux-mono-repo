@@ -16,11 +16,18 @@ Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
 Resource        ../shared/AVAndBaseResources.robot
 
-Suite Setup     Install With Base SDDS
+Suite Setup     AVAndBase Suite Setup
 Suite Teardown  Uninstall All
 
 Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown
+
+*** Keywords ***
+AVAndBase Suite Setup
+    Install With Base SDDS
+    Stop AV Plugin
+    Increase AV Log To Max Size
+    Start AV Plugin
 
 *** Test Cases ***
 
