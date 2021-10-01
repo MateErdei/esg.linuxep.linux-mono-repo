@@ -120,6 +120,8 @@ SRC_TEST_DIR=${SRC_DIR}/tests
 exclude \!../..${SRC_DIR}/build/
 exclude \!../..${SRC_DIR}/build64/
 exclude \!../..${SRC_TEST_DIR}/
+exclude \!../..${SRC_DIR}/redist/
+exclude \!../..${SRC_DIR}/products/manualTools/
 
 echo "Exclusions:"
 covselect --list --no-banner
