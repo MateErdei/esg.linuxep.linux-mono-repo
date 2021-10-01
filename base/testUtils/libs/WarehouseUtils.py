@@ -58,10 +58,8 @@ DEV_BUILD_CERTS = "dev"
 
 # The version under test, usually master dev builds
 OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/vut"
-# Usually the previous release
-OSTIA_PREV_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/latest-recommended"
 
-#a version with a different query pack than vu
+#a version with a different query pack than vut
 OSTIA_QUERY_PACK_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/query-pack"
 # a version with edr 9.99.9 for downgrade tests
 OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/edr-999"
@@ -72,7 +70,6 @@ OSTIA_EDR_AND_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/
 # dictionary of ostia addresses against the ports that should be used to serve their customer files locally
 OSTIA_ADDRESSES = {
                     OSTIA_VUT_ADDRESS: "2233",
-                    OSTIA_PREV_ADDRESS: "3233",
                     OSTIA_EDR_999_ADDRESS: "7233",
                     OSTIA_BASE_999_ADDRESS: "7235",
                     OSTIA_QUERY_PACK_ADDRESS: "7239",
@@ -459,8 +456,10 @@ class WarehouseUtils(object):
         "base_vut_and_mtr_edr_av_999.xml": TemplateConfig("BASE_AND_MTR_EDR_AV_999", "av_user_999", PROD_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
         "base_and_mtr_VUT.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_edr_and_mtr_and_av_VUT.xml": TemplateConfig("BASE_EDR_AND_MTR_AND_AV_VUT", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_edr_and_mtr_and_av_VUT-1.xml": TemplateConfig("VUT_PREV_DOGFOOD", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
-        "base_edr_and_mtr_and_av_Release.xml": TemplateConfig("VUT_PREV_RELEASE", "av_user_vut", PROD_BUILD_CERTS, OSTIA_PREV_ADDRESS),
+        # we are overriding the two warehouses below to use ballista warehouse,
+        # if we want to switch them back to ostia the address has to change to the new warehouses location
+        "base_edr_and_mtr_and_av_VUT-1.xml": TemplateConfig("VUT_PREV_DOGFOOD", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_edr_and_mtr_and_av_Release.xml": TemplateConfig("VUT_PREV_RELEASE", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_and_edr_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_edr_and_mtr.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),

@@ -104,17 +104,6 @@
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="0-6-0/customer" dest-dir="local_warehouses/dev/sspl-warehouse/0-6-0/warehouse/customer" />
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="0-6-0/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/0-6-0/warehouse/warehouse" />
         </build-asset>
-        <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="feature/Base-EDR-Only-OldWarehouseStyle" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/old-style/warehouse/customer" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-Base-EDR-Only-OldWarehouseStyle/warehouse/warehouse" />
-        </build-asset>
-        <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="feature/latest-recommended-release" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="customer" dest-dir="local_warehouses/dev/sspl-warehouse/latest-recommended/warehouse/customer" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/feature-latest-recommended-release/warehouse/warehouse" />
-        </build-asset>
-
     </inputs>
 
     <publish>
