@@ -139,6 +139,12 @@ def pytest_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
 
+def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
+    """Return an input artifact from an unified pipeline build"""
+    artifact = context.artifact.from_component(component, branch, org='', storage='esg-build-tested')
+    # Using the truediv operator to set the sub directory forgets the storage option
+    artifact.sub_directory = sub_directory
+    return artifact
 
 def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str):
     test_inputs = None
@@ -159,7 +165,8 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
         websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server',
         bullseye_files=context.artifact.from_folder('./build/bullseye'),
         coverage=base_build / 'sspl-base-coverage/covfile',
-        coverage_unittest=base_build / 'sspl-base-coverage/unittest-htmlreport'
+        coverage_unittest=base_build / 'sspl-base-coverage/unittest-htmlreport',
+        bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
     )
     return test_inputs
 

@@ -87,12 +87,6 @@
             <development-version branch="sophos/linux-sspl-master"/>
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
-        <!--        pull the scripts from mono-repo to get the coverage uploaded to redash-->
-        <build-asset project="em" repo="esg">
-            <!-- release-version fetches for all branches with no development-version -->
-            <release-version branch="release--bazeltools-linux" build-id="20201029093907-e84e96d12257cfeccefe7422ad0f775e3aef97f7-Cy1FFW"/>
-            <include artifact-path="bazel-tools" dest-dir="bazel-tools" />
-        </build-asset>
     </inputs>
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
