@@ -2,6 +2,7 @@
 
 import os
 import shutil
+from robot.api import logger
 
 def copy_file_if_destination_missing(source, destination):
     if os.path.isfile(destination):
@@ -27,3 +28,7 @@ def ensure_list_appears_once(path, line_to_append):
         open(path, "w").writelines(output)
         return True
     return False
+
+def get_file_size_in_mb(path):
+    logger.info("{}  size {}".format(path, os.path.getsize(path)/(1024*1024)))
+    return os.path.getsize(path)/(1024*1024)

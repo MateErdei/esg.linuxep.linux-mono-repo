@@ -25,9 +25,6 @@ Test Teardown   AV And Base Teardown
 *** Keywords ***
 AVAndBase Suite Setup
     Install With Base SDDS
-    Stop AV Plugin
-    Increase AV Log To Max Size
-    Start AV Plugin
 
 *** Test Cases ***
 
@@ -67,7 +64,7 @@ AV plugin runs CLS while scan now is running
     Configure scan now
     Mark AV Log
 
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/fakeEicarMaker.sh  stderr=STDOUT
 
     Remove file   ${SCANNOW_LOG_PATH}
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp_test/three_hundred_eicars/
@@ -225,7 +222,7 @@ AV plugin runs CLS while scheduled scan is running
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
 
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  stderr=STDOUT
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/fakeEicarMaker.sh  stderr=STDOUT
 
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /tmp_test/three_hundred_eicars/

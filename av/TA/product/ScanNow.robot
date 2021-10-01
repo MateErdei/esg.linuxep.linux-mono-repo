@@ -110,9 +110,6 @@ Scan Now scans dir with name similar to excluded mount
 ScanNow Suite Setup
     Start Fake Management If required
     Start AV
-    Stop AV
-    Increase AV Log To Max Size
-    Start AV
     Check AV Plugin Log exists
 
 ScanNow Suite TearDown

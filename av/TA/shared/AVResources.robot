@@ -468,6 +468,7 @@ AV And Base Teardown
     Run Teardown Functions
 
 Restart AV Plugin And Clear The Logs For Integration Tests
+    Log To Console  logs have to be rotated reeeeee
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop threat_detector   OnError=failed to stop sophos_threat_detector
     Wait Until Keyword Succeeds
@@ -805,10 +806,13 @@ Get SAV Policy
     [Return]   ${policyContent}
 
 Check If The Logs Are Close To Rotating
-    ${AV_LOG_SIZE}=  Get File Size   ${AV_LOG_PATH}
+    ${AV_LOG_SIZE}=  get_file_size_in_mb   ${AV_LOG_PATH}
+    Log  ${AV_LOG_SIZE}
+
     ${THREAT_DETECTOR_LOG_SIZE}=  Get File Size   ${THREAT_DETECTOR_LOG_PATH}
     ${SUSI_DEBUG_LOG_SIZE}=  Get File Size   ${SUSI_DEBUG_LOG_PATH}
-    ${av_evaluation}=  Evaluate  ${AV_LOG_SIZE} / ${1000000} > ${1}
+
+    ${av_evaluation}=  Evaluate  ${AV_LOG_SIZE} > ${0.5}
     ${susi_evaluation}=  Evaluate  ${SUSI_DEBUG_LOG_SIZE} / ${1000000} > ${9}
     ${threat_detector_evaluation}=  Evaluate  ${THREAT_DETECTOR_LOG_SIZE} / ${1000000} > ${9}
 
