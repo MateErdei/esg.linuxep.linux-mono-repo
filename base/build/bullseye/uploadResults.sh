@@ -71,19 +71,12 @@ then
 #      upload@allegro.eng.sophos:public_html/bullseye/  \
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
-  set -x
-  find
-  echo "Go CAS GO!"
-  env
-  find -name "*test_coverage.json"
-  sudo cp $BULLSEYE_DIR/bin/covxml /usr/local/bin/covxml
-  ln -s $BULLSEYE_DIR/bin/covxml covxml
   sudo -E python3 -u $COVERAGE_SCRIPT                           \
+      "$COVFILE"                                                \
       --output /opt/test/results/coverage/test_coverage.json    \
       --min-function 70                                         \
       --min-condition 70                                        \
       --upload                                                  \
       --upload-job "$UPLOAD_PATH"                               \
-      "$COVFILE"                                                \
       || echo "Failed to upload coverage results to artefactory"
 fi

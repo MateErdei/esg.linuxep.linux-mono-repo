@@ -117,9 +117,6 @@ def coverage_task(machine: tap.Machine):
         machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
 
-        #start systemtest coverage in jenkins (these include tap-tests)
-        run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
-
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -226,6 +223,9 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         task_func = robot_task
         if mode == COVERAGE_MODE:
             stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
+            if context.branch == 'develop':
+                #start systemtest coverage in jenkins (these include tap-tests)
+                requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
         else:
             for template_name, machine in machines:
                 stage.task(task_name=template_name, func=task_func, machine=machine)
