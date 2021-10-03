@@ -27,7 +27,7 @@
       <build-asset project="linuxep" repo="capsule8-sensor" >
         <development-version branch="ldb/build-capsule8-999-version"/>
           <include artifact-path="SDDS-COMPONENT" dest-dir="redist/runtimedetections" mode="release-package-edr-999,release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
-          <include artifact-path="SDDS-COMPONENT-999" dest-dir="redist/sspl-plugin-event-journaler" mode="release-package-edr-mdr-999"/>
+          <include artifact-path="SDDS-COMPONENT-999" dest-dir="redist/runtimedetections" mode="release-package-edr-mdr-999"/>
           <include artifact-path="sspl-rdrules" dest-dir="redist/runtimedetections-supplement"/>
       </build-asset>
 
