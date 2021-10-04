@@ -35,7 +35,7 @@ UpdateScheduler Delayed Updating
 
 UpdateScheduler Should Fail if Warehouse is missing multiple packages
     [Setup]  Setup For Test With Warehouse Containing Base
-    ${eventPath} =  Send Policy With Host Redirection And Run Update And Return Event Path     features=LIVEQUERY  remove_subscriptions=MDR
+    ${eventPath} =  Send Policy With Host Redirection And Run Update And Return Event Path   ALC_policy_direct_local_warehouse.xml   features=LIVEQUERY  remove_subscriptions=MDR
     ${content} =   Get File  ${eventPath}
     Should Contain   ${content}  <number>113</number>   msg=Error does not contain missing package
     Directory Should be empty  ${SOPHOS_INSTALL}/plugins

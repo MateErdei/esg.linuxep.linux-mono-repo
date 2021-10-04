@@ -251,16 +251,16 @@ Wait for SulDownloader Report
     ...  SulDownloader Reports Finished
 
 Send Policy With Host Redirection And Run Update And Return Event Path
-    [Arguments]    &{kwargs}
-    Send Policy With Host Redirection And Run Update  &{kwargs}
+    [Arguments]    ${Policy}  &{kwargs}
+    Send Policy With Host Redirection And Run Update  ${Policy}  &{kwargs}
     ${eventPath} =  Check Status and Events Are Created  waitTime=20 secs
     [Return]  ${eventPath}
 
 Send Policy With Host Redirection And Run Update
-    [Arguments]    &{kwargs}
+    [Arguments]    ${Policy}   &{kwargs}
     Remove File   ${statusPath}
     Log And Remove SulDownloader Log
-    Send Policy To UpdateScheduler  ALC_policy_direct_local_warehouse.xml  &{kwargs}
+    Send Policy To UpdateScheduler  ${Policy}  &{kwargs}
     Replace Sophos URLS to Localhost
     Simulate Update Now
     Wait Until Keyword Succeeds
@@ -306,7 +306,7 @@ Send Policy With Host Redirection And Run Update And Check Success
 
 Send Policy With Host Redirection And Run Update And Check Success Of Oldest Event
     [Arguments]    &{kwargs}
-    Send Policy With Host Redirection And Run Update And Return Event Path  &{kwargs}
+    Send Policy With Host Redirection And Run Update And Return Event Path  ALC_policy_local_warehouse_mdr.xml  &{kwargs}
     ${eventPath} =  Get Oldest File In Directory  /opt/sophos-spl/base/mcs/event/
     Check Update Success  ${eventPath}
     [Return]  ${eventPath}
