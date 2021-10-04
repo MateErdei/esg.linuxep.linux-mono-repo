@@ -71,7 +71,7 @@ then
 #      upload@allegro.eng.sophos:public_html/bullseye/  \
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
-  sudo chmod +x covfile
+  sudo chmod +x /usr/local/bin/covfile
   sudo -E python3 -u $COVERAGE_SCRIPT                           \
       "$COVFILE"                                                \
       --output /opt/test/results/coverage/test_coverage.json    \
