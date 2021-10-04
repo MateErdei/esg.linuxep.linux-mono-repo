@@ -49,7 +49,7 @@ EDR Plugin Produces Telemetry When XDR is enabled
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  0  0  True  ignore_xdr=False
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  0  0  True  ignore_xdr=False  folded_query=True
 
 EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     Wait Until EDR OSQuery Running  20
@@ -146,7 +146,7 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0  0  0  True  ignore_xdr=False
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  2  0  0  0  0  0  True  ignore_xdr=False  folded_query=True
 
 
 EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
@@ -301,6 +301,8 @@ EDR Telemetry Test Teardown
     Remove Directory   ${COMPONENT_TEMP_DIR}  recursive=true
     Remove File  ${EXE_CONFIG_FILE}
     Uninstall EDR Plugin
+    Run Keyword And Ignore Error   Remove File   ${SOPHOS_INSTALL}/base/mcs/policy/LiveQuery-1_policy.xml
+    Run Keyword And Ignore Error   Remove File   ${SOPHOS_INSTALL}/base/telemetry/cache/edr-telemetry.json
 
 EDR Telemetry Test Teardown With Policy Cleanup
     EDR Telemetry Test Teardown
