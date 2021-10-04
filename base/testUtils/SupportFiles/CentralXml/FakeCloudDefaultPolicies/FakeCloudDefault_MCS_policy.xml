@@ -15,6 +15,8 @@
         <commandPollingDelay default="5"/>
         <flagsPollingInterval default="14400"/>
         <diagnosticTrailEnabled>true</diagnosticTrailEnabled>
+        <policyChangeServers/>
+        <pushServers/>
         <presignedUrlService>
             <url>https://mcs2-cloudstation-eu-west-1.prod.hydra.sophos.com/sophos/management/ep/presignedurls</url>
             <credentials>CCDmhj1cKco2P5YfLRaVBmF3zlDDaum+OsQ8tsmZCmEH4rzKvK2tm0P9Bl9plrQtGHoeBsno2Jal7bCsnnVVK4HEnhK2xNDA2UkJnrrBvYwINrgI0AytwyHvhYXvjYYJymQ=</credentials>
