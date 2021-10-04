@@ -26,8 +26,7 @@ FakeSulDownloader Setup Done File
 
 FakeSulDownloader CopyFile
     Setup Copy File  content=Test  sleeptime=1
-    #TODO LINUXDAR-3107  Revert this path to use the Regular Suldownloader location like the other tests in this suite
-    ${result} =    Run Process    ${SOPHOS_INSTALL}/base/bin/FakeSulDownloader.py
+    ${result} =    Run Process    ${SUL_DOWNLOADER}
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
 
