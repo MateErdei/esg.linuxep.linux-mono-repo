@@ -397,6 +397,8 @@ Teardown For Test
     Run Keyword If Test Failed   Log Settings Files
     Teardown Servers For Update Scheduler
     Remove Directory   ${tmpdir}    recursive=True
+    Run Process  unlink  ${SUL_DOWNLOADER}
+    Run Process  ln -sf  ${SUL_DOWNLOADER}.0   ${SUL_DOWNLOADER}
 
 
 Check Event Source

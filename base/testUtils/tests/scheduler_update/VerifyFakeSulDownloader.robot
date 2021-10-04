@@ -98,8 +98,9 @@ Fake SulDownloader TearDown
     Run Keyword If Test Failed  List With Links BaseBin
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/base/bin/FakeSulDownloader.py
 
-
-
+Restore Normal Suldowloader
+    Run Process  unlink  ${SUL_DOWNLOADER}
+    Run Process  ln -sf  ${SUL_DOWNLOADER}.0   ${SUL_DOWNLOADER}
 
 Stop SPPL Services
     Run Process  /bin/systemctl  stop  sophos-spl

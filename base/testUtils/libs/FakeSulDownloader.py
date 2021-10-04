@@ -192,9 +192,5 @@ SleepTime=%s""" %(sleeptime))
         os.chdir(currdir)
         self.sul_downloader_link = False
 
-    def __del__(self):
-        if self.sul_downloader_link:
-            self.restore_link()
-            self.sul_downloader_link = False
 
 
