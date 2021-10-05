@@ -338,6 +338,7 @@ combineResults()
   python3 -m robot.rebot --merge -o ./results-combine-workspace/centos8x64-output.xml -l none -r none -N centos8x64  ./results/centos8x64*
   #clear out output.xml files before writing log.html files to disk
   rm -rf results/*
+  touch results/fake-output.xml
   python3 -m robot.rebot -l ./results/ubuntu1804x64-log.html -r ./results/ubuntu1804x64-report.html -N combined ./results-combine-workspace/ubuntu1804x64-output.xml
   python3 -m robot.rebot -l ./results/centosstreamx64-log.html -r ./results/centosstreamx64-report.html -N combined ./results-combine-workspace/centosstreamx64-output.xml
   python3 -m robot.rebot -l ./results/rhel78x64-log.html -r ./results/rhel78x64-report.html -N combined ./results-combine-workspace/rhel78x64-output.xml
