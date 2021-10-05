@@ -17,6 +17,8 @@ SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-plugin-eventjournaler-unittest
 [[ -n ${htmldir} ]] || htmldir=${BASE}/output/coverage/${COV_HTML_BASE}
+[[ -n ${COVERAGE_SCRIPT} ]] || COVERAGE_SCRIPT=/opt/test/inputs/bazel_tools/tools/src/bullseye/test_coverage.py
+[[ -n ${UPLOAD_PATH} ]] || UPLOAD_PATH="UnifiedPipelines/linuxep/sspl-plugin-event-journaler"
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=${BASE}/build/bullseye/private.key
@@ -25,25 +27,25 @@ PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 ## Ensure ssh won't complain about private key permissions:
 chmod 600 ${PRIVATE_KEY}
 
+# tap template bullseye is installed to /usr/local/bin,
+# jenkins job template installs to either /opt/BullseyeCoverage or /usr/local/bullseye
+if [[ -f /opt/BullseyeCoverage/bin/covselect ]]
+then
+  BULLSEYE_DIR=/opt/BullseyeCoverage
+elif [[ -f /usr/local/bin/covselect ]]
+then
+  BULLSEYE_DIR=/usr/local
+elif [[ -f /usr/local/bullseye/bin/covselect ]]
+then
+    BULLSEYE_DIR=/usr/local/bullseye
+else
+  exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+fi
+
+echo "Bullseye location: $BULLSEYE_DIR"
+
 if [[ -z ${UPLOAD_ONLY} ]]
 then
-  # tap template bullseye is installed to /usr/local/bin,
-  # jenkins job template installs to either /opt/BullseyeCoverage or /usr/local/bullseye
-  if [[ -f /opt/BullseyeCoverage/bin/covselect ]]
-  then
-    BULLSEYE_DIR=/opt/BullseyeCoverage
-  elif [[ -f /usr/local/bin/covselect ]]
-  then
-    BULLSEYE_DIR=/usr/local
-  elif [[ -f /usr/local/bullseye/bin/covselect ]]
-  then
-      BULLSEYE_DIR=/usr/local/bullseye
-  else
-    exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
-  fi
-
-  echo "Bullseye location: $BULLSEYE_DIR"
-
   echo "Exclusions:"
   $BULLSEYE_DIR/bin/covselect --list --no-banner --file "$COVFILE"
 
@@ -68,5 +70,14 @@ then
   rsync -va --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" --delete $htmldir \
       upload@allegro.eng.sophos:public_html/bullseye/  \
       </dev/null \
-      || exitFailure $FAILURE_BULLSEYE "Failed to upload bulleye html"
+      || echo "Failed to upload bullseye html to Allegro"
+
+  sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
+      "$COVFILE"                                                \
+      --output /opt/test/results/coverage/test_coverage.json    \
+      --min-function 70                                         \
+      --min-condition 70                                        \
+      --upload                                                  \
+      --upload-job "$UPLOAD_PATH"                               \
+      || echo "Failed to upload coverage results to Redash"
 fi
