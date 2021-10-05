@@ -67,10 +67,10 @@ chmod -R a+rX "$htmldir"
 
 if [[ ${BULLSEYE_UPLOAD} == 1 ]]
 then
-#  rsync -va --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" --delete $htmldir \
-#      upload@allegro.eng.sophos:public_html/bullseye/  \
-#      </dev/null \
-#      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
+  rsync -va --rsh="ssh -i ${PRIVATE_KEY} -o StrictHostKeyChecking=no" --delete $htmldir \
+      upload@allegro.eng.sophos:public_html/bullseye/  \
+      </dev/null \
+      || echo "Failed to upload bullseye html to Allegro"
 
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                           \
       "$COVFILE"                                                \
@@ -79,5 +79,5 @@ then
       --min-condition 70                                        \
       --upload                                                  \
       --upload-job "$UPLOAD_PATH"                               \
-      || echo "Failed to upload coverage results to artefactory"
+      || echo "Failed to upload coverage results to Redash"
 fi
