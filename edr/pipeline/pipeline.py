@@ -107,9 +107,6 @@ def combined_task(machine: tap.Machine):
         machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
 
-        #trigger system test coverage job on jenkins - this will also upload to allegro
-        run_sys = requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
-
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -156,7 +153,8 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str)
             coverage_unittest=edr_build / 'sspl-edr-coverage/unittest-htmlreport',
             base_sdds=edr_build / 'sspl-edr-coverage/base/base-sdds',
             componenttests=edr_build / 'sspl-edr-coverage/componenttests',
-            qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds')
+            qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds'),
+            bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
         )
 
     return test_inputs
@@ -208,6 +206,9 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
             with stage.parallel('combined'):
                 for template_name, machine in coverage_machines:
                     stage.task(task_name=template_name, func=combined_task, machine=machine)
+            #trigger system test coverage job on jenkins when on develop branch - this will also upload to allegro
+            if context.branch == 'develop':
+                requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
         else:
             with stage.parallel('integration'):
                 for template_name, machine in machines:
