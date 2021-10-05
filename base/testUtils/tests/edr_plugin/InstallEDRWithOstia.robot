@@ -20,6 +20,7 @@ Resource    ../watchdog/LogControlResources.robot
 Resource    EDRResources.robot
 Resource    ../mcs_router/McsPushClientResources.robot
 Resource    ../liveresponse_plugin/LiveResponseResources.robot
+Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
 
 Default Tags   EDR_PLUGIN   OSTIA  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
 Force Tags  LOAD1
@@ -65,6 +66,9 @@ Install all plugins 999 then downgrade to all plugins develop
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 999.999.999
+    ${pre_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
 
     Override LogConf File as Global Level  DEBUG
 
@@ -80,7 +84,7 @@ Install all plugins 999 then downgrade to all plugins develop
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...  Check Plugins Downgraded From 999
+    ...  Check Plugins Are VUT Versions
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -90,6 +94,13 @@ Install all plugins 999 then downgrade to all plugins develop
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Running
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  RuntimeDetections Plugin Is Running
+    ${post_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
+    Should Contain  ${post_downgrade_rtd_log}  ${pre_downgrade_rtd_log}
+
     #TODO LINUXDAR-2972 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
@@ -312,7 +323,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-
+    Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
@@ -357,7 +368,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  2 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999
 
     # check plugins are running.
     Wait Until Keyword Succeeds
@@ -379,6 +390,11 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     ...  30 secs
     ...  5 secs
     ...  Check Event Journaler Executable Running
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  RuntimeDetections Plugin Is Running
 
     Check MDR Plugin Installed
 
@@ -407,6 +423,8 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Should contain   ${live_response_version_contents}   PRODUCT_VERSION = 99.99.99
     ${event_journaler_version_contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Should contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 9.99.9
+    ${event_journaler_version_contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
+    Should contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 999.999.999
 
     # Ensure components were restarted during update.
     Check Log Contains In Order
@@ -433,6 +451,12 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     ...  ${WDCTL_LOG_PATH}
     ...  wdctl <> stop eventjournaler
     ...  wdctl <> start eventjournaler
+
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop eventjournaler
+    ...  wdctl <> start eventjournaler
+
     #Log SSPLAV logs to the test report
     Log File      ${AV_LOG_FILE}
     Log File      ${THREAT_DETECTOR_LOG_PATH}
@@ -487,6 +511,12 @@ Install master of base and edr and mtr and upgrade to base 999
     ...  30 secs
     ...  5 secs
     ...  Check Event Journaler Executable Running
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  RuntimeDetections Plugin Is Running
+
     Check MDR Plugin Installed
 
 
@@ -650,12 +680,22 @@ Check EDR Downgraded From 999
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should Not Contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
 
-Check Plugins Downgraded From 999
+
+
+
+Check Plugins Are VUT Versions
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${edr_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
+    Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
     ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${mtr_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
+    Should Contain   ${contents}   PRODUCT_VERSION = ${mtr_vut_version}
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 99.99.99
+    ${liveresponse_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
+    Should Contain   ${contents}   PRODUCT_VERSION = ${liveresponse_vut_version}
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EventJournaler
+    Should Contain   ${contents}   PRODUCT_VERSION = ${eventjournaler_vut_version}
+    ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
+    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
+    Should Contain   ${contents}   PRODUCT_VERSION = ${runtimedetections_vut_version}
