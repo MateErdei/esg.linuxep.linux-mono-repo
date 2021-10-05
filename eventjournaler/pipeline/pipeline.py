@@ -123,7 +123,7 @@ def get_inputs(context: tap.PipelineContext, ej_build: ArtisanInput, mode: str):
             coverage=ej_build / 'sspl-plugin-eventjournaler-coverage/covfile',
             coverage_unittest=ej_build / 'sspl-plugin-eventjournaler-coverage/unittest-htmlreport',
             base_sdds=ej_build / 'sspl-plugin-eventjournaler-coverage/base/base-sdds',
-            bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools'
+            bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
         )
     return test_inputs
 
