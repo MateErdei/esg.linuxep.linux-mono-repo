@@ -318,6 +318,10 @@ MCS Does Not Crash When There Is A Large Volume Of Datafeed Results
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Stop MCSRouter If Running
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...  Check MCS Router Not Running
     Generate Large Amount Of Datafeed Results
     Start MCSRouter
     Wait For MCS Router To Be Running
