@@ -81,10 +81,17 @@ Install all plugins 999 then downgrade to all plugins develop
 
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
+    Check Log Contains  Component ServerProtectionLinux-Base-component is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-RuntimeDetections is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-EventJournaler is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-EDR is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-MDR is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...  Check Plugins Are VUT Versions
+    ...  Check Installed Plugins Are VUT Versions
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -365,6 +372,10 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     ...  120 secs
     ...  2 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  2 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  2 secs
@@ -683,7 +694,7 @@ Check EDR Downgraded From 999
 
 
 
-Check Plugins Are VUT Versions
+Check Installed Plugins Are VUT Versions
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
     ${edr_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
     Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
