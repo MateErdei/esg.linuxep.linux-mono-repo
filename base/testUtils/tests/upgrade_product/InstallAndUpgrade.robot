@@ -351,9 +351,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     #TODO LINUXDAR-3191 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
-    #TODO LINUXDAR-3425  remove line below when dogfood has build with edr install checks for binary not just root plugin path to see if
-    # event journaler in installed.
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log   wdctlActions <> Plugin "eventjournaler" not in registry
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -683,9 +680,6 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     #TODO LINUXDAR-3191 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
-    #TODO LINUXDAR-3425  remove line below when dogfood has build with edr install checks for binary not just root plugin path to see if
-    # event journaler in installed.
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log   wdctlActions <> Plugin "eventjournaler" not in registry
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
