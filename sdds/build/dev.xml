@@ -26,7 +26,8 @@
 
       <build-asset project="linuxep" repo="capsule8-sensor" >
         <development-version branch="master"/>
-          <include artifact-path="SDDS-COMPONENT" dest-dir="redist/runtimedetections"/>
+          <include artifact-path="SDDS-COMPONENT" dest-dir="redist/runtimedetections" mode="release-package-edr-999,release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
+          <include artifact-path="SDDS-COMPONENT-999" dest-dir="redist/runtimedetections" mode="release-package-edr-mdr-999"/>
       </build-asset>
 
       <build-asset project="winep" repo="liveterminal" >
