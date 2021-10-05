@@ -18,7 +18,7 @@ SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-base-unittest
 [[ -n ${htmldir} ]] || htmldir=${BASE}/output/coverage/${COV_HTML_BASE}
 [[ -n ${COVERAGE_SCRIPT} ]] || COVERAGE_SCRIPT=/opt/test/inputs/bazel_tools/tools/src/bullseye/test_coverage.py
-[[ -n ${UPLOAD_PATH} ]] || UPLOAD_PATH="UnifiedPipelines/linuxep/sspl-everest-base"
+[[ -n ${UPLOAD_PATH} ]] || UPLOAD_PATH="UnifiedPipelines/linuxep/everest-base"
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=${BASE}/build/bullseye/private.key
@@ -71,9 +71,7 @@ then
 #      upload@allegro.eng.sophos:public_html/bullseye/  \
 #      </dev/null \
 #      || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
-  env
-  sudo env
-  sudo -E env
+
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                           \
       "$COVFILE"                                                \
       --output /opt/test/results/coverage/test_coverage.json    \
