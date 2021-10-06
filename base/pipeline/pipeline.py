@@ -229,4 +229,3 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         else:
             for template_name, machine in machines:
                 stage.task(task_name=template_name, func=task_func, machine=machine)
-
