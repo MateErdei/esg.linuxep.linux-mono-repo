@@ -191,13 +191,22 @@ def get_version_for_rigidname(rigid_name, tag="RECOMMENDED"):
     version = get_version_for_component_with_importref(rigid_name, importref)
     return version
 
-def get_dci_xml_from_update_credentials(update_credentials):
+def get_dci_xml_from_update_credentials_inner(update_credentials):
     dci_url = f"https://dci.sophosupd.com/update/{update_credentials[0]}/{update_credentials[1:3]}/{update_credentials}.dat"
     r = requests.get(dci_url)
     signature_start = r.content.find(b"-----BEGIN SIGNATURE-----")
     xml_string = r.content[:signature_start].decode()
     return xml_string
 
+def get_dci_xml_from_update_credentials(update_credentials):
+    error_message = None
+    for i in range(10):
+        try:
+            return get_dci_xml_from_update_credentials_inner(update_credentials)
+        except Exception as reason:
+            error_message = reason
+    else:
+        logger.error(f"Failed to get dci xml from update credentials for {update_credentials}: {error_message}")
 def get_sdds_names_from_dci_xml_string(dci_xml_string):
     root = ET.fromstring(dci_xml_string)
     warehouse_entries = root.findall("./Warehouses/WarehouseEntry/Name")
@@ -208,6 +217,8 @@ def get_sdds_names_from_dci_xml_string(dci_xml_string):
 
 def get_sdds_names_from_update_credentials(update_credentials):
     xml = get_dci_xml_from_update_credentials(update_credentials)
+    if not xml:
+        return []
     return get_sdds_names_from_dci_xml_string(xml)
 
 
