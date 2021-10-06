@@ -207,6 +207,7 @@ def get_dci_xml_from_update_credentials(update_credentials):
             error_message = reason
     else:
         logger.error(f"Failed to get dci xml from update credentials for {update_credentials}: {error_message}")
+
 def get_sdds_names_from_dci_xml_string(dci_xml_string):
     root = ET.fromstring(dci_xml_string)
     warehouse_entries = root.findall("./Warehouses/WarehouseEntry/Name")
