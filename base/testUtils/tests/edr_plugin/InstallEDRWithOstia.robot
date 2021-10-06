@@ -101,7 +101,8 @@ Install all plugins 999 then downgrade to all plugins develop
     ...  5 secs
     ...  RuntimeDetections Plugin Is Running
     ${post_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
-    Should Contain  ${post_downgrade_rtd_log}  ${pre_downgrade_rtd_log}
+    # First line of both logs should be the same, as rtd preserves it's logs on a downgrade
+    Should Be Equal As Strings  ${post_downgrade_rtd_log.split("\n")[0]}  ${pre_downgrade_rtd_log.split("\n")[0]}
 
     #TODO LINUXDAR-2972 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
