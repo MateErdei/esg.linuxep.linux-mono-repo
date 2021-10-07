@@ -575,6 +575,9 @@ class MCS:
                 old_comms.m_tenant_id
             )
 
+            # Check response before updating comms mode
+            endpoint_id, device_id, tenant_id, password = migration_data.extract_values(response)
+
             # Ensure that the old comms does not read or write the existing config files
             old_comms.set_migrate_mode(True)
 
@@ -582,7 +585,6 @@ class MCS:
 
             self.__m_computer.clear_cache()
             migrate_comms.set_migrate_mode(False)
-            endpoint_id, device_id, tenant_id, password = migration_data.extract_values(response)
             migrate_config.set("MCSID", endpoint_id)
             migrate_config.set("MCSPassword", password)
             migrate_config.set("tenant_id", tenant_id)

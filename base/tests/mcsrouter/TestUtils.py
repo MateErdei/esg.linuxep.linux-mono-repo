@@ -22,6 +22,7 @@ from mcsrouter import ip_address
 from mcsrouter.mcs_router import SophosLogging
 
 import xml.parsers.expat
+import json.decoder
 
 policyContent = """<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -80,6 +81,16 @@ class TestMigration(unittest.TestCase):
         self.assertEqual(m.get_migrate_url(), 'server name')
         self.assertEqual(m.get_token(), 'jwt')
 
+    def testReadMigrationActionGetsURLAndTokenForLongServer(self):
+        name = "n" * 1000000
+        long_server = """<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><server>"""
+        long_server += name
+        long_server += """</server><token>jwt</token></action>"""
+        m = migration.Migrate()
+        m.read_migrate_action(long_server)
+        self.assertEqual(m.get_migrate_url(), name)
+        self.assertEqual(m.get_token(), 'jwt')
+
     def testReadMigrationActionRaisesExceptionForMissingServer(self):
         missing_server = """<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><token>jwt</token></action>"""
         m = migration.Migrate()
@@ -93,6 +104,26 @@ class TestMigration(unittest.TestCase):
     def testReadMigrationActionRaisesExceptionForInvalidXML(self):
         m = migration.Migrate()
         self.assertRaises(xml.parsers.expat.ExpatError, m.read_migrate_action, 'some text')
+
+    def testExtractValuesGetsIDs(self):
+        m = migration.Migrate()
+        endpoint_id, device_id, tenant_id, password = m.extract_values('{"endpoint_id":"endpoint","device_id":"device","tenant_id":"tenant","password":"foobar"}')
+        self.assertEqual(endpoint_id, 'endpoint')
+        self.assertEqual(device_id, 'device')
+        self.assertEqual(tenant_id, 'tenant')
+        self.assertEqual(password, 'foobar')
+
+    def testExtractValuesWithMismatchedTypes(self):
+        m = migration.Migrate()
+        endpoint_id, device_id, tenant_id, password = m.extract_values('{"endpoint_id":0,"device_id":1,"tenant_id":true,"password":false}')
+        self.assertEqual(endpoint_id, 0)
+        self.assertEqual(device_id, 1)
+        self.assertEqual(tenant_id, True)
+        self.assertEqual(password, False)
+
+    def testExtractValuesRaisesExceptionForInvalidJSON(self):
+        m = migration.Migrate()
+        self.assertRaises(json.decoder.JSONDecodeError, m.extract_values, 'some text')
 
 
 class TestUtils(unittest.TestCase):
