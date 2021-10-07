@@ -1,5 +1,7 @@
 import json
 import logging
+import shutil
+
 import requests
 import sys
 import time
@@ -38,9 +40,14 @@ INTERFACES_QUERY = ("interfaces",
                     '''SELECT interface_details.mtu, interface_details.interface, interface_details.mac, interface_addresses.mask, interface_addresses.address, interface_addresses.broadcast, interface_details.ibytes, interface_details.obytes 
                        FROM interface_addresses JOIN interface_details ON interface_addresses.interface = interface_details.interface;''')
 
-PACKAGES_QUERY = ("packages", '''SELECT name, version, arch, revision FROM deb_packages;''')
+PACKAGES_QUERY = ("packages", "SELECT name, version, arch, revision FROM deb_packages;")
 
-HOSTNAME_QUERY = ("hostname", '''SELECT system_info.hostname, system_info.local_hostname FROM system_info;''')
+HOSTNAME_QUERY = ("hostname", "SELECT system_info.hostname, system_info.local_hostname FROM system_info;")
+
+DETECTIONS_QUERY = ("detections", "SELECT * FROM sophos_detections_journal;")
+
+# This query will span the two sample detection event journal files: /mnt/filer6/linux/SSPL/performance/Detections
+DETECTIONS_QUERY_FOR_SAMPLE_DATA = ("detections", "SELECT * FROM sophos_detections_journal where time > 1632144511;")
 
 ALL_PROCESSES_QUERY = ("all-processes", "SELECT * FROM processes;")
 
@@ -142,14 +149,15 @@ def run_local_live_query_perf_test():
         (ALL_PROCESSES_QUERY, 10),
         (ALL_USERS_QUERY, 10),
         (HOSTNAME_QUERY, 10),
-        (ALL_PROCESSES_QUERY, 50),
-        (ALL_USERS_QUERY, 50),
-        (HOSTNAME_QUERY, 50)
+        (ALL_PROCESSES_QUERY, 30),
+        (ALL_USERS_QUERY, 30),
+        (HOSTNAME_QUERY, 30)
     ]
 
     for (name, query), times_to_run in queries_to_run:
         date_time = get_current_date_time_string()
         command = ['python3', local_live_query_script, name, query, str(times_to_run)]
+        logging.info("Running command:{}".format(str(command)))
         process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
         if process_result.returncode != 0:
             logging.error("Running local live query failed. return code: {}, stdout: {}, stderr: {}".format(
@@ -159,6 +167,44 @@ def run_local_live_query_perf_test():
         result = json.loads(process_result.stdout)
         event_name = "local-query_{}_x{}".format(name, str(times_to_run))
         record_result(event_name, date_time, result["start_time"], result["end_time"])
+
+def run_local_live_query_detections_perf_test():
+    logging.info("Running Local Live Query Detections performance test")
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    local_live_query_script = os.path.join(this_dir, "RunLocalLiveQuery.py")
+
+    detections_dir = "/opt/sophos-spl/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections"
+    sample_detections_dir = "/root/performance/Detections"
+    tmp_detections_dir = "/tmp/Detections"
+
+    # Queries to run and the number of times to run them, each batch will be timed.
+    queries_to_run = [
+        (DETECTIONS_QUERY_FOR_SAMPLE_DATA, 1),
+        (DETECTIONS_QUERY_FOR_SAMPLE_DATA, 10)
+    ]
+
+    if not os.path.exists(detections_dir):
+        os.makedirs(detections_dir)
+
+    shutil.move(detections_dir, tmp_detections_dir)
+    shutil.copytree(sample_detections_dir, detections_dir)
+
+    try:
+        for (name, query), times_to_run in queries_to_run:
+            date_time = get_current_date_time_string()
+            command = ['python3', local_live_query_script, name, query, str(times_to_run)]
+            process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
+            if process_result.returncode != 0:
+                logging.error(f"Running local live query detections failed. return code: {process_result.returncode}, "
+                              f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")
+                continue
+
+            result = json.loads(process_result.stdout)
+            event_name = "local-query_{}_x{}".format(name, str(times_to_run))
+            record_result(event_name, date_time, result["start_time"], result["end_time"])
+    finally:
+        shutil.rmtree(detections_dir)
+        shutil.move(tmp_detections_dir, detections_dir)
 
 
 def run_central_live_query_perf_test(client_id, email, password, region):
@@ -180,7 +226,8 @@ def run_central_live_query_perf_test(client_id, email, password, region):
     queries_to_run = [
         ALL_PROCESSES_QUERY,
         ALL_USERS_QUERY,
-        HOSTNAME_QUERY
+        HOSTNAME_QUERY,
+        DETECTIONS_QUERY
     ]
 
     for (name, query) in queries_to_run:
@@ -223,7 +270,7 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
                "-f", message_contents_file_path,
                "-n", str(number_of_terminals),
                "-k", str(keep_alive)]
-
+    logging.info("Running command:{}".format(str(command)))
     process_result = subprocess.run(command, timeout=500, stdout=subprocess.PIPE, encoding="utf-8")
     if process_result.returncode != 0:
         logging.error("Running local live response terminal failed. return code: {}, stdout: {}, stderr: {}".format(
@@ -266,6 +313,7 @@ def add_options():
     parser.add_argument('-s', '--suite', action='store',
                         choices=['gcc',
                                  'local-livequery',
+                                 'local-livequery-detections',
                                  'central-livequery',
                                  'local-liveresponse_x1',
                                  'local-liveresponse_x10'],
@@ -313,6 +361,8 @@ def main():
         run_gcc_perf_test()
     elif args.suite == 'local-livequery':
         run_local_live_query_perf_test()
+    elif args.suite == 'local-livequery-detections':
+        run_local_live_query_detections_perf_test()
     elif args.suite == 'central-livequery':
         run_central_live_query_perf_test(args.client_id, args.email, args.password, args.region)
     elif args.suite == 'local-liveresponse_x1':
