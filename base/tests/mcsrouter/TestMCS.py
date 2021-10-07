@@ -351,7 +351,6 @@ class TestMCS(unittest.TestCase):
         root_config = config
 
         self.assertTrue(m.attempt_migration(comms, config, root_config, None))
-        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.set_migrate_mode.call_count, 2)
         self.assertNotIn('MCSToken', root_config.get_options())
         self.assertEqual(root_config.get('MCSURL'), 'server name')
         self.assertEqual(FakeMCSConnection.set_migrate_mode.call_count, 2)
