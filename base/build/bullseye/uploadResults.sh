@@ -73,7 +73,7 @@ then
       || echo "Failed to upload bullseye html to Allegro"
 
   # Exploratory find to sort input path issues
-  find ..
+  find /
 
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
       "$COVFILE"                                                \
