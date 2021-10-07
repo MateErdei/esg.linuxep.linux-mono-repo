@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# IMPORTANT: This script copies files from sspl-tools, base and liveterminal repos from your dev machine.
+#            Please make sure that base and liveterminal are both up to date and on develop before running this script.
+
 # This is a helper script that will copy the needed performance
 # scripts from your machine to filer. This is to be used in conjunction
 # with the sync_perf_machine.sh script which is to be executed, as root, on
