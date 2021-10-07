@@ -13,6 +13,7 @@ import tempfile
 import shutil
 import re
 import mcsrouter.utils.plugin_registry as plugin_registry
+import mcsrouter.utils.migration as migration
 import mcsrouter.utils.xml_helper as xml_helper
 import mcsrouter.mcsclient.status_event as status_event
 import mcsrouter.sophos_https as sophos_https
@@ -70,6 +71,29 @@ class TestPluginRegistry(unittest.TestCase):
             added, removed = pr.added_and_removed_app_ids()
             self.assertEqual( added, [])
             self.assertEqual(removed, ['ALC'])
+
+
+class TestMigration(unittest.TestCase):
+    def testReadMigrationActionGetsURLAndToken(self):
+        m = migration.Migrate()
+        m.read_migrate_action("""<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><server>server name</server><token>jwt</token></action>""")
+        self.assertEqual(m.get_migrate_url(), 'server name')
+        self.assertEqual(m.get_token(), 'jwt')
+
+    def testReadMigrationActionRaisesExceptionForMissingServer(self):
+        missing_server = """<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><token>jwt</token></action>"""
+        m = migration.Migrate()
+        self.assertRaises(IndexError, m.read_migrate_action, missing_server)
+
+    def testReadMigrationActionRaisesExceptionForMissingToken(self):
+        missing_token = """<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><server>server name</server></action>"""
+        m = migration.Migrate()
+        self.assertRaises(IndexError, m.read_migrate_action, missing_token)
+
+    def testReadMigrationActionRaisesExceptionForInvalidXML(self):
+        m = migration.Migrate()
+        self.assertRaises(xml.parsers.expat.ExpatError, m.read_migrate_action, 'some text')
+
 
 class TestUtils(unittest.TestCase):
     def test_escaped_non_ascii_content(self):

@@ -6,6 +6,7 @@ import sys
 import time
 import json
 import builtins
+import xml.dom.minidom
 
 import logging
 logger = logging.getLogger("TestMCS")
@@ -35,10 +36,15 @@ def pass_function(*args, **kwargs):
 class FakeMCSConnection(object):
     m_token = None
     m_status = None
+    m_migration_event = None
+    m_device_id = None
+    m_tenant_id = None
     send401 = False
+    send404 = False
 
-    def __init__(self, config, product_version="unknown",install_dir=".."):
+    def __init__(self, config, product_version="unknown",install_dir="..",migrate_mode=False):
         self.m_send401 = False
+        self.m_send404 = False
         pass
 
     def set_user_agent(self, agent):
@@ -82,8 +88,22 @@ class FakeMCSConnection(object):
     def set_jwt_token_settings(self):
         pass
 
-    def send_migration_event(self, event):
+    def set_migrate_mode(self, migrate_mode: bool):
         pass
+
+    def send_migration_event(self, event):
+        self.m_migration_event = event
+
+    def send_migration_request(self, server_url, jwt_token, request_body, old_device_id, old_tenant_id):
+        if FakeMCSConnection.send401 and not self.m_send401:
+            self.m_send401 = True
+            headers = { }
+            raise mcsrouter.mcsclient.mcs_connection.MCSHttpUnauthorizedException(401,headers,"")
+        elif FakeMCSConnection.send404 and not self.m_send404:
+            self.m_send404 = True
+            headers = { }
+            raise mcsrouter.mcsclient.mcs_connection.MCSHttpUnauthorizedException(404,headers,"")
+        return '{"endpoint_id":"newEndpoint","device_id":"newDevice","tenant_id":"newTenant","password":"newPassword"}'
 
 
 class TestMCS(unittest.TestCase):
@@ -101,7 +121,9 @@ class TestMCS(unittest.TestCase):
         mcsrouter.mcsclient.mcs_connection.MCSConnection = FakeMCSConnection
         FakeMCSConnection.m_token = None
         FakeMCSConnection.m_status = None
+        FakeMCSConnection.m_migration_event = None
         FakeMCSConnection.send401 = False
+        FakeMCSConnection.send404 = False
         PathManager.safeDelete(os.path.join(INSTALL_DIR,"etc","sophosav","mcs.config"))
 
     def tearDown(self):
@@ -301,7 +323,93 @@ class TestMCS(unittest.TestCase):
             pass
 
         # The XML parsing error is expected to be caught safely within attempt_migration
-        m.attempt_migration(None, None, None, None)
+        self.assertFalse(m.attempt_migration(None, None, None, None))
+
+    @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
+    @mock.patch('mcsrouter.utils.config.Config.save_non_atomic', side_effect=pass_function)
+    @mock.patch('os.listdir', return_value=[])
+    @mock.patch('mcsrouter.adapters.mcs_adapter.MCSAdapter.get_migrate_action', return_value="""<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><server>server name</server><token>jwt</token></action>""")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.set_migrate_mode")
+    @mock.patch('mcsrouter.adapters.agent_adapter.AgentAdapter.get_policy_status', return_value="""<policy-status latest="1970-01-01T00:00:00.0Z"><policy app="ALC" latest="2019-09-05T10:02:14.499865Z" /></policy-status>""")
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
+    def testMigrationAction(self, *mockargs):
+        # General setup for MCS tests that need a comms object
+        config = mcsrouter.utils.config.Config()
+        config.set("MCSToken","MCSTOKEN")
+        config.set("MCSID","FOO")
+        config.set("MCSPassword","BAR")
+        m = self.createMCS(config)
+        try:
+            ret = m.startup()
+        except EscapeException:
+            pass
+
+        comms = FakeMCSConnection(config)
+        root_config = config
+
+        self.assertTrue(m.attempt_migration(comms, config, root_config, None))
+        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.set_migrate_mode.call_count, 2)
+        self.assertNotIn('MCSToken', root_config.get_options())
+        self.assertEqual(root_config.get('MCSURL'), 'server name')
+        self.assertEqual(FakeMCSConnection.set_migrate_mode.call_count, 2)
+        self.assertIsNotNone(comms.m_migration_event)
+        doc = xml.dom.minidom.parseString(comms.m_migration_event)
+        event = doc.getElementsByTagName('event')[0]
+        token = event.getElementsByTagName('token')[0]
+        self.assertEqual(event.getAttribute('type'), 'sophos.mgt.mcs.migrate.succeeded')
+        self.assertEqual(token.firstChild.data, 'jwt')
+
+    @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
+    @mock.patch('mcsrouter.utils.config.Config.save_non_atomic', side_effect=pass_function)
+    @mock.patch('os.listdir', return_value=[])
+    @mock.patch('mcsrouter.adapters.mcs_adapter.MCSAdapter.get_migrate_action', return_value="""<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><server></server><token>jwt</token></action>""")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.set_migrate_mode")
+    @mock.patch('mcsrouter.adapters.agent_adapter.AgentAdapter.get_policy_status', return_value="""<policy-status latest="1970-01-01T00:00:00.0Z"><policy app="ALC" latest="2019-09-05T10:02:14.499865Z" /></policy-status>""")
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
+    def testMigrationActionWithEmptyServer(self, *mockargs):
+        FakeMCSConnection.send404 = True
+        # General setup for MCS tests that need a comms object
+        config = mcsrouter.utils.config.Config()
+        config.set("MCSToken","MCSTOKEN")
+        config.set("MCSID","FOO")
+        config.set("MCSPassword","BAR")
+        m = self.createMCS(config)
+        try:
+            ret = m.startup()
+        except EscapeException:
+            pass
+
+        comms = FakeMCSConnection(config)
+        root_config = config
+
+        self.assertFalse(m.attempt_migration(comms, config, root_config, None))
+        self.assertEqual(FakeMCSConnection.set_migrate_mode.call_count, 0)
+
+    @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
+    @mock.patch('mcsrouter.utils.config.Config.save_non_atomic', side_effect=pass_function)
+    @mock.patch('os.listdir', return_value=[])
+    @mock.patch('mcsrouter.adapters.mcs_adapter.MCSAdapter.get_migrate_action', return_value="""<?xml version='1.0'?><action type="sophos.mgt.mcs.migrate"><server>server name</server><token>jwt</token></action>""")
+    @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.set_migrate_mode")
+    @mock.patch('mcsrouter.adapters.agent_adapter.AgentAdapter.get_policy_status', return_value="""<policy-status latest="1970-01-01T00:00:00.0Z"><policy app="ALC" latest="2019-09-05T10:02:14.499865Z" /></policy-status>""")
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
+    def testMigrationActionWithInvalidToken(self, *mockargs):
+        FakeMCSConnection.send401 = True
+        # General setup for MCS tests that need a comms object
+        config = mcsrouter.utils.config.Config()
+        config.set("MCSToken","MCSTOKEN")
+        config.set("MCSID","FOO")
+        config.set("MCSPassword","BAR")
+        m = self.createMCS(config)
+        try:
+            ret = m.startup()
+        except EscapeException:
+            pass
+
+        comms = FakeMCSConnection(config)
+        root_config = config
+
+        self.assertFalse(m.attempt_migration(comms, config, root_config, None))
+        self.assertEqual(FakeMCSConnection.set_migrate_mode.call_count, 0)
 
 class TestCommandCheckInterval(unittest.TestCase):
     def testCreation(self):
