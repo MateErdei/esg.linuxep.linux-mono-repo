@@ -339,8 +339,6 @@ def process_diagnose_file(tar_path):
     for log in logs:
         process_log_file(hostname, dogfood_db, ip, log, product_base_version, product_edr_version, product_mtr_version)
 
-    # CURRENTLY DISABLED, need to speed this up and then we can re-enable it.
-    # TODO LINUXDAR-1402
     for sys_file in system_files:
         process_system_file(hostname, dogfood_db, ip, sys_file)
 
@@ -396,7 +394,7 @@ def process_log_file(hostname, db, ip, log_file_path, product_base_version, prod
 def process_system_file(hostname, db, ip, sys_file_path):
     print("Processing system file: {}, {}".format(hostname, sys_file_path))
 
-    # TODO LINUXDAR-1402, don't just import dmesg output
+    # Because importing is slow we limit importing of system files to just dmesg. Others can be enabled if needed.
     if "dmesg" not in sys_file_path:
         print("skipping non dmesg sys file import for now")
         return
