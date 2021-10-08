@@ -72,9 +72,6 @@ then
       </dev/null \
       || echo "Failed to upload bullseye html to Allegro"
 
-  # Exploratory find to sort input path issues
-  find /
-
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
       "$COVFILE"                                                \
       --output /opt/test/results/coverage/test_coverage.json    \
