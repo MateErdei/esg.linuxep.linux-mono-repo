@@ -132,7 +132,7 @@ elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   export htmldir=$COVERAGE_STAGING/sspl-liveresponse-unittest
   export COV_HTML_BASE=sspl-liveresponse-unittest
   export BULLSEYE_UPLOAD=1
-  export COVERAGE_SCRIPT=/tmp/system-product-test-inputs/bazel-tools
+  export COVERAGE_SCRIPT=/tmp/system-product-test-inputs/bazel-tools/tools/src/bullseye/test_coverage.py
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
   # Begin merging the combined coverage with the unit-test coverage
   mv $COVERAGE_STAGING/covfile/liveterminal_unittests.cov $COVERAGE_STAGING/sspl-liveresponse-combined.cov
@@ -179,7 +179,7 @@ fi
 
 #upload coverage results
 if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" || -n "${EDR_COVERAGE:-}" || -n "${LIVERESPONSE_COVERAGE:-}" || -n "${PLUGIN_TEMPLATE_COVERAGE:-}" || -n "${PLUGIN_EVENTJOURNALER_COVERAGE:-}" ]]; then
-  export COVERAGE_SCRIPT=/tmp/system-product-test-inputs/bazel-tools
+  export COVERAGE_SCRIPT=/tmp/system-product-test-inputs/bazel-tools/tools/src/bullseye/test_coverage.py
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
 fi
 

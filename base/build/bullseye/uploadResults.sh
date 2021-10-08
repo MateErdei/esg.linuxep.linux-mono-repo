@@ -72,6 +72,7 @@ then
       </dev/null \
       || echo "Failed to upload bullseye html to Allegro"
 
+  find /tmp/system-product-test-inputs/bazel-tools
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
       "$COVFILE"                                                \
       --output /opt/test/results/coverage/test_coverage.json    \
