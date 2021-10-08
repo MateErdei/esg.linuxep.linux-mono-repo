@@ -250,7 +250,7 @@ function is_rsyslog_running()
 
 function enable_access_for_rsyslog_to_shared_pipe()
 {
-    semanage fcontext -a -t var_log_t ${SOPHOS_INSTALL}/shared/syslog_pipe && restorecon -Fv ${SOPHOS_INSTALL}/shared/syslog_pipe
+    semanage fcontext -a -t var_log_t ${SOPHOS_INSTALL}/shared/syslog_pipe &> /dev/null && restorecon -Fv ${SOPHOS_INSTALL}/shared/syslog_pipe &> /dev/null
 }
 
 # Check key files have been installed
@@ -287,9 +287,9 @@ then
       then
         if which semanage > /dev/null
         then
-          enable_access_for_rsyslog_to_shared_pipe || echo "WARNING: Failed to add var_log_t context to ${SOPHOS_INSTALL}/shared/syslog_pipe"
+          enable_access_for_rsyslog_to_shared_pipe || echo "WARNING: Failed to setup syslog pipe, osquery will not able to receive syslog events"
         else
-          echo "WARNING: Detected selinux is present on system, but could not find semanage executable to add var_log_t context to ${SOPHOS_INSTALL}/shared/syslog_pipe"
+          echo "WARNING: Detected selinux is present on system, but could not find semanage to setup syslog pipe, osquery will not be able to receive syslog events"
         fi
       fi
       systemctl restart rsyslog

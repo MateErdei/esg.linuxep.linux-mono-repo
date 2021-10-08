@@ -4,7 +4,6 @@ Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/UserUtils.py
 Library         ../Libs/FileSystemLibs.py
-Library         ../Libs/fixtures/EDRPlugin.py
 
 Resource    ComponentSetup.robot
 Resource    EDRResources.robot
@@ -25,19 +24,17 @@ EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Install
     Create Fake System Executable  restorecon
 
     ${installer_stdout} =  Install EDR Directly from SDDS
-    Log To Console  ${installer_stdout}
+    ${logFile} =  Get File  /tmp/mockedExecutable
 
-    Should Contain  ${installer_stdout}  semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
-    Should Contain  ${installer_stdout}  restorecon -Fv /opt/sophos-spl/shared/syslog_pipe
+    Should Contain  ${logFile}  semanage fcontext -a -t var_log_t ${SOPHOS_INSTALL}/shared/syslog_pipe
+    Should Contain  ${logFile}  restorecon -Fv ${SOPHOS_INSTALL}/shared/syslog_pipe
 
 EDR Does Not Set Selinux Context When Selinux Is Not Detected
     Obscure System Executable  getenforce
 
     ${installer_stdout} =  Install EDR Directly from SDDS
-    Log To Console  ${installer_stdout}
-
-    Should Not Contain  ${installer_stdout}  semanage
-    Should Not Contain  ${installer_stdout}  restorecon
+    File Should Not Exist  /tmp/mockedExecutable
+    Should Not Contain  ${installer_stdout}   semanage
 
 EDR Installer Logs Warning When Semanage Is Missing
     Create Fake System Executable  getenforce
@@ -45,9 +42,8 @@ EDR Installer Logs Warning When Semanage Is Missing
     Obscure System Executable  semanage
 
     ${installer_stdout} =  Install EDR Directly from SDDS
-    Log To Console  ${installer_stdout}
 
-    Should Contain  ${installer_stdout}  WARNING: Detected selinux is present on system, but could not find semanage executable to add var_log_t context to /opt/sophos-spl/shared/syslog_pipe
+    Should Contain  ${installer_stdout}  WARNING: Detected selinux is present on system, but could not find semanage to setup syslog pipe, osquery will not be able to receive syslog events
 
 EDR Installer Logs Warning When Semanage Fails
     Create Fake System Executable  getenforce
@@ -55,17 +51,19 @@ EDR Installer Logs Warning When Semanage Fails
     Create Fake System Executable  semanage  mock_file=${EXAMPLE_DATA_PATH}/FailingMockedExecutable.sh
 
     ${installer_stdout} =  Install EDR Directly from SDDS
-    Log To Console  ${installer_stdout}
+    ${logFile} =  Get File  /tmp/mockedExecutable
 
-    Should Contain  ${installer_stdout}  WARNING: Failed to add var_log_t context to /opt/sophos-spl/shared/syslog_pipe
+    Should Contain  ${installer_stdout}  WARNING: Failed to setup syslog pipe, osquery will not able to receive syslog events
+    Should Not Contain  ${installer_stdout}  semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
 
 *** Keywords ***
 Test Teardown
+    Common Teardown
     Uninstall All
     Restore System Executable  getenforce
     Restore System Executable  semanage
     Restore System Executable  restorecon
-    Common Teardown
+    Remove File  /tmp/mockedExecutable
 
 
 Backup System Executable
