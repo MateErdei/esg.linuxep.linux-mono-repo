@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+
 INCLUDE_DIR=$1
 EXCLUDE_DIR=$2
 OUTPUT_DIR=$3
