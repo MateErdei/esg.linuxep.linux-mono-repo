@@ -47,6 +47,7 @@ fi
 
 copy_file run-test-gcc.sh
 copy_file build-gcc-only.sh
+copy_file PerformanceResources.py
 copy_file RunEDRPerfTests.py
 copy_file RunEventJournalerIngestionTest.py
 copy_file RunLocalLiveQuery.py

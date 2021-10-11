@@ -10,7 +10,8 @@ import argparse
 import subprocess
 import os
 
-SOPHOS_INSTALL = "/opt/sophos-spl"
+from performance.PerformanceResources import stop_sspl_process, start_sspl_process, get_current_unix_epoch_in_seconds, \
+    wait_for_plugin_to_be_installed
 
 PROCESS_EVENTS_QUERY = ("process-events", '''SELECT
 GROUP_CONCAT(process_events.pid) AS pids,
@@ -124,10 +125,6 @@ def get_current_date_time_string():
     return time.strftime("%Y/%m/%d %H:%M:%S", time.gmtime())
 
 
-def get_current_unix_epoch_in_seconds():
-    return time.time()
-
-
 def run_gcc_perf_test():
     logging.info("Running GCC performance test")
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -192,11 +189,11 @@ def run_local_live_query_detections_perf_test():
     if not os.path.exists(detections_dir):
         os.makedirs(detections_dir)
 
-    stop_eventjournaler()
+    stop_sspl_process('eventjournaler')
     shutil.move(detections_dir, tmp_detections_dir)
     shutil.copytree(sample_detections_dir, detections_dir)
 
-    start_eventjournaler()
+    start_sspl_process('eventjournaler')
     # Allow event journaler some time to start.
     time.sleep(5)
 
@@ -214,11 +211,11 @@ def run_local_live_query_detections_perf_test():
             event_name = "local-query_{}_x{}".format(name, str(times_to_run))
             record_result(event_name, date_time, result["start_time"], result["end_time"])
     finally:
-        stop_eventjournaler()
+        stop_sspl_process('eventjournaler')
         shutil.rmtree(detections_dir)
         shutil.move(tmp_detections_dir, detections_dir)
 
-        start_eventjournaler()
+        start_sspl_process('eventjournaler')
 
 
 def run_central_live_query_perf_test(client_id, email, password, region):
@@ -229,7 +226,7 @@ def run_central_live_query_perf_test(client_id, email, password, region):
         logging.error("Please enter password, use -h for help.")
         return
 
-    wait_for_edr_to_be_installed()
+    wait_for_plugin_to_be_installed('edr')
     logging.info("Running Local Live Query performance test")
     this_dir = os.path.dirname(os.path.realpath(__file__))
     central_live_query_script = os.path.join(this_dir, "RunCentralLiveQuery.py")
@@ -275,7 +272,7 @@ def run_central_live_query_perf_test(client_id, email, password, region):
 
 def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
     logging.info("Running local Live Response terminal performance test")
-    wait_for_liveresponse_to_be_installed()
+    wait_for_plugin_to_be_installed('liveresponse')
     this_dir = os.path.dirname(os.path.realpath(__file__))
     local_live_terminal_script = os.path.join(this_dir, "RunLocalLiveTerminal.py")
     message_contents_file_path = os.path.join(this_dir, "1000Chars")
@@ -373,35 +370,6 @@ def add_options():
 
     parser.add_argument('-r', '--region', action='store', help="Central region (q, d, p)")
     return parser
-
-
-def wait_for_dir_to_exist(dir: str, timeout: int):
-    if not os.path.exists(dir):
-        logging.info("Waiting for dir to be created: {}".format(dir))
-    while time.time() < timeout:
-        if os.path.exists(dir):
-            return
-        time.sleep(1)
-
-
-def stop_eventjournaler():
-    wdctl_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
-    subprocess.run([wdctl_path, "stop", "eventjournaler"])
-
-
-def start_eventjournaler():
-    wdctl_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
-    subprocess.run([wdctl_path, "start", "eventjournaler"])
-
-
-def wait_for_edr_to_be_installed():
-    edr_path = "/opt/sophos-spl/plugins/edr"
-    wait_for_dir_to_exist(edr_path, 4000)
-
-
-def wait_for_liveresponse_to_be_installed():
-    lr_path = "/opt/sophos-spl/plugins/liveresponse"
-    wait_for_dir_to_exist(lr_path, 4000)
 
 
 def main():

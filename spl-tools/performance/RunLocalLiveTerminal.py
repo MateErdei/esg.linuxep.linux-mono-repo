@@ -10,6 +10,9 @@ import glob
 
 from websocket_server import LTserver, certificates
 
+from performance.PerformanceResources import get_current_unix_epoch_in_seconds
+
+
 def trigger_endpoint_terminal(path: str):
     path_to_write_file = "/opt/sophos-spl/plugins/liveresponse/var/{}".format(path)
 
@@ -85,10 +88,6 @@ def create_server_and_send_string(string_to_send: str, number_of_parallel_termin
 
         end_time = get_current_unix_epoch_in_seconds()
         return start_time, end_time
-
-
-def get_current_unix_epoch_in_seconds():
-    return time.time()
 
 
 def add_options():

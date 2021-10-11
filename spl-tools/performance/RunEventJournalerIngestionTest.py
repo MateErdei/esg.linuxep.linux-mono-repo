@@ -6,21 +6,7 @@ import subprocess
 import sys
 import time
 
-SOPHOS_INSTALL = "/opt/sophos-spl"
-
-
-def stop_eventjournaler():
-    wdctl_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
-    subprocess.run([wdctl_path, "stop", "eventjournaler"])
-
-
-def start_eventjournaler():
-    wdctl_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
-    subprocess.run([wdctl_path, "start", "eventjournaler"])
-
-
-def get_current_unix_epoch_in_seconds():
-    return time.time()
+from performance.PerformanceResources import stop_sspl_process, start_sspl_process, get_current_unix_epoch_in_seconds
 
 
 def run_ingestion_test(number_of_events_to_send):
@@ -34,9 +20,9 @@ def run_ingestion_test(number_of_events_to_send):
     shutil.rmtree(tmp_detections_dir, ignore_errors=True)
 
     if os.path.exists(detections_dir):
-        stop_eventjournaler()
+        stop_sspl_process('eventjournaler')
         shutil.move(detections_dir, tmp_detections_dir)
-        start_eventjournaler()
+        start_sspl_process('eventjournaler')
         # Allow event journaler some time to start.
         time.sleep(5)
 
@@ -70,13 +56,13 @@ def run_ingestion_test(number_of_events_to_send):
                 event_count = int(line.split(":")[1].strip())
                 break
     finally:
-        stop_eventjournaler()
+        stop_sspl_process('eventjournaler')
         shutil.rmtree(detections_dir)
 
         if os.path.exists(tmp_detections_dir):
             shutil.move(tmp_detections_dir, detections_dir)
 
-        start_eventjournaler()
+        start_sspl_process('eventjournaler')
 
     result = {"start_time": start_time,
               "end_time": end_time,

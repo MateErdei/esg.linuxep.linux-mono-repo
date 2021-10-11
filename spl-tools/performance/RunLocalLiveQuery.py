@@ -13,8 +13,10 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from pathlib import Path
 
+from performance.PerformanceResources import SOPHOS_INSTALL, stop_sspl_process, get_current_unix_epoch_in_seconds, \
+    start_sspl_process
+
 RESPONSE_COUNT = 0
-SOPHOS_INSTALL = "/opt/sophos-spl"
 TMP_ACTIONS_DIR = os.path.join("/tmp", "actions")
 BASE_ACTION_DIR = os.path.join(SOPHOS_INSTALL, "base", "mcs", "action")
 os.makedirs(TMP_ACTIONS_DIR, exist_ok=True)
@@ -73,24 +75,10 @@ def inc_response_count(event):
     RESPONSE_COUNT += 1
 
 
-def stop_mcsrouter():
-    wdctl_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
-    subprocess.run([wdctl_path, "stop", "mcsrouter"])
-
-
-def start_mcsrouter():
-    wdctl_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
-    subprocess.run([wdctl_path, "start", "mcsrouter"])
-
-
 def remove_all_pending_responses():
     response_dir = os.path.join(SOPHOS_INSTALL, "base", "mcs", "response")
     for p in Path(response_dir).glob("*.json"):
         p.unlink()
-
-
-def get_current_unix_epoch_in_seconds():
-    return time.time()
 
 
 def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_send):
@@ -100,7 +88,7 @@ def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_
     start_time = 0
     try:
         # We get blacklisted from central if bad live query responses go up
-        stop_mcsrouter()
+        stop_sspl_process('mcsrouter')
         response_dir = os.path.join(SOPHOS_INSTALL, "base", "mcs", "response")
         fsw = FilesystemWatcher()
         fsw.setup_filesystem_watcher(response_dir, match_patterns=["*.json"])
@@ -126,7 +114,7 @@ def run_query_n_times_and_wait_for_responses(query_name, query_string, times_to_
         traceback.print_exc(file=sys.stdout)
     finally:
         # Make sure we start mcsrouter up again
-        start_mcsrouter()
+        start_sspl_process('mcsrouter')
 
     result = {"response_count": RESPONSE_COUNT,
               "times_to_send": times_to_send,

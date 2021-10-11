@@ -8,6 +8,8 @@ import json
 
 
 ## Before importing cloudClient!
+from performance.PerformanceResources import get_current_unix_epoch_in_seconds
+
 os.environ.setdefault("TMPROOT", "/tmp")
 
 # from . import cloudClient
@@ -58,10 +60,6 @@ def get_options(email, password, region):
 def get_client(email, password, region):
     options = get_options(email, password, region)
     return cloudClient.CloudClient(options)
-
-
-def get_current_unix_epoch_in_seconds():
-    return time.time()
 
 
 def add_options():
