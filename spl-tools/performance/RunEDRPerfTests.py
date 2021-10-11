@@ -10,6 +10,8 @@ import argparse
 import subprocess
 import os
 
+SOPHOS_INSTALL = "/opt/sophos-spl"
+
 PROCESS_EVENTS_QUERY = ("process-events", '''SELECT
 GROUP_CONCAT(process_events.pid) AS pids,
 REPLACE(process_events.path,
@@ -168,6 +170,7 @@ def run_local_live_query_perf_test():
         event_name = "local-query_{}_x{}".format(name, str(times_to_run))
         record_result(event_name, date_time, result["start_time"], result["end_time"])
 
+
 def run_local_live_query_detections_perf_test():
     logging.info("Running Local Live Query Detections performance test")
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -186,8 +189,13 @@ def run_local_live_query_detections_perf_test():
     if not os.path.exists(detections_dir):
         os.makedirs(detections_dir)
 
+    stop_eventjournaler()
     shutil.move(detections_dir, tmp_detections_dir)
     shutil.copytree(sample_detections_dir, detections_dir)
+
+    start_eventjournaler()
+    # Allow event journaler some time to start.
+    time.sleep(5)
 
     try:
         for (name, query), times_to_run in queries_to_run:
@@ -203,8 +211,11 @@ def run_local_live_query_detections_perf_test():
             event_name = "local-query_{}_x{}".format(name, str(times_to_run))
             record_result(event_name, date_time, result["start_time"], result["end_time"])
     finally:
+        stop_eventjournaler()
         shutil.rmtree(detections_dir)
         shutil.move(tmp_detections_dir, detections_dir)
+
+        start_eventjournaler()
 
 
 def run_central_live_query_perf_test(client_id, email, password, region):
@@ -337,6 +348,16 @@ def wait_for_dir_to_exist(dir: str, timeout: int):
         if os.path.exists(dir):
             return
         time.sleep(1)
+
+
+def stop_eventjournaler():
+    wdctl_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
+    subprocess.run([wdctl_path, "stop", "eventjournaler"])
+
+
+def start_eventjournaler():
+    wdctl_path = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
+    subprocess.run([wdctl_path, "start", "eventjournaler"])
 
 
 def wait_for_edr_to_be_installed():
