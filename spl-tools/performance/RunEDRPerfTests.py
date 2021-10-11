@@ -81,7 +81,7 @@ def get_build_date_and_version(path):
 
 
 # Expects start_time and end_time as a float of seconds unix epochs
-def record_result(event_name, date_time, start_time, end_time):
+def record_result(event_name, date_time, start_time, end_time, custom_data=None):
     hostname = socket.gethostname()
     base_build_date, base_product_version = get_build_date_and_version("/opt/sophos-spl/base/VERSION.ini")
     edr_build_date, edr_product_version = get_build_date_and_version("/opt/sophos-spl/plugins/edr/VERSION.ini")
@@ -98,6 +98,9 @@ def record_result(event_name, date_time, start_time, end_time):
         "start": int(start_time),
         "finish": int(end_time),
         "duration": duration}
+
+    if custom_data:
+        result.update(custom_data)
 
     if edr_product_version and edr_build_date:
         result["edr_product_version"] = edr_product_version
@@ -318,6 +321,36 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
     record_result(event_name, date_time, result["start_time"], result["end_time"])
 
 
+def run_event_journaler_ingestion_test():
+    logging.info("Running Event Journaler Ingestion Test")
+
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    event_journaler_ingestion_script = os.path.join(this_dir, "RunEventJournalerIngestionTest.py")
+
+    date_time = get_current_date_time_string()
+    command = ['python3', event_journaler_ingestion_script, '220']
+    logging.info("Running command:{}".format(str(command)))
+    process_result = subprocess.run(command, timeout=500, stdout=subprocess.PIPE, encoding="utf-8")
+    if process_result.returncode != 0:
+        logging.error(f"Running event journaler ingestion test failed. return code: {process_result.returncode}, "
+                      f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")
+
+    result = None
+    results_tag = "RESULTS:"
+    for line in process_result.stdout.splitlines():
+        if line.startswith(results_tag):
+            result = json.loads(line.lstrip(results_tag))
+            break
+
+    if not result:
+        logging.error("No result from RunEventJournalerIngestionTest.py")
+        return
+
+    print(result)
+    custom_data = {"number_of_events_sent": result["number_of_events_sent"], "event_count": result["event_count"]}
+    record_result("event-journaler-ingestion", date_time, result["start_time"], result["end_time"], custom_data=custom_data)
+
+
 def add_options():
     parser = argparse.ArgumentParser(description='Performance test runner for EDR')
 
@@ -327,7 +360,8 @@ def add_options():
                                  'local-livequery-detections',
                                  'central-livequery',
                                  'local-liveresponse_x1',
-                                 'local-liveresponse_x10'],
+                                 'local-liveresponse_x10',
+                                 'event-journaler-ingestion'],
                         help="Select which performance test suite to run")
 
     parser.add_argument('-i', '--client-id', action='store', help="Central account API client ID to use to run live queries")
@@ -391,6 +425,8 @@ def main():
         run_local_live_response_test(1, 300)
     elif args.suite == 'local-liveresponse_x10':
         run_local_live_response_test(10, 0)
+    elif args.suite == 'event-journaler-ingestion':
+        run_event_journaler_ingestion_test()
 
     logging.info("Finished")
 
