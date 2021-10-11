@@ -74,8 +74,10 @@ int main(int argc, char* argv[])
     bool customDataSet = false;
     int count = 1;
     int opt = 0;
+    // Add throttle flag but default to true to keep default behaviour the same as before.
+    bool throttle = true;
 
-    while ((opt = getopt(argc, argv, "c:s:u:d:f:")) != -1)
+    while ((opt = getopt(argc, argv, "c:s:u:d:f:z")) != -1)
     {
         switch (opt)
         {
@@ -95,6 +97,9 @@ int main(int argc, char* argv[])
             case 'f':
                 filepath = optarg;
                 customDataSet = true;
+                break;
+            case 'z':
+                throttle = false;
                 break;
             default:
                 printUsageAndExit(argv[0]);
@@ -130,11 +135,15 @@ int main(int argc, char* argv[])
         socket->connect("ipc://" + socketPath);
         std::this_thread::sleep_for(std::chrono::milliseconds(100)); // wait for connection
 
+        std::cout << "Sending events" << std::endl;
         for (int i = 0; i < count; i++)
         {
-            std::cout << "sending event" << std::endl;
             socket->write({ "threatEvents", dataString });
-            std::this_thread::sleep_for(std::chrono::milliseconds (100));
+
+            if (throttle)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds (100));
+            }
         }
     }
     else if (command == "listen")
