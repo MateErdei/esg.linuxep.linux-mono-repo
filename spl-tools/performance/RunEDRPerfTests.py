@@ -337,7 +337,7 @@ def add_options():
 
     parser.add_argument('-p', '--password', action='store', help="Central account API client secret or password to use to run live queries")
 
-    parser.add_argument('-r', '--region', action='store', help="Central region (q, p)")
+    parser.add_argument('-r', '--region', action='store', help="Central region (q, d, p)")
     return parser
 
 

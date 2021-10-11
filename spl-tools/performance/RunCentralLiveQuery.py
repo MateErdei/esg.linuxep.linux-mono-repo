@@ -69,9 +69,9 @@ def add_options():
     parser.add_argument('-i', '--client-id', required=False, action='store', help="Central account API client ID")
     parser.add_argument('-e', '--email', required=False, action='store', help="Central account email address to use")
     parser.add_argument('-p', '--password', required=True, action='store', help="Central account API client secret or password to use to run live queries")
-    parser.add_argument('-r', '--region', required=True, action='store', help="Central region (q, p)")
+    parser.add_argument('-r', '--region', required=True, action='store', help="Central region (q, d, p)")
     parser.add_argument('-n', '--name', required=True, action='store', help="Query name")
-    parser.add_argument('-q', '--query', required=True, action='store', help="Query string (q, p)")
+    parser.add_argument('-q', '--query', required=True, action='store', help="Query string")
     parser.add_argument('-m', '--machine', required=True, action='store', help="Hostname of the target machine")
     return parser
 
