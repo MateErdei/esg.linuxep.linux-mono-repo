@@ -180,6 +180,11 @@ namespace Common
 
         uid_t FilePermissionsImpl::getUserId(const std::string& userString) const
         {
+            return getUserAndGroupId(userString).first;
+        }
+
+        std::pair<uid_t, gid_t> FilePermissionsImpl::getUserAndGroupId(const std::string& userString) const
+        {
             struct passwd userBuf;
             struct passwd* replyUser = nullptr;
             int err = ERANGE;
@@ -205,7 +210,7 @@ namespace Common
 
             if (err == 0 || err == ERANGE) // no error
             {
-                return userBuf.pw_uid;
+                return std::make_pair(userBuf.pw_uid, userBuf.pw_gid);
             }
             else
             {

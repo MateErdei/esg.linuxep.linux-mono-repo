@@ -29,6 +29,9 @@ namespace Common
 
             uid_t getUserId(const std::string& userString) const override;
 
+            std::pair<uid_t, gid_t> getUserAndGroupId(const std::string& userString) const override;
+
+
             std::string getUserName(const uid_t& userId) const override;
 
             std::string getUserName(const Path& filePath) const override;

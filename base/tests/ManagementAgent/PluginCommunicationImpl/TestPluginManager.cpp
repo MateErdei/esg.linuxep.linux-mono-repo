@@ -91,6 +91,8 @@ public:
         EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
         EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
         EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+        std::pair userAndGroup = std::make_pair(1,1);
+        EXPECT_CALL(*mockFilePermissions, getUserAndGroupId(_)).WillRepeatedly(Return(userAndGroup));
 
         /*EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
         EXPECT_CALL(*filesystemMock,

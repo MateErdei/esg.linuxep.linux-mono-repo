@@ -74,6 +74,13 @@ namespace Common
             virtual uid_t getUserId(const std::string& userString) const = 0;
 
             /**
+             * Get the user id and group id from user name
+             * @param userString
+             * @return returns either the userId and group Id or  -1 if there is none
+             */
+            virtual std::pair<uid_t, gid_t> getUserAndGroupId(const std::string& userString) const = 0;
+
+            /**
              * get the user name from the user id
              *
              * @param userId

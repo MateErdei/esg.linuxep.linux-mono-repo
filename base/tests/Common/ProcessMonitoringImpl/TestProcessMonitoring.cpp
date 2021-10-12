@@ -195,6 +195,7 @@ TEST_F(ProcessMonitoring, createProcessMonitorAndCheckSIGCHLDSignalIsHandled) //
     auto processMonitorPtr =
         Common::ProcessMonitoring::IProcessMonitorPtr(new Common::ProcessMonitoringImpl::ProcessMonitor(context));
     auto processInfoPtr = Common::Process::createEmptyProcessInfo();
+    processInfoPtr->setExecutableUserAndGroup("root:root");
     auto proxyPtr = Common::ProcessMonitoring::createProcessProxy(std::move(processInfoPtr));
     processMonitorPtr->addProcessToMonitor(std::move(proxyPtr));
 

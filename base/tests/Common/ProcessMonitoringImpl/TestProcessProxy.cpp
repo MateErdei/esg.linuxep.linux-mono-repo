@@ -14,8 +14,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/FakeTimeUtils.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/ProcessImpl/MockProcess.h>
+#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 
 namespace
 {
@@ -96,6 +98,44 @@ TEST_F(TestProcessProxy, WontStartPluginIfExecutableGroupUserNameIsUnset) // NOL
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Not starting plugin: invalid user name or group name"));
 }
 
+TEST_F(TestProcessProxy, WontStartPluginIfExecutableGroupUserNameNoLongerValid) // NOLINT
+{
+    testing::internal::CaptureStderr();
+    const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+    const std::string execPath = "./foobar";
+    std::string fullPath = Common::FileSystem::join(INST, execPath);
+
+    auto mockFilePermissions = new NiceMock<MockFilePermissions>();
+    std::unique_ptr<Tests::ScopedReplaceFilePermissions> scopedReplaceFilePermissions =
+        std::make_unique<Tests::ScopedReplaceFilePermissions>(std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions));
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
+
+    std::pair<uid_t, gid_t> validUserAndGroupId = std::make_pair(0,0);
+    std::pair<uid_t, gid_t> invalidUserAndGroupId = std::make_pair(-1,-1);
+
+    EXPECT_CALL(*mockFilePermissions, getUserAndGroupId("root")).WillOnce(Return(invalidUserAndGroupId));
+    EXPECT_CALL(*mockFilePermissions, getUserAndGroupId("root")).WillOnce(Return(validUserAndGroupId)).RetiresOnSaturation();
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto info = Common::Process::createEmptyProcessInfo();
+    info->setExecutableFullPath(execPath);
+    // Setup will return and store valid user and group id's
+    info->setExecutableUserAndGroup("root");
+
+
+    Common::ProcessMonitoringImpl::ProcessProxy proxy(std::move(info));
+
+    // On ensureStateMatchesOptions will result in the UserId and Group Id being re-evaluated and result in invalid user name and group.
+    std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
+    EXPECT_EQ(delay, std::chrono::hours(1));
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Not starting plugin: invalid user name or group name"));
+}
+
 TEST_F(TestProcessProxy, WillStartPluginWithExecutable) // NOLINT
 {
     const std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
@@ -115,7 +155,7 @@ TEST_F(TestProcessProxy, WillStartPluginWithExecutable) // NOLINT
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     auto info = Common::Process::createEmptyProcessInfo();
-    info->setExecutableUserAndGroup("root:root");
+    info-> setExecutableUserAndGroup("root:root");
     info->setExecutableFullPath(execPath);
 
     Common::ProcessMonitoringImpl::ProcessProxy proxy(std::move(info));

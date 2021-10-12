@@ -22,6 +22,7 @@ public:
     MOCK_CONST_METHOD1(getGroupName, std::string(const Path& filePath));
     MOCK_CONST_METHOD1(getGroupName, std::string(const gid_t& groupId));
     MOCK_CONST_METHOD1(getUserId, uid_t(const std::string& userString));
+    MOCK_CONST_METHOD1(getUserAndGroupId, std::pair<uid_t, gid_t>(const std::string& userString));
     MOCK_CONST_METHOD1(getUserName, std::string(const uid_t& userId));
     MOCK_CONST_METHOD1(getUserName, std::string(const Path& filePath));
     MOCK_CONST_METHOD1(getFilePermissions, mode_t(const Path& filePath));

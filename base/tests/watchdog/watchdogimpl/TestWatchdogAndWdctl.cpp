@@ -17,6 +17,9 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <watchdog/watchdogimpl/Watchdog.h>
 #include <mutex>
 #include <thread>
+#include <grp.h>
+#include <pwd.h>
+#include <unistd.h>
 
 namespace
 {
@@ -204,11 +207,27 @@ void TestWatchdogAndWdctl::TearDownTestCase()
 TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
 {
     {
+        // Test uses real user on the machine to start process, so need to make sure the correct user and group ids are obtained.
+        // for pair:pair
+        struct passwd* passwdStruct;
+        passwdStruct = ::getpwnam("pair");
+        uid_t userId = -1;
+        gid_t  groupId = -1;
+
+        if (passwdStruct != nullptr)
+        {
+            userId = passwdStruct->pw_uid;
+            groupId = passwdStruct->pw_gid;
+        }
+
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
             std::unique_ptr<MockFilePermissions>(mockFilePermissions);
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(userId));
+        EXPECT_CALL(*mockFilePermissions, getGroupId(_)).WillRepeatedly(Return(groupId));
+        std::pair userAndGroup = std::make_pair(userId,groupId);
+        EXPECT_CALL(*mockFilePermissions, getUserAndGroupId(_)).WillRepeatedly(Return(userAndGroup));
         EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
         EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
 
@@ -238,11 +257,27 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
 TEST_F(TestWatchdogAndWdctl, WdctlIsRunningDetectCanDetectStatusOfPlugins) // NOLINT
 {
     {
+        // Test uses real user on the machine to start process, so need to make sure the correct user and group ids are obtained.
+        // for pair:pair
+        struct passwd* passwdStruct;
+        passwdStruct = ::getpwnam("pair");
+        uid_t userId = -1;
+        gid_t  groupId = -1;
+
+        if (passwdStruct != nullptr)
+        {
+            userId = passwdStruct->pw_uid;
+            groupId = passwdStruct->pw_gid;
+        }
+
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
             std::unique_ptr<MockFilePermissions>(mockFilePermissions);
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(userId));
+        EXPECT_CALL(*mockFilePermissions, getGroupId(_)).WillRepeatedly(Return(groupId));
+        std::pair userAndGroup = std::make_pair(userId,groupId);
+        EXPECT_CALL(*mockFilePermissions, getUserAndGroupId(_)).WillRepeatedly(Return(userAndGroup));
         EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
         EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
 

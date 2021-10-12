@@ -46,6 +46,7 @@ namespace Common
 
         void ProcessProxy::start()
         {
+            m_processInfo->refreshUserAndGroupIds();
             std::pair<bool, uid_t> userId = m_processInfo->getExecutableUser();
             std::pair<bool, gid_t> groupId = m_processInfo->getExecutableGroup();
 

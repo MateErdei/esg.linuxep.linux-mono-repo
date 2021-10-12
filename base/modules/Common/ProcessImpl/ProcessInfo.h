@@ -33,6 +33,11 @@ namespace Common
             Process::EnvPairs getExecutableEnvironmentVariables() const override;
 
             /**
+             * Used to refresh user and group ids stored in memory from the system user information.
+             */
+            void refreshUserAndGroupIds() override;
+
+            /**
              * Used to store the full part to the plugin executable
              * @param executableFullPath
              */

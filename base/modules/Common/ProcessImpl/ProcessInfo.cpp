@@ -58,6 +58,11 @@ namespace Common
             m_executableEnvironmentVariables.emplace_back(environmentName, environmentValue);
         }
 
+        void ProcessInfo::refreshUserAndGroupIds()
+        {
+            setExecutableUserAndGroup(m_executableUserAndGroupAsString);
+        }
+
         void ProcessInfo::setExecutableUserAndGroup(const std::string& executableUserAndGroup)
         {
             m_executableUser = -1;
@@ -75,30 +80,26 @@ namespace Common
                 groupName = executableUserAndGroup.substr(pos + 1);
             }
 
-            struct passwd* passwdStruct;
-            passwdStruct = ::getpwnam(userName.c_str());
+            auto ifperms = Common::FileSystem::filePermissions();
 
-            if (passwdStruct != nullptr)
+            try
             {
-                m_executableUser = passwdStruct->pw_uid;
+                std::pair<uid_t, gid_t> userAndGroupId =
+                    ifperms->getUserAndGroupId(userName.c_str());
 
+                m_executableUser = userAndGroupId.first;
                 if (groupName.empty())
                 {
-                    m_executableGroup = passwdStruct->pw_gid;
+                    m_executableGroup = userAndGroupId.second;
                 }
                 else
                 {
-                    FileSystem::FilePermissionsImpl filefunctions;
-                    try
-                    {
-                        int groupId = filefunctions.getGroupId(groupName);
-                        m_executableGroup = groupId;
-                    }
-                    catch (const Common::FileSystem::IFileSystemException& exception)
-                    {
-                        LOGERROR(exception.what());
-                    }
+                    m_executableGroup = ifperms->getGroupId(groupName);
                 }
+            }
+            catch (const Common::FileSystem::IFileSystemException& exception)
+            {
+                LOGERROR(exception.what());
             }
         }
 

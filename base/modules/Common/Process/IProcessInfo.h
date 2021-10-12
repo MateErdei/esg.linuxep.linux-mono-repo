@@ -35,6 +35,12 @@ namespace Common
             virtual std::vector<std::string> getExecutableArguments() const = 0;
 
             /**
+             * Used to refresh the user and group ids to ensure the user and group ids are still valid
+             * before starting a process.
+             */
+            virtual void refreshUserAndGroupIds() = 0;
+
+            /**
              * Used to get the required environment variables for the plugin executable (if any)
              * @return zero or more strings used for the executable environment variables.
              */
