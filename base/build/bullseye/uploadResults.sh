@@ -71,7 +71,8 @@ then
       upload@allegro.eng.sophos:public_html/bullseye/  \
       </dev/null \
       || echo "Failed to upload bullseye html to Allegro"
-  find /tmp/system-product-test-inputs/
+  whoami
+  env
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
       "$COVFILE"                                                \
       --output /opt/test/results/coverage/test_coverage.json    \
