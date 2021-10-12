@@ -3,8 +3,8 @@
 # Script to run and time GCC builds on performance soak test machines.
 # The results are saved in elastic search in the index perf-custom.
 # This script requires the following dir structure:
-# /home/pair/gcc-build-test/gcc-gcc-6_4_0-release (this is the unpacked contents of gcc-gcc-6_4_0-release.tar.gz
-# which can be found here: /mnt/filer6/linux/SSPL/tools/gcc-gcc-6_4_0-release.tar.gz)
+# /home/pair/gcc-build-test/gcc-releases-gcc-8.5.0 (this is the unpacked contents of gcc-releases-gcc-8.5.0.tar.gz
+# which can be found here: /mnt/filer6/linux/SSPL/tools/gcc-releases-gcc-8.5.0.tar.gz)
 
 START=$(date +%s)
 
@@ -12,7 +12,7 @@ pushd /root/gcc-build-test || exit 1
 rm -rf ./build
 mkdir build
 cd build || exit 1
-../gcc-gcc-6_4_0-release/configure --enable-languages=c,c++ --disable-multilib
+../gcc-releases-gcc-8.5.0/configure --enable-languages=c,c++ --disable-multilib
 make -j4 || exit 1
 
 END=$(date +%s)
