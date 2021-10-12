@@ -73,7 +73,7 @@ then
       </dev/null \
       || echo "Failed to upload bullseye html to Allegro"
 
-  if [ ! -f ${TEST_COVERAGE_OUTPUT_JSON} ]; then
+  if [[ ! -f ${TEST_COVERAGE_OUTPUT_JSON} ]]; then
       mkdir -p ${TEST_COVERAGE_OUTPUT_JSON%/*}
       touch ${TEST_COVERAGE_OUTPUT_JSON}
       chmod +w ${TEST_COVERAGE_OUTPUT_JSON}
