@@ -210,7 +210,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
         // Test uses real user on the machine to start process, so need to make sure the correct user and group ids are obtained.
         // for pair:pair
         struct passwd* passwdStruct;
-        passwdStruct = ::getpwnam("pair");
+        passwdStruct = ::getpwnam(getlogin());
         uid_t userId = -1;
         gid_t  groupId = -1;
 
@@ -260,7 +260,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIsRunningDetectCanDetectStatusOfPlugins) // NO
         // Test uses real user on the machine to start process, so need to make sure the correct user and group ids are obtained.
         // for pair:pair
         struct passwd* passwdStruct;
-        passwdStruct = ::getpwnam("pair");
+        passwdStruct = ::getpwnam(getlogin());
         uid_t userId = -1;
         gid_t  groupId = -1;
 
