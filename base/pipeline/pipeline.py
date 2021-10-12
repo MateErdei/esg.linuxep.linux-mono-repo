@@ -79,7 +79,7 @@ def coverage_task(machine: tap.Machine):
         unitest_htmldir = os.path.join(INPUTS_DIR, "sspl-base-unittest")
         machine.run('mv', str(machine.inputs.coverage_unittest), unitest_htmldir)
         machine.run('cp', COVFILE_UNITTEST, unitest_htmldir)
-        machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir})
+        machine.run('bash', '-x', UPLOAD_SCRIPT, environment={'UPLOAD_ONLY': 'UPLOAD', 'htmldir': unitest_htmldir, 'COVERAGE_TYPE': 'unit', 'COVFILE': COVFILE_UNITTEST})
 
         # publish unit test coverage file and results to artifactory results/coverage
         coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')

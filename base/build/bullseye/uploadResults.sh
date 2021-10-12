@@ -19,6 +19,7 @@ SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 [[ -n ${htmldir} ]] || htmldir=${BASE}/output/coverage/${COV_HTML_BASE}
 [[ -n ${COVERAGE_SCRIPT} ]] || COVERAGE_SCRIPT=/opt/test/inputs/bazel_tools/tools/src/bullseye/test_coverage.py
 [[ -n ${UPLOAD_PATH} ]] || UPLOAD_PATH="UnifiedPipelines/linuxep/everest-base"
+[[ -n ${COVERAGE_TYPE} ]] || COVERAGE_TYPE="full"
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=${BASE}/build/bullseye/private.key
@@ -71,9 +72,16 @@ then
       upload@allegro.eng.sophos:public_html/bullseye/  \
       </dev/null \
       || echo "Failed to upload bullseye html to Allegro"
+
+  if [ ! -f ${TEST_COVERAGE_OUTPUT_JSON} ]; then
+      mkdir -p ${TEST_COVERAGE_OUTPUT_JSON%/*}
+      touch ${TEST_COVERAGE_OUTPUT_JSON}
+      chmod +w ${TEST_COVERAGE_OUTPUT_JSON}
+  fi
+
   whoami
   env
-  export PATH=$PATH:usr/local/bullseye/bin
+  export PATH=$PATH:/usr/local/bullseye/bin
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
       "$COVFILE"                                                \
       --output /opt/test/results/coverage/test_coverage.json    \
@@ -81,5 +89,6 @@ then
       --min-condition 70                                        \
       --upload                                                  \
       --upload-job "$UPLOAD_PATH"                               \
+      --coverage-type "$COVERAGE_TYPE"                          \
       || echo "Failed to upload coverage results to Redash"
 fi
