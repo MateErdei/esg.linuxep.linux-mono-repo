@@ -14,7 +14,8 @@
         </build-asset>
         <build-asset project="winep" repo="livequery">
             <release-version branch="release/2021.37-linux" build-id="20210909124845-4ba2bf3fe29b7ca6b54c83d0d9811fe9c53f511b-UFRT6N"/>
-            <development-version branch="develop"/>
+            <!-- TODO LINUXDAR-3579 re-enable develop when this ticket is done. -->
+            <!--            <development-version branch="develop"/>-->
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <build-asset project="winep" repo="dbos">
