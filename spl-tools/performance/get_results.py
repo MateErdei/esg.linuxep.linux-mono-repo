@@ -205,9 +205,9 @@ def get_results_for_machine(hostname):
 
         # Skip events / test loads we are not interested in.
         if not event_of_interest(hit["_source"]["eventname"]):
-            print("Skipping: {}".format(hit["_source"]))
+            print(f"Skipping: {hit['_source']}")
             continue
-        print("Processing: {}".format(hit["_source"]))
+        print(f"Processing: {hit['_source']}")
         task = create_task(hit["_source"], es)
         if not task:
             continue
@@ -332,7 +332,7 @@ def get_results_for_machine(hostname):
     cursor = performance_db.cursor()
 
     for row in array_data:
-        print("Inserting {}:".format(row))
+        print(f"Inserting {row}:")
         try:
             df_sql = "CALL update_perf_data(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
             df_val = (
@@ -342,8 +342,8 @@ def get_results_for_machine(hostname):
             cursor.execute(df_sql, df_val)
             performance_db.commit()
         except Exception as ex:
-            print("Exception for: {} ".format(row))
-            print("Exception: {} ".format(ex))
+            print(f"Exception for: {row} ")
+            print(f"Exception: {ex} ")
             traceback.print_exc(file=sys.stdout)
 
 

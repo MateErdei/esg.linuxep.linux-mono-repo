@@ -75,7 +75,7 @@ def get_build_date_and_version(path):
                 if "PRODUCT_VERSION" in line:
                     product_version = get_part_after_equals(line)
     except Exception as ex:
-        logging.warning("Could not read version file for: {}".format(path))
+        logging.warning(f"Could not read version file for: {path}")
         logging.warning(ex)
         pass
     return build_date, product_version
@@ -113,11 +113,11 @@ def record_result(event_name, date_time, start_time, end_time, custom_data=None)
 
     r = requests.post('http://sspl-perf-mon:9200/perf-custom/_doc', json=result)
     if r.status_code not in [200, 201]:
-        logging.error("Failed to store test result: {}".format(str(result)))
-        logging.error("Status code: {}, text: {}".format(r.status_code, r.text))
+        logging.error(f"Failed to store test result: {str(result)}")
+        logging.error(f"Status code: {r.status_code}, text: {r.text}")
     else:
-        logging.info("Stored result for: {}".format(event_name))
-        logging.info("Content: {}".format(result))
+        logging.info(f"Stored result for: {event_name}")
+        logging.info(f"Content: {result}")
 
 
 # This is UTC
@@ -159,15 +159,15 @@ def run_local_live_query_perf_test():
     for (name, query), times_to_run in queries_to_run:
         date_time = get_current_date_time_string()
         command = ['python3', local_live_query_script, name, query, str(times_to_run)]
-        logging.info("Running command:{}".format(str(command)))
+        logging.info(f"Running command:{str(command)}")
         process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
         if process_result.returncode != 0:
-            logging.error("Running local live query failed. return code: {}, stdout: {}, stderr: {}".format(
-                process_result.returncode, process_result.stdout, process_result.stderr))
+            logging.error(f"Running local live query failed. return code: {process_result.returncode}, "
+                          f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")
             continue
 
         result = json.loads(process_result.stdout)
-        event_name = "local-query_{}_x{}".format(name, str(times_to_run))
+        event_name = f"local-query_{name}_x{str(times_to_run)}"
         record_result(event_name, date_time, result["start_time"], result["end_time"])
 
 
@@ -208,7 +208,7 @@ def run_local_live_query_detections_perf_test():
                 continue
 
             result = json.loads(process_result.stdout)
-            event_name = "local-query_{}_x{}".format(name, str(times_to_run))
+            event_name = f"local-query_{name}_x{str(times_to_run)}"
             record_result(event_name, date_time, result["start_time"], result["end_time"])
     finally:
         stop_sspl_process('eventjournaler')
@@ -261,12 +261,12 @@ def run_central_live_query_perf_test(client_id, email, password, region):
                        '--machine', target_machine]
         process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
         if process_result.returncode != 0:
-            logging.error("Running live query through central failed. return code: {}, stdout: {}, stderr: {}".format(
-                process_result.returncode, process_result.stdout, process_result.stderr))
+            logging.error(f"Running live query through central failed. return code: {process_result.returncode}, "
+                          f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")
             continue
 
         result = json.loads(process_result.stdout)
-        event_name = "central-live-query_{}".format(name)
+        event_name = f"central-live-query_{name}"
         record_result(event_name, date_time, result["start_time"], result["end_time"])
 
 
@@ -281,11 +281,11 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
                "-f", message_contents_file_path,
                "-n", str(number_of_terminals),
                "-k", str(keep_alive)]
-    logging.info("Running command:{}".format(str(command)))
+    logging.info(f"Running command:{str(command)}")
     process_result = subprocess.run(command, timeout=500, stdout=subprocess.PIPE, encoding="utf-8")
     if process_result.returncode != 0:
-        logging.error("Running local live response terminal failed. return code: {}, stdout: {}, stderr: {}".format(
-            process_result.returncode, process_result.stdout, process_result.stderr))
+        logging.error(f"Running local live response terminal failed. return code: {process_result.returncode}, "
+                      f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")
 
     # We get lots of logging to stdout from the ltserver, we need to identify the results only. Example results line:
     # RESULTS:{"start_time": 1595956922.316, "end_time": 1595956922.328, "duration": 0.0111, "success": true}
@@ -311,9 +311,9 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
     # local-liveresponse_x10 -> ten terminals receiving a string and then closing, not held open for any extra time.
     # local-liveresponse-keepalive_x1 -> one terminal receiving a string and then being held open for e.g. 5 mins.
     # local-liveresponse-keepalive_x10 -> ten terminals receiving a string and then being held open for e.g. 5 mins.
-    event_name = "local-liveresponse_x{}".format(number_of_terminals)
+    event_name = f"local-liveresponse_x{number_of_terminals}"
     if keep_alive != 0:
-        event_name = "local-liveresponse-keepalive_x{}".format(number_of_terminals)
+        event_name = f"local-liveresponse-keepalive_x{number_of_terminals}"
 
     record_result(event_name, date_time, result["start_time"], result["end_time"])
 
@@ -326,7 +326,7 @@ def run_event_journaler_ingestion_test():
 
     date_time = get_current_date_time_string()
     command = ['python3', event_journaler_ingestion_script, '220']
-    logging.info("Running command:{}".format(str(command)))
+    logging.info(f"Running command:{str(command)}")
     process_result = subprocess.run(command, timeout=500, stdout=subprocess.PIPE, encoding="utf-8")
     if process_result.returncode != 0:
         logging.error(f"Running event journaler ingestion test failed. return code: {process_result.returncode}, "

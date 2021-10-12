@@ -22,7 +22,7 @@ def start_sspl_process(process):
 
 def wait_for_dir_to_exist(dir: str, timeout: int):
     if not os.path.exists(dir):
-        logging.info("Waiting for dir to be created: {}".format(dir))
+        logging.info(f"Waiting for dir to be created: {dir}")
     while time.time() < timeout:
         if os.path.exists(dir):
             return

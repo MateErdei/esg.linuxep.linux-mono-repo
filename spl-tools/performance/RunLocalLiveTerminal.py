@@ -14,9 +14,9 @@ from performance.PerformanceResources import get_current_unix_epoch_in_seconds
 
 
 def trigger_endpoint_terminal(path: str):
-    path_to_write_file = "/opt/sophos-spl/plugins/liveresponse/var/{}".format(path)
+    path_to_write_file = f"/opt/sophos-spl/plugins/liveresponse/var/{path}"
 
-    trigger = {"url": "https://localhost:4443/{}".format(path),
+    trigger = {"url": f"https://localhost:4443/{path}",
                "thumbprint": "2d03c43bfc9ebe133e0c22df61b840f94b3a3bd5b05d1d715cc92b2debcb6f9d",
                "endpoint_id": "endpointid",
                "customer_id": "customerid",
@@ -33,13 +33,13 @@ def trigger_endpoint_terminal(path: str):
 def create_server_and_send_string(string_to_send: str, number_of_parallel_terminals: int, keepalive: int):
     paths = []
     for n in range(0, number_of_parallel_terminals):
-        paths.append("path{}".format(n))
+        paths.append(f"path{n}")
     connected = False
     with LTserver.LTServer('localhost', 4443, certificates.CERTIFICATE_PEM) as server:
         for path in paths:
-            path_with_slash = "/{}".format(path)
+            path_with_slash = f"/{path}"
             trigger_endpoint_terminal(path)
-            print("Checking terminal connected to path: {}".format(path))
+            print(f"Checking terminal connected to path: {path}")
             connected = server.match_message('root@', path_with_slash, 60)
 
         if not connected:
@@ -50,7 +50,7 @@ def create_server_and_send_string(string_to_send: str, number_of_parallel_termin
         # prove that the string has been sent and also saved to a file, this means we know the command has finished and
         # have proven that it was successful. We need to remove all previous evidence files first.
         evidence_file_prefix = "/tmp/evidence-"
-        file_list = glob.glob("{}*".format(evidence_file_prefix))
+        file_list = glob.glob(f"{evidence_file_prefix}*")
         for filePath in file_list:
             try:
                 os.remove(filePath)
@@ -62,8 +62,8 @@ def create_server_and_send_string(string_to_send: str, number_of_parallel_termin
         # Write the string to disk on the endpoint so that this script can verify it was received and saved
         # So the command will be: echo -n "string to send" > /some/file/path/logged-message
         for path in paths:
-            evidence_file_path = "{}{}".format(evidence_file_prefix, path)
-            server.send_message_with_newline("echo -n '{}' > {}".format(string_to_send, evidence_file_path), path_with_slash)
+            evidence_file_path = f"{evidence_file_prefix}{path}"
+            server.send_message_with_newline(f"echo -n '{string_to_send}' > {evidence_file_path}", path_with_slash)
             saved_msg = None
             while string_to_send != saved_msg and time.time() < timeout:
                 try:
@@ -80,9 +80,9 @@ def create_server_and_send_string(string_to_send: str, number_of_parallel_termin
             while target_time > get_current_unix_epoch_in_seconds():
                 # Use the current unix timestamp as a marker message, it will be unique so we don't see old messages.
                 marker_message = str(get_current_unix_epoch_in_seconds())
-                server.send_message_with_newline("echo {}".format(marker_message), path_with_slash)
+                server.send_message_with_newline(f"echo {marker_message}", path_with_slash)
                 if not server.match_message(marker_message, path_with_slash):
-                    print("Test failed! could not find the message: {}".format(marker_message))
+                    print(f"Test failed! could not find the message: {marker_message}")
                     break
                 time.sleep(1)
 
@@ -115,7 +115,7 @@ def main():
               "duration": end_time - start_time,
               "success": True}
 
-    print("RESULTS:{}".format(json.dumps(result)))
+    print(f"RESULTS:{json.dumps(result)}")
     return 0
 
 
