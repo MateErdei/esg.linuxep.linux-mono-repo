@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
-import time
-import sys
 import json
+import os
+import sys
 
-
-## Before importing cloudClient!
 from performance.PerformanceResources import get_current_unix_epoch_in_seconds
 
+# Before importing cloudClient!
 os.environ.setdefault("TMPROOT", "/tmp")
 
 # from . import cloudClient

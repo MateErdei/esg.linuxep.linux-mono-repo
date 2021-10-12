@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 import grp
+import json
 import os
 import shutil
 import sys
 import time
 import traceback
-import json
-from random import randrange
-from pwd import getpwnam
-import subprocess
-from watchdog.observers import Observer
-from watchdog.events import PatternMatchingEventHandler
 from pathlib import Path
+from pwd import getpwnam
+from random import randrange
+
+from watchdog.events import PatternMatchingEventHandler
+from watchdog.observers import Observer
 
 from performance.PerformanceResources import SOPHOS_INSTALL, stop_sspl_process, get_current_unix_epoch_in_seconds, \
     start_sspl_process

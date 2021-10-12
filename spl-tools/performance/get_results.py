@@ -4,10 +4,11 @@
 # section of data which is entered in to elastic search by curl commands from performance scripts on the machines.
 # The second set of data (custom data) contains certain specific things about the perf tests,
 # e.g. duration, start time and end time.
+import sys
 import traceback
 from datetime import datetime
+
 from elasticsearch import Elasticsearch
-import sys
 
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")

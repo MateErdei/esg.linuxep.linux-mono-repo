@@ -1,14 +1,14 @@
+import argparse
 import json
 import logging
+import os
 import shutil
-
-import requests
+import socket
+import subprocess
 import sys
 import time
-import socket
-import argparse
-import subprocess
-import os
+
+import requests
 
 from performance.PerformanceResources import stop_sspl_process, start_sspl_process, get_current_unix_epoch_in_seconds, \
     wait_for_plugin_to_be_installed

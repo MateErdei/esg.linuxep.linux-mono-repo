@@ -1,12 +1,12 @@
 #!/usr/bin/env python3.7
 
 import argparse
+import glob
 import json
+import os
+import subprocess
 import sys
 import time
-import subprocess
-import os
-import glob
 
 from websocket_server import LTserver, certificates
 
