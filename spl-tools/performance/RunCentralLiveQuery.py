@@ -5,7 +5,7 @@ import json
 import os
 import sys
 
-from performance.PerformanceResources import get_current_unix_epoch_in_seconds
+from PerformanceResources import get_current_unix_epoch_in_seconds
 
 # Before importing cloudClient!
 os.environ.setdefault("TMPROOT", "/tmp")

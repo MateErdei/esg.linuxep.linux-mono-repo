@@ -13,7 +13,7 @@ from random import randrange
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
-from performance.PerformanceResources import SOPHOS_INSTALL, stop_sspl_process, get_current_unix_epoch_in_seconds, \
+from PerformanceResources import SOPHOS_INSTALL, stop_sspl_process, get_current_unix_epoch_in_seconds, \
     start_sspl_process
 
 RESPONSE_COUNT = 0

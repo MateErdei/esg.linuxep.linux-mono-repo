@@ -10,7 +10,7 @@ import time
 
 import requests
 
-from performance.PerformanceResources import stop_sspl_process, start_sspl_process, get_current_unix_epoch_in_seconds, \
+from PerformanceResources import stop_sspl_process, start_sspl_process, get_current_unix_epoch_in_seconds, \
     wait_for_plugin_to_be_installed
 
 PROCESS_EVENTS_QUERY = ("process-events", '''SELECT
@@ -348,7 +348,8 @@ def run_event_journaler_ingestion_test():
 
     print(result)
     custom_data = {"number_of_events_sent": result["number_of_events_sent"], "event_count": result["event_count"]}
-    record_result("event-journaler-ingestion", date_time, result["start_time"], result["end_time"], custom_data=custom_data)
+    record_result("event-journaler-ingestion", date_time, result["start_time"], result["end_time"],
+                  custom_data=custom_data)
 
 
 def add_options():
@@ -375,7 +376,7 @@ def add_options():
 
     parser.add_argument('-r', '--region', action='store', help="Central region (q, d, p)")
 
-    parser.add_argument('-d', '--dry_run', action='store', chioces=[True, False],
+    parser.add_argument('-d', '--dry_run', action='store_true', default=False,
                         help="Run tests locally without storing results")
     return parser
 

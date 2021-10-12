@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 
-from performance.PerformanceResources import stop_sspl_process, start_sspl_process, get_current_unix_epoch_in_seconds
+from PerformanceResources import stop_sspl_process, start_sspl_process, get_current_unix_epoch_in_seconds
 
 
 def run_ingestion_test(number_of_events_to_send):

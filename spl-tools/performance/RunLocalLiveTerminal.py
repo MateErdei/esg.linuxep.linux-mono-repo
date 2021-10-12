@@ -10,7 +10,7 @@ import time
 
 from websocket_server import LTserver, certificates
 
-from performance.PerformanceResources import get_current_unix_epoch_in_seconds
+from PerformanceResources import get_current_unix_epoch_in_seconds
 
 
 def trigger_endpoint_terminal(path: str):
