@@ -18,8 +18,9 @@ SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-base-unittest
 [[ -n ${htmldir} ]] || htmldir=${BASE}/output/coverage/${COV_HTML_BASE}
 [[ -n ${COVERAGE_SCRIPT} ]] || COVERAGE_SCRIPT=/opt/test/inputs/bazel_tools/tools/src/bullseye/test_coverage.py
-[[ -n ${UPLOAD_PATH} ]] || UPLOAD_PATH="UnifiedPipelines/linuxep/everest-base"
-[[ -n ${COVERAGE_TYPE} ]] || COVERAGE_TYPE="full"
+[[ -n ${UPLOAD_PATH} ]] || UPLOAD_PATH=UnifiedPipelines/linuxep/everest-base
+[[ -n ${COVERAGE_TYPE} ]] || COVERAGE_TYPE=full
+[[ -n ${TEST_COVERAGE_OUTPUT_JSON} ]] || TEST_COVERAGE_OUTPUT_JSON=/opt/test/results/coverage/test_coverage.json
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=${BASE}/build/bullseye/private.key
