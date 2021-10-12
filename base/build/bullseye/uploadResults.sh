@@ -73,6 +73,7 @@ then
       || echo "Failed to upload bullseye html to Allegro"
   whoami
   env
+  export PATH=$PATH:usr/local/bullseye/bin
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
       "$COVFILE"                                                \
       --output /opt/test/results/coverage/test_coverage.json    \
