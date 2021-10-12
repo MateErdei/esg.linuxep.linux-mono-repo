@@ -84,7 +84,7 @@ then
   export PATH=$PATH:/usr/local/bullseye/bin
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
       "$COVFILE"                                                \
-      --output /opt/test/results/coverage/test_coverage.json    \
+      --output "$TEST_COVERAGE_OUTPUT_JSON"                     \
       --min-function 70                                         \
       --min-condition 70                                        \
       --upload                                                  \
