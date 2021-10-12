@@ -4,13 +4,13 @@
 @reboot /root/metricbeat-7.1.1-linux-x86_64/metricbeat -c /root/metricbeat-7.1.1-linux-x86_64/metricbeat.yml
 
 # Run gcc build performance test at 3am
-0  3  *  *  *      python3 /home/pair/performance/RunEDRPerfTests.py -s gcc
+0  3  *  *  *      python3 /home/pair/performance/RunPerfTests.py -s gcc
 
 # Run live queries through central using API at 10am
-0 10  *  *  *      python3 /home/pair/performance/RunEDRPerfTests.py -s central-livequery  -e darwinperformance@sophos.xmas.testqa.com -p <PASSWORD>
+0 10  *  *  *      python3 /home/pair/performance/RunPerfTests.py -s central-livequery  -e darwinperformance@sophos.xmas.testqa.com -p <PASSWORD>
 
 # Run local live queries  at 1pm
-0 13  *  *  *      python3 /home/pair/performance/RunEDRPerfTests.py -s local-livequery
+0 13  *  *  *      python3 /home/pair/performance/RunPerfTests.py -s local-livequery
 
 # For measuring osquery DB files
 */5 * * * *  bash /home/pair/performance/save-osquery-db-file-count.sh

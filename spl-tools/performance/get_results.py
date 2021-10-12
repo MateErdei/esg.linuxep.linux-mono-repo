@@ -158,7 +158,7 @@ def event_of_interest(event_name):
     #    want resource stats from the terminal session we keep alive for 5 mins and not from the non-keepalive test
     #    which we only want to save the duration to send x characters to elastic search and then display that over time,
     #    there is little use in querying resource stats over 0.001 seconds, we record stats no more than once per second
-    # These should correspond to the event names in the RunEDRPerfTests and in the run_tests.sh
+    # These should correspond to the event names in the RunPerfTests and in the run_tests.sh
     event_name_prefixes = ["build_gcc",
                            "copy_files",
                            "local-query_",
