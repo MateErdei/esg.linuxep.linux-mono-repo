@@ -37,3 +37,20 @@ sophos_add_library(OsqueryExtensions SHARED
 
         EXTRA_INCLUDES ${OSQUERYSDK}/include ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include ${BOOST_INCLUDE_DIR} ${JOURNAL_INCLUDE_DIR}
         )
+
+set(TABLE_PLUGIN_HDRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/SophosServerTable.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/SophosAVDetectionTable.h
+)
+
+add_custom_target(schema DEPENDS ${CMAKE_BINARY_DIR}/schema/schema.json)
+
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/schema/schema.json
+                   COMMAND python3 ${SCHEMA_BUILDER_DIR}/schema_builder.py
+                        --templates ${SCHEMA_BUILDER_DIR}/templates/schema.html
+                        --headers ${TABLE_PLUGIN_HDRS}
+                        --additional_schemas ${MTREXTENSION_SCHEMA}
+                        --output ${CMAKE_BINARY_DIR}/schema
+)
+
+add_dependencies(OsqueryExtensions schema)

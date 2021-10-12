@@ -424,6 +424,11 @@ function build()
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
     cp -a ${INPUT}/base-sdds  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
     cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
+    cp -a build64/schema output/schema || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy schema to output"
+    if [[ -f $INPUT/linux-x64-extension/schema/schema.json ]]
+    then
+        cp -a $INPUT/linux-x64-extension/schema/schema.json output/schema/mtr_schema.json
+    fi
 
     if [[ ${BULLSEYE} == 1 ]]
     then

@@ -21,29 +21,6 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace OsquerySDK
 {
-    std::string SophosAVDetectionTable::GetName()
-    {
-        return "sophos_detections_journal";
-    }
-
-    std::vector<TableColumn> SophosAVDetectionTable::GetColumns()
-    {
-        return { OsquerySDK::TableColumn { "rowid", UNSIGNED_BIGINT_TYPE, ColumnOptions::HIDDEN },
-                 OsquerySDK::TableColumn { "time", UNSIGNED_BIGINT_TYPE, ColumnOptions::INDEX },
-                 OsquerySDK::TableColumn { "raw", TEXT_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "query_id", TEXT_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "detection_name", TEXT_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "detection_thumbprint", TEXT_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "threat_source", TEXT_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "threat_type", TEXT_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "sid", TEXT_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "monitor_mode", INTEGER_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "primary_item", TEXT_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "primary_item_type", TEXT_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "primary_item_name", TEXT_TYPE, ColumnOptions::DEFAULT },
-                 OsquerySDK::TableColumn { "primary_item_spid", TEXT_TYPE, ColumnOptions::DEFAULT } };
-    }
-
     TableRows SophosAVDetectionTable::Generate(QueryContextInterface& queryContext)
     {
         LOGINFO("Generating data for Detections Table");

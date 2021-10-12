@@ -15,17 +15,6 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 namespace OsquerySDK
 {
-    std::vector<TableColumn> SophosServerTable::GetColumns()
-    {
-        return
-                {
-                        OsquerySDK::TableColumn{"endpoint_id", TEXT_TYPE, ColumnOptions::DEFAULT},
-                        OsquerySDK::TableColumn{"customer_id", TEXT_TYPE, ColumnOptions::DEFAULT}
-                };
-    }
-
-    std::string SophosServerTable::GetName() { return "sophos_endpoint_info"; }
-
     TableRows SophosServerTable::Generate(QueryContextInterface& /*request*/)
     {
         TableRows results;

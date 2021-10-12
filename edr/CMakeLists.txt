@@ -136,6 +136,9 @@ endif()
 if (NOT DEFINED MTREXTENSION)
     SET( MTREXTENSION ${INPUT}/linux-x64-extension/SophosMTRExtension)
 endif()
+if (NOT DEFINED MTREXTENSION_SCHEMA)
+    SET( MTREXTENSION_SCHEMA ${INPUT}/linux-x64-extension/schema/schema.json)
+endif()
 set( BOOST_INPUT ${INPUT}/boost )
 set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
 set( THRIFT_INPUT ${INPUT}/thrift )
@@ -161,6 +164,8 @@ set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 
 set(OSQUERY_BINARY ${INPUT}/osquery/usr/local/bin/osqueryd)
 set(OSQUERY_LENSES_DIR ${INPUT}/osquery/usr/local/share/osquery/lenses)
+
+set(SCHEMA_BUILDER_DIR ${CMAKE_SOURCE_DIR}/tools)
 
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*)

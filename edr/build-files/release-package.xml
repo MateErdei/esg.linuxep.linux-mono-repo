@@ -22,6 +22,7 @@
             <release-version branch="release/2021.10" build-id="20210309104636-4cf9e440aedc818512dbfeb5f63d3c98cc5ae4c2-6rLar3"/>
             <development-version branch="develop"/>
             <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
+            <include artifact-path="schema" dest-dir="input/linux-x64-extension/schema"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
             <release-version branch="release/SED_3.0.1_linux_libs" build-id="20210929204637-2500f58d99d60db61f6c2f61f9f2a02c533f50da-GFlHOK" />
@@ -114,6 +115,7 @@
         <release-asset artifact-path="edr-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
 
         <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
+        <build-asset artifact-path="schema" source-dir="output/schema" mode="release"/>
         <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
         <build-asset artifact-path="componenttests" source-dir="output/componenttests" mode="release"/>
         <build-asset artifact-path="build_log" source-dir="output" mode="release">
