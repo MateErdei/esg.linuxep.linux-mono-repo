@@ -97,8 +97,8 @@ def parse_table_docs(file_path):  # pylint: disable=too-many-statements
     table['evented'] = False
     table['name'] = table_args[0]
     table['url'] = \
-        "https://stash.sophos.net/projects/WINEP/repos/livequery/browse/src/ExtensionLib/" + os.path.basename(file_path)
-    table['platforms'] = ["windows"]
+        "https://stash.sophos.net/projects/LINUXEP/repos/sspl-plugin-edr-component/browse/modules/osqueryextensions/" + os.path.basename(file_path)
+    table['platforms'] = ["linux"]
     table['columns'] = []
 
     for column_match in re.finditer(r'TABLE_PLUGIN_COLUMN(?:_SNAKE_CASE)*\(([^)]*)\)', code):
