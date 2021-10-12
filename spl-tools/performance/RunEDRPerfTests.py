@@ -111,13 +111,16 @@ def record_result(event_name, date_time, start_time, end_time, custom_data=None)
         result["mtr_product_version"] = mtr_product_version
         result["mtr_build_date"] = mtr_build_date
 
-    r = requests.post('http://sspl-perf-mon:9200/perf-custom/_doc', json=result)
-    if r.status_code not in [200, 201]:
-        logging.error(f"Failed to store test result: {str(result)}")
-        logging.error(f"Status code: {r.status_code}, text: {r.text}")
+    if dry_run:
+        print(result)
     else:
-        logging.info(f"Stored result for: {event_name}")
-        logging.info(f"Content: {result}")
+        r = requests.post('http://sspl-perf-mon:9200/perf-custom/_doc', json=result)
+        if r.status_code not in [200, 201]:
+            logging.error(f"Failed to store test result: {str(result)}")
+            logging.error(f"Status code: {r.status_code}, text: {r.text}")
+        else:
+            logging.info(f"Stored result for: {event_name}")
+            logging.info(f"Content: {result}")
 
 
 # This is UTC
@@ -361,14 +364,19 @@ def add_options():
                                  'event-journaler-ingestion'],
                         help="Select which performance test suite to run")
 
-    parser.add_argument('-i', '--client-id', action='store', help="Central account API client ID to use to run live queries")
+    parser.add_argument('-i', '--client-id', action='store',
+                        help="Central account API client ID to use to run live queries")
 
     parser.add_argument('-e', '--email', default='darwinperformance@sophos.xmas.testqa.com', action='store',
                         help="Central account email address to use to run live queries")
 
-    parser.add_argument('-p', '--password', action='store', help="Central account API client secret or password to use to run live queries")
+    parser.add_argument('-p', '--password', action='store',
+                        help="Central account API client secret or password to use to run live queries")
 
     parser.add_argument('-r', '--region', action='store', help="Central region (q, d, p)")
+
+    parser.add_argument('-d', '--dry_run', action='store', chioces=[True, False],
+                        help="Run tests locally without storing results")
     return parser
 
 
@@ -377,6 +385,9 @@ def main():
     logging.getLogger().setLevel(logging.DEBUG)
     parser = add_options()
     args = parser.parse_args()
+
+    global dry_run
+    dry_run = args.dry_run
 
     logging.info("Starting")
 
