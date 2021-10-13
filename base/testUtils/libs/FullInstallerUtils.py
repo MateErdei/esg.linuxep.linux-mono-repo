@@ -375,9 +375,10 @@ def remove_user(delete_user_cmd, user):
     output, retCode = run_proc_with_safe_output([delete_user_cmd, user])    
     if retCode != 0:
         logger.info(output)
-        pids = [process.pid for process in psutil.process_iter() if process.username() == user]
-        for pid in pids:
-            output,retCode = run_proc_with_safe_output(["kill", str(pid)])
+        processes_to_kill = [ {"pid": process.pid, "name": process.name()} for process in psutil.process_iter() if process.username() == user]
+        for process in processes_to_kill:
+            logger.info(f"Killing {process['name']}")
+            output, retCode = run_proc_with_safe_output(["kill", str(process["pid"])])
             if retCode != 0:
                 logger.info(output)
 
