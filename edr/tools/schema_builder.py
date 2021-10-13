@@ -150,7 +150,7 @@ def main():
     parser.add_argument('--templates', nargs='+', default=[])
     parser.add_argument('--headers', nargs='+')
     parser.add_argument('--output-dir')
-    parser.add_argument('--additional_schemas', nargs='+')
+    parser.add_argument('--additional_schemas', nargs='+', default=[])
     args = parser.parse_args()
 
     tables = []
