@@ -75,9 +75,9 @@ then
       || echo "Failed to upload bullseye html to Allegro"
 
   if [[ ! -f ${TEST_COVERAGE_OUTPUT_JSON} ]]; then
-      mkdir -p ${TEST_COVERAGE_OUTPUT_JSON%/*}
-      touch ${TEST_COVERAGE_OUTPUT_JSON}
-      chmod +w ${TEST_COVERAGE_OUTPUT_JSON}
+      sudo mkdir -p ${TEST_COVERAGE_OUTPUT_JSON%/*}
+      sudo touch ${TEST_COVERAGE_OUTPUT_JSON}
+      sudo chmod +w ${TEST_COVERAGE_OUTPUT_JSON}
   fi
 
   whoami
