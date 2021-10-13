@@ -72,17 +72,18 @@ int main(int argc, char* argv[])
     std::string dataString;
     std::string filepath;
     bool customDataSet = false;
-    int count = 1;
+    uint64_t count = 1;
     int opt = 0;
-    // Add throttle flag but default to true to keep default behaviour the same as before.
-    bool throttle = true;
 
-    while ((opt = getopt(argc, argv, "c:s:u:d:f:z")) != -1)
+    // 100 ms in us
+    uint64_t sleep = 100000;
+
+    while ((opt = getopt(argc, argv, "c:s:u:d:f:z:")) != -1)
     {
         switch (opt)
         {
             case 'c':
-                count = atoi(optarg);
+                count = atoll(optarg);
                 break;
             case 's':
                 socketPath = optarg;
@@ -99,7 +100,7 @@ int main(int argc, char* argv[])
                 customDataSet = true;
                 break;
             case 'z':
-                throttle = false;
+                sleep = atoll(optarg);
                 break;
             default:
                 printUsageAndExit(argv[0]);
@@ -135,15 +136,11 @@ int main(int argc, char* argv[])
         socket->connect("ipc://" + socketPath);
         std::this_thread::sleep_for(std::chrono::milliseconds(100)); // wait for connection
 
-        std::cout << "Sending events" << std::endl;
-        for (int i = 0; i < count; i++)
+        std::cout << "Sending " << count << " events" << std::endl;
+        for (uint64_t i = 0; i < count; ++i)
         {
             socket->write({ "threatEvents", dataString });
-
-            if (throttle)
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds (100));
-            }
+            std::this_thread::sleep_for(std::chrono::microseconds (sleep));
         }
     }
     else if (command == "listen")
