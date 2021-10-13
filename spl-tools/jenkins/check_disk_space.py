@@ -7,7 +7,7 @@ def main():
     print("Total: %d GiB" % (total // (2**30)))
     print("Used: %d GiB" % (used // (2**30)))
     print("Free: %d GiB" % (free // (2**30)))
-    if percentage < 0.2:
+    if percentage < 0.1:
         print("Running out of space please take action, less than 10 percent space left")
         sys.exit(1)
     else:
