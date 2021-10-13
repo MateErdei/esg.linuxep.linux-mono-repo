@@ -327,29 +327,46 @@ def run_event_journaler_ingestion_test():
     this_dir = os.path.dirname(os.path.realpath(__file__))
     event_journaler_ingestion_script = os.path.join(this_dir, "RunEventJournalerIngestionTest.py")
 
-    date_time = get_current_date_time_string()
-    command = ['python3', event_journaler_ingestion_script, '220']
-    logging.info(f"Running command:{str(command)}")
-    process_result = subprocess.run(command, timeout=500, stdout=subprocess.PIPE, encoding="utf-8")
-    if process_result.returncode != 0:
-        logging.error(f"Running event journaler ingestion test failed. return code: {process_result.returncode}, "
-                      f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")
+    tests_to_run = [
+        {'name': 'queue_saturation', 'number_of_events_to_send': '220', 'timeout': '120', 'sleep': '0',
+         'expect_to_timeout': False},
+        {'name': 'event_retention', 'number_of_events_to_send': '100000', 'timeout': '120', 'sleep': '500',
+         'expect_to_timeout': False},
+        {'name': 'queue_saturation_5min', 'number_of_events_to_send': '10000000000', 'timeout': '300', 'sleep': '0',
+         'expect_to_timeout': True},
+    ]
 
-    result = None
-    results_tag = "RESULTS:"
-    for line in process_result.stdout.splitlines():
-        if line.startswith(results_tag):
-            result = json.loads(line.lstrip(results_tag))
-            break
+    for test_args in tests_to_run:
+        date_time = get_current_date_time_string()
+        command = ['python3', event_journaler_ingestion_script,
+                   '-n', test_args["number_of_events_to_send"],
+                   '-t', test_args["timeout"],
+                   '-s', test_args["sleep"]]
+        if test_args["expect_to_timeout"]:
+            command.append('-e')
 
-    if not result:
-        logging.error("No result from RunEventJournalerIngestionTest.py")
-        return
+        logging.info(f"Running command:{str(command)}")
+        process_result = subprocess.run(command, timeout=500, stdout=subprocess.PIPE, encoding="utf-8")
+        if process_result.returncode != 0:
+            logging.error(f"Running event journaler ingestion test ({test_args['name']}) failed. "
+                          f"return code: {process_result.returncode}, stdout: {process_result.stdout}, "
+                          f"stderr: {process_result.stderr}")
 
-    print(result)
-    custom_data = {"number_of_events_sent": result["number_of_events_sent"], "event_count": result["event_count"]}
-    record_result("event-journaler-ingestion", date_time, result["start_time"], result["end_time"],
-                  custom_data=custom_data)
+        result = None
+        results_tag = "RESULTS:"
+        for line in process_result.stdout.splitlines():
+            if line.startswith(results_tag):
+                result = json.loads(line.lstrip(results_tag))
+                break
+
+        if not result:
+            logging.error("No result from RunEventJournalerIngestionTest.py")
+            return
+
+        print(result)
+        event_name = f"event-journaler-ingestion_{test_args['name']}"
+        custom_data = {"number_of_events_sent": result["number_of_events_sent"], "event_count": result["event_count"]}
+        record_result(event_name, date_time, result["start_time"], result["end_time"], custom_data=custom_data)
 
 
 def add_options():

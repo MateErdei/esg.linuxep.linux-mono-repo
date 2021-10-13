@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import json
 import os
 import shutil
@@ -9,7 +10,7 @@ import time
 from PerformanceResources import stop_sspl_process, start_sspl_process, get_current_unix_epoch_in_seconds
 
 
-def run_ingestion_test(number_of_events_to_send):
+def run_ingestion_test(number_of_events_to_send, timeout='120', sleep='1000', expect_to_timeout=False):
     start_time = 0
     end_time = 0
 
@@ -33,10 +34,18 @@ def run_ingestion_test(number_of_events_to_send):
         command = ['/root/performance/EventPubSub',
                    '-s', "/opt/sophos-spl/var/ipc/events.ipc",
                    '-c', number_of_events_to_send,
-                   '-z',  # go fast and don't use sleep in the send loop i.e. send events as fast as possible.
+                   '-z', sleep,
                    'send']
-        process_result = subprocess.run(command, timeout=120, stdout=subprocess.PIPE, encoding="utf-8")
-        assert(process_result.returncode == 0)
+
+        try:
+            process_result = subprocess.run(command, timeout=int(timeout), stdout=subprocess.PIPE, encoding="utf-8")
+
+            if expect_to_timeout:
+                raise "Expected to timeout"
+        except subprocess.TimeoutExpired as ex:
+            if not expect_to_timeout:
+                raise "Unexpected test timeout"
+
         end_time = get_current_unix_epoch_in_seconds()
 
         # Allow the event journaler buffer to empty
@@ -58,10 +67,8 @@ def run_ingestion_test(number_of_events_to_send):
     finally:
         stop_sspl_process('eventjournaler')
         shutil.rmtree(detections_dir)
-
         if os.path.exists(tmp_detections_dir):
             shutil.move(tmp_detections_dir, detections_dir)
-
         start_sspl_process('eventjournaler')
 
     result = {"start_time": start_time,
@@ -74,27 +81,28 @@ def run_ingestion_test(number_of_events_to_send):
     return result
 
 
-def print_usage_and_exit(script_name):
-    print(f"Usage: {script_name} <NumberOfEvents>")
-    print(f"Example: {script_name} 1000 ")
-    exit()
+def add_options():
+    parser = argparse.ArgumentParser(description='Runs Event Journaler Ingestion Tests')
+    parser.add_argument('-n', '--number_of_events_to_send', action='store', help="Number of events to send")
+    parser.add_argument('-t', '--timeout', action='store', help="Timeout value for EventPubSub tool")
+    parser.add_argument('-s', '--sleep', action='store', help="Sleep value for EventPubSub tool")
+    parser.add_argument('-e', '--expect_to_timeout', action='store_true', default=False,
+                        help="Set whether test is expected to timeout")
+    return parser
 
 
-def main(args):
-    number_of_args = len(args) - 1
+def main():
+    parser = add_options()
+    args = parser.parse_args()
 
-    if number_of_args == 1:
-        if args[1] == "--help" or args[1] == "-h":
-            print_usage_and_exit(args[0])
-
-    if number_of_args != 1:
-        print_usage_and_exit(args[0])
-
-    number_of_events_to_send = args[1]
-    result = run_ingestion_test(number_of_events_to_send)
+    result = run_ingestion_test(args.number_of_events_to_send, args.timeout, args.sleep, args.expect_to_timeout)
     print(f"RESULTS:{json.dumps(result)}")
-    return result["success"]
+
+    if result["success"]:
+        return 0
+
+    return 1
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    sys.exit(main())
