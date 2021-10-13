@@ -47,7 +47,6 @@ add_custom_target(schema DEPENDS ${CMAKE_BINARY_DIR}/schema/schema.json)
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/schema/schema.json
                    COMMAND python3 ${SCHEMA_BUILDER_DIR}/schema_builder.py
-                        --templates ${SCHEMA_BUILDER_DIR}/templates/schema.html
                         --headers ${TABLE_PLUGIN_HDRS}
                         --additional_schemas ${MTREXTENSION_SCHEMA}
                         --output ${CMAKE_BINARY_DIR}/schema

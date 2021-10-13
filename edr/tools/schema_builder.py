@@ -6,7 +6,11 @@ import json
 import os
 import re
 
-from jinja2 import Template
+template_supported = True
+try:
+    from jinja2 import Template
+except:
+    template_supported = False
 
 DATATYPE_MAP = {
     "TEXT_TYPE": "text",
@@ -143,7 +147,7 @@ def parse_table_docs(file_path):  # pylint: disable=too-many-statements
 def main():
     """ Main for document.py """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--templates', nargs='+')
+    parser.add_argument('--templates', nargs='+', default=[])
     parser.add_argument('--headers', nargs='+')
     parser.add_argument('--output-dir')
     parser.add_argument('--additional_schemas', nargs='+')
@@ -167,11 +171,12 @@ def main():
     with open(os.path.join(args.output_dir, 'schema.json'), 'w') as output_file:
         output_file.write(json.dumps(tables, indent=4))
 
-    for template_path in args.templates:
-        with open(template_path, 'r') as template_file:
-            template = Template(template_file.read())
-        with open(os.path.join(args.output_dir, os.path.basename(template_path)), 'w') as output_file:
-            output_file.write(template.render(tables=tables))
+    if template_supported:
+        for template_path in args.templates:
+            with open(template_path, 'r') as template_file:
+                template = Template(template_file.read())
+            with open(os.path.join(args.output_dir, os.path.basename(template_path)), 'w') as output_file:
+                output_file.write(template.render(tables=tables))
 
 
 if __name__ == '__main__':
