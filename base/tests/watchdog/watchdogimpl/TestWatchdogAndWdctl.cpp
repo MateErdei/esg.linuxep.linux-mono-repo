@@ -209,16 +209,10 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
     {
         // Test uses real user on the machine to start process, so need to make sure the correct user and group ids are obtained.
         // for current user
-        struct passwd* passwdStruct;
-        passwdStruct = ::getpwnam(std::getenv( "USER" ));
         uid_t userId = -1;
         gid_t  groupId = -1;
-
-        if (passwdStruct != nullptr)
-        {
-            userId = passwdStruct->pw_uid;
-            groupId = passwdStruct->pw_gid;
-        }
+        userId = ::getuid();
+        groupId = ::getgid();
 
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
@@ -259,16 +253,11 @@ TEST_F(TestWatchdogAndWdctl, WdctlIsRunningDetectCanDetectStatusOfPlugins) // NO
     {
         // Test uses real user on the machine to start process, so need to make sure the correct user and group ids are obtained.
         // for current user
-        struct passwd* passwdStruct;
-        passwdStruct = ::getpwnam(std::getenv( "USER" ));
+
         uid_t userId = -1;
         gid_t  groupId = -1;
-
-        if (passwdStruct != nullptr)
-        {
-            userId = passwdStruct->pw_uid;
-            groupId = passwdStruct->pw_gid;
-        }
+        userId = ::getuid();
+        groupId = ::getgid();
 
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
