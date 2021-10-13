@@ -91,6 +91,7 @@ Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
 ExecStart=${SOPHOS_INSTALL}/base/bin/sophos_watchdog
 Restart=always
 KillMode=mixed
+Delegate=yes
 
 [Install]
 WantedBy=multi-user.target
