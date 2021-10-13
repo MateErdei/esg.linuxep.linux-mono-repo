@@ -208,9 +208,9 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
 {
     {
         // Test uses real user on the machine to start process, so need to make sure the correct user and group ids are obtained.
-        // for pair:pair
+        // for current user
         struct passwd* passwdStruct;
-        passwdStruct = ::getpwnam(getlogin());
+        passwdStruct = ::getpwnam(std::getenv( "USER" ));
         uid_t userId = -1;
         gid_t  groupId = -1;
 
@@ -258,9 +258,9 @@ TEST_F(TestWatchdogAndWdctl, WdctlIsRunningDetectCanDetectStatusOfPlugins) // NO
 {
     {
         // Test uses real user on the machine to start process, so need to make sure the correct user and group ids are obtained.
-        // for pair:pair
+        // for current user
         struct passwd* passwdStruct;
-        passwdStruct = ::getpwnam(getlogin());
+        passwdStruct = ::getpwnam(std::getenv( "USER" ));
         uid_t userId = -1;
         gid_t  groupId = -1;
 
