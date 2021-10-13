@@ -18,7 +18,9 @@ SCRIPT_DIR=$(cd "${0%/*}"; echo "$PWD")
 [[ -n ${COV_HTML_BASE} ]] || COV_HTML_BASE=sspl-plugin-edr-unittest
 [[ -n ${htmldir} ]] || htmldir=${BASE}/output/coverage/${COV_HTML_BASE}
 [[ -n ${COVERAGE_SCRIPT} ]] || COVERAGE_SCRIPT=/opt/test/inputs/bazel_tools/tools/src/bullseye/test_coverage.py
-[[ -n ${UPLOAD_PATH} ]] || UPLOAD_PATH="UnifiedPipelines/linuxep/sspl-plugin-edr-component"
+[[ -n ${UPLOAD_PATH} ]] || UPLOAD_PATH=UnifiedPipelines/linuxep/sspl-plugin-edr-component
+[[ -n ${COVERAGE_TYPE} ]] || COVERAGE_TYPE=full
+[[ -n ${TEST_COVERAGE_OUTPUT_JSON} ]] || TEST_COVERAGE_OUTPUT_JSON=/opt/test/results/coverage/test_coverage.json
 
 PRIVATE_KEY=/opt/test/inputs/bullseye_files/private.key
 [[ -f ${PRIVATE_KEY} ]] || PRIVATE_KEY=${BASE}/build/bullseye/private.key
@@ -72,12 +74,21 @@ then
       </dev/null \
       || echo "Failed to upload bulleye html to Allegro"
 
+  if [[ ! -f ${TEST_COVERAGE_OUTPUT_JSON} ]]; then
+      sudo mkdir -p ${TEST_COVERAGE_OUTPUT_JSON%/*}
+      sudo touch ${TEST_COVERAGE_OUTPUT_JSON}
+      sudo chmod +w ${TEST_COVERAGE_OUTPUT_JSON}
+  fi
+
+  # Add to PATH so Coverage Script can find covxml
+  export PATH=$PATH:$BULLSEYE_DIR/bin
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
       "$COVFILE"                                                \
-      --output /opt/test/results/coverage/test_coverage.json    \
+      --output "$TEST_COVERAGE_OUTPUT_JSON"                     \
       --min-function 70                                         \
       --min-condition 70                                        \
       --upload                                                  \
       --upload-job "$UPLOAD_PATH"                               \
+      --coverage-type "$COVERAGE_TYPE"                          \
       || echo "Failed to upload coverage results to Redash"
 fi
