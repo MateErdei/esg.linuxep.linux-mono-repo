@@ -30,6 +30,7 @@ namespace Common
         public:
             Reader();
             Reader(const std::string& location);
+            Reader(std::shared_ptr<Sophos::Journal::HelperInterface> myHelper);
             std::string getCurrentJRLForId(const std::string& idFilePath) override;
             void updateJrl(const std::string& idFilePath, const std::string& jrl) override;
             u_int32_t getCurrentJRLAttemptsForId(const std::string& trackerFilePath) override;

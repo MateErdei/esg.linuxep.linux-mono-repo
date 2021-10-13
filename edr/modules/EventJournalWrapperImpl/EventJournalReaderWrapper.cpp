@@ -41,6 +41,11 @@ namespace Common
             m_helper = Sophos::Journal::GetHelper();
         }
 
+        Reader::Reader(std::shared_ptr<Sophos::Journal::HelperInterface> myHelper)
+        {
+            m_helper = myHelper;
+        }
+
         Reader::Reader(const std::string& location) : m_location(location)
         {
             std::optional<Sophos::Journal::ViewSettings> settings = Sophos::Journal::ViewSettings();
