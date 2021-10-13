@@ -80,14 +80,12 @@ then
       sudo chmod +w ${TEST_COVERAGE_OUTPUT_JSON}
   fi
 
-  whoami
-  env
   export PATH=$PATH:/usr/local/bullseye/bin
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
       "$COVFILE"                                                \
       --output "$TEST_COVERAGE_OUTPUT_JSON"                     \
       --min-function 70                                         \
-      --min-condition 70                                        \
+      --min-condition 90                                        \
       --upload                                                  \
       --upload-job "$UPLOAD_PATH"                               \
       --coverage-type "$COVERAGE_TYPE"                          \
