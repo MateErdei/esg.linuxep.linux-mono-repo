@@ -80,7 +80,8 @@ then
       sudo chmod +w ${TEST_COVERAGE_OUTPUT_JSON}
   fi
 
-  export PATH=$PATH:/usr/local/bullseye/bin
+  # Add to PATH so Coverage Script can find covxml
+  export PATH=$PATH:$BULLSEYE_DIR/bin
   sudo PATH=$PATH python3 -u $COVERAGE_SCRIPT                   \
       "$COVFILE"                                                \
       --output "$TEST_COVERAGE_OUTPUT_JSON"                     \
