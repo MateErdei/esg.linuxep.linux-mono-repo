@@ -139,7 +139,7 @@ elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   export BULLSEYE_UPLOAD=1
   export UPLOAD_PATH=UnifiedPipelines/linuxep/liveterminal
   export COVERAGE_SCRIPT=/tmp/system-product-test-inputs/bazel-tools/tools/src/bullseye/test_coverage.py
-  bash -x COVERAGE_TYPE=unit $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
+  COVERAGE_TYPE=unit bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
   # Begin merging the combined coverage with the unit-test coverage
   mv $COVERAGE_STAGING/covfile/liveterminal_unittests.cov $COVERAGE_STAGING/sspl-liveresponse-combined.cov
   export COVFILE=$COVERAGE_STAGING/sspl-liveresponse-combined.cov
