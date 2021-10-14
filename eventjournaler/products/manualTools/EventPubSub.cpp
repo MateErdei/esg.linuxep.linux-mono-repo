@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 
         socket->subscribeTo("threatEvents");
 
-        for (int i = 0; i < count; i++)
+        for (uint64_t i = 0; i < count; i++)
         {
             std::cout << "waiting for event ..." << std::endl;
             auto data = socket->read();
