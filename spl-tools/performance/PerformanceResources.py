@@ -30,5 +30,5 @@ def wait_for_dir_to_exist(dir: str, timeout: int):
 
 
 def wait_for_plugin_to_be_installed(plugin):
-    edr_path = f"/opt/sophos-spl/plugins/{plugin}"
-    wait_for_dir_to_exist(edr_path, 4000)
+    path = f"/opt/sophos-spl/plugins/{plugin}"
+    wait_for_dir_to_exist(path, 4000)
