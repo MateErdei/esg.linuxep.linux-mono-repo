@@ -53,6 +53,8 @@ EDR Removes Ipc And Status Files When Uninstalled
     Should Exist            ${IPC_FILE}
     File Should Exist       ${EDR_STATUS_XML}
     File Should Exist       ${CACHED_STATUS_XML}
+    ${result}=  Run Process  ls   -Z  ${SOPHOS_INSTALL}/shared/syslog_pipe
+    should contain  ${result.stdout}   var_t
 
     Uninstall EDR Plugin
 
