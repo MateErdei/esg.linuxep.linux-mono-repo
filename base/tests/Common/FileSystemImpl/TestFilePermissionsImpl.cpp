@@ -113,6 +113,26 @@ namespace
         EXPECT_EQ(Common::FileSystem::filePermissions()->getUserId("root"), 0);
     }
 
+    TEST(FilePermissionsImpl, checkGetUserAndGroupIdOfRootReturnsZero) // NOLINT
+    {
+        std::pair<uid_t , gid_t> userAndGroup = std::make_pair(0,0);
+        EXPECT_EQ(Common::FileSystem::filePermissions()->getUserAndGroupId("root"), userAndGroup);
+    }
+
+    TEST(FilePermissionsImpl, checkGetUserAndGroupIdOfRootDoesNotReturnMinusOne) // NOLINT
+    {
+        std::pair<uid_t , gid_t> userAndGroup = Common::FileSystem::filePermissions()->getUserAndGroupId("root");
+        EXPECT_NE( userAndGroup.first, -1);
+        EXPECT_NE( userAndGroup.second, -1);
+    }
+
+    TEST(FilePermissionsImpl, checkGetUserAndGruopIdThrowsWhenBadUser) // NOLINT
+    {
+        EXPECT_THROW( // NOLINT
+            Common::FileSystem::filePermissions()->getUserAndGroupId("baduser"),
+            Common::FileSystem::IFileSystemException);
+    }
+
     // user name tests
     TEST(FilePermissionsImpl, checkGetUserNameReturnsEmptyStringWhenBadUser) // NOLINT
     {
