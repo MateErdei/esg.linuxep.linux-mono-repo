@@ -628,8 +628,6 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Run Keyword If  ${ExpectBaseDowngrade}
     ...  Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
-    #TODO LINUXDAR-2881 remove sleep when this defect is fixed in downgrade version- provide a time space if suldownloader is kicked off again by policy change.
-    Sleep  10
     Trigger Update Now
 
     Wait Until Keyword Succeeds
@@ -651,9 +649,6 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
     #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-     #TODO LINUXDAR-2881 remove when this defect is fixed in downgrade version
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process input settings
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloaderdata <> Failed to process json message
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
     #TODO LINUXDAR-2972 remove when this defect is fixed
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
