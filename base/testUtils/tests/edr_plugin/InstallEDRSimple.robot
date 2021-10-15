@@ -45,7 +45,7 @@ EDR sets up syslog pipe correctly
     Install EDR Directly
 
     ${result}=  Run Process  ls   -Z  ${SOPHOS_INSTALL}/shared/syslog_pipe
-    should contain  ${result.stdout}   var_t
+    should contain  ${result.stdout}   var_log_t
 
 EDR Removes Ipc And Status Files When Uninstalled
     Run Full Installer
