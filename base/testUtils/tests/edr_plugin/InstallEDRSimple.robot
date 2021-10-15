@@ -40,6 +40,12 @@ EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not 
 
     ${result} =  Uninstall EDR Plugin
     Should Not Contain  ${result.stderr}  Failed to remove edr: Watchdog is not running
+EDR sets up syslog pipe correctly
+    Run Full Installer
+    Install EDR Directly
+
+    ${result}=  Run Process  ls   -Z  ${SOPHOS_INSTALL}/shared/syslog_pipe
+    should contain  ${result.stdout}   var_t
 
 EDR Removes Ipc And Status Files When Uninstalled
     Run Full Installer
@@ -53,8 +59,7 @@ EDR Removes Ipc And Status Files When Uninstalled
     Should Exist            ${IPC_FILE}
     File Should Exist       ${EDR_STATUS_XML}
     File Should Exist       ${CACHED_STATUS_XML}
-    ${result}=  Run Process  ls   -Z  ${SOPHOS_INSTALL}/shared/syslog_pipe
-    should contain  ${result.stdout}   var_t
+
 
     Uninstall EDR Plugin
 
