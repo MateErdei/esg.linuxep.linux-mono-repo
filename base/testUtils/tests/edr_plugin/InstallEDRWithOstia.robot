@@ -20,25 +20,22 @@ Resource    ../watchdog/LogControlResources.robot
 Resource    EDRResources.robot
 Resource    ../mcs_router/McsPushClientResources.robot
 Resource    ../liveresponse_plugin/LiveResponseResources.robot
+Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
+Resource    ../sul_downloader/SulDownloaderResources.robot
 
 Default Tags   EDR_PLUGIN   OSTIA  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
 Force Tags  LOAD1
 
 
 *** Variables ***
-${BaseAndMtrReleasePolicy}          ${GeneratedWarehousePolicies}/base_and_mtr_VUT-1.xml
-${BaseAndMtrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_mtr_VUT.xml
 ${querypackPolicy}              ${GeneratedWarehousePolicies}/old_query_pack.xml
 ${BaseAndEdrVUTPolicy}              ${GeneratedWarehousePolicies}/base_and_edr_VUT.xml
-${BrokenEDRPolicy}                      ${GeneratedWarehousePolicies}/base_and_broken_edr.xml
 ${BaseAndEdrAndMtrVUTPolicy}        ${GeneratedWarehousePolicies}/base_edr_and_mtr.xml
 ${BaseEdrAndMtrAndAVVUTPolicy}      ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
-${BaseAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_and_edr_999.xml
 ${BaseMtrAndEdr999Policy}              ${GeneratedWarehousePolicies}/base_mtr_vut_and_edr_999.xml
 ${Base999Policy}              ${GeneratedWarehousePolicies}/mtr_edr_vut_and_base_999.xml
 ${BaseAndMTREdr999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_999.xml
 ${BaseAndMTREdrAV999Policy}              ${GeneratedWarehousePolicies}/base_vut_and_mtr_edr_av_999.xml
-${BaseVUTPolicy}                    ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${EDR_STATUS_XML}                   ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
 ${IPC_FILE} =                       ${SOPHOS_INSTALL}/var/ipc/plugins/edr.ipc
 ${CACHED_STATUS_XML} =              ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
@@ -65,6 +62,9 @@ Install all plugins 999 then downgrade to all plugins develop
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 999.999.999
+    ${pre_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
 
     Override LogConf File as Global Level  DEBUG
 
@@ -77,10 +77,17 @@ Install all plugins 999 then downgrade to all plugins develop
 
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
+    Check Log Contains  Component ServerProtectionLinux-Base-component is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-RuntimeDetections is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-EventJournaler is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-EDR is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-MDR is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
-    ...  Check Plugins Downgraded From 999
+    ...  Check Installed Plugins Are VUT Versions
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -90,7 +97,15 @@ Install all plugins 999 then downgrade to all plugins develop
     ...  30 secs
     ...  5 secs
     ...  EDR Plugin Is Running
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  RuntimeDetections Plugin Is Running
+    ${post_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
+    # First line of both logs should be the same, as rtd preserves it's logs on a downgrade
+    Should Be Equal As Strings  ${post_downgrade_rtd_log.split("\n")[0]}  ${pre_downgrade_rtd_log.split("\n")[0]}
 
+    Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
 
     Check All Product Logs Do Not Contain Error
@@ -130,6 +145,7 @@ Install edr 999 and downgrade to current edr
     ...   2 secs
     ...   Check EDR Executable Running
 
+    Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
 
     Check All Product Logs Do Not Contain Error
@@ -156,6 +172,7 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
     Check MDR Plugin Installed
     Check Event Journaler Installed
 
+    Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
 
     Check All Product Logs Do Not Contain Error
@@ -213,6 +230,7 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...  wdctl <> stop edr
     ...  wdctl <> start edr
 
+    Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
 
     Check All Product Logs Do Not Contain Error
@@ -265,6 +283,7 @@ Install master of base and edr and mtr and upgrade to new query pack
     Should Be Equal As Strings  ${edr_version_contents1}  ${edr_version_contents}
     Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_reload}  ${osquery_pid_before_query_pack_reload}
 
+    Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
 
     Check All Product Logs Do Not Contain Error
@@ -285,7 +304,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-liveresponse version: 99.99.99   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-
+    Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
@@ -331,6 +350,10 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     ...  120 secs
     ...  2 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EventJournaler version: 9.99.9
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  2 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999
 
     # check plugins are running.
     Wait Until Keyword Succeeds
@@ -352,6 +375,11 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     ...  30 secs
     ...  5 secs
     ...  Check Event Journaler Executable Running
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  RuntimeDetections Plugin Is Running
 
     Check MDR Plugin Installed
 
@@ -380,6 +408,8 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Should contain   ${live_response_version_contents}   PRODUCT_VERSION = 99.99.99
     ${event_journaler_version_contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Should contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 9.99.9
+    ${event_journaler_version_contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
+    Should contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 999.999.999
 
     # Ensure components were restarted during update.
     Check Log Contains In Order
@@ -406,10 +436,17 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     ...  ${WDCTL_LOG_PATH}
     ...  wdctl <> stop eventjournaler
     ...  wdctl <> start eventjournaler
+
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop eventjournaler
+    ...  wdctl <> start eventjournaler
+
     #Log SSPLAV logs to the test report
     Log File      ${AV_LOG_FILE}
     Log File      ${THREAT_DETECTOR_LOG_PATH}
 
+    Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
     # Specific to this test:
     #TODO LINUXDAR-3187 remove when this defect is closed
@@ -455,11 +492,18 @@ Install master of base and edr and mtr and upgrade to base 999
     ...  30 secs
     ...  5 secs
     ...  Check Event Journaler Executable Running
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  RuntimeDetections Plugin Is Running
+
     Check MDR Plugin Installed
 
     ${base_version_contents} =  Get File  ${SOPHOS_INSTALL}/base/VERSION.ini
     Should contain   ${base_version_contents}   PRODUCT_VERSION = 99.9.9
 
+    Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
 
     Check All Product Logs Do Not Contain Error
@@ -520,6 +564,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     ...  5 secs
     ...  Should Exist    ${statusPath}
 
+    Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
 
     Check All Product Logs Do Not Contain Error
@@ -562,6 +607,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     ...  1 secs
     ...  Check EDR Osquery Executable Running
 
+    Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
 
     Check All Product Logs Do Not Contain Error
@@ -598,12 +644,29 @@ Check EDR Downgraded From 999
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should Not Contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
 
-Check Plugins Downgraded From 999
+
+
+
+Check Installed Plugins Are VUT Versions
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${edr_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
+    Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
     ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${mtr_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
+    Should Contain   ${contents}   PRODUCT_VERSION = ${mtr_vut_version}
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 99.99.99
+    ${liveresponse_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
+    Should Contain   ${contents}   PRODUCT_VERSION = ${liveresponse_vut_version}
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
-    Should not contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${eventjournaler_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EventJournaler
+    Should Contain   ${contents}   PRODUCT_VERSION = ${eventjournaler_vut_version}
+    ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
+    ${runtimedetections_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
+    Should Contain   ${contents}   PRODUCT_VERSION = ${runtimedetections_vut_version}
+
+
+Wait For Suldownloader To Finish
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check Suldownloader Is Not Running

@@ -38,3 +38,7 @@ Dump Suldownloader Log
     ${contents} =   Get File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Log   "suldownloader.log = ${contents}"
     Return from Keyword  ${contents}
+
+Check Suldownloader Is Not Running
+    ${result} =    Run Process  pgrep SulDownloader  shell=true
+    Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
