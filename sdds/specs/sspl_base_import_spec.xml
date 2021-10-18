@@ -7,7 +7,7 @@
 		<line id="ServerProtectionLinux-Base">
 			<componentsuite id="ServerProtectionLinux-Base-1.1.7.22"
 							version="1.1.7.22"
-							artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2021-37/20211018172450-ee670737d218cc38227fa2e06e537a59f16c948e-1hmD4E/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
+							artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2021-40/20211018172450-ee670737d218cc38227fa2e06e537a59f16c948e-1hmD4E/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
 							longdic="Sophos Linux Base"
 							shortdic="Sophos Linux Base"/>
 			<componentsuite id="ServerProtectionLinux-Base-1.1.7.2"
