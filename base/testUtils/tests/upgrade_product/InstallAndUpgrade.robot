@@ -185,6 +185,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     #TODO LINUXDAR-3188 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  UnixSocket <> Failed to write Process Control Request to socket. Exception caught: Environment interruption
 
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log   Unable to verify kernel struct offsets
+
     Run Keyword And Expect Error  *
     ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
