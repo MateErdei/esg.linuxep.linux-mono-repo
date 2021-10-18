@@ -114,7 +114,10 @@
                 <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.170"/>
             </line>
             <line id="ServerProtectionLinux-Plugin-RuntimeDetections">
-                <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-4.9.0.67"/>
+                <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-4.9.0.67">
+                    <genericsupplement decodepath="content_rules"
+                                       line="rd_rules" tag="LATEST" warehousename="runtime_detection"/>
+                </component>
             </line>
             <line id="ServerProtectionLinux-Plugin-AV">
                 <component importreference="ServerProtectionLinux-Plugin-AV-1.0.3.61">
