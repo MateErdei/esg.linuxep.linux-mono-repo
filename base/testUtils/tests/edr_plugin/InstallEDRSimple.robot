@@ -41,6 +41,7 @@ EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not 
     ${result} =  Uninstall EDR Plugin
     Should Not Contain  ${result.stderr}  Failed to remove edr: Watchdog is not running
 EDR sets up syslog pipe correctly
+    [Tags]  EXCLUDE_UBUNTU18  EDR_PLUGIN   FAKE_CLOUD   THIN_INSTALLER  INSTALLER
     Run Full Installer
     Install EDR Directly
 

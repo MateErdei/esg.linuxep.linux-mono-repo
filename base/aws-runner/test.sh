@@ -38,10 +38,14 @@ then
 elif [[ -n `lsb_release -a` ]]
 then
     current_release=$(cat /etc/os-release | grep PRETTY_NAME)
-    release_pattern="PRETTY_NAME=\"Ubuntu 20.*"
-    if [[ ${current_release} =~ ${release_pattern} ]]
+    release_pattern20="PRETTY_NAME=\"Ubuntu 20.*"
+    release_pattern18="PRETTY_NAME=\"Ubuntu 18.*"
+    if [[ ${current_release} =~ ${release_pattern20} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU20"
+    if [[ ${current_release} =~ ${release_pattern18} ]]
+    then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU18"
     else
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU"
     fi
