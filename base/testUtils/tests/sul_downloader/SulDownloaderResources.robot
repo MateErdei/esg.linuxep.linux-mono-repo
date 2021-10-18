@@ -41,4 +41,4 @@ Dump Suldownloader Log
 
 Check Suldownloader Is Not Running
     ${result} =    Run Process  pgrep SulDownloader  shell=true
-    Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+    Should Be Equal As Integers    ${result.rc}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
