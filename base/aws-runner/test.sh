@@ -43,7 +43,7 @@ then
     if [[ ${current_release} =~ ${release_pattern20} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU20"
-    if [[ ${current_release} =~ ${release_pattern18} ]]
+    elif [[ ${current_release} =~ ${release_pattern18} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU18"
     else
