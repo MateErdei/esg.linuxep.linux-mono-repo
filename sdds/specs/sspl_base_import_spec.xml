@@ -76,7 +76,7 @@
 		<line id="ServerProtectionLinux-Base-component">
 			<component id="ServerProtectionLinux-Base-component-1.1.7.619"
 					   version="1.1.7.619"
-					   artifact="esg-releasable-candidate/linuxep.everest-base/release--2021-40/20211018190418-fd412a919dbb4df78c9b6d5d389a7a0c8ba804c5-ckLxe6//sspl-base/SDDS-COMPONENT/"
+					   artifact="esg-releasable-candidate/linuxep.everest-base/release--2021-40/20211018190418-fd412a919dbb4df78c9b6d5d389a7a0c8ba804c5-ckLxe6/sspl-base/SDDS-COMPONENT/"
 					   longdic="Sophos Linux Base Component"
 					   shortdic="Sophos Linux Base Component"/>
 			<component id="ServerProtectionLinux-Base-component-1.1.7.7"
