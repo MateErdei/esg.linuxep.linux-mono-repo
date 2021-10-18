@@ -28,21 +28,13 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLForIdReturnsEmptyWhenFilepath
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Return(false));
     ASSERT_EQ(testReader->getCurrentJRLForId(idFilePath), "");
-
-    EXPECT_EQ(mockViewInterface.use_count(), 1);
-    EXPECT_EQ(testHelperInterface.use_count(), 1);
-    EXPECT_TRUE(Mock::VerifyAndClearExpectations(mockViewInterface.get()));
-    EXPECT_TRUE(Mock::VerifyAndClearExpectations(testHelperInterface.get()));
 }
 
 TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLForIdReturnsContentsWhenFilepathIsAFile) // NOLINT
@@ -53,13 +45,10 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLForIdReturnsContentsWhenFilep
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(idFilePath)).WillOnce(Return(expectedResult));
@@ -75,13 +64,10 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLForIdLogsWarnWhenFileFailsToR
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Throw(Common::FileSystem::IFileSystemException ("Test exception")));
     ASSERT_EQ(testReader->getCurrentJRLForId(idFilePath), "");
@@ -100,13 +86,10 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJrlDoesNothingWhenFilepathIsEmpty) /
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     // Nothing done in function
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).Times(0);
@@ -122,8 +105,6 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJrlRemovesOldJrlFileAndWritesNewFile
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
@@ -132,7 +113,6 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJrlRemovesOldJrlFileAndWritesNewFile
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, removeFile(idFilePath));
     EXPECT_CALL(*mockFileSystem, writeFile(idFilePath, newJrl));
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     ASSERT_NO_THROW(testReader->updateJrl(idFilePath, newJrl));
 }
@@ -146,8 +126,6 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJrlWritesNewFileWhenFilepathDoesNotE
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
@@ -156,7 +134,6 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJrlWritesNewFileWhenFilepathDoesNotE
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, removeFile(idFilePath)).Times(0);
     EXPECT_CALL(*mockFileSystem, writeFile(idFilePath, newJrl));
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     ASSERT_NO_THROW(testReader->updateJrl(idFilePath, newJrl));
 }
@@ -172,13 +149,10 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJrlLogsWarnWhenFileFailsToRead) // N
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Throw(Common::FileSystem::IFileSystemException ("Test exception")));
     ASSERT_NO_THROW(testReader->updateJrl(idFilePath, newJrl));
@@ -198,13 +172,10 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLAttemptsForIdReadsFileAndRetu
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, readFile(idFilePath)).WillOnce(Return(testAttempts));
@@ -220,13 +191,10 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLAttemptsForIdReturnsZeroWithF
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Return(false));
     ASSERT_EQ(testReader->getCurrentJRLAttemptsForId(idFilePath), expectedResult);
@@ -243,13 +211,10 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLAttemptsLogsWarnOnFileSystemE
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Throw(Common::FileSystem::IFileSystemException ("Test exception")));
     ASSERT_EQ(testReader->getCurrentJRLAttemptsForId(idFilePath), expectedResult);
@@ -270,13 +235,10 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLAttemptsLogsWarnOnGenericExce
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Throw(testException));
     ASSERT_EQ(testReader->getCurrentJRLAttemptsForId(idFilePath), expectedResult);
@@ -296,13 +258,10 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJRLAttemptsRemovesExistingFileAndWri
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, removeFile(idFilePath));
@@ -320,13 +279,10 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJRLAttemptsWritesANewFileWhenFilepat
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, removeFile(idFilePath)).Times(0);
@@ -345,13 +301,10 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJRLAttemptsLogsWarnOnFileSystemExcep
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Throw(Common::FileSystem::IFileSystemException("Test exception")));
     ASSERT_NO_THROW(testReader->updateJRLAttempts(idFilePath, testAttempts));
@@ -369,13 +322,10 @@ TEST_F(TestEventJournalReaderWrapper, ClearJRLFileRemovesExistingFileIfFilepathE
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, removeFile(idFilePath));
@@ -390,13 +340,10 @@ TEST_F(TestEventJournalReaderWrapper, ClearJRLFileDoesNothingIfFilepathDoesNotEx
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, removeFile(idFilePath)).Times(0);
@@ -413,13 +360,10 @@ TEST_F(TestEventJournalReaderWrapper, ClearJRLFileLogsWarnOnFileSystemException)
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
-
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
     auto testReader = new Common::EventJournalWrapper::Reader(testHelperInterface);
-    EXPECT_CALL(*mockJournalViewInterface, GetJournalView(sub, jrl)).WillOnce(Return(mockViewInterface));
 
     EXPECT_CALL(*mockFileSystem, isFile(idFilePath)).WillOnce(Throw(Common::FileSystem::IFileSystemException("Test exception")));
     ASSERT_NO_THROW(testReader->clearJRLFile(idFilePath));
