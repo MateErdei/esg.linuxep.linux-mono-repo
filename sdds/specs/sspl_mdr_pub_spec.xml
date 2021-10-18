@@ -4,7 +4,7 @@
         <line id="ServerProtectionLinux-Plugin-MDR">
             <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.9.56">
                 <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.9.80" line="ServerProtectionLinux-MDR-Control-Component" mountpoint="."/>
-                <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.3.0.97" line="ServerProtectionLinux-MDR-DBOS-Component" mountpoint="."/>
+                <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.4.0.9" line="ServerProtectionLinux-MDR-DBOS-Component" mountpoint="."/>
             </componentsuite>
             <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.9.7">
                 <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.9.10" line="ServerProtectionLinux-MDR-Control-Component" mountpoint="."/>
@@ -76,7 +76,7 @@
                 <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.1.62"/>
             </line>
             <line id="ServerProtectionLinux-MDR-DBOS-Component">
-                <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.3.0.97"/>
+                <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.4.0.9"/>
                 <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.1.0.65"/>
                 <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.0.0.94"/>
                 <component importreference="ServerProtectionLinux-MDR-DBOS-Component-1.0.3.15"/>
