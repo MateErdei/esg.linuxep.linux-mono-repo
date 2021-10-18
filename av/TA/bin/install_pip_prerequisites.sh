@@ -48,7 +48,7 @@ then
       for FILE in /etc/yum.repos.d/*; do
         if [ -f "$FILE" ]; then
           if grep -q "abn-centosrepo/" "$FILE"; then
-            sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' "FILE"
+            sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' "$FILE"
           fi
         fi
       done
