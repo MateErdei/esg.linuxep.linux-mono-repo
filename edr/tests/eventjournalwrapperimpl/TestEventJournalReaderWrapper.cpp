@@ -18,13 +18,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 using namespace ::testing;
 
 class TestEventJournalReaderWrapper : public ::testing::Test
-{
-public:
-    void validJsonRequest()
-    {
-        return;
-    }
-};
+{};
 
 // Tests for function: getCurrentJRLForId
 TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLForIdReturnsEmptyWhenFilepathNotAFile) // NOLINT
@@ -34,7 +28,7 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLForIdReturnsEmptyWhenFilepath
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -59,7 +53,7 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLForIdReturnsContentsWhenFilep
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -81,7 +75,7 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLForIdLogsWarnWhenFileFailsToR
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -106,7 +100,7 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJrlDoesNothingWhenFilepathIsEmpty) /
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -128,7 +122,7 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJrlRemovesOldJrlFileAndWritesNewFile
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -152,7 +146,7 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJrlWritesNewFileWhenFilepathDoesNotE
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -178,7 +172,7 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJrlLogsWarnWhenFileFailsToRead) // N
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -204,7 +198,7 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLAttemptsForIdReadsFileAndRetu
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface* mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -226,7 +220,7 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLAttemptsForIdReturnsZeroWithF
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface* mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -249,7 +243,7 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLAttemptsLogsWarnOnFileSystemE
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -276,7 +270,7 @@ TEST_F(TestEventJournalReaderWrapper, GetCurrentJRLAttemptsLogsWarnOnGenericExce
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -302,7 +296,7 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJRLAttemptsRemovesExistingFileAndWri
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface* mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -326,7 +320,7 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJRLAttemptsWritesANewFileWhenFilepat
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface* mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -351,7 +345,7 @@ TEST_F(TestEventJournalReaderWrapper, UpdateJRLAttemptsLogsWarnOnFileSystemExcep
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -375,7 +369,7 @@ TEST_F(TestEventJournalReaderWrapper, ClearJRLFileRemovesExistingFileIfFilepathE
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface* mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -396,7 +390,7 @@ TEST_F(TestEventJournalReaderWrapper, ClearJRLFileDoesNothingIfFilepathDoesNotEx
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface* mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface* mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;
@@ -419,7 +413,7 @@ TEST_F(TestEventJournalReaderWrapper, ClearJRLFileLogsWarnOnFileSystemException)
     testing::internal::CaptureStderr();
 
     std::shared_ptr<Sophos::Journal::ViewInterface> mockViewInterface;
-    MockJournalViewInterface *mockJournalViewInterface = new StrictMock<MockJournalViewInterface>();
+    MockJournalHelperInterface *mockJournalViewInterface = new StrictMock<MockJournalHelperInterface>();
 
     std::shared_ptr<Sophos::Journal::HelperInterface> testHelperInterface;
     Sophos::Journal::Subjects sub;

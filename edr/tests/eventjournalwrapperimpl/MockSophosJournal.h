@@ -12,10 +12,10 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 
 
-class MockJournalViewInterface : public Sophos::Journal::HelperInterface
+class MockJournalHelperInterface : public Sophos::Journal::HelperInterface
 {
 public:
-    MockJournalViewInterface() = default;
+    MockJournalHelperInterface() = default;
     MOCK_CONST_METHOD2(GetJournalView, std::shared_ptr<Sophos::Journal::ViewInterface>(const Sophos::Journal::Subjects&, const Sophos::Journal::JRL&));
     MOCK_CONST_METHOD2(GetJournalView, std::shared_ptr<Sophos::Journal::ViewInterface>(const Sophos::Journal::Subjects&, Sophos::Journal::JournalTime));
     MOCK_CONST_METHOD3(GetJournalView, std::shared_ptr<Sophos::Journal::ViewInterface>(const Sophos::Journal::Subjects&, Sophos::Journal::JournalTime, Sophos::Journal::JournalTime));
