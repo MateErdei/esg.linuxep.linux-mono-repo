@@ -605,7 +605,7 @@ class MCSRouter(object):
         policy_contents = f.read()
         self.send_policy(policy_type, policy_contents)
         if wait_for_policy:
-            for i in range(10):
+            for i in range(20):
                 try:
                     self.check_policy_written("ALC-1_policy.xml", policy_contents)
                     return
