@@ -53,7 +53,7 @@
         "echo ", {"Ref": "cloudIpAddress"}, " >/root/OVERRIDE_CLOUD_IP\n",
         "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
         "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
-        "yum install -y make iptables openssl python2 zip >> /tmp/cloudFormationInit.log 2>&1\n",
+        "yum install -y make iptables openssl python2 zip python3-devel >> /tmp/cloudFormationInit.log 2>&1\n",
         "ln -s /bin/python2 /bin/python\n",
         "python3 -m pip install --upgrade setuptools 2>&1 >>/tmp/cloudFormationInit.log\n",
         "python3 -m pip install --upgrade setuptools-rust 2>&1 >>/tmp/cloudFormationInit.log\n",
