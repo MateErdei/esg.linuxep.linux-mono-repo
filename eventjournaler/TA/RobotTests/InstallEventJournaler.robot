@@ -5,7 +5,7 @@ Resource        EventJournalerResources.robot
 Library         ../Libs/InstallerUtils.py
 
 Suite Setup     Setup
-Suite Teardown  Require Uninstalled
+Suite Teardown  Uninstall Base
 
 Test Teardown  Run Keywords
 ...            Event Journaler Teardown   AND
@@ -45,7 +45,7 @@ Verify that the event journaler installer works correctly
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
     ## Check systemd files
-    ${SystemdInfo}=  get systemd file info
+    ${SystemdInfo}=  Get Systemd File Info
     ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/InstallSet/SystemdInfo
     Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
 
