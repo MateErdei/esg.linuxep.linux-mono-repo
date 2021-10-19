@@ -7,7 +7,6 @@ import subprocess
 import tempfile
 import time
 
-import psutil
 import robot.libraries.BuiltIn
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn

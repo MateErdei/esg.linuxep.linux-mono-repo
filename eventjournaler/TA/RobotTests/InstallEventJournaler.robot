@@ -11,8 +11,6 @@ Test Teardown  Run Keywords
 ...            Event Journaler Teardown   AND
 ...            Uninstall Event Journaler
 
-Default Tags   EVENT_JOURNALER_PLUGIN
-
 
 *** Test Cases ***
 Verify that the event journaler installer works correctly
@@ -28,7 +26,7 @@ Verify that the event journaler installer works correctly
     [Teardown]  Event Journaler Tests Teardown With Installed File Replacement
     Install Event Journaler Directly from SDDS
 
-    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   get file info for installation
+    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   Get File Info For Installation
     Set Test Variable  ${FileInfo}
     Set Test Variable  ${DirectoryInfo}
     Set Test Variable  ${SymbolicLinkInfo}
