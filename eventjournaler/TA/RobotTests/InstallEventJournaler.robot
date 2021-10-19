@@ -28,7 +28,7 @@ Verify that the event journaler installer works correctly
     [Teardown]  Event Journaler Tests Teardown With Installed File Replacement
     Install Event Journaler Directly from SDDS
 
-    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   Get File Info For Installation
+    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   get file info for installation
     Set Test Variable  ${FileInfo}
     Set Test Variable  ${DirectoryInfo}
     Set Test Variable  ${SymbolicLinkInfo}
