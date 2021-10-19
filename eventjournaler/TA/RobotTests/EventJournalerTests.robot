@@ -190,11 +190,6 @@ Event Journaler Can Fix Truncated Files
     ...  Check Journal Contains X Detection Events  2
 
 *** Keywords ***
-Setup
-    Install Base For Component Tests
-    Install Event Journaler Directly from SDDS
-    Run Shell Process  chmod a+x ${EVENT_PUB_SUB_TOOL}  OnError=Failed to chmod EventPubSub binary tool   timeout=3s
-    Run Shell Process  chmod a+x ${EVENT_READER_TOOL}  OnError=Failed to chmod JournalReader binary tool   timeout=3s
 
 Custom Teardown For Tests With Publishers Running In Background
     Event Journaler Teardown

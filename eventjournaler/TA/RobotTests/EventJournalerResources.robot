@@ -12,6 +12,12 @@ ${EVENT_JOURNALER_SDDS}         ${COMPONENT_SDDS}
 ${EVENT_JOURNALER_DATA_STORE}   ${COMPONENT_ROOT_PATH}/data/eventjournals
 
 *** Keywords ***
+Setup
+    Install Base For Component Tests
+    Install Event Journaler Directly from SDDS
+    Run Shell Process  chmod a+x ${EVENT_PUB_SUB_TOOL}  OnError=Failed to chmod EventPubSub binary tool   timeout=3s
+    Run Shell Process  chmod a+x ${EVENT_READER_TOOL}  OnError=Failed to chmod JournalReader binary tool   timeout=3s
+
 Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}/install.sh
     Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=60s
