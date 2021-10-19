@@ -45,6 +45,9 @@ EDR sets up syslog pipe correctly
     Run Full Installer
     Install EDR Directly
 
+    ${result}=  Run Process  cat   /etc/selinux/targeted/contexts/files/file_contexts.local
+    LOG  ${result.stdout}
+    LOG  ${result.stderr}
     ${result}=  Run Process  ls   -Z  ${SOPHOS_INSTALL}/shared/syslog_pipe
     should contain  ${result.stdout}   var_log_t
 
