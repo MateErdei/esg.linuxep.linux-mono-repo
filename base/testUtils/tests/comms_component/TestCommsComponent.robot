@@ -140,22 +140,28 @@ Test Comms Component Loggings
     Start Watchdog
 
     Wait Until Keyword Succeeds
-        ...  10 secs
-        ...  2 secs
-        ...  Check Comms Component Is Running
+    ...  10 secs
+    ...  2 secs
+    ...  Check Comms Component Is Running
 
-    Check Log Contains In Order
-    ...  ${CommsNetworkLogsPath}
-    ...  DEBUG
-    ...  Unmount path: /opt/sophos-spl/var/sophos-spl-comms/lib
-    ...  DEBUG
-    ...  Unmount path: /opt/sophos-spl/var/sophos-spl-comms/usr/lib
-    Check Log Contains In Order
-    ...  ${CommsNetworkLogsPath}
-    ...  DEBUG
-    ...  Successfully read only mounted '/lib' to path: '/opt/sophos-spl/var/sophos-spl-comms/lib
-    ...  DEBUG
-    ...  Successfully read only mounted '/usr/lib' to path: '/opt/sophos-spl/var/sophos-spl-comms/usr/lib
+    Wait Until Keyword Succeeds
+    ...  3 secs
+    ...  1 secs
+    ...  Check Log Contains In Order
+        ...  ${CommsNetworkLogsPath}
+        ...  DEBUG
+        ...  Unmount path: /opt/sophos-spl/var/sophos-spl-comms/lib
+        ...  DEBUG
+        ...  Unmount path: /opt/sophos-spl/var/sophos-spl-comms/usr/lib
+    Wait Until Keyword Succeeds
+    ...  3 secs
+    ...  1 secs
+    ...  Check Log Contains In Order
+        ...  ${CommsNetworkLogsPath}
+        ...  DEBUG
+        ...  Successfully read only mounted '/lib' to path: '/opt/sophos-spl/var/sophos-spl-comms/lib
+        ...  DEBUG
+        ...  Successfully read only mounted '/usr/lib' to path: '/opt/sophos-spl/var/sophos-spl-comms/usr/lib
 
 Test Comms Component Backsup and Restores Logs
     [Tags]   COMMS  TAP_TESTS
