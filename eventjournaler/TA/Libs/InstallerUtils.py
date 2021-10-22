@@ -7,15 +7,11 @@ import robot.libraries.BuiltIn
 from robot.libraries.BuiltIn import BuiltIn
 
 
-def get_variable(varName, defaultValue=None):
+def get_variable(var_name, default_value=None):
     try:
-        return BuiltIn().get_variable_value("${%s}" % varName)
+        return BuiltIn().get_variable_value("${%s}" % var_name)
     except robot.libraries.BuiltIn.RobotNotRunningError:
-        return os.environ.get(varName, defaultValue)
-
-
-def get_sophos_install():
-    return get_variable("SOPHOS_INSTALL")
+        return os.environ.get(var_name, default_value)
 
 
 def get_group(gid, cache=None):
@@ -54,7 +50,7 @@ def get_result_and_stat(path):
         return p
 
     s = os.lstat(path)
-    result = "{}, {}, {}, {}".format(get_perms(s.st_mode), get_group(s.st_gid), get_user(s.st_uid), path)
+    result = f"{get_perms(s.st_mode)}, {get_group(s.st_gid)}, {get_user(s.st_uid)}, {path}"
     return result, s
 
 
@@ -73,17 +69,14 @@ def get_file_info_for_installation():
 
     :return:
     """
-    SOPHOS_INSTALL = get_sophos_install()
+    sophos_install = os.path.join(get_variable("SOPHOS_INSTALL"), "plugins/eventjournaler")
     exclusions = open(os.path.join(get_variable("ROBOT_SCRIPTS_PATH"), "InstallSet/ExcludeFiles")).readlines()
     exclusions = set((e.strip() for e in exclusions))
 
-    SOPHOS_INSTALL = os.path.join(SOPHOS_INSTALL, "plugins/eventjournaler")
-    exclusions = set((e.strip() for e in exclusions))
+    full_files = set()
+    full_directories = [sophos_install]
 
-    fullFiles = set()
-    fullDirectories = [SOPHOS_INSTALL]
-
-    for (base, dirs, files) in os.walk(SOPHOS_INSTALL):
+    for (base, dirs, files) in os.walk(sophos_install):
         for f in files:
             include = True
             for e in exclusions:
@@ -91,7 +84,7 @@ def get_file_info_for_installation():
                     include = False
                     break
             if include:
-                fullFiles.add(os.path.join(base, f))
+                full_files.add(os.path.join(base, f))
         for d in dirs:
             include = True
             for e in exclusions:
@@ -99,13 +92,13 @@ def get_file_info_for_installation():
                     include = False
                     break
             if include:
-                fullDirectories.append(os.path.join(base, d))
+                full_directories.append(os.path.join(base, d))
 
     details = []
     symlinks = []
     unixsocket = []
 
-    for f in fullFiles:
+    for f in full_files:
         result, s = get_result_and_stat(f)
         if stat.S_ISLNK(s.st_mode):
             if not result.endswith('pyc'):
@@ -121,7 +114,7 @@ def get_file_info_for_installation():
     details.sort(key=key)
 
     directories = []
-    for d in fullDirectories:
+    for d in full_directories:
         result, s = get_result_and_stat(d)
         directories.append(result)
     directories.sort(key=key)
