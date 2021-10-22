@@ -102,7 +102,7 @@ void LoggerExtension::reloadTags()
 
 void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
 {
-    LOGDEBUG("LoggerExtension running");
+    LOGINFO("LoggerExtension running");
     // Only run the extension if not in a stopping state, to prevent race condition, if stopping while starting
     if (!m_stopping)
     {
