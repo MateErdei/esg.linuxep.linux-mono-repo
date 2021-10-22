@@ -250,6 +250,7 @@ function is_rsyslog_running()
 
 function enable_access_for_rsyslog_to_shared_pipe()
 {
+    semanage fcontext -d ${SOPHOS_INSTALL}/shared/syslog_pipe &> /dev/null
     semanage fcontext -a -t var_log_t ${SOPHOS_INSTALL}/shared/syslog_pipe &> /dev/null && restorecon -Fv ${SOPHOS_INSTALL}/shared/syslog_pipe &> /dev/null
 }
 
