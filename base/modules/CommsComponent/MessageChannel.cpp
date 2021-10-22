@@ -4,6 +4,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "MessageChannel.h"
+#include "Logger.h"
 
 namespace CommsComponent {
 
@@ -47,11 +48,13 @@ namespace CommsComponent {
             {
                 // set channel is closed flag.
                 m_channelClosedFlag = true;
+                LOGDEBUG("Message Channel STOP received");
                 throw ChannelClosedException("closed");
             }
         }
         else
         {
+            LOGDEBUG("Message Channel already had a STOP");
             throw ChannelClosedException("closed");
         }
         return true;

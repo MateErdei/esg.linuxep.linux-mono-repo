@@ -70,8 +70,9 @@ namespace CommsComponent {
                 return message; 
             }
             return std::nullopt; 
-        }catch( ChannelClosedException & )
+        }catch( const ChannelClosedException &ex )
         {
+            LOGDEBUG("Monitor Dir STOP from ChannelClosedException: " << ex.what());
             throw MonitorDirClosedException("closed"); 
         }
     }

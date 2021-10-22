@@ -80,6 +80,7 @@ namespace CommsComponent
                     }
                     else if (StopMessage() == (chunk + controlByte))
                     {
+                        LOGDEBUG("AsyncMessager STOP message received");
                         m_notifyClosureDetected(); 
                         return; // request to stop does not rearm the read.
                     }
@@ -198,6 +199,7 @@ namespace CommsComponent
 
     void AsyncMessager::push_stop()
     {
+        LOGDEBUG("AsyncMessager pushing STOP");
         std::lock_guard<std::mutex> lo{ m_mutex };
         boost::asio::post(m_io, boost::asio::bind_executor(m_strand, [this]() {
                               bool write_in_progress = !m_queue.empty();

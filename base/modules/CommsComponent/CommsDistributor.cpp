@@ -71,6 +71,10 @@ namespace CommsComponent
         {
             LOGDEBUG("Exiting Response Handler Loop");
         }
+        catch (const std::exception &ex)
+        {
+            LOGDEBUG("Exiting Response Handler Loop with unexpected error: " << ex.what());
+        }
     }
 
     void CommsDistributor::handleRequests()
@@ -104,6 +108,10 @@ namespace CommsComponent
         {
             LOGDEBUG("Exiting Request Handler Loop");
         }
+        catch (const std::exception &ex)
+        {
+            LOGDEBUG("Exiting Request Handler Loop with unexpected error: " << ex.what());
+        }
     }
 
     void CommsDistributor::handleRequestsAndResponses()
@@ -129,6 +137,7 @@ namespace CommsComponent
     {
         if (!m_stopRequested.test_and_set())
         {
+            LOGDEBUG("Comms Distributer STOPPING");
             m_childProxy.notifyOtherSideAndClose();
             m_monitorDir.stop();
             m_messageChannel.pushStop();
