@@ -4,6 +4,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#pragma once
+
 #include "IEventQueue.h"
 
 #include "Common/ZeroMQWrapper/IReadable.h"
