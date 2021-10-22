@@ -106,11 +106,6 @@ public:
         return SCHEDULE_EPOCH_DURATION;
     }
 
-    bool getIsXDR()
-    {
-        return m_isXDR;
-    }
-
 };
 class TestPluginAdapterWithLogger : public LogInitializedTests{};
 class TestPluginAdapterWithoutLogger : public LogOffInitializedTests{};
@@ -573,32 +568,6 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithValidPolic
     EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Same");
     EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "987654321");
     EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 123456);
-}
-
-TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithValidPolicy2)
-{
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
-    TestablePluginAdapter pluginAdapter(queueTask);
-
-    ASSERT_FALSE(pluginAdapter.getIsXDR());
-    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
-    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
-                                  "<policy type=\"LiveQuery\" RevID=\"987654321\" policyType=\"56\">\n"
-                                  "    <configuration>\n"
-                                  "        <scheduled>\n"
-                                  "            <dailyDataLimit>123456</dailyDataLimit>\n"
-                                  "            <queryPacks>\n"
-                                  "                <queryPack id=\"XDR\" />\n"
-                                  "            </queryPacks>\n"
-                                  "        </scheduled>\n"
-                                  "    </configuration>\n"
-                                  "</policy>";
-
-    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
-    EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Same");
-    EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "987654321");
-    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 123456);
-    ASSERT_FALSE(pluginAdapter.getIsXDR());
 }
 
 TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithInvalidPolicy)
