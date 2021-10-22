@@ -74,7 +74,7 @@ def get_file_info_for_installation():
     :return:
     """
     SOPHOS_INSTALL = get_sophos_install()
-    exclusions = open(os.path.join(get_variable("ROBOT_TESTS_DIR"), "InstallSet/ExcludeFiles")).readlines()
+    exclusions = open(os.path.join(get_variable("ROBOT_SCRIPTS_PATH"), "InstallSet/ExcludeFiles")).readlines()
     exclusions = set((e.strip() for e in exclusions))
 
     SOPHOS_INSTALL = os.path.join(SOPHOS_INSTALL, "plugins/eventjournaler")

@@ -32,21 +32,21 @@ Verify that the event journaler installer works correctly
     Set Test Variable  ${SymbolicLinkInfo}
     ## Check Directory Structure
     Log  ${DirectoryInfo}
-    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/InstallSet/DirectoryInfo
+    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_SCRIPTS_PATH}/InstallSet/DirectoryInfo
     Should Be Equal As Strings  ${ExpectedDirectoryInfo}  ${DirectoryInfo}
 
     ## Check File Info
     # wait for /opt/sophos-spl/base/mcs/status/cache/ALC.xml to exist
-    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/InstallSet/FileInfo
+    ${ExpectedFileInfo}=  Get File  ${ROBOT_SCRIPTS_PATH}/InstallSet/FileInfo
     Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
 
     ## Check Symbolic Links
-    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/InstallSet/SymbolicLinkInfo
+    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_SCRIPTS_PATH}/InstallSet/SymbolicLinkInfo
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
     ## Check systemd files
     ${SystemdInfo}=  Get Systemd File Info
-    ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/InstallSet/SystemdInfo
+    ${ExpectedSystemdInfo}=  Get File  ${ROBOT_SCRIPTS_PATH}/InstallSet/SystemdInfo
     Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
 
 *** Keywords ***
@@ -56,6 +56,6 @@ Event Journaler Tests Teardown With Installed File Replacement
     Uninstall Event Journaler
 
 Save Current Event Journaler InstalledFiles To Local Path
-    Create File  ${ROBOT_TESTS_DIR}/InstallSet/FileInfo  ${FileInfo}
-    Create File  ${ROBOT_TESTS_DIR}/InstallSet/DirectoryInfo  ${DirectoryInfo}
-    Create File  ${ROBOT_TESTS_DIR}/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
+    Create File  ${ROBOT_SCRIPTS_PATH}/InstallSet/FileInfo  ${FileInfo}
+    Create File  ${ROBOT_SCRIPTS_PATH}/InstallSet/DirectoryInfo  ${DirectoryInfo}
+    Create File  ${ROBOT_SCRIPTS_PATH}/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}

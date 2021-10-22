@@ -3,7 +3,6 @@ Suite Setup     Global Setup Tasks
 Suite Teardown  Global Teardown Tasks
 
 Library         OperatingSystem
-Library         ../Libs/PathManager.py
 
 Test Timeout    5 minutes
 *** Keywords ***
@@ -13,8 +12,6 @@ Global Setup Tasks
     Set Global Variable  ${SOPHOS_INSTALL}          ${placeholder}
     Set Environment Variable  SOPHOS_INSTALL        ${SOPHOS_INSTALL}
     Set Global Variable  ${TEST_INPUT_PATH}         /opt/test/inputs
-    ${placeholder} =  PathManager.get_robot_tests_path
-    Set Global Variable  ${ROBOT_TESTS_DIR}         ${placeholder}
     Set Global Variable  ${ROBOT_SCRIPTS_PATH}      ${TEST_INPUT_PATH}/test_scripts/RobotTests
     Set Global Variable  ${COMPONENT_NAME}          eventjournaler
     Set Global Variable  ${COMPONENT_SDDS}          ${TEST_INPUT_PATH}/event_journaler_sdds
