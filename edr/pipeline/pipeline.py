@@ -186,34 +186,34 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
                                             mode=coverage_mode, release_package='./build-files/release-package.xml')
             nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate6',
                                                        mode=nine_nine_nine_mode, release_package='./build-files/release-package.xml')
-
-    if mode == analysis_mode:
-        return
-
-    with stage.parallel('test'):
-        machines = (
-            ("ubuntu1804",
-             tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
-            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
-            ("centos82", tap.Machine('centos82_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
-            # add other distros here
-        )
-        coverage_machines = (
-            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
-        )
-
-        if mode == 'coverage':
-            with stage.parallel('combined'):
-                for template_name, machine in coverage_machines:
-                    stage.task(task_name=template_name, func=combined_task, machine=machine)
-            #trigger system test coverage job on jenkins when on develop branch - this will also upload to allegro
-            if context.branch == 'develop':
-                requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
-        else:
-            with stage.parallel('integration'):
-                for template_name, machine in machines:
-                    stage.task(task_name=template_name, func=robot_task, machine=machine)
-
-            with stage.parallel('component'):
-                for template_name, machine in machines:
-                    stage.task(task_name=template_name, func=pytest_task, machine=machine)
+    #
+    # if mode == analysis_mode:
+    #     return
+    #
+    # with stage.parallel('test'):
+    #     machines = (
+    #         ("ubuntu1804",
+    #          tap.Machine('ubuntu1804_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
+    #         ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
+    #         ("centos82", tap.Machine('centos82_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
+    #         # add other distros here
+    #     )
+    #     coverage_machines = (
+    #         ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
+    #     )
+    #
+    #     if mode == 'coverage':
+    #         with stage.parallel('combined'):
+    #             for template_name, machine in coverage_machines:
+    #                 stage.task(task_name=template_name, func=combined_task, machine=machine)
+    #         #trigger system test coverage job on jenkins when on develop branch - this will also upload to allegro
+    #         if context.branch == 'develop':
+    #             requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
+    #     else:
+    #         with stage.parallel('integration'):
+    #             for template_name, machine in machines:
+    #                 stage.task(task_name=template_name, func=robot_task, machine=machine)
+    #
+    #         with stage.parallel('component'):
+    #             for template_name, machine in machines:
+    #                 stage.task(task_name=template_name, func=pytest_task, machine=machine)
