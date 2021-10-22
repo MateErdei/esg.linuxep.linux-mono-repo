@@ -7,7 +7,7 @@ Resource  ../upgrade_product/UpgradeResources.robot
 # Telemetry variables
 ${COMPONENT_TEMP_DIR}  /tmp/runtimedetections_component
 ${RUNTIMEDETECTIONS_PLUGIN_PATH}    ${SOPHOS_INSTALL}/plugins/runtimedetections
-
+${RUNTIMEDETECTIONS_EXECUTABLE}     /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections
 
 
 *** Keywords ***
@@ -24,26 +24,20 @@ Wait For RuntimeDetections to be Installed
 
 
 RuntimeDetections Plugin Is Running
-    ${result} =    Run Process  pgrep  runtimedetections
+    ${result} =    Run Process  pgrep  -f  ${RUNTIMEDETECTIONS_EXECUTABLE}
+    Should Be Equal As Integers    ${result.rc}    0
+
+dogfood RuntimeDetections Plugin Is Running
+    ${result} =    Run Process  pgrep  capsule8-sensor
     Should Be Equal As Integers    ${result.rc}    0
 
 RuntimeDetections Plugin Is Not Running
-    ${result} =    Run Process  pgrep  runtimedetections
+    ${result} =    Run Process  pgrep  -f  ${RUNTIMEDETECTIONS_EXECUTABLE}
     Should Not Be Equal As Integers    ${result.rc}    0   RuntimeDetections PLugin still running
 
-Restart RuntimeDetections Plugin
-    [Arguments]  ${clearLog}=False
-    Wdctl Stop Plugin  runtimedetections
-    Run Keyword If   ${clearLog}   Remove File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   1 secs
-    ...   RuntimeDetections Plugin Is Not Running
-    Wdctl Start Plugin  runtimedetections
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   1 secs
-    ...   RuntimeDetections Plugin Is Running
+Dogfood RuntimeDetections Plugin Is Not Running
+    ${result} =    Run Process  pgrep  capsule8-sensor
+    Should Not Be Equal As Integers    ${result.rc}    0   RuntimeDetections PLugin still running
 
 Install RuntimeDetections
     [Arguments]  ${policy}  ${args}=${None}
@@ -96,8 +90,8 @@ Uninstall RuntimeDetections Plugin
 
 Install RuntimeDetections Directly
     ${RUNTIMEDETECTIONS_SDDS_DIR} =  Get SSPL RuntimeDetections Plugin SDDS
-    ${result} =    Run Process  bash -x ${RUNTIMEDETECTIONS_SDDS_DIR}/install.sh 2> /tmp/c8_install.log   shell=True
-    ${stderr} =   Get File  /tmp/c8_install.log
+    ${result} =    Run Process  bash -x ${RUNTIMEDETECTIONS_SDDS_DIR}/install.sh 2> /tmp/rtd_install.log   shell=True
+    ${stderr} =   Get File  /tmp/rtd_install.log
     Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr} ${stderr}"
     Log  ${result.stdout}
     Log  ${stderr}
