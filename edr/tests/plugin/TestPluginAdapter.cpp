@@ -106,10 +106,11 @@ public:
         return SCHEDULE_EPOCH_DURATION;
     }
 
-    void databasePurge()
+    bool getIsXDR()
     {
-        Plugin::PluginAdapter::databasePurge();
+        return m_isXDR;
     }
+
 };
 class TestPluginAdapterWithLogger : public LogInitializedTests{};
 class TestPluginAdapterWithoutLogger : public LogOffInitializedTests{};
@@ -574,6 +575,32 @@ TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithValidPolic
     EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 123456);
 }
 
+TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithValidPolicy2)
+{
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+
+    ASSERT_FALSE(pluginAdapter.getIsXDR());
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"987654321\" policyType=\"56\">\n"
+                                  "    <configuration>\n"
+                                  "        <scheduled>\n"
+                                  "            <dailyDataLimit>123456</dailyDataLimit>\n"
+                                  "            <queryPacks>\n"
+                                  "                <queryPack id=\"XDR\" />\n"
+                                  "            </queryPacks>\n"
+                                  "        </scheduled>\n"
+                                  "    </configuration>\n"
+                                  "</policy>";
+
+    pluginAdapter.processLiveQueryPolicy(liveQueryPolicy);
+    EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Same");
+    EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "987654321");
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 123456);
+    ASSERT_FALSE(pluginAdapter.getIsXDR());
+}
+
 TEST_F(PluginAdapterWithMockFileSystem, testProcessLiveQueryPolicyWithInvalidPolicy)
 {
     auto queueTask = std::make_shared<Plugin::QueueTask>();
@@ -793,46 +820,6 @@ TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesAllFlagsOff)
                               Plugin::PluginUtils::XDR_FLAG + "\":false, \"" +
                               Plugin::PluginUtils::NETWORK_TABLES_FLAG +"\":false}";
     EXPECT_NO_THROW(pluginAdapter.processFlags(flags));
-}
-
-TEST_F(PluginAdapterWithMockFileSystem, testDatabasePurge)
-{
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
-    TestablePluginAdapter pluginAdapter(queueTask);
-    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
-    std::string movedDbPath = Plugin::osQueryDataBasePath() + ".moved";
-    std::vector<std::string> files(150, "fakepath");
-    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osQueryDataBasePath())).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osQueryDataBasePath())).WillOnce(Return(files));
-    EXPECT_CALL(*mockFileSystem, exists(movedDbPath)).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(movedDbPath));
-    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osQueryDataBasePath(), movedDbPath));
-    EXPECT_NO_THROW(pluginAdapter.databasePurge());
-}
-
-TEST_F(PluginAdapterWithMockFileSystem, testDatabasePurgeWorksIfLastOneFailed)
-{
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
-    TestablePluginAdapter pluginAdapter(queueTask);
-    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrDataUsage", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrScheduleEpoch", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodTimestamp", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrLimitHit", _));
-    EXPECT_CALL(*mockFileSystem, writeFile(PLUGIN_VAR_DIR + "/persist-xdrPeriodInSeconds", _));
-    std::string movedDbPath = Plugin::osQueryDataBasePath() + ".moved";
-    std::vector<std::string> files(150, "fakepath");
-    EXPECT_CALL(*mockFileSystem, isDirectory(Plugin::osQueryDataBasePath())).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::osQueryDataBasePath())).WillOnce(Return(files));
-    EXPECT_CALL(*mockFileSystem, exists(movedDbPath)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFileOrDirectory(movedDbPath)).Times(2);
-    EXPECT_CALL(*mockFileSystem, moveFile(Plugin::osQueryDataBasePath(), movedDbPath));
-    EXPECT_NO_THROW(pluginAdapter.databasePurge());
 }
 
 

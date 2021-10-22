@@ -106,13 +106,14 @@ namespace Plugin
         const time_t ONE_DAY_IN_SECONDS = 86400;
         const time_t SCHEDULE_EPOCH_DURATION = ONE_DAY_IN_SECONDS * 6;
         static bool isQueryPackEnabled(Path queryPackPathWhenEnabled);
+        bool m_isXDR = false;
 
     private:
         void innerMainLoop();
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 5;
-        bool m_isXDR = false;
+
         std::vector<std::string> m_queryPacksInPolicy;
         void sendLiveQueryStatus();
 

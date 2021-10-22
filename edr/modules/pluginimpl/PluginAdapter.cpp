@@ -701,9 +701,12 @@ namespace Plugin
         m_loggerExtensionPtr->setDataLimit(m_dataLimit);
 
         m_liveQueryRevId = getRevId(policyAttributesMap);
-
+        bool previousXdrValue = m_isXDR;
         m_isXDR = getScheduledQueriesEnabledInPolicy(policyAttributesMap);
         PluginUtils::updatePluginConfWithFlag(PluginUtils::MODE_IDENTIFIER, m_isXDR, osqueryRestartNeeded);
+
+        // force osquery restart if xdr value has been updated.
+        osqueryRestartNeeded = (m_isXDR != previousXdrValue) || osqueryRestartNeeded;
 
         if (!m_isXDR && osqueryRestartNeeded)
         {
