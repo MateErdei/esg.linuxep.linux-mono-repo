@@ -67,7 +67,8 @@ bash $SCRIPT_DIR/SupportFiles/jenkins/install_dependencies.sh
 echo "Running tests on $HOSTNAME"
 RESULT=0
 EXCLUSIONS='-e MANUAL -e PUB_SUB -e EXCLUDE_AWS -e CUSTOM_LOCATION -e TESTFAILURE -e FUZZ -e MCS_FUZZ -e MDR_REGRESSION_TESTS -e EXAMPLE_PLUGIN'
-python3  -m robot -x robot.xml --loglevel TRACE ${EXCLUSIONS} ${PLATFORM_EXCLUDE_TAG} "$@" tests || RESULT=$?
+#python3  -m robot -x robot.xml --loglevel TRACE ${EXCLUSIONS} ${PLATFORM_EXCLUDE_TAG} "$@" tests || RESULT=$?
+python3  -m robot -x robot.xml --loglevel TRACE ${EXCLUSIONS} ${PLATFORM_EXCLUDE_TAG} -s TestShutdown tests || RESULT=$?
 
 [[ ${RERUNFAILED} == true ]] || exit 0
 
