@@ -143,6 +143,7 @@ Display All SSPL Plugins Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/runtimedetections | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
+
 Display List Files Dash L in Directory 
    [Arguments]  ${DirPath}
    ${result}=    Run Process  ls -l ${DirPath}  shell=True
@@ -210,6 +211,12 @@ Check Telemetry Scheduler Plugin Not Running
 Check Comms Component Not Running
     ${result} =    Run Process  pgrep  -f   ${COMMS_COMPONENT}
     Should Not Be Equal As Integers    ${result.rc}    0
+
+Wait For Base Processes To Be Running
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Expected Base Processes Are Running
 
 Check Expected Base Processes Are Running
     Check Watchdog Running
