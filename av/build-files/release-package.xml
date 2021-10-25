@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-plugin-anti-virus" version="1.0.3">
+<package name="sspl-plugin-anti-virus" version="1.0.4">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -10,7 +10,7 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2021-40" build-id="20211018085650-f82e07626bc6283770dbceb76ea353d9c417a757-FtNpmr"/>
+            <release-version branch="release/Version1_1_8" build-id="20211025140648-87f582f907b2308f20053b3eec314a5bddf06f2f-UkPP0H"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />

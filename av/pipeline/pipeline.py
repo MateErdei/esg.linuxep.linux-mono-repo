@@ -360,7 +360,7 @@ def get_base_version():
     logger.info("CWD: %s", os.getcwd())
     logger.info("DIR CWD: %s", str(os.listdir(os.getcwd())))
 
-    version = "1.0.3"
+    version = "1.0.4"
     logger.info("Using default version: %s", version)
     return version
 
