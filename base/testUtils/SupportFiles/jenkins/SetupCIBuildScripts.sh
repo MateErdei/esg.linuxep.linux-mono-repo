@@ -25,7 +25,7 @@ function try_command_with_backoff()
 
 SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 
-python3 -m pip install --upgrade pip
+try_command_with_backoff  python3 -m pip install --upgrade pip
 PIP_ARGS="-i https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple --trusted-host tap-artifactory1.eng.sophos --cert ./sophos_certs.pem"
 try_command_with_backoff  python3 -m pip install wheel ${PIP_ARGS}
 try_command_with_backoff  python3 -m pip install --upgrade build_scripts ${PIP_ARGS}  || failure "Unable to install build_scripts"
