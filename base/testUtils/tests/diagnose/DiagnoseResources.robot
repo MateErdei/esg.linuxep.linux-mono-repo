@@ -105,8 +105,8 @@ Check Diagnose Output For Additional RuntimeDetections Plugin Files
 
     Should Contain  ${RuntimeDetectionsFiles}    runtimedetections.log
     Should Contain  ${RuntimeDetectionsFiles}    VERSION.ini
-    Should Contain  ${RuntimeDetectionsConfFiles}  capsule8-sensor.yaml
-    Should Contain  ${RuntimeDetectionsConfFiles}  capsule8-analytics.yaml
+    Should Contain  ${RuntimeDetectionsConfFiles}  sensor.yaml
+    Should Contain  ${RuntimeDetectionsConfFiles}  analytics.yaml
     
 
 Check Diagnose Output For System Command Files

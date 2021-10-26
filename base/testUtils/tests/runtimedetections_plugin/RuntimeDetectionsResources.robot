@@ -15,7 +15,7 @@ Wait For RuntimeDetections to be Installed
     Wait Until Keyword Succeeds
     ...   40 secs
     ...   10 secs
-    ...   File Should exist    ${SOPHOS_INSTALL}/plugins/runtimedetections/bin/capsule8-sensor
+    ...   File Should exist    ${SOPHOS_INSTALL}/plugins/runtimedetections/bin/runtimedetections
 
     Wait Until Keyword Succeeds
     ...   40 secs
@@ -24,22 +24,22 @@ Wait For RuntimeDetections to be Installed
 
 
 RuntimeDetections Plugin Is Running
-    ${result} =    Run Process  pgrep  capsule8-sensor
+    ${result} =    Run Process  pgrep  runtimedetections
     Should Be Equal As Integers    ${result.rc}    0
 
 RuntimeDetections Plugin Is Not Running
-    ${result} =    Run Process  pgrep  capsule8-sensor
+    ${result} =    Run Process  pgrep  runtimedetections
     Should Not Be Equal As Integers    ${result.rc}    0   RuntimeDetections PLugin still running
 
 Restart RuntimeDetections Plugin
     [Arguments]  ${clearLog}=False
-    Wdctl Stop Plugin  capsule8-sensor
+    Wdctl Stop Plugin  runtimedetections
     Run Keyword If   ${clearLog}   Remove File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   1 secs
     ...   RuntimeDetections Plugin Is Not Running
-    Wdctl Start Plugin  capsule8-sensor
+    Wdctl Start Plugin  runtimedetections
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   1 secs
