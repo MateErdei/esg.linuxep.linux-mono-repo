@@ -23,7 +23,7 @@ namespace OsquerySDK
 {
     TableRows SophosAVDetectionTable::Generate(QueryContextInterface& queryContext)
     {
-        LOGINFO("Generating data for Detections Table");
+        LOGDEBUG("Generating data for Detections Table");
         TableRows results;
 
         std::string journalDir = Common::ApplicationConfiguration::applicationPathManager().getEventJournalsPath();
