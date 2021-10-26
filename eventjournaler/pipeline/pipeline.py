@@ -12,7 +12,7 @@ LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
 INPUTS_DIR = '/opt/test/inputs'
 
-def combined_task(machine: tap.Machine):
+def combined_task(machine: tap.Machine, branch: str):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
@@ -59,6 +59,9 @@ def combined_task(machine: tap.Machine):
         machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
 
+        #trigger system test coverage job on jenkins on develop branch - this will also upload to allegro
+        if branch == 'develop':
+            requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
 
     finally:
         machine.output_artifact('/opt/test/results', 'results')
@@ -180,10 +183,7 @@ def event_journaler(stage: tap.Root, context: tap.PipelineContext, parameters: t
     if mode == 'coverage':
         with stage.parallel('combined'):
             for template_name, machine in coverage_machines:
-                stage.task(task_name=template_name, func=combined_task, machine=machine)
-            #trigger system test coverage job on jenkins on develop branch - this will also upload to allegro
-            if context.branch == 'develop':
-                requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
+                stage.task(task_name=template_name, func=combined_task, machine=machine, branch=context.branch)
     else:
         with stage.parallel('integration'):
             for template_name, machine in machines:
