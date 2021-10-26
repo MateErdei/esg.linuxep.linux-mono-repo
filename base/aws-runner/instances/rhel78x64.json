@@ -49,6 +49,7 @@
         "systemctl start nfs 2>&1 >>/tmp/cloudFormationInit.log\n",
         "systemctl status nfs-server.service 2>&1 >>/tmp/cloudFormationInit.log\n",
         "yum -y install zip 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "python3 -m pip install nest_asyncio 2>&1 >>/tmp/cloudFormationInit.log\n",
         "getenforce >>/tmp/cloudFormationInit.log\n",
         "export OVERRIDE_CLOUD_IP=", {"Ref": "cloudIpAddress"}, "\n",
         "echo ", {"Ref": "cloudIpAddress"}, " >/root/OVERRIDE_CLOUD_IP\n",
