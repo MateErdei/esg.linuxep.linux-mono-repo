@@ -69,7 +69,7 @@ def robot_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/results', 'results')
 
 
-def coverage_task(machine: tap.Machine):
+def coverage_task(machine: tap.Machine, develop: bool):
     try:
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
             package_install(machine, 'python3.7-dev')
@@ -116,6 +116,9 @@ def coverage_task(machine: tap.Machine):
         # publish tap (tap tests + unit tests) html results and coverage file to artifactory
         machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
+        if develop:
+            #start systemtest coverage in jenkins (these include tap-tests)
+            requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
 
     finally:
         machine.output_artifact('/opt/test/results', 'results')
@@ -222,10 +225,8 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     with stage.parallel('integration'):
         task_func = robot_task
         if mode == COVERAGE_MODE:
-            stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux))
-            if context.branch == 'develop':
-                #start systemtest coverage in jenkins (these include tap-tests)
-                requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
+            isDevelop = context.branch == 'develop'
+            stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux), develop=isDevelop)
         else:
             for template_name, machine in machines:
                 stage.task(task_name=template_name, func=task_func, machine=machine)
