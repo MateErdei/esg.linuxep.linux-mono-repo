@@ -7,7 +7,7 @@ Resource  ../upgrade_product/UpgradeResources.robot
 # Telemetry variables
 ${COMPONENT_TEMP_DIR}  /tmp/runtimedetections_component
 ${RUNTIMEDETECTIONS_PLUGIN_PATH}    ${SOPHOS_INSTALL}/plugins/runtimedetections
-${RUNTIMEDETECTIONS_EXECUTABLE}     ${SOPHOS_INSTALL}/plugins/runtimedetections/bin/runtimedetections
+${RUNTIMEDETECTIONS_EXECUTABLE}     ${RUNTIMEDETECTIONS_PLUGIN_PATH}/bin/runtimedetections
 
 
 *** Keywords ***
