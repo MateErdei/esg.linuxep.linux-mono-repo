@@ -7,7 +7,7 @@ Resource  ../upgrade_product/UpgradeResources.robot
 # Telemetry variables
 ${COMPONENT_TEMP_DIR}  /tmp/runtimedetections_component
 ${RUNTIMEDETECTIONS_PLUGIN_PATH}    ${SOPHOS_INSTALL}/plugins/runtimedetections
-${RUNTIMEDETECTIONS_EXECUTABLE}     /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections
+${RUNTIMEDETECTIONS_EXECUTABLE}     ${SOPHOS_INSTALL}/plugins/runtimedetections/bin/runtimedetections
 
 
 *** Keywords ***
@@ -15,7 +15,7 @@ Wait For RuntimeDetections to be Installed
     Wait Until Keyword Succeeds
     ...   40 secs
     ...   10 secs
-    ...   File Should exist    ${SOPHOS_INSTALL}/plugins/runtimedetections/bin/runtimedetections
+    ...   File Should exist    ${RUNTIMEDETECTIONS_EXECUTABLE}
 
     Wait Until Keyword Succeeds
     ...   40 secs
@@ -28,16 +28,16 @@ RuntimeDetections Plugin Is Running
     Should Be Equal As Integers    ${result.rc}    0
 
 dogfood RuntimeDetections Plugin Is Running
-    ${result} =    Run Process  pgrep  capsule8-sensor
+    ${result} =    Run Process  pgrep  -f  ${RUNTIMEDETECTIONS_EXECUTABLE}
     Should Be Equal As Integers    ${result.rc}    0
 
 RuntimeDetections Plugin Is Not Running
     ${result} =    Run Process  pgrep  -f  ${RUNTIMEDETECTIONS_EXECUTABLE}
-    Should Not Be Equal As Integers    ${result.rc}    0   RuntimeDetections PLugin still running
+    Should Not Be Equal As Integers    ${result.rc}    0   RuntimeDetections Plugin still running
 
 Dogfood RuntimeDetections Plugin Is Not Running
-    ${result} =    Run Process  pgrep  capsule8-sensor
-    Should Not Be Equal As Integers    ${result.rc}    0   RuntimeDetections PLugin still running
+    ${result} =    Run Process  pgrep  -f  ${RUNTIMEDETECTIONS_EXECUTABLE}
+    Should Not Be Equal As Integers    ${result.rc}    0   RuntimeDetections Plugin still running
 
 Install RuntimeDetections
     [Arguments]  ${policy}  ${args}=${None}
