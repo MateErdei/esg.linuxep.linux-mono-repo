@@ -7,7 +7,8 @@ import requests
 
 
 SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/UserTestJobs/job/cas-base-coverage/build?token=cas-test'
-SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'bugfix/correcting-coverage-build-timings'
+# For branch names, remember that slashes are replaced with hyphens:  '/' -> '-'
+SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'bugfix-correcting-coverage-build-timings'
 
 COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-base-unittest.cov'
 COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-base-taptests.cov'
