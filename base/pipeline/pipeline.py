@@ -6,7 +6,8 @@ from tap._pipeline.tasks import ArtisanInput
 import requests
 
 
-SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-Base-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
+SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/UserTestJobs/job/cas-base-coverage/build?token=cas-test'
+SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'bugfix/correcting-coverage-build-timings'
 
 COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-base-unittest.cov'
 COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-base-taptests.cov'
@@ -116,7 +117,7 @@ def coverage_task(machine: tap.Machine, branch: str):
         # publish tap (tap tests + unit tests) html results and coverage file to artifactory
         machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
-        if branch == 'develop':
+        if branch == SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH:
             #start systemtest coverage in jenkins (these include tap-tests)
             requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
 
