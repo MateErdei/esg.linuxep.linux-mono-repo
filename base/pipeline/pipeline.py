@@ -117,6 +117,8 @@ def coverage_task(machine: tap.Machine, branch: str):
         # publish tap (tap tests + unit tests) html results and coverage file to artifactory
         machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
+        machine.run('echo', branch)
+        machine.run('echo', SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH)
         if branch == SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH:
             #start systemtest coverage in jenkins (these include tap-tests)
             requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
