@@ -35,7 +35,10 @@ Send Policy With Cache
     [Arguments]    &{kwargs}
     Remove File  ${UPDATECACHE_CERT_PATH}
     Send Policy To UpdateScheduler  ALC_policy_with_cache.xml  &{kwargs}
-    Check CacheCertificates Is Created Correctly
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  3 secs
+    ...  Check CacheCertificates Is Created Correctly
 
 Send Policy With No Cache And No Proxy
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
