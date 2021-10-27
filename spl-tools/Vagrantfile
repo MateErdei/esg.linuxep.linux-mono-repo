@@ -51,44 +51,5 @@ Vagrant.configure("2") do |config|
         rhel.vm.provision :shell, path: "bootstrap_common.sh"
     end
 
-    require 'vagrant-aws'
-    config.vm.define "amazon_linux" do |amazon_linux|
-        amazon_linux.vm.box = 'amazon_linux_2'
-        amazon_linux.vm.box_url = "file:///mnt/filer6/linux/ISOs/Vagrant_Boxes/amazon-linux-2.box"
-        amazon_linux.vm.provider 'aws' do |aws, override|
-            aws.keypair_name = 'regressiontesting'
-            aws.instance_type = 't2.micro'
-            aws.region = 'eu-west-1'
-            aws.ami = 'ami-0f913bec34ae13118'
-            aws.security_groups = ['SSH-FROM-SOPHOS']
-            override.ssh.username = 'ec2-user'
-            override.ssh.private_key_path = 'ssh-keys/regressiontesting.pem'
-            override.nfs.functional = false
-            aws.tags = {
-                Name: "Vagrant Amazon Linux 2 for #{hostname}",
-                Owner: 'ukdevsavlinux',
-                SupportEmail: 'ukdevsavlinux@sophos.com',
-                BusinessUnit: 'esg',
-                CostCentre: 'GB11601200',
-                Project: 'SAV',
-                Application: 'Manual',
-                Environment: 'development',
-                AutomationExcluded: 'true',
-                SecurityClassification: 'none low',
-                DevBox: "#{hostname}"
-            }
-        end
-
-        #aws doesn't rsync the root of sspl-tools. Therefore we need to use a file provisioner to scp auditdConfig.txt to /home/ec2-user/auditdConfig.txt (cant copy directly to /vagrant/auditdConfig.txt due to permissions)
-        config.vm.provision "file", source: __dir__+"/everest-base/testUtils/SupportFiles/jenkins/auditdConfig.txt", destination: "/home/ec2-user/auditdConfig.txt"
-
-        amazon_linux.vm.provision :shell, path: "bootstrap_amazon_linux.sh"
-        amazon_linux.vm.provision :shell, path: "bootstrap_common.sh"
-
-        # By default vagrant will rsync everything in root folder.
-        # the line below will prevent this.  This is to ensure we do not upload source code to AWS.
-        amazon_linux.vm.synced_folder '.', '/vagrant', disabled: true
-
-    end
 
 end

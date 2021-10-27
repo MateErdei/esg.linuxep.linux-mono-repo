@@ -9,10 +9,13 @@ versig
 thininstaller
 .vagrant
 .idea
+*.trace.log
 tmpscript.sh
 auditd-output/
 FlameGraph/
 osquery/
 production_certificates/
 profiling/
-/liveterminal/
+liveterminal/
+sspl-warehouse/
+sul/
