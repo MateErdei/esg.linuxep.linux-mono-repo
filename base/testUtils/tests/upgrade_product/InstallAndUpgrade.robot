@@ -187,13 +187,16 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     #TODO LINUXDAR-3594 remove when this ticket is closed.
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log   Unable to verify kernel struct offsets
     ${results}=  Run process  ps -o pid,user,%mem,command ax | sort -b -k3 -r | grep sophos  shell=True
+    Log to console ${results.stdout}
     Log  ${results.stdout}
     Log  ${results.stderr}
     ${results}=  Run process  ps -o pid,user,%mem,command ax | sort -b -k3 -r | grep robot  shell=True
     Log  ${results.stdout}
+    Log to console ${results.stdout}
     Log  ${results.stderr}
     ${results}=  Run process  free  shell=True
     Log  ${results.stdout}
+    Log to console ${results.stdout}
     Log  ${results.stderr}
     Run Keyword And Expect Error  *
     ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
