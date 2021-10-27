@@ -141,9 +141,9 @@ Log XDR Intermediary File
 
 Mark Known Upgrade Errors
     #TODO LINUXDAR-3606 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/euntimedetections.log  runtimedetections <> Supervised sensor exited: exit status 1
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/euntimedetections.log  runtimedetections <> zmq4: no connections available: zmq4: error sending frame 1/2: write unix @->/opt/sophos-spl/var/ipc/mcs_agent.ipc: use of closed network connection
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/euntimedetections.log  supervisor entering dormant mode due to error
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log  runtimedetections <> Supervised sensor exited: exit status 1
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log  runtimedetections <> zmq4: no connections available: zmq4: error sending frame 1/2: write unix @->/opt/sophos-spl/var/ipc/mcs_agent.ipc: use of closed network connection
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log  supervisor entering dormant mode due to error
     #TODO LINUXDAR-3503 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr <> Failed to start extension, extension.Start threw: Failed to register extension: Failed adding registry: Duplicate extension
 
