@@ -7,6 +7,9 @@ import requests
 logger = logging.getLogger(__name__)
 
 SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-EDR-Plugin-bullseye-system-test-coverage/build?token=sspl-linuxdarwin-coverage-token'
+# For branch names, remember that slashes are replaced with hyphens:  '/' -> '-'
+SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'develop'
+
 COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-plugin-edr-unit.cov'
 COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-plugin-edr-tap.cov'
 UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
@@ -107,8 +110,8 @@ def combined_task(machine: tap.Machine, branch: str):
         machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
 
-        #trigger system test coverage job on jenkins when on develop branch - this will also upload to allegro
-        if branch == 'develop':
+        #trigger system test coverage job on jenkins - this will also upload to allegro
+        if branch == SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH:
             requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
 
     finally:
