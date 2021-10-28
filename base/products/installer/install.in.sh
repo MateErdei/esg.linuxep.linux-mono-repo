@@ -355,6 +355,10 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/lock-sophosspl"
 
 makedir 700 "${SOPHOS_INSTALL}/var/lock"
 
+makedir 711 "${SOPHOS_INSTALL}/var/cache"
+makedir 700 "${SOPHOS_INSTALL}/var/cache/mcs_fragmented_policies"
+chown "${LOCAL_USER_NAME}:root" "${SOPHOS_INSTALL}/var/cache/mcs_fragmented_policies"
+
 makedir 711 "${SOPHOS_INSTALL}/logs"
 makedir 711 "${SOPHOS_INSTALL}/logs/base"
 makedir 770 "${SOPHOS_INSTALL}/logs/base/sophosspl"

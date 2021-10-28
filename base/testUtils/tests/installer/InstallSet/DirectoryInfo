@@ -11,6 +11,7 @@ o700, root, root, /opt/sophos-spl/base/update/var/installedproductversions
 o700, root, root, /opt/sophos-spl/bin
 o700, root, root, /opt/sophos-spl/tmp/ServerProtectionLinux-Base-component
 o700, root, root, /opt/sophos-spl/var/lock
+o700, root, sophos-spl-local, /opt/sophos-spl/var/cache/mcs_fragmented_policies
 o700, root, sophos-spl-updatescheduler, /opt/sophos-spl/base/update/updatecachecerts
 o700, root, sophos-spl-updatescheduler, /opt/sophos-spl/base/update/var/updatescheduler
 o700, root, sophos-spl-updatescheduler, /opt/sophos-spl/base/update/var/updatescheduler/processedReports
@@ -27,6 +28,7 @@ o711, root, root, /opt/sophos-spl/logs
 o711, root, root, /opt/sophos-spl/logs/base
 o711, root, root, /opt/sophos-spl/shared
 o711, root, root, /opt/sophos-spl/var
+o711, root, root, /opt/sophos-spl/var/cache
 o711, sophos-spl-group, root, /opt/sophos-spl
 o711, sophos-spl-group, root, /opt/sophos-spl/base
 o711, sophos-spl-group, root, /opt/sophos-spl/base/bin

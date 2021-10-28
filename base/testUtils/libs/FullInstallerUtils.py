@@ -55,29 +55,35 @@ def get_full_installer():
 
     logger.debug("Getting installer BASE_DIST: {}, OUTPUT: {}".format(BASE_DIST, OUTPUT))
 
+    paths_tried = []
+
     if BASE_DIST is not None:
         installer = os.path.join(BASE_DIST, "install.sh")
         if os.path.isfile(installer):
             logger.debug("Using installer from BASE_DIST: {}".format(installer))
             return installer
+        paths_tried.append(installer)
 
     if OUTPUT is not None:
         installer = os.path.join(OUTPUT, "SDDS-COMPONENT", "install.sh")
         if os.path.isfile(installer):
             logger.debug("Using installer from OUTPUT: {}".format(installer))
             return installer
+        paths_tried.append(installer)
 
     installer = os.path.join("../everest-base/build64/distribution/install.sh")
     if os.path.isfile(installer):
         logger.debug("Using installer from build64: {}".format(installer))
         return installer
+    paths_tried.append(installer)
 
     installer = os.path.join("../everest-base/cmake-build-debug/distribution/install.sh")
     if os.path.isfile(installer):
         logger.debug("Using installer from cmake-build-debug: {}".format(installer))
         return installer
+    paths_tried.append(installer)
 
-    raise Exception("Failed to find installer")
+    raise Exception("Failed to find installer at: "+str(paths_tried))
 
 
 def get_folder_with_installer():
