@@ -253,26 +253,29 @@ EDR Plugin writes custom query file when it recieves a Live Query policy and rem
         ...  1 secs
         ...  File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
-EDR Plugin Send LiveQuery Status On Period Rollover
+EDR Plugin Sends LiveQuery Status On Period Rollover
     [Setup]  No Operation
     Install Base For Component Tests
     Create Debug Level Logger Config File
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Install EDR Directly from SDDS
 
+    # wait until EDR hits daily limit
+    Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>true</dailyDataLimitExceeded>
+
+    # Force EDR limit to roll over by setting the target rollover time to be very far into the past and restarting EDR
     Stop EDR
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrPeriodTimestamp  10
     Start EDR
-    Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
-    Remove File  ${SOPHOS_INSTALL}/base/mcs/status/cache/LiveQuery.xml
-    Remove File  ${SOPHOS_INSTALL}/base/mcs/status/LiveQuery_status.xml
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop managementagent   OnError=failed to stop managementagent
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start managementagent   OnError=failed to start managementagent
 
+    # Wait for the rollover to occur
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
     ...  EDR Plugin Log Contains  XDR period has rolled over
+
+    # Once rolled over we expect that the status has gone back to exceeded=false
+    # This won't stay as false for long as the policy limit is only 10kB
     Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
 
 EDR Plugin Respects Data Limit
