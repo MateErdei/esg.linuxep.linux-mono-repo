@@ -62,7 +62,7 @@ def combined_task(machine: tap.Machine, branch: str):
         machine.run('mv', tap_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_TAPTESTS, coverage_results_dir)
 
-        #trigger system test coverage job on jenkins on develop branch - this will also upload to allegro
+        #trigger system test coverage job on jenkins - this will also upload to allegro
         if branch == SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH:
             requests.get(url=SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL, verify=False)
 
