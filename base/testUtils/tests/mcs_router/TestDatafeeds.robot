@@ -9,9 +9,7 @@ Library    ${LIBS_DIRECTORY}/ProcessUtils.py
 Resource  McsRouterResources.robot
 
 Test Setup  Test Setup
-Test Teardown  Run Keywords
-...            Test Teardown    AND
-...            Create File  ${SOPHOS_INSTALL}/base/etc/datafeed-config-scheduled_query.json  ${SCHEDULED_QUERY_DATAFEED_CONFIG}
+Test Teardown  Test Teardown
 
 Suite Setup   Run Keywords
 ...           Setup MCS Tests  AND
@@ -347,6 +345,7 @@ Test Teardown
     MCSRouter Default Test Teardown
     Stop Local Cloud Server
     Cleanup Temporary Folders
+    Create File  ${SOPHOS_INSTALL}/base/etc/datafeed-config-scheduled_query.json  ${SCHEDULED_QUERY_DATAFEED_CONFIG}
 
 Test Setup
     Start Local Cloud Server
