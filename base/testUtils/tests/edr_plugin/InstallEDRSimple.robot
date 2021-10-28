@@ -72,53 +72,6 @@ EDR Removes Ipc And Status Files When Uninstalled
     File Should Not Exist   ${EDR_STATUS_XML}
     File Should Not Exist   ${CACHED_STATUS_XML}
 
-EDR Installer Directories And Files
-## -------------------------------------READ----ME------------------------------------------------------
-## Please note that these tests rely on the files in InstallSet being upto date. To regenerate these run
-## an install manually and run the generateFromInstallDir.sh from InstallSet directory.
-## WARNING
-## If you generate this from a local build please make sure that you have blatted the distribution
-## folder before remaking it. Otherwise old content can slip through to new builds and corrupt the
-## fileset.
-## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
-## -----------------------------------------------------------------------------------------------------
-    Run Full Installer
-    Install EDR Directly
-    Wait Until EDR OSQuery Running
-
-    # Install query packs
-    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
-    Copy File  ${SUPPORT_FILES}/xdr-query-packs/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
-    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
-    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
-
-    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =  get file info for installation  edr
-    Set Test Variable  ${FileInfo}
-    Set Test Variable  ${DirectoryInfo}
-    Set Test Variable  ${SymbolicLinkInfo}
-
-    # Check Directory Structure
-    Log  ${DirectoryInfo}
-    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/DirectoryInfo
-    Should Be Equal As Strings  ${ExpectedDirectoryInfo}  ${DirectoryInfo}
-
-    # Check File Info
-    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/FileInfo
-    Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
-
-    # Check Symbolic Links
-    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SymbolicLinkInfo
-    Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
-
-    # Check systemd files
-    ${SystemdInfo}=  get systemd file info
-    ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SystemdInfo
-    Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
-
 EDR Handles Live Query
     Start Local Cloud Server
     Regenerate Certificates
@@ -292,15 +245,4 @@ EDR Osquery restarts mtr extension when killed
     ...  2 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query  3
 
-
-
-*** Keywords ***
-EDR Tests Teardown With Installed File Replacement
-    Run Keyword If Test Failed  Save Current EDR InstalledFiles To Local Path
-    EDR Test Teardown
-
-Save Current EDR InstalledFiles To Local Path
-    Create File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/FileInfo  ${FileInfo}
-    Create File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/DirectoryInfo  ${DirectoryInfo}
-    Create File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
 

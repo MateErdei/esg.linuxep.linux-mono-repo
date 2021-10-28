@@ -616,14 +616,6 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
 
 
 *** Keywords ***
-EDR Tests Teardown With Installed File Replacement
-    Run Keyword If Test Failed  Save Current EDR InstalledFiles To Local Path
-    EDR Test Teardown
-
-Save Current EDR InstalledFiles To Local Path
-    Create File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/FileInfo  ${FileInfo}
-    Create File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/DirectoryInfo  ${DirectoryInfo}
-    Create File  ${ROBOT_TESTS_DIR}/edr_plugin/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
 
 Check MCS Envelope Log For Event Success Within Nth Set Of Events Sent
     [Arguments]  ${Event_Number}
