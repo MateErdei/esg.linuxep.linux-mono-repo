@@ -327,6 +327,10 @@ class LogUtils(object):
         mark_string = "expected-error"
         index = 0
         contents = get_log_contents(log_location)
+        import resource
+        resource.setrlimit(resource.RLIMIT_DATA,
+                            (resource.RLIM_INFINITY
+                             ,resource.RLIM_INFINITY))
         while True:
             index = contents.find(error_message, index)
             if index == -1:
