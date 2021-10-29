@@ -52,12 +52,12 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     Wait Until Keyword Succeeds
     ...  5s
     ...  1s
-    ...${original_mcsid}  get_value_from_ini_file  MCSID  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ...  ${original_mcsid}  get_value_from_ini_file  MCSID  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
     Wait Until Keyword Succeeds
     ...  5s
     ...  1s
-    ...${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ...  ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
     Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
     ${mcs_policy_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
@@ -182,12 +182,12 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     Wait Until Keyword Succeeds
     ...  5s
     ...  1s
-    ...${original_mcsid}  get_value_from_ini_file  MCSID  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ...  ${original_mcsid}  get_value_from_ini_file  MCSID  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
     Wait Until Keyword Succeeds
     ...  5s
     ...  1s
-    ...${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ...  ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
 
     Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
