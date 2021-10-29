@@ -1,5 +1,6 @@
 import os
 import glob
+import shutil
 import subprocess
 
 import configparser
@@ -325,36 +326,41 @@ class LogUtils(object):
     def mark_expected_error_in_log(self, log_location, error_message):
         error_string = "ERROR"
         mark_string = "expected-error"
-        index = 0
-        contents = get_log_contents(log_location)
-        import resource
-        resource.setrlimit(resource.RLIMIT_DATA,
-                            (resource.RLIM_INFINITY
-                             ,resource.RLIM_INFINITY))
-        while True:
-            index = contents.find(error_message, index)
-            if index == -1:
-                break
-            error_index = contents.rfind(error_string, index - 40, index)
-            contents = contents[:error_index] + mark_string + contents[error_index + len(error_string):]
-            index += len(error_message) + len(error_string) - len(mark_string)
+        tmp_log = "/tmp/log.log"
+        shutil.copy(log_location,tmp_log)
         with open(log_location, "w") as log:
-            log.write(contents)
+            log.write("")
+        with open(tmp_log, "r") as log:
+            while True:
+                # Get next line from file
+                line = log.readline()
+                if not line:
+                    break
+                if error_message in line:
+                    line = line.replace(error_string, mark_string)
+                with open(log_location, "a") as newlog:
+                    newlog.write(line)
+        os.remove(tmp_log)
 
     def mark_expected_critical_in_log(self, log_location, error_message):
         error_string = "CRITICAL"
         mark_string = "expected-error"
-        index = 0
-        contents = get_log_contents(log_location)
-        while True:
-            index = contents.find(error_message, index)
-            if index == -1:
-                break
-            error_index = contents.rfind(error_string, index - 40, index)
-            contents = contents[:error_index] + mark_string + contents[error_index + len(error_string):]
-            index += len(error_message) + len(error_string) - len(mark_string)
+        tmp_log = "/tmp/log.log"
+        shutil.copy(log_location,tmp_log)
         with open(log_location, "w") as log:
-            log.write(contents)
+            log.write("")
+        with open(tmp_log, "r") as log:
+            while True:
+                # Get next line from file
+                line = log.readline()
+                if not line:
+                    break
+                if error_message in line:
+                    line = line.replace(error_string, mark_string)
+                with open(log_location, "a") as newlog:
+                    newlog.write(line)
+        os.remove(tmp_log)
+
     def mcs_router_log(self):
         return os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
 
