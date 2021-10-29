@@ -1,8 +1,7 @@
 import os
 import glob
-import shutil
 import subprocess
-
+import resource
 import configparser
 import dateutil.parser
 from robot.api import logger
@@ -34,6 +33,9 @@ def get_variable(varName, defaultValue=None):
 
 class LogUtils(object):
     def __init__(self):
+        resource.setrlimit(resource.RLIMIT_DATA,
+                           (resource.RLIM_INFINITY
+                            ,resource.RLIM_INFINITY))
         self.tmp_path = os.path.join(".", "tmp")
 
         # Get Robot variables.
@@ -326,49 +328,41 @@ class LogUtils(object):
     def mark_expected_error_in_log(self, log_location, error_message):
         error_string = "ERROR"
         mark_string = "expected-error"
-        tmp_log = "/tmp/log.log"
-        shutil.copy(log_location,tmp_log)
+        index = 0
+        contents = get_log_contents(log_location)
+
+        while True:
+            index = contents.find(error_message, index)
+            if index == -1:
+                break
+            error_index = contents.rfind(error_string, index - 40, index)
+            contents = contents[:error_index] + mark_string + contents[error_index + len(error_string):]
+            index += len(error_message) + len(error_string) - len(mark_string)
         with open(log_location, "w") as log:
-            log.write("")
-        with open(tmp_log, "r") as log:
-            while True:
-                # Get next line from file
-                line = log.readline()
-                if not line:
-                    break
-                if error_message in line:
-                    line = line.replace(error_string, mark_string)
-                with open(log_location, "a") as newlog:
-                    newlog.write(line)
-        os.remove(tmp_log)
+            log.write(contents)
 
     def mark_expected_critical_in_log(self, log_location, error_message):
         error_string = "CRITICAL"
         mark_string = "expected-error"
-        tmp_log = "/tmp/log.log"
-        shutil.copy(log_location,tmp_log)
+        index = 0
+        contents = get_log_contents(log_location)
+        while True:
+            index = contents.find(error_message, index)
+            if index == -1:
+                break
+            error_index = contents.rfind(error_string, index - 40, index)
+            contents = contents[:error_index] + mark_string + contents[error_index + len(error_string):]
+            index += len(error_message) + len(error_string) - len(mark_string)
         with open(log_location, "w") as log:
-            log.write("")
-        with open(tmp_log, "r") as log:
-            while True:
-                # Get next line from file
-                line = log.readline()
-                if not line:
-                    break
-                if error_message in line:
-                    line = line.replace(error_string, mark_string)
-                with open(log_location, "a") as newlog:
-                    newlog.write(line)
-        os.remove(tmp_log)
-
+            log.write(contents)
     def mcs_router_log(self):
         return os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
 
     def comms_component_log(self):
         return os.path.join(self.base_logs_dir, "sophosspl", "comms_component.log")
 
-    def comms_component_startup_log(self):
-        return os.path.join(self.base_logs_dir, "comms_startup.log")
+    def comms_component_network_log(self):
+        return os.path.join(self.base_logs_dir, "sophos-spl-comms", "comms_network.log")
 
     def dump_mcsrouter_log(self):
         mcsrouter_log = self.mcs_router_log()
@@ -888,13 +882,21 @@ class LogUtils(object):
 
     def check_comms_component_log_contains(self, string_to_contain):
         log = self.comms_component_log()
-        self.check_log_contains(string_to_contain, log, "Comms Component")
+        self.check_log_contains(string_to_contain, log, "Comms Component Log")
         logger.info(log)
 
-    def check_comms_component_startup_log_contains(self, string_to_contain):
-        log = self.comms_component_startup_log()
-        self.check_log_contains(string_to_contain, log, "Comms Component Startup Log")
+    def check_comms_component_network_log_contains(self, string_to_contain):
+        log = self.comms_component_network_log()
+        self.check_log_contains(string_to_contain, log, "Comms Component Network Log")
         logger.info(log)
+
+    def check_comms_component_network_log_does_not_contain(self, string_to_not_contain):
+        log = self.comms_component_network_log()
+        self.check_log_does_not_contain(string_to_not_contain, log, "Comms Component Network Log")
+
+    def check_updatescheduler_log_does_not_contain(self, string_to_not_contain):
+        log = self.update_scheduler_log
+        self.check_log_does_not_contain(string_to_not_contain, log, "Updatescheduler")
 
     def check_comms_component_log_does_not_contain_error(self):
         log = self.comms_component_log()
