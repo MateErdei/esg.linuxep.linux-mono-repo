@@ -151,7 +151,7 @@
 				   version="1.0.3.13"
 				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--Version_1_0_3/20210817131513-1ad59f6273547be7a12e3c17b1b755af460dab19-akimjM/sspl-plugin-anti-virus/SDDS-COMPONENT"
 				   longdic="Sophos Linux AntiVirus"
-				   shortdic="Sophos Linux AntiVirus"/
+				   shortdic="Sophos Linux AntiVirus"/>
       <component id="ServerProtectionLinux-Plugin-AV-1.0.2.93"
                  version="1.0.2.93"
                  artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--Version_1_0_2/20210707085822-7dedf149917f3109dc0e844cf9d0fbdba2defdd2-ZDuJKp/sspl-plugin-anti-virus/SDDS-COMPONENT"
