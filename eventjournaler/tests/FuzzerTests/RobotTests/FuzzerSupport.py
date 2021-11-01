@@ -191,7 +191,6 @@ class FuzzerSupport:
         file_exist_list = [os.path.exists(filepath) for filepath in full_paths]
         if all(file_exist_list):
             files_present = [filepath for filepath in full_paths if os.path.exists(filepath)]
-            logger.info("Files present in alc fuzzer path: {}".format(files_present))
             return True
         else:
             files_present = [filepath for filepath in full_paths if os.path.exists(filepath)]
