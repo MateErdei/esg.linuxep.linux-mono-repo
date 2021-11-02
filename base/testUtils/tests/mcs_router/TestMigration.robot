@@ -197,7 +197,6 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
 
     ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
-
     Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
     ${mcs_policy_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
 
