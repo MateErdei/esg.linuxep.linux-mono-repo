@@ -20,18 +20,9 @@ Test Components Shutdown Cleanly
     Run Process   systemctl  restart  sophos-spl
     Wait For Base Processes To Be Running
 
-    ${wd_pid_1}=  Run Process  pidof  sophos_watchdog
-    Should Be Equal As Integers    ${wd_pid_1.rc}    0
     Install EDR Directly
     Wait For EDR to be Installed
     Wait For Base Processes To Be Running
-
-    ${wd_pid_2}=  Run Process  pidof  sophos_watchdog
-    Should Be Equal As Integers    ${wd_pid_2.rc}    0
-    # Adding this check to exclude rsyslog from the equation of possible reasons why watchdog was not running
-    # during live response install which casued a test failure. If the pids are the same then configuring and starting
-    # rsyslog is probably not causing systemd to restart sophos_watchdog.
-    Should be equal  ${wd_pid_1.stdout}   ${wd_pid_2.stdout}
 
     Install Live Response Directly
     Check Live Response Plugin Installed
