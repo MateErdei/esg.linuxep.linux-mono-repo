@@ -270,7 +270,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     #the query pack should have been installed with EDR VUT
     Should Exist  ${Sophos_Scheduled_Query_Pack}
-    ${osquery_pid_before_query_pack_removed} =  Get Edr OsQuery PID
 
     ${sspl_user_uid} =  Get UID From Username  sophos-spl-user
     ${sspl_local_uid} =  Get UID From Username  sophos-spl-local
@@ -360,8 +359,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     #TODO LINUXDAR-3183 enable these checks when event journaler is in the dogfood warehouse
     #Should Not Be Equal As Strings  ${EJReleaseVersion}  ${EJDevVersion}
 
-    ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
-    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
 
     #Check users haven't been removed and added back
     ${new_sspl_user_uid} =  Get UID From Username  sophos-spl-user
@@ -422,8 +419,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  20 secs
     ...  5 secs
     ...  file should exist  ${Sophos_Scheduled_Query_Pack}
-    ${osquery_pid_after_query_pack_restored} =  Get Edr OsQuery PID
-    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
 
 We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
@@ -597,8 +592,6 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
 
     #the query pack should have been installed with EDR VUT
     Should Exist  ${Sophos_Scheduled_Query_Pack}
-    ${osquery_pid_before_query_pack_removed} =  Get Edr OsQuery PID
-
 
     # Changing the policy here will result in an automatic update
     # Note when downgrading from a release with live response to a release without live response
@@ -683,9 +676,6 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Check Log Contains   Uninstalling plugin ServerProtectionLinux-Plugin-RuntimeDetections since it was removed from warehouse  /tmp/preserve-sul-downgrade  Downgrade Log
     Check Log Contains   Uninstalling plugin ServerProtectionLinux-Plugin-EventJournaler since it was removed from warehouse     /tmp/preserve-sul-downgrade  Downgrade Log
 
-    ${osquery_pid_after_query_pack_removed} =  Get Edr OsQuery PID
-    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_removed}  ${osquery_pid_before_query_pack_removed}
-
     Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     # Upgrade back to master to check we can upgrade from a downgraded product
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
@@ -735,8 +725,6 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...  20 secs
     ...  5 secs
     ...  file should exist  ${Sophos_Scheduled_Query_Pack}
-    ${osquery_pid_after_query_pack_restored} =  Get Edr OsQuery PID
-    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_restored}  ${osquery_pid_after_query_pack_removed}
 
 Ensure Supplement Updates Only Perform A Supplement Update
     ## This can't run against real (remote) warehouses, since it modifies the warehouses to prevent product updates from working
