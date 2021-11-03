@@ -672,9 +672,8 @@ def main(argv):
 
     ## Need some way of terminating???
     try:
-        while os.getppid() == ppid:
+        while True:
             httpd.handle_request()
-        print("Parent process went away, quitting!")
     except OSError as e:
         print("Serving failed with OSError:",e)
         print(os.getcwd(), file=sys.stderr)
