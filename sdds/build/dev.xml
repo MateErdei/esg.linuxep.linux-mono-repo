@@ -150,6 +150,7 @@
 <!--    </build-asset>-->
     <build-asset artifact-path="develop/warehouse" source-dir="output\warehouse\content" mode="release-package"/>
     <build-asset artifact-path="develop/customer" source-dir="output\warehouse\customer" mode="release-package"/>
+    <build-asset artifact-path="SupportFiles" source-dir="SupportFiles" mode="release-package"/>
     <build-asset artifact-path="develop/def" source-dir="output\def" mode="release-package"/>
     <build-asset artifact-path="develop/logs" source-dir="logs" mode="release-package"/>
 
