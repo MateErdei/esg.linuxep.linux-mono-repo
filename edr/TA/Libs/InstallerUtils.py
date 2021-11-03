@@ -24,7 +24,7 @@ def get_variable(var_name, default_value=None):
 
 
 def run_proc_with_safe_output(args):
-    logger.debug('Run Command: {}'.format(args))
+    logger.debug(f'Run Command: {args}')
     with tempfile.TemporaryFile(dir=os.path.abspath('.')) as tmpfile:
         p = subprocess.Popen(args, stdout=tmpfile, stderr=tmpfile)
         p.wait()
@@ -55,7 +55,7 @@ def unmount_all_comms_component_folders(skip_stop_proc=False):
         counter = counter + 1
         stdout, errcode = run_proc_with_safe_output(['pidof', 'CommsComponent'])
         if errcode == 0:
-            logger.info("Commscomponent running {}".format(stdout))
+            logger.info(f"Commscomponent running {stdout}")
             _stop_commscomponent()
             time.sleep(1)
         else:
@@ -117,7 +117,7 @@ def get_result_and_stat(path):
         return p
 
     s = os.lstat(path)
-    result = "{}, {}, {}, {}".format(get_perms(s.st_mode), get_group(s.st_gid), get_user(s.st_uid), path)
+    result = f"{get_perms(s.st_mode)}, {get_group(s.st_gid)}, {get_user(s.st_uid)}, {path}"
     return result, s
 
 
@@ -147,7 +147,7 @@ def get_file_info_for_installation():
         for f in files:
             include = True
             for e in exclusions:
-                if e in f or e in base:
+                if e in os.path.join(base, f):
                     include = False
                     break
             if include:
