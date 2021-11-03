@@ -21,22 +21,8 @@ EDR Installer Directories And Files
 ## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
 ## -----------------------------------------------------------------------------------------------------
     [Teardown]    EDR Tests Teardown With Installed File Replacement
-    Install Base For Component Tests
-    Install EDR Directly from SDDS
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  Check Osquery Running
-
-    # Install query packs
-    Copy File  ${EXAMPLE_DATA_PATH}/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Copy File  ${EXAMPLE_DATA_PATH}/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Copy File  ${EXAMPLE_DATA_PATH}/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
-    Copy File  ${EXAMPLE_DATA_PATH}/error-queries.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
-    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
-    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf
+    Install With Base SDDS
+    Check EDR Plugin Installed With Base
 
     ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =  Get File Info For Installation
     Set Test Variable  ${FileInfo}
