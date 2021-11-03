@@ -586,6 +586,10 @@ GOOD_CIPHERS = ":".join(
 def main(argv):
     global loggingOn
 
+    ppid = os.getppid()
+    # TODO - deal with this
+    # assert ppid != 1
+
     options = parseOptions(argv)
     print("Webserver running on %d, with root %s"%(options.port,options.root), file=sys.stderr)
     print("args:",str(argv[1:]), file=sys.stderr)
@@ -668,8 +672,9 @@ def main(argv):
 
     ## Need some way of terminating???
     try:
-        while True:
+        while os.getppid() == ppid:
             httpd.handle_request()
+        print("Parent process went away, quitting!")
     except OSError as e:
         print("Serving failed with OSError:",e)
         print(os.getcwd(), file=sys.stderr)
