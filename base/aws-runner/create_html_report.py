@@ -60,7 +60,7 @@ def main():
         data[loadtag]["average"] = round(total/data[loadtag]["count"], 1)
     string = json.dumps(data).split(",")
 
-    with open("test.html", 'w') as f:
+    with open("./report/test.html", 'w') as f:
         for line in string:
             f.write("<pre>" + line + "</pre>\n")
 
