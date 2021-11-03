@@ -61,18 +61,6 @@ grep_response = """{
         "columnData": [["UUID"]]
     }"""
 
-public_ip_query = """{
-    "type": "sophos.mgt.action.RunLiveQuery",
-    "name": "get public_id",
-    "query": "SELECT * FROM public_ip"
-}"""
-
-public_ip_response = """{
-        "type": "sophos.mgt.response.RunLiveQuery",
-        "queryMetaData": {"errorCode":0,"errorMessage":"OK","rows":1,"sizeBytes":18},
-        "columnMetaData":  [{"name":"public_ip","type":"TEXT"}],
-        "columnData": [["UUID"]]
-    }"""
 no_column_query = """{
     "type": "sophos.mgt.action.RunLiveQuery",
     "name": "No column",
@@ -147,7 +135,6 @@ def test_edr_plugin_expected_responses_to_livequery(sspl_mock, edr_plugin_instan
     send_and_receive_query_and_verify(top_2_processes_query, sspl_mock.management, edr_plugin_instance, top_2_processes_response)
     send_and_receive_query_and_verify(hex_to_int_query, sspl_mock.management, edr_plugin_instance, hex_to_int_response)
     send_and_receive_query_and_verify(grep_query, sspl_mock.management, edr_plugin_instance, grep_response)
-    send_and_receive_query_and_verify(public_ip_query, sspl_mock.management, edr_plugin_instance, public_ip_response, True)
     send_and_receive_query_and_verify(no_column_query, sspl_mock.management, edr_plugin_instance, no_column_response)
 
     # check that empty name is also acceptable (Central sends empty name for user new queries)
