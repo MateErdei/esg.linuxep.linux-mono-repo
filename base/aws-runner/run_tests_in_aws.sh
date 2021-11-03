@@ -348,6 +348,7 @@ combineResults()
   python3 -m robot.rebot -l ./results/centos8x64-log.html -r ./results/centos8x64-report.html -N combined ./results-combine-workspace/centos8x64-output.xml
   python3 -m robot.rebot -l ./results/amazonlinux2x64-log.html -r ./results/amazonlinux2x64-report.html -N combined ./results-combine-workspace/amazonlinux2x64-output.xml
 }
+./create_html_report.py
 combineResults
 ## exit
 exit 0
