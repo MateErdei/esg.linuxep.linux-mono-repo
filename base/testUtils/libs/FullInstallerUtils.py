@@ -687,12 +687,8 @@ def get_file_info_for_installation(plugin=None):
         plugin = plugin.lower()
         plugin_dir = "plugins/{}".format(plugin)
         SOPHOS_INSTALL = os.path.join(SOPHOS_INSTALL, plugin_dir)
-        if plugin == "mtr":
-            exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "mdr_plugin/InstallSet/ExcludeFiles")).readlines()
-        elif plugin == "edr":
-            exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "edr_plugin/InstallSet/ExcludeFiles")).readlines()
-        elif plugin == "liveresponse":
-            exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "mdr_plugin/InstallSet/ExcludeFiles")).readlines()
+        if plugin == "liveresponse":
+            exclusions = open(os.path.join(PathManager.get_robot_tests_path(), "liveresponse_plugin/InstallSet/ExcludeFiles")).readlines()
         exclusions = set(( e.strip() for e in exclusions ))
 
     fullFiles = set()
