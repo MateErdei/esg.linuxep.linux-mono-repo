@@ -738,7 +738,8 @@ Record AV Plugin PID
 Record Sophos Threat Detector PID
     # We need to wait long enough for sophos_threat_detector to be restarted
     # avplugin triggers restart of sophos_threat_detector + 10 seconds for watchdog to restart it
-    ${PID} =  ProcessUtils.wait for pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${15}
+    # It took 10 seconds for watchdog to detect sophos_threat_detector had exited - so allow 30 seconds here
+    ${PID} =  ProcessUtils.wait for pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
     [Return]   ${PID}
 
 Check AV Plugin has same PID
