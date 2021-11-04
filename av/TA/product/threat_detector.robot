@@ -179,3 +179,13 @@ Threat Detector Logs Susi Version when applicable
     Run Process   /bin/kill   -SIGUSR1   ${pid}
     Sophos Threat Detector Log Contains With Offset  Threat scanner is already up to date
     threat detector log should not contain with offset  SUSI Libraries loaded:
+
+Threat Detector Doesnt Log Every Scan
+    Register On Fail   dump log  ${SUSI_DEBUG_LOG_PATH}
+    Set Log Level  INFO
+    Start AV
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
+    Sophos Threat Detector Log Contains With Offset  Initializing SUSI
+    check log does not contain   Starting scan of    ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
+    check log does not contain   Finished scanning   ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
+    dump log  ${SUSI_DEBUG_LOG_PATH}

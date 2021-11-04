@@ -315,11 +315,11 @@ File Log Contains
     def check_all_product_logs_do_not_contain_critical(self):
         self.check_all_product_logs_do_not_contain_string("CRITICAL")
 
-    def get_number_of_occurrences_of_substring_in_log(self, log_location, substring):
+    def get_number_of_occurrences_of_substring_in_log(self, log_location, substring) -> int:
         contents = _get_log_contents(log_location)
         return self.get_number_of_occurrences_of_substring_in_string(contents, substring)
 
-    def get_number_of_occurrences_of_substring_in_string(self, string, substring, use_regex=False):
+    def get_number_of_occurrences_of_substring_in_string(self, string, substring, use_regex=False) -> int:
         if use_regex:
             return self.get_number_of_occurrences_of_regex_in_string(string, substring)
         count = 0
@@ -332,8 +332,8 @@ File Log Contains
             count += 1
         return count
 
-    #require that special characters are escaped with '\' [ /, +, *, ., (, ) etc ]
-    def get_number_of_occurrences_of_regex_in_string(self, string, reg_expresion_str):
+    # require that special characters are escaped with '\' [ /, +, *, ., (, ) etc ]
+    def get_number_of_occurrences_of_regex_in_string(self, string, reg_expresion_str) -> int:
         import re
         reg_expression = re.compile(reg_expresion_str)
         log_occurrences = reg_expression.findall(string)
