@@ -12,7 +12,9 @@ add_subdirectory(eventjournal)
 add_subdirectory(EventQueueLib)
 add_subdirectory(EventWriterWorker)
 add_subdirectory(Helpers)
+if (BUILD_FUZZ_TESTS)
 add_subdirectory(FuzzerTests)
+endif()
 
 add_custom_target(kcov
         COMMAND bash ${PROJECT_SOURCE_DIR}/../everest-base/tools/run-kcov.sh ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/tests ${PROJECT_BINARY_DIR}/kcov_output ${PROJECT_BINARY_DIR}/tests
