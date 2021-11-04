@@ -183,6 +183,7 @@ Threat Detector Logs Susi Version when applicable
 Threat Detector Doesnt Log Every Scan
     Register On Fail   dump log  ${SUSI_DEBUG_LOG_PATH}
     Set Log Level  INFO
+    Remove File    ${SUSI_DEBUG_LOG_PATH}
     Start AV
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
     Sophos Threat Detector Log Contains With Offset  Initializing SUSI
