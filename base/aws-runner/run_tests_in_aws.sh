@@ -350,7 +350,7 @@ combineResults()
 }
 rm -rf report
 mkdir report
-./create_html_report.py
+python3 ./create_html_report.py
 combineResults
 ## exit
 exit 0
