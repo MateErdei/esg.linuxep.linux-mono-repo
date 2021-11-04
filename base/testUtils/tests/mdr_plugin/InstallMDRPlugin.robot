@@ -24,42 +24,6 @@ Force Tags  LOAD4
 
 
 *** Test Cases ***
-Verify that the mtr installer works correctly
-## -------------------------------------READ----ME------------------------------------------------------
-## Please note that these tests rely on the files in InstallSet being upto date. To regenerate these run
-## an install manually and run the generateFromInstallDir.sh from InstallSet directory.
-## WARNING
-## If you generate this from a local build please make sure that you have blatted the distribution
-## folder before remaking it. Otherwise old content can slip through to new builds and corrupt the
-## fileset.
-## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
-## -----------------------------------------------------------------------------------------------------
-    [Teardown]  MTR Tests Teardown With Installed File Replacement
-    Install MDR Directly
-
-    ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   get file info for installation  mtr
-    Set Test Variable  ${FileInfo}
-    Set Test Variable  ${DirectoryInfo}
-    Set Test Variable  ${SymbolicLinkInfo}
-    ## Check Directory Structure
-    Log  ${DirectoryInfo}
-    ${ExpectedDirectoryInfo}=  Get File  ${ROBOT_TESTS_DIR}/mdr_plugin/InstallSet/DirectoryInfo
-    Should Be Equal As Strings  ${ExpectedDirectoryInfo}  ${DirectoryInfo}
-
-    ## Check File Info
-    # wait for /opt/sophos-spl/base/mcs/status/cache/ALC.xml to exist
-    ${ExpectedFileInfo}=  Get File  ${ROBOT_TESTS_DIR}/mdr_plugin/InstallSet/FileInfo
-    Should Be Equal As Strings  ${ExpectedFileInfo}  ${FileInfo}
-
-    ## Check Symbolic Links
-    ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/mdr_plugin/InstallSet/SymbolicLinkInfo
-    Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
-
-    ## Check systemd files
-    ${SystemdInfo}=  get systemd file info
-    ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/mdr_plugin/InstallSet/SystemdInfo
-    Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
-
 MDR Plugin Installs
     [Tags]  SMOKE  MDR_PLUGIN
     Install MDR Directly
@@ -124,15 +88,6 @@ MDR Plugin Logging Level Can Be Changed Individually
     ...  MDR Plugin Log Contains   Logger mtr configured for level: DEBUG
 
 *** Keywords ***
-MTR Tests Teardown With Installed File Replacement
-    Run Keyword If Test Failed  Save Current MTR InstalledFiles To Local Path
-    Test Teardown
-
-Save Current MTR InstalledFiles To Local Path
-    Create File  ${ROBOT_TESTS_DIR}/mdr_plugin/InstallSet/FileInfo  ${FileInfo}
-    Create File  ${ROBOT_TESTS_DIR}/mdr_plugin/InstallSet/DirectoryInfo  ${DirectoryInfo}
-    Create File  ${ROBOT_TESTS_DIR}/mdr_plugin/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
-
 MDR Test Setup
     Block Connection Between EndPoint And FleetManager
 
