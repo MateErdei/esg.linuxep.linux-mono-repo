@@ -615,6 +615,11 @@ AV Plugin restarts threat detector on customer id change
     ${policyContent} =   Get ALC Policy   revid=${id1}  userpassword=${id1}  username=${id1}
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
+
+    # Need to get restart after new policy sent
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
     Send Alc Policy To Base  tempAlcPolicy.xml
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
