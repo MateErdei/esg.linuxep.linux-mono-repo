@@ -628,14 +628,14 @@ AV Plugin restarts threat detector on customer id change
     Check Sophos Threat Detector has different PID   ${pid}
 
     # change revid only, threat_detector should not restart
-    Mark AV Log
-    Mark Sophos Threat Detector Log
     ${pid} =   Record Sophos Threat Detector PID
 
     ${id2} =   Generate Random String
     ${policyContent} =   Get ALC Policy   revid=${id2}  userpassword=${id1}  username=${id1}
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
+    Mark AV Log
+    Mark Sophos Threat Detector Log
     Send Alc Policy To Base  tempAlcPolicy.xml
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
@@ -645,14 +645,15 @@ AV Plugin restarts threat detector on customer id change
     Check Sophos Threat Detector has same PID   ${pid}
 
     # change credentials, threat_detector should restart
-    Mark AV Log
-    Mark Sophos Threat Detector Log
     ${pid} =   Record Sophos Threat Detector PID
 
     ${id3} =   Generate Random String
     ${policyContent} =   Get ALC Policy   revid=${id3}  userpassword=${id3}  username=${id3}
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
+
+    Mark AV Log
+    Mark Sophos Threat Detector Log
     Send Alc Policy To Base  tempAlcPolicy.xml
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
