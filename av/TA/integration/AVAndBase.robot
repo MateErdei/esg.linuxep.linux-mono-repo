@@ -623,7 +623,7 @@ AV Plugin restarts threat detector on customer id change
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system/susi configuration has changed
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
-    Check Sophos Threat Detector has different PID   ${pid}
+    Wait For Sophos Threat Detector to restart  ${pid}
 
     # change revid only, threat_detector should not restart
     ${pid} =   Record Sophos Threat Detector PID
@@ -657,7 +657,7 @@ AV Plugin restarts threat detector on customer id change
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Restarting sophos_threat_detector as the system/susi configuration has changed
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
-    Check Sophos Threat Detector has different PID   ${pid}
+    Wait For Sophos Threat Detector to restart   ${pid}
 
 
 AV Plugin restarts threat detector on susi startup settings change

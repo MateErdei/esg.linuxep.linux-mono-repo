@@ -39,7 +39,7 @@ def wait_for_pid(executable, timeout=15):
 def wait_for_different_pid(executable, original_pid, timeout=5):
     start = time.time()
     pid = -2
-    while time.time < start + timeout:
+    while time.time() < start + timeout:
         pid = pidof(executable)
         if pid != original_pid and pid > 0:
             return
