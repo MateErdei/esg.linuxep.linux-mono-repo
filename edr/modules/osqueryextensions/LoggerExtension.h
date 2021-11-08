@@ -8,6 +8,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "IServiceExtension.h"
 #include "ResultsSender.h"
+#include "BatchTimer.h"
 #include <OsquerySDK/OsquerySDK.h>
 #include <thread>
 
@@ -45,6 +46,7 @@ public:
 private:
     void Run(std::shared_ptr<std::atomic_bool> extensionFinished);
     ResultsSender m_resultsSender;
+    BatchTimer m_batchTimer;
     bool m_stopped = { true };
     bool m_stopping = { false };
     std::unique_ptr<std::thread> m_runnerThread;

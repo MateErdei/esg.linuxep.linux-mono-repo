@@ -3,6 +3,7 @@ SophosAddTest(TestOsqueryExtension
         MockQueryContext.h
         TestLoggerExtension.cpp
         TestResultSender.cpp
+        TestBatchTimer.cpp
         TestSophosServerTable.cpp
         TestSophosAVDetectionTable.cpp
         TestTimeConstraintHelpers.cpp

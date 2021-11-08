@@ -7,6 +7,8 @@ sophos_add_library(OsqueryExtensions SHARED
         Logger.cpp
         ResultsSender.h
         ResultsSender.cpp
+        BatchTimer.h
+        BatchTimer.cpp
         SophosServerTable.h
         SophosAVDetectionTableGenerator.h
         SophosAVDetectionTableGenerator.cpp
