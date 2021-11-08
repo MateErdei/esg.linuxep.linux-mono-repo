@@ -607,8 +607,6 @@ AV Runs Scan With SXL Lookup Disabled
 
 
 AV Plugin restarts threat detector on customer id change
-    Mark AV Log
-    Mark Sophos Threat Detector Log
     ${pid} =   Record Sophos Threat Detector PID
 
     ${id1} =   Generate Random String

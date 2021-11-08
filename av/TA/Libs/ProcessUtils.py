@@ -36,6 +36,17 @@ def wait_for_pid(executable, timeout=15):
         time.sleep(0.01)
     raise AssertionError("Unable to find executable: {} in {} seconds".format(executable, timeout))
 
+def wait_for_different_pid(executable, original_pid, timeout=5):
+    start = time.time()
+    pid = -2
+    while time.time < start + timeout:
+        pid = pidof(executable)
+        if pid != original_pid and pid > 0:
+            return
+        time.sleep(0.1)
+    if pid == original_pid:
+        raise AssertionError("Process {} (exe:{}) still running".format(original_pid, executable))
+    raise AssertionError("Executable {} no longer running {}".format(executable, pid))
 
 def __main(argv):
     print(pidof(argv[1]))

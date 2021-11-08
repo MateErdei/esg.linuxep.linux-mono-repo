@@ -757,6 +757,10 @@ Check Sophos Threat Detector has different PID
     ${currentPID} =  Record Sophos Threat Detector PID
     Should Not Be Equal As Integers  ${PID}  ${currentPID}
 
+Wait For Sophos Threat Detector to restart
+    [Arguments]  ${PID}
+    ProcessUtils.wait for different pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${PID}  30
+
 Check threat detected
      [Arguments]  ${THREAT_FILE}  ${THREAT_NAME}  ${INFECTED_CONTENTS}=${EMPTY}
      ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${RESOURCES_PATH}/file_samples/${THREAT_FILE}
