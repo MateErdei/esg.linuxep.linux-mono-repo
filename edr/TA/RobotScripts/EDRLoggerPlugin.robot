@@ -795,6 +795,26 @@ EDR Plugin Updates Next Scheduled Queries When Supplement Updated And Flag Alrea
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   latest_xdr_query  ${mark2}
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   latest_mtr_query  ${mark2}
 
+EDR Plugin Sends XDR Results After Batch Time
+    Add Uptime Query to Scheduled Queries  60
+    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+    Enable XDR
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/var/xdr_intermediary
+    Empty Directory  ${SOPHOS_INSTALL}/base/mcs/datafeed
+
+    Wait Until Keyword Succeeds
+    ...  65 secs
+    ...  2 secs
+    ...  File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/xdr_intermediary
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  2 secs
+    ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+
 *** Keywords ***
 XDR Pack Should Be Enabled
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
@@ -873,8 +893,9 @@ Are Next Query Packs Enabled in Plugin Conf
     Should Contain  ${EDR_CONFIG_CONTENT}   scheduled_queries_next=${settingValue}
 
 Add Uptime Query to Scheduled Queries
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": 1}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  {"schedule": {"uptime": {"query": "select * from uptime;","interval": 1}}}
+    [Arguments]  ${interval}=1
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}}}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}}}}
 
 Test Teardown
     EDR And Base Teardown
