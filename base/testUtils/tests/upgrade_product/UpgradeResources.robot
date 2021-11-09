@@ -91,6 +91,12 @@ Install Internal SSL Certs To System
     Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA1.crt
     Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA2.crt
     Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA3.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalIntCA-A1.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalIntCA-A2.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalIntCA-B1.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalIntCA-B2.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalRootCA-A.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalRootCA-B.crt
 
 Revert System CA Certs
     Cleanup System Ca Certs

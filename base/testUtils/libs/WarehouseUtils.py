@@ -78,6 +78,11 @@ OSTIA_ADDRESSES = {
                    }
 
 BALLISTA_ADDRESS = "https://dci.sophosupd.com/cloudupdate"
+INTERNAL_MIRROR_BALLISTA_ADDRESS = "https://dci.sophosupd.net/sprints/"
+ADDRESS_DICT= {
+    "internal": BALLISTA_ADDRESS,
+    "external": INTERNAL_MIRROR_BALLISTA_ADDRESS
+}
 
 DEV_ROOT_CA = os.path.join(SUPPORT_FILE_PATH, "sophos_certs", "rootca.crt")
 DEV_PS_ROOT_CA = os.path.join(SUPPORT_FILE_PATH, "sophos_certs", "ps_rootca.crt")
@@ -308,8 +313,11 @@ class TemplateConfig:
             self.username = user_pass[0]
             self.password = user_pass[1]
             self.hashed_credentials = user_pass[2]
+            if len(user_pass) == 4:
+                self.remote_connection_address = ADDRESS_DICT[user_pass[3]]
+            else:
+                self.remote_connection_address = BALLISTA_ADDRESS
             self.relevent_sdds_files = get_sdds_names_from_update_credentials(self.hashed_credentials)
-            self.remote_connection_address = BALLISTA_ADDRESS
             self.build_type = PROD_BUILD_CERTS
             self.algorithm = "AES256"
         else:
@@ -343,7 +351,7 @@ class TemplateConfig:
         # If we have local copies of the ostia warehouses, we want to set the connection address to use
         # the localhost:2233 address which customer file update servers will use
         # don't do this if using a ballista override
-        if self.use_local_warehouses and self.remote_connection_address != BALLISTA_ADDRESS:
+        if self.use_local_warehouses and self.remote_connection_address not in ADDRESS_DICT.values():
             self.local_customer_file_port = OSTIA_ADDRESSES[self.remote_connection_address]
             self.local_connection_address = "https://localhost:{}".format(self.local_customer_file_port)
             logger.info("setting {} local connection address to {} as local warehouse directory was found".format(
