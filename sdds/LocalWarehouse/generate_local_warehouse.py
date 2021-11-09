@@ -18,8 +18,6 @@ SCRIPT_NAME = os.path.basename(__file__)
 SCRIPT_PATH = os.path.abspath(__file__)
 SCRIPT_DIR = os.path.dirname(SCRIPT_PATH)
 DEFAULT_WORKINGDIR = os.path.join(SCRIPT_DIR)
-#temp
-cid_server_path = os.path.join(SCRIPT_DIR, "..", "cidServer.py")
 
 package_xml = \
 """<?xml version="1.0" encoding="utf-8"?>
@@ -59,9 +57,6 @@ def install_ostiant_cert_to_system(args):
     certInstallScript = os.path.join(args.workingdir, "utils", "InstallCertificateToSystem.sh")
     ostiant_public_cert = os.path.join(args.workingdir, "utils", "ostia-public-ca.crt")
     command = [certInstallScript, ostiant_public_cert]
-    print("JAKE -----")
-    print(command)
-    print("JAKE -----")
     subprocess.run(command)
 
 def fetch_artifacts(args):
