@@ -78,10 +78,10 @@ OSTIA_ADDRESSES = {
                    }
 
 BALLISTA_ADDRESS = "https://dci.sophosupd.com/cloudupdate"
-INTERNAL_MIRROR_BALLISTA_ADDRESS = "https://dci.sophosupd.net/sprints/"
+INTERNAL_MIRROR_BALLISTA_ADDRESS = "https://dci.sophosupd.net/sprints"
 ADDRESS_DICT= {
-    "internal": BALLISTA_ADDRESS,
-    "external": INTERNAL_MIRROR_BALLISTA_ADDRESS
+    "external": BALLISTA_ADDRESS,
+    "internal": INTERNAL_MIRROR_BALLISTA_ADDRESS
 }
 
 DEV_ROOT_CA = os.path.join(SUPPORT_FILE_PATH, "sophos_certs", "rootca.crt")
@@ -196,18 +196,17 @@ def get_version_for_rigidname(rigid_name, tag="RECOMMENDED"):
     version = get_version_for_component_with_importref(rigid_name, importref)
     return version
 
-def get_dci_xml_from_update_credentials_inner(update_credentials):
-    dci_url = f"https://dci.sophosupd.com/update/{update_credentials[0]}/{update_credentials[1:3]}/{update_credentials}.dat"
-    r = requests.get(dci_url)
+def get_dci_xml_from_update_credentials_inner(dci_address):
+    r = requests.get(dci_address)
     signature_start = r.content.find(b"-----BEGIN SIGNATURE-----")
     xml_string = r.content[:signature_start].decode()
     return xml_string
 
-def get_dci_xml_from_update_credentials(update_credentials):
+def get_dci_xml_from_update_credentials(dci_address):
     error_message = None
     for i in range(10):
         try:
-            return get_dci_xml_from_update_credentials_inner(update_credentials)
+            return get_dci_xml_from_update_credentials_inner(dci_address)
         except Exception as reason:
             error_message = reason
     else:
@@ -221,8 +220,8 @@ def get_sdds_names_from_dci_xml_string(dci_xml_string):
         sdds_names.append(warehouse_entry.text)
     return sdds_names
 
-def get_sdds_names_from_update_credentials(update_credentials):
-    xml = get_dci_xml_from_update_credentials(update_credentials)
+def get_sdds_names_from_update_credentials(dci_address):
+    xml = get_dci_xml_from_update_credentials(dci_address)
     if not xml:
         return []
     return get_sdds_names_from_dci_xml_string(xml)
@@ -317,7 +316,8 @@ class TemplateConfig:
                 self.remote_connection_address = ADDRESS_DICT[user_pass[3]]
             else:
                 self.remote_connection_address = BALLISTA_ADDRESS
-            self.relevent_sdds_files = get_sdds_names_from_update_credentials(self.hashed_credentials)
+            dci_address = f"{self.remote_connection_address}/{self.hashed_credentials[0]}/{self.hashed_credentials[1:3]}/{self.hashed_credentials}.dat"
+            self.relevent_sdds_files = get_sdds_names_from_update_credentials(dci_address)
             self.build_type = PROD_BUILD_CERTS
             self.algorithm = "AES256"
         else:
