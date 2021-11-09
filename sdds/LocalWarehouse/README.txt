@@ -25,7 +25,7 @@ TO CHECK PROCESSES RUNNING:
 
 you can check the processes are still running with:
 """
-root@7007-jak:/opt/sophos-spl# ps -ef | grep cid
+ps -ef | grep cid
 """
 
 which should show:
