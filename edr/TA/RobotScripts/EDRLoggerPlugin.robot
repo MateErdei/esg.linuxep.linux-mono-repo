@@ -802,12 +802,17 @@ EDR Plugin Sends XDR Results After Batch Time
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  5 secs
+    ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
     ...  File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/var/xdr_intermediary
     Empty Directory  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
     Wait Until Keyword Succeeds
-    ...  65 secs
-    ...  2 secs
+    ...  120 secs
+    ...  5 secs
     ...  File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/xdr_intermediary
 
     Wait Until Keyword Succeeds
