@@ -21,9 +21,9 @@ o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/sdu.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/tscheduler.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/pluginRegistry/updatescheduler.json
 o640, sophos-spl-group, root, /opt/sophos-spl/base/VERSION.ini.0
+o644, root, root, /opt/sophos-spl/base/etc/logger.conf.0
+o644, root, root, /opt/sophos-spl/base/etc/logger.conf.local
 o644, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs/mcs_rootca.crt.0
-o644, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/etc/logger.conf.0
-o644, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/etc/logger.conf.local
 o660, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/status/cache/SDU.xml
 o660, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/status/SDU_status.xml
 o700, root, root, /opt/sophos-spl/base/bin/CommsComponent.0

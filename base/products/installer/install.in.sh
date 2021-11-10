@@ -652,13 +652,8 @@ then
   touch "${SOPHOS_INSTALL}/base/etc/logger.conf.local"
 fi
 
-chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf" "${SOPHOS_INSTALL}/base/etc/logger.conf.local"
-chmod go+r "${SOPHOS_INSTALL}/base/etc/logger.conf"* "${SOPHOS_INSTALL}/base/etc/logger.conf.local"*
-
-
-chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/logger.conf.local"
-chmod go+r "${SOPHOS_INSTALL}/base/etc/logger.conf.local"*
-
+chown "root:root" "${SOPHOS_INSTALL}/base/etc/logger.conf" "${SOPHOS_INSTALL}/base/etc/logger.conf.local"
+chmod 644 "${SOPHOS_INSTALL}/base/etc/logger.conf"* "${SOPHOS_INSTALL}/base/etc/logger.conf.local"*
 
 chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/datafeed-config-scheduled_query.json"
 
