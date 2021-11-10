@@ -8,7 +8,6 @@
         <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.182" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
         <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-4.9.0.134" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
     </componentsuite>
-    </componentsuite>
 	<componentsuite importreference="ServerProtectionLinux-Base-1.1.7.2">
         <component importreference="ServerProtectionLinux-Base-component-1.1.7.7" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
         <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.2.12" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
