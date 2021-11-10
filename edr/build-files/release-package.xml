@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-plugin-edr-component" version="1.1.3">
+<package name="sspl-plugin-edr-component" version="1.1.4">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -8,7 +8,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/Version_1_1_8" build-id="20211025140648-87f582f907b2308f20053b3eec314a5bddf06f2f-UkPP0H"/>
-<!--            <development-version branch="develop"/>-->
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
@@ -20,12 +20,12 @@
         </build-asset>
         <build-asset project="winep" repo="dbos">
             <release-version branch="release/2021.10" build-id="20210309104636-4cf9e440aedc818512dbfeb5f63d3c98cc5ae4c2-6rLar3"/>
-<!--            <development-version branch="develop"/>-->
+            <development-version branch="develop"/>
             <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
             <release-version branch="release/SED_3.0.1_linux_libs" build-id="20210929204637-2500f58d99d60db61f6c2f61f9f2a02c533f50da-GFlHOK" />
-<!--            <development-version branch="develop"/>-->
+            <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="input"/>
         </build-asset>
         <package name="capnprotolinux11" version="0-8-0-17/222740/capnproto" dest=".">

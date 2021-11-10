@@ -176,7 +176,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
     coverage_mode = 'coverage'
     nine_nine_nine_mode = '999'
     mode = parameters.mode or release_mode
-    component = tap.Component(name='edr', base_version='1.1.3')
+    component = tap.Component(name='edr', base_version='1.1.4')
 
     #export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     edr_build = None
