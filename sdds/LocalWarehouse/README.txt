@@ -4,6 +4,8 @@ DEPENDENCIES:
 This tool relies on being able to reach artifactory (for the warehouse files) and the sophos pypi repository (for pip dependencies).
 EMS machines should have no trouble with this.
 Your personal machines might not be able to reach these services.
+
+If Running on a machine which cannot reach these services, you may still run this tool in offline mode. See section below.
 _________________________________________________________________________
 USAGE:
 """
