@@ -49,6 +49,8 @@ function install_dependencies()
 }
 
 [[ -z $OFFLINE_MODE ]] && install_dependencies
+#incase this script is run again in the current shell
+unset OFFLINE_MODE
 
 function done_message()
 {
