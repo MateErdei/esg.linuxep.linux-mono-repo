@@ -3,10 +3,6 @@
 echo "See README.txt for documentation"
 echo "Installing dependencies"
 
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root"
-   exit 1
-fi
 
 echo "----------------------------------------------------------------------------------------"
 echo "[!] You MUST run this script as '. ./setupEnvironment.sh' to set the environment variables"
@@ -23,9 +19,14 @@ do
     ;;
     --help)
       python3 ./generate_local_warehouse.py --help
-      exit 0
+      STOP=1
   esac
 done
+
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root"
+   STOP=1
+fi
 
 
 function install_dependencies()
@@ -48,7 +49,7 @@ function install_dependencies()
   echo "----------------------------------------------------------------------------------------"
 }
 
-[[ -z $OFFLINE_MODE ]] && install_dependencies
+[[ -z $OFFLINE_MODE && -z $STOP ]] && install_dependencies
 #incase this script is run again in the current shell
 unset OFFLINE_MODE
 
@@ -71,5 +72,5 @@ function done_message()
   export OVERRIDE_SOPHOS_LOCATION=https://localhost:8000
 }
 
-python3 ./generate_local_warehouse.py "$@" && done_message
+[[ -z $STOP ]] && python3 ./generate_local_warehouse.py "$@" && done_message
 
