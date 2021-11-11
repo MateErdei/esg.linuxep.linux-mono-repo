@@ -578,6 +578,10 @@ chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins"
 
 chmod 711 "${SOPHOS_INSTALL}/base/mcs"
 chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/response"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/datafeed"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/status"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/event"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs"
 
 # Remote Diagnose
