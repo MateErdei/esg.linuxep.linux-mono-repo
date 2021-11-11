@@ -160,7 +160,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.use_vut = False
     args.use_999 = False
-    print(args)
 
     if args.offline_mode:
         valid = False
