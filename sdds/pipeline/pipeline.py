@@ -8,11 +8,11 @@ from tap._pipeline.tasks import ArtisanInput
 from tap._backend import Input
 
 
-def build_dev_warehouse(stage: tap.Root, name="release-package"):
+def build_dev_warehouse(stage: tap.Root, name="release-package", image='Warehouse'):
     component = tap.Component(name='dev-warehouse-'+name, base_version='1.0.0')
     return stage.artisan_build(name=name,
                                component=component,
-                               image='Warehouse',
+                               image=image,
                                release_package='./build/dev.xml',
                                mode=name)
 
@@ -91,6 +91,8 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             build_dev_warehouse(stage=stage, name="release-package-edr-mdr-999")
         if zero_six_zero:
             build_dev_warehouse(stage=stage, name="release-package-060")
+        build_dev_warehouse(stage=stage, name="localwarehouse", image='JenkinsLinuxTemplate6')
+
 
     if build and run_tests:
         run_tap_tests(stage, context, parameters, build)
