@@ -14,12 +14,38 @@ IN CENTRAL:
 Set your update credentials to:
 
 username: av_user_vut
-
 password: password
 address: https://localhost:8000
 
 You should now be able to update/install against the locally served warehouse.
 Rerun wrapper.sh to relaunch the processes if needed
+
+for 999 warehouse:
+username: av_user_999
+password: password
+address: https://localhost:8001
+
+_________________________________________________________________________
+OFFLINE MODE
+
+running wrapper.sh with --offline-mode allows you to serve warehouses without relying on external dependencies.
+However, you must provided the required artifacts via additional arguments:
+
+You must provide:
+
+--support-files: path to SupportFiles.zip artifact from warehouse build
+
+And at least one pair of:
+    --vut-customer: develop/customer.zip
+    --vut-warehouse: develop/warehouse.zip
+    OR
+    --nine-nine-nine-customer: edr-mdr-999/customer.zip
+    --nine-nine-nine-warehouse: edr-mdr-999/warehouse.zip
+    artifacts from the warehouse build
+
+These can be found at:
+    https://artifactory.sophos-ops.com/ui/repos/tree/General/esg-dev-build-tested%2Flinuxep.sspl-warehouse
+
 _________________________________________________________________________
 TO CHECK PROCESSES RUNNING:
 
