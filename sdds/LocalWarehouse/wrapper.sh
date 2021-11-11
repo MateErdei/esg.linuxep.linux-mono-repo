@@ -3,6 +3,7 @@
 echo "See README.txt for documentation"
 echo "Installing dependencies"
 
+TAP_PYPI="https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple"
 
 echo "----------------------------------------------------------------------------------------"
 echo "[!] You MUST run this script as '. ./setupEnvironment.sh' to set the environment variables"
@@ -22,6 +23,17 @@ do
       return 1 || echo "This script should be ran as '. ./wrapper.sh <args>'" && exit 1
   esac
 done
+
+if [[ -z $OFFLINE_MODE ]]
+then
+  curl $TAP_PYPI -kf
+  RC=$?
+  if [[ $RC != 0 ]]
+  then
+    echo "Failed to reach $TAP_PYPI. Check your network connection or try --offline-mode" && return 1 || echo "This script should be ran as '. ./wrapper.sh <args>'" && exit 1
+  fi
+
+fi
 
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root"
@@ -44,8 +56,8 @@ function install_dependencies()
 
   echo "----------------------------------------------------------------------------------------"
   echo installing/upgrading pip dependencies
-  pip3 install --upgrade pip -i https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple --trusted-host tap-artifactory1.eng.sophos
-  pip3 install --upgrade tap keyrings.alt --upgrade pip -i https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple --trusted-host tap-artifactory1.eng.sophos
+  pip3 install --upgrade pip -i $TAP_PYPI --trusted-host tap-artifactory1.eng.sophos
+  pip3 install --upgrade tap keyrings.alt --upgrade pip -i $TAP_PYPI --trusted-host tap-artifactory1.eng.sophos
   echo "----------------------------------------------------------------------------------------"
 }
 
