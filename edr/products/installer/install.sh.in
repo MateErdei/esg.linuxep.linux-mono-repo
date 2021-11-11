@@ -287,9 +287,9 @@ then
     then
       cp ${SOPHOS_INSTALL}/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf /etc/rsyslog.d/
 
-      if which getenforce > /dev/null
+      if which getenforce &> /dev/null
       then
-        if which semanage > /dev/null
+        if which semanage &> /dev/null
         then
           enable_access_for_rsyslog_to_shared_pipe || echo "WARNING: Failed to setup syslog pipe, osquery will not able to receive syslog events"
         else

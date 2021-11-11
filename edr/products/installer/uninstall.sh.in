@@ -88,9 +88,9 @@ pgrep -f ${OSQUERY_PATH} | xargs -i echo "Could not kill OSQuery process after 3
 # remove rsyslog configuration for osquery named pipe which allows rsyslog to send syslog event to osquery.
 if [[ -f /etc/rsyslog.d/rsyslog_sophos-spl.conf ]]
 then
-    if which getenforce > /dev/null
+    if which getenforce &> /dev/null
     then
-      if which semanage > /dev/null
+      if which semanage &> /dev/null
       then
         semanage fcontext -d ${SOPHOS_INSTALL}/shared/syslog_pipe &> /dev/null
       fi
