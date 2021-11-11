@@ -19,13 +19,13 @@ do
     ;;
     --help)
       python3 ./generate_local_warehouse.py --help
-      STOP=1
+      return 1 || echo "This script should be ran as '. ./wrapper.sh <args>'" && exit 1
   esac
 done
 
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root"
-   STOP=1
+   return 1 || echo "This script should be ran as '. ./wrapper.sh <args>'" && exit 1
 fi
 
 
@@ -49,7 +49,7 @@ function install_dependencies()
   echo "----------------------------------------------------------------------------------------"
 }
 
-[[ -z $OFFLINE_MODE && -z $STOP ]] && install_dependencies
+[[ -z $OFFLINE_MODE ]] && install_dependencies
 #incase this script is run again in the current shell
 unset OFFLINE_MODE
 
@@ -72,5 +72,5 @@ function done_message()
   export OVERRIDE_SOPHOS_LOCATION=https://localhost:8000
 }
 
-[[ -z $STOP ]] && python3 ./generate_local_warehouse.py "$@" && done_message
+python3 ./generate_local_warehouse.py "$@" && done_message
 
