@@ -56,7 +56,25 @@ EDR Installer Logs Warning When Semanage Fails
     Should Contain  ${installer_stdout}  WARNING: Failed to setup syslog pipe, osquery will not able to receive syslog events
     Should Not Contain  ${installer_stdout}  semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
 
+No Stdout Or Stderr Comes From Which When Called
+    [Teardown]  Fix Mocked Which Teardown
+    Create Fake System Executable  which  mock_file=${EXAMPLE_DATA_PATH}/MockedExecutableStdoutAndStderr.sh  which_basename=which${BACKUP_SUFFIX}
+    ${installer_stdout}  ${installer_stderr} =  Install EDR Directly from SDDS
+    ${combined} =  Set Variable  ${installer_stdout}\n${installer_stderr}
+    Should Not Contain  ${combined}  this is mocked stdout from which
+    Should Not Contain  ${combined}  this is mocked stderr from which
+
+    ${uninstaller_stdout}  ${uninstaller_stderr} =  Uninstall EDR
+    ${combined} =  Set Variable  ${uninstaller_stdout}\n${uninstaller_stderr}
+    Should Not Contain  ${combined}  this is mocked stdout from which
+    Should Not Contain  ${combined}  this is mocked stderr from which
+
 *** Keywords ***
+Fix Mocked Which Teardown
+    ${result} =  Run Process  which.back  which.back
+    Move File  ${result.stdout}  ${result.stdout[:-5]}
+    Test Teardown
+
 Test Teardown
     Common Teardown
     Uninstall All
@@ -91,7 +109,7 @@ Obscure System Executable
     ...  Backup System Executable  ${executable_path}
 
 Create Fake System Executable
-    [Arguments]  ${executable_name}  ${mock_file}=${EXAMPLE_DATA_PATH}/MockedExecutable.sh
+    [Arguments]  ${executable_name}  ${mock_file}=${EXAMPLE_DATA_PATH}/MockedExecutable.sh  ${which_basename}=which
     ${executable_path} =  Get Path To Executable  ${executable_name}
     Run Keyword If   "${executable_path}" != ""
     ...  Backup System Executable  ${executable_path}
@@ -103,7 +121,7 @@ Create Fake System Executable
     ${x} =  Run Process  chmod  +x  ${executable_path}
     Should Be Equal As Integers  ${x.rc}  0
     # Check which finds new executable
-    ${x} =  Run Process  which  ${executable_name}
+    ${x} =  Run Process  ${which_basename}  ${executable_name}
     Should Be Equal As Integers  ${x.rc}  0
     Should Be Equal As Strings  ${x.stdout}  ${executable_path}
 

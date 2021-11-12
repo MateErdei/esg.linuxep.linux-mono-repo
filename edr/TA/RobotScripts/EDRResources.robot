@@ -152,6 +152,8 @@ Install With Base SDDS Inner
 Uninstall EDR
     ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --force   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall EDR.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    [Return]  ${result.stdout}  ${result.stderr}
+
 Uninstall And Revert Setup
     Uninstall All
     Setup Base And Component
@@ -179,7 +181,7 @@ Install EDR Directly from SDDS
     Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
-    [Return]  ${result.stdout}
+    [Return]  ${result.stdout}  ${result.stderr}
 
 Install EDR Directly from SDDS With Latest And Next Marked
     Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf  {"schedule": {"latest_xdr_query": {"query": "select * from uptime;","interval": 2}}}
