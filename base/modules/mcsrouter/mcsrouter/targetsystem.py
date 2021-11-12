@@ -167,9 +167,14 @@ class TargetSystem:
             try:
                 proxy_handler = urllib.request.ProxyHandler({})
                 opener = urllib.request.build_opener(proxy_handler)
-                aws_info_string = opener.open(
-                    "http://169.254.169.254/latest/dynamic/instance-identity/document",
-                    timeout=1).read()
+                request = urllib.request.Request('http://169.254.169.254/latest/api/token', data='')
+                request.add_header('X-aws-ec2-metadata-token-ttl-seconds', '21600')
+                request.get_method = lambda: 'PUT'
+                token = opener.open(request,timeout=1).read()
+
+                request = urllib.request.Request('http://169.254.169.254/latest/meta-data/', data='')
+                request.add_header('X-aws-ec2-metadata-token', token)
+                aws_info_string = opener.open(request,timeout=1).read()
                 aws_info = json.loads(aws_info_string)
                 return {"region": aws_info["region"],
                         "accountId": aws_info["accountId"],
