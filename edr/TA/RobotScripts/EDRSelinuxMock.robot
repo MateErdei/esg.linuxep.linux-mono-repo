@@ -23,7 +23,7 @@ EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Install
     Create Fake System Executable  semanage
     Create Fake System Executable  restorecon
 
-    ${installer_stdout} =  Install EDR Directly from SDDS
+    ${installer_output} =  Install EDR Directly from SDDS
     ${logFile} =  Get File  /tmp/mockedExecutable
 
     Should Contain  ${logFile}  semanage fcontext -a -t var_log_t ${SOPHOS_INSTALL}/shared/syslog_pipe
@@ -32,42 +32,40 @@ EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Install
 EDR Does Not Set Selinux Context When Selinux Is Not Detected
     Obscure System Executable  getenforce
 
-    ${installer_stdout} =  Install EDR Directly from SDDS
+    ${installer_output} =  Install EDR Directly from SDDS
     File Should Not Exist  /tmp/mockedExecutable
-    Should Not Contain  ${installer_stdout}   semanage
+    Should Not Contain  ${installer_output}   semanage
 
 EDR Installer Logs Warning When Semanage Is Missing
     Create Fake System Executable  getenforce
     Create Fake System Executable  restorecon
     Obscure System Executable  semanage
 
-    ${installer_stdout} =  Install EDR Directly from SDDS
+    ${installer_output} =  Install EDR Directly from SDDS
 
-    Should Contain  ${installer_stdout}  WARNING: Detected selinux is present on system, but could not find semanage to setup syslog pipe, osquery will not be able to receive syslog events
+    Should Contain  ${installer_output}  WARNING: Detected selinux is present on system, but could not find semanage to setup syslog pipe, osquery will not be able to receive syslog events
 
 EDR Installer Logs Warning When Semanage Fails
     Create Fake System Executable  getenforce
     Create Fake System Executable  restorecon
     Create Fake System Executable  semanage  mock_file=${EXAMPLE_DATA_PATH}/FailingMockedExecutable.sh
 
-    ${installer_stdout} =  Install EDR Directly from SDDS
+    ${installer_output} =  Install EDR Directly from SDDS
     ${logFile} =  Get File  /tmp/mockedExecutable
 
-    Should Contain  ${installer_stdout}  WARNING: Failed to setup syslog pipe, osquery will not able to receive syslog events
-    Should Not Contain  ${installer_stdout}  semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
+    Should Contain  ${installer_output}  WARNING: Failed to setup syslog pipe, osquery will not able to receive syslog events
+    Should Not Contain  ${installer_output}  semanage fcontext -a -t var_log_t /opt/sophos-spl/shared/syslog_pipe
 
 No Stdout Or Stderr Comes From Which When Called
     [Teardown]  Fix Mocked Which Teardown
     Create Fake System Executable  which  mock_file=${EXAMPLE_DATA_PATH}/MockedExecutableStdoutAndStderr.sh  which_basename=which${BACKUP_SUFFIX}
-    ${installer_stdout}  ${installer_stderr} =  Install EDR Directly from SDDS
-    ${combined} =  Set Variable  ${installer_stdout}\n${installer_stderr}
-    Should Not Contain  ${combined}  this is mocked stdout from which
-    Should Not Contain  ${combined}  this is mocked stderr from which
+    ${installer_output} =  Install EDR Directly from SDDS
+    Should Not Contain  ${installer_output}  this is mocked stdout from which
+    Should Not Contain  ${installer_output}  this is mocked stderr from which
 
-    ${uninstaller_stdout}  ${uninstaller_stderr} =  Uninstall EDR
-    ${combined} =  Set Variable  ${uninstaller_stdout}\n${uninstaller_stderr}
-    Should Not Contain  ${combined}  this is mocked stdout from which
-    Should Not Contain  ${combined}  this is mocked stderr from which
+    ${uninstaller_output} =  Uninstall EDR
+    Should Not Contain  ${uninstaller_output}  this is mocked stdout from which
+    Should Not Contain  ${uninstaller_output}  this is mocked stderr from which
 
 *** Keywords ***
 Fix Mocked Which Teardown
