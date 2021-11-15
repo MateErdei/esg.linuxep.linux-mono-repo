@@ -9,6 +9,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcessException.h>
 #include <Common/UtilityImpl/StrError.h>
 #include <Telemetry/LoggerImpl/Logger.h>
+#include <UtilityImpl/StringUtils.h>
 
 #include <algorithm>
 #include <map>
@@ -167,23 +168,17 @@ namespace Telemetry
 
             if (properties[matchGroup].type == TelemetryValueType::INTEGER)
             {
-                try
+                std::pair<int, std::string> convertedValue =
+                    Common::UtilityImpl::StringUtils::stringToInt(singleLineMatches[matchGroup]);
+
+                if (convertedValue.second.empty())
                 {
-                    value.second = std::stoi(singleLineMatches[matchGroup]);
+                    value.second = convertedValue.first;
                     values.emplace_back(value);
                 }
-                catch (const std::invalid_argument& e)
+                else
                 {
-                    LOGDEBUG(
-                        "Failed to find integer from output: " << singleLineMatches[matchGroup]
-                                                               << ". Error message: " << e.what());
-                    break;
-                }
-                catch (const std::out_of_range& e)
-                {
-                    LOGDEBUG(
-                        "Failed to find integer from output: " << singleLineMatches[matchGroup]
-                                                               << ". Error message: " << e.what());
+                    LOGDEBUG(convertedValue.second); // error message
                     break;
                 }
             }

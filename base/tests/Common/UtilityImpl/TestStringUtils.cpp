@@ -190,3 +190,117 @@ TEST(TestStringUtils, isVersionOlder) // NOLINT
     EXPECT_EQ(StringUtils::isVersionOlder("1.2.3.4","1.2.3.9"),false);
 
 }
+
+TEST(TestStringUtils, stringToIntPositiveValuesReturnCorrentlyWithoutError) // NOLINT
+{
+    std::pair<int, std::string> result;
+
+    EXPECT_NO_THROW(result = StringUtils::stringToInt("0"));
+    EXPECT_EQ(result.second, "");
+    EXPECT_EQ(result.first, 0);
+
+    EXPECT_NO_THROW(result = StringUtils::stringToInt(std::to_string(INT_LEAST32_MAX)));
+    EXPECT_EQ(result.second, "");
+    EXPECT_EQ(result.first, INT_LEAST32_MAX);
+}
+TEST(TestStringUtils, stringToInt_StringStartingWithNumberReturnsNumberWithoutError) // NOLINT
+{
+    std::pair<int, std::string> result;
+
+    // The follow demonstraights that stoi will return a valid value if the string starts with a number.
+    EXPECT_NO_THROW(result = StringUtils::stringToInt("123hello"));
+    EXPECT_EQ(result.second, "");
+    EXPECT_EQ(result.first, 123);
+}
+
+TEST(TestStringUtils, stringToIntNegitiveValuesReturnCorrentlyWithoutError) // NOLINT
+{
+    std::pair<int, std::string> result;
+
+    EXPECT_NO_THROW(result = StringUtils::stringToInt("-1"));
+    EXPECT_EQ(result.second, "");
+    EXPECT_EQ(result.first, -1);
+
+    EXPECT_NO_THROW(result = StringUtils::stringToInt(std::to_string(INT_LEAST32_MIN)));
+    EXPECT_EQ(result.second, "");
+    EXPECT_EQ(result.first, INT_LEAST32_MIN);
+}
+
+TEST(TestStringUtils, stringToInt_StringValuesReturnCorrentlyWithError) // NOLINT
+{
+    std::pair<int, std::string> result;
+
+    EXPECT_NO_THROW(result = StringUtils::stringToInt("hello"));
+    EXPECT_EQ(result.second, "Failed to find integer from output: hello. Error message: stoi");
+    EXPECT_EQ(result.first, 0);
+
+    EXPECT_NO_THROW(result = StringUtils::stringToInt("h"));
+    EXPECT_EQ(result.second, "Failed to find integer from output: h. Error message: stoi");
+    EXPECT_EQ(result.first, 0);
+}
+
+TEST(TestStringUtils, stringToInt_OutofRangeValuesReturnCorrentlyWithError) // NOLINT
+{
+    std::pair<int, std::string> result;
+
+    EXPECT_NO_THROW(result = StringUtils::stringToInt(std::to_string(INT_LEAST64_MAX)));
+    EXPECT_EQ(result.second, "Failed to find integer from output: 9223372036854775807. Error message: stoi");
+    EXPECT_EQ(result.first, 0);
+}
+
+TEST(TestStringUtils, stringToLongPositiveValuesReturnCorrentlyWithoutError) // NOLINT
+{
+    std::pair<long, std::string> result;
+
+    EXPECT_NO_THROW(result = StringUtils::stringToLong("0"));
+    EXPECT_EQ(result.second, "");
+    EXPECT_EQ(result.first, 0);
+
+    EXPECT_NO_THROW(result = StringUtils::stringToLong(std::to_string(INT_LEAST64_MAX)));
+    EXPECT_EQ(result.second, "");
+    EXPECT_EQ(result.first, INT_LEAST64_MAX);
+}
+TEST(TestStringUtils, stringToLong_StringStartingWithNumberReturnsNumberWithoutError) // NOLINT
+{
+    std::pair<long, std::string> result;
+
+    // The follow demos that stol will return a valid value if the string starts with a number.
+    EXPECT_NO_THROW(result = StringUtils::stringToLong("123hello"));
+    EXPECT_EQ(result.second, "");
+    EXPECT_EQ(result.first, 123);
+}
+
+TEST(TestStringUtils, stringToLongNegitiveValuesReturnCorrentlyWithoutError) // NOLINT
+{
+    std::pair<long, std::string> result;
+
+    EXPECT_NO_THROW(result = StringUtils::stringToLong("-1"));
+    EXPECT_EQ(result.second, "");
+    EXPECT_EQ(result.first, -1);
+
+    EXPECT_NO_THROW(result = StringUtils::stringToLong(std::to_string(INT_LEAST64_MIN)));
+    EXPECT_EQ(result.second, "");
+    EXPECT_EQ(result.first, INT_LEAST64_MIN);
+}
+
+TEST(TestStringUtils, stringToLong_StringValuesReturnCorrentlyWithError) // NOLINT
+{
+    std::pair<long, std::string> result;
+
+    EXPECT_NO_THROW(result = StringUtils::stringToLong("hello"));
+    EXPECT_EQ(result.second, "Failed to find integer from output: hello. Error message: stol");
+    EXPECT_EQ(result.first, 0);
+
+    EXPECT_NO_THROW(result = StringUtils::stringToLong("h"));
+    EXPECT_EQ(result.second, "Failed to find integer from output: h. Error message: stol");
+    EXPECT_EQ(result.first, 0);
+}
+
+TEST(TestStringUtils, stringToLong_OutofRangeValuesReturnCorrentlyWithError) // NOLINT
+{
+    std::pair<int, std::string> result;
+
+    EXPECT_NO_THROW(result = StringUtils::stringToLong(std::to_string(UINT_LEAST64_MAX)));
+    EXPECT_EQ(result.second, "Failed to find integer from output: 18446744073709551615. Error message: stol");
+    EXPECT_EQ(result.first, 0);
+}

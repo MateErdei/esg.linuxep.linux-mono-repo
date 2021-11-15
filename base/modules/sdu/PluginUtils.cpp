@@ -114,11 +114,13 @@ namespace RemoteDiagnoseImpl
         if (data.domain.find_first_of(':') != std::string::npos)
         {
             std::string p = data.domain.substr(noProtocol.find_first_of(':')+1);
-            try
+
+            std::pair<int, std::string> value = Common::UtilityImpl::StringUtils::stringToInt(p);
+            if (value.second.empty())
             {
-                data.port = std::stoi(p);
+                data.port = value.first;
             }
-            catch (std::exception& exception)
+            else
             {
                 std::stringstream errorMsg;
                 errorMsg << "Url : " << url << " does not contain a valid port";

@@ -9,6 +9,7 @@
 #include <Common/Exceptions/Print.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <sys/stat.h>
 
 #include <cassert>
@@ -206,7 +207,15 @@ int VersionedCopy::getDigitFromEnd(const std::string& s)
     if (last_index == std::string::npos)
     {
         // All numbers
-        return std::stoi(s);
+        std::pair<int, std::string> val = Common::UtilityImpl::StringUtils::stringToInt(s);
+        if (val.second.empty())
+        {
+            return val.first;
+        }
+        else
+        {
+            return -1;
+        }
     }
     else if (last_index == s.size() - 1)
     {
@@ -214,7 +223,12 @@ int VersionedCopy::getDigitFromEnd(const std::string& s)
         return -1;
     }
     std::string result = s.substr(last_index + 1);
-    return std::stoi(result);
+    std::pair<int, std::string> val = Common::UtilityImpl::StringUtils::stringToInt(result);
+    if (val.second.empty())
+    {
+        return val.first;
+    }
+    return -1;
 }
 
 bool VersionedCopy::same(const Path& file1, const Path& file2)

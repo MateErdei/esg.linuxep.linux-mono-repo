@@ -190,11 +190,14 @@ namespace Common
 
                 for (int i = 0; i < maxIndex; i++)
                 {
-                    if (std::stoi(version1[i]) > std::stoi(version2[i]))
+                    std::pair<int, std::string> val1 = stringToInt(version1[i]);
+                    std::pair<int, std::string> val2 = stringToInt(version2[i]);
+
+                    if (val1.first > val2.first)
                     {
                         return true;
                     }
-                    if (std::stoi(version1[i]) < std::stoi(version2[i]))
+                    if (val1.first < val2.first)
                     {
                         return false;
                     }
@@ -245,6 +248,47 @@ namespace Common
 
                 result += pattern.substr(beginPos);
                 return result;
+            }
+            static std::pair<int, std::string> stringToInt (const std::string& stringToConvert)
+            {
+                std::stringstream errorMessage;
+                try
+                {
+                    return std::make_pair(std::stoi(stringToConvert), "");
+                }
+                catch (const std::invalid_argument& e)
+                {
+                    errorMessage <<
+                        "Failed to find integer from output: " << stringToConvert << ". Error message: " << e.what();
+                }
+                catch (const std::out_of_range& e)
+                {
+                    errorMessage <<
+                        "Failed to find integer from output: " << stringToConvert << ". Error message: " << e.what();
+                }
+
+                return std::make_pair(0, errorMessage.str());
+
+            }
+            static std::pair<long, std::string> stringToLong(const std::string& stringToConvert)
+            {
+                std::stringstream errorMessage;
+                try
+                {
+                    return std::make_pair(std::stol(stringToConvert), "");
+                }
+                catch (const std::invalid_argument& e)
+                {
+                    errorMessage <<
+                        "Failed to find integer from output: " << stringToConvert << ". Error message: " << e.what();
+                }
+                catch (const std::out_of_range& e)
+                {
+                    errorMessage <<
+                        "Failed to find integer from output: " << stringToConvert << ". Error message: " << e.what();
+                }
+
+                return std::make_pair(0, errorMessage.str());
             }
         };
 

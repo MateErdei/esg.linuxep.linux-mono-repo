@@ -591,23 +591,24 @@ INSTANTIATE_TEST_CASE_P(StateMachineProcessorCreditTest, StateMachineProcessorTe
             std::make_tuple("DownloadStateCredit", 72, -1, configModule::EventMessageNumber::DOWNLOADFAILED),
             std::make_tuple("DownloadStateCredit", 72, 0x7fffffff, configModule::EventMessageNumber::DOWNLOADFAILED)));
 
-TEST_P(StateMachineProcessorTestWithException, StateMachinesReadNotANumberShouldThrow) // NOLINT
+TEST_P(StateMachineProcessorTestWithException, StateMachinesReadNotANumberShouldNotThrow) // NOLINT
 {
     std::ostringstream rawJsonStateMachineData;
     rawJsonStateMachineData << "{\"" << std::get<0>(GetParam()) << "\":\"not a number\"}";
     std::string expectedException = std::get<1>(GetParam());
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
+    std::string temp = rawJsonStateMachineData.str();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData.str()));
 
     try
     {
         stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
-        FAIL();
+        EXPECT_EQ(stateMachineProcessor.getStateMachineData().getInstallStateCredit(), "0");
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
-        EXPECT_STREQ(expectedException.c_str(), ex.what());
+        FAIL();
     }
 }
 

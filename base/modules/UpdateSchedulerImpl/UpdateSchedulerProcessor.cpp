@@ -757,11 +757,14 @@ namespace UpdateSchedulerImpl
 
             std::string outputPidOf = iProcess->output();
             LOGDEBUG("Pid of SulDownloader: '" << outputPidOf << "'");
-            try
+
+            std::pair<int, std::string> value = Common::UtilityImpl::StringUtils::stringToInt(outputPidOf);
+
+            if (value.second.empty())
             {
-                pidOfSulDownloader = std::stoi(outputPidOf);
+                pidOfSulDownloader = value.first;
             }
-            catch (std::exception&)
+            else
             {
                 LOGWARN("Can not convert '" << outputPidOf << "' to int pid of SulDownloader");
                 break; // Assume empty or non-convertable output means there is no SulDownloader running

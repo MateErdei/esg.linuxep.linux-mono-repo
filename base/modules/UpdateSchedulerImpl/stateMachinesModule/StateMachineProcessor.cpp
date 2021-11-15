@@ -17,6 +17,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
+#include <UtilityImpl/StringUtils.h>
 
 namespace UpdateSchedulerImpl::stateMachinesModule
 {
@@ -30,25 +31,25 @@ namespace UpdateSchedulerImpl::stateMachinesModule
 
     void StateMachineProcessor::populateStateMachines()
     {
-        int downloadStateCredit = m_stateMachineData.getDownloadStateCredit().empty() ? 0 : std::stoi(m_stateMachineData.getDownloadStateCredit());
+        int downloadStateCredit = m_stateMachineData.getDownloadStateCredit().empty() ? 0 :   Common::UtilityImpl::StringUtils::stringToInt(m_stateMachineData.getDownloadStateCredit()).first;
         m_downloadMachineState.credit = ((downloadStateCredit < 0) || (downloadStateCredit > m_downloadMachineState.defaultCredit)) ? m_downloadMachineState.defaultCredit : static_cast<uint32_t>(downloadStateCredit);
-        long downloadFailedSince = m_stateMachineData.getDownloadFailedSinceTime().empty() ? 0 : std::stol(m_stateMachineData.getDownloadFailedSinceTime());
+        long downloadFailedSince = m_stateMachineData.getDownloadFailedSinceTime().empty() ? 0 : Common::UtilityImpl::StringUtils::stringToLong(m_stateMachineData.getDownloadFailedSinceTime()).first;
         m_downloadMachineState.failedSince =
             std::chrono::system_clock::time_point{ std::chrono::seconds{ downloadFailedSince } };
 
-        int installStateCredit = m_stateMachineData.getInstallStateCredit().empty() ? 0 : std::stoi(m_stateMachineData.getInstallStateCredit());
+        int installStateCredit = m_stateMachineData.getInstallStateCredit().empty() ? 0 : Common::UtilityImpl::StringUtils::stringToInt(m_stateMachineData.getInstallStateCredit()).first;
         m_installMachineState.credit = ((installStateCredit < 0) || (installStateCredit > m_installMachineState.defaultCredit)) ? m_installMachineState.defaultCredit : static_cast<uint32_t>(installStateCredit);
-        long installFailedSince = m_stateMachineData.getInstallFailedSinceTime().empty() ? 0 : std::stol(m_stateMachineData.getInstallFailedSinceTime());
+        long installFailedSince = m_stateMachineData.getInstallFailedSinceTime().empty() ? 0 : Common::UtilityImpl::StringUtils::stringToLong(m_stateMachineData.getInstallFailedSinceTime()).first;
         m_installMachineState.failedSince =
             std::chrono::system_clock::time_point{ std::chrono::seconds{ installFailedSince } };
-        long installLastGood = m_stateMachineData.getLastGoodInstallTime().empty() ? 0 : std::stol(m_stateMachineData.getLastGoodInstallTime());
+        long installLastGood = m_stateMachineData.getLastGoodInstallTime().empty() ? 0 : Common::UtilityImpl::StringUtils::stringToLong(m_stateMachineData.getLastGoodInstallTime()).first;
         m_installMachineState.lastGood =
             std::chrono::system_clock::time_point{ std::chrono::seconds{ installLastGood } };
 
-        long eventLastTime = m_stateMachineData.getEventStateLastTime().empty() ? 0 : std::stol(m_stateMachineData.getEventStateLastTime());
+        long eventLastTime = m_stateMachineData.getEventStateLastTime().empty() ? 0 : Common::UtilityImpl::StringUtils::stringToLong(m_stateMachineData.getEventStateLastTime()).first;
         m_eventMachineState.lastTime =
             std::chrono::system_clock::time_point{ std::chrono::seconds{ eventLastTime } };
-        m_eventMachineState.lastError = m_stateMachineData.getEventStateLastError().empty() ? 0 : std::stoi(m_stateMachineData.getEventStateLastError());
+        m_eventMachineState.lastError = m_stateMachineData.getEventStateLastError().empty() ? 0 : Common::UtilityImpl::StringUtils::stringToInt(m_stateMachineData.getEventStateLastError()).first;
     }
 
     void  StateMachineProcessor::updateStateMachineData()

@@ -365,7 +365,11 @@ namespace UpdateSchedulerImpl
             int periodInt = 60;
             if (!period.empty())
             {
-                periodInt = std::stoi(period);
+                std::pair<int, std::string> value = Common::UtilityImpl::StringUtils::stringToInt(period);
+                if (value.second.empty())
+                {
+                    periodInt = value.first;
+                }
             }
             m_updatePolicy.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
             return SettingsHolder{ config, certificateFileContent, std::chrono::minutes(periodInt), weeklySchedule};

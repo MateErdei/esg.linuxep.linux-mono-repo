@@ -10,6 +10,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "StateMachineException.h"
 
 #include <Common/ProtobufUtil/MessageUtility.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 #include <google/protobuf/util/json_util.h>
 #include <StateMachineData.pb.h>
@@ -144,15 +145,27 @@ namespace UpdateSchedulerImpl
                 }
 
                 UpdateSchedulerImpl::StateData::StateMachineData stateMachineData;
-                stateMachineData.m_downloadFailedSinceTime = protoStateMachine.downloadfailedsincetime();
-                stateMachineData.m_downloadState = protoStateMachine.downloadstate();
-                stateMachineData.m_downloadStateCredit = protoStateMachine.downloadstatecredit();
+
+                // When reading values, make sure numerical based values can be converted.  This is to prevent
+                // storing in-valid data in the first place.
+
+                stateMachineData.m_downloadFailedSinceTime = std::to_string(
+                    Common::UtilityImpl::StringUtils::stringToLong(protoStateMachine.downloadfailedsincetime()).first);
+                stateMachineData.m_downloadState = std::to_string(
+                    Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.downloadstate()).first);
+                stateMachineData.m_downloadStateCredit = std::to_string(
+                    Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.downloadstatecredit()).first);
                 stateMachineData.m_eventStateLastError = protoStateMachine.eventstatelasterror();
-                stateMachineData.m_eventStateLastTime = protoStateMachine.eventstatelasttime();
-                stateMachineData.m_installFailedSinceTime = protoStateMachine.installfailedsincetime();
-                stateMachineData.m_installState = protoStateMachine.installstate();
-                stateMachineData.m_installStateCredit = protoStateMachine.installstatecredit();
-                stateMachineData.m_lastGoodInstallTime = protoStateMachine.lastgoodinstalltime();
+                stateMachineData.m_eventStateLastTime = std::to_string(
+                    Common::UtilityImpl::StringUtils::stringToLong(protoStateMachine.eventstatelasttime()).first);
+                stateMachineData.m_installFailedSinceTime = std::to_string(
+                    Common::UtilityImpl::StringUtils::stringToLong(protoStateMachine.installfailedsincetime()).first);
+                stateMachineData.m_installState = std::to_string(
+                    Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.installstate()).first);
+                stateMachineData.m_installStateCredit = std::to_string(
+                    Common::UtilityImpl::StringUtils::stringToInt(protoStateMachine.installstatecredit()).first);
+                stateMachineData.m_lastGoodInstallTime = std::to_string(
+                    Common::UtilityImpl::StringUtils::stringToLong(protoStateMachine.lastgoodinstalltime()).first);
                 stateMachineData.m_canSendEvent = protoStateMachine.cansendevent();
 
                 return stateMachineData;
