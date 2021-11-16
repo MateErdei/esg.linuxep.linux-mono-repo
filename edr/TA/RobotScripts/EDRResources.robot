@@ -4,7 +4,6 @@ Library         OperatingSystem
 Library         String
 Library         DateTime
 
-Library         ../Libs/FakeManagement.py
 Library         ../Libs/XDRLibs.py
 
 Resource    ComponentSetup.robot
@@ -113,36 +112,17 @@ Install With Base SDDS
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
     Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
     Install EDR Directly from SDDS
-Install With Base SDDS with EDR Debug
+
+Install With Base SDDS Debug
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
     Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create Debug Level Logger Config File
-    Install EDR Directly from SDDS
-Install With Base SDDS And Marked Next And Latest Files
-    [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
-    Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
-    Install EDR Directly from SDDS With Latest And Next Marked
-
-Install With Base SDDS With Fixed Values Queries
-    [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
-    Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create Debug Level Logger Config File
-    Install EDR Directly from SDDS With Fixed Value Queries
-
-Install With Base SDDS With Random Queries
-    [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
-    Install With Base SDDS Inner  ${enableAuditConfig}  ${preInstallALCPolicy}
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create Debug Level Logger Config File
-    Install EDR Directly from SDDS With Random Queries
-
 
 
 Install With Base SDDS Inner
     [Arguments]  ${enableAuditConfig}=False  ${preInstallALCPolicy}=False
-    Remove Directory   ${SOPHOS_INSTALL}   recursive=True
+    Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
     Install Base For Component Tests
     Run Keyword If  ${enableAuditConfig}  Create Install Options File With Content  --disable-auditd
@@ -164,6 +144,22 @@ Install Base For Component Tests
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install EDR Directly from SDDS
+    [Arguments]  ${interval}=5
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
+    Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.mtr.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
+    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf       ${interval}
+    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf            ${interval}
+    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf   ${interval}
+    Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf        ${interval}
+    Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
+    Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
+    ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    [Return]  ${result.stdout}
+
+Install EDR Directly from SDDS With mocked scheduled queries
     [Arguments]  ${interval}=5
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf
     Copy File  ${TEST_INPUT_PATH}/qp/sophos-scheduled-query-pack.conf  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf

@@ -9,8 +9,12 @@ Resource    ComponentSetup.robot
 Resource    EDRResources.robot
 
 Suite Setup  Setup Base And Component
-Suite Teardown  Uninstall All
+Suite Teardown  Run Keywords
+...             Uninstall EDR  AND
+...             Remove Directory   ${SOPHOS_INSTALL}   recursive=True
 
+Test Setup      Component Test Setup
+Test Teardown   Component Test TearDown
 *** Variables ***
 ${EDR_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${EDR_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}

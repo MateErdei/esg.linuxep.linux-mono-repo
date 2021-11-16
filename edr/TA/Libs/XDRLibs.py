@@ -113,6 +113,30 @@ def check_all_queries_run(log_path: str, config_path: str):
     else:
         raise AssertionError(f"{config_path} does not exist")
 
+def convert_canned_query_json_to_query_pack(json_path,query_pack_path):
+    if os.path.exists(json_path):
+        with open(json_path, 'r') as f:
+            config_json_string = f.read()
+    else:
+        return 1
+    canned_json = json.loads(config_json_string)
+    canned_pack = {"schedule":{}}
+    for query in canned_json["queries"]:
+        if "linuxServer" in query["platforms"]:
+            try:
+                if "mtr" in query["requires"]:
+                    break
+            except KeyError:
+                ## if no requires then it is not an mtr query
+                pass
+            query_json = {}
+            query_json["interval"] = 20
+            query_json["query"] = query["query"]
+            canned_pack["schedule"][query["id"]] = query_json
+
+
+    with open(query_pack_path, 'w') as f:
+        json.dump(canned_pack, f)
 
 def check_for_query_in_log(log_path, query_name: str):
     if os.path.exists(log_path):
@@ -188,3 +212,8 @@ def wait_for_scheduled_query_file_and_return_filename():
         else:
             return files[0]
     raise AssertionError("Did not find scheduled query datafeed file")
+
+def clear_datafeed_folder():
+    files = os.listdir("/opt/sophos-spl/base/mcs/datafeed")
+    for file in files:
+        os.remove(os.path.join("/opt/sophos-spl/base/mcs/datafeed", file))

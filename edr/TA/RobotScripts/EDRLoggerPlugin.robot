@@ -6,20 +6,40 @@ Library         OperatingSystem
 Library         Collections
 Library         ../Libs/XDRLibs.py
 Library         ../Libs/InstallerUtils.py
+Library         ../Libs/FakeManagement.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot
 
-Suite Setup     No Operation
-Suite Teardown  No Operation
+Suite Setup     Install With Base SDDS Debug
+Suite Teardown  Uninstall ALL
 
 Test Setup      Run Keywords
-...  Install With Base SDDS with EDR Debug  AND
+...  Install EDR Directly from SDDS  AND
 ...  Check EDR Plugin Installed With Base
 
 Test Teardown   Test Teardown
 
 *** Test Cases ***
+EDR Plugin Detects Data Limit From Policy And That A Status Is Sent On Start
+    [Setup]  No Operation
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    # the mocked queries produce a lower amount of data so the 10000 limit will be hit but not the 250000000
+    Install EDR Directly from SDDS With mocked scheduled queries
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  First LiveQuery policy received
+    Expect New Datalimit  100000
+
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_250000000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Expect New Datalimit  250000000
+    Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
+
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_1000GB_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Expect New Datalimit  100000000000
+
 EDR Plugin outputs XDR results and Its Answer is available to MCSRouter
     Add Uptime Query to Scheduled Queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
@@ -50,6 +70,7 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
 EDR Plugin Tags All Queries Correctly
+    [Setup]  Install EDR Directly from SDDS With mocked scheduled queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
@@ -62,7 +83,7 @@ EDR Plugin Tags All Queries Correctly
     ...  Check All Query Results Contain Correct Tag  ${SOPHOS_INSTALL}/base/mcs/datafeed/  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
 EDR Plugin Applies Folding Rules When Folding Rules Have Changed
-    [Setup]  Install With Base SDDS With Fixed Values Queries
+    [Setup]  Install EDR Directly from SDDS With Fixed Value Queries
     Check EDR Plugin Installed With Base
     Enable XDR
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
@@ -108,7 +129,7 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     Should Be True  ${folded_count} < 100
 
 EDR Plugin Applies Folding Rules Based Column Value
-    [Setup]  Install With Base SDDS With Random Queries
+    [Setup]  Install EDR Directly from SDDS With Random Queries
     Check EDR Plugin Installed With Base
 
     Enable XDR
@@ -139,7 +160,7 @@ EDR Plugin Applies Folding Rules Based Column Value
     Should Be True  ${folded_count} < 100
 
 EDR Plugin Applies Regex Folding Rules
-    [Setup]  Install With Base SDDS With Random Queries
+    [Setup]  Install EDR Directly from SDDS With Random Queries
     Check EDR Plugin Installed With Base
 
     Enable XDR
@@ -167,9 +188,30 @@ EDR Plugin Applies Regex Folding Rules
     Should Be True  ${folded_count} > 1
     Should Be True  ${folded_count} < 100
 
+EDR Plugin Runs All Canned Queries
+    Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Remove File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Remove File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    convert_canned_query_json_to_query_pack   ${TEST_INPUT_PATH}/lp/sophos-query-pack.json  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  shell=True
+    #restart edr so that the altered queries are read in and debug mode applied
+    Restart EDR
+
+    Wait Until Keyword Succeeds
+    ...  50 secs
+    ...  10 secs
+    ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    ${content} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    Should Not Contain  ${content}  query-error-count
+
 EDR Plugin Runs All Scheduled Queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
+    Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
+    Run Process  chown  -R  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/plugins/eventjournaler/
+    ${mark} =  Mark File  ${EDR_LOG_PATH}
 
     #restart edr so that the altered queries are read in and debug mode applied
     Restart EDR
@@ -192,12 +234,11 @@ EDR Plugin Runs All Scheduled Queries
     ...  100 secs
     ...  5 secs
     ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
+    Marked File Does Not Contain  ${EDR_LOG_PATH}  query-error-count  ${mark}
+
+
 
 EDR Plugin Logs Broken JSON In Scheduled Query Pack
-    [Setup]  Install With Base SDDS
-    Check EDR Plugin Installed With Base
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"schedule": {"extracomma": {"query": "select * from uptime;","interval": 1},}}
@@ -211,30 +252,8 @@ EDR Plugin Logs Broken JSON In Scheduled Query Pack
     ...  1 secs
     ...  EDR Plugin Log Contains  failed to parse config, of source: ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
-EDR Plugin Detects Data Limit From Policy And That A Status Is Sent On Start
-    [Setup]  No Operation
-    Install Base For Component Tests
-    Create Debug Level Logger Config File
-    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    Install EDR Directly from SDDS
-
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  First LiveQuery policy received
-    Expect New Datalimit  100000
-
-    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_250000000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    Expect New Datalimit  250000000
-    Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>false</dailyDataLimitExceeded>
-
-    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_1000GB_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    Expect New Datalimit  100000000000
-
 EDR Plugin writes custom query file when it recieves a Live Query policy and removes it when there are no custom queries
     [Setup]  No Operation
-    Install Base For Component Tests
-    Create Debug Level Logger Config File
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Install EDR Directly from SDDS
     Wait Until Keyword Succeeds
@@ -255,8 +274,6 @@ EDR Plugin writes custom query file when it recieves a Live Query policy and rem
 
 EDR Plugin Sends LiveQuery Status On Period Rollover
     [Setup]  No Operation
-    Install Base For Component Tests
-    Create Debug Level Logger Config File
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Install EDR Directly from SDDS
 
@@ -280,8 +297,6 @@ EDR Plugin Sends LiveQuery Status On Period Rollover
 
 EDR Plugin Respects Data Limit
     [Setup]  No Operation
-    Install Base For Component Tests
-    Create Debug Level Logger Config File
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Install EDR Directly from SDDS
     Wait Until Keyword Succeeds
@@ -298,10 +313,6 @@ EDR Plugin Respects Data Limit
     Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>true</dailyDataLimitExceeded>
 
 EDR Plugin Rolls ScheduleEpoch Over When The Previous One Has Elapsed
-    [Setup]  No Operation
-    Install Base For Component Tests
-    Create Debug Level Logger Config File
-    Install EDR Directly from SDDS
     Enable XDR
     ${oldScheduleEpochTimestamp} =  Set Variable  1600000000
     Stop EDR
@@ -328,12 +339,9 @@ EDR Plugin Rolls ScheduleEpoch Over When The Previous One Has Elapsed
     Osquery Flag File Should Contain  --schedule_epoch=${scheduleEpoch}
 
 EDR Plugin Does Not Roll ScheduleEpoch Over When The Previous One Has Not Elapsed
-    [Setup]  No Operation
-    Install Base For Component Tests
     ${currentEpochTime} =  get_current_epoch_time
     ${currentEpochTimeMinus3Days} =  Evaluate  ${currentEpochTime} - (60*60*24*3)
-    Create Debug Level Logger Config File
-    Install EDR Directly from SDDS
+
     Enable XDR
 
     Stop EDR
@@ -352,10 +360,6 @@ EDR Plugin Does Not Roll ScheduleEpoch Over When The Previous One Has Not Elapse
 
 EDR Plugin Recovers When ScheduleEpoch Is In The Future
     [Documentation]  To test scenario reported in this: LINUXDAR-2973
-    [Setup]  No Operation
-    Install Base For Component Tests
-    Create Debug Level Logger Config File
-    Install EDR Directly from SDDS
     Enable XDR
     ${oldScheduleEpochTimestamp} =  Set Variable  3472328296227742266
     Stop EDR
@@ -384,12 +388,8 @@ EDR Plugin Recovers When ScheduleEpoch Is In The Future
     Osquery Flag File Should Contain  --schedule_epoch=${scheduleEpoch}
 
 Check XDR Results Contain Correct ScheduleEpoch Timestamp
-    [Setup]  No Operation
-    Install Base For Component Tests
     ${currentEpochTime} =  get_current_epoch_time
     ${currentEpochTimeMinus3Days} =  Evaluate  ${currentEpochTime} - (60*60*24*3)
-    Create Debug Level Logger Config File
-    Install EDR Directly from SDDS
 
     Enable XDR
 
@@ -407,11 +407,8 @@ Check XDR Results Contain Correct ScheduleEpoch Timestamp
     Should Contain  ${scheduledQueryContents}  "epoch":${currentEpochTimeMinus3Days}
 
 EDR Plugin Runs Next Scheduled Queries When Flags Configured To Do So
-    [Setup]  Install With Base SDDS And Marked Next And Latest Files
+    [Setup]  Install EDR Directly from SDDS With Latest And Next Marked
     Check EDR Plugin Installed With Base
-    Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    Create Debug Level Logger Config File
-    Restart EDR
 
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
@@ -696,9 +693,6 @@ Test Query Packs Are Enabled And Disabled By Policy
     Custom Pack Should Not Exist
 
 EDR Plugin Respects Data Limit When Applying New Live Query Policy With Different Packs Enabled And New Custom Queries
-    [Setup]  No Operation
-    Install Base For Component Tests
-    Create Debug Level Logger Config File
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit_and_different_custom_queries_with_xdr_only.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Install EDR Directly from SDDS
     Wait Until Keyword Succeeds
@@ -884,8 +878,9 @@ Add Uptime Query to Scheduled Queries
 
 Test Teardown
     EDR And Base Teardown
-    Uninstall All
-    Unmount All Comms Component Folders
+    Uninstall EDR
+    clear_datafeed_folder
+    Remove File  ${SOPHOS_INSTALL}/base/mcs/policy/LiveQuery_policy.xml
 
 Osquery Flag File Should Contain
     [Arguments]  ${stringToContain}
@@ -922,9 +917,6 @@ Apply Live Query Policy And Expect Folding Rules To Have Changed
 
 Data Limit Test Setup
     [Arguments]  ${live_query_policy}  ${period}
-    Uninstall All
-    Install Base For Component Tests
-    Create Debug Level Logger Config File
     Move File Atomically  ${live_query_policy}  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
     # Create specific EDR dirs to drop in files before running installer.
@@ -938,7 +930,7 @@ Data Limit Test Setup
     # Inject query pack and initial data limit period into SDDS
     Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   ${period}
 
-    Install EDR Directly from SDDS  10
+    Install EDR Directly from SDDS With mocked scheduled queries  10
 
 Data Limit Test Teardown
     Create File  ${EDR_SDDS}/files/plugins/edr/var/persist-xdrPeriodInSeconds   86400

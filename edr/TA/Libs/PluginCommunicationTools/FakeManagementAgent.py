@@ -7,6 +7,7 @@
 
 from threading import Thread
 import zmq
+import sys
 
 from .common.socket_utils import try_get_socket, ZMQ_CONTEXT
 from .common.ProtobufSerialisation import *

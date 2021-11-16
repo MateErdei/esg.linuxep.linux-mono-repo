@@ -149,7 +149,8 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str)
             edr_sdds=edr_build / 'edr/SDDS-COMPONENT',
             base_sdds=edr_build / 'base/base-sdds',
             componenttests=edr_build / 'componenttests',
-            qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds')
+            qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds'),
+            lp_tar=unified_artifact(context, 'em.esg', 'develop', 'build/query-pack')
         )
     if mode == 'coverage':
         test_inputs = dict(

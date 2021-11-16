@@ -5,10 +5,9 @@ Library         Process
 Library         OperatingSystem
 
 Resource        EDRResources.robot
-Resource        ComponentSetup.robot
 
 Suite Setup     Install Base For Component Tests
-Suite Teardown  Uninstall And Revert Setup
+Suite Teardown  Uninstall All
 
 Test Setup      Install EDR Directly from SDDS
 Test Teardown   Run Keywords
