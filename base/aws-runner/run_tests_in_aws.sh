@@ -285,6 +285,11 @@ do
     aws ec2 modify-instance-attribute \
         --instance-id $instance \
         --instance-initiated-shutdown-behavior terminate
+
+    aws ec2 modify-instance-metadata-options \
+      --instance-id $instance \
+      --http-tokens required \
+      --http-endpoint enabled
 done
 
 aws s3 rm "s3://sspl-testbucket/templates/$STACK.template" \
