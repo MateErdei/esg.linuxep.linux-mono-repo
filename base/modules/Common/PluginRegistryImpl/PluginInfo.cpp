@@ -41,6 +41,26 @@ namespace Common
 
         bool PluginInfo::getIsManagedPlugin() const { return m_isManagedPlugin; }
 
+        bool PluginInfo::getHasThreatServiceHealth() const
+        {
+            return m_hasThreatServiceHealth;
+        }
+
+        void PluginInfo::setHasThreatServiceHealth(const bool hasThreatServiceHealth)
+        {
+            m_hasThreatServiceHealth = hasThreatServiceHealth;
+        }
+
+        bool PluginInfo::getHasServiceHealth() const
+        {
+            return m_hasServiceHealth;
+        }
+
+        void PluginInfo::setHasServiceHealth(const bool hasServiceHealth)
+        {
+            m_hasServiceHealth = hasServiceHealth;
+        }
+
         void PluginInfo::setPolicyAppIds(const std::vector<std::string>& appIDs) { m_policyAppIds = appIDs; }
 
         void PluginInfo::addPolicyAppIds(const std::string& appID) { m_policyAppIds.push_back(appID); }
@@ -91,6 +111,8 @@ namespace Common
                 environmentVariables->set_value(envVar.second);
             }
             pluginInfoProto.set_secondstoshutdown(pluginInfo.getSecondsToShutDown());
+            pluginInfoProto.set_threatservicehealth(pluginInfo.getHasThreatServiceHealth());
+            pluginInfoProto.set_servicehealth(pluginInfo.getHasServiceHealth());
 
             return Common::ProtobufUtil::MessageUtility::protoBuf2Json(pluginInfoProto);
         }
@@ -158,6 +180,9 @@ namespace Common
             {
                 pluginInfo.addExecutableEnvironmentVariables(argEnv.name(), argEnv.value());
             }
+
+            pluginInfo.setHasThreatServiceHealth(protoPluginInfo.threatservicehealth());
+            pluginInfo.setHasServiceHealth(protoPluginInfo.servicehealth());
 
             return pluginInfo;
         }

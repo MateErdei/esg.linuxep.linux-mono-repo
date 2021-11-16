@@ -124,6 +124,30 @@ namespace Common
             void setIsManagedPlugin(bool isManaged);
 
             /**
+             * Used to check if the plugin supports threat service health
+             * @return true, if the plugin supports threat service health, false otherwise
+             */
+            bool getHasThreatServiceHealth() const;
+
+            /**
+             * Used to set the has threat service health if the plugin supports it
+             * @param hasThreatServiceHealth
+             */
+            void setHasThreatServiceHealth(const bool hasThreatServiceHealth);
+
+            /**
+               * Used to check if the plugin supports service health
+               * @return true, if the plugin supports service health, false otherwise
+               */
+            bool getHasServiceHealth() const;
+
+            /**
+             * Used to set the has service health if the plugin supports it
+             * @param hasServiceHealth
+             */
+            void setHasServiceHealth(const bool hasServiceHealth);
+
+            /**
              * Serialize pluginInfo object into protobuf message.
              * @param pluginInfo object to be serialized
              * @return pluginInfo represented as protobuf object.
@@ -191,6 +215,8 @@ namespace Common
             std::string m_pluginName;
             std::string m_xmlTranslatorPath;
             bool m_isManagedPlugin = true;
+            bool m_hasThreatServiceHealth = false;
+            bool m_hasServiceHealth = false;
         };
 
         using PluginInfoPtr = std::unique_ptr<PluginInfo>;

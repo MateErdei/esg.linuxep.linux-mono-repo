@@ -42,7 +42,9 @@ public:
                                       }
                                      ],
                                      "executableUserAndGroup": "user:group",
-                                     "secondsToShutDown": "3"
+                                     "secondsToShutDown": "3",
+                                     "threatServiceHealth": false,
+                                     "serviceHealth": false
                                     })";
 
         if (!oldPartString.empty())
@@ -747,7 +749,7 @@ TEST_F( // NOLINT
         PluginRegistryTests,
         pluginInfoProvidesValidTimeToShutdownIfNotAvailableInJson)
 {
-    std::string oldString = R"("secondsToShutDown": "3")";
+    std::string oldString = R"("secondsToShutDown": "3",)";
 
     std::string newString;
 
@@ -947,4 +949,98 @@ TEST_F(PluginRegistryTests, ShouldIgnoreUnknownFields) // NOLINT
     auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(pluginInfoWithUnkonwnField, "PluginName"); // NOLINT
     std::vector<std::string> expected{{"app1"}}; 
     EXPECT_EQ(pluginInfo.getPolicyAppIds(), expected); 
+}
+
+
+
+TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithNoThreatServiceHealthValuesSetReturnsDefaultFalse) // NOLINT
+{
+    std::string oldString = R"("threatServiceHealth": false,)";
+    std::string newString;
+    std::string testJsonString = createJsonString(oldString, newString);
+
+    std::string defaultTestJsonString = createJsonString("","");
+    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(defaultTestJsonString, "PluginName");
+
+    EXPECT_FALSE(pluginInfo.getHasThreatServiceHealth());
+}
+
+TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithNoServiceHealthValuesSetReturnsDefaultFalse) // NOLINT
+{
+    std::string oldString = R"("serviceHealth": false)";
+    std::string newString;
+    std::string testJsonString = createJsonString(oldString, newString);
+
+    std::string defaultTestJsonString = createJsonString("","");
+    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(defaultTestJsonString, "PluginName");
+
+    EXPECT_FALSE(pluginInfo.getHasServiceHealth());
+}
+
+TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithThreatHealthValuesSetReturnsCorrectTrueValues) // NOLINT
+{
+    std::string oldString = R"("threatServiceHealth": false,)";
+    std::string newString = R"("threatServiceHealth": true,)";
+    std::string testJsonString = createJsonString(oldString, newString);
+
+    testJsonString = cleanupStringForCompare(testJsonString);
+    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(testJsonString, "PluginName");
+
+    EXPECT_TRUE(pluginInfo.getHasThreatServiceHealth());
+}
+
+TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithServiceHealthValuesSetReturnsCorrectTrueValues) // NOLINT
+{
+    std::string oldString = R"("serviceHealth": false)";
+    std::string newString = R"("serviceHealth": true)";
+    std::string testJsonString = createJsonString(oldString, newString);
+
+    testJsonString = cleanupStringForCompare(testJsonString);
+    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(testJsonString, "PluginName");
+
+    EXPECT_TRUE(pluginInfo.getHasServiceHealth());
+
+}
+
+TEST_F(PluginRegistryTests, pluginInfoSerializeToStringWithNoHealthValuesSetReturnsDefaultFalse) // NOLINT
+{
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo = createDefaultPluginInfo();
+    std::string result = Common::PluginRegistryImpl::PluginInfo::serializeToString(pluginInfo);
+    std::string expected = createJsonString("", "");
+    expected = cleanupStringForCompare(expected);
+    result = cleanupStringForCompare(result);
+    EXPECT_EQ(expected, result);
+}
+
+TEST_F(PluginRegistryTests, pluginInfoSerializeToStringWithServiceHealthValueSetReturnsExpectedTrue) // NOLINT
+{
+    std::string oldString = R"("serviceHealth": false)";
+    std::string newString = R"("serviceHealth": true)";
+    std::string testJsonString = createJsonString(oldString, newString);
+
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo = createDefaultPluginInfo();
+    pluginInfo.setHasServiceHealth(true);
+    std::string result = Common::PluginRegistryImpl::PluginInfo::serializeToString(pluginInfo);
+    std::string expected = createJsonString(oldString, newString);
+    expected = cleanupStringForCompare(expected);
+    result = cleanupStringForCompare(result);
+    EXPECT_EQ(expected, result);
+}
+
+TEST_F(PluginRegistryTests, pluginInfoSerializeToStringWithThreatServiceHealthValueSetReturnsExpectedTrue) // NOLINT
+{
+    std::string oldString = R"("threatServiceHealth": false)";
+    std::string newString = R"("threatServiceHealth": true)";
+    std::string testJsonString = createJsonString(oldString, newString);
+
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo = createDefaultPluginInfo();
+    pluginInfo.setHasThreatServiceHealth(true);
+    std::string result = Common::PluginRegistryImpl::PluginInfo::serializeToString(pluginInfo);
+    std::string expected = createJsonString(oldString, newString);
+    expected = cleanupStringForCompare(expected);
+    result = cleanupStringForCompare(result);
+    EXPECT_EQ(expected, result);
 }
