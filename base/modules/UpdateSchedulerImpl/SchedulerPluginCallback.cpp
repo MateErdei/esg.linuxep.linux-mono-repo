@@ -115,6 +115,12 @@ namespace UpdateSchedulerImpl
         return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     }
 
+    std::string SchedulerPluginCallback::getHealth()
+    {
+        LOGDEBUG("Received health request");
+        return "{}";
+    }
+
     bool SchedulerPluginCallback::shutdownReceived() { return m_shutdownReceived; }
 
     void SchedulerPluginCallback::setRunning(bool running)
