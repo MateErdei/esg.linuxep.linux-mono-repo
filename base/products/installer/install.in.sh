@@ -352,6 +352,10 @@ chown "${USER_NAME}:${SOPHOS_SPL_IPC_GROUP}" "${SOPHOS_INSTALL}/var/ipc/plugins"
 
 makedir 770 "${SOPHOS_INSTALL}/var/lock-sophosspl"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/lock-sophosspl"
+if [[ -f "${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid" ]]
+then
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid"*
+fi
 
 makedir 700 "${SOPHOS_INSTALL}/var/lock"
 
