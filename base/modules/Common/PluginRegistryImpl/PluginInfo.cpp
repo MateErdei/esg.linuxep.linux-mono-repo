@@ -61,6 +61,16 @@ namespace Common
             m_hasServiceHealth = hasServiceHealth;
         }
 
+        std::string PluginInfo::getDisplayPluginName() const
+        {
+            return m_displayPluginName;
+        }
+
+        void PluginInfo::setDisplayPluginName(const std::string& displayPluginName)
+        {
+            m_displayPluginName = displayPluginName;
+        }
+
         void PluginInfo::setPolicyAppIds(const std::vector<std::string>& appIDs) { m_policyAppIds = appIDs; }
 
         void PluginInfo::addPolicyAppIds(const std::string& appID) { m_policyAppIds.push_back(appID); }
@@ -113,6 +123,7 @@ namespace Common
             pluginInfoProto.set_secondstoshutdown(pluginInfo.getSecondsToShutDown());
             pluginInfoProto.set_threatservicehealth(pluginInfo.getHasThreatServiceHealth());
             pluginInfoProto.set_servicehealth(pluginInfo.getHasServiceHealth());
+            pluginInfoProto.set_displaypluginname(pluginInfo.getDisplayPluginName());
 
             return Common::ProtobufUtil::MessageUtility::protoBuf2Json(pluginInfoProto);
         }
@@ -183,6 +194,7 @@ namespace Common
 
             pluginInfo.setHasThreatServiceHealth(protoPluginInfo.threatservicehealth());
             pluginInfo.setHasServiceHealth(protoPluginInfo.servicehealth());
+            pluginInfo.setDisplayPluginName(protoPluginInfo.displaypluginname());
 
             return pluginInfo;
         }

@@ -44,7 +44,8 @@ public:
                                      "executableUserAndGroup": "user:group",
                                      "secondsToShutDown": "3",
                                      "threatServiceHealth": false,
-                                     "serviceHealth": false
+                                     "serviceHealth": false,
+                                     "displayPluginName": "Display Plugin Name"
                                     })";
 
         if (!oldPartString.empty())
@@ -91,6 +92,7 @@ public:
         pluginInfo.setStatusAppIds({ "app2" });
         pluginInfo.setExecutableUserAndGroup("user:group");
         pluginInfo.setSecondsToShutDown(3);
+        pluginInfo.setDisplayPluginName("Display Plugin Name");
         return std::move(pluginInfo);
     }
 
@@ -966,7 +968,7 @@ TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithNoThreatServiceHe
 
 TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithNoServiceHealthValuesSetReturnsDefaultFalse) // NOLINT
 {
-    std::string oldString = R"("serviceHealth": false)";
+    std::string oldString = R"("serviceHealth": false,)";
     std::string newString;
     std::string testJsonString = createJsonString(oldString, newString);
 
@@ -989,8 +991,8 @@ TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithThreatHealthValue
 
 TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithServiceHealthValuesSetReturnsCorrectTrueValues) // NOLINT
 {
-    std::string oldString = R"("serviceHealth": false)";
-    std::string newString = R"("serviceHealth": true)";
+    std::string oldString = R"("serviceHealth": false,)";
+    std::string newString = R"("serviceHealth": true,)";
     std::string testJsonString = createJsonString(oldString, newString);
 
     testJsonString = cleanupStringForCompare(testJsonString);
@@ -1013,8 +1015,8 @@ TEST_F(PluginRegistryTests, pluginInfoSerializeToStringWithNoHealthValuesSetRetu
 
 TEST_F(PluginRegistryTests, pluginInfoSerializeToStringWithServiceHealthValueSetReturnsExpectedTrue) // NOLINT
 {
-    std::string oldString = R"("serviceHealth": false)";
-    std::string newString = R"("serviceHealth": true)";
+    std::string oldString = R"("serviceHealth": false,)";
+    std::string newString = R"("serviceHealth": true,)";
     std::string testJsonString = createJsonString(oldString, newString);
 
     Common::PluginRegistryImpl::PluginInfo pluginInfo;
@@ -1037,6 +1039,59 @@ TEST_F(PluginRegistryTests, pluginInfoSerializeToStringWithThreatServiceHealthVa
     pluginInfo = createDefaultPluginInfo();
     pluginInfo.setHasThreatServiceHealth(true);
     std::string result = Common::PluginRegistryImpl::PluginInfo::serializeToString(pluginInfo);
+    std::string expected = createJsonString(oldString, newString);
+    expected = cleanupStringForCompare(expected);
+    result = cleanupStringForCompare(result);
+    EXPECT_EQ(expected, result);
+}
+
+TEST_F(PluginRegistryTests, pluginInfoDeserializeToStringWithDisplayPluginNameValueSetReturnsExpectedString) // NOLINT
+{
+    std::string testJsonString = createJsonString("", "");
+
+    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(testJsonString, "PluginName");
+
+    EXPECT_EQ(pluginInfo.getDisplayPluginName(), "Display Plugin Name");
+}
+
+TEST_F(PluginRegistryTests, pluginInfoDeserializeToStringWithNoDisplayPluginNameValueSetReturnsEmptyString) // NOLINT
+{
+    std::string oldString = R"("displayPluginName": "Display Plugin Name")";
+    std::string newString;
+    std::string testJsonString = createJsonString(oldString, newString);
+
+    testJsonString = cleanupStringForCompare(testJsonString);
+    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(testJsonString, "PluginName");
+
+    EXPECT_EQ(pluginInfo.getDisplayPluginName(), "");
+}
+
+
+
+TEST_F(PluginRegistryTests, pluginInfoSerializeToStringWithDisplayPluginNameSetReturnsExpectedValues) // NOLINT
+{
+    std::string oldString = R"("displayPluginName": "Display Plugin Name")";
+    std::string newString = R"("displayPluginName": "New Plugin Name")";
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo = createDefaultPluginInfo();
+    pluginInfo.setDisplayPluginName("New Plugin Name");
+    std::string result = Common::PluginRegistryImpl::PluginInfo::serializeToString(pluginInfo);
+
+    std::string expected = createJsonString(oldString, newString);
+    expected = cleanupStringForCompare(expected);
+    result = cleanupStringForCompare(result);
+    EXPECT_EQ(expected, result);
+}
+
+TEST_F(PluginRegistryTests, pluginInfoSerializeToStringWithNoDisplayPluginNameSetReturnsExpectedValues) // NOLINT
+{
+    std::string oldString = R"("displayPluginName": "Display Plugin Name")";
+    std::string newString = R"("displayPluginName": "")";
+    Common::PluginRegistryImpl::PluginInfo pluginInfo;
+    pluginInfo = createDefaultPluginInfo();
+    pluginInfo.setDisplayPluginName("");
+    std::string result = Common::PluginRegistryImpl::PluginInfo::serializeToString(pluginInfo);
+
     std::string expected = createJsonString(oldString, newString);
     expected = cleanupStringForCompare(expected);
     result = cleanupStringForCompare(result);

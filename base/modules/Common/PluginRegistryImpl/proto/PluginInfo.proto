@@ -23,4 +23,5 @@ message PluginInfo
     optional int64 secondsToShutDown = 10  [default=2];
     optional bool threatServiceHealth = 11 [default=false];
     optional bool serviceHealth = 12 [default=false];
+    optional string displayPluginName = 13;
 }

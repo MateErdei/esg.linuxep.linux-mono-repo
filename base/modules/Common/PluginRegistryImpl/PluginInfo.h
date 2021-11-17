@@ -148,6 +148,18 @@ namespace Common
             void setHasServiceHealth(const bool hasServiceHealth);
 
             /**
+             * Gets the name of the plugin used for display to customers
+             * @return string show the display name given to a plugin.  Empty if not set.
+             */
+            std::string getDisplayPluginName() const;
+
+            /**
+             * Sets the name of the plugin used for display to customers
+             * @param displayPluginName
+             */
+            void setDisplayPluginName(const std::string& displayPluginName);
+
+            /**
              * Serialize pluginInfo object into protobuf message.
              * @param pluginInfo object to be serialized
              * @return pluginInfo represented as protobuf object.
@@ -217,6 +229,7 @@ namespace Common
             bool m_isManagedPlugin = true;
             bool m_hasThreatServiceHealth = false;
             bool m_hasServiceHealth = false;
+            std::string m_displayPluginName;
         };
 
         using PluginInfoPtr = std::unique_ptr<PluginInfo>;
