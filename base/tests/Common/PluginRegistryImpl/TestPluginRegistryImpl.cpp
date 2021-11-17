@@ -959,8 +959,7 @@ TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithNoThreatServiceHe
     std::string newString;
     std::string testJsonString = createJsonString(oldString, newString);
 
-    std::string defaultTestJsonString = createJsonString("","");
-    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(defaultTestJsonString, "PluginName");
+    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(testJsonString, "PluginName");
 
     EXPECT_FALSE(pluginInfo.getHasThreatServiceHealth());
 }
@@ -971,8 +970,7 @@ TEST_F(PluginRegistryTests, pluginInfoDeserializeFromStringWithNoServiceHealthVa
     std::string newString;
     std::string testJsonString = createJsonString(oldString, newString);
 
-    std::string defaultTestJsonString = createJsonString("","");
-    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(defaultTestJsonString, "PluginName");
+    auto pluginInfo = Common::PluginRegistryImpl::PluginInfo::deserializeFromString(testJsonString, "PluginName");
 
     EXPECT_FALSE(pluginInfo.getHasServiceHealth());
 }
