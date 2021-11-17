@@ -85,7 +85,7 @@ namespace ManagementAgent
 
         int PluginManager::applyNewPolicy(const std::string& appId, const std::string& policyXml)
         {
-            LOGSUPPORT("PluginManager: apply new policy: " << appId);
+            LOGDEBUG("PluginManager: apply new policy: " << appId);
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
 
             // Keep a list of plugins we failed to communicate with
@@ -118,7 +118,7 @@ namespace ManagementAgent
             const std::string& actionXml,
             const std::string& correlationId)
         {
-            LOGSUPPORT("PluginManager: Queue action " << appId);
+            LOGDEBUG("PluginManager: Queue action " << appId);
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
 
             // Keep a list of plugins we failed to communicate with
@@ -170,16 +170,23 @@ namespace ManagementAgent
 
         std::vector<Common::PluginApi::StatusInfo> PluginManager::getStatus(const std::string& pluginName)
         {
-            LOGSUPPORT("PluginManager: get status " << pluginName);
+            LOGDEBUG("PluginManager: get status " << pluginName);
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
             return getPlugin(pluginName)->getStatus();
         }
 
         std::string PluginManager::getTelemetry(const std::string& pluginName)
         {
-            LOGSUPPORT("PluginManager: get telemetry " << pluginName);
+            LOGDEBUG("PluginManager: get telemetry " << pluginName);
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
             return getPlugin(pluginName)->getTelemetry();
+        }
+
+        std::string PluginManager::getHealth(const std::string& pluginName)
+        {
+            LOGDEBUG("PluginManager: get health " << pluginName);
+            std::lock_guard<std::mutex> lock(m_pluginMapMutex);
+            return getPlugin(pluginName)->getHealth();
         }
 
         void PluginManager::locked_setAppIds(
@@ -190,7 +197,7 @@ namespace ManagementAgent
             std::lock_guard<std::mutex>&)
         {
             std::string firstPolicy = policyAppIds.empty() ? "None" : policyAppIds.at(0).c_str();
-            LOGSUPPORT("PluginManager: associate appids to pluginName " << plugin->name() << ": " << firstPolicy);
+            LOGDEBUG("PluginManager: associate appids to pluginName " << plugin->name() << ": " << firstPolicy);
 
             plugin->setPolicyAppIds(policyAppIds);
             plugin->setActionAppIds(actionAppIds);

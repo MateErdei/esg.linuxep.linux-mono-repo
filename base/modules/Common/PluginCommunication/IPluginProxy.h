@@ -53,6 +53,12 @@ namespace Common
             virtual std::string getTelemetry() = 0;
 
             /**
+             * Query the plugin for its health
+             * @return Health JSON
+             */
+            virtual std::string getHealth() = 0;
+
+            /**
              * Change the app IDs that the plugin is interested in for policy
              *
              * @param appIds

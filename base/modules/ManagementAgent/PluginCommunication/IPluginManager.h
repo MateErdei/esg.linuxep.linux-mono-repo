@@ -69,6 +69,13 @@ namespace ManagementAgent
             virtual std::string getTelemetry(const std::string& pluginName) = 0;
 
             /**
+             * Query the health of the plugin named pluginName.
+             *
+             * @return Health JSON
+             */
+            virtual std::string getHealth(const std::string& pluginName) = 0;
+
+            /**
              * Register a new plugin.
              * Keep the plugin in memory so we can send actions/policies/requests to it.
              *

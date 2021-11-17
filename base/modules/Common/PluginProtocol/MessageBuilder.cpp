@@ -66,6 +66,11 @@ namespace Common
             return createDefaultDataMessage(Commands::REQUEST_PLUGIN_TELEMETRY, std::string(), std::string());
         }
 
+        DataMessage MessageBuilder::requestRequestHealthMessage() const
+        {
+            return createDefaultDataMessage(Commands::REQUEST_PLUGIN_HEALTH, std::string(), std::string());
+        }
+
         std::string MessageBuilder::requestExtractEvent(const DataMessage& dataMessage) const
         {
             assert(dataMessage.m_command == Commands::PLUGIN_SEND_EVENT);
@@ -155,6 +160,12 @@ namespace Common
         std::string MessageBuilder::replyExtractTelemetry(const DataMessage& dataMessage) const
         {
             assert(dataMessage.m_command == Commands::REQUEST_PLUGIN_TELEMETRY);
+            return dataMessage.m_payload.at(0);
+        }
+
+        std::string MessageBuilder::replyExtractHealth(const DataMessage& dataMessage) const
+        {
+            assert(dataMessage.m_command == Commands::REQUEST_PLUGIN_HEALTH);
             return dataMessage.m_payload.at(0);
         }
 

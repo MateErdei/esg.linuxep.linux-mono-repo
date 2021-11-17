@@ -106,6 +106,13 @@ namespace Common
             return m_messageBuilder.replyExtractTelemetry(reply);
         }
 
+        std::string PluginProxy::getHealth()
+        {
+            Common::PluginProtocol::DataMessage reply = getReply(m_messageBuilder.requestRequestHealthMessage());
+
+            return m_messageBuilder.replyExtractHealth(reply);
+        }
+
         Common::PluginProtocol::DataMessage PluginProxy::getReply(
             const Common::PluginProtocol::DataMessage& request) const
         {

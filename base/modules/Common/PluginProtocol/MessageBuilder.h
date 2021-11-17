@@ -40,6 +40,7 @@ namespace Common
 
             DataMessage requestRequestPluginStatusMessage(const std::string& appId) const;
             DataMessage requestRequestTelemetryMessage() const;
+            DataMessage requestRequestHealthMessage() const;
 
             /** Extracting information from requests as server **/
             std::string requestExtractEvent(const DataMessage&) const;
@@ -58,6 +59,7 @@ namespace Common
             /** Extracting information from replies as client */
             std::string replyExtractCurrentPolicy(const DataMessage&) const;
             std::string replyExtractTelemetry(const DataMessage&) const;
+            std::string replyExtractHealth(const DataMessage&) const;
 
             bool hasAck(const DataMessage& dataMessage) const;
 

@@ -34,6 +34,7 @@ namespace ManagementAgent
             void checkPluginRegistry(const std::vector<std::pair<std::string, std::string>>& pluginsAndErrors);
             std::vector<Common::PluginApi::StatusInfo> getStatus(const std::string& pluginName) override;
             std::string getTelemetry(const std::string& pluginName) override;
+            std::string getHealth(const std::string& pluginName) override;
 
             void registerPlugin(const std::string& pluginName) override;
             void registerAndSetAppIds(

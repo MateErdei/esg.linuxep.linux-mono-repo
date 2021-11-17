@@ -402,6 +402,34 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows) // NOLINT
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
+TEST_F(TestPluginManager, TestGetHealthOnRegisteredPlugins) // NOLINT
+{
+    EXPECT_CALL(*m_mockedPluginApiCallback, getHealth()).Times(1).WillOnce(Return("healthContent"));
+    std::thread getHealth(
+        [this]() { ASSERT_EQ(m_pluginManagerPtr->getHealth(m_pluginOneName), "healthContent"); });
+    getHealth.join();
+}
+
+TEST_F(TestPluginManager, TestGetHealthOnUnregisteredPluginThrows) // NOLINT
+{
+    EXPECT_THROW(                                                  // NOLINT
+        m_pluginManagerPtr->getHealth("plugin_not_registered"), // NOLINT
+        Common::PluginCommunication::IPluginCommunicationException);
+}
+
+TEST_F(TestPluginManager, TestGetHealthOnRemovedPluginThrows) // NOLINT
+{
+    EXPECT_CALL(*m_mockedPluginApiCallback, getHealth()).Times(1);
+    std::thread getHealth([this]() {
+      m_pluginManagerPtr->getHealth(m_pluginOneName);
+      m_pluginManagerPtr->removePlugin(m_pluginOneName);
+    });
+    getHealth.join();
+    EXPECT_THROW(                                          // NOLINT
+        m_pluginManagerPtr->getHealth(m_pluginOneName), // NOLINT
+        Common::PluginCommunication::IPluginCommunicationException);
+}
+
 TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName) // NOLINT
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();

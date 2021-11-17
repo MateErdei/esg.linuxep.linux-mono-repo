@@ -26,6 +26,7 @@ namespace Common
                 override;
             std::vector<Common::PluginApi::StatusInfo> getStatus() override;
             std::string getTelemetry() override;
+            std::string getHealth() override;
 
             void setPolicyAppIds(const std::vector<std::string>& appIds) override;
             void setActionAppIds(const std::vector<std::string>& appIds) override;
