@@ -86,4 +86,6 @@ public:
 
     MOCK_CONST_METHOD0(getRemoteDiagnosePath, std::string (void));
     MOCK_CONST_METHOD0(getDiagnoseOutputPath, std::string (void));
+
+    MOCK_CONST_METHOD0(getCloudMetadataJsonPath, std::string (void));
 };

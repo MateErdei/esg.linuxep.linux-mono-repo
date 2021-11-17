@@ -8,6 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "SystemTelemetryCollectorImpl.h"
 #include "TelemetryProcessor.h"
+#include "TelemetryUtils.h"
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
@@ -34,6 +35,12 @@ namespace Telemetry
 
         auto systemTelemetryArrays = m_systemTelemetryCollector->collectArraysOfObjects();
         getArraysTelemetry(jsonConverter, systemTelemetryArrays);
+
+        std::string cloudPlatform = TelemetryUtils::getCloudPlatform();
+        if (!cloudPlatform.empty())
+        {
+            jsonConverter.set("cloud-platform", cloudPlatform);
+        }
 
         return jsonConverter.serialise();
     }

@@ -337,6 +337,11 @@ namespace Common
             return Common::FileSystem::join(getRemoteDiagnosePath(), "output");
         }
 
+        std::string ApplicationPathManager::getCloudMetadataJsonPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/etc/instance-metadata.json");
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

@@ -15,6 +15,8 @@ add_library(telemetryimpl SHARED
         PluginTelemetryReporter.h
         BaseTelemetryReporter.cpp
         BaseTelemetryReporter.h
+        TelemetryUtils.cpp
+        TelemetryUtils.h
         TelemetrySender.h
         TelemetrySender.cpp)
 

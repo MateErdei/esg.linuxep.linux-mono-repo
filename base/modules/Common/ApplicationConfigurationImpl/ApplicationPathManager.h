@@ -86,6 +86,8 @@ namespace Common::ApplicationConfigurationImpl
         std::string getRemoteDiagnosePath() const override;
         std::string getDiagnoseOutputPath() const override;
 
+        std::string getCloudMetadataJsonPath() const override;
+
     private:
         std::string socketPath(const std::string& relative) const;
     };
