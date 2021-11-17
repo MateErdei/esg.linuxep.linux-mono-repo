@@ -247,4 +247,10 @@ namespace Plugin
         return m_running;
     }
 
+    std::string PluginCallback::getHealth()
+    {
+        LOGDEBUG("Received health request");
+        return "{}";
+    }
+
 } // namespace Plugin

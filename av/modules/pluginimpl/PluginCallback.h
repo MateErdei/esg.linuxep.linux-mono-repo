@@ -31,6 +31,7 @@ namespace Plugin
         void setStatus(Common::PluginApi::StatusInfo statusInfo);
 
         std::string getTelemetry() override;
+        std::string getHealth() override;
 
         void setRunning(bool running);
         bool isRunning();
