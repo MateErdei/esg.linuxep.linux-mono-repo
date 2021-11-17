@@ -12,6 +12,7 @@ add_executable(TelemetryTests
         SystemTelemetryReporterTests.cpp
         MockTelemetryProvider.h
         TelemetryProcessorTests.cpp
+        TestTelemetryUtils.cpp
         PluginTelemetryReporterTests.cpp
         MockPluginProxy.h)
 
