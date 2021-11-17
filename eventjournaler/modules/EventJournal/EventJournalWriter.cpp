@@ -241,7 +241,10 @@ namespace EventJournal
 
             uint32_t length = RIFF_HEADER_LENGTH + SJRN_HEADER_LENGTH + header.sjrnLength + info.totalLength;
 
-            truncate(path.c_str(), length);
+            if (truncate(path.c_str(), length) != 0)
+            {
+                throw std::runtime_error("truncate failed on file: " + path);
+            }
 
             std::fstream f(path, std::ios::binary | std::ios::in | std::ios::out);
             length -= RIFF_HEADER_LENGTH;
