@@ -298,7 +298,7 @@ Installer Resets Ownership Of Stale MCS Router Process ID File
 
     Run Full Installer
 
-    File Should Exist With Owner And Permissions  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid  sophos-spl-local  sophos-spl-group  -rw-------
+    File Exists With Permissions  ${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid  sophos-spl-local  sophos-spl-group  -rw-------
 
 Installer Copies Install Options File
     Ensure Uninstalled

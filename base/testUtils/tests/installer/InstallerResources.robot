@@ -1,7 +1,6 @@
 *** Settings ***
 Library    Process
 Library    OperatingSystem
-Library    String
 Library    ../libs/FullInstallerUtils.py
 Library    ../libs/CommsComponentUtils.py
 Library     ../libs/UpgradeUtils.py
@@ -154,15 +153,6 @@ Display All tmp Files Present
     ${handle}=  Start Process  find   ./tmp
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
-
-File Should Exist With Owner And Permissions
-    [Arguments]  ${file}  ${user}  ${group}  ${permissions}
-    File Should Exist  ${file}
-    ${result} =  Run Process  stat  -c  "%U %G %A"  ${file}
-    @{words} =  Split String  ${result.stdout.strip('"')}
-    Should Be Equal As Strings  ${words[0]}  ${user}
-    Should Be Equal As Strings  ${words[1]}  ${group}
-    Should Be Equal As Strings  ${words[2]}  ${permissions}
 
 Check SSPL systemd files are correct
     ## Check systemd files
