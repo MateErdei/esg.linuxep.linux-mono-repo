@@ -241,23 +241,23 @@ def get_spec_type_from_spec(spec):
 
 def get_spec_xml_dict_from_filer6():
     files_on_filer6_dict = {}
-    if not  os.path.isdir(sdds_specs_directory):
+    if not os.path.isdir(sdds_specs_directory):
         return files_on_filer6_dict
     files_on_filer6 = os.listdir(sdds_specs_directory)
     for file_name in files_on_filer6:
-        spec = ET.parse(os.path.join(sdds_specs_directory, file_name))
-        expected_sdds_name = ".".join(file_name.split(".")[:3])
-        spec_type = get_spec_type_from_spec(spec)
-        if not files_on_filer6_dict.get(expected_sdds_name, None):
-            files_on_filer6_dict[expected_sdds_name] = {}
+        try:
+            spec = ET.parse(os.path.join(sdds_specs_directory, file_name))
+            expected_sdds_name = ".".join(file_name.split(".")[:3])
+            spec_type = get_spec_type_from_spec(spec)
+            if not files_on_filer6_dict.get(expected_sdds_name, None):
+                files_on_filer6_dict[expected_sdds_name] = {}
 
-        if files_on_filer6_dict[expected_sdds_name].get(spec_type, None):
-            raise AssertionError(f"Found multiple {spec_type} for {expected_sdds_name}: {files_on_filer6_dict[expected_sdds_name][spec_type]} & {file_name}")
-        else:
-            files_on_filer6_dict[expected_sdds_name][spec_type] = spec
-
-    # import pprint
-    # pprint.pprint(files_on_filer6_dict)
+            if files_on_filer6_dict[expected_sdds_name].get(spec_type, None):
+                raise AssertionError(f"Found multiple {spec_type} for {expected_sdds_name}: {files_on_filer6_dict[expected_sdds_name][spec_type]} & {file_name}")
+            else:
+                files_on_filer6_dict[expected_sdds_name][spec_type] = spec
+        except Exception as e:
+            logger.error(f"Failed to parse: '{file_name}', reason: {str(e)}")
 
     return files_on_filer6_dict
 
@@ -724,4 +724,5 @@ class WarehouseUtils(object):
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":
-    _make_local_copy_of_warehouse()
+    # _make_local_copy_of_warehouse()
+    pass
