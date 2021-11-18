@@ -242,6 +242,12 @@ def sophosspl_config():
     """
     return os.path.join(sophos_etc_dir(), "mcs.config")
 
+def instance_metadata_config():
+    """
+    instance_metadata_config
+    """
+    return os.path.join(sophos_etc_dir(), "instance-metadata.json")
+
 # logs/base
 
 

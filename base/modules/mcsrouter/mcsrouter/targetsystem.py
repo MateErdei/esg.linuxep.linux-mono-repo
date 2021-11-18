@@ -15,9 +15,15 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import logging
+import stat
 
+from .utils import path_manager
+from .utils import atomic_write
+from .utils import get_ids
 from .utils.byte2utf8 import to_utf8
 
+LOGGER = logging.getLogger(__name__)
 # Keys must never be a sub-set of another key
 DISTRIBUTION_NAME_MAP = {
     'redhat': 'redhat',
@@ -164,23 +170,108 @@ class TargetSystem:
         :return:
         """
         if self._detect_is_ec2_instance():
-            try:
-                proxy_handler = urllib.request.ProxyHandler({})
-                opener = urllib.request.build_opener(proxy_handler)
-                request = urllib.request.Request('http://169.254.169.254/latest/api/token')
-                request.add_header('X-aws-ec2-metadata-token-ttl-seconds', '21600')
-                request.get_method = lambda: 'PUT'
-                token = opener.open(request, timeout=1).read()
+            return self.get_aws_info()
+        else:
+            return self.get_oracle_info() or self.get_azure_info() or ""
 
-                request = urllib.request.Request('http://169.254.169.254/latest/dynamic/instance-identity/document')
-                request.add_header('X-aws-ec2-metadata-token', token)
-                aws_info_string = opener.open(request, timeout=1).read()
-                aws_info = json.loads(aws_info_string)
-                return {"region": aws_info["region"],
-                        "accountId": aws_info["accountId"],
-                        "instanceId": aws_info["instanceId"]}
-            except:  # pylint: disable=bare-except
-                pass
+    def get_aws_info(self):
+        try:
+            proxy_handler = urllib.request.ProxyHandler({})
+            opener = urllib.request.build_opener(proxy_handler)
+            request = urllib.request.Request('http://169.254.169.254/latest/api/token')
+            request.add_header('X-aws-ec2-metadata-token-ttl-seconds', '21600')
+            request.get_method = lambda: 'PUT'
+            token = opener.open(request, timeout=1).read()
+
+            request = urllib.request.Request('http://169.254.169.254/latest/dynamic/instance-identity/document')
+            request.add_header('X-aws-ec2-metadata-token', token)
+
+            aws_info_string = opener.open(request, timeout=1).read()
+            aws_info = json.loads(aws_info_string)
+            aws_info_json = {"platform": "aws",
+                             "region": aws_info["region"],
+                             "accountId": aws_info["accountId"],
+                             "instanceId": aws_info["instanceId"]
+                            }
+            write_info_to_metadata_json(aws_info_json)
+
+            return "".join((
+                "<aws>",
+                "<region>%s</region>" % aws_info["region"],
+                "<accountId>%s</accountId>" % aws_info["accountId"],
+                "<instanceId>%s</instanceId>" % aws_info["instanceId"],
+                "</aws>"))
+        except:  # pylint: disable=bare-except
+            pass
+        return None
+
+    def get_oracle_info(self):
+        try:
+            proxy_handler = urllib.request.ProxyHandler({})
+            opener = urllib.request.build_opener(proxy_handler)
+
+            request = urllib.request.Request('http://169.254.169.254/opc/v2/instance/')
+            request.add_header('Authorization', "Bearer Oracle")
+
+            oracle_info_string = opener.open(request, timeout=1).read()
+            oracle_info = json.loads(oracle_info_string)
+            oracle_info_json = {"platform": "oracle",
+                                "region": oracle_info["region"],
+                                "availabilityDomain": oracle_info["availabilityDomain"],
+                                "compartmentId": oracle_info["compartmentId"],
+                                "displayName": oracle_info["displayName"],
+                                "hostname": oracle_info["hostname"],
+                                "state": oracle_info["state"],
+                                "instanceId": oracle_info["id"]
+                                }
+            write_info_to_metadata_json(oracle_info_json)
+            return "".join((
+                "<oracle>",
+                "<region>%s</region>" % oracle_info["region"],
+                "<availabilityDomain>%s</availabilityDomain>" % oracle_info["availabilityDomain"],
+                "<compartmentId>%s</compartmentId>" % oracle_info["compartmentId"],
+                "<displayName>%s</displayName>" % oracle_info["displayName"],
+                "<hostname>%s</hostname>" % oracle_info["hostname"],
+                "<state>%s</state>" % oracle_info["state"],
+                "<instanceId>%s</instanceId>" % oracle_info["id"],
+                "</oracle>"))
+        except:  # pylint: disable=bare-except
+            pass
+        return None
+
+    def get_azure_info(self):
+        try:
+            proxy_handler = urllib.request.ProxyHandler({})
+            opener = urllib.request.build_opener(proxy_handler)
+
+            request = urllib.request.Request('http://169.254.169.254/metadata/versions')
+            request.add_header('Metadata', True)
+            azure_info_string = opener.open(request, timeout=1).read()
+            azure_version_info = json.loads(azure_info_string)
+            latest_azure_api_version = azure_version_info["apiVersions"][-1]
+
+            request = urllib.request.Request('http://169.254.169.254/metadata/instance?api-version=' + latest_azure_api_version)
+            request.add_header('Metadata', True)
+
+            azure_info_string = opener.open(request, timeout=1).read()
+            azure_info = json.loads(azure_info_string)
+            azure_info_json = {"platform": "azure",
+                               "vmId": azure_info["compute"]["vmId"],
+                               "vmName": azure_info["compute"]["name"],
+                               "resourceGroupName": azure_info["compute"]["resourceGroupName"],
+                               "subscriptionId": azure_info["compute"]["subscriptionId"]
+                               }
+            write_info_to_metadata_json(azure_info_json)
+
+            return "".join((
+                "<azure>",
+                "<vmId>%s</vmId>" % azure_info["compute"]["vmId"],
+                "<vmName>%s</vmName>" % azure_info["compute"]["name"],
+                "<resourceGroupName>%s</resourceGroupName>" % azure_info["compute"]["resourceGroupName"],
+                "<subscriptionId>%s</subscriptionId>" % azure_info["compute"]["subscriptionId"],
+                "</azure>"))
+        except:  # pylint: disable=bare-except
+            pass
         return None
 
     def kernel(self):
@@ -295,3 +386,14 @@ def _find_case_insensitive_string_in_file(file_to_read, string_to_find):
     except EnvironmentError:
         pass
     return False
+
+def write_info_to_metadata_json(metaDataAsJson):
+    instance_metadata_json_filepath = path_manager.instance_metadata_config()
+    tmp_path = os.path.join(path_manager.temp_dir(),"temp.json")
+    try:
+        body = json.dumps(metaDataAsJson)
+        atomic_write.atomic_write(instance_metadata_json_filepath, tmp_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP, body)
+        if os.getuid() == 0:
+            os.chown(instance_metadata_json_filepath, get_ids.get_uid("sophos-spl-local"), get_ids.get_gid("sophos-spl-group"))
+    except PermissionError as e:
+        LOGGER.warning(f"Cannot update file {instance_metadata_json_filepath} with error : {e}")

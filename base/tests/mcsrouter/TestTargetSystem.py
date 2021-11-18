@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-
+import json
 import os
 import unittest
 import mock
 import platform
+import stat
 from mock import patch, mock_open
 import logging
 logger = logging.getLogger("TestResponseReceiver")
 
 import PathManager
-
 import mcsrouter.utils.target_system_manager
 import mcsrouter.targetsystem
 
@@ -167,7 +167,41 @@ class TestTargetSystem(unittest.TestCase):
         self.assertTrue(platform.release.call_count, 1)
         self.assertTrue(platform.machine.call_count, 1)
 
+    @mock.patch('mcsrouter.utils.path_manager.instance_metadata_config', return_value='/tmp/test-instance-metadata.json')
+    @mock.patch('mcsrouter.utils.path_manager.temp_dir', return_value='/tmp/')
+    def test_writing_to_metadata_conf_correctly_writes_to_file(self, *mockargs):
+        test_filepath = '/tmp/test-instance-metadata.json'
+        test_json = {"platform": "test",
+                     "region": "test_region",
+                     "accountId": "test_id",
+                     "instanceId": "test_instance"
+                     }
+        mcsrouter.targetsystem.write_info_to_metadata_json(test_json)
+        with open(test_filepath, 'r') as test_result:
+            result = json.load(test_result)
+        self.assertEqual(test_json, result)
 
+        self.assertEqual(oct(os.stat(test_filepath)[stat.ST_MODE]), "0o100640")
+        os.remove(test_filepath)
+
+    @mock.patch("logging.Logger.warning")
+    @mock.patch('mcsrouter.utils.path_manager.instance_metadata_config', return_value='/tmp/test-instance-metadata.json')
+    @mock.patch('mcsrouter.utils.path_manager.temp_dir', return_value='/tmp/')
+    @mock.patch('os.getuid', return_value=0)
+    @mock.patch('mcsrouter.utils.atomic_write.atomic_write', return_value='')
+    def test_chown_to_metadata_conf_logs_on_permission_error(self, *mockargs):
+
+        test_json = {"platform": "test",
+                     "region": "test_region",
+                     "accountId": "test_id",
+                     "instanceId": "test_instance"
+                     }
+        with patch('os.chown') as mock_open:
+            mock_open.side_effect = PermissionError
+            mcsrouter.targetsystem.write_info_to_metadata_json(test_json)
+        self.assertEqual(logging.Logger.warning.call_count, 1)
+        expected_args = mock.call("Cannot update file /tmp/test-instance-metadata.json with error : ")
+        self.assertEqual(logging.Logger.warning.call_args, expected_args)
 
 if __name__ == '__main__':
     unittest.main()

@@ -257,7 +257,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         return "".join((
             self.get_status_header(),
             self.get_common_status_xml(options),
-            self.get_aws_status(),  # Empty string if not aws
+            self.get_cloud_platforms_status(),  # Empty string if not cloud platform
             self.get_platform_status(),
             self.get_policy_status(),
             self.get_status_footer()
@@ -354,26 +354,12 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             "<osMinorVersion>%s</osMinorVersion>" % minor_version,
             "</posixPlatformDetails>"))
 
-    def get_aws_status(self):
+    def get_cloud_platforms_status(self):
         """
-        get_aws_status
+        get_cloud_platforms_status
         """
         target_system = self.__target_system()
-        aws_info = target_system.detect_instance_info()
-
-        if aws_info is None:
-            return ""
-
-        region = aws_info["region"]
-        account_id = aws_info["accountId"]
-        instance_id = aws_info["instanceId"]
-
-        return "".join((
-            "<aws>",
-            "<region>%s</region>" % region,
-            "<accountId>%s</accountId>" % account_id,
-            "<instanceId>%s</instanceId>" % instance_id,
-            "</aws>"))
+        return target_system.detect_instance_info() or ""
 
     def get_policy_status(self):
         """
