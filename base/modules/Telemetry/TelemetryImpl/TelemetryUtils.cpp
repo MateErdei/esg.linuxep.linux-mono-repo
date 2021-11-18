@@ -48,7 +48,7 @@ namespace Telemetry
                 }
             }
         }
-        catch(Common::FileSystem::IFileSystemException& e)
+        catch (Common::FileSystem::IFileSystemException& e)
         {
             LOGWARN("Could not access " << metadataFile << " due to error: " << e.what());
         }

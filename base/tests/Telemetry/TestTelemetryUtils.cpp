@@ -5,13 +5,11 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include <Telemetry/TelemetryImpl/TelemetryUtils.h>
 
-
 #include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
+
 #include <gtest/gtest.h>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 class TestTelemetryUtils: public LogOffInitializedTests{};
 

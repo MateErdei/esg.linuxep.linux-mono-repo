@@ -417,6 +417,12 @@ then
     chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
 fi
 
+if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/instance-metadata.json" ]]
+then
+    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/instance-metadata.json"
+    chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
+fi
+
 if [[ -f "${SOPHOS_INSTALL}/base/etc/mcs.config" ]]
 then
     chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/mcs.config"

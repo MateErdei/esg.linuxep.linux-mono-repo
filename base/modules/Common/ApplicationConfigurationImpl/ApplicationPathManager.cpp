@@ -339,7 +339,7 @@ namespace Common
 
         std::string ApplicationPathManager::getCloudMetadataJsonPath() const
         {
-            return Common::FileSystem::join(sophosInstall(), "base/etc/instance-metadata.json");
+            return Common::FileSystem::join(sophosInstall(), "base/etc/sophosspl/instance-metadata.json");
         }
 
     } // namespace ApplicationConfigurationImpl
