@@ -92,6 +92,14 @@ Telemetry Executable Generates System Base and Watchdog Telemetry
     Check Base Telemetry Json Is Correct  ${telemetryFileContents}
     Check Comms Component Network Log Contains   Trying 127.0.0.1:443
 
+Telemetry Executable Generates Cloud Platform Metadata
+    [Tags]  SMOKE  TELEMETRY  AMAZON_LINUX
+    [Documentation]    Telemetry Executable Generates Telemetry
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Check System Telemetry Json Is Correct  ${telemetryFileContents}
+    File Should Contain  ${TELEMETRY_OUTPUT_JSON}  "cloud-platform":"AWS"
+
 Telemetry Executable Generates Update Scheduler Telemetry
     # Make sure there are no left over update telemetry items.
     Cleanup Telemetry Server

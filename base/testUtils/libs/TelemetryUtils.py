@@ -250,7 +250,8 @@ class TelemetryUtils:
         if len(actual_system_telemetry_dict.get("disks", list())) > len(
                 expected_system_telemetry_dict.get("disks", list())):
             _ = actual_system_telemetry_dict["disks"].pop()
-
+        # ignore cloud platform details
+        actual_system_telemetry_dict.pop("cloud-platform", None)
         self.check_system_telemetry_is_correct(actual_system_telemetry_dict, expected_system_telemetry_dict,
                                                missing_key)
 
