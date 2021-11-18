@@ -17,13 +17,13 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <modules/Common/ProcessImpl/ProcessImpl.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/MockProcess.h>
 #include <tests/Common/Helpers/TempDir.h>
-#include <tests/Common/ProcessImpl/MockProcess.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 #include <watchdog/watchdogimpl/WatchdogServiceLine.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
 
 namespace
 {

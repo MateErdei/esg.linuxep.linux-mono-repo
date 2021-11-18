@@ -9,8 +9,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
 #include <UpdateSchedulerImpl/Logger.h>
 #include <gmock/gmock-matchers.h>
+#include <tests/Common/Helpers/MockProcess.h>
 #include <tests/Common/Helpers/TempDir.h>
-#include <tests/Common/ProcessImpl/MockProcess.h>
 #include <tests/watchdog/watchdogimpl/MockIWatchdogRequest.h>
 
 #include <future>

@@ -8,11 +8,11 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/ProcessImpl/MockProcess.h>
-#include <watchdog/watchdogimpl/PluginProxy.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
+#include <tests/Common/Helpers/MockFilePermissions.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/MockProcess.h>
+#include <watchdog/watchdogimpl/PluginProxy.h>
 
 namespace
 {

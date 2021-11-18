@@ -7,7 +7,7 @@ add_executable(TelemetryTests
         TelemetryProcessorHttpSenderTests.cpp
         MockHttpSender.h
         SystemTelemetryCollectorImplTests.cpp
-        ../Common/ProcessImpl/MockProcess.h
+        ../Common/Helpers/MockProcess.h
         MockSystemTelemetryCollector.h
         SystemTelemetryReporterTests.cpp
         MockTelemetryProvider.h

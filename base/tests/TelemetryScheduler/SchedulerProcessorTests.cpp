@@ -20,11 +20,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
-
-#include <tests/Common/ProcessImpl/MockProcess.h>
+#include <tests/Common/Helpers/MockProcess.h>
 
 #include <chrono>
 #include <thread>

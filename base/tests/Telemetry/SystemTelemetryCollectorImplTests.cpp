@@ -10,9 +10,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/ProcessImpl/MockProcess.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/Helpers/MockProcess.h>
 
 #include <regex>
 
