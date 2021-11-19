@@ -162,6 +162,7 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str)
             base_sdds=edr_build / 'sspl-edr-coverage/base/base-sdds',
             componenttests=edr_build / 'sspl-edr-coverage/componenttests',
             qp=unified_artifact(context, 'em.esg', 'develop', 'build/scheduled-query-pack-sdds'),
+            lp_tar=unified_artifact(context, 'em.esg', 'develop', 'build/query-pack'),
             bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
         )
 
