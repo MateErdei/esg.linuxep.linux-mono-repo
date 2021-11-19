@@ -24,6 +24,7 @@ public:
 
     MOCK_METHOD1(getStatus, Common::PluginApi::StatusInfo(const std::string&));
     MOCK_METHOD0(getTelemetry, std::string(void));
+    MOCK_METHOD0(getHealth, std::string(void));
 };
 
 

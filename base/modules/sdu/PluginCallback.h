@@ -31,6 +31,8 @@ namespace RemoteDiagnoseImpl
 
         std::string getTelemetry() override;
 
+        std::string getHealth() override;
+
     private:
         std::shared_ptr<ITaskQueue> m_taskQueue;
 

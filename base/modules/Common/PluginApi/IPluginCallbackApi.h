@@ -85,6 +85,19 @@ namespace Common
              * @return The content of the telemetry to be forwarded via the ipc channel.
              */
             virtual std::string getTelemetry() = 0;
+
+            /**
+             * Plugin developer must implement this function to provide the health (SHS) information relevant to the
+             * plugin. This method is called when a Management Agent requests the health of a plugin via the ipc channel.
+             * @return  JSON string containing Service Health, Threat Service Health and Threat Health.
+             *          returns a json containing either:
+             *          {"Health": X, "UTM_ID": <ID>} //utmid may not be included
+             *          {"ThreatHealth" : X}
+             *          where x is 1/2/3 based on the health of the plugin
+             *
+             *          {} means the plugin has not implemented it's own getHealth and should be ignored
+             */
+            virtual std::string getHealth() = 0;
         };
 
     } // namespace PluginApi

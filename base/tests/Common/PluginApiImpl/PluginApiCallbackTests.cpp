@@ -169,6 +169,23 @@ namespace
         EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedAnswer, reply);
     }
 
+    TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToGetHealth) // NOLINT
+    {
+        Common::PluginProtocol::DataMessage dataMessage =
+            createDefaultMessage(Common::PluginProtocol::Commands::REQUEST_PLUGIN_HEALTH, "");
+        Common::PluginProtocol::DataMessage expectedAnswer(dataMessage);
+
+        std::string healthData = R"({"health":1})";
+        expectedAnswer.m_payload.clear();
+        expectedAnswer.m_payload.push_back(healthData);
+
+        EXPECT_CALL(mock(), getHealth()).WillOnce(Return(healthData));
+
+        auto reply = managementRequest.triggerRequest(context(), dataMessage);
+
+        EXPECT_PRED_FORMAT2(dataMessageSimilar, expectedAnswer, reply);
+    }
+
     TEST_F(PluginApiCallbackTests, pluginAPICallbackcanRespondToDoAction) // NOLINT
     {
         auto mockFileSystem = new StrictMock<MockFileSystem>();

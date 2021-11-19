@@ -31,6 +31,8 @@ namespace Common
                     return "RequestStatus";
                 case Commands::REQUEST_PLUGIN_TELEMETRY:
                     return "Telemetry";
+                case Commands::REQUEST_PLUGIN_HEALTH:
+                    return "RequestHealth";
                 case Commands::PLUGIN_QUERY_CURRENT_POLICY:
                     return "RequestCurrentPolicy";
                 case Commands::UNKNOWN:

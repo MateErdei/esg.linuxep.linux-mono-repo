@@ -53,6 +53,7 @@ namespace Common
             DataMessage replyCurrentPolicy(const DataMessage&, const std::string& policyContent) const;
             DataMessage replyTelemetry(const DataMessage&, const std::string& telemetryContent) const;
             DataMessage replyStatus(const DataMessage&, const Common::PluginApi::StatusInfo&) const;
+            DataMessage replyHealth(const DataMessage&, const std::string& healthContent) const;
 
             /** Extracting information from replies as client */
             std::string replyExtractCurrentPolicy(const DataMessage&) const;

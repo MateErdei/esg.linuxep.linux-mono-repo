@@ -41,6 +41,9 @@ namespace Common
                 case Commands::REQUEST_PLUGIN_TELEMETRY:
                     return PluginProtocolProto::PluginAPIMessage_CommandOption::
                         PluginAPIMessage_CommandOption_Telemetry;
+                case Commands::REQUEST_PLUGIN_HEALTH:
+                    return PluginProtocolProto::PluginAPIMessage_CommandOption::
+                        PluginAPIMessage_CommandOption_RequestHealth;
                 case Commands::PLUGIN_QUERY_CURRENT_POLICY:
                     return PluginProtocolProto::PluginAPIMessage_CommandOption::
                         PluginAPIMessage_CommandOption_RequestCurrentPolicy;
@@ -80,6 +83,10 @@ namespace Common
             else if (commandOption == serializeCommand(Commands::REQUEST_PLUGIN_TELEMETRY))
             {
                 return Commands::REQUEST_PLUGIN_TELEMETRY;
+            }
+            else if (commandOption == serializeCommand(Commands::REQUEST_PLUGIN_HEALTH))
+            {
+                return Commands::REQUEST_PLUGIN_HEALTH;
             }
             else if (commandOption == serializeCommand(Commands::PLUGIN_QUERY_CURRENT_POLICY))
             {

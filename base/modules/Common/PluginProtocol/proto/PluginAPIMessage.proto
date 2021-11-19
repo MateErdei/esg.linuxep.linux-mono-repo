@@ -16,6 +16,7 @@ message PluginAPIMessage
         Telemetry = 7;
         RequestCurrentPolicy = 8;
         InvalidCommand = 9;
+        RequestHealth = 10;
     }
     optional CommandOption command = 2;
     optional string applicationId = 3;

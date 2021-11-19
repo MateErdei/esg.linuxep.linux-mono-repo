@@ -42,4 +42,10 @@ namespace TelemetrySchedulerImpl
         LOGSUPPORT("Received telemetry request");
         return "{}";
     }
+
+    std::string PluginCallback::getHealth()
+    {
+        LOGDEBUG("Received health request");
+        return "{}";
+    }
 } // namespace TelemetrySchedulerImpl

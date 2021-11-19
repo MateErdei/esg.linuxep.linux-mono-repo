@@ -20,34 +20,41 @@ namespace RemoteDiagnoseImpl
 
     void PluginCallback::applyNewPolicy(const std::string& policyXml)
     {
-        LOGSUPPORT("Not applying unexpected new policy: " << policyXml);
+        LOGDEBUG("Not applying unexpected new policy: " << policyXml);
     }
 
-    void PluginCallback::queueAction(const std::string& actionXml) {
-        m_taskQueue->push(Task{ Task::TaskType::ACTION, actionXml });}
+    void PluginCallback::queueAction(const std::string& actionXml)
+    {
+        m_taskQueue->push(Task{ Task::TaskType::ACTION, actionXml });
+    }
 
     void PluginCallback::onShutdown()
     {
-        LOGSUPPORT("Shutdown signal received");
-
+        LOGDEBUG("Shutdown signal received");
         m_taskQueue->pushPriority(Task{ Task::TaskType::STOP, "" });
     }
 
-    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std
-    ::string& /* appId */)
+    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /* appId */)
     {
-        LOGSUPPORT("Received get status request");
+        LOGDEBUG("Received get status request");
         return m_statusInfo;
     }
 
     void PluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
     {
-        LOGSUPPORT("Setting status");
+        LOGDEBUG("Setting status");
         m_statusInfo = std::move(statusInfo);
     }
+    
     std::string PluginCallback::getTelemetry()
     {
-        LOGSUPPORT("Received telemetry request");
+        LOGDEBUG("Received telemetry request");
+        return "{}";
+    }
+
+    std::string PluginCallback::getHealth()
+    {
+        LOGDEBUG("Received health request");
         return "{}";
     }
 } // namespace RemoteDiagnoseImpl

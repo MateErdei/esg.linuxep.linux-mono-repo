@@ -97,7 +97,7 @@ namespace Common
                 switch (request.m_command)
                 {
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY:
-                        LOGSUPPORT("Received new policy");
+                        LOGDEBUG("Received new policy");
 
                         // Some actions are passed as content when not coming from MCS communication channel.
                         // i.e. when coming directly from watchdog
@@ -110,7 +110,7 @@ namespace Common
 
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION:
-                        LOGSUPPORT("Received new Action");
+                        LOGDEBUG("Received new Action");
 
                         m_pluginCallback->queueActionWithCorrelation(
                             GetContentFromPayload(
@@ -120,15 +120,18 @@ namespace Common
                         return m_messageBuilder.replyAckMessage(request);
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_STATUS:
                     {
-                        LOGSUPPORT("Received request for current status");
+                        LOGDEBUG("Received request for current status");
                         Common::PluginApi::StatusInfo statusInfo = m_pluginCallback->getStatus(request.m_applicationId);
                         return m_messageBuilder.replyStatus(request, statusInfo);
                     }
                     case Common::PluginProtocol::Commands::REQUEST_PLUGIN_TELEMETRY:
-                        LOGSUPPORT("Received for current telemetry.");
+                        LOGDEBUG("Received request for current telemetry.");
                         return m_messageBuilder.replyTelemetry(request, m_pluginCallback->getTelemetry());
+                    case Common::PluginProtocol::Commands::REQUEST_PLUGIN_HEALTH:
+                        LOGDEBUG("Received request for current health.");
+                        return m_messageBuilder.replyHealth(request, m_pluginCallback->getHealth());
                     default:
-                        LOGSUPPORT("Received invalid request.");
+                        LOGDEBUG("Received invalid request.");
                         return m_messageBuilder.replySetErrorIfEmpty(request, "Request not supported");
                 }
             }
@@ -146,7 +149,7 @@ namespace Common
 
         void PluginCallBackHandler::onShutdownRequested()
         {
-            LOGSUPPORT("Saving plugin telemetry before shutdown");
+            LOGDEBUG("Saving plugin telemetry before shutdown");
             Common::Telemetry::TelemetryHelper::getInstance().save();
             m_pluginCallback->onShutdown();
             stop();

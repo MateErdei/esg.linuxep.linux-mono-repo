@@ -127,6 +127,12 @@ namespace
             return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
         }
 
+        std::string getHealth() override
+        {
+            LOGDEBUG("Received health request");
+            return "{}";
+        }
+
         std::function<std::vector<std::string>(void)> m_getListOfPluginsFunc;
     };
 

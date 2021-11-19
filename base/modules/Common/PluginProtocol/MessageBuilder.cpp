@@ -176,5 +176,14 @@ namespace Common
 
         bool MessageBuilder::hasAck(const DataMessage& dataMessage) const { return dataMessage.m_acknowledge; }
 
+        DataMessage MessageBuilder::replyHealth(const DataMessage& dataMessage, const std::string& healthContent) const
+        {
+            assert(dataMessage.m_command == Commands::REQUEST_PLUGIN_HEALTH);
+            DataMessage reply(dataMessage);
+            reply.m_payload.clear();
+            reply.m_payload.push_back(healthContent);
+            return reply;
+        }
+
     } // namespace PluginProtocol
 } // namespace Common

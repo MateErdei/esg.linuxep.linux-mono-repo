@@ -110,6 +110,12 @@ public:
         return std::string{};
     }
 
+    std::string getHealth() override
+    {
+        std::cout << "get health" << std::endl;
+        return std::string{};
+    }
+
 };
 
 class DummyPluginRunner : public Runner
