@@ -47,8 +47,9 @@ TEST_F(TestWriter, testWriterLogsWarningOnBadDataAndThenContinues) // NOLINT
     MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
     std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
     EXPECT_CALL(*mockPopper, getEvent(_)).WillRepeatedly(Invoke(getNextEvent));
-
-    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
 
     std::atomic<int> getEventCallCount = 0;
     auto setGetEventHasBeenCalledAndReturnVoid = [&getEventCallCount](Subject, const std::vector<uint8_t>&){
@@ -83,8 +84,9 @@ TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop) // 
 
     MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
-
-    EventWriterLib::EventWriterWorker writer(std::move(fakePopperPtr), std::move(mockJournalWriterPtr));
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+    EventWriterLib::EventWriterWorker writer(std::move(fakePopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
 
     EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData)).Times(10);
 
@@ -111,8 +113,9 @@ TEST_F(TestWriter, WriterStartStopStart) // NOLINT
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
     MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
     std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
-
-    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
 
     std::atomic<bool> getEventHasBeenCalled = false;
     auto setGetEventHasBeenCalledAndReturnVoid = [&getEventHasBeenCalled](Subject, const std::vector<uint8_t>&){
@@ -159,8 +162,9 @@ TEST_F(TestWriter, WriterStopFollowedByStopDoesNotThrow) // NOLINT
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
     MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
     std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
-
-    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
     EXPECT_FALSE(writer.getRunningStatus());
     ASSERT_NO_THROW(writer.stop());
     EXPECT_FALSE(writer.getRunningStatus());
@@ -181,8 +185,9 @@ TEST_F(TestWriter, WriterStartFollowedByStartDoesNotThrow) // NOLINT
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
     MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
     std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
-
-    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
 
     std::atomic<bool> getEventHasBeenCalled = false;
     auto setGetEventHasBeenCalledAndReturnVoid = [&getEventHasBeenCalled](Subject, const std::vector<uint8_t>&){
@@ -220,8 +225,9 @@ TEST_F(TestWriter, WriterRestart) // NOLINT
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
     MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
     std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
-
-    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
 
     std::atomic<bool> getEventHasBeenCalled = false;
     auto setGetEventHasBeenCalledAndReturnVoid = [&getEventHasBeenCalled](Subject, const std::vector<uint8_t>&){
@@ -268,8 +274,9 @@ TEST_F(TestWriter, NonTruncatedJournalFilesAreNotPruned) // NOLINT
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
     MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
     std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
-
-    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
 
     EXPECT_CALL(*mockJournalWriter, readFileInfo(filename, _)).WillOnce(Return(true));
 
@@ -284,8 +291,9 @@ TEST_F(TestWriter, TruncatedJournalFilesArePruned) // NOLINT
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
     MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
     std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
-
-    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
 
     EventJournal::FileInfo info;
     info.anyLengthErrors = true;
@@ -307,8 +315,9 @@ TEST_F(TestWriter, InvalidJournalFilesAreRemoved) // NOLINT
     std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
     MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
     std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
-
-    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr));
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
 
     EXPECT_CALL(*mockFileSystem, removeFile(filename));
     EXPECT_CALL(*mockJournalWriter, readFileInfo(filename, _)).WillOnce(Return(false));

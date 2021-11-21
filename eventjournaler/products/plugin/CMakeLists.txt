@@ -1,5 +1,8 @@
 add_executable(${plugin_name}
-        main.cpp)
+        main.cpp
+        ${CMAKE_SOURCE_DIR}/modules/Heartbeat/Heartbeat.cpp
+        ${CMAKE_SOURCE_DIR}/modules/Heartbeat/HeartbeatPinger.cpp
+        )
 target_link_libraries(${plugin_name} PUBLIC pluginimpl eventqueuelib eventwriterlib eventjournal)
 
 SET_TARGET_PROPERTIES( ${plugin_name}

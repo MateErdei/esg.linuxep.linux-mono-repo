@@ -5,18 +5,19 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginCallback.h"
-
 #include "Logger.h"
 #include "Telemetry.h"
 #include "TelemetryConsts.h"
-
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-
+#include <modules/pluginimpl/ApplicationPaths.h>
 #include <unistd.h>
+#include <utility>
 
 namespace Plugin
 {
-    PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) : m_task(std::move(task))
+    PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task, std::shared_ptr<Heartbeat::IHeartbeat> heartbeat) :
+    m_task(std::move(task)),
+    m_heartbeat(std::move(heartbeat))
     {
         std::string noPolicySetStatus{
             R"sophos(<?xml version="1.0" encoding="utf-8" ?>
@@ -92,7 +93,27 @@ namespace Plugin
     std::string PluginCallback::getHealth()
     {
         LOGDEBUG("Received health request");
-        return "{}";
+        // 0 = good
+        // 1 = bad
+
+        int health = 1;
+
+        // Check if any pingers have not been pinged by the owning thread/worker etc.
+        auto missedHeartbeats = m_heartbeat->getMissedHeartbeats();
+        if (missedHeartbeats.empty())
+        {
+            health = 0;
+        }
+        else
+        {
+            health = 1;
+            for (const auto& missed: missedHeartbeats)
+            {
+                LOGDEBUG("A heartbeat ping was missed by: " << missed);
+            }
+        }
+        m_heartbeat->resetAll();
+        return "{'Health': " + std::to_string(health) + "}";
     }
 
 } // namespace Plugin

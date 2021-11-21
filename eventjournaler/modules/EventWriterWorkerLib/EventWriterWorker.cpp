@@ -13,12 +13,18 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <EventJournal/EventJournalWriter.h>
 
 #include <utility>
+#include <modules/Heartbeat/Heartbeat.h>
 
 namespace EventWriterLib
 {
-    EventWriterWorker::EventWriterWorker::EventWriterWorker(std::unique_ptr<IEventQueuePopper> eventQueuePopper, std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter) :
-            m_eventQueuePopper(std::move(eventQueuePopper)), m_eventJournalWriter(std::move(eventJournalWriter))
-    {
+    EventWriterWorker::EventWriterWorker::EventWriterWorker(
+            std::unique_ptr<IEventQueuePopper> eventQueuePopper,
+            std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
+            Heartbeat::HeartbeatPinger heartbeatPinger) :
+            m_eventQueuePopper(std::move(eventQueuePopper)),
+            m_eventJournalWriter(std::move(eventJournalWriter)),
+            m_heartbeatPinger(heartbeatPinger)
+{
     }
 
     EventWriterWorker::~EventWriterWorker()
@@ -132,6 +138,7 @@ namespace EventWriterLib
         catch(const std::exception& ex)
         {
             LOGERROR("Failed to store " << journalSubType << " event in journal: " << ex.what());
+            // if we are here, increment $AMOUNT_FAILED_WRITES
         }
     }
 

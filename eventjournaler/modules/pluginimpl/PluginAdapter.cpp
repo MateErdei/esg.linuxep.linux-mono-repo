@@ -19,12 +19,14 @@ namespace Plugin
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback,
         std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
-        std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter) :
+        std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter,
+        Heartbeat::HeartbeatPinger heartbeatPinger) :
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_subscriber(std::move(subscriber)),
-        m_eventWriterWorker(eventWriter)
+        m_eventWriterWorker(eventWriter),
+        m_heartbeatPinger(heartbeatPinger)
     {
     }
 
@@ -39,6 +41,7 @@ namespace Plugin
         m_subscriber->start();
         while (true)
         {
+            m_heartbeatPinger.ping();
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {

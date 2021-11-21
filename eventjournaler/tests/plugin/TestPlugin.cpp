@@ -18,6 +18,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <pluginimpl/QueueTask.h>
 
 #include <future>
+#include <modules/Heartbeat/Heartbeat.h>
 
 using namespace Common::FileSystem;
 
@@ -36,13 +37,17 @@ public:
     TestablePluginAdapter(
         std::shared_ptr<Plugin::QueueTask> queueTask,
         std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
-        std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter) :
+        std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter,
+        Heartbeat::HeartbeatPinger heartbeatPinger,
+        std::shared_ptr<Heartbeat::IHeartbeat> heartbeat
+        ) :
         Plugin::PluginAdapter(
             queueTask,
             std::unique_ptr<Common::PluginApi::IBaseServiceApi>(new DummyServiceApi()),
-            std::make_shared<Plugin::PluginCallback>(queueTask),
+            std::make_shared<Plugin::PluginCallback>(queueTask, heartbeat),
             std::move(subscriber),
-            std::move(eventWriter))
+            std::move(eventWriter),
+            heartbeatPinger)
     {
     }
 };
@@ -86,7 +91,19 @@ TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberOrWriterIfTheyStop)
     // Queue
     auto queueTask = std::make_shared<Plugin::QueueTask>();
 
-    TestablePluginAdapter pluginAdapter(queueTask, std::move(mockSubscriberPtr), std::move(mockEventWriterWorkerPtr));
+    // HeartbeatPinger
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+
+    std::shared_ptr<Heartbeat::IHeartbeat> heartbeat(new Heartbeat::Heartbeat(
+            {"PluginAdapterThread", "SubscriberThread", "WriterThread"}));
+
+    TestablePluginAdapter pluginAdapter(
+            queueTask,
+            std::move(mockSubscriberPtr),
+            std::move(mockEventWriterWorkerPtr),
+            heartbeatPinger,
+            heartbeat);
 
     auto mainLoopFuture = std::async(std::launch::async, &TestablePluginAdapter::mainLoop, &pluginAdapter);
     while (subscriberRunningStatusCall == 0)
@@ -113,7 +130,16 @@ TEST_F(PluginAdapterTests, PluginAdapterMainLoopThrowsIfSocketDirDoesNotExist)
     std::unique_ptr<EventWriterLib::IEventWriterWorker> mockEventWriterWorkerPtr(mockEventWriterWorker);
 
     auto queueTask = std::make_shared<Plugin::QueueTask>();
-    TestablePluginAdapter pluginAdapter(queueTask, std::move(mockSubscriberPtr), std::move(mockEventWriterWorkerPtr));
+    auto pulse = std::make_shared<bool>(false);
+    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
+    std::shared_ptr<Heartbeat::IHeartbeat> heartbeat(new Heartbeat::Heartbeat(
+            {"PluginAdapterThread", "SubscriberThread", "WriterThread"}));
+    TestablePluginAdapter pluginAdapter(
+            queueTask,
+            std::move(mockSubscriberPtr),
+            std::move(mockEventWriterWorkerPtr),
+            heartbeatPinger,
+            heartbeat);
 
     // Example exception on start: If the socket dir does not exist then the whole plugin will exit.
     // If that dir is missing then the installation is unusable and this plugin shouldn't try and fix it.

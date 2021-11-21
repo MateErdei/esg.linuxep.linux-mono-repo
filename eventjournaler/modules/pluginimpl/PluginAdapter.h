@@ -12,6 +12,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <EventWriterWorkerLib/IEventWriterWorker.h>
 #include <SubscriberLib/ISubscriber.h>
+#include <modules/Heartbeat/HeartbeatPinger.h>
 
 namespace Plugin
 {
@@ -23,7 +24,8 @@ namespace Plugin
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
             std::shared_ptr<PluginCallback> callback,
             std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
-            std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter);
+            std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter,
+            Heartbeat::HeartbeatPinger heartbeatPinger);
         void mainLoop();
 
     private:
@@ -32,6 +34,8 @@ namespace Plugin
         std::shared_ptr<PluginCallback> m_callback;
         std::unique_ptr<SubscriberLib::ISubscriber> m_subscriber;
         std::shared_ptr<EventWriterLib::IEventWriterWorker> m_eventWriterWorker;
+        Heartbeat::HeartbeatPinger m_heartbeatPinger;
+
         int QUEUE_TIMEOUT = 5; // Seconds
 
         void processPolicy(const std::string& policyXml);

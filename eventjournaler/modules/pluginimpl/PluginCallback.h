@@ -11,6 +11,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IPluginCallbackApi.h>
 
 #include <atomic>
+#include <modules/Heartbeat/IHeartbeat.h>
 
 namespace Plugin
 {
@@ -19,7 +20,7 @@ namespace Plugin
         std::shared_ptr<QueueTask> m_task;
 
     public:
-        explicit PluginCallback(std::shared_ptr<QueueTask> task);
+        PluginCallback(std::shared_ptr<QueueTask> task, std::shared_ptr<Heartbeat::IHeartbeat> heartbeat);
 
         void applyNewPolicy(const std::string& policyXml) override;
 
@@ -36,5 +37,6 @@ namespace Plugin
 
     private:
         std::atomic_bool m_running = false;
+        std::shared_ptr<Heartbeat::IHeartbeat> m_heartbeat;
     };
 }; // namespace Plugin

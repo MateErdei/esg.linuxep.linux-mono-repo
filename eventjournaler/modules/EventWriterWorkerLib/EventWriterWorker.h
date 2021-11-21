@@ -15,6 +15,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <atomic>
 #include <optional>
 #include <thread>
+#include <modules/Heartbeat/IHeartbeat.h>
 
 namespace EventWriterLib
 {
@@ -23,7 +24,9 @@ namespace EventWriterLib
     public:
         explicit EventWriterWorker(
             std::unique_ptr<IEventQueuePopper> eventQueuePopper,
-            std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter);
+            std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
+            Heartbeat::HeartbeatPinger heartbeatPinger
+            );
         ~EventWriterWorker();
         void stop() override;
         void start() override;
@@ -38,6 +41,7 @@ namespace EventWriterLib
         std::atomic<bool> m_shouldBeRunning = false;
         std::atomic<bool> m_isRunning = false;
         std::unique_ptr<std::thread> m_runnerThread;
+        Heartbeat::HeartbeatPinger m_heartbeatPinger;
 
         void writeEvent(JournalerCommon::Event event);
         void run();

@@ -20,6 +20,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/PluginAdapter.h>
+#include <modules/Heartbeat/Heartbeat.h>
 
 const char* PluginName = PLUGIN_NAME;
 const int MAX_QUEUE_SIZE = 100;
@@ -34,7 +35,10 @@ int main()
         Common::PluginApi::createPluginResourceManagement();
 
     auto queueTask = std::make_shared<QueueTask>();
-    auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask);
+    std::shared_ptr<Heartbeat::IHeartbeat> heartbeat(new Heartbeat::Heartbeat(
+            {"PluginAdapterThread", "SubscriberThread", "WriterThread"}
+    ));
+    auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask, heartbeat);
 
     std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
 
@@ -49,13 +53,34 @@ int main()
     }
 
     std::shared_ptr<EventQueueLib::EventQueue> eventQueue(new EventQueueLib::EventQueue(MAX_QUEUE_SIZE));
-    std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue));
-    std::unique_ptr<SubscriberLib::ISubscriber> subscriber(new SubscriberLib::Subscriber(Plugin::getSubscriberSocketPath(), Common::ZMQWrapperApi::createContext(), std::move(eventQueuePusher)));
-    std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(new EventWriterLib::EventQueuePopper(eventQueue));
-    std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter (new EventJournal::Writer());
-    std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter(new EventWriterLib::EventWriterWorker(std::move(eventQueuePopper), std::move(eventJournalWriter)));
 
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, std::move(subscriber), eventWriter);
+    std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue));
+
+    std::unique_ptr<SubscriberLib::ISubscriber> subscriber(
+            new SubscriberLib::Subscriber(
+                    Plugin::getSubscriberSocketPath(),
+                    Common::ZMQWrapperApi::createContext(),
+                    std::move(eventQueuePusher),
+                    heartbeat->getPingHandleForId("SubscriberThread")));
+
+    std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(
+            new EventWriterLib::EventQueuePopper(eventQueue));
+
+    std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter (new EventJournal::Writer());
+
+    std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter(
+            new EventWriterLib::EventWriterWorker(
+                    std::move(eventQueuePopper),
+                    std::move(eventJournalWriter),
+                    heartbeat->getPingHandleForId("WriterThread")));
+
+    PluginAdapter pluginAdapter(
+            queueTask,
+            std::move(baseService),
+            sharedPluginCallBack,
+            std::move(subscriber),
+            eventWriter,
+            heartbeat->getPingHandleForId("PluginAdapterThread"));
 
     try
     {
