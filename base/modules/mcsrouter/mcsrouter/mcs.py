@@ -908,7 +908,6 @@ class MCS:
                         "www-authenticate", None)  # HTTP headers are case-insensitive
                     if header == 'Basic realm="register"':
                         reregister = True
-
                     else:
                         LOGGER.error(
                             "Received Unauthenticated without register header=%s",
@@ -923,6 +922,11 @@ class MCS:
                 except mcs_connection.MCSHttpException as exception:
                     error_count += 1
                     transient = True
+
+                    # Don't re-use old cookies after an error, as this may trigger de-duplication
+                    LOGGER.info("Forgetting cookies due to http exception")
+                    comms.clear_cookies()
+                    comms.close()
 
                     if exception.error_code() == 503:
                         LOGGER.warning("Endpoint has been temporarily suspended, possibly due to the machine "

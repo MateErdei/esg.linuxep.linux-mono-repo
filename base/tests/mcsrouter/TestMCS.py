@@ -42,6 +42,7 @@ class FakeMCSConnection(object):
     m_tenant_id = None
     send401 = False
     send404 = False
+    m_cookies = {}
 
     def __init__(self, config, product_version="unknown",install_dir="..",migrate_mode=False):
         self.m_send401 = False
@@ -50,6 +51,9 @@ class FakeMCSConnection(object):
 
     def set_user_agent(self, agent):
         pass
+
+    def clear_cookies(self):
+        self.m_cookies.clear()
 
     def capabilities(self):
         return ""
@@ -69,12 +73,16 @@ class FakeMCSConnection(object):
         if FakeMCSConnection.send401 and not self.m_send401:
             self.m_send401 = True
             headers = {
-                "www-authenticate":'Basic realm="register"',
+                "www-authenticate": 'Basic realm="register"',
             }
-            raise mcsrouter.mcsclient.mcs_connection.MCSHttpUnauthorizedException(401,headers,"")
+            raise mcsrouter.mcsclient.mcs_connection.MCSHttpUnauthorizedException(401, headers, "")
+        elif FakeMCSConnection.send404 and not self.m_send404:
+            self.m_send404 = True
+            headers = {}
+            raise mcsrouter.mcsclient.mcs_connection.MCSHttpException(404, headers, "")
         else:
-
             raise EscapeException()
+
         return []
 
     def send_status_event(self, status):
@@ -126,7 +134,6 @@ class TestMCS(unittest.TestCase):
         FakeMCSConnection.m_migration_response = None
         FakeMCSConnection.send401 = False
         FakeMCSConnection.send404 = False
-        PathManager.safeDelete(os.path.join(INSTALL_DIR,"etc","sophosav","mcs.config"))
 
     def tearDown(self):
         mcsrouter.mcsclient.mcs_connection.MCSConnection = ORIGINAL_MCS_CONNECTION
@@ -194,6 +201,31 @@ class TestMCS(unittest.TestCase):
         except EscapeException:
             pass
         self.assertEqual(FakeMCSConnection.m_token,"MCSTOKEN") ## Verifies register called
+
+    @mock.patch('mcsrouter.utils.directory_watcher.DirectoryWatcher.add_watch', side_effect=pass_function)
+    @mock.patch('mcsrouter.utils.config.Config.save', side_effect=pass_function)
+    @mock.patch('os.listdir', return_value="dummyplugin.json")
+    @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
+    def testHTTPErrorClearsCookies(self, *mockargs):
+        FakeMCSConnection.send404 = True
+        FakeMCSConnection.m_cookies = {"should not": "exist after HTTP error"}
+        config = mcsrouter.utils.config.Config()
+        config.set("MCSToken", "MCSTOKEN")
+        config.set("MCSID", "FOO")
+        config.set("MCSPassword", "BAR")
+        config.set("COMMAND_CHECK_INTERVAL_MINIMUM", "0")
+        config.set("COMMAND_CHECK_INTERVAL_MAXIMUM", "0")
+        config.set("COMMAND_CHECK_BASE_RETRY_DELAY", "0")
+        config.set("COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY", "0")
+        m = self.createMCS(config)
+        try:
+            ret = m.run()
+            self.fail("Shouldn't run() to completion")
+        except EscapeException:
+            pass
+
+        # Verify cookies cleared on HTTP error
+        self.assertEqual(FakeMCSConnection.m_cookies, {})
 
     @mock.patch('mcsrouter.utils.path_manager.mcs_flags_file', return_value=FLAG_FILE)
     @mock.patch('mcsrouter.utils.directory_watcher.DirectoryWatcher.add_watch', side_effect=pass_function)

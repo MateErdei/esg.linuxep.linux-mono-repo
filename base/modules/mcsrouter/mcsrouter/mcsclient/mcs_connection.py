@@ -281,6 +281,9 @@ class MCSConnection:
     def set_migrate_mode(self, migrate_mode: bool):
         self.__m_migrate_mode = migrate_mode
 
+    def clear_cookies(self):
+        self.__m_cookies.clear()
+
     def __message_relays_changed(self):
         """
         __message_relays_changed
@@ -754,7 +757,7 @@ class MCSConnection:
         except http.client.BadStatusLine as exception:
             self.__m_last_seen_http_error = exception
             LOGGER.info("Received httplib.BadStatusLine, closing connection")
-            self.__m_cookies.clear()
+            self.clear_cookies()
             self.close()
             return None
 
@@ -771,7 +774,7 @@ class MCSConnection:
             # de-duplication
 
             LOGGER.info("Forgetting cookies due to comms error: '{}'".format(str(exception)))
-            self.__m_cookies.clear()
+            self.clear_cookies()
             self.__close_connection()
             return None
 
@@ -977,7 +980,7 @@ class MCSConnection:
         """
         register
         """
-        self.__m_cookies.clear()  # Reset cookies
+        self.clear_cookies()  # Reset cookies
         mcs_id = self.get_id() or ""
         if mcs_id == "reregister":
             mcs_id = ""
