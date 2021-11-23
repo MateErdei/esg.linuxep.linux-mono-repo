@@ -10,11 +10,6 @@ namespace Heartbeat
 
     Heartbeat::Heartbeat() = default;
 
-//    void Heartbeat::ping(const std::string& id)
-//    {
-//        *(m_registeredIds[id]) = true;
-//    }
-
     void Heartbeat::deregisterId(const std::string& id)
     {
         m_registeredIds.erase(id);

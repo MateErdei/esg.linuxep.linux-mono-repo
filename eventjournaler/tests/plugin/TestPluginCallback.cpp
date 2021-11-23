@@ -57,10 +57,11 @@ TEST_F(PluginCallbackTests, testGetHealthReturns0WhenAllFactorsHealthy)
     ASSERT_EQ(sharedPluginCallBack.getHealth(), "{'Health': 0}");
 
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-    auto x = telemetry.serialise();
-    EXPECT_TRUE(x.find("acceptable-daily-dropped-events-exceeded\":false") != std::string::npos);
-    EXPECT_TRUE(x.find("event-subscriber-socket-missing\":false") != std::string::npos);
-    EXPECT_TRUE(x.find("threadhealth\":{\"PluginAdapter\":true,\"Subscriber\":true,\"Writer\":true}") != std::string::npos);
+    auto telemetryJson = telemetry.serialise();
+    EXPECT_TRUE(telemetryJson.find("acceptable-daily-dropped-events-exceeded\":false") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("event-subscriber-socket-missing\":false") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("threadhealth\":{\"PluginAdapter\":true,\"Subscriber\":true,\"Writer\":true}") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("health\":0") != std::string::npos);
 }
 
 TEST_F(PluginCallbackTests, testGetHealthReturns1WhenExceedingMaxAcceptableDroppedEvents)
@@ -80,10 +81,11 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenExceedingMaxAcceptableDropp
     ASSERT_EQ(sharedPluginCallBack.getHealth(), "{'Health': 1}");
 
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-    auto x = telemetry.serialise();
-    EXPECT_TRUE(x.find("acceptable-daily-dropped-events-exceeded\":true") != std::string::npos);
-    EXPECT_TRUE(x.find("event-subscriber-socket-missing\":false") != std::string::npos);
-    EXPECT_TRUE(x.find("threadhealth\":{\"PluginAdapter\":true,\"Subscriber\":true,\"Writer\":true}") != std::string::npos);
+    auto telemetryJson = telemetry.serialise();
+    EXPECT_TRUE(telemetryJson.find("acceptable-daily-dropped-events-exceeded\":true") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("event-subscriber-socket-missing\":false") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("threadhealth\":{\"PluginAdapter\":true,\"Subscriber\":true,\"Writer\":true}") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("health\":1") != std::string::npos);
 
 }
 
@@ -104,10 +106,11 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenSocketMissing)
     ASSERT_EQ(sharedPluginCallBack.getHealth(), "{'Health': 1}");
 
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-    auto x = telemetry.serialise();
-    EXPECT_TRUE(x.find("acceptable-daily-dropped-events-exceeded\":false") != std::string::npos);
-    EXPECT_TRUE(x.find("event-subscriber-socket-missing\":true") != std::string::npos);
-    EXPECT_TRUE(x.find("threadhealth\":{\"PluginAdapter\":true,\"Subscriber\":true,\"Writer\":true}") != std::string::npos);
+    auto telemetryJson = telemetry.serialise();
+    EXPECT_TRUE(telemetryJson.find("acceptable-daily-dropped-events-exceeded\":false") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("event-subscriber-socket-missing\":true") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("threadhealth\":{\"PluginAdapter\":true,\"Subscriber\":true,\"Writer\":true}") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("health\":1") != std::string::npos);
 
 }
 
@@ -128,10 +131,12 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenThreadsDead)
     ASSERT_EQ(sharedPluginCallBack.getHealth(), "{'Health': 1}");
 
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-    auto x = telemetry.serialise();
-    EXPECT_TRUE(x.find("acceptable-daily-dropped-events-exceeded\":false") != std::string::npos);
-    EXPECT_TRUE(x.find("event-subscriber-socket-missing\":false") != std::string::npos);
-    EXPECT_TRUE(x.find("threadhealth\":{\"PluginAdapter\":true,\"Subscriber\":true,\"Writer\":false}") != std::string::npos);
+    auto telemetryJson = telemetry.serialise();
+    EXPECT_TRUE(telemetryJson.find("acceptable-daily-dropped-events-exceeded\":false") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("event-subscriber-socket-missing\":false") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("threadhealth\":{\"PluginAdapter\":true,\"Subscriber\":true,\"Writer\":false}") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("health\":1") != std::string::npos);
+
 }
 
 class PluginCallbackWithMockedHealthInner : public  Plugin::PluginCallback {
