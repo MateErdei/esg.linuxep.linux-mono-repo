@@ -21,6 +21,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <modules/pluginimpl/Logger.h>
 #include <modules/pluginimpl/PluginAdapter.h>
 #include <modules/Heartbeat/Heartbeat.h>
+#include <modules/Heartbeat/ThreadIdConsts.h>
 
 const char* PluginName = PLUGIN_NAME;
 const int MAX_QUEUE_SIZE = 100;
@@ -52,14 +53,14 @@ int main()
 
     std::shared_ptr<EventQueueLib::EventQueue> eventQueue(new EventQueueLib::EventQueue(MAX_QUEUE_SIZE));
 
-    std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue, heartbeat->getPingHandleForId("Subscriber")));
+    std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue, heartbeat->getPingHandleForId(Heartbeat::getSubscriberThreadId())));
 
     std::unique_ptr<SubscriberLib::ISubscriber> subscriber(
             new SubscriberLib::Subscriber(
                     Plugin::getSubscriberSocketPath(),
                     Common::ZMQWrapperApi::createContext(),
                     std::move(eventQueuePusher),
-                    heartbeat->getPingHandleForId("Subscriber")));
+                    heartbeat->getPingHandleForId(Heartbeat::getSubscriberThreadId())));
 
     std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(
             new EventWriterLib::EventQueuePopper(eventQueue));
@@ -70,7 +71,7 @@ int main()
             new EventWriterLib::EventWriterWorker(
                     std::move(eventQueuePopper),
                     std::move(eventJournalWriter),
-                    heartbeat->getPingHandleForId("Writer")));
+                    heartbeat->getPingHandleForId(Heartbeat::getWriterThreadId())));
 
     PluginAdapter pluginAdapter(
             queueTask,
@@ -78,7 +79,7 @@ int main()
             sharedPluginCallBack,
             std::move(subscriber),
             eventWriter,
-            heartbeat->getPingHandleForId("PluginAdapter"));
+            heartbeat->getPingHandleForId(Heartbeat::getPluginAdapterThreadId()));
 
     try
     {

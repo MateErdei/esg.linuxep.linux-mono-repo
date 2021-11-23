@@ -31,7 +31,7 @@ namespace Plugin
 
         std::string getTelemetry() override;
         std::string getHealth() override;
-        uint getHealthInner();
+        virtual uint getHealthInner();
 
         void setRunning(bool running);
         bool isRunning();

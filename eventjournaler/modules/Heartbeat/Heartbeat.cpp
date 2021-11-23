@@ -20,20 +20,6 @@ namespace Heartbeat
         m_registeredIds.erase(id);
     }
 
-    std::vector<std::string> Heartbeat::getMissedHeartbeats()
-    {
-        std::vector<std::string> missedHeartbeats{};
-        for (auto& kv: m_registeredIds)
-        {
-            if (!kv.second->isAlive())
-            {
-                missedHeartbeats.push_back(kv.first);
-            }
-        }
-        return missedHeartbeats;
-
-    }
-
     void Heartbeat::registerId(const std::string& id)
     {
         auto it = m_registeredIds.find(id);
@@ -43,7 +29,6 @@ namespace Heartbeat
         }
     }
 
-    // TODO handle missing, perhaps return optional here.
     std::shared_ptr<HeartbeatPinger> Heartbeat::getPingHandleForId(const std::string &id)
     {
         registerId(id);
@@ -78,6 +63,14 @@ namespace Heartbeat
             returnMap[kv.first] = kv.second->isAlive();
         }
         return returnMap;
+    }
+
+    void Heartbeat::registerIds(std::vector<std::string> ids)
+    {
+        for (auto id: ids)
+        {
+            registerId(id);
+        }
     }
 
 } // namespace Heartbeat

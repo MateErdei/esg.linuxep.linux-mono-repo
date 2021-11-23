@@ -12,12 +12,13 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <unistd.h>
 #include <utility>
+#include <modules/Heartbeat/ThreadIdConsts.h>
 
 namespace Plugin
 {
     PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task, std::shared_ptr<Heartbeat::IHeartbeat> heartbeat) :
     m_task(std::move(task)),
-    m_heartbeat(std::move(heartbeat))
+    m_heartbeat(heartbeat)
     {
         std::string noPolicySetStatus{
             R"sophos(<?xml version="1.0" encoding="utf-8" ?>
@@ -28,6 +29,8 @@ namespace Plugin
         Common::PluginApi::StatusInfo noPolicyStatusInfo = { noPolicySetStatus, noPolicySetStatus, "SAV" };
         m_statusInfo = noPolicyStatusInfo;
         LOGDEBUG("Plugin Callback Started");
+        std::vector<std::string> ids{Heartbeat::getWriterThreadId(), Heartbeat::getSubscriberThreadId(), Heartbeat::getPluginAdapterThreadId()};
+        m_heartbeat->registerIds(ids);
     }
 
     void PluginCallback::applyNewPolicy(const std::string& policyXml)
@@ -69,9 +72,7 @@ namespace Plugin
         LOGSUPPORT("Received get telemetry request");
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
-        uint healthStatus = getHealthInner();
-        telemetry.set(Telemetry::pluginHealthStatus,
-                      (u_long)healthStatus);
+        getHealthInner();
 
         std::optional<std::string> version = Plugin::getVersion();
         if (version)
@@ -100,23 +101,19 @@ namespace Plugin
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
         // Check if any pingers have not been pinged by the owning thread/worker etc.
-        auto missedHeartbeats = m_heartbeat->getMissedHeartbeats();
-        if (!missedHeartbeats.empty())
+        for (auto& kv: m_heartbeat->getMapOfIdsAgainstIsAlive())
         {
-            for (auto& kv: m_heartbeat->getMapOfIdsAgainstIsAlive())
+            if (!kv.second)
             {
-                if (!kv.second)
-                {
-                    LOGDEBUG("A heartbeat ping was missed by: " << kv.first);
-                }
-                telemetry.set(Telemetry::telemetryThreadHealthPrepender+kv.first, kv.second);
+                LOGDEBUG("A heartbeat ping was missed by: " << kv.first);
+                health = 1;
             }
-            health = 1;
+            telemetry.set(Telemetry::telemetryThreadHealthPrepender+kv.first, kv.second);
         }
 
         bool subscriberSocketExists = Common::FileSystem::fileSystem()->isFile(Plugin::getSubscriberSocketPath());
         telemetry.set(Telemetry::telemetryMissingEventSubscriberSocket,
-                      subscriberSocketExists);
+                      !subscriberSocketExists);
         if (!subscriberSocketExists)
         {
             health = 1;
@@ -135,6 +132,7 @@ namespace Plugin
         {
             health = 0;
         }
+        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::pluginHealthStatus, (u_long)health.value());
         return health.value();
     }
 
