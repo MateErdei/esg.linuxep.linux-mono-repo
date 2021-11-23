@@ -13,11 +13,12 @@ namespace Heartbeat
     {
     public:
         virtual ~IHeartbeat() = default;
-        virtual void registerId(const std::string& id) = 0;
         virtual void deregisterId(const std::string& id) = 0;
 
-        virtual HeartbeatPinger getPingHandleForId(const std::string& id) = 0;
-        virtual void resetAll() = 0;
+        virtual std::shared_ptr<HeartbeatPinger> getPingHandleForId(const std::string& id) = 0;
         virtual std::vector<std::string> getMissedHeartbeats() = 0;
+        virtual std::vector<std::string> getAllHeartbeatIds() = 0;
+        virtual uint getNumDroppedEventsInLast24h() = 0;
+        virtual std::map<std::string, bool> getMapOfIdsAgainstIsAlive() = 0;
     };
 } // namespace SubscriberLib

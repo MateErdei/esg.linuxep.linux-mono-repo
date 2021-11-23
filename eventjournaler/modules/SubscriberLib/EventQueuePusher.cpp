@@ -11,8 +11,10 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 namespace SubscriberLib
 {
 
-    SubscriberLib::EventQueuePusher::EventQueuePusher(const std::shared_ptr<EventQueueLib::IEventQueue>& eventQueue) :
-            m_eventQueue(eventQueue)
+    SubscriberLib::EventQueuePusher::EventQueuePusher(const std::shared_ptr<EventQueueLib::IEventQueue>& eventQueue,
+                                                      std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger) :
+        m_eventQueue(eventQueue),
+        m_heartbeatPinger(heartbeatPinger)
     {
     }
 
@@ -22,6 +24,7 @@ namespace SubscriberLib
         if (!m_eventQueue->push(event))
         {
             telemetryHelper.increment(Plugin::Telemetry::telemetryDroppedAvEvents, 1L);
+            m_heartbeatPinger->pushDroppedEvent();
         }
     }
 }

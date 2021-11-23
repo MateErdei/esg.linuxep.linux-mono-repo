@@ -5,17 +5,23 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include <map>
 #include <memory>
+#include <set>
 
 namespace Heartbeat
 {
     class HeartbeatPinger
     {
     public:
-        explicit HeartbeatPinger(std::shared_ptr<bool> boolReference);
+        explicit HeartbeatPinger();
         void ping();
+        bool isAlive();
+        void pushDroppedEvent();
+        uint getNumDroppedEventsInLast24h();
 
     private:
-        std::shared_ptr<bool> m_boolRef;
+        void trimDroppedEvents();
+        time_t m_lastPinged = 0;
+        std::multiset<time_t> m_droppedEvents{};
     };
 
 } // namespace Heartbeat

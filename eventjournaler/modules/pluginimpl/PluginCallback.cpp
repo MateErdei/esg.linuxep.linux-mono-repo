@@ -69,6 +69,10 @@ namespace Plugin
         LOGSUPPORT("Received get telemetry request");
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
+        uint healthStatus = getHealthInner();
+        telemetry.set(Telemetry::pluginHealthStatus,
+                      (u_long)healthStatus);
+
         std::optional<std::string> version = Plugin::getVersion();
         if (version)
         {
@@ -90,30 +94,54 @@ namespace Plugin
         return m_running;
     }
 
-    std::string PluginCallback::getHealth()
+    uint PluginCallback::getHealthInner()
     {
-        LOGDEBUG("Received health request");
-        // 0 = good
-        // 1 = bad
-
-        int health = 1;
+        std::optional<uint> health;
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
         // Check if any pingers have not been pinged by the owning thread/worker etc.
         auto missedHeartbeats = m_heartbeat->getMissedHeartbeats();
-        if (missedHeartbeats.empty())
+        if (!missedHeartbeats.empty())
+        {
+            for (auto& kv: m_heartbeat->getMapOfIdsAgainstIsAlive())
+            {
+                if (!kv.second)
+                {
+                    LOGDEBUG("A heartbeat ping was missed by: " << kv.first);
+                }
+                telemetry.set(Telemetry::telemetryThreadHealthPrepender+kv.first, kv.second);
+            }
+            health = 1;
+        }
+
+        bool subscriberSocketExists = Common::FileSystem::fileSystem()->isFile(Plugin::getSubscriberSocketPath());
+        telemetry.set(Telemetry::telemetryMissingEventSubscriberSocket,
+                      subscriberSocketExists);
+        if (!subscriberSocketExists)
+        {
+            health = 1;
+        }
+
+        bool maxAcceptableDroppedEventsExceeded = m_heartbeat->getNumDroppedEventsInLast24h() > ACCEPTABLE_DAILY_DROPPED_EVENTS;
+        // set telemetry bool for dropped events max exceeded
+        telemetry.set(Telemetry::telemetryAcceptableDroppedEventsExceeded,
+                      maxAcceptableDroppedEventsExceeded);
+        if (maxAcceptableDroppedEventsExceeded)
+        {
+            health = 1;
+        }
+
+        if (!health.has_value())
         {
             health = 0;
         }
-        else
-        {
-            health = 1;
-            for (const auto& missed: missedHeartbeats)
-            {
-                LOGDEBUG("A heartbeat ping was missed by: " << missed);
-            }
-        }
-        m_heartbeat->resetAll();
-        return "{'Health': " + std::to_string(health) + "}";
+        return health.value();
+    }
+
+    std::string PluginCallback::getHealth()
+    {
+        LOGDEBUG("Received health request");
+        return "{'Health': " + std::to_string(getHealthInner()) + "}";
     }
 
 } // namespace Plugin

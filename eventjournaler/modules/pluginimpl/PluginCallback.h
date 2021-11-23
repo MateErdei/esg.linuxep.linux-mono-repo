@@ -31,6 +31,7 @@ namespace Plugin
 
         std::string getTelemetry() override;
         std::string getHealth() override;
+        uint getHealthInner();
 
         void setRunning(bool running);
         bool isRunning();
@@ -38,5 +39,6 @@ namespace Plugin
     private:
         std::atomic_bool m_running = false;
         std::shared_ptr<Heartbeat::IHeartbeat> m_heartbeat;
+        const uint ACCEPTABLE_DAILY_DROPPED_EVENTS = 5;
     };
 }; // namespace Plugin

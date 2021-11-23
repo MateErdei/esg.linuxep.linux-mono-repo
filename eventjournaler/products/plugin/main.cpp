@@ -35,9 +35,7 @@ int main()
         Common::PluginApi::createPluginResourceManagement();
 
     auto queueTask = std::make_shared<QueueTask>();
-    std::shared_ptr<Heartbeat::IHeartbeat> heartbeat(new Heartbeat::Heartbeat(
-            {"PluginAdapterThread", "SubscriberThread", "WriterThread"}
-    ));
+    std::shared_ptr<Heartbeat::IHeartbeat> heartbeat;
     auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask, heartbeat);
 
     std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
@@ -54,14 +52,14 @@ int main()
 
     std::shared_ptr<EventQueueLib::EventQueue> eventQueue(new EventQueueLib::EventQueue(MAX_QUEUE_SIZE));
 
-    std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue));
+    std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue, heartbeat->getPingHandleForId("Subscriber")));
 
     std::unique_ptr<SubscriberLib::ISubscriber> subscriber(
             new SubscriberLib::Subscriber(
                     Plugin::getSubscriberSocketPath(),
                     Common::ZMQWrapperApi::createContext(),
                     std::move(eventQueuePusher),
-                    heartbeat->getPingHandleForId("SubscriberThread")));
+                    heartbeat->getPingHandleForId("Subscriber")));
 
     std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(
             new EventWriterLib::EventQueuePopper(eventQueue));
@@ -72,7 +70,7 @@ int main()
             new EventWriterLib::EventWriterWorker(
                     std::move(eventQueuePopper),
                     std::move(eventJournalWriter),
-                    heartbeat->getPingHandleForId("WriterThread")));
+                    heartbeat->getPingHandleForId("Writer")));
 
     PluginAdapter pluginAdapter(
             queueTask,
@@ -80,7 +78,7 @@ int main()
             sharedPluginCallBack,
             std::move(subscriber),
             eventWriter,
-            heartbeat->getPingHandleForId("PluginAdapterThread"));
+            heartbeat->getPingHandleForId("PluginAdapter"));
 
     try
     {

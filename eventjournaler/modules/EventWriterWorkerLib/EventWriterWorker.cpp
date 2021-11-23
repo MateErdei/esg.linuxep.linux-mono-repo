@@ -14,13 +14,15 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include <utility>
 #include <modules/Heartbeat/Heartbeat.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <modules/pluginimpl/TelemetryConsts.h>
 
 namespace EventWriterLib
 {
     EventWriterWorker::EventWriterWorker::EventWriterWorker(
             std::unique_ptr<IEventQueuePopper> eventQueuePopper,
             std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
-            Heartbeat::HeartbeatPinger heartbeatPinger) :
+            std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger) :
             m_eventQueuePopper(std::move(eventQueuePopper)),
             m_eventJournalWriter(std::move(eventJournalWriter)),
             m_heartbeatPinger(heartbeatPinger)
@@ -138,7 +140,8 @@ namespace EventWriterLib
         catch(const std::exception& ex)
         {
             LOGERROR("Failed to store " << journalSubType << " event in journal: " << ex.what());
-            // if we are here, increment $AMOUNT_FAILED_WRITES
+            m_heartbeatPinger->pushDroppedEvent();
+            Common::Telemetry::TelemetryHelper::getInstance().increment(Plugin::Telemetry::telemetryFailedEventWrites, 1L);
         }
     }
 

@@ -1,4 +1,5 @@
 add_subdirectory(EventQueueLib)
+add_subdirectory(Heartbeat)
 add_subdirectory(pluginimpl)
 add_subdirectory(SubscriberLib)
 add_subdirectory(EventWriterWorkerLib)

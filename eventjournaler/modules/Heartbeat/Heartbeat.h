@@ -11,14 +11,17 @@ namespace Heartbeat
     class Heartbeat : public IHeartbeat
     {
     public:
-        explicit Heartbeat(std::vector<std::string> ids);
-//        void ping(const std::string& id) override;
-        void registerId(const std::string& id) override;
+        explicit Heartbeat();
         void deregisterId(const std::string& id) override;
-        void resetAll() override;
-        HeartbeatPinger getPingHandleForId(const std::string& id) override;
+        std::shared_ptr<HeartbeatPinger> getPingHandleForId(const std::string& id) override;
         std::vector<std::string> getMissedHeartbeats() override;
+        std::vector<std::string> getAllHeartbeatIds() override;
+        uint getNumDroppedEventsInLast24h() override;
+        std::map<std::string, bool> getMapOfIdsAgainstIsAlive() override;
+
     private:
-        std::map<std::string, std::shared_ptr<bool>> m_registeredIds;
+        void registerId(const std::string& id);
+        std::map<std::string, std::shared_ptr<HeartbeatPinger>> m_registeredIds;
+
     };
 } // namespace Heartbeat

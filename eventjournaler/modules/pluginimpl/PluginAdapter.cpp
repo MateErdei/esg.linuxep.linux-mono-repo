@@ -15,12 +15,12 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 namespace Plugin
 {
     PluginAdapter::PluginAdapter(
-        std::shared_ptr<QueueTask> queueTask,
-        std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
-        std::shared_ptr<PluginCallback> callback,
-        std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
-        std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter,
-        Heartbeat::HeartbeatPinger heartbeatPinger) :
+            std::shared_ptr<QueueTask> queueTask,
+            std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
+            std::shared_ptr<PluginCallback> callback,
+            std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
+            std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter,
+            std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger) :
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
@@ -41,7 +41,7 @@ namespace Plugin
         m_subscriber->start();
         while (true)
         {
-            m_heartbeatPinger.ping();
+            m_heartbeatPinger->ping();
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {

@@ -25,7 +25,7 @@ namespace EventWriterLib
         explicit EventWriterWorker(
             std::unique_ptr<IEventQueuePopper> eventQueuePopper,
             std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
-            Heartbeat::HeartbeatPinger heartbeatPinger
+            std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger
             );
         ~EventWriterWorker();
         void stop() override;
@@ -41,9 +41,10 @@ namespace EventWriterLib
         std::atomic<bool> m_shouldBeRunning = false;
         std::atomic<bool> m_isRunning = false;
         std::unique_ptr<std::thread> m_runnerThread;
-        Heartbeat::HeartbeatPinger m_heartbeatPinger;
+        std::shared_ptr<Heartbeat::HeartbeatPinger> m_heartbeatPinger;
 
         void writeEvent(JournalerCommon::Event event);
         void run();
+
     };
 } // namespace EventWriterLib

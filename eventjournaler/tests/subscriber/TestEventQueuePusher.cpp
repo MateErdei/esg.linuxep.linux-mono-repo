@@ -21,7 +21,8 @@ TEST_F(TestEventQueuePusher, testPushPassesCorrectArguementsToItsPushMethod) // 
     MockEventQueue* mockQueue = new StrictMock<MockEventQueue>();
     std::shared_ptr<IEventQueue> mockQueuePtr(mockQueue);
     JournalerCommon::Event testData = {JournalerCommon::EventType::THREAT_EVENT, "testdata"};
-    SubscriberLib::EventQueuePusher eventQueuePusher(mockQueuePtr);
+    Heartbeat::HeartbeatPinger heartbeatPinger;
+    SubscriberLib::EventQueuePusher eventQueuePusher(mockQueuePtr, std::make_shared<Heartbeat::HeartbeatPinger>(heartbeatPinger));
 
     EXPECT_CALL(*mockQueue, push(testData)).Times(1);
     eventQueuePusher.push(testData);
@@ -32,7 +33,8 @@ TEST_F(TestEventQueuePusher, testDroppedEventsTriggerTelemetryIncrement) // NOLI
     MockEventQueue* mockQueue = new StrictMock<MockEventQueue>();
     std::shared_ptr<IEventQueue> mockQueuePtr(mockQueue);
     JournalerCommon::Event testData = {JournalerCommon::EventType::THREAT_EVENT, "testdata"};
-    SubscriberLib::EventQueuePusher eventQueuePusher(mockQueuePtr);
+    Heartbeat::HeartbeatPinger heartbeatPinger;
+    SubscriberLib::EventQueuePusher eventQueuePusher(mockQueuePtr, std::make_shared<Heartbeat::HeartbeatPinger>(heartbeatPinger));
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
     EXPECT_CALL(*mockQueue, push(testData)).WillRepeatedly(Return(false));

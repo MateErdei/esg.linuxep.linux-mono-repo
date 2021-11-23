@@ -20,6 +20,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include <iostream>
 #include <modules/Heartbeat/Heartbeat.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <modules/pluginimpl/TelemetryConsts.h>
 
 namespace SubscriberLib
 {
@@ -27,7 +29,7 @@ namespace SubscriberLib
         const std::string& socketAddress,
         Common::ZMQWrapperApi::IContextSharedPtr context,
         std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher,
-        Heartbeat::HeartbeatPinger heartbeatPinger,
+        std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
         int readLoopTimeoutMilliSeconds) :
         m_socketPath(socketAddress),
         m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds),
@@ -74,7 +76,7 @@ namespace SubscriberLib
         {
             try
             {
-                m_heartbeatPinger.ping();
+                m_heartbeatPinger->ping();
                 if (fs->exists(m_socketPath))
                 {
                     auto data = m_socket->read();

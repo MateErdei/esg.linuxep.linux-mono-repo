@@ -38,7 +38,7 @@ public:
         std::shared_ptr<Plugin::QueueTask> queueTask,
         std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
         std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter,
-        Heartbeat::HeartbeatPinger heartbeatPinger,
+        std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
         std::shared_ptr<Heartbeat::IHeartbeat> heartbeat
         ) :
         Plugin::PluginAdapter(
@@ -91,18 +91,13 @@ TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberOrWriterIfTheyStop)
     // Queue
     auto queueTask = std::make_shared<Plugin::QueueTask>();
 
-    // HeartbeatPinger
-    auto pulse = std::make_shared<bool>(false);
-    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
-
-    std::shared_ptr<Heartbeat::IHeartbeat> heartbeat(new Heartbeat::Heartbeat(
-            {"PluginAdapterThread", "SubscriberThread", "WriterThread"}));
+    auto heartbeat = std::make_shared<Heartbeat::Heartbeat>();
 
     TestablePluginAdapter pluginAdapter(
             queueTask,
             std::move(mockSubscriberPtr),
             std::move(mockEventWriterWorkerPtr),
-            heartbeatPinger,
+            heartbeat->getPingHandleForId("PluginAdapterThread"),
             heartbeat);
 
     auto mainLoopFuture = std::async(std::launch::async, &TestablePluginAdapter::mainLoop, &pluginAdapter);
@@ -130,15 +125,12 @@ TEST_F(PluginAdapterTests, PluginAdapterMainLoopThrowsIfSocketDirDoesNotExist)
     std::unique_ptr<EventWriterLib::IEventWriterWorker> mockEventWriterWorkerPtr(mockEventWriterWorker);
 
     auto queueTask = std::make_shared<Plugin::QueueTask>();
-    auto pulse = std::make_shared<bool>(false);
-    Heartbeat::HeartbeatPinger heartbeatPinger(pulse);
-    std::shared_ptr<Heartbeat::IHeartbeat> heartbeat(new Heartbeat::Heartbeat(
-            {"PluginAdapterThread", "SubscriberThread", "WriterThread"}));
+    auto heartbeat = std::make_shared<Heartbeat::Heartbeat>();
     TestablePluginAdapter pluginAdapter(
             queueTask,
             std::move(mockSubscriberPtr),
             std::move(mockEventWriterWorkerPtr),
-            heartbeatPinger,
+            heartbeat->getPingHandleForId("PluginAdapterThread"),
             heartbeat);
 
     // Example exception on start: If the socket dir does not exist then the whole plugin will exit.

@@ -2,11 +2,13 @@ include(GoogleTest)
 
 SophosAddTest(TestHeartbeat
         TestHeartbeat.cpp
+        FakeTimeUtils.cpp
+        FakeTimeUtils.h
         ${CMAKE_SOURCE_DIR}/modules/Heartbeat/Heartbeat.h
         ${CMAKE_SOURCE_DIR}/modules/Heartbeat/Heartbeat.cpp
         ${CMAKE_SOURCE_DIR}/modules/Heartbeat/HeartbeatPinger.h
         ${CMAKE_SOURCE_DIR}/modules/Heartbeat/HeartbeatPinger.cpp
-        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest ${protobuflib}
+        LIBS heartbeat ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest ${protobuflib}
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude} ${CMAKE_SOURCE_DIR}/modules/Heartbeat
         )
 

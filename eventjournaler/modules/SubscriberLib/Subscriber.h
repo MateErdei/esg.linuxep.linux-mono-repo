@@ -24,7 +24,7 @@ namespace SubscriberLib
             const std::string& socketAddress,
             Common::ZMQWrapperApi::IContextSharedPtr context,
             std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher,
-            Heartbeat::HeartbeatPinger heartbeatPinger,
+            std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
             int readLoopTimeoutMilliSeconds = 5000);
         ~Subscriber() override;
         void stop() override;
@@ -43,6 +43,6 @@ namespace SubscriberLib
         Common::ZMQWrapperApi::IContextSharedPtr m_context;
         Common::ZeroMQWrapper::ISocketSubscriberPtr m_socket;
         std::unique_ptr<SubscriberLib::IEventHandler> m_eventHandler;
-        Heartbeat::HeartbeatPinger m_heartbeatPinger;
+        std::shared_ptr<Heartbeat::HeartbeatPinger> m_heartbeatPinger;
     };
 } // namespace SubscriberLib
