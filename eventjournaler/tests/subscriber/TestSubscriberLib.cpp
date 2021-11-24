@@ -17,6 +17,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <modules/SubscriberLib/Subscriber.h>
 
 #include <queue>
+#include <modules/Heartbeat/MockHeartbeatPinger.h>
 
 class TestSubscriber : public LogOffInitializedTests
 {
@@ -292,4 +293,35 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
     {
         usleep(10);
     }
+}
+TEST_F(TestSubscriber, TestSubscriberPingsHeartbeatRepeatedly) // NOLINT
+{
+    MockZmqContext*  context = new StrictMock<MockZmqContext>();
+    std::string fakeSocketPath = "/fake/dir/for/socketPath";
+    MockSocketSubscriber*  socketSubscriber = new NiceMock<MockSocketSubscriber>();
+    MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
+    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
+
+    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
+    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
+
+    auto mockHeartbeatPinger = std::make_shared<StrictMock<Heartbeat::MockHeartbeatPinger>>();
+    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), mockHeartbeatPinger, 123);
+
+    auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath))).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath)).WillRepeatedly(Return(true));
+
+    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1);
+
+
+    EXPECT_FALSE(subscriber.getRunningStatus());
+    EXPECT_CALL(*mockHeartbeatPinger, ping).Times(AtLeast(2));
+    subscriber.start();
+    sleep(1);
 }
