@@ -140,6 +140,7 @@
             <include glob="SystemProductTestOutput.tar.gz"/>
             <include glob="symbols"/>
         </build-asset>
+        <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="release"/>
 
         <!-- coverage(bullseye) -->
         <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
