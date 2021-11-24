@@ -225,6 +225,7 @@ class TelemetryUtils:
         version = get_plugin_version("liveresponse")
         telemetry = {
             "version": version,
+            "health": 0,
             "total-sessions": total_sessions,
             "failed-sessions": failed_sessions
         }
