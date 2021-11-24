@@ -382,6 +382,7 @@ function build()
     cp -a build64/products/manualTools/EventJournalWriter output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventJournalWriter Tool to output"
     cp -a ${INPUT}/JournalReader output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy JournalReader Tool to output"
     cp -a ${INPUT}/base-sdds  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
+    cp -a ${INPUT}/fake-management  output/fake-management  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy fake management to output"
     if [[ -d build64/symbols ]]
     then
         cp -a build64/symbols output/

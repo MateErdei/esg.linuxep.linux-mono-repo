@@ -8,9 +8,10 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/Version_1_1_8" build-id="20211025140648-87f582f907b2308f20053b3eec314a5bddf06f2f-UkPP0H"/>
-            <development-version branch="develop" />
+            <development-version branch="feature/LINUXDAR-3792-update-event-journaler-to-send-health" />
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
+            <include artifact-path="sspl-base/fake-management" dest-dir="input/fake-management"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
             <release-version branch="release/SED_3.0.1_linux_libs" build-id="20210929204637-2500f58d99d60db61f6c2f61f9f2a02c533f50da-GFlHOK" />
@@ -70,6 +71,7 @@
         <!--   non-release outputs   -->
         <build-asset artifact-path="eventjournaler/manualTools" source-dir="output/manualTools" mode="release" />
         <build-asset artifact-path="base/base-sdds" source-dir="output/base-sdds" mode="release"/>
+        <build-asset artifact-path="base/fake-management" source-dir="output/fake-management" mode="release"/>
         <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
         <build-asset artifact-path="build_log" source-dir="output" mode="release">
             <include glob="./build.log" />

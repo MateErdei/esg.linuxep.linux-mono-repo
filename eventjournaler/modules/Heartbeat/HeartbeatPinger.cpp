@@ -48,13 +48,12 @@ namespace Heartbeat
 
     void HeartbeatPinger::trimDroppedEventsBySize()
     {
-        while (m_droppedEvents.size() > m_droppedEventsMax)
+        if (m_droppedEvents.size() > m_droppedEventsMax)
         {
-//            time_t lowestValue = *m_droppedEvents.begin();
-//            m_droppedEvents.erase(lowestValue);
+            uint numToDelete = m_droppedEvents.size() - m_droppedEventsMax;
             auto it1 = m_droppedEvents.begin();
             auto it2 = m_droppedEvents.begin();
-            it2++;
+            std::advance(it2, numToDelete);
             m_droppedEvents.erase(it1,it2);
         }
     }

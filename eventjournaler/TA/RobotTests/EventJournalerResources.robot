@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/EventjournalerUtils.py
+Library         ../Libs/EventjournalerUtils.py
 
 Resource  GeneralResources.robot
 *** Variables ***
