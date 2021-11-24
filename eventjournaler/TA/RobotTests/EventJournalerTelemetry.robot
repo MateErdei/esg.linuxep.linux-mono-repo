@@ -23,6 +23,7 @@ Check Health Telemetry Is Written
     Dictionary Should Contain Key  ${telemetry_dict}  event-subscriber-socket-missing
     Dictionary Should Contain Key  ${telemetry_dict}  health
     Dictionary Should Contain Key  ${telemetry_dict}  thread-health
+    Dictionary Should Contain Key  ${telemetry_dict}  attempted-journal-writes
     ${threadHealthDict} =  Set Variable  ${telemetry_dict['thread-health']}
     Dictionary Should Contain Key  ${threadHealthDict}  PluginAdapter
     Dictionary Should Contain Key  ${threadHealthDict}  Subscriber

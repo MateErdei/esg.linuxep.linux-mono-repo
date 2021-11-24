@@ -133,6 +133,8 @@ namespace EventWriterLib
 
     void EventWriterWorker::writeEvent(JournalerCommon::Event event)
     {
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        telemetry.increment(Plugin::Telemetry::telemetryAttemptedJournalWrites, 1L);
         std::string journalSubType = JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(event.type);
         EventJournal::Detection detection{ journalSubType, event.data };
         auto encodedDetection = EventJournal::encode(detection);
@@ -144,7 +146,7 @@ namespace EventWriterLib
         {
             LOGERROR("Failed to store " << journalSubType << " event in journal: " << ex.what());
             m_heartbeatPinger->pushDroppedEvent();
-            Common::Telemetry::TelemetryHelper::getInstance().increment(Plugin::Telemetry::telemetryFailedEventWrites, 1L);
+            telemetry.increment(Plugin::Telemetry::telemetryFailedEventWrites, 1L);
         }
     }
 

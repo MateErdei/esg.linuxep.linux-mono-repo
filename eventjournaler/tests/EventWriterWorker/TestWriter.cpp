@@ -100,6 +100,10 @@ TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop) // 
     writer.stop();
 
     ASSERT_FALSE(writer.getRunningStatus());
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+    auto telemetryJson = telemetry.serialise();
+    EXPECT_TRUE(telemetryJson.find("attempted-journal-writes\":10") != std::string::npos);
+
 }
 
 TEST_F(TestWriter, WriterStartStopStart) // NOLINT
@@ -387,5 +391,6 @@ TEST_F(TestWriter, testWriterPushesDroppedEventOnFailedWrite) // NOLINT
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
     auto telemetryJson = telemetry.serialise();
     EXPECT_TRUE(telemetryJson.find("failed-event-writes\":2") != std::string::npos);
+    EXPECT_TRUE(telemetryJson.find("attempted-journal-writes\":2") != std::string::npos);
 
 }
