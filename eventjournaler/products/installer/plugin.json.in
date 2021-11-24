@@ -17,5 +17,5 @@
   ],
   "executableUserAndGroup": "sophos-spl-user:sophos-spl-group",
   "secondsToShutDown":30,
-  "displayPluginName": "@PRODUCT_LINE_ID@"
+  "displayPluginName": "@PRODUCT_PRETTY_NAME@"
 }
