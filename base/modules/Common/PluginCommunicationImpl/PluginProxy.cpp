@@ -22,8 +22,14 @@ namespace Common
     {
         PluginProxy::PluginProxy(
             Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester,
-            const std::string& pluginName) :
-            m_socket(std::move(socketRequester)), m_messageBuilder(pluginName), m_name(pluginName)
+            const std::string& pluginName)
+            : m_socket(std::move(socketRequester))
+            , m_messageBuilder(pluginName)
+            , m_name(pluginName)
+            , m_serviceHealth(false)
+            , m_threatServiceHealth(false)
+            , m_displayPluginName("")
+
         {
             m_appIdCollection.setAppIdsForStatus({ pluginName });
             m_appIdCollection.setAppIdsForPolicy({ pluginName });
@@ -167,5 +173,30 @@ namespace Common
         }
 
         bool PluginProxy::hasStatusAppId(const std::string& appId) { return m_appIdCollection.implementStatus(appId); }
+
+        void PluginProxy::setServiceHealth(bool serviceHealth)
+        {
+            m_serviceHealth = serviceHealth;
+        }
+        void PluginProxy::setThreatServiceHealth(bool threatServiceHealth)
+        {
+            m_threatServiceHealth = threatServiceHealth;
+        }
+        void PluginProxy::setDisplayPluginName(const std::string& displayPluginName)
+        {
+            m_displayPluginName = displayPluginName;
+        }
+        bool PluginProxy::getServiceHealth() const
+        {
+            return m_serviceHealth;
+        }
+        bool PluginProxy::getThreatServiceHealth() const
+        {
+            return m_threatServiceHealth;
+        }
+        std::string PluginProxy::getDisplayPluginName() const
+        {
+            return m_displayPluginName;
+        }
     } // namespace PluginCommunicationImpl
 } // namespace Common

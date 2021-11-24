@@ -4,6 +4,7 @@ add_library(plugincommunicationimpl SHARED
         ../PluginCommunication/IPluginServerCallback.h
         ../PluginCommunication/IStatusReceiver.h
         ../PluginCommunication/IPluginManager.h
+        ../PluginCommunication/PluginHealthStatus.h
         PluginServerCallbackHandler.h
         PluginServerCallbackHandler.cpp
         PluginManager.cpp
@@ -11,7 +12,7 @@ add_library(plugincommunicationimpl SHARED
         PluginServerCallback.cpp
         PluginServerCallback.h
         )
-target_include_directories(plugincommunicationimpl PUBLIC  ${CMAKE_SOURCE_DIR}/modules ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(plugincommunicationimpl PUBLIC  ${CMAKE_SOURCE_DIR}/modules ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 target_link_libraries(plugincommunicationimpl PUBLIC threads pluginapiimpl applicationconfigurationimpl pluginregistryimpl plugincommunicationimplcommon managementagentloggerimpl)
 
 SET_TARGET_PROPERTIES( plugincommunicationimpl

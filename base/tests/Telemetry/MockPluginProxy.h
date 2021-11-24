@@ -28,4 +28,11 @@ public:
     MOCK_METHOD1(hasActionAppId, bool(const std::string&));
     MOCK_METHOD1(hasStatusAppId, bool(const std::string&));
     MOCK_METHOD0(name, std::string());
+    MOCK_METHOD1(setServiceHealth, void(bool));
+    MOCK_METHOD1(setThreatServiceHealth, void(bool));
+    MOCK_METHOD1(setDisplayPluginName, void(const std::string&));
+    MOCK_CONST_METHOD0(getServiceHealth, bool());
+    MOCK_CONST_METHOD0(getThreatServiceHealth, bool());
+    MOCK_CONST_METHOD0(getDisplayPluginName, std::string());
+
 };

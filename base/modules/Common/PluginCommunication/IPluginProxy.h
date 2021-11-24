@@ -103,6 +103,44 @@ namespace Common
              * @return
              */
             virtual std::string name() = 0;
+
+            /**
+             * Set if Service Health needs to be gathered or not
+             * @param serviceHealth
+             */
+            virtual void setServiceHealth(bool serviceHealth) = 0;
+
+            /**
+             * Set if Threat Service Health needs to be gathered or not
+             * @param serviceHealth
+             */
+            virtual void setThreatServiceHealth(bool threatServiceHealth) = 0;
+
+            /**
+             * Set the display name for the plugin
+             * @param displayPluginName
+             */
+            virtual void setDisplayPluginName(const std::string& displayPluginName) = 0;
+
+            /**
+             *
+             * @param serviceHealth
+             * @return true if service health should be gathered, false otherwiese
+             */
+            virtual bool getServiceHealth() const = 0;
+
+            /**
+             *
+             * @param threatServiceHealth
+             * @return true if service health should be gathered, false otherwiese
+             */
+            virtual bool getThreatServiceHealth() const = 0;
+
+            /**
+             * @return string to be used as the display name for the plugin
+             */
+            virtual std::string getDisplayPluginName() const = 0;
+
         };
 
     } // namespace PluginCommunication

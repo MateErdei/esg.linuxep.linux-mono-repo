@@ -10,9 +10,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "IPluginServerCallback.h"
 #include "IPolicyReceiver.h"
 #include "IStatusReceiver.h"
+#include "PluginHealthStatus.h"
 
 #include <Common/PluginCommunication/IPluginProxy.h>
 #include <Common/PluginProtocol/DataMessage.h>
+#include <PluginRegistryImpl/PluginInfo.h>
 
 #include <memory>
 #include <string>
@@ -21,6 +23,42 @@ namespace ManagementAgent
 {
     namespace PluginCommunication
     {
+        class PluginDetails
+        {
+        public:
+            PluginDetails(const Common::PluginRegistryImpl::PluginInfo& pluginInfo)
+                : policyAppIds(pluginInfo.getPolicyAppIds())
+                , actionAppIds(pluginInfo.getActionAppIds())
+                , statusAppIds(pluginInfo.getStatusAppIds())
+                , hasServiceHealth(pluginInfo.getHasServiceHealth())
+                , hasThreatServiceHealth(pluginInfo.getHasThreatServiceHealth())
+                , displayName(pluginInfo.getDisplayPluginName())
+            {
+            }
+
+            bool operator==(const PluginDetails& rhs) const
+            {
+                if ((policyAppIds == rhs.policyAppIds) &&
+                    (actionAppIds == rhs.actionAppIds) &&
+                    (statusAppIds == rhs.statusAppIds)  &&
+                    (hasServiceHealth == rhs.hasServiceHealth) &&
+                    (hasThreatServiceHealth == rhs.hasThreatServiceHealth) &&
+                    (displayName == rhs.displayName))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            std::vector<std::string> policyAppIds;
+            std::vector<std::string> actionAppIds;
+            std::vector<std::string> statusAppIds;
+            bool hasServiceHealth = false;
+            bool hasThreatServiceHealth = false;
+            std::string displayName;
+        };
+
         /**
          * Plugin Manager should handle all communication with the plugins.
          *
@@ -91,11 +129,9 @@ namespace ManagementAgent
              * @param pluginName
              * @param appIds
              */
-            virtual void registerAndSetAppIds(
+            virtual void registerAndConfigure(
                 const std::string& pluginName,
-                const std::vector<std::string>& policyAppIds,
-                const std::vector<std::string>& actionAppIds,
-                const std::vector<std::string>& statusAppIds) = 0;
+                const PluginDetails& pluginDetails) = 0;
 
             /**
              * Remove the plugin from memory so we no longer send actions/policies/requests to it.
@@ -130,6 +166,14 @@ namespace ManagementAgent
              * @param receiver
              */
             virtual void setPolicyReceiver(std::shared_ptr<IPolicyReceiver>& receiver) = 0;
+
+            /**
+             * used to identify if a plugin needs to contribute to periodic health check
+             * @param pluginName
+             * @return true if should contribute, false otherwise
+             */
+            virtual ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(const std::string& pluginName) = 0;
+
         };
     } // namespace PluginCommunication
 } // namespace ManagementAgent

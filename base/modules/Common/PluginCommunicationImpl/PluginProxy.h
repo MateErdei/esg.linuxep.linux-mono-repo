@@ -48,12 +48,22 @@ namespace Common
              */
             std::string name() override { return m_name; }
 
+            void setServiceHealth(bool serviceHealth) override;
+            void setThreatServiceHealth(bool threatServiceHealth) override;
+            void setDisplayPluginName(const std::string& displayPluginName) override;
+            bool getServiceHealth() const override;
+            bool getThreatServiceHealth() const override;
+            std::string getDisplayPluginName() const override;
+
         private:
             Common::PluginProtocol::DataMessage getReply(const Common::PluginProtocol::DataMessage& request) const;
             Common::ZeroMQWrapper::ISocketRequesterPtr m_socket;
             Common::PluginProtocol::MessageBuilder m_messageBuilder;
             AppIdCollection m_appIdCollection;
             std::string m_name;
+            bool m_serviceHealth;
+            bool m_threatServiceHealth;
+            std::string m_displayPluginName;
         };
 
     } // namespace PluginCommunicationImpl

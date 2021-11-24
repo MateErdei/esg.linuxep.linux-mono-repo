@@ -18,7 +18,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
+#include <ManagementAgent/PluginCommunication/PluginHealthStatus.h>
 #include <sys/stat.h>
+#include <json.hpp>
 
 #include <thread>
 
@@ -204,21 +206,32 @@ namespace ManagementAgent
             plugin->setStatusAppIds(statusAppIds);
         }
 
+        void PluginManager::locked_setHealth(
+            Common::PluginCommunication::IPluginProxy* plugin,
+            bool serviceHealth,
+            bool threatHealth,
+            const std::string& displayName,
+            std::lock_guard<std::mutex>&)
+        {
+            plugin->setServiceHealth(serviceHealth);
+            plugin->setThreatServiceHealth(threatHealth);
+            plugin->setDisplayPluginName(displayName);
+        }
+
         void PluginManager::registerPlugin(const std::string& pluginName)
         {
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
             locked_createPlugin(pluginName, lock);
         }
 
-        void PluginManager::registerAndSetAppIds(
+        void PluginManager::registerAndConfigure(
             const std::string& pluginName,
-            const std::vector<std::string>& policyAppIds,
-            const std::vector<std::string>& actionAppIds,
-            const std::vector<std::string>& statusAppIds)
+            const PluginCommunication::PluginDetails& pluginDetails)
         {
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
             auto plugin = locked_createPlugin(pluginName, lock);
-            locked_setAppIds(plugin, policyAppIds, actionAppIds, statusAppIds, lock);
+            locked_setAppIds(plugin, pluginDetails.policyAppIds, pluginDetails.actionAppIds, pluginDetails.statusAppIds, lock);
+            locked_setHealth(plugin, pluginDetails.hasServiceHealth, pluginDetails.hasThreatServiceHealth, pluginDetails.displayName, lock);
         }
 
         Common::PluginCommunication::IPluginProxy* PluginManager::locked_createPlugin(
@@ -294,6 +307,42 @@ namespace ManagementAgent
             }
 
             return pluginNameList;
+        }
+
+        ManagementAgent::PluginCommunication::PluginHealthStatus PluginManager::getHealthStatusForPlugin(const std::string& pluginName)
+        {
+            std::lock_guard<std::mutex> lock(m_pluginMapMutex);
+            auto plugin = getPlugin(pluginName);
+
+            bool serviceHealth = plugin->getServiceHealth();
+            bool threatServiceHealth = plugin->getThreatServiceHealth();
+            std::string displayName = plugin->getDisplayPluginName();
+
+            ManagementAgent::PluginCommunication::PluginHealthStatus pluginHealthStatus;
+            if (serviceHealth && threatServiceHealth)
+            {
+                pluginHealthStatus.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE_AND_THREAT;
+            }
+            else if (serviceHealth)
+            {
+                pluginHealthStatus.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
+            }
+            else if (threatServiceHealth)
+            {
+                pluginHealthStatus.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_SERVICE;
+            }
+            else
+            {
+                return pluginHealthStatus;
+            }
+            pluginHealthStatus.displayName = displayName;
+
+            std::string health = plugin->getHealth();
+
+            nlohmann::json healthResult = nlohmann::json::parse(health);
+            pluginHealthStatus.healthValue = healthResult["Health"];
+
+            return pluginHealthStatus;
         }
 
     } // namespace PluginCommunicationImpl

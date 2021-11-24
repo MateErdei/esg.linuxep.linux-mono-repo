@@ -7,6 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
+#include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <ManagementAgent/ManagementAgentImpl/ManagementAgentMain.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
@@ -22,6 +23,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 namespace
 {
+    using ManagementAgent::PluginCommunication::PluginDetails;
+
     class TestManagementAgent : public ManagementAgent::ManagementAgentImpl::ManagementAgentMain
     {
     public:
@@ -80,7 +83,10 @@ namespace
                                        "name": "hello",
                                        "value": "world"
                                       }
-                                     ]
+                                     ],
+                                    "threatServiceHealth": false,
+                                    "serviceHealth": true,
+                                    "displayPluginName": "Display Plugin Name"
                                     })";
             return jsonString;
         }
@@ -111,6 +117,15 @@ namespace
         std::vector<std::string> policyIds = { "app1" };
         std::vector<std::string> statusIds = { "app2" };
         std::vector<std::string> actionIds = { "app3" };
+        Common::PluginRegistryImpl::PluginInfo pluginInfo;
+        pluginInfo.addPolicyAppIds("app1");
+        pluginInfo.addStatusAppIds("app2");
+        pluginInfo.addActionAppIds("app3");
+        pluginInfo.setHasServiceHealth(true);
+        pluginInfo.setHasThreatServiceHealth(false);
+        pluginInfo.setDisplayPluginName("Display Plugin Name");
+        PluginDetails pluginDetails(pluginInfo);
+
         std::vector<std::string> statusCacheFiles;
         std::string pluginPath("/tmp/plugin"), statusCachePath("/tmp/status_cache");
 
@@ -124,7 +139,7 @@ namespace
         EXPECT_CALL(*m_mockApplicationManager, getMcsPolicyFilePath()).WillRepeatedly(Return("/tmp"));
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
-        EXPECT_CALL(m_mockPluginManager, registerAndSetAppIds(registeredPlugins[0], policyIds, actionIds, statusIds)).Times(1);
+        EXPECT_CALL(m_mockPluginManager, registerAndConfigure(registeredPlugins[0], pluginDetails)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
@@ -153,6 +168,10 @@ namespace
         std::vector<std::string> policyIds = { "app1" };
         std::vector<std::string> statusIds = { "app2" };
         std::vector<std::string> actionIds = { "app3" };
+        Common::PluginRegistryImpl::PluginInfo pluginInfo;
+        pluginInfo.addPolicyAppIds("app1");
+        pluginInfo.addStatusAppIds("app2");
+        pluginInfo.addActionAppIds("app3");
         std::vector<std::string> statusCacheFiles;
         std::string pluginPath("/tmp/plugin"), statusCachePath("/tmp/status_cache");
 
@@ -168,7 +187,7 @@ namespace
         EXPECT_CALL(*m_mockApplicationManager, getMcsPolicyFilePath()).WillRepeatedly(Return("/tmp"));
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
-        EXPECT_CALL(m_mockPluginManager, registerAndSetAppIds(registeredPlugins[0], policyIds, actionIds, statusIds)).Times(1);
+        EXPECT_CALL(m_mockPluginManager, registerAndConfigure(registeredPlugins[0], _)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);

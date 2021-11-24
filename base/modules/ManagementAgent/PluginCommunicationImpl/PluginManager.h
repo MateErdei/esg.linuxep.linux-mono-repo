@@ -14,6 +14,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
 #include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
+#include <PluginRegistryImpl/PluginInfo.h>
 
 #include <map>
 #include <mutex>
@@ -37,11 +38,10 @@ namespace ManagementAgent
             std::string getHealth(const std::string& pluginName) override;
 
             void registerPlugin(const std::string& pluginName) override;
-            void registerAndSetAppIds(
+            void registerAndConfigure(
                 const std::string& pluginName,
-                const std::vector<std::string>& policyAppIds,
-                const std::vector<std::string>& actionAppIds,
-                const std::vector<std::string>& statusAppIds) override;
+                const PluginCommunication::PluginDetails& pluginDetails
+               ) override;
 
             void removePlugin(const std::string& pluginName) override;
 
@@ -58,12 +58,13 @@ namespace ManagementAgent
 
             void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver) override;
 
+            ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(const std::string& pluginName) override;
+
             /**
              * Used mainly for Tests
              */
             void setDefaultTimeout(int timeoutMs);
             void setDefaultConnectTimeout(int timeoutMs);
-
         private:
             Common::PluginCommunication::IPluginProxy* getPlugin(const std::string& pluginName);
 
@@ -103,6 +104,22 @@ namespace ManagementAgent
                 const std::vector<std::string>& policyAppIds,
                 const std::vector<std::string>& actionAppIds,
                 const std::vector<std::string>& statusAppIds,
+                std::lock_guard<std::mutex>& lock);
+
+            /**
+             * Must already hold m_pluginMapMutex
+             *
+             * @param plugin
+             * @param serviceHealth
+             * @param threatHealth
+             * @param displayName
+             * @param lock
+             */
+            void locked_setHealth(
+                Common::PluginCommunication::IPluginProxy* plugin,
+                bool serviceHealth,
+                bool threatHealth,
+                const std::string& displayName,
                 std::lock_guard<std::mutex>& lock);
         };
 

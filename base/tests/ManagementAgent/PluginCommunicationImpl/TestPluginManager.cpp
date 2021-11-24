@@ -244,9 +244,12 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction) // 
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionsent")).Times(1);
     std::thread applyAction([this]() {
       EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionnotsent.xml",""), 0);
-      std::vector<std::string> appIds;
-      appIds.emplace_back("wrongappid");
-      m_pluginManagerPtr->registerAndSetAppIds(m_pluginOneName, appIds, appIds, appIds);
+      std::string appId = "wrongappid";
+      Common::PluginRegistryImpl::PluginInfo pluginInfo;
+      pluginInfo.addActionAppIds(appId);
+      pluginInfo.addPolicyAppIds(appId);
+      pluginInfo.addStatusAppIds(appId);
+      m_pluginManagerPtr->registerAndConfigure(m_pluginOneName, pluginInfo);
       EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testactionsent.xml",""), 1);
     });
     applyAction.join();

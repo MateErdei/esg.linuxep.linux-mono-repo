@@ -64,8 +64,8 @@ namespace ManagementAgent
                     "Information for the plugin not found in the registry: " + pluginName);
             }
             // Creates the pluginProxy
-            m_pluginManager.registerAndSetAppIds(
-                pluginName, pluginInfo.getPolicyAppIds(), pluginInfo.getActionAppIds(), pluginInfo.getStatusAppIds());
+            m_pluginManager.registerAndConfigure(
+                pluginName, pluginInfo);
         }
 
         void PluginServerCallback::setStatusReceiver(

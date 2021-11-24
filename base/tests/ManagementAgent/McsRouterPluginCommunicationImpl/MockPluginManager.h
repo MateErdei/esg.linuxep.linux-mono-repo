@@ -25,13 +25,11 @@ public:
     MOCK_METHOD1(getStatus, std::vector<Common::PluginApi::StatusInfo>(const std::string& pluginName));
     MOCK_METHOD1(getTelemetry, std::string(const std::string& pluginName));
     MOCK_METHOD1(getHealth, std::string(const std::string& pluginName));
-    MOCK_METHOD4(
-        registerAndSetAppIds,
+    MOCK_METHOD2(
+        registerAndConfigure,
         void(
             const std::string& pluginName,
-            const std::vector<std::string>& policyAppIds,
-            const std::vector<std::string>& actionAppIds,
-            const std::vector<std::string>& statusAppIds));
+            const ManagementAgent::PluginCommunication::PluginDetails& pluginDetails));
     MOCK_METHOD1(registerPlugin, void(const std::string& pluginName));
     MOCK_METHOD1(removePlugin, void(const std::string& pluginName));
     MOCK_METHOD0(getRegisteredPluginNames, std::vector<std::string>(void));
@@ -42,6 +40,7 @@ public:
     MOCK_METHOD1(
         setPolicyReceiver,
         void(std::shared_ptr<ManagementAgent::PluginCommunication::IPolicyReceiver>& receiver));
+    MOCK_METHOD1(getHealthStatusForPlugin, ManagementAgent::PluginCommunication::PluginHealthStatus(const std::string& pluginName));
 
 public:
 };
