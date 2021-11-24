@@ -336,12 +336,28 @@ namespace ManagementAgent
                 return pluginHealthStatus;
             }
             pluginHealthStatus.displayName = displayName;
+            std::string health;
 
-            std::string health = plugin->getHealth();
+            try
+            {
+                health = plugin->getHealth();
+            }
+            catch(const Common::PluginCommunication::IPluginCommunicationException&)
+            {
+                pluginHealthStatus.healthValue = 1;
+                return pluginHealthStatus;
+            }
 
-            nlohmann::json healthResult = nlohmann::json::parse(health);
-            pluginHealthStatus.healthValue = healthResult["Health"];
-
+            try
+            {
+                nlohmann::json healthResult = nlohmann::json::parse(health);
+                pluginHealthStatus.healthValue = healthResult["Health"];
+            }
+            catch(const std::exception& ex)
+            {
+                // default to not running if value is not valid.
+                pluginHealthStatus.healthValue = 1;
+            }
             return pluginHealthStatus;
         }
 

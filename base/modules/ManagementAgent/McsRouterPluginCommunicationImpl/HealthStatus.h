@@ -45,6 +45,7 @@ namespace ManagementAgent
             void resetCachedHealthStatusXml();
 
         private:
+            unsigned int convertDetailedValueToOverallValue(unsigned int value);
             void updateOverallHealthStatus();
             void updateServiceHealthXml(
                 const std::string& typeName,

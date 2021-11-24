@@ -17,7 +17,7 @@ namespace ManagementAgent
         , m_overallPluginServiceHealth(0)
         , m_overallPluginThreatServiceHealth(0)
         , m_overallPluginThreatDetectionHealth(0)
-        , m_admin(0)
+        , m_admin(1)
         , m_cachedHealthStatusXml("")
         {
 
@@ -52,24 +52,38 @@ namespace ManagementAgent
             }
         }
 
+        unsigned int HealthStatus::convertDetailedValueToOverallValue(unsigned int value)
+        {
+            if (value == 0)
+            {
+                return 1;
+            }
+            else if (value == 1 || value == 2)
+            {
+                return 3;
+            }
+
+            return 3; // unexpected value report bad state.
+        }
+
         void HealthStatus::updateOverallHealthStatus()
         {
             // done this in one method, but we can break it out if needs be.
-            unsigned int healthValue = 0;
+            unsigned int healthValue = 1;
             for (auto health : m_pluginServiceHealth)
             {
-                healthValue = std::max(health.second.healthValue, healthValue);
+                healthValue = std::max(convertDetailedValueToOverallValue(health.second.healthValue), healthValue);
             }
             m_overallPluginServiceHealth = healthValue;
 
-            healthValue = 0;
+            healthValue = 1;
             for (auto health : m_pluginThreatServiceHealth)
             {
-                healthValue = std::max(health.second.healthValue, healthValue);
+                healthValue = std::max(convertDetailedValueToOverallValue(health.second.healthValue), healthValue);
             }
             m_overallPluginThreatServiceHealth = healthValue;
 
-            healthValue = 0;
+            healthValue = 1;
             for (auto health : m_pluginThreatDetectionHealth)
             {
                 healthValue = std::max(health.second.healthValue, healthValue);

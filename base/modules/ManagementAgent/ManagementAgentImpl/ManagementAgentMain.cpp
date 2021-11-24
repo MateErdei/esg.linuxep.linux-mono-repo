@@ -22,6 +22,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
+#include <ManagementAgent/McsRouterPluginCommunicationImpl/HealthTask.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
@@ -103,6 +104,7 @@ namespace ManagementAgent
                 sendCurrentPluginPolicies();
                 sendCurrentPluginsStatus(registeredPlugins);
                 sendCurrentActions();
+                m_healthStatus = std::make_shared<ManagementAgent::McsRouterPluginCommunicationImpl::HealthStatus>();
 
                 m_ppid = ::getppid();
             }catch ( std::exception & ex)
@@ -268,9 +270,20 @@ namespace ManagementAgent
             LOGINFO("Management Agent running.");
 
             bool running = true;
+            auto lastHealthCheck = std::chrono::system_clock::now();
+            const int waitPeriod = 15; // Should not exceed health refresh period of 15 seconds.
+
             while (running)
             {
-                poller->poll(std::chrono::seconds(30));
+                auto currentTime = std::chrono::system_clock::now();
+                if ((currentTime - lastHealthCheck) > std::chrono::seconds (waitPeriod))
+                {
+                    lastHealthCheck = currentTime;
+                    std::unique_ptr<Common::TaskQueue::ITask> task(new McsRouterPluginCommunicationImpl::HealthTask(*m_pluginManager, m_healthStatus));
+                    m_taskQueue->queueTask(std::move(task));
+                }
+
+                poller->poll(std::chrono::seconds(waitPeriod));
                 if (GL_signalPipe->notified())
                 {
                     LOGDEBUG("Management Agent stopping");

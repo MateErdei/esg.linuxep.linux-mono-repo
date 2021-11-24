@@ -65,11 +65,11 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodServiceHealthV
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
 
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "0"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "0"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "0"), 0);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "0"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "0"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "1"), 0);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "1"), 1);
 
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin One", "0"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "0"), 1);
@@ -94,11 +94,11 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWithOneBadServiceHealt
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
 
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "1"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "1"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "0"), 0);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "0"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "0"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "1"), 0);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "1"), 1);
 
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin One", "0"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "1"), 1);
@@ -124,11 +124,11 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodThreatServiceH
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
 
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "0"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "0"), 0);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "0"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "0"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "0"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "1"), 0);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "1"), 1);
 
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin One", "0"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "0"), 1);
@@ -153,11 +153,11 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWithOneBadThreatServic
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
 
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "1"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "0"), 0);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "1"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "0"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "0"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "1"), 0);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "1"), 1);
 
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin One", "0"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "1"), 1);
@@ -182,11 +182,11 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForServiceAndThreatSer
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
 
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "1"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "1"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "1"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "0"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "0"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "1"), 1);
 
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin One", "0"), 2);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "1"), 2);
@@ -215,7 +215,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForThreatDetectionsHea
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "0"), 0);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "0"), 0);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "0"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "1"), 1);
 
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin One", "0"), 0);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "1"), 0);
@@ -225,7 +225,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTy
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginServiceStatusOne;
     pluginServiceStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
-    pluginServiceStatusOne.healthValue = 3;
+    pluginServiceStatusOne.healthValue = 2;
     pluginServiceStatusOne.displayName = "Test Plugin Service One";
 
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginServiceStatusTwo;
@@ -235,7 +235,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTy
 
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginThreatStatusOne;
     pluginThreatStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_SERVICE;
-    pluginThreatStatusOne.healthValue = 3;
+    pluginThreatStatusOne.healthValue = 2;
     pluginThreatStatusOne.displayName = "Test Plugin Threat One";
 
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginThreatStatusTwo;
@@ -266,7 +266,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTy
     m_status.addPluginHealth("testpluginDetectionOne", pluginDetectionStatusOne);
     m_status.addPluginHealth("testpluginDetectionTwo", pluginDetectionStatusTwo);
 
-    std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\"><item name=\"health\" value=\"3\" /><item name=\"service\" value=\"3\" ><detail name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin Service One\" value=\"3\" /><detail name=\"Test Plugin Service Two\" value=\"1\" /></item><item name=\"threatService\" value=\"3\" ><detail name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin Threat One\" value=\"3\" /><detail name=\"Test Plugin Threat Two\" value=\"1\" /></item><item name=\"threat\" value=\"3\" /><item name=\"admin\" value=\"0\" /></health>";
+    std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\"><item name=\"health\" value=\"3\" /><item name=\"service\" value=\"3\" ><detail name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin Service One\" value=\"2\" /><detail name=\"Test Plugin Service Two\" value=\"1\" /></item><item name=\"threatService\" value=\"3\" ><detail name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin Threat One\" value=\"2\" /><detail name=\"Test Plugin Threat Two\" value=\"1\" /></item><item name=\"threat\" value=\"3\" /><item name=\"admin\" value=\"1\" /></health>";
 
     std::string xmlString = m_status.generateHealthStatusXml().second;
     EXPECT_EQ(expectedXml, xmlString);
@@ -281,11 +281,11 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTy
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "3"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "3"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "3"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "0"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("admin", "1"), 1);
 
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service One", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service One", "2"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service Two", "1"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Threat One", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Threat One", "2"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Threat Two", "1"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service And Threat One", "2"), 2);
 }
