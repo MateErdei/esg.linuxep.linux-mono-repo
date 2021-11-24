@@ -106,6 +106,7 @@ namespace EventWriterLib
                 // Inner while loop to ensure we drain the queue once m_shouldBeRunning is set to false.
                 while (std::optional<JournalerCommon::Event> event = m_eventQueuePopper->getEvent(100))
                 {
+                    m_heartbeatPinger->ping();
                     switch (event.value().type)
                     {
                         case JournalerCommon::EventType::THREAT_EVENT:
