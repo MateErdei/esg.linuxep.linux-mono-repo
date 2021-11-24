@@ -122,8 +122,8 @@ namespace ManagementAgent
             {
                 if(plugin.getIsManagedPlugin())
                 {
-                    m_pluginManager->registerAndSetAppIds(
-                            plugin.getPluginName(), plugin.getPolicyAppIds(), plugin.getActionAppIds(), plugin.getStatusAppIds());
+                    m_pluginManager->registerAndConfigure(
+                            plugin.getPluginName(), PluginCommunication::PluginDetails(plugin));
                     LOGINFO("Registered plugin " << plugin.getPluginName() << ", executable path "
                         << plugin.getExecutableFullPath());
                 }
