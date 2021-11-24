@@ -7,8 +7,7 @@ sophos_add_library(subscriberlib SHARED
         IEventHandler.h
         EventQueuePusher.h
         EventQueuePusher.cpp
-        ${CMAKE_SOURCE_DIR}/modules/Heartbeat/HeartbeatPinger.cpp
-        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
+        EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} heartbeat
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib}
         )
 

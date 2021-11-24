@@ -3,9 +3,8 @@ include(GoogleTest)
 SophosAddTest(TestWriterLib
         TestEventQueuePopper.cpp
         TestWriter.cpp
-        ${CMAKE_SOURCE_DIR}/modules/Heartbeat/HeartbeatPinger.cpp
         PROJECTS eventwriterlib eventqueuelib helpers
-        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest ${protobuflib}
+        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest ${protobuflib} heartbeat
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
         )
 

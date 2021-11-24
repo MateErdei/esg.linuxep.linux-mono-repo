@@ -13,14 +13,17 @@ namespace Heartbeat
     {
     public:
         explicit HeartbeatPinger();
-        void ping();
+        virtual void ping();
         bool isAlive();
-        void pushDroppedEvent();
+        virtual void pushDroppedEvent();
+        virtual void setDroppedEventsMax(uint newMax);
         uint getNumDroppedEventsInLast24h();
 
     private:
-        void trimDroppedEvents();
+        void trimDroppedEventsByTime();
+        void trimDroppedEventsBySize();
         time_t m_lastPinged = 0;
+        uint m_droppedEventsMax = 10;
         std::multiset<time_t> m_droppedEvents{};
     };
 

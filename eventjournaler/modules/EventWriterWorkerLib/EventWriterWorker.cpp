@@ -16,6 +16,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <modules/Heartbeat/Heartbeat.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/pluginimpl/TelemetryConsts.h>
+#include <modules/pluginimpl/PluginCallback.h>
 
 namespace EventWriterLib
 {
@@ -26,7 +27,8 @@ namespace EventWriterLib
             m_eventQueuePopper(std::move(eventQueuePopper)),
             m_eventJournalWriter(std::move(eventJournalWriter)),
             m_heartbeatPinger(heartbeatPinger)
-{
+    {
+        m_heartbeatPinger->setDroppedEventsMax(Plugin::PluginCallback::ACCEPTABLE_DAILY_DROPPED_EVENTS+1);
     }
 
     EventWriterWorker::~EventWriterWorker()
@@ -103,10 +105,10 @@ namespace EventWriterLib
         {
             while (m_shouldBeRunning)
             {
+                m_heartbeatPinger->ping();
                 // Inner while loop to ensure we drain the queue once m_shouldBeRunning is set to false.
                 while (std::optional<JournalerCommon::Event> event = m_eventQueuePopper->getEvent(100))
                 {
-                    m_heartbeatPinger->ping();
                     switch (event.value().type)
                     {
                         case JournalerCommon::EventType::THREAT_EVENT:

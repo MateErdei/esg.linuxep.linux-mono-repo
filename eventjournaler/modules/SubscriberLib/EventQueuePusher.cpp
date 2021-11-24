@@ -24,7 +24,6 @@ namespace SubscriberLib
         if (!m_eventQueue->push(event))
         {
             telemetryHelper.increment(Plugin::Telemetry::telemetryDroppedAvEvents, 1L);
-            m_heartbeatPinger->pushDroppedEvent();
         }
     }
 }

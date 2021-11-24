@@ -5,8 +5,6 @@ SophosAddTest(TestPlugin
         TestPluginCallback.cpp
         MockSubscriberLib.h
         TestDiskManager.cpp
-        ${CMAKE_SOURCE_DIR}/modules/Heartbeat/Heartbeat.cpp
-        ${CMAKE_SOURCE_DIR}/modules/Heartbeat/HeartbeatPinger.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} heartbeat rt
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}

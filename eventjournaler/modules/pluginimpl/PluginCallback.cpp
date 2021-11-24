@@ -119,7 +119,7 @@ namespace Plugin
             health = 1;
         }
 
-        bool maxAcceptableDroppedEventsExceeded = m_heartbeat->getNumDroppedEventsInLast24h() > ACCEPTABLE_DAILY_DROPPED_EVENTS;
+        bool maxAcceptableDroppedEventsExceeded = m_heartbeat->getNumDroppedEventsInLast24h() > getAcceptableDailyDroppedEvents();
         // set telemetry bool for dropped events max exceeded
         telemetry.set(Telemetry::telemetryAcceptableDroppedEventsExceeded,
                       maxAcceptableDroppedEventsExceeded);
@@ -140,6 +140,11 @@ namespace Plugin
     {
         LOGDEBUG("Received health request");
         return "{'Health': " + std::to_string(getHealthInner()) + "}";
+    }
+
+    uint PluginCallback::getAcceptableDailyDroppedEvents()
+    {
+        return 5;
     }
 
 } // namespace Plugin

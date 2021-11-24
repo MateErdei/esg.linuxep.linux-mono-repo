@@ -35,10 +35,11 @@ namespace Plugin
 
         void setRunning(bool running);
         bool isRunning();
+        static uint getAcceptableDailyDroppedEvents();
+        static const uint ACCEPTABLE_DAILY_DROPPED_EVENTS = 5;
 
     private:
         std::atomic_bool m_running = false;
         std::shared_ptr<Heartbeat::IHeartbeat> m_heartbeat;
-        const uint ACCEPTABLE_DAILY_DROPPED_EVENTS = 5;
     };
 }; // namespace Plugin

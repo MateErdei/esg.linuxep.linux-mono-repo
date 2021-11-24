@@ -23,9 +23,10 @@ namespace Heartbeat
     void HeartbeatPinger::pushDroppedEvent()
     {
         m_droppedEvents.insert(Common::UtilityImpl::TimeUtils::getCurrTime());
+        trimDroppedEventsBySize();
     }
 
-    void HeartbeatPinger::trimDroppedEvents()
+    void HeartbeatPinger::trimDroppedEventsByTime()
     {
         time_t oneDay = 60*60*24;
         time_t lowerBound = Common::UtilityImpl::TimeUtils::getCurrTime() - oneDay;
@@ -36,10 +37,26 @@ namespace Heartbeat
 
     uint HeartbeatPinger::getNumDroppedEventsInLast24h()
     {
-        trimDroppedEvents();
+        trimDroppedEventsByTime();
         return m_droppedEvents.size();
     }
 
+    void HeartbeatPinger::setDroppedEventsMax(uint newMax)
+    {
+        m_droppedEventsMax = newMax;
+    }
 
+    void HeartbeatPinger::trimDroppedEventsBySize()
+    {
+        while (m_droppedEvents.size() > m_droppedEventsMax)
+        {
+//            time_t lowestValue = *m_droppedEvents.begin();
+//            m_droppedEvents.erase(lowestValue);
+            auto it1 = m_droppedEvents.begin();
+            auto it2 = m_droppedEvents.begin();
+            it2++;
+            m_droppedEvents.erase(it1,it2);
+        }
+    }
 
 } // namespace Heartbeat

@@ -207,6 +207,26 @@ TEST(TestHeartbeat, testPushDroppedEventAndGetEventsInLast24h)
     }
 }
 
+TEST(TestHeartbeat, testPushDroppedEventNeverPushesAboveMax)
+{
+
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime({ 0, 0, 0, 0, 0, 0, 0, 1, 10}, std::chrono::milliseconds(0), []() {})));
+
+    Heartbeat::HeartbeatPinger pinger;
+    pinger.setDroppedEventsMax(3);
+
+    pinger.pushDroppedEvent();
+    EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 1);
+    pinger.pushDroppedEvent();
+    pinger.pushDroppedEvent();
+    EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 3);
+    pinger.pushDroppedEvent();
+    EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 3);
+    pinger.pushDroppedEvent();
+    EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 3);
+}
+
 
 TEST(TestHeartbeat, testIsAlive)
 {

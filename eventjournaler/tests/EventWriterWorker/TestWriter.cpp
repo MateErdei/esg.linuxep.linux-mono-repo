@@ -12,6 +12,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "MockJournalWriter.h"
 #include <modules/EventWriterWorkerLib/EventWriterWorker.h>
 #include <modules/EventJournal/EventJournalWriter.h>
+#include <modules/Heartbeat/MockHeartbeatPinger.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include "MockEventQueuePopper.h"
 
 class TestWriter : public LogOffInitializedTests {
@@ -322,4 +324,68 @@ TEST_F(TestWriter, InvalidJournalFilesAreRemoved) // NOLINT
     EXPECT_CALL(*mockJournalWriter, readFileInfo(filename, _)).WillOnce(Return(false));
 
     writer.checkAndPruneTruncatedEvents(filename);
+}
+
+TEST_F(TestWriter, writerSetsDroppedEventsMaxOnHeartbeatPinger) // NOLINT
+{
+    const std::string filename = "detections.bin";
+
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
+    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+    MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
+    std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
+
+    auto mockHeartbeatPinger = std::make_shared<Heartbeat::MockHeartbeatPinger>();
+    EXPECT_CALL(*mockHeartbeatPinger, setDroppedEventsMax(6));
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), mockHeartbeatPinger);
+}
+
+TEST_F(TestWriter, testWriterPingsHeartbeatRepeatedlyInWriterThread) // NOLINT
+{
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
+    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+    MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
+    std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
+
+    auto mockHeartbeatPinger = std::make_shared<StrictMock<Heartbeat::MockHeartbeatPinger>>();
+    EXPECT_CALL(*mockHeartbeatPinger, setDroppedEventsMax(6));
+    EXPECT_CALL(*mockHeartbeatPinger, ping).Times(AtLeast(2));
+    EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), mockHeartbeatPinger);
+
+    writer.start();
+    usleep(100000);
+}
+
+TEST_F(TestWriter, testWriterPushesDroppedEventOnFailedWrite) // NOLINT
+{
+    JournalerCommon::Event fakeData = {JournalerCommon::EventType::THREAT_EVENT, "test data"};
+
+    std::vector<uint8_t> encodedFakeData = EventJournal::encode(
+            EventJournal::Detection{
+                    JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(JournalerCommon::EventType::THREAT_EVENT),
+                    fakeData.data});
+    std::unique_ptr<EventWriterLib::IEventQueuePopper> fakePopperPtr(new FakePopper(fakeData, 2));
+
+    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
+    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+
+    auto mockHeartbeatPinger = std::make_shared<StrictMock<Heartbeat::MockHeartbeatPinger>>();
+    EXPECT_CALL(*mockHeartbeatPinger, setDroppedEventsMax(6));
+    EXPECT_CALL(*mockHeartbeatPinger, ping).Times(AnyNumber());
+    EXPECT_CALL(*mockHeartbeatPinger, pushDroppedEvent).Times(2);
+    EventWriterLib::EventWriterWorker writer(std::move(fakePopperPtr), std::move(mockJournalWriterPtr), mockHeartbeatPinger);
+
+    EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData)).WillRepeatedly(Throw(std::exception()));
+
+    writer.start();
+    while(!writer.getRunningStatus())
+    {
+        usleep(1);
+    }
+    writer.stop();
+
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+    auto telemetryJson = telemetry.serialise();
+    EXPECT_TRUE(telemetryJson.find("failed-event-writes\":2") != std::string::npos);
+
 }
