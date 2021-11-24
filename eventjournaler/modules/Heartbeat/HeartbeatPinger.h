@@ -20,7 +20,7 @@ namespace Heartbeat
         uint getNumDroppedEventsInLast24h();
 
     private:
-        void trimDroppedEventsByTime();
+        void trimDroppedEventsByTime(time_t now);
         void trimDroppedEventsBySize();
         time_t m_lastPinged = 0;
         uint m_droppedEventsMax = 10;

@@ -4,7 +4,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <Heartbeat.h>
 #include <gtest/gtest.h>
-#include "../../redist/pluginapi/include/Common/UtilityImpl/TimeUtils.h"
+#include <Common/UtilityImpl/TimeUtils.h>
 #include "FakeTimeUtils.h"
 
 TEST(TestHeartbeat, TestPingRemovesIdsFromMissedHeartbeats) // NOLINT
@@ -225,6 +225,27 @@ TEST(TestHeartbeat, testPushDroppedEventNeverPushesAboveMax)
     EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 3);
     pinger.pushDroppedEvent();
     EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 3);
+}
+
+TEST(TestHeartbeat, testPushDroppedEventTrimsEventsFromTheFuture)
+{
+
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
+            new SequenceOfFakeTime({ 0, 0, 0, 5, 50, 51, 52, 20, 25}, std::chrono::milliseconds(0), []() {})));
+
+    Heartbeat::HeartbeatPinger pinger;
+    pinger.setDroppedEventsMax(5);
+
+    pinger.pushDroppedEvent();
+    pinger.pushDroppedEvent();
+    pinger.pushDroppedEvent();
+    EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 3);
+    pinger.pushDroppedEvent();
+    pinger.pushDroppedEvent();
+    EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 5);
+
+    pinger.pushDroppedEvent();
+    EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 4);
 }
 
 
