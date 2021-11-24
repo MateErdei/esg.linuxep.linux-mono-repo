@@ -97,7 +97,7 @@ namespace Plugin
 
     uint PluginCallback::getHealthInner()
     {
-        std::optional<uint> health;
+        uint health = 0;
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
         // Check if any pingers have not been pinged by the owning thread/worker etc.
@@ -128,12 +128,8 @@ namespace Plugin
             health = 1;
         }
 
-        if (!health.has_value())
-        {
-            health = 0;
-        }
-        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::pluginHealthStatus, (u_long)health.value());
-        return health.value();
+        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::pluginHealthStatus, static_cast<u_long>(health));
+        return health;
     }
 
     std::string PluginCallback::getHealth()

@@ -22,8 +22,8 @@ Check Health Telemetry Is Written
     Dictionary Should Contain Key  ${telemetry_dict}  acceptable-daily-dropped-events-exceeded
     Dictionary Should Contain Key  ${telemetry_dict}  event-subscriber-socket-missing
     Dictionary Should Contain Key  ${telemetry_dict}  health
-    Dictionary Should Contain Key  ${telemetry_dict}  threadhealth
-    ${threadHealthDict} =  Set Variable  ${telemetry_dict['threadhealth']}
+    Dictionary Should Contain Key  ${telemetry_dict}  thread-health
+    ${threadHealthDict} =  Set Variable  ${telemetry_dict['thread-health']}
     Dictionary Should Contain Key  ${threadHealthDict}  PluginAdapter
     Dictionary Should Contain Key  ${threadHealthDict}  Subscriber
     Dictionary Should Contain Key  ${threadHealthDict}  Writer

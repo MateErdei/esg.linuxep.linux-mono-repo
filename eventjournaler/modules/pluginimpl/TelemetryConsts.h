@@ -12,7 +12,7 @@ namespace Plugin
         const char* const telemetryDroppedAvEvents = "dropped-av-events";
         const char* const telemetryFailedEventWrites = "failed-event-writes";
         const char* const telemetryMissingEventSubscriberSocket = "event-subscriber-socket-missing";
-        const char* const telemetryThreadHealthPrepender = "threadhealth.";
+        const char* const telemetryThreadHealthPrepender = "thread-health.";
         const char* const telemetryAcceptableDroppedEventsExceeded = "acceptable-daily-dropped-events-exceeded";
         const char* const pluginHealthStatus = "health";
     } // namespace Telemetry
