@@ -15,6 +15,8 @@ Test Teardown  Test Teardown
 
 *** Test Cases ***
 Check Health Telemetry Is Written
+    Publish Threat Event With Specific Data  {"threatName":"EICAR-AV-Test","test data 1"}
+
     ${EJr_telemetry} =  Get Plugin Telemetry  eventjournaler
     Log  ${EJr_telemetry}
     ${telemetry_dict} =  Evaluate  json.loads('''${EJr_telemetry}''')  json
