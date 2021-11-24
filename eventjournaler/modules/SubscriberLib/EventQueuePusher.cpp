@@ -11,10 +11,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 namespace SubscriberLib
 {
 
-    SubscriberLib::EventQueuePusher::EventQueuePusher(const std::shared_ptr<EventQueueLib::IEventQueue>& eventQueue,
-                                                      std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger) :
-        m_eventQueue(eventQueue),
-        m_heartbeatPinger(heartbeatPinger)
+    SubscriberLib::EventQueuePusher::EventQueuePusher(const std::shared_ptr<EventQueueLib::IEventQueue>& eventQueue) :
+        m_eventQueue(eventQueue)
     {
     }
 

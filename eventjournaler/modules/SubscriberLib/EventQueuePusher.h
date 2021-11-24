@@ -17,11 +17,10 @@ namespace SubscriberLib
     class EventQueuePusher : public IEventHandler
     {
     public:
-        EventQueuePusher(const std::shared_ptr<EventQueueLib::IEventQueue>& eventQueue, std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger);
+        EventQueuePusher(const std::shared_ptr<EventQueueLib::IEventQueue>& eventQueue);
         void handleEvent(JournalerCommon::Event event) override;
 
     private:
         std::shared_ptr<EventQueueLib::IEventQueue> m_eventQueue;
-        std::shared_ptr<Heartbeat::HeartbeatPinger> m_heartbeatPinger;
     };
 }

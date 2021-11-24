@@ -6,6 +6,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <map>
 #include <memory>
 #include <set>
+#include <mutex>
 
 namespace Heartbeat
 {
@@ -25,6 +26,7 @@ namespace Heartbeat
         time_t m_lastPinged = 0;
         uint m_droppedEventsMax = 10;
         std::multiset<time_t> m_droppedEvents{};
+        std::mutex m_droppedEventsMutex;
     };
 
 } // namespace Heartbeat

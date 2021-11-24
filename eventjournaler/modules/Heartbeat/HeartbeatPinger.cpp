@@ -22,6 +22,7 @@ namespace Heartbeat
 
     void HeartbeatPinger::pushDroppedEvent()
     {
+//        std::lock_guard<std::mutex> lock{ m_droppedEventsMutex };
         time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
         m_droppedEvents.insert(now);
         trimDroppedEventsByTime(now);
@@ -39,6 +40,7 @@ namespace Heartbeat
 
     uint HeartbeatPinger::getNumDroppedEventsInLast24h()
     {
+//        std::lock_guard<std::mutex> lock{ m_droppedEventsMutex };
         trimDroppedEventsByTime(Common::UtilityImpl::TimeUtils::getCurrTime());
         return m_droppedEvents.size();
     }

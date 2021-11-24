@@ -46,8 +46,8 @@ TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasn
 
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
     std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
-    Heartbeat::HeartbeatPinger heartbeatPinger;
-    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), std::make_shared<Heartbeat::HeartbeatPinger>(heartbeatPinger), 123);
+    auto heartbeatPinger =  std::make_shared<Heartbeat::HeartbeatPinger>();
+    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 123);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -81,8 +81,8 @@ TEST_F(TestSubscriber, SubscriberStartAndStop) // NOLINT
 
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
     std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
-    Heartbeat::HeartbeatPinger heartbeatPinger;
-    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), std::make_shared<Heartbeat::HeartbeatPinger>(heartbeatPinger), 123);
+    auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
+    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 123);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -124,8 +124,8 @@ TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod) // NOLINT
 
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
     std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
-    Heartbeat::HeartbeatPinger heartbeatPinger;
-    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), std::make_shared<Heartbeat::HeartbeatPinger>(heartbeatPinger), 123);
+    auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
+    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 123);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -171,8 +171,8 @@ TEST_F(TestSubscriber, SubscriberCanRestart) // NOLINT
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(sleepAndReturnEmptyData));
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
-    Heartbeat::HeartbeatPinger heartbeatPinger;
-    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), std::make_shared<Heartbeat::HeartbeatPinger>(heartbeatPinger), 1000);
+    auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
+    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 1000);
     auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
@@ -219,8 +219,8 @@ TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist) // NOLINT
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(0);
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
-    Heartbeat::HeartbeatPinger heartbeatPinger;
-    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), std::make_shared<Heartbeat::HeartbeatPinger>(heartbeatPinger), 123);
+    auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
+    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 123);
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
@@ -260,8 +260,8 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(getNextEvent));
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
-    Heartbeat::HeartbeatPinger heartbeatPinger;
-    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), std::make_shared<Heartbeat::HeartbeatPinger>(heartbeatPinger), 123);
+    auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
+    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 123);
 
     auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
