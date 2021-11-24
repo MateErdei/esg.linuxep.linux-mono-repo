@@ -224,10 +224,10 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
          tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
         # add other distros here
     )
-    # with stage.parallel('integration'):
-    #     task_func = robot_task
-    #     if mode == COVERAGE_MODE:
-    #         stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux), branch=context.branch)
-    #     else:
-    #         for template_name, machine in machines:
-    #             stage.task(task_name=template_name, func=task_func, machine=machine)
+    with stage.parallel('integration'):
+        task_func = robot_task
+        if mode == COVERAGE_MODE:
+            stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux), branch=context.branch)
+        else:
+            for template_name, machine in machines:
+                stage.task(task_name=template_name, func=task_func, machine=machine)
