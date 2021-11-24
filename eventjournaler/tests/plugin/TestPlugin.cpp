@@ -19,6 +19,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <future>
 #include <modules/Heartbeat/Heartbeat.h>
+#include <modules/Heartbeat/MockHeartbeatPinger.h>
 
 using namespace Common::FileSystem;
 
@@ -137,4 +138,34 @@ TEST_F(PluginAdapterTests, PluginAdapterMainLoopThrowsIfSocketDirDoesNotExist)
     // If that dir is missing then the installation is unusable and this plugin shouldn't try and fix it.
     // So throw and let WD start us up again if needed.
     EXPECT_THROW(pluginAdapter.mainLoop(), std::runtime_error);
+}
+
+TEST_F(PluginAdapterTests, testMainloopPingsHeartbeatRepeatedly)
+{
+    // Mock Subscriber
+    MockSubscriberLib* mockSubscriber = new NiceMock<MockSubscriberLib>();
+    std::unique_ptr<SubscriberLib::ISubscriber> mockSubscriberPtr(mockSubscriber);
+
+    // Mock EventWriterWorker
+    MockEventWriterWorker* mockEventWriterWorker = new NiceMock<MockEventWriterWorker>();
+    std::unique_ptr<EventWriterLib::IEventWriterWorker> mockEventWriterWorkerPtr(mockEventWriterWorker);
+
+    // Queue
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+
+    auto heartbeat = std::make_shared<Heartbeat::Heartbeat>();
+    auto mockHeartbeatPinger = std::make_shared<StrictMock<Heartbeat::MockHeartbeatPinger>>();
+    EXPECT_CALL(*mockHeartbeatPinger, ping).Times(AtLeast(2));
+    TestablePluginAdapter pluginAdapter(
+            queueTask,
+            std::move(mockSubscriberPtr),
+            std::move(mockEventWriterWorkerPtr),
+            mockHeartbeatPinger,
+            heartbeat);
+
+    auto mainLoopFuture = std::async(std::launch::async, &TestablePluginAdapter::mainLoop, &pluginAdapter);
+    //Mainloop blocks for 5s waiting for tasks each time.
+    sleep(6);
+    queueTask->pushStop();
+    mainLoopFuture.get();
 }
