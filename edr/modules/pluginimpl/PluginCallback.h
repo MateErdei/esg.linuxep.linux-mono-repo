@@ -29,6 +29,8 @@ namespace Plugin
         void onShutdown() override;
         Common::PluginApi::StatusInfo getStatus(const std::string& appId) override;
         void setStatus(Common::PluginApi::StatusInfo statusInfo);
+        void setOsqueryRunning(bool running);
+        void setOsqueryShouldBeRunning(bool shouldBerunning);
 
         std::string getTelemetry() override;
 
@@ -39,5 +41,7 @@ namespace Plugin
 
     private:
         std::atomic_bool m_running = false;
+        bool m_osqueryRunning;
+        bool m_osqueryShouldBeRunning;
     };
 }; // namespace Plugin

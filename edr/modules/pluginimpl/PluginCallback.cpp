@@ -27,6 +27,8 @@ namespace Plugin
         };
         Common::PluginApi::StatusInfo noPolicyStatusInfo = { noPolicySetStatus, noPolicySetStatus, "SAV" };
         m_statusInfo = noPolicyStatusInfo;
+        m_osqueryShouldBeRunning = false;
+        m_osqueryRunning = false;
         LOGDEBUG("Plugin Callback Started");
     }
 
@@ -78,6 +80,15 @@ namespace Plugin
         m_statusInfo = std::move(statusInfo);
     }
 
+    void PluginCallback::setOsqueryRunning(bool running)
+    {
+        m_osqueryRunning = running;
+    }
+    void PluginCallback::setOsqueryShouldBeRunning(bool shouldBeRunning)
+    {
+        m_osqueryShouldBeRunning = shouldBeRunning;
+    }
+
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
@@ -109,7 +120,11 @@ namespace Plugin
         plugin::readOsqueryInfoFiles();
         telemetry.updateTelemetryWithStats();
         telemetry.updateTelemetryWithAllStdDeviationStats();
-
+        long health = 0;
+        if (m_osqueryShouldBeRunning && !m_osqueryRunning )
+        {
+            telemetry.set("health",health);
+        }
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 

@@ -231,6 +231,7 @@ namespace Plugin
                 {
                     if (Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy, m_loggerExtensionPtr->getDataLimitReached()))
                     {
+                        m_callback->setOsqueryShouldBeRunning(false);
                         m_queueTask->pushOsqueryRestart("Restarting osquery to apply changes after re-enabling query packs following a data limit rollover");
                     }
                     sendLiveQueryStatus();
@@ -244,6 +245,7 @@ namespace Plugin
                     LOGINFO("Previous schedule_epoch: " << m_scheduleEpoch.getValue() << ", has ended. Starting new schedule_epoch: " << now);
                     m_scheduleEpoch.setValueAndForceStore(now);
                     // osquery will automatically be restarted but set this to make sure there is no delay.
+                    m_callback->setOsqueryShouldBeRunning(false);
                     m_queueTask->pushOsqueryRestart("Restarting osquery due schedule_epoch updating");
                     m_expectedOsqueryRestart = true;
                 }
@@ -301,6 +303,7 @@ namespace Plugin
                         break;
                     case Task::TaskType::OSQUERY_PROCESS_FINISHED:
                     {
+                        m_callback->setOsqueryRunning(false);
                         LOGDEBUG("Process task OSQUERY_PROCESS_FINISHED");
                         m_timesOsqueryProcessFailedToStart = 0;
                         if (!m_expectedOsqueryRestart)
@@ -343,6 +346,7 @@ namespace Plugin
                         processQuery(task.m_content, task.m_correlationId);
                         break;
                     case Task::TaskType::OSQUERY_PROCESS_FAILED_TO_START:
+                        m_callback->setOsqueryRunning(false);
                         LOGDEBUG("Process task OSQUERY_PROCESS_FAILED_TO_START");
                         static unsigned int baseDelay = 10;
                         static unsigned int growthBase = 2;
@@ -447,6 +451,8 @@ namespace Plugin
             extensionAndState.second.first->Stop();
         }
         osqueryStarted.wait_started();
+        m_callback->setOsqueryRunning(true);
+        m_callback->setOsqueryShouldBeRunning(true);
 
 
         registerAndStartExtensionsPlugin();
@@ -498,6 +504,7 @@ namespace Plugin
             while (m_osqueryProcess && m_monitor.valid())
             {
                 LOGINFO("Issue request to stop to osquery.");
+                m_callback->setOsqueryShouldBeRunning(false);
                 m_osqueryProcess->requestStop();
 
                 if (m_monitor.wait_for(std::chrono::seconds(5)) == std::future_status::timeout)
@@ -591,6 +598,7 @@ namespace Plugin
             Plugin::PluginUtils::setQueryPacksInPlace(useNextQueryPack);
             if (!firstTime)
             {
+                m_callback->setOsqueryShouldBeRunning(false);
                 m_queueTask->pushOsqueryRestart(
                     "Query packs have been enabled or disabled. Restarting osquery to apply changes");
             }
@@ -602,6 +610,7 @@ namespace Plugin
                 Plugin::PluginUtils::setQueryPacksInPlace(useNextQueryPack);
                 if (!firstTime)
                 {
+                    m_callback->setOsqueryShouldBeRunning(false);
                     m_queueTask->pushOsqueryRestart("Reloading 'Next' Scheduled Queries");
                 }
             }
@@ -639,6 +648,7 @@ namespace Plugin
         PluginUtils::disableAllQueryPacks();
         sendLiveQueryStatus();
         // Thread safe osquery and extensions stop call, osquery and all extensions will be restarted automatically
+        m_callback->setOsqueryShouldBeRunning(false);
         m_queueTask->pushOsqueryRestart("XDR data limit exceeded");
     }
 
@@ -744,6 +754,7 @@ namespace Plugin
 
         if (osqueryRestartNeeded && !firstTime)
         {
+            m_callback->setOsqueryShouldBeRunning(false);
             m_queueTask->pushOsqueryRestart("LiveQuery policy has changed. Restarting osquery to apply changes");
         }
     }
