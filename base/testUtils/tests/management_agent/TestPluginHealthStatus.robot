@@ -16,6 +16,9 @@ Default Tags    MANAGEMENT_AGENT
 *** Test Cases ***
 Verify Management Agent Can Check Good Plugin Health Status
     [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+    # make sure no previous status xml file exists.
+    Remove Status Xml Files
+
     Setup Plugin Registry
     Start Management Agent
 
@@ -40,6 +43,9 @@ Verify Management Agent Can Check Good Plugin Health Status
 
 Verify Management Agent Can Check Bad Plugin Health Status
     [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+    # make sure no previous status xml file exists.
+    Remove Status Xml Files
+
     Setup Plugin Registry
     Start Management Agent
 
