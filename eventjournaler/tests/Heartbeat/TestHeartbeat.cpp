@@ -7,7 +7,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 #include "FakeTimeUtils.h"
 
-TEST(TestHeartbeat, TestPingRemovesIdsFromMissedHeartbeats) // NOLINT
+TEST(TestHeartbeat, TestGetMapOfIdsAgainstIsAliveShowsHeartbeatsAliveCorrectly) // NOLINT
 {
     std::vector<std::string> ids = {"a", "b"};
     Heartbeat::Heartbeat heartbeat;
