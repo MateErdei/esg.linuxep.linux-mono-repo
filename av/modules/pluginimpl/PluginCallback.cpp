@@ -89,7 +89,7 @@ namespace Plugin
         telemetry.set("vdl-version", getVirusDataVersion());
         telemetry.set("version", common::getPluginVersion());
         telemetry.set("sxl4-lookup", m_lookupEnabled);
-        telemetry.set("health", static_cast<long> (calculateHealth()));
+        telemetry.set("health", static_cast<long> (getServiceHealth()));
 
         return telemetry.serialiseAndReset();
     }
@@ -249,16 +249,27 @@ namespace Plugin
         return m_running;
     }
 
-    int PluginCallback::calculateHealth()
+    int PluginCallback::getServiceHealth()
     {
-        // Health of AV plugin inferred by this code being reached, still need to implement health of the threat detector
-        return 0;
+        return m_health;
+    }
+
+    void PluginCallback::setServiceHealth(int health)
+    {
+        m_health = health;
+    }
+
+    void PluginCallback::calculateHealth()
+    {
+        // Infer that AV plugin healthy if this code can be reached.
+        setServiceHealth(0);
     }
 
     std::string PluginCallback::getHealth()
     {
         nlohmann::json j;
-        j["Health"] = calculateHealth();
+        calculateHealth();
+        j["Health"] = getServiceHealth();
         return j.dump();
     }
 

@@ -29,6 +29,10 @@ namespace Plugin
         std::string getTelemetry() override;
         std::string getHealth() override;
 
+        int getServiceHealth();
+        void setServiceHealth(int health);
+        void calculateHealth();
+
         void sendStatus(const std::string& revID);
         void setRunning(bool running);
         bool isRunning();
@@ -41,12 +45,12 @@ namespace Plugin
         std::string getMlLibHash();
         std::string getMlModelVersion();
         std::string getVirusDataVersion();
-        int PluginCallback::calculateHealth();
 
         std::shared_ptr<QueueTask> m_task;
         Common::PluginApi::StatusInfo m_statusInfo;
         std::string m_revID;
         std::atomic_bool m_running = false;
         bool m_lookupEnabled = true;
+        int m_health = 1;
     };
 }; // namespace Plugin
