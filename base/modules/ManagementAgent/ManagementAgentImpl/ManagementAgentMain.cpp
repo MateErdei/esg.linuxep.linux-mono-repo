@@ -276,7 +276,7 @@ namespace ManagementAgent
             while (running)
             {
                 auto currentTime = std::chrono::system_clock::now();
-                if ((currentTime - lastHealthCheck) > std::chrono::seconds (waitPeriod))
+                if ((currentTime - lastHealthCheck) >= std::chrono::seconds (waitPeriod))
                 {
                     lastHealthCheck = currentTime;
                     std::unique_ptr<Common::TaskQueue::ITask> task(new McsRouterPluginCommunicationImpl::HealthTask(*m_pluginManager, m_healthStatus));

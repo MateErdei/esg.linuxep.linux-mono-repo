@@ -342,7 +342,7 @@ namespace ManagementAgent
             {
                 health = plugin->getHealth();
             }
-            catch(const Common::PluginCommunication::IPluginCommunicationException&)
+            catch (const Common::PluginCommunication::IPluginCommunicationException&)
             {
                 pluginHealthStatus.healthValue = 1;
                 return pluginHealthStatus;
@@ -355,6 +355,7 @@ namespace ManagementAgent
             }
             catch(const std::exception& ex)
             {
+                LOGWARN("Failed to read plugin health for: " << pluginName << ", with error" << ex.what());
                 // default to not running if value is not valid.
                 pluginHealthStatus.healthValue = 1;
             }
