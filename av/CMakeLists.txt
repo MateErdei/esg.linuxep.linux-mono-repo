@@ -58,6 +58,10 @@ if(NOT DEFINED DEFAULT_HOME_FOLDER)
     set(DEFAULT_HOME_FOLDER ${PRODUCT_NAME})
 endif()
 
+if(NOT DEFINED AV_PRETTY_NAME)
+    set(AV_PRETTY_NAME "Sophos Linux AntiVirus")
+endif()
+
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
 set(FEATURE_LIST "AV")

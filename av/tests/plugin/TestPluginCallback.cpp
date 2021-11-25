@@ -374,3 +374,19 @@ TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup_fileDoesNotExist) //NOLINT
 
     EXPECT_EQ(telemetry["sxl4-lookup"], true);
 }
+
+TEST_F(TestPluginCallback, getTelemetryHealthIsZero) //NOLINT
+{
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+    EXPECT_EQ(modifiedTelemetry["health"], 0);
+}
+
+TEST_F(TestPluginCallback, getHealthReturnsZero) //NOLINT
+{
+    nlohmann::json j;
+    j["Health"] = 0;
+    std::string expectedResult = j.dump();
+    std::string result = m_pluginCallback->getHealth();
+
+    ASSERT_EQ(result, expectedResult);
+}

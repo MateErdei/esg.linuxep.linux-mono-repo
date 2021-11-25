@@ -16,6 +16,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 
+#include <thirdparty/nlohmann-json/json.hpp>
 #include <fstream>
 #include <unistd.h>
 
@@ -88,6 +89,7 @@ namespace Plugin
         telemetry.set("vdl-version", getVirusDataVersion());
         telemetry.set("version", common::getPluginVersion());
         telemetry.set("sxl4-lookup", m_lookupEnabled);
+        telemetry.set("health", static_cast<long> (calculateHealth()));
 
         return telemetry.serialiseAndReset();
     }
@@ -247,10 +249,17 @@ namespace Plugin
         return m_running;
     }
 
+    int PluginCallback::calculateHealth()
+    {
+        // Health of AV plugin inferred by this code being reached, still need to implement health of the threat detector
+        return 0;
+    }
+
     std::string PluginCallback::getHealth()
     {
-        LOGDEBUG("Received health request");
-        return "{}";
+        nlohmann::json j;
+        j["Health"] = calculateHealth();
+        return j.dump();
     }
 
 } // namespace Plugin

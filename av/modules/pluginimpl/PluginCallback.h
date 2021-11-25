@@ -16,9 +16,6 @@ namespace Plugin
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
-        std::shared_ptr<QueueTask> m_task;
-        Common::PluginApi::StatusInfo m_statusInfo;
-
     public:
         explicit PluginCallback(std::shared_ptr<QueueTask> task);
 
@@ -28,16 +25,27 @@ namespace Plugin
 
         void onShutdown() override;
         Common::PluginApi::StatusInfo getStatus(const std::string& appId) override;
-        void setStatus(Common::PluginApi::StatusInfo statusInfo);
 
         std::string getTelemetry() override;
         std::string getHealth() override;
 
+        void sendStatus(const std::string& revID);
         void setRunning(bool running);
         bool isRunning();
         void setSXL4Lookups(bool sxl4Lookup);
 
     private:
+        std::string generateSAVStatusXML();
+        unsigned long getIdeCount();
+        std::string getLrDataHash();
+        std::string getMlLibHash();
+        std::string getMlModelVersion();
+        std::string getVirusDataVersion();
+        int PluginCallback::calculateHealth();
+
+        std::shared_ptr<QueueTask> m_task;
+        Common::PluginApi::StatusInfo m_statusInfo;
+        std::string m_revID;
         std::atomic_bool m_running = false;
         bool m_lookupEnabled = true;
     };
