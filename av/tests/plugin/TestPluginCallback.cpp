@@ -375,10 +375,10 @@ TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup_fileDoesNotExist) //NOLINT
     EXPECT_EQ(telemetry["sxl4-lookup"], true);
 }
 
-TEST_F(TestPluginCallback, getTelemetryHealthDefaultIsOne) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_health_fileDoesNotExist) //NOLINT
 {
     json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
-    EXPECT_EQ(modifiedTelemetry["health"], 1);
+    EXPECT_EQ(modifiedTelemetry["health"], 0);
 }
 
 TEST_F(TestPluginCallback, getTelemetryHealthReturnsZeroWhenHealthSuccessfullyCalculated) //NOLINT
