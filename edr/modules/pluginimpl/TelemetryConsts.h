@@ -8,6 +8,7 @@ namespace plugin
 {
     const char* const telemetryOsqueryRestarts = "osquery-restarts";
     const char* const version = "version";
+    const char* const health = "health";
     const char* const telemetryOSQueryRestartsCPU = "osquery-restarts-cpu";
     const char* const telemetryOSQueryRestartsMemory = "osquery-restarts-memory";
     const char* const telemetryOSQueryDatabaseSize = "osquery-database-size";

@@ -125,7 +125,7 @@ namespace Plugin
         {
             health = 1;
         }
-        telemetry.set("health",health);
+        telemetry.set(plugin::health,health);
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 
