@@ -69,5 +69,40 @@ then
     done
 fi
 
-userdel sophos-spl-av
-userdel sophos-spl-threat-detector
+function removeUser()
+{
+  function check_user_exists()
+  {
+    grep  "$1" /etc/passwd &>/dev/null
+  }
+
+  local USERNAME=$1
+  USER_DELETER=$(which deluser 2>/dev/null)
+  [[ -x "$USER_DELETER" ]] || USER_DELETER=$(which userdel 2>/dev/null)
+
+  if [[ -x "$USER_DELETER" ]]
+  then
+      check_user_exists "$USERNAME"
+      USER_EXISTS=$?
+      local USER_DELETE_TRIES=0
+      while [ $USER_EXISTS -eq 0 ] && [ $USER_DELETE_TRIES -le 5 ]
+      do
+          sleep 1
+          "$USER_DELETER" "$USERNAME" 2>/dev/null >/dev/null && USER_EXISTS=1
+          USER_DELETE_TRIES=$((USER_DELETE_TRIES+1))
+      done
+      #return 1 as an error because the user exists
+      check_user_exists "$USERNAME" && return 1
+  else
+      echo "Unable to delete user $USERNAME" >&2
+      return 1
+  fi
+
+  return 0
+}
+
+if (( DOWNGRADE == 0 ))
+then
+  removeUser    sophos-spl-av || echo "Failed to delete user: sophos-spl-av"
+  removeUser    sophos-spl-threat-detector || echo "Failed to delete user: sophos-spl-threat-detector"
+fi
