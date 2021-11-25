@@ -424,6 +424,7 @@ namespace Plugin
         std::shared_ptr<Plugin::IOsqueryProcess> osqueryProcess { createOsqueryProcess() };
         m_osqueryProcess = osqueryProcess;
         OsqueryStarted osqueryStarted;
+        m_callback->setOsqueryShouldBeRunning(true);
         m_monitor = std::async(std::launch::async, [queue, osqueryProcess, &osqueryStarted]() {
             try
             {
@@ -451,8 +452,6 @@ namespace Plugin
             extensionAndState.second.first->Stop();
         }
         osqueryStarted.wait_started();
-        m_callback->setOsqueryRunning(true);
-        m_callback->setOsqueryShouldBeRunning(true);
 
 
         registerAndStartExtensionsPlugin();
@@ -474,6 +473,8 @@ namespace Plugin
         {
             m_loggerExtensionPtr->reloadTags();
         }
+
+        m_callback->setOsqueryRunning(true);
         updateExtensions();
         for (const auto& extensionAndRunningStatus : m_extensionAndStateMap)
         {

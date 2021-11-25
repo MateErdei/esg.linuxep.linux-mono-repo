@@ -57,7 +57,29 @@ EDR Plugin Runs Scheduled Queries And Reports Telemetry
 
     List Should Contain Value  ${scheduled_queries}  endpoint_id
     ${endpoint_id_json} =  Set Variable  ${telemetry_json['scheduled-queries']['endpoint_id']}
+    ${health} =  Set Variable  ${telemetry_json['health']}
+    Should Be Equal As Integers  ${health}  0
     Dictionary Should Contain Key  ${endpoint_id_json}  record-size-avg
     Dictionary Should Not Contain Key  ${endpoint_id_json}  query-error-count
     ${records_count} =  Get From Dictionary  ${endpoint_id_json}  records-count
     Should Be True  ${records_count} >= 1
+
+Edr Plugin reports health correctly
+    [Setup]  No operation
+    Install Base For Component Tests
+    Install EDR Directly from SDDS
+    ${edr_telemetry} =  Get Plugin Telemetry  edr
+    ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
+    ${health} =  Set Variable  ${telemetry_json['health']}
+    Should Be Equal As Integers  ${health}  0
+    Run Process  mv  ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd  /tmp
+    Stop EDR
+    Start edr
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   2 secs
+    ...   File Should Contain  ${EDR_LOG_PATH}   Unable to execute osquery
+    ${edr_telemetry} =  Get Plugin Telemetry  edr
+    ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
+    ${health} =  Set Variable  ${telemetry_json['health']}
+    Should Be Equal As Integers  ${health}  1

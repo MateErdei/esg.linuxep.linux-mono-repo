@@ -123,8 +123,9 @@ namespace Plugin
         long health = 0;
         if (m_osqueryShouldBeRunning && !m_osqueryRunning )
         {
-            telemetry.set("health",health);
+            health = 1;
         }
+        telemetry.set("health",health);
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 
