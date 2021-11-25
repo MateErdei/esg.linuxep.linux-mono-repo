@@ -75,6 +75,7 @@ Edr Plugin reports health correctly
     Run Process  mv  ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd  /tmp
     Stop EDR
     Start edr
+    ${mark} =  Mark File  ${EDR_LOG_PATH}
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   2 secs
@@ -83,3 +84,12 @@ Edr Plugin reports health correctly
     ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
     ${health} =  Set Variable  ${telemetry_json['health']}
     Should Be Equal As Integers  ${health}  1
+    Run Process  mv  /tmp/osqueryd  ${SOPHOS_INSTALL}/plugins/edr/bin/
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Marked File Contains  ${EDR_LOG_PATH}  SophosExtension running  ${mark}
+    ${edr_telemetry} =  Get Plugin Telemetry  edr
+    ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
+    ${health} =  Set Variable  ${telemetry_json['health']}
+    Should Be Equal As Integers  ${health}  0

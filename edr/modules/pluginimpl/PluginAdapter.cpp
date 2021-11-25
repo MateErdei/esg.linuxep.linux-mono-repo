@@ -425,9 +425,11 @@ namespace Plugin
         m_osqueryProcess = osqueryProcess;
         OsqueryStarted osqueryStarted;
         m_callback->setOsqueryShouldBeRunning(true);
-        m_monitor = std::async(std::launch::async, [queue, osqueryProcess, &osqueryStarted]() {
+        auto callback = m_callback;
+        m_monitor = std::async(std::launch::async, [queue, osqueryProcess, &osqueryStarted, callback]() {
             try
             {
+                callback->setOsqueryRunning(true);
                 osqueryProcess->keepOsqueryRunning(osqueryStarted);
             }
             catch (Plugin::IOsqueryCrashed&)
@@ -436,6 +438,7 @@ namespace Plugin
             }
             catch (const Plugin::IOsqueryCannotBeExecuted& exception)
             {
+                callback->setOsqueryRunning(false);
                 LOGERROR("Unable to execute osquery: " << exception.what());
                 queue->pushOsqueryProcessDelayRestart();
                 return;
@@ -444,6 +447,7 @@ namespace Plugin
             {
                 LOGERROR("Monitor process failed: " << ex.what());
             }
+            callback->setOsqueryRunning(false);
             queue->pushOsqueryProcessFinished();
         });
         // block here till osquery new instance is started.
@@ -464,6 +468,7 @@ namespace Plugin
         auto fs = Common::FileSystem::fileSystem();
         if (!fs->waitForFile(Plugin::osquerySocket(), 10000))
         {
+            m_callback->setOsqueryRunning(false);
             LOGERROR("OSQuery socket does not exist after waiting 10 seconds. Restarting osquery");
             stopOsquery();
             m_restartNoDelay = true;
@@ -474,7 +479,6 @@ namespace Plugin
             m_loggerExtensionPtr->reloadTags();
         }
 
-        m_callback->setOsqueryRunning(true);
         updateExtensions();
         for (const auto& extensionAndRunningStatus : m_extensionAndStateMap)
         {
