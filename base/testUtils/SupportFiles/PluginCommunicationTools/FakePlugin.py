@@ -115,7 +115,7 @@ class FakePlugin(object):
     def get_health(self):
         if self.health is None:
             return '{"Health": 0}'
-        else
+        else:
             return self.health
 
     def set_telemetry(self, telemetry):

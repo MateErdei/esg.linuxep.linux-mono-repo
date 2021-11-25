@@ -24,7 +24,7 @@ Verify Management Agent Can Check Good Plugin Health Status
     ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
 
     Wait Until Keyword Succeeds
-    ...  20
+    ...  30
     ...  1
     ...  File Should Exist   ${SHS_STATUS_FILE}
 
@@ -46,7 +46,7 @@ Verify Management Agent Can Check Bad Plugin Health Status
     ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
 
     Wait Until Keyword Succeeds
-    ...  20
+    ...  30
     ...  1
     ...  File Should Exist   ${SHS_STATUS_FILE}
 
