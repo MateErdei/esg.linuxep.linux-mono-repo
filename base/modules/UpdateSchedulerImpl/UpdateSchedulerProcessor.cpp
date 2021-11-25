@@ -559,6 +559,7 @@ namespace UpdateSchedulerImpl
         copyStatus.LastFinishdTime = "";
         std::string statusWithoutTimeStamp = configModule::SerializeUpdateStatus(
             copyStatus, m_policyTranslator.revID(), VERSIONID, m_machineID, m_formattedTime, m_subscriptionRigidNamesInPolicy, m_featuresCurrentlyInstalled, stateMachineProcessor.getStateMachineData());
+        m_callback->setStateMachine(stateMachineProcessor.getStateMachineData());
         m_callback->setStatus(Common::PluginApi::StatusInfo{ statusXML, statusWithoutTimeStamp, ALC_API });
         m_baseService->sendStatus(ALC_API, statusXML, statusWithoutTimeStamp);
         LOGINFO("Sending status to Central");

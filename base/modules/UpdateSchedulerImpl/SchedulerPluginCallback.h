@@ -1,11 +1,11 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #pragma once
-
+#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
 #include <Common/PluginApi/IPluginCallbackApi.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 
@@ -25,10 +25,10 @@ namespace UpdateSchedulerImpl
         void applyNewPolicy(const std::string& policyXml) override;
 
         void queueAction(const std::string& actionXml) override;
-
         void onShutdown() override;
         Common::PluginApi::StatusInfo getStatus(const std::string& appId) override;
         void setStatus(Common::PluginApi::StatusInfo statusInfo);
+        void setStateMachine(StateData::StateMachineData stateMachineData);
 
         std::string getTelemetry() override;
         std::string getHealth() override;
@@ -39,5 +39,6 @@ namespace UpdateSchedulerImpl
 
     private:
         std::atomic_bool m_running = false;
+        StateData::StateMachineData m_stateMachineData;
     };
 } // namespace UpdateSchedulerImpl

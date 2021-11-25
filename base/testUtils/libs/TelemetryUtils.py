@@ -194,10 +194,17 @@ class TelemetryUtils:
 
     def generate_update_scheduler_telemetry(self, number_failed_updates, most_recent_update_successful,
                                             successful_update_time, base_fixed_version, base_tag,
-                                            mtr_fixed_version, mtr_tag, sddsid,set_edr,set_av):
+                                            mtr_fixed_version, mtr_tag, sddsid,set_edr,set_av,
+                                            install_state,download_state):
+        health = 0
+        if not(download_state == 0 and install_state == 0):
+            health = 1
         telemetry = {
             "failed-update-count": int(number_failed_updates),
-            "failed-downloader-count": 0
+            "failed-downloader-count": 0,
+            "install-state": install_state,
+            "download-state": download_state,
+            "health": health
         }
 
         if most_recent_update_successful is not None:
@@ -314,13 +321,14 @@ class TelemetryUtils:
                                                          successful_update_time=None, timing_tolerance=10,
                                                          base_fixed_version="", base_tag="RECOMMENDED",
                                                          mtr_fixed_version="", mtr_tag="RECOMMENDED", sddsid="",
-                                                         set_edr=False, set_av=False):
+                                                         set_edr=False, set_av=False, install_state=0,download_state=0):
         expected_update_scheduler_telemetry_dict = self.generate_update_scheduler_telemetry(number_failed_updates,
                                                                                             most_recent_update_successful,
                                                                                             successful_update_time,
                                                                                             base_fixed_version, base_tag,
                                                                                             mtr_fixed_version, mtr_tag,
-                                                                                            sddsid,set_edr,set_av)
+                                                                                            sddsid,set_edr,set_av,
+                                                                                            install_state,download_state)
         actual_update_scheduler_telemetry_dict = json.loads(json_string)["updatescheduler"]
 
         self.check_update_scheduler_telemetry_is_correct(actual_update_scheduler_telemetry_dict,

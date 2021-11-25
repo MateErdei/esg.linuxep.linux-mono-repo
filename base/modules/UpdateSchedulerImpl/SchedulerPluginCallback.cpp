@@ -1,17 +1,18 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "SchedulerPluginCallback.h"
-
 #include "Logger.h"
 #include "UpdateSchedulerProcessor.h"
+#include "SchedulerPluginCallback.h"
+#include "UpdateSchedulerUtils.h"
+#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
 
 #include <Common/PluginApi/ApiException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-
+#include <json.hpp>
 #include <utility>
 #include <unistd.h>
 
@@ -33,24 +34,27 @@ namespace UpdateSchedulerImpl
         m_statusInfo =
             Common::PluginApi::StatusInfo{ noPolicySetStatus, noPolicySetStatus, UpdateSchedulerProcessor::getAppId() };
 
+        auto currentTime = Common::UtilityImpl::TimeUtils::fromTime(Common::UtilityImpl::TimeUtils::getCurrTime());
+        stateMachinesModule::StateMachineProcessor stateMachineProcessor(currentTime);
+        m_stateMachineData = stateMachineProcessor.getStateMachineData();
         LOGDEBUG("Plugin Callback Started");
     }
 
     void SchedulerPluginCallback::applyNewPolicy(const std::string& policyXml)
     {
-        LOGSUPPORT("Applying new policy");
+        LOGDEBUG("Applying new policy");
         m_task->push(SchedulerTask{ SchedulerTask::TaskType::Policy, policyXml });
     }
 
     void SchedulerPluginCallback::queueAction(const std::string& actionXml)
     {
-        LOGSUPPORT("API received action");
+        LOGDEBUG("API received action");
         m_task->push(SchedulerTask{ SchedulerTask::TaskType::UpdateNow, actionXml });
     }
 
     void SchedulerPluginCallback::onShutdown()
     {
-        LOGSUPPORT("Shutdown signal received");
+        LOGDEBUG("Shutdown signal received");
         m_shutdownReceived = true;
         m_task->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
 
@@ -58,7 +62,7 @@ namespace UpdateSchedulerImpl
         int shutdownTimeout = 30;
         while(isRunning() && timeoutCounter < shutdownTimeout)
         {
-            LOGSUPPORT("Shutdown waiting for all processes to complete");
+            LOGDEBUG("Shutdown waiting for all processes to complete");
             sleep(1);
             timeoutCounter++;
         }
@@ -67,7 +71,7 @@ namespace UpdateSchedulerImpl
 
     Common::PluginApi::StatusInfo SchedulerPluginCallback::getStatus(const std::string& /*appId*/)
     {
-        LOGSUPPORT("Received get status request");
+        LOGDEBUG("Received get status request");
         if (m_statusInfo.statusXml.empty())
         {
             LOGWARN("Status has not been configured yet.");
@@ -76,27 +80,39 @@ namespace UpdateSchedulerImpl
         return m_statusInfo;
     }
 
+    std::string SchedulerPluginCallback::getHealth()
+    {
+        nlohmann::json healthjson =  nlohmann::json::parse(UpdateSchedulerUtils::calculateHealth(m_stateMachineData));
+        nlohmann::json healthResponseMessage;
+        healthResponseMessage["Health"] = healthjson["overall"];
+        return healthResponseMessage.dump();
+    }
+
     void SchedulerPluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
     {
-        LOGSUPPORT("Setting status");
+        LOGDEBUG("Setting status");
         m_statusInfo = std::move(statusInfo);
+    }
+    void SchedulerPluginCallback::setStateMachine(StateData::StateMachineData stateMachineData)
+    {
+        m_stateMachineData = stateMachineData;
     }
 
     std::string SchedulerPluginCallback::getTelemetry()
     {
-        LOGSUPPORT("Received get telemetry request");
+        LOGDEBUG("Received get telemetry request");
 
         // Ensure counts are always reported:
         Common::Telemetry::TelemetryHelper::getInstance().increment("failed-update-count", 0UL);
         Common::Telemetry::TelemetryHelper::getInstance().increment("failed-downloader-count", 0UL);
-
+        nlohmann::json health = nlohmann::json::parse(UpdateSchedulerUtils::calculateHealth(m_stateMachineData));
+        long overallHealth = health["overall"];
+        Common::Telemetry::TelemetryHelper::getInstance().set("health",overallHealth);
+        long installState = health["installState"];
+        Common::Telemetry::TelemetryHelper::getInstance().set("install-state",installState);
+        long downloadState = health["downloadState"];
+        Common::Telemetry::TelemetryHelper::getInstance().set("download-state",downloadState);
         return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    }
-
-    std::string SchedulerPluginCallback::getHealth()
-    {
-        LOGDEBUG("Received health request");
-        return "{}";
     }
 
     bool SchedulerPluginCallback::shutdownReceived() { return m_shutdownReceived; }

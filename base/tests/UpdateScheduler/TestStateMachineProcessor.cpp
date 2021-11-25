@@ -12,12 +12,17 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
+#include <UpdateScheduler/SchedulerTaskQueue.h>
+#include <UpdateSchedulerImpl/SchedulerPluginCallback.h>
 #include <UpdateSchedulerImpl/configModule/UpdateEvent.h>
 #include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
 #include <UpdateSchedulerImpl/stateMachinesModule/StateMachineException.h>
+#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/sdu/MockTaskQueue.h>
+
+#include <json.hpp>
 
 using namespace UpdateSchedulerImpl;
 using namespace UpdateSchedulerImpl::StateData;
@@ -122,7 +127,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     std::string rawJsonStateMachineData = createJsonString("", "");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
+    EXPECT_CALL(fileSystemMock, readFile(_)).Times(2).WillRepeatedly(Return(rawJsonStateMachineData));
 
     stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
@@ -133,7 +138,12 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     expectedStateMachineData.setEventStateLastTime(stateMachineProcessor.getStateMachineData().getEventStateLastTime());
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
+    std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerTaskQueue;
+    UpdateSchedulerImpl::SchedulerPluginCallback pluginCallback(schedulerTaskQueue);
 
+    nlohmann::json expectedHealth;
+    expectedHealth["Health"] = 0;
+    ASSERT_EQ(pluginCallback.getHealth(),expectedHealth.dump());
 }
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsInstallFailed) // NOLINT
@@ -141,7 +151,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     std::string rawJsonStateMachineData = createJsonString( R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
 
     auto& fileSystemMock = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Return(rawJsonStateMachineData));
+    EXPECT_CALL(fileSystemMock, readFile(_)).Times(2).WillRepeatedly(Return(rawJsonStateMachineData));
 
     stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945");
 
@@ -160,6 +170,12 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 
+    std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerTaskQueue;
+    UpdateSchedulerImpl::SchedulerPluginCallback pluginCallback(schedulerTaskQueue);
+
+    nlohmann::json expectedHealth;
+    expectedHealth["Health"] = 0;
+    ASSERT_EQ(pluginCallback.getHealth(),expectedHealth.dump());
 }
 
 TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateResultIsInstallFailed) // NOLINT
@@ -535,13 +551,18 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     // Fail update again
 
     EXPECT_CALL(fileSystemMock, readFile(_))
-            .WillOnce(Return(expectedStateMachineData.toJsonStateMachineData(expectedStateMachineData)));
+            .Times(2).WillRepeatedly(Return(expectedStateMachineData.toJsonStateMachineData(expectedStateMachineData)));
     stateMachinesModule::StateMachineProcessor stateMachineProcessor2("1610465945"); // File will be loaded
     stateMachineProcessor2.updateStateMachines(configModule::EventMessageNumber::INSTALLFAILED);
 
     // last failed time should not have changed.
     EXPECT_PRED_FORMAT2(
             stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor2.getStateMachineData());
+    std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> schedulerTaskQueue;
+    UpdateSchedulerImpl::SchedulerPluginCallback pluginCallback(schedulerTaskQueue);
+    nlohmann::json expectedHealth;
+    expectedHealth["Health"] = 1;
+    ASSERT_EQ(pluginCallback.getHealth(),expectedHealth.dump());
 }
 
 TEST_P(StateMachineProcessorTestWithCredit, StateMachinesCorrectlyUpdatedWhenCreditIsLargeOrNegative) // NOLINT

@@ -11,11 +11,9 @@ Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/FakeSulDownloader.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
-Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
 
 Resource  ../watchdog/LogControlResources.robot
 Resource  ../installer/InstallerResources.robot
-Resource  ../telemetry/TelemetryResources.robot
 Resource  SchedulerUpdateResources.robot
 Resource  ../GeneralTeardownResource.robot
 

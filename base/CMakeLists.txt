@@ -82,6 +82,9 @@ endif()
 if(NOT DEFINED DEFAULT_HOME_FOLDER)
     set(DEFAULT_HOME_FOLDER "sspl-base")
 endif()
+if(NOT DEFINED UPDATESCHEDULER_PRETTY_NAME)
+    set(UPDATESCHEDULER_PRETTY_NAME "Update Scheduler")
+endif()
 
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite

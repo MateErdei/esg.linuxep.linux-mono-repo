@@ -150,7 +150,7 @@ UpdateScheduler Report Failure to Update
     Prepare To Run Telemetry Executable
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
-    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  1  False  sddsid=regruser
+    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  1  False  sddsid=regruser  install_state=1
     Cleanup Telemetry Server
 
 Test Updatescheduler Adds Features That Get Installed On Subsequent Update
@@ -404,7 +404,7 @@ UpdateScheduler Report Failure to Update Multiple Times In Telemetry
         ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log   Sending status to Central   2
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
-    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  2  False  sddsid=regruser
+    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  2  False  sddsid=regruser  install_state=1
     Cleanup Telemetry Server
 
     # Failed count should have been reset.
@@ -420,7 +420,7 @@ UpdateScheduler Report Failure to Update Multiple Times In Telemetry
         ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log   Sending status to Central   3
     Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
     ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
-    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  1  False  sddsid=regruser
+    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  1  False  sddsid=regruser  install_state=1
     Cleanup Telemetry Server
 
 
@@ -704,7 +704,31 @@ UpdateScheduler Performs Update After Receiving Policy With Different Non Primar
 
     Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
 
+Failed Download Telemetry Test
+    ${script} =     Catenate    SEPARATOR=\n
+    ...    \{
+    ...     "DownloadFailedSinceTime": "0",
+    ...     "DownloadState": "1",
+    ...     "DownloadStateCredit": "72",
+    ...     "EventStateLastError": "0",
+    ...     "EventStateLastTime": "1637597873",
+    ...     "InstallFailedSinceTime": "0",
+    ...     "InstallState": "0",
+    ...     "InstallStateCredit": "3",
+    ...     "LastGoodInstallTime": "1534853540",
+    ...     "canSendEvent": true
+    ...   }
+    ...    \
 
+    Create File   /opt/sophos-spl/base/update/var/updatescheduler/state_machine_raw_data.json  content=${script}
+    Run Process  chown  sophos-spl-updatescheduler:sophos-spl-group   /opt/sophos-spl/base/update/var/updatescheduler/state_machine_raw_data.json
+    Restart Update Scheduler
+    ${time} =  Get Current Time
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${TELEMETRY_SUCCESS}
+    ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
+    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0  sddsid=regruser  download_state=1
+    Cleanup Telemetry Server
 *** Keywords ***
 Teardown For Test
     Log SystemCtl Update Status
