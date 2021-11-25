@@ -1,41 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <package name="sspl-thininstaller" version="1.1.2">
     <versioning>
         <workingdir>sspl-thininstaller-build/AutoVersioningHeaders</workingdir>
     </versioning>
     <inputs>
         <workingdir>sspl-thininstaller-build</workingdir>
-        <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
-            <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
-        </package>
-        <package name="openssllinux11" version="1-1-1l-1/222963/output" dest="input">
-            <include src="openssl.tar" dest="."/>
-        </package>
-        <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
-            <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
-        </package>
-        <package name="versig" version="2-0-0-92/222980/output" dest="input">
-            <include src="versig.tar" dest="."/>
-        </package>
-        <package name="curllinux11" version="7-78-0-3/222970/output" dest="input">
-            <include src="curl.tar" dest="."/>
-        </package>
-        <package name="sullinux11" version="1-0-0-76/222976/output" dest="input">
-            <include src="SUL.tar" dest="."/>
-        </package>
-        <package name="boostlinux11" version="1-77-0-1/222969/output" dest="input">
-            <include src="boost.tar" dest="."/>
-        </package>
-        <package name="expatlinux11" version="2-4-1-1/222964/output" dest="input">
-            <include src="expat.tar" dest="."/>
-        </package>
-        <package name="zliblinux11" version="1-2-11-4/219630/output" dest="input">
-            <include src="zlib.tar" dest="."/>
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/openssllinux11/1-1-1l-1/222963/output/openssl.tar" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/versig/2-0-0-92/222980/output/versig.tar" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/curllinux11/7-78-0-3/222970/output/curl.tar" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/sullinux11/1-0-0-76/222976/output/SUL.tar" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/boostlinux11/1-77-0-1/222969/output/boost.tar" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/expatlinux11/2-4-1-1/222964/output/expat.tar" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/zliblinux11/1-2-11-4/219630/output/zlib.tar" dest-dir="input/."/>
 
-        <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="input/update_certs">
-            <include src="ps_rootca.crt" dest="."/>
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="input/update_certs/."/>
     </inputs>
 
     <buildcommands>
