@@ -51,6 +51,6 @@ namespace Plugin
         std::string m_revID;
         std::atomic_bool m_running = false;
         bool m_lookupEnabled = true;
-        int m_health = 1;
+        int m_health = 0;
     };
 }; // namespace Plugin
