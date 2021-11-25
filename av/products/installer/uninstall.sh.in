@@ -101,8 +101,5 @@ function removeUser()
   return 0
 }
 
-if (( DOWNGRADE == 0 ))
-then
-  removeUser    sophos-spl-av || echo "Failed to delete user: sophos-spl-av"
-  removeUser    sophos-spl-threat-detector || echo "Failed to delete user: sophos-spl-threat-detector"
-fi
+removeUser    sophos-spl-av || echo "Failed to delete user: sophos-spl-av"
+removeUser    sophos-spl-threat-detector || echo "Failed to delete user: sophos-spl-threat-detector"
