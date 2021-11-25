@@ -13,6 +13,7 @@ class Commands(Enum):
     APPLY_POLICY_FILE = b'PluginApplyPolicyFromFile'
     REQUEST_STATUS = b'PluginRequestStatus'
     REQUEST_TELEMETRY = b'PluginRequestTelemetry'
+    REQUEST_HEALTH = b'PluginRequestHealth'
     GET_REGISTERED_PLUGINS = b'AgentGetRegisteredPlugins'
     SET_POLICY = b'AgentSetPolicy'
     SET_POLICY_FILE = b'AgentSetPolicyFromFile'

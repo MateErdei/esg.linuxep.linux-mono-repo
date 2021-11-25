@@ -39,8 +39,12 @@ class FakePluginWrapper(object):
             "policyAppIds": [self.appId],
             "actionAppIds": [self.appId],
             "statusAppIds": [self.appId],
-            "pluginName": self.__m_pluginName
+            "pluginName": self.__m_pluginName,
+            "threatServiceHealth": True,
+            "serviceHealth": True,
+            "displayPluginName": self.__m_pluginName
         }
+
         config = json.dumps(config)
         filename = '/opt/sophos-spl/base/pluginRegistry/{}.json'.format(self.__m_pluginName)
         with open(filename, 'w') as f:
@@ -110,6 +114,12 @@ class FakePluginWrapper(object):
         if action is None:
             raise AssertionError("No action has been sent for this appId: {}".format(self.appId))
         return action
+
+    def get_plugin_health(self):
+        health = self.plugin.get_health()
+        if health is None:
+            raise AssertionError("No health has been sent")
+        return health
 
     def get_plugin_policy(self, original_value=""):
         policy = self.plugin.get_policy()

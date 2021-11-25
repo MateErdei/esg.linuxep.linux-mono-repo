@@ -24,6 +24,7 @@ class ControlMessagesToAgent(Enum):
     APPLY_POLICY = b'PluginApplyPolicy'
     REQUEST_STATUS = b'PluginRequestStatus'
     REQUEST_TELEMETRY = b'PluginRequestTelemetry'
+    REQUEST_HEALTH = b'PluginRequestHealth'
     GET_REGISTERED_PLUGINS = b'AgentGetRegisteredPlugins'
     SET_POLICY = b'AgentSetPolicy'
     DEREGISTER_PLUGINS = b'DeregisterPlugins'

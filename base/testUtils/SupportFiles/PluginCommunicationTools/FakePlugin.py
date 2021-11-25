@@ -34,6 +34,7 @@ class FakePlugin(object):
         self.policy = None
         self.statuses = {}
         self.telemetry = None
+        self.health = None
         self.run_thread = None
         self.receiving_messages  = False
 
@@ -108,6 +109,15 @@ class FakePlugin(object):
     def get_telemetry(self):
         return self.telemetry
 
+    def set_health(self, health):
+        self.health = health
+
+    def get_health(self):
+        if self.health is None:
+            return '{"Health": 0}'
+        else
+            return self.health
+
     def set_telemetry(self, telemetry):
         self.telemetry = telemetry
 
@@ -139,6 +149,8 @@ class FakePlugin(object):
             self.handle_request_status(message)
         elif message.command == Messages.REQUEST_TELEMETRY.value:
             self.handle_request_telemetry(message)
+        elif message.command == Messages.REQUEST_HEALTH.value:
+            self.handle_request_health(message)
         else:
             self.logger.error("Error: Do not recognise message type, message: {}".format(message))
         return
@@ -240,6 +252,18 @@ class FakePlugin(object):
             message.set_error_with_payload(log_message)
         else:
             message.contents.append(telemetry)
+
+        self.send_reply_to_management_agent(message)
+
+    def handle_request_health(self, message):
+        self.logger.info("Received request health request: {}".format(message))
+        health = self.get_health()
+        if health is None:
+            log_message = "No Health is set on plugin"
+            self.logger.warn(log_message)
+            message.set_error_with_payload(log_message)
+        else:
+            message.contents.append(health)
 
         self.send_reply_to_management_agent(message)
 

@@ -33,6 +33,7 @@ class Messages(Enum):
     APPLY_POLICY = PluginAPIMessage.ApplyPolicy
     REQUEST_STATUS = PluginAPIMessage.RequestStatus
     REQUEST_TELEMETRY = PluginAPIMessage.Telemetry
+    REQUEST_HEALTH = PluginAPIMessage.RequestHealth
     # to management agent
     REGISTRATION = PluginAPIMessage.Registration
     SEND_EVENT = PluginAPIMessage.SendEvent
