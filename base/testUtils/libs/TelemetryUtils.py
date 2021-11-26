@@ -126,7 +126,8 @@ class TelemetryUtils:
                                     events_max,
                                     queries,
                                     scheduled_queries,
-                                    folded_query):
+                                    folded_query,
+                                    health):
         version = get_plugin_version("edr")
         telemetry = {
             "osquery-restarts": int(num_osquery_restarts),
@@ -134,6 +135,7 @@ class TelemetryUtils:
             "mtr-extension-restarts-cpu": int(num_extension_restarts_cpu),
             "mtr-extension-restarts-memory": int(num_extension_restarts_memory),
             "version": version,
+            "health": health,
             "events-max": events_max,
             "osquery-database-purges": int(num_database_purges),
             "xdr-is-enabled": xdr_is_enabled,
@@ -418,7 +420,8 @@ class TelemetryUtils:
                                             ignore_selinux_events=True,
                                             ignore_socket_events=True,
                                             ignore_user_events=True,
-                                            folded_query=False):
+                                            folded_query=False,
+                                            health=0):
         expected_edr_telemetry_dict = self.generate_edr_telemetry_dict(num_osquery_restarts,
                                                                        num_database_purges,
                                                                        num_osquery_restarts_cpu,
@@ -430,7 +433,8 @@ class TelemetryUtils:
                                                                        events_max,
                                                                        queries,
                                                                        scheduled_queries,
-                                                                       folded_query)
+                                                                       folded_query,
+                                                                       health)
         actual_edr_telemetry_dict = json.loads(json_string)["edr"]
 
         if ignore_cpu_restarts:
