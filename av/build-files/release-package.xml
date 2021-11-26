@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <package name="sspl-plugin-anti-virus" version="1.0.4">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
@@ -16,25 +16,13 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
 
-        <package name="boostlinux11" version="1-77-0-1/222969/output" dest="input">
-            <include src="boost.tar" dest="."/>
-        </package>
-        <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
-            <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
-        </package>
-        <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
-            <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
-        </package>
-        <package name="googletest" version="1-8-1/EES-8928" dest="input">
-            <include src="googletest-release-1.8.1.tar.gz" dest="."/>
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/boostlinux11/1-77-0-1/222969/output/boost.tar" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="input/."/>
         <!-- Need to compile our own messages -->
-        <package name="capnprotolinux11" version="0-8-0-3/222233/output" dest="input">
-            <include src="capnproto.tar" dest="."/>
-        </package>
-        <package name="openssllinux11" version="1-1-1l-1/222963/output" dest="input">
-            <include src="openssl.tar" dest="."/>
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/capnprotolinux11/0-8-0-3/222233/output/capnproto.tar" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/openssllinux11/1-1-1l-1/222963/output/openssl.tar" dest-dir="input/."/>
 
 
         <!-- SUSI imports -->
@@ -53,9 +41,7 @@
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
-        <package name="model-linux-x64" version="1-3/212025" dest="input/susi_input" >
-            <include src="oempackage/linux-x64-model-gcc4.8.1.tar" dest="mllib"  />
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/model-linux-x64/1-3/212025/oempackage/linux-x64-model-gcc4.8.1.tar" dest-dir="input/susi_input/mllib"/>
 
         <build-asset project="ec" repo="susi">
             <release-version branch="release/1.4" build-id="20210802114022-7db456a1204f886509d4006545064d9ce5c8e60a-ozb5UA"/>
@@ -72,28 +58,17 @@
 
 
         <!-- external dependencies -->
-        <package name="openssl" version="1-1-1d-6/219246" dest="input/susi_input" >
-            <include src="release/lib" dest="openssl/lib" />
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/openssl/1-1-1d-6/219246/release/lib" dest-dir="input/susi_input/openssl/lib"/>
 
-        <package name="boost" version="1-69-0-93/219328" dest="input/susi_input" >
-            <include src="release/boost.tar.bz2" dest="boost" />
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/boost/1-69-0-93/219328/release/boost.tar.bz2" dest-dir="input/susi_input/boost"/>
 
-        <package name="icu" version="64-2-50/219250"  dest="input/susi_input" >
-            <include src="lib/libicudata.so.64.*" dest="icu/lib" />
-            <include src="lib/libicui18n.so.64.*" dest="icu/lib" />
-            <include src="lib/libicuuc.so.64.*" dest="icu/lib"/>
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/icu/64-2-50/219250/lib/libicudata.so.64.GLOB" dest-dir="input/susi_input/icu/lib"/>
+        <trusted-asset artifact-path="filer5-migrate/icu/64-2-50/219250/lib/libicui18n.so.64.GLOB" dest-dir="input/susi_input/icu/lib"/>
+        <trusted-asset artifact-path="filer5-migrate/icu/64-2-50/219250/lib/libicuuc.so.64.GLOB" dest-dir="input/susi_input/icu/lib"/>
 
-        <package name="libarchive" version="64-2-7/219360" dest="input/susi_input" >
-            <include src="lib/libarchive.so.13.*" dest="libarchive/lib" />
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/libarchive/64-2-7/219360/lib/libarchive.so.13.GLOB" dest-dir="input/susi_input/libarchive/lib"/>
 
-        <package name="luajit" version="2-0-5-52/219247" dest="input/susi_input" >
-            <include src="lib/libluajit-5.1.so.*" dest="luajit/lib" />
-        </package>
-
+        <trusted-asset artifact-path="filer5-migrate/luajit/2-0-5-52/219247/lib/libluajit-5.1.so.GLOB" dest-dir="input/susi_input/luajit/lib"/>
     </inputs>
     <buildcommands>
         <command mode="release,oldci">
