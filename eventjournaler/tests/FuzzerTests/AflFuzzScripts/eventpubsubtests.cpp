@@ -8,6 +8,8 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <modules/EventWriterWorkerLib/EventQueuePopper.h>
 #include <modules/EventWriterWorkerLib/EventWriterWorker.h>
 #include <modules/EventJournal/EventJournalWriter.h>
+#include <modules/Heartbeat/Heartbeat.h>
+#include <modules/Heartbeat/ThreadIdConsts.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
@@ -64,11 +66,16 @@ int main()
     {
         auto context = Common::ZMQWrapperApi::createContext();
 
+        auto heartbeat = std::make_shared<Heartbeat::Heartbeat>();
+
         std::shared_ptr<EventQueueLib::EventQueue> eventQueue(new EventQueueLib::EventQueue(MAX_QUEUE_SIZE));
         std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue));
         std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(new EventWriterLib::EventQueuePopper(eventQueue));
         std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter(new EventJournal::Writer(journal_path, journal_producer));
-        std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter(new EventWriterLib::EventWriterWorker(std::move(eventQueuePopper), std::move(eventJournalWriter)));
+        std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter(new EventWriterLib::EventWriterWorker(
+            std::move(eventQueuePopper),
+            std::move(eventJournalWriter),
+            heartbeat->getPingHandleForId(Heartbeat::getWriterThreadId())));
 
         eventWriter->start();
         for (int i=0 ; i<10 ; i++)
@@ -87,7 +94,7 @@ int main()
 
         eventQueuePusher->handleEvent(event);
     }
-    catch (std::exception &e)
+    catch (const std::exception&)
     {
         return 2;
     }

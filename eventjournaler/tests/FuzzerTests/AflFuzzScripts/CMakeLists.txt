@@ -7,6 +7,7 @@ target_link_libraries(eventpubsubtests PRIVATE
         eventqueuelib
         subscriberlib
         eventwriterlib
+        heartbeat
         ${LOG4CPLUS_LIBRARY}
         )
 
