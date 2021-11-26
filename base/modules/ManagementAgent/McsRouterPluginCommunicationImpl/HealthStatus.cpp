@@ -17,7 +17,6 @@ namespace ManagementAgent
         , m_overallPluginServiceHealth(0)
         , m_overallPluginThreatServiceHealth(0)
         , m_overallPluginThreatDetectionHealth(0)
-        , m_admin(1)
         , m_cachedHealthStatusXml("")
         {
 
@@ -92,7 +91,6 @@ namespace ManagementAgent
 
             healthValue = std::max(m_overallPluginServiceHealth, m_overallPluginThreatServiceHealth);
             healthValue = std::max(m_overallPluginThreatDetectionHealth, healthValue);
-            healthValue = std::max(m_admin, healthValue);
             m_overallHealth = healthValue;
 
         }
@@ -137,7 +135,6 @@ namespace ManagementAgent
 
             statusXml
                     << R"(<item name="threat" value=")" << m_overallPluginThreatDetectionHealth << R"(" />)"
-                    << R"(<item name="admin" value=")" << m_admin <<  R"(" />)"
                     << R"(</health>)";
 
             bool hasStatusChanged = (statusXml.str() != m_cachedHealthStatusXml);

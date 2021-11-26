@@ -60,7 +60,6 @@ namespace ManagementAgent
             unsigned int m_overallPluginServiceHealth;
             unsigned int m_overallPluginThreatServiceHealth;
             unsigned int m_overallPluginThreatDetectionHealth;
-            unsigned int m_admin;
             std::string m_cachedHealthStatusXml;
         };
     }

@@ -31,7 +31,7 @@ Verify Management Agent Can Check Good Plugin Health Status
     ...  1
     ...  File Should Exist   ${SHS_STATUS_FILE}
 
-    ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /><item name="admin" value="1" /></health>
+    ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
     ${STATUS_CONTENT}=  Get File  ${SHS_STATUS_FILE}
     Log File  ${SHS_STATUS_FILE}
@@ -56,7 +56,7 @@ Verify Management Agent Can Check Bad Plugin Health Status
     ...  1
     ...  File Should Exist   ${SHS_STATUS_FILE}
 
-    ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="service" value="3" ><detail name="FakePlugin" value="1" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="3" ><detail name="FakePlugin" value="1" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /><item name="admin" value="1" /></health>
+    ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="service" value="3" ><detail name="FakePlugin" value="1" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="3" ><detail name="FakePlugin" value="1" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
     ${STATUS_CONTENT}=  Get File  ${SHS_STATUS_FILE}
     Log File  ${SHS_STATUS_FILE}
