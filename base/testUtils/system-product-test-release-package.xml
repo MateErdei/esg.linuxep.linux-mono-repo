@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <package name="system-product-tests">
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
@@ -72,19 +72,15 @@
         <!--            <include src="." dest="sspl-thininstaller"/>-->
         <!--        </package>-->
 
-        <package name="openssllinux11" version="1-1-1c-16/216598/output" dest=".">
-            <include src="openssl.tar" dest="openssllinux11"/>
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/openssllinux11/1-1-1c-16/216598/output/openssl.tar" dest-dir="./openssllinux11"/>
 
-        <package name="savlinux9-package" version="10-5-0/217084/savlinux-package" dest=".">
-            <include src="sav-linux-x86-aggregated-10.5.0.0.25.tgz" dest="savlinux9-package"/>
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/savlinux9-package/10-5-0/217084/savlinux-package/sav-linux-x86-aggregated-10.5.0.0.25.tgz" dest-dir="./savlinux9-package"/>
 
         <!--        pull the scripts from mono-repo to get the coverage uploaded to redash-->
         <build-asset project="em" repo="esg">
             <!-- release-version fetches for all branches with no development-version -->
             <development-version branch="release--bazeltools"/>
-            <include mode="base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="bazel-tools" dest-dir="bazel-tools" />
+            <include mode="base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="bazel-tools" dest-dir="bazel-tools"/>
         </build-asset>
 
         <!--
