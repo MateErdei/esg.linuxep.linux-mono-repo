@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <package name="sspl-event-journaler-plugin" version="1.0.0">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
@@ -20,21 +20,11 @@
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="input"/>
         </build-asset>
 
-        <package name="cmakelinux" version="3-11-2-4/213056/cmakelinux" dest="input">
-            <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
-        </package>
-        <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
-            <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
-        </package>
-        <package name="googletest" version="1-8-1/EES-8928" dest="input">
-            <include src="googletest-release-1.8.1.tar.gz" dest="."/>
-        </package>
-        <package name="capnprotolinux11" version="0-8-0-17/222740/capnproto" dest="input">
-            <include src="capnproto.tar" dest="."/>
-        </package>
-        <package name="xzutilslinux" version="5-2-4-25/222750/output" dest="input">
-            <include src="xzutils.tar" dest="."/>
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/capnprotolinux11/0-8-0-17/222740/capnproto/capnproto.tar" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/xzutilslinux/5-2-4-25/222750/output/xzutils.tar" dest-dir="input/."/>
     </inputs>
     <buildcommands>
         <command mode="release">
