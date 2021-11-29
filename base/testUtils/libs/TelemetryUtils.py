@@ -381,7 +381,8 @@ class TelemetryUtils:
     def check_mtr_telemetry_json_is_correct(self, json_string,
                                             num_sophos_mtr_restarts=0,
                                             ignore_cpu_restarts=False,
-                                            ignore_memory_restarts=False):
+                                            ignore_memory_restarts=False,
+                                            ignore_health=True):
         expected_mtr_telemetry_dict = self.generate_mtr_telemetry_dict(num_sophos_mtr_restarts)
         actual_mtr_telemetry_dict = json.loads(json_string)["mtr"]
 
@@ -394,6 +395,11 @@ class TelemetryUtils:
             mem_restarts_key = "osquery-restarts-memory"
             expected_mtr_telemetry_dict.pop(mem_restarts_key, None)
             actual_mtr_telemetry_dict.pop(mem_restarts_key, None)
+
+        if ignore_health:
+            health_key = "health"
+            expected_mtr_telemetry_dict.pop(health_key, None)
+            actual_mtr_telemetry_dict.pop(health_key, None)
 
         if actual_mtr_telemetry_dict != expected_mtr_telemetry_dict:
             raise AssertionError(
