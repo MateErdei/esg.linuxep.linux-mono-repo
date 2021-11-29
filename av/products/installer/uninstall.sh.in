@@ -77,6 +77,8 @@ function removeUser()
   }
 
   local USERNAME=$1
+  check_user_exists "$USERNAME" || return 0
+
   USER_DELETER=$(which deluser 2>/dev/null)
   [[ -x "$USER_DELETER" ]] || USER_DELETER=$(which userdel 2>/dev/null)
 
@@ -86,7 +88,6 @@ function removeUser()
       return 1
   fi
 
-  check_user_exists "$USERNAME"
   local USER_DELETE_TRIES=0
   while [[ $USER_DELETE_TRIES -le 5 ]]
   do
