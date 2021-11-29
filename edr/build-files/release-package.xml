@@ -13,7 +13,7 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2021.37-linux" build-id="20210909124845-4ba2bf3fe29b7ca6b54c83d0d9811fe9c53f511b-UFRT6N"/>
+            <release-version branch="release/2021.49" build-id="20211126150118-c0e933480e8f02095af105a3d1a24f115bfaef77-bILJ8G"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
