@@ -129,6 +129,95 @@ public:
             ;
     }
 
+    static std::string getRuntimeDetectionsSampleJson()
+    {
+        return R"({
+    "detectionName": {
+        "short": "Suspicious Interactive Shell"
+    },
+    "detectionThumbprint": "InteractiveShell",
+    "threatSource": 7,
+    "threatType": 4,
+    "time": 1638184256,
+    "details": {
+        "filePath": "/bin/bash",
+        "sha256FileHash": ""
+    },
+    "sid": "0ca01a43-6f53-4b09-bce0-1d9922262eaa-1467-5681",
+    "items": [
+        {
+            "path": "/bin/bash",
+            "primary": true,
+            "sha256": "",
+            "type": 1,
+            "spid": "0ca01a43-6f53-4b09-bce0-1d9922262eaa-1467-5681"
+        }
+    ],
+    "raw": {
+        "alert_group_id": "23a09cfb-a814-4e41-bcff-8ad82088c1db",
+        "description": "Suspicious Interactive Shell Started",
+        "uuid": "73bf97d3-c68b-4dc5-a11c-ffefcf33972f",
+        "location": {
+            "node_name": "ubuntu1804x64s",
+            "kubernetes_pod": "N/A",
+            "kubernetes_namespace": "N/A",
+            "container_id": "N/A",
+            "container_name": "N/A",
+            "image_id": "N/A",
+            "image_name": "N/A",
+            "sensor_id": "runtimedetections-a92ae92c-e34c-4ec4-ad92-a1919490b13f"
+        },
+        "strategy_name": "Suspicious Interactive Shell",
+        "metadata": {
+            "arch": "x86_64",
+            "capsule8_content_version": "4.9.0.153",
+            "capsule8_sensor_build": "616",
+            "capsule8_sensor_id": "runtimedetections-a92ae92c-e34c-4ec4-ad92-a1919490b13f",
+            "capsule8_sensor_version": "4.9.0.182",
+            "collector": "perf",
+            "container_runtime": "not-found",
+            "cpu_count": "2",
+            "has_struct_layouts": "true",
+            "in_container": "false",
+            "in_host_pid_namespace": "true",
+            "investigations_tables": "boot_info,sensor_metadata",
+            "kernel_release": "4.15.0-162-generic",
+            "kernel_version": "#170-Ubuntu SMP Mon Oct 18 11:38:05 UTC 2021",
+            "machine_id": "7e2140083ed19ca2c42dbd489bdff2c5",
+            "network_interface_ens5_addr_0": "10.237.165.237/20",
+            "network_interface_ens5_addr_0_type": "ip+net",
+            "network_interface_ens5_addr_1": "fe80::b1:e0ff:fea3:b85b/64",
+            "network_interface_ens5_addr_1_type": "ip+net",
+            "network_interface_ens5_flags": "up|broadcast|multicast",
+            "network_interface_ens5_hardware_addr": "02:b1:e0:a3:b8:5b",
+            "network_interface_ens5_index": "2",
+            "network_interface_ens5_mtu": "9001",
+            "network_interface_lo_addr_0": "127.0.0.1/8",
+            "network_interface_lo_addr_0_type": "ip+net",
+            "network_interface_lo_addr_1": "::1/128",
+            "network_interface_lo_addr_1_type": "ip+net",
+            "network_interface_lo_flags": "up|loopback",
+            "network_interface_lo_index": "1",
+            "network_interface_lo_mtu": "65536",
+            "node_boot_time": "2021-11-29T11:09:59Z",
+            "node_hostname": "ubuntu1804x64s",
+            "policy_hash": "64bbdc99d1fda4e44c79555aab22ebc9f32b11f07722502ec347d47b761ce3c7",
+            "starttime": "2021-11-29T11:10:50.478203454Z",
+            "uname_hostname": "ubuntu1804x64s",
+            "uname_os": "Linux"
+        },
+        "categories": [
+            "MITRE.Execution.Command and Scripting Interpreter.Unix Shell"
+        ]
+    }
+})";
+    }
+
+    static std::string getRuntimeDetectionsPrimaryItemJson()
+    {
+        return R"({"path":"/bin/bash","primary":true,"sha256":"","spid":"0ca01a43-6f53-4b09-bce0-1d9922262eaa-1467-5681","type":1})";
+    }
+
     static const uint32_t EXPECTED_MAX_EVENTS_PER_QUERY = 5000;
 };
 
@@ -495,4 +584,47 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     auto actualResults = generator.GenerateData(context, MockReaderWrapper);
 
     EXPECT_EQ(expectedResults,actualResults);
+}
+
+TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithRuntimeDetections)
+{
+    TableRows expectedResults;
+    TableRow r;
+    r["time"] = "123123123";
+    r["rowid"] = "456";
+    r["query_id"] = "";
+    r["raw"] = getRuntimeDetectionsSampleJson();
+    r["primary_item"] = getRuntimeDetectionsPrimaryItemJson();
+    r["primary_item_name"] = "/bin/bash";
+    r["primary_item_spid"] = "0ca01a43-6f53-4b09-bce0-1d9922262eaa-1467-5681";
+    r["primary_item_type"] = "FILE";
+    r["detection_name"] = "Suspicious Interactive Shell";
+    r["detection_thumbprint"] = "InteractiveShell";
+    r["sid"] = "0ca01a43-6f53-4b09-bce0-1d9922262eaa-1467-5681";
+    r["threat_source"] = "Behavioral";
+    r["threat_type"] = "Suspicious Behaviour";
+    r["monitor_mode"] = "0";
+    expectedResults.push_back(std::move(r));
+
+    auto MockReaderWrapper = std::make_shared<MockJournalReaderWrapper>();
+
+    Common::EventJournalWrapper::Entry entry;
+    entry.timestamp = 123123123;
+    entry.producerUniqueID = 456;
+    std::vector<Common::EventJournalWrapper::Entry> entries = {entry};
+    Common::EventJournalWrapper::Detection detection;
+    detection.data = getRuntimeDetectionsSampleJson();
+    std::set<std::string> greaterThanSet = {"0"};
+    std::set<std::string> emptySet = {};
+    NiceMock<MockQueryContext> context;
+    EXPECT_CALL(context, GetConstraints("time",_)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
+    EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(emptySet));
+    EXPECT_CALL(*MockReaderWrapper, getEntries(_,_,_,_,_)).WillOnce(Return(entries));
+    EXPECT_CALL(*MockReaderWrapper, decode(_)).WillOnce(Return(std::make_pair(true, detection)));
+
+    OsquerySDK::SophosAVDetectionTableGenerator generator;
+    auto actualResults = generator.GenerateData(context, MockReaderWrapper);
+
+    EXPECT_EQ(expectedResults, actualResults);
 }

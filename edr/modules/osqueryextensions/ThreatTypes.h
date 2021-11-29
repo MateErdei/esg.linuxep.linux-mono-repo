@@ -23,7 +23,7 @@ namespace
                                         { 11, "Web" },
                                         { 12, "Device Control" } };
 
-    EnumStringMap THREAT_TYPE_MAP = { { 1, "Malware" },         { 2, "Pua" },   { 7, "Blocked" },
+    EnumStringMap THREAT_TYPE_MAP = { { 1, "Malware" },         { 2, "Pua" },   { 4, "Suspicious Behaviour" },   { 7, "Blocked" },
                                       { 8, "Amsi Protection" }, { 100, "App" }, { 102, "Data Loss Prevention" },
                                       { 103, "Device Control" } };
 

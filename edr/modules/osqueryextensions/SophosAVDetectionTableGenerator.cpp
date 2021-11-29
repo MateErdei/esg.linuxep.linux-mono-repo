@@ -126,6 +126,10 @@ namespace OsquerySDK
                     break;
                 }
             }
+            if (jsonObject.contains("detectionThumbprint"))
+            {
+                r["detection_thumbprint"] = jsonObject["detectionThumbprint"];
+            }
             if (jsonObject["detectionName"].contains("full"))
             {
                 r["detection_name"] = jsonObject["detectionName"]["full"];
@@ -140,6 +144,10 @@ namespace OsquerySDK
             r["threat_type"] = THREAT_TYPE_MAP.find(jsonObject["threatType"])->second;
 
             r["sid"] = "";
+            if (jsonObject.contains("sid"))
+            {
+                r["sid"] = jsonObject["sid"];
+            }
 
             r["monitor_mode"] = "0";
             if (jsonObject.contains("monitorMode"))

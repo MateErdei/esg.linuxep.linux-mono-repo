@@ -98,6 +98,7 @@ namespace OsquerySDK
              * One of the following values:
              *  - Malware
              *  - Pua
+             *  - Suspicious Behaviour
              *  - Blocked
              *  - Amsi Protection
              *  - App
