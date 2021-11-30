@@ -7,9 +7,9 @@ Resource        EventJournalerResources.robot
 Library         ../Libs/InstallerUtils.py
 Library         ${TEST_INPUT_PATH}/fake_management/FakeManagement.py
 
-Suite Setup     Setup
 Suite Teardown  Uninstall Base
 
+Test Setup     Setup
 Test Teardown  Test Teardown
 
 
