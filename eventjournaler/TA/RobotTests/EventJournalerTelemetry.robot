@@ -39,6 +39,22 @@ Check Health Telemetry Is Written
     Dictionary Should Contain Key  ${threadHealthDict}  Writer
     Should Be True  ${threadHealthDict["Writer"]}
 
+Check Socket Missing Is True When Socket Deleted
+    ${EJr_telemetry} =  Get Plugin Telemetry  eventjournaler
+    Log  ${EJr_telemetry}
+    ${telemetry_dict} =  Evaluate  json.loads('''${EJr_telemetry}''')  json
+    Dictionary Should Contain Key  ${telemetry_dict}  event-subscriber-socket-missing
+    Should Be False  ${telemetry_dict["event-subscriber-socket-missing"]}
+
+
+    Remove Subscriber Socket
+
+    ${EJr_telemetry} =  Get Plugin Telemetry  eventjournaler
+    Log  ${EJr_telemetry}
+    ${telemetry_dict} =  Evaluate  json.loads('''${EJr_telemetry}''')  json
+    Dictionary Should Contain Key  ${telemetry_dict}  event-subscriber-socket-missing
+    Should Be True  ${telemetry_dict["event-subscriber-socket-missing"]}
+
 
 *** Keywords ***
 Test Teardown
