@@ -6,7 +6,7 @@
         <component importreference="ServerProtectionLinux-Base-component-1.1.8.159" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
         <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.0.98" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
         <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.227" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
-        <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-4.9.0.134" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
+        <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-4.9.0.189" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
     </componentsuite>
 	<componentsuite importreference="ServerProtectionLinux-Base-1.1.8.2">
         <component importreference="ServerProtectionLinux-Base-component-1.1.8.2" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
@@ -134,6 +134,10 @@
 		<component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.182"/>
       </line>
       <line id="ServerProtectionLinux-Plugin-RuntimeDetections">
+		<component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-4.9.0.189">
+            <genericsupplement decodepath="content_rules"
+                               line="rd_rules" tag="LATEST" warehousename="runtime_detection"/>
+		</component>
 		<component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-4.9.0.134">
             <genericsupplement decodepath="content_rules"
                                line="rd_rules" tag="LATEST" warehousename="runtime_detection"/>
