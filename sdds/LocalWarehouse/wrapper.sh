@@ -56,8 +56,8 @@ function install_dependencies()
 
   echo "----------------------------------------------------------------------------------------"
   echo installing/upgrading pip dependencies
-  pip3 install --upgrade pip -i $TAP_PYPI --trusted-host tap-artifactory1.eng.sophos
-  pip3 install --upgrade tap keyrings.alt --upgrade pip -i $TAP_PYPI --trusted-host tap-artifactory1.eng.sophos
+  python3 -m pip install --upgrade pip -i $TAP_PYPI --trusted-host tap-artifactory1.eng.sophos
+  python3 -m pip install --upgrade tap keyrings.alt -i $TAP_PYPI --trusted-host tap-artifactory1.eng.sophos
   echo "----------------------------------------------------------------------------------------"
 }
 
@@ -73,12 +73,12 @@ function done_message()
   echo "DONE!"
   echo "To Install VUT of selected warehouse branch (default is develop):"
   echo -e "\tUsername: av_user_vut"
-  echo -e "\tPassword: Password"
+  echo -e "\tPassword: password"
   echo -e "\tAddress: https://localhost:8000"
   echo -e "export OVERRIDE_SOPHOS_LOCATION=https://localhost:8000"
   echo "To Install 999 of selected warehouse branch (default is develop):"
   echo -e "\tUsername: av_user_999"
-  echo -e "\tPassword: Password"
+  echo -e "\tPassword: password"
   echo -e "\tAddress: https://localhost:8001"
   echo -e "export OVERRIDE_SOPHOS_LOCATION=https://localhost:8001"
   export OVERRIDE_SOPHOS_LOCATION=https://localhost:8000
