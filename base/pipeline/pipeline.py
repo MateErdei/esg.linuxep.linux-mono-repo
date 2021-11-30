@@ -1,4 +1,3 @@
-import logging
 import os
 import time
 import tap.v1 as tap
@@ -18,35 +17,6 @@ UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
 RESULTS_DIR = '/opt/test/results'
 INPUTS_DIR = '/opt/test/inputs'
 
-COMPONENT = 'sspl_base'
-BUILD_TEMPLATE = 'JenkinsLinuxTemplate7'
-RELEASE_PKG = './build/release-package.xml'
-RELEASE_MODE = 'release'
-DEBUG_MODE = 'debug'
-ANALYSIS_MODE = 'analysis'
-COVERAGE_MODE = 'coverage'
-NINE_NINE_NINE_MODE = '999'
-ZERO_SIX_ZERO_MODE = '060'
-
-logger = logging.getLogger(__name__)
-
-# Extract base version from release package xml file to save hard-coding it twice.
-def get_base_version():
-    import xml.dom.minidom
-    release_pkg_name = "release-package.xml"
-    package_path = os.path.join("./build/", release_pkg_name)
-    if os.path.isfile(package_path):
-        dom = xml.dom.minidom.parseString(open(package_path).read())
-        package = dom.getElementsByTagName("package")[0]
-        version = package.getAttribute("version")
-        if version:
-            logger.info(f"Extracted version from {release_pkg_name}: {version}")
-            return version
-
-    logger.info("CWD: %s", os.getcwd())
-    logger.info("DIR CWD: %s", str(os.listdir(os.getcwd())))
-    raise Exception(f"Failed to extract version from {release_pkg_name}")
-
 def pip_install(machine: tap.Machine, *install_args: str):
     """Installs python packages onto a TAP machine"""
     pip_index = os.environ.get('TAP_PIP_INDEX_URL')
@@ -58,6 +28,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
     machine.run('pip3', '--log', '/opt/test/logs/pip.log',
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
+
 
 def package_install(machine: tap.Machine, *install_args: str):
     if machine.run('which', 'apt-get', return_exit_code=True) == 0:
@@ -73,6 +44,7 @@ def package_install(machine: tap.Machine, *install_args: str):
         else:
             time.sleep(3)
 
+
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     try:
@@ -85,6 +57,7 @@ def install_requirements(machine: tap.Machine):
         # the previous command will fail if user already exists. But this is not an error
         print("On adding installing requirements: {}".format(ex))
 
+
 def robot_task(machine: tap.Machine):
     try:
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
@@ -96,6 +69,7 @@ def robot_task(machine: tap.Machine):
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
+
 
 def coverage_task(machine: tap.Machine, branch: str):
     try:
@@ -130,22 +104,16 @@ def coverage_task(machine: tap.Machine, branch: str):
         # run tap-tests
         try:
             machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
-                        timeout=3600,
                         environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
 
         # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
         tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-base-taptest')
-        machine.run('mkdir', tap_htmldir)
+        machine.run ('mkdir', tap_htmldir)
         machine.run('cp', COVFILE_TAPTESTS, tap_htmldir)
-        upload_results = "0"
-        # Don't upload results to allegro unless we're on develop, can be overridden.
-        if branch == SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH:
-            upload_results = "1"
-
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': upload_results, 'htmldir': tap_htmldir})
+                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir})
 
         # publish tap (tap tests + unit tests) html results and coverage file to artifactory
         machine.run('mv', tap_htmldir, coverage_results_dir)
@@ -157,6 +125,7 @@ def coverage_task(machine: tap.Machine, branch: str):
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
+
 
 def pytest_task(machine: tap.Machine):
     try:
@@ -203,100 +172,62 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
     )
     return test_inputs
 
-def build_release(stage: tap.Root, component: tap.Component):
-    return stage.artisan_build(
-        name=RELEASE_MODE, component=component, image=BUILD_TEMPLATE,
-        mode=RELEASE_MODE, release_package=RELEASE_PKG)
 
-def build_debug(stage: tap.Root, component: tap.Component):
-    return stage.artisan_build(
-        name=DEBUG_MODE, component=component, image=BUILD_TEMPLATE,
-        mode=DEBUG_MODE, release_package=RELEASE_PKG)
-
-def build_analysis(stage: tap.Root, component: tap.Component):
-    return stage.artisan_build(
-        name=ANALYSIS_MODE, component=component, image=BUILD_TEMPLATE,
-        mode=ANALYSIS_MODE, release_package=RELEASE_PKG)
-
-def build_coverage(stage: tap.Root, component: tap.Component):
-    return stage.artisan_build(
-        name=COVERAGE_MODE, component=component, image=BUILD_TEMPLATE,
-        mode=COVERAGE_MODE, release_package=RELEASE_PKG)
-
-def build_999(stage: tap.Root, component: tap.Component):
-    return stage.artisan_build(
-        name=NINE_NINE_NINE_MODE, component=component, image=BUILD_TEMPLATE,
-        mode=NINE_NINE_NINE_MODE, release_package=RELEASE_PKG)
-
-def build_060(stage: tap.Root, component: tap.Component):
-    return stage.artisan_build(
-        name=ZERO_SIX_ZERO_MODE, component=component, image=BUILD_TEMPLATE,
-        mode=ZERO_SIX_ZERO_MODE, release_package=RELEASE_PKG)
-
-@tap.pipeline(version=1, component=COMPONENT, root_sequential=False)
+@tap.pipeline(version=1, component='sspl-base', root_sequential=False)
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    component = tap.Component(name=COMPONENT, base_version=get_base_version())
-    # For cmdline/local builds, determine build mode by how tap was called
-    # Not sure it's possible to pass parameters into tap so doing this for now.
-    determined_build_mode=None
-    import sys
-    if f"{component.name}.build.{DEBUG_MODE}" in sys.argv:
-        determined_build_mode = DEBUG_MODE
-    elif f"{component.name}.build.{RELEASE_MODE}" in sys.argv:
-        determined_build_mode = RELEASE_MODE
-
-    # In CI parameters.mode will be set
-    mode = parameters.mode or determined_build_mode
-
+    component = tap.Component(name='sspl-base', base_version='1.1.8')
+    
+    RELEASE_MODE = 'release'
+    ANALYSIS_MODE = 'analysis'
+    COVERAGE_MODE = 'coverage'
+    NINE_NINE_NINE_MODE = '999'
+    ZERO_SIX_ZERO_MODE = '060'
+    # export TAP_PARAMETER_MODE=release|analysis
+    mode = parameters.mode or RELEASE_MODE
     base_build = None
     INCLUDE_BUILD_IN_PIPELINE = parameters.get('INCLUDE_BUILD_IN_PIPELINE', True)
     if INCLUDE_BUILD_IN_PIPELINE:
         with stage.parallel('build'):
-            if mode:
-                if mode == RELEASE_MODE or mode == ANALYSIS_MODE:
-                    build_analysis(stage, component)
-                    base_build = build_release(stage, component)
-                    build_999(stage, component)
-                    build_060(stage, component)
-                elif mode == DEBUG_MODE:
-                    base_build = build_debug(stage, component)
-                elif mode == COVERAGE_MODE:
-                    base_build = build_coverage(stage, component)
-                    build_release(stage, component)
-                    build_999(stage, component)
-                    build_060(stage, component)
-            else:
-                # For "tap ls" to work the default path through here with no params etc. must be to run all builds,
-                # else only the default build path, which used to be release will be listed.
-                base_build = build_release(stage, component)
-                build_debug(stage, component)
-                build_analysis(stage, component)
-                build_coverage(stage, component)
-                build_999(stage, component)
-                build_060(stage, component)
+            if mode == RELEASE_MODE or mode == ANALYSIS_MODE:
+                analysis_build = stage.artisan_build(name=ANALYSIS_MODE, component=component, image='JenkinsLinuxTemplate6',
+                                                 mode=ANALYSIS_MODE, release_package='./build/release-package.xml')
+                base_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate6',
+                                                 mode=RELEASE_MODE, release_package='./build/release-package.xml')
+                nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image='JenkinsLinuxTemplate6',
+                                                           mode=NINE_NINE_NINE_MODE, release_package='./build/release-package.xml')
+                zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image='JenkinsLinuxTemplate6',
+                                                           mode=ZERO_SIX_ZERO_MODE, release_package='./build/release-package.xml')
+            elif mode == COVERAGE_MODE:
+                base_build = stage.artisan_build(name=COVERAGE_MODE, component=component, image='JenkinsLinuxTemplate6',
+                                             mode=COVERAGE_MODE, release_package='./build/release-package.xml')
+                release_build = stage.artisan_build(name=RELEASE_MODE, component=component, image='JenkinsLinuxTemplate6',
+                                                    mode=RELEASE_MODE, release_package='./build/release-package.xml')
+                nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image='JenkinsLinuxTemplate6',
+                                                           mode=NINE_NINE_NINE_MODE, release_package='./build/release-package.xml')
+                zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image='JenkinsLinuxTemplate6',
+                                                          mode=ZERO_SIX_ZERO_MODE, release_package='./build/release-package.xml')
     else:
         base_build = context.artifact.build()
-
-    # Modes where we do not want to run TAP tests.
-    if mode in [ANALYSIS_MODE]:
-        return
-
-    test_inputs = get_inputs(context, base_build, mode)
-    machines = (
-        ("ubuntu1804",
-         tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
-                     platform=tap.Platform.Linux)),
-        ("centos77",
-         tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-
-        ("centos82",
-         tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-        # add other distros here
-    )
-    with stage.parallel('integration'):
-        task_func = robot_task
-        if mode == COVERAGE_MODE:
-            stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux), branch=context.branch)
-        else:
-            for template_name, machine in machines:
-                stage.task(task_name=template_name, func=task_func, machine=machine)
+    #
+    # if mode == ANALYSIS_MODE:
+    #     return
+    #
+    # test_inputs = get_inputs(context, base_build, mode)
+    # machines = (
+    #     ("ubuntu1804",
+    #      tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
+    #                  platform=tap.Platform.Linux)),
+    #     ("centos77",
+    #      tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+    #
+    #     ("centos82",
+    #      tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+    #     # add other distros here
+    # )
+    # with stage.parallel('integration'):
+    #     task_func = robot_task
+    #     if mode == COVERAGE_MODE:
+    #         stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux), branch=context.branch)
+    #     else:
+    #         for template_name, machine in machines:
+    #             stage.task(task_name=template_name, func=task_func, machine=machine)
