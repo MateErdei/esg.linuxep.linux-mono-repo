@@ -111,7 +111,7 @@ namespace Plugin
             telemetry.set(Telemetry::telemetryThreadHealthPrepender+kv.first, kv.second);
         }
 
-        bool subscriberSocketExists = Common::FileSystem::fileSystem()->isFile(Plugin::getSubscriberSocketPath());
+        bool subscriberSocketExists = Common::FileSystem::fileSystem()->exists(Plugin::getSubscriberSocketPath());
         telemetry.set(Telemetry::telemetryMissingEventSubscriberSocket,
                       !subscriberSocketExists);
         if (!subscriberSocketExists)

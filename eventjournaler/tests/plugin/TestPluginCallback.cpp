@@ -50,7 +50,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns0WhenAllFactorsHealthy)
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
-    EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSubscriberSocketPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::getSubscriberSocketPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockHeartbeat, getNumDroppedEventsInLast24h()).WillOnce(Return(0));
     std::map<std::string, bool> returnMap = {{"Writer", true}, {"Subscriber", true}, {"PluginAdapter", true}};
     EXPECT_CALL(*mockHeartbeat, getMapOfIdsAgainstIsAlive()).WillOnce(Return(returnMap));
@@ -74,7 +74,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenExceedingMaxAcceptableDropp
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
-    EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSubscriberSocketPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::getSubscriberSocketPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockHeartbeat, getNumDroppedEventsInLast24h()).WillOnce(Return(6));
     std::map<std::string, bool> returnMap = {{"Writer", true}, {"Subscriber", true}, {"PluginAdapter", true}};
     EXPECT_CALL(*mockHeartbeat, getMapOfIdsAgainstIsAlive()).WillOnce(Return(returnMap));
@@ -99,7 +99,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenSocketMissing)
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
-    EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSubscriberSocketPath())).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::getSubscriberSocketPath())).WillOnce(Return(false));
     EXPECT_CALL(*mockHeartbeat, getNumDroppedEventsInLast24h()).WillOnce(Return(0));
     std::map<std::string, bool> returnMap = {{"Writer", true}, {"Subscriber", true}, {"PluginAdapter", true}};
     EXPECT_CALL(*mockHeartbeat, getMapOfIdsAgainstIsAlive()).WillOnce(Return(returnMap));
@@ -124,7 +124,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenThreadsDead)
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
 
-    EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSubscriberSocketPath())).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, exists(Plugin::getSubscriberSocketPath())).WillOnce(Return(true));
     std::map<std::string, bool> returnMap = {{"Writer", false}, {"Subscriber", true}, {"PluginAdapter", true}};
     EXPECT_CALL(*mockHeartbeat, getMapOfIdsAgainstIsAlive()).WillOnce(Return(returnMap));
     EXPECT_CALL(*mockHeartbeat, getNumDroppedEventsInLast24h()).WillOnce(Return(0));
