@@ -262,7 +262,7 @@ function build()
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
     fi
 
-    REDIST=$BASE/redist
+    REDIST=/build/redist
 
     if [[ -z "$NO_UNPACK" ]]
     then

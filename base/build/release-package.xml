@@ -3,15 +3,6 @@
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
-    <buildcommands>
-
-        <command>
-            <program>/usr/bin/mkdir</program>
-            <args>-p /build/input</args>
-            <workingdir>.</workingdir>
-        </command>
-
-    </buildcommands>
     <inputs>
         <workingdir>.</workingdir>
         <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="/build/input">
