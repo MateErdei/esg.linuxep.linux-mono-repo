@@ -140,7 +140,7 @@
 		</component>
       </line>
       <line id="ServerProtectionLinux-Plugin-AV">
-          <component importreference="ServerProtectionLinux-Plugin-EventJournaler">
+          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.4.39">
               <releasetag baseversion="" tag="RECOMMENDED"/>
               <genericsupplement
                       decodepath="files/plugins/av/chroot/susi/update_source/vdl"
