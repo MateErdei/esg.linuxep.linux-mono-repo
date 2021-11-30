@@ -6,8 +6,8 @@
     <buildcommands>
 
         <command>
-            <program>/bin/bash</program>
-            <args>mkdir -p /build/input</args>
+            <program>/usr/bin/mkdir</program>
+            <args>-p /build/input</args>
             <workingdir>.</workingdir>
         </command>
 
