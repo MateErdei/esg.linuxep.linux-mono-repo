@@ -92,7 +92,7 @@ namespace Plugin
         }
         catch (Common::PluginApi::ApiException& e)
         {
-            LOGERROR("Failed to get SAV policy at startup (" << e.what() << ")");
+            LOGINFO("Failed to get SAV policy at startup (" << e.what() << ")");
         }
         try
         {
@@ -101,7 +101,7 @@ namespace Plugin
         }
         catch (Common::PluginApi::ApiException& e)
         {
-            LOGERROR("Failed to get ALC policy at startup (" << e.what() << ")");
+            LOGINFO("Failed to get ALC policy at startup (" << e.what() << ")");
         }
 
         startupPolicyProcessing();
