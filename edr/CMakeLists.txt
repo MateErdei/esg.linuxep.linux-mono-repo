@@ -159,8 +159,9 @@ set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
 
 set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 
-set(OSQUERY_BINARY ${INPUT}/osquery/usr/local/bin/osqueryd)
-set(OSQUERY_LENSES_DIR ${INPUT}/osquery/usr/local/share/osquery/lenses)
+set(OSQUERY_BINARY ${INPUT}/osquery/opt/osquery/bin/osqueryd)
+set(OSQUERY_LENSES_DIR ${INPUT}/osquery/opt/osquery/share/osquery/lenses)
+
 
 set(SCHEMA_BUILDER_DIR ${CMAKE_SOURCE_DIR}/tools)
 
