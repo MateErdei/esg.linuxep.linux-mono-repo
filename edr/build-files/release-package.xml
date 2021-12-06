@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-plugin-edr-component" version="1.1.4">
+<package name="sspl-plugin-edr-component" version="1.1.3">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -7,19 +7,18 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/Version_1_1_8" build-id="20211025140648-87f582f907b2308f20053b3eec314a5bddf06f2f-UkPP0H"/>
+            <release-version branch="release/2021-49" build-id="20211129093113-5f664f54d8e6cc6492f3751f482fa4407fce1779-Lb4kGs"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2021.37-linux" build-id="20210909124845-4ba2bf3fe29b7ca6b54c83d0d9811fe9c53f511b-UFRT6N"/>
-            <!-- TODO LINUXDAR-3579 re-enable develop when this ticket is done. -->
-            <!--            <development-version branch="develop"/>-->
+            <release-version branch="release/2021.49" build-id="20211126150118-c0e933480e8f02095af105a3d1a24f115bfaef77-bILJ8G"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="input/sspl-osquery-components"/>
         </build-asset>
         <build-asset project="winep" repo="dbos">
-            <release-version branch="release/2021.10" build-id="20210309104636-4cf9e440aedc818512dbfeb5f63d3c98cc5ae4c2-6rLar3"/>
+            <release-version branch="release/2021.46" build-id="20211104154037-3fd922eda1208c2bce9a9c97f7fb1050453bdd43-xBbcVd"/>
             <development-version branch="develop"/>
             <include artifact-path="linux-x64-extension" dest-dir="input/linux-x64-extension"/>
         </build-asset>
@@ -48,7 +47,7 @@
         <package name="googletest" version="1-8-1/EES-8928" dest="input">
             <include src="googletest-release-1.8.1.tar.gz" dest="."/>
         </package>
-        <trusted-asset artifact-path="com.osquery/osquery/4.6.0/osquery-4.6.0-linux" dest-dir="input/osquery"/>
+        <trusted-asset artifact-path="com.osquery/osquery/5.0.1/osquery-5.0.1-linux" dest-dir="input/osquery"/>
         <package name="openssllinux11" version="1-1-1l-1/222963/output" dest="input">
             <include src="openssl.tar" dest="."/>
         </package>

@@ -241,7 +241,8 @@ EDR Plugin Runs All Scheduled Queries
 EDR Plugin Logs Broken JSON In Scheduled Query Pack
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"schedule": {"extracomma": {"query": "select * from uptime;","interval": 1},}}
+    # TODO: When LINUXDAR-3943 is implemented remove denylist option from the query config, and change test accordingly if required.
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"schedule": {"extracomma": {"query": "select * from uptime;","interval": 1, "denylist": false},}}
     Stop EDR
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to stop edr
 
@@ -739,10 +740,12 @@ EDR Plugin Updates Next Scheduled Queries When Supplement Updated And Flag Alrea
     Check EDR Plugin Installed With Base
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/base/etc/logger.conf
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"latest_xdr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf  {"schedule": {"latest_mtr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf  {"schedule": {"next_xdr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf  {"schedule": {"next_mtr_query": {"query": "select * from uptime;","interval": 2}}}
+
+    # TODO: When LINUXDAR-3943 is implemented remove denylist option from the query configs, and change test accordingly if required.
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"latest_xdr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.mtr.conf  {"schedule": {"latest_mtr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf  {"schedule": {"next_xdr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf  {"schedule": {"next_mtr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Restart EDR
     Enable XDR with MTR
@@ -770,8 +773,9 @@ EDR Plugin Updates Next Scheduled Queries When Supplement Updated And Flag Alrea
     ${edrMark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
 
     # Mimic update of the next query pack supplement
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf  {"schedule": {"next_updated_xdr_query": {"query": "select * from uptime;","interval": 2}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf  {"schedule": {"next_updated_mtr_query": {"query": "select * from uptime;","interval": 2}}}
+    # TODO: When LINUXDAR-3943 is implemented remove denylist option from the query configs, and change test accordingly if required.
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.conf  {"schedule": {"next_updated_xdr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack-next.mtr.conf  {"schedule": {"next_updated_mtr_query": {"query": "select * from uptime;","interval": 2, "denylist": false}}}
     Restart EDR
 
     Wait Until Keyword Succeeds
@@ -899,8 +903,9 @@ Are Next Query Packs Enabled in Plugin Conf
 
 Add Uptime Query to Scheduled Queries
     [Arguments]  ${interval}=1
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}}}}
+    # TODO: When LINUXDAR-3943 is implemented remove denylist option from the query config, and change test accordingly if required.
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}, "denylist": false}}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}, "denylist": false}}}
 
 Test Teardown
     EDR And Base Teardown
