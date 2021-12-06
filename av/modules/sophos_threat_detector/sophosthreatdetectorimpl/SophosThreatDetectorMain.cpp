@@ -427,7 +427,7 @@ static int inner_main()
         {
             LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
             sigTermMonitor.triggered();
-            returnCode = common::E_SIGTERM;
+            returnCode = common::E_CLEAN_SUCCESS;
             break;
         }
 
@@ -443,7 +443,7 @@ static int inner_main()
     server.requestStop();
     server.join();
 
-    LOGINFO("Sophos Threat Detector is exiting");
+    LOGINFO("Sophos Threat Detector is exiting with return code " << returnCode);
     return returnCode;
 }
 

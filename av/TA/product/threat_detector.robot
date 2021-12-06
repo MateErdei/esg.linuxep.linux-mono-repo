@@ -111,6 +111,7 @@ Threat detector is killed gracefully
     Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result =0
     Threat Detector Does Not Log Contain  Failed to open lock file
     Threat Detector Does Not Log Contain  Failed to acquire lock
+    Threat Detector Does Not Log Contain  Sophos Threat Detector is exiting with return code 15
 
     # Verify SIGTERM is not logged at error level
     Verify Sophos Threat Detector Log Line is informational   Sophos Threat Detector received SIGTERM - shutting down
