@@ -56,7 +56,16 @@ Test av can publish events and that journaler can receive them after av restart
 
     Mark Livequery Log
 
-    Detect EICAR And Read With Livequery Via Event Journaler
+    Check AV Plugin Can Scan Files
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Journal Contains X Detection Events  2
+    Run Live Query  select * from sophos_detections_journal   simple
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  2 secs
+    ...  Check Marked Livequery Log Contains  Successfully executed query
 
     Wait Until Keyword Succeeds
     ...  10 secs

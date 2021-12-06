@@ -99,3 +99,16 @@ Check Journal Contains Detection Event With Content
 Check Journal Is Empty
     ${JournalEvent} =  Read First Event From Journal
     Should Be Empty  ${JournalEvent}
+
+Check Journal Contains X Detection Events
+    [Arguments]  ${xtimes}
+    ${all_events} =  Read All Detection Events From Journal
+    Should Contain X Times  ${all_events}  Producer Unique Id:  ${xtimes}
+
+Read All Detection Events From Journal
+    ${result} =   Run Process  ${EVENT_READER_TOOL}  -l  ${EVENT_JOURNAL_DIR}/  -s  Detections  -p  SophosSPL  -u  -t  0  --flush-delay-disable
+    log to console   ${result.stdout}
+    log  ${result.stdout}
+    log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+    [Return]   ${result.stdout}
