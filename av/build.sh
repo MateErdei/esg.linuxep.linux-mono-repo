@@ -438,7 +438,7 @@ function build()
     [[ -n ${NPROC:-} ]] || NPROC=2
     which cmake
     LD_LIBRARY_PATH= \
-        cmake -v \
+        cmake \
              -DINPUT="${REDIST}" \
             -DPLUGIN_NAME="${PLUGIN_NAME}" \
             -DPRODUCT_NAME="${PRODUCT_NAME}" \
