@@ -12,7 +12,7 @@
         {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
         {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
         {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
-        {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+        {"Key" : "SupportEmail", "Value" : "ukdevvlx@sophos.com"},
         {"Key" : "BusinessUnit", "Value" : "ESG"},
         {"Key" : "CostCentre", "Value" : "GB11601200"},
         {"Key" : "Project", "Value" : "SSPLAV"},

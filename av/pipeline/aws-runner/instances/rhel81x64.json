@@ -5,26 +5,26 @@
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
-      "ImageId" : "ami-0fd021887b940fdf4",
+      "ImageId" : "ami-05a96c715eba4dd23",
       "InstanceType": "c4.large",
       "InstanceInitiatedShutdownBehavior": "terminate",
       "Tags" : [
         {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
         {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
         {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
-        {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+        {"Key" : "SupportEmail", "Value" : "ukdevvlx@sophos.com"},
         {"Key" : "BusinessUnit", "Value" : "ESG"},
         {"Key" : "CostCentre", "Value" : "GB11601200"},
         {"Key" : "Project", "Value" : "SSPLAV"},
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
-        {"Key" : "BaseAmi", "Value" : "ami-00d5cd2e2b1a22ba2"},
+        {"Key" : "BaseAmi", "Value" : "ami-05a96c715eba4dd23"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
         {"Key" : "TestImage", "Value" : "true"},
         {"Key" : "Codeline", "Value" : "SSPLAV" },
         {"Key" : "Branch", "Value" : "SSPLAV" },
-        {"Key" : "Name", "Value" : "rhel81x64" }
+        {"Key" : "Name", "Value" : "rhel8x64" }
       ],
       "NetworkInterfaces" : [{
         "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
