@@ -303,8 +303,12 @@ function apply_permissions()
 
 function install_product()
 {
-    useradd ${USER_NAME} --no-create-home --no-user-group --gid ${GROUP_NAME} --groups sophos-spl-ipc --system --shell=/bin/false
-    useradd ${THREAT_DETECTOR_USER} --no-create-home --no-user-group --gid ${GROUP_NAME} --system --shell=/bin/false
+    local GETENT=/usr/bin/getent
+    [[ -x "${GETENT}" ]] || GETENT=$(which getent)
+    [[ -x "${GETENT}" ]] || failure ${EXIT_FAIL_FIND_GETENT} "Failed to find getent"
+
+    "${GETENT}" passwd "${USER_NAME}"            2>&1 >/dev/null || useradd ${USER_NAME}            --no-create-home --no-user-group --gid ${GROUP_NAME} --groups sophos-spl-ipc --system --shell=/bin/false
+    "${GETENT}" passwd "${THREAT_DETECTOR_USER}" 2>&1 >/dev/null || useradd ${THREAT_DETECTOR_USER} --no-create-home --no-user-group --gid ${GROUP_NAME} --system --shell=/bin/false
 
     if av_already_installed
     then

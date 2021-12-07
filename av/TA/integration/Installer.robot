@@ -95,6 +95,11 @@ Update then Restart Sophos Threat Detector
     # Extra log dump to check we have the right events happening
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
+Installer doesnt try to create an existing user
+    Modify manifest
+    Install AV Directly from SDDS
+
+    File Log Should Not Contain  ${AV_INSTALL_LOG}  useradd: user 'sophos-spl-av' already exists
 
 
 Scanner works after upgrade
