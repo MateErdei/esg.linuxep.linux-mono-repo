@@ -242,7 +242,7 @@ EDR Plugin Logs Broken JSON In Scheduled Query Pack
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
     # TODO: When LINUXDAR-3943 is implemented remove denylist option from the query config, and change test accordingly if required.
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"schedule": {"extracomma": {"query": "select * from uptime;","interval": 1, "denylist": false},}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"schedule": {"extracomma": {"query": "select * from uptime;","interval": 1, "denylist": false}}}
     Stop EDR
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to stop edr
 
