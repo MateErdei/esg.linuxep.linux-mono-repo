@@ -250,7 +250,7 @@ EDR Plugin Logs Broken JSON In Scheduled Query Pack
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains  failed to parse ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    ...  EDR Plugin Log Contains  Failed to parse ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
 EDR Plugin writes custom query file when it recieves a Live Query policy and removes it when there are no custom queries
     [Setup]  No Operation
