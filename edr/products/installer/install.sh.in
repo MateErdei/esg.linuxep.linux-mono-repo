@@ -52,18 +52,13 @@ function is_already_installed()
 # During upgrades we purge the osquery database when upgrading to 1.1.2 or newer as a work around for LINUXDAR-3073
 function purge_osquery_db_if_required()
 {
-    if is_installed_version_before 1.1.2 || osquery_version_is_4_8_0
+    if is_installed_version_before 1.1.2
     then
         if [[  -d  "${SOPHOS_INSTALL}/plugins/edr/var/osquery.db" ]]
         then
               rm -f "${SOPHOS_INSTALL}/plugins/edr/var/osquery.db/"*
         fi
     fi
-}
-
-function osquery_version_is_4_8_0()
-{
-    [[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" ]] && "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" --version | grep -q "4\.8\.0"
 }
 
 is_installed_version_before()
