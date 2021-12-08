@@ -68,7 +68,7 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
 {
     if (m_connectStatus == -1)
     {
-        LOGWARN("Process Control: invalid connection status message was not sent");
+        LOGWARN("Invalid connection status: message was not sent");
         return;
     }
 
