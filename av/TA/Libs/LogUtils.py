@@ -359,15 +359,16 @@ File Log Contains
     def mark_expected_error_in_log(self, log_location, error_message):
         error_string = "ERROR"
         mark_string = "expected-error"
-        index = 0
         contents = _get_log_contents(log_location)
-        while True:
-            index = contents.find(error_message, index)
-            if index == -1:
-                break
-            error_index = contents.rfind(error_string, index - 40, index)
-            contents = contents[:error_index] + mark_string + contents[error_index + len(error_string):]
-            index += len(error_message) + len(error_string) - len(mark_string)
+        if contents is None:
+            print("File not found not marking expected error, if you are you error checking then the error won't exist!")
+            return
+
+        for line in contents.splitlines():
+            if error_message in line:
+                new_line = line.replace(error_string, mark_string)
+                contents = contents.replace(line, new_line)
+
         with open(log_location, "w") as log:
             log.write(contents)
 
