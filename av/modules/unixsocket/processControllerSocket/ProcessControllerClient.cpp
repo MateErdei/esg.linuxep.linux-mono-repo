@@ -38,9 +38,9 @@ int unixsocket::ProcessControllerClientSocket::attemptConnect()
 void unixsocket::ProcessControllerClientSocket::connect()
 {
     int count = 0;
-    int ret = attemptConnect();
+    m_connectStatus = attemptConnect();
 
-    while (ret != 0)
+    while (m_connectStatus != 0)
     {
         if (++count >= MAX_CONN_RETRIES)
         {
@@ -51,10 +51,10 @@ void unixsocket::ProcessControllerClientSocket::connect()
         LOGDEBUG("Failed to connect to Sophos Threat Detector Controller - retrying after sleep");
         nanosleep(&m_sleepTime, nullptr);
 
-        ret = attemptConnect();
+        m_connectStatus = attemptConnect();
     }
 
-    assert(ret == 0);
+    assert(m_connectStatus == 0);
 }
 
 unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::string socket_path, const struct timespec& sleepTime)
@@ -66,6 +66,12 @@ unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::st
 
 void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const scan_messages::ProcessControlSerialiser& processControl)
 {
+    if (m_connectStatus == -1)
+    {
+        LOGWARN("Process Control: invalid connection status message was not sent");
+        return;
+    }
+
     assert(m_socket_fd >= 0);
     std::string dataAsString = processControl.serialise();
 

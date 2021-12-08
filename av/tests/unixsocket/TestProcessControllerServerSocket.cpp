@@ -20,7 +20,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 namespace
 {
-    class TestProcessControllerServerSocket: public LogInitializedTests
+    class TestProcessControllerServerSocket : public UnixSocketMemoryAppenderUsingTests
     {
     public:
         std::string m_socketPath = "/tmp/process_control_socket";
@@ -30,6 +30,15 @@ namespace
 TEST_F(TestProcessControllerServerSocket, testConstructor) //NOLINT
 {
     EXPECT_NO_THROW(unixsocket::ProcessControllerServerSocket processController(m_socketPath, 0660));
+}
+
+TEST_F(TestProcessControllerServerSocket, testSendMessageNoServer)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    unixsocket::ProcessControllerClientSocket processControllerClient(m_socketPath);
+    scan_messages::ProcessControlSerialiser processControlRequest;
+    EXPECT_NO_THROW(processControllerClient.sendProcessControlRequest(processControlRequest));
+    EXPECT_FALSE(appenderContains("Failed to write Process Control Request to socket. Exception caught: "));
 }
 
 TEST_F(TestProcessControllerServerSocket, testSocketConstruction) // NOLINT

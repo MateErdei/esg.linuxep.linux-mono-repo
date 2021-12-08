@@ -28,6 +28,7 @@ namespace unixsocket
         int attemptConnect();
         void connect();
 
+        int m_connectStatus = -1;
         datatypes::AutoFd m_socket_fd;
         std::string m_socketPath;
         const timespec &m_sleepTime;
