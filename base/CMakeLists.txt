@@ -13,6 +13,12 @@ set(SOPHOS_SPL_NETWORK "sophos-spl-network")   #comms network facing user
 set(SOPHOS_SPL_LOCAL "sophos-spl-local")       #comms product facing user
 set(SOPHOS_SPL_UPDATESCHEDULER "sophos-spl-updatescheduler")  #user which updatescheduler runs as
 
+execute_process(
+        COMMAND git rev-parse HEAD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_COMMIT_HASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 if (BUILD_FUZZ_TESTS)
     set(SANITISE_FLAGS "")
     set(SANITIZE_EXE_FLAGS "")

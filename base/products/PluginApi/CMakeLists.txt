@@ -39,6 +39,7 @@ FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
 FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
 FindLibraryFullPath( zlibfull  z   ${ZLIB_INPUT}/lib64)
+configure_file(PluginAPICommitHash.in PluginAPICommitHash @ONLY)
 
 add_custom_target(
         plugintar ALL
@@ -73,6 +74,7 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy ${expatfull}    pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${zlibfull}    pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sharedtesthelpers> pluginapi/tests/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy PluginAPICommitHash pluginapi
         DEPENDS testhelpers
 )
 
