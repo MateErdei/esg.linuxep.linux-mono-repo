@@ -10,6 +10,8 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
 
+#include <sys/stat.h>
+
 namespace ManagementAgent
 {
     namespace McsRouterPluginCommunicationImpl
@@ -44,6 +46,7 @@ namespace ManagementAgent
 
             std::pair<bool, std::string> statusXmlResult =  m_healthStatus->generateHealthStatusXml();
 
+            Path tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
             Path statusDir = Common::ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();
             std::string statusFilePath = Common::FileSystem::join(statusDir,"SHS_status.xml");
 
@@ -52,7 +55,7 @@ namespace ManagementAgent
             {
                 try
                 {
-                    Common::FileSystem::fileSystem()->writeFile(statusFilePath, statusXmlResult.second);
+                    Common::FileSystem::fileSystem()->writeFileAtomically(statusFilePath, statusXmlResult.second, tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
                 }
                 catch(const Common::FileSystem::IFileSystemException& ex)
                 {
