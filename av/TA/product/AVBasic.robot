@@ -10,6 +10,7 @@ Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
+Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/BaseResources.robot
@@ -150,7 +151,7 @@ AV Plugin Will Fail Scan Now If No Policy
     AV Plugin Log Contains With Offset  Received new Action
     AV Plugin Log Contains With Offset  Evaluating Scan Now
 
-    mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Refusing to run invalid scan: INVALID
+    Mark Scan As Invalid
 
 
 
@@ -476,9 +477,8 @@ Product Test Teardown
     Delete Eicars From Tmp
     run teardown functions
 
-    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
-    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
-    mark_expected_error_in_log  ${AV_LOG_PATH}  av <> Exception caught from plugin at top level (std::runtime_error): Error parsing xml: syntax error
+    Mark CustomerID Failed To Read Error
+    Mark Parse Xml Error
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Error

@@ -11,6 +11,7 @@ Library         ../Libs/LockFile.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/LogUtils.py
 
+Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 
@@ -35,8 +36,7 @@ Threat Detector Test Teardown
     List AV Plugin Path
     run teardown functions
 
-    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
-    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
+    Mark CustomerID Failed To Read Error
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Error
@@ -172,9 +172,7 @@ Threat detector exits if it cannot acquire the susi update lock
 
     Stop AV
 
-    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to acquire lock on /opt/sophos-spl/plugins/av/chroot/var/susi_update.lock
-    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to acquire lock on /opt/sophos-spl/plugins/av/chroot/var/susi_update.lock
-
+    Mark Failed To Acquire Susi Lock
 
 
 Threat Detector Logs Susi Version when applicable
