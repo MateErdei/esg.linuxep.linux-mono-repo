@@ -542,8 +542,8 @@ AVSophosThreatDetector Test Setup
 AVSophosThreatDetector Test TearDown
     #restore machineID file
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
-    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
     Mark CustomerID Failed To Read Error
+    Mark MCS Router is dead
     Check All Product Logs Do Not Contain Error
     run teardown functions
 

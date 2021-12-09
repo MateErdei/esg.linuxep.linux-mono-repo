@@ -13,6 +13,7 @@ Library         ../Libs/ThreatReportUtils.py
 Resource        ../shared/AVResources.robot
 Resource        ../shared/AVAndBaseResources.robot
 Resource        ../shared/DiagnoseResources.robot
+Resource        ../shared/ErrorMarkers.robot
 
 Suite Setup     Install With Base SDDS
 Suite Teardown  Uninstall And Revert Setup
@@ -26,6 +27,9 @@ Diagnose Test Setup
     AV And Base Setup
 
 Diagnose Test TearDown
+    Mark CustomerID Failed To Read Error
+    Mark MCS Router is dead
+    Check All Product Logs Do Not Contain Error
     Run Teardown Functions
     AV And Base Teardown
 

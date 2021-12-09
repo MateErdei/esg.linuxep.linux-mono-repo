@@ -3,9 +3,12 @@ Library         ../Libs/LogUtils.py
 Resource    AVResources.robot
 
 *** Keywords ***
+Mark MCS Router is dead
+    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
+
 Mark STD Symlink Error
-   mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  LogSetup <> Create symlink for logs at
-   mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  LogSetup <> Create symlink for logs at
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  LogSetup <> Create symlink for logs at
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  LogSetup <> Create symlink for logs at
 
 Mark Watchdog Log Unable To Open File Error
     mark_expected_error_in_log  ${WATCHDOG_LOG}   ProcessMonitoringImpl <> Output: log4cplus:ERROR Unable to open file:
