@@ -126,53 +126,12 @@ class TargetSystem:
                 return DISTRIBUTION_NAME_MAP[distro_string]
         return None
 
-    def _detect_is_ec2_instance(self):
-        if os.path.isfile(os.path.join(self.m_install_dir, "etc", "amazon")):
-            return True
-
-        ec2_dict = {'/sys/hypervisor/uuid': 'ec2',
-                    "/sys/devices/virtual/dmi/id/bios_version": "amazon",
-                    "/sys/devices/virtual/dmi/id/product_uuid": "ec2"}
-        for key in ec2_dict:
-            if _find_case_insensitive_string_in_file(key, ec2_dict[key]):
-                return True
-
-        try:
-            with open("/var/log/dmesg") as reader:
-                results = reader.read()
-
-            results_list = results.split("\n")
-            for item in results_list:
-                line = item.lower()
-                if "bios" in line and "amazon" in line:
-                    return True
-        except EnvironmentError:
-            pass
-
-        try:
-            # Don't try two dmidecodes if the first gives an error
-            with open("/dev/null", "wb") as devnull:
-                results1 = to_utf8(subprocess.check_output(
-                    args=["dmidecode", "--string", "system-uuid"],
-                    stderr=devnull))
-                results2 = to_utf8(subprocess.check_output(
-                    args=["dmidecode", "-s", "bios-version"], stderr=devnull))
-                if results1.lower().startswith("ec2") or "amazon" in results2:
-                    return True
-        except (subprocess.CalledProcessError, EnvironmentError):
-            pass
-
-        return False
-
     def detect_instance_info(self):
         """
         detect_instance_info
         :return:
         """
-        if self._detect_is_ec2_instance():
-            return self.get_aws_info()
-        else:
-            return self.get_oracle_info() or self.get_azure_info() or ""
+        return self.get_aws_info() or self.get_oracle_info() or self.get_azure_info() or ""
 
     def get_aws_info(self):
         try:
