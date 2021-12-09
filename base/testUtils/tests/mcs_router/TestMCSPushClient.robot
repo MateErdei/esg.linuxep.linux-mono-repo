@@ -334,7 +334,7 @@ Verify When Push Client Loses Its Connection To Push Server MCS Router Will Trig
     ...          Push Server service reported: Push client lost connection to server
     ...          Requesting MCS Push client to stop
     ...          MCS push client stopped
-    ...          Checking for commands for ['MCS', 'ALC', 'SDU', 'APPSPROXY', 'AGENT']
+    ...          Checking for commands for ['MCS', 'ALC', 'SDU', 'SHS', 'APPSPROXY', 'AGENT']
     ...          Trying to re-connect to Push Server
 
     Wait Until Keyword Succeeds
