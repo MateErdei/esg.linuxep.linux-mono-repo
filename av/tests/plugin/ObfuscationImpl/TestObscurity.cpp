@@ -5,10 +5,13 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <pluginimpl/Obfuscation/IObscurityException.h>
+#include <pluginimpl/Obfuscation/ICipherException.h>
 #include <pluginimpl/ObfuscationImpl/Base64.h>
 #include <pluginimpl/ObfuscationImpl/Obfuscate.h>
 #include <pluginimpl/ObfuscationImpl/Obscurity.h>
 #include <tests/common/LogInitializedTests.h>
+
+#include <datatypes/Print.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -48,4 +51,24 @@ TEST_F(TestObscurity, SECDeobfuscate) // NOLINT
         Common::ObfuscationImpl::SECDeobfuscate("CCD37FNeOPt7oCSNouRhmb9TKqwDvVsqJXbyTn16EHuw6ksTa3NCk56J5RRoVigjd3E="),
         "regrABC123pass");
     // regruser:regrABC123pass  -  9539d7d1f36a71bbac1259db9e868231
+}
+
+TEST_F(TestObscurity, SECDeobfuscateBufferOverReadFoundByFuzzer) // NOLINT
+{
+    ASSERT_THROW(Common::ObfuscationImpl::SECDeobfuscate(
+                     "CCJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHkDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXg="),
+                 Common::Obfuscation::ICipherException);
+}
+
+TEST_F(TestObscurity, SECDeobfuscateThrowsExceptionForInvalidSaltLength) // NOLINT
+{
+    try
+    {
+        Common::ObfuscationImpl::SECDeobfuscate(
+            "CCJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHkDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXg=");
+    }
+    catch (const Common::Obfuscation::ICipherException& ex)
+    {
+        PRINT("Success: caught " << ex.what());
+    }
 }
