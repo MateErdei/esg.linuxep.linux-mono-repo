@@ -148,8 +148,6 @@ SecureString Cipher::Decrypt(
     unsigned char* key = keyivarray.data();
     unsigned char* iv = keyivarray.data() + EVP_CIPHER_key_length(cipher);
 
-    int len = -1;
-
     /* Create and initialise the context */
     EvpCipherContext evpCipherWrapper;
 
@@ -165,8 +163,10 @@ SecureString Cipher::Decrypt(
      */
     Common::ObfuscationImpl::SecureFixedBuffer<128> plaintextbuffer;
 
+    int len = -1;
     evpCipherWrapper.DecryptUpdate(
         plaintextbuffer.data(), &len, (const unsigned char*)cipherText.data(), cipherText.size());
+    assert(len >= 0);
 
     int plaintext_len = len;
 
