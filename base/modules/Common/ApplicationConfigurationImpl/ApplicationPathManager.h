@@ -87,6 +87,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getDiagnoseOutputPath() const override;
 
         std::string getCloudMetadataJsonPath() const override;
+        std::string getUpdateMarkerFile() const override;
 
     private:
         std::string socketPath(const std::string& relative) const;

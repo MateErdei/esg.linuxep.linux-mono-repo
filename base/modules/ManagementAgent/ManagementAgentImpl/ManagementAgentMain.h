@@ -33,6 +33,7 @@ namespace ManagementAgent
             void sendCurrentPluginPolicies();
             void sendCurrentActions();
             void sendCurrentPluginsStatus(const std::vector<std::string>& registeredPlugins);
+            bool updateOngoing();
             int run(bool withPersistentTelemetry);
             // to be used in tests
             void test_request_stop();

@@ -5,7 +5,10 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "UpdateSchedulerUtils.h"
-
+#include "Logger.h"
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #include <json.hpp>
 namespace UpdateSchedulerImpl
@@ -33,5 +36,23 @@ namespace UpdateSchedulerImpl
         }
 
         return healthResponseMessage.dump();
+    }
+
+    void UpdateSchedulerUtils::cleanUpMarkerFile()
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        std::string path = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
+        if (fs->isFile(path))
+        {
+            LOGWARN("Upgrade marker file left behind after suldownloader finished, cleaning up now");
+            try
+            {
+                fs->removeFile(path);
+            }
+            catch(Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGERROR("Failed to remove file "<< path << " due to error "<< ex.what());
+            }
+        }
     }
 }

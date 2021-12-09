@@ -5,7 +5,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "UpdateSchedulerProcessor.h"
-
+#include "UpdateSchedulerUtils.h"
 #include "Logger.h"
 
 #include "configModule/DownloadReportsAnalyser.h"
@@ -167,7 +167,7 @@ namespace UpdateSchedulerImpl
         LOGINFO("Update Scheduler Starting");
         m_callback->setRunning(true);
         waitForSulDownloaderToFinish(600);
-
+        UpdateSchedulerUtils::cleanUpMarkerFile();
         m_cronThread->start();
 
         // Request policy on startup
@@ -460,6 +460,8 @@ namespace UpdateSchedulerImpl
         {
             LOGINFO("SulDownloader Finished.");
             safeMoveDownloaderReportFile(m_reportfilePath);
+            UpdateSchedulerUtils::cleanUpMarkerFile();
+
         }
 
         LOGSUPPORT("Process reports to get events and status.");

@@ -91,6 +91,7 @@ public:
         Common::FileSystemImpl::restorePidLockUtils();
         SulDownloader::suldownloaderdata::VersigFactory::instance().restoreCreator();
         TestWarehouseHelper::restoreWarehouseFactory();
+        Tests::restoreFilePermissions();
         Test::TearDown();
     }
 
@@ -326,20 +327,34 @@ public:
         EXPECT_CALL(
             mockFileSystem, writeFile("/opt/sophos-spl/var/suldownloader_last_product_update.marker", "")
         ).Times(::testing::AtMost(1));
+        EXPECT_CALL(
+            mockFileSystem, writeFile("/opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file", "")
+        ).Times(::testing::AtMost(1));
+        EXPECT_CALL(
+            mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file")
+        ).Times(::testing::AtMost(1));
     }
 
-    void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains)
+    void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains,bool markerFileWritten)
     {
         EXPECT_CALL(
             mockFileSystem, writeFile(::testing::HasSubstr("/opt/sophos-spl/tmp"), ::testing::HasSubstr(contains)));
         EXPECT_CALL(mockFileSystem, moveFile(_, "/dir/output.json"));
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-        EXPECT_CALL(*mockFilePermissions, chown(_, sophos::updateSchedulerUser(), "root"));
+        EXPECT_CALL(*mockFilePermissions, chown(testing::HasSubstr("/opt/sophos-spl/tmp"), sophos::updateSchedulerUser(), "root"));
         mode_t expectedFilePermissions = S_IRUSR | S_IWUSR;
-        EXPECT_CALL(*mockFilePermissions, chmod(_, expectedFilePermissions));
+        EXPECT_CALL(*mockFilePermissions, chmod(testing::HasSubstr("/opt/sophos-spl/tmp"), expectedFilePermissions));
+        if (markerFileWritten)
+        {
+            EXPECT_CALL(*mockFilePermissions, chown("/opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file", sophos::updateSchedulerUser(), "root"));
+        }
+
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
             std::unique_ptr<MockFilePermissions>(mockFilePermissions);
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+//        std::unique_ptr<Tests::ScopedReplaceFilePermissions> scopedReplaceFilePermissions =
+//            std::make_unique<Tests::ScopedReplaceFilePermissions>(std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions));
+
     }
 
     ::testing::AssertionResult downloadReportSimilar(
@@ -487,7 +502,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS),true);
     std::string baseInstallPath = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     EXPECT_CALL(fileSystemMock, isDirectory(baseInstallPath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(baseInstallPath));
@@ -572,7 +587,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS),false);
 
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -633,7 +648,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS),false);
 
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -702,7 +717,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS),false);
 
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
@@ -771,7 +786,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::UNINSTALLFAILED));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::UNINSTALLFAILED),false);
 
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";

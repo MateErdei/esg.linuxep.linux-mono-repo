@@ -300,7 +300,7 @@ namespace SulDownloader
                 LOGWARN("Failed to calculate version difference due to: " << ex.what());
             }
         }
-
+        bool productChanging = false;
         for (auto& product : products)
         {
             bool forceReinstallThisProduct = forceInstallOfProduct(product, previousDownloadReport);
@@ -312,6 +312,7 @@ namespace SulDownloader
                     << forceReinstallAllProducts << ", This Product: " << forceReinstallThisProduct
                     << ". Product = " << product.getLine());
                 product.setForceProductReinstall(true);
+                productChanging = true;
             }
         }
         LOGSUPPORT("Checking signature.");
@@ -321,6 +322,7 @@ namespace SulDownloader
             if (product.productHasChanged() || product.forceProductReinstall() || product.productWillBeDowngraded())
             {
                 product.verify(configurationData);
+                productChanging = true;
             }
         }
 
@@ -337,6 +339,22 @@ namespace SulDownloader
                 false);
         }
 
+        auto fs = Common::FileSystem::fileSystem();
+        if (productChanging)
+        {
+            std::string markerPath = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
+            try
+            {
+                fs->writeFile(markerPath, "");
+                auto fp = Common::FileSystem::filePermissions();
+                fp->chown(markerPath, sophos::updateSchedulerUser(), "root");
+            }
+            catch (Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to create update marker file due to error: " << ex.what());
+            }
+
+        }
         // Note: Should only get here if Download has been successful, if no products are downloaded then
         // a warehouse error should have been generated, preventing getting this far, therefore preventing
         // un-installation of all products.
@@ -406,6 +424,10 @@ namespace SulDownloader
         }
 
         timeTracker.setFinishedTime(TimeUtils::getCurrTime());
+        if (productChanging)
+        {
+            fs->removeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile());
+        }
 
         // if any error happened during installation, it reports correctly.
         // the report also contains the successful ones.

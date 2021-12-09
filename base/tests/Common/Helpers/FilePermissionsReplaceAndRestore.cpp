@@ -17,6 +17,7 @@ namespace{
 void Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions> pointerToReplace)
 {
     Common::FileSystem::filePermissionsStaticPointer() = std::move(pointerToReplace);
+    pointerToReplace.release();
 }
 
 void Tests::restoreFilePermissions()

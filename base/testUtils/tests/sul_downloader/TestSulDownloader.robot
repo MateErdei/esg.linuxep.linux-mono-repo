@@ -34,6 +34,8 @@ Recreate Installation In Temp Dir
     Create Directory    ${tmpdir}/var/lock
     Create Directory    ${tmpdir}/tmp
     Create Directory    ${tmpdir}/sspl/base/update
+    Create Directory    ${tmpdir}/sspl/base/update/var
+    Create Directory    ${tmpdir}/sspl/base/update/var/updatescheduler
     Should Exist        ${SOPHOS_INSTALL}
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [suldownloader]\nVERBOSITY=DEBUG\n
     Run Process         ln  -snf  ${VERSIGPATH}   ${tmpdir}/sspl/base/update/versig

@@ -24,6 +24,16 @@ std::unique_ptr<Common::Process::IProcess> Common::Process::createProcess()
     return ProcessImpl::ProcessFactory::instance().createProcess();
 }
 
+void Common::Process::replaceCreator(std::function<std::unique_ptr<Common::Process::IProcess>(void)> creator)
+{
+    ProcessImpl::ProcessFactory::instance().replaceCreator(creator);
+}
+
+void Common::Process::restoreCreator()
+{
+    ProcessImpl::ProcessFactory::instance().restoreCreator();
+}
+
 Common::Process::Milliseconds Common::Process::milli(int n_ms)
 {
     return std::chrono::milliseconds(n_ms);

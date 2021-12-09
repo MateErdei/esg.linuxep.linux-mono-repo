@@ -69,7 +69,14 @@ Install all plugins 999 then downgrade to all plugins develop
     Override LogConf File as Global Level  DEBUG
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
-
+    Wait Until Keyword Succeeds
+    ...   90 secs
+    ...   5 secs
+    ...   File Should exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/upgrade_marker_file
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   File Should not exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/upgrade_marker_file
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -473,7 +480,14 @@ Install master of base and edr and mtr and upgrade to base 999
     ...  30 secs
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Base-component version: 99.9.9
-
+    Wait Until Keyword Succeeds
+    ...   90 secs
+    ...   5 secs
+    ...   File Should exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/upgrade_marker_file
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   File Should not exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/upgrade_marker_file
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs

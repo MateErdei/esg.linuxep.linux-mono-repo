@@ -17,6 +17,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/Process/IProcessException.h>
 #include <Common/UtilityImpl/StrError.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/UtilityImpl/SystemExecutableUtils.h>
 
 #include <algorithm>
 #include <iostream>
@@ -45,7 +46,7 @@ namespace diagnose
 
         try
         {
-            std::string exePath = getExecutablePath(command);
+            std::string exePath = Common::UtilityImpl::SystemExecutableUtils::getSystemExecutablePath(command);
             auto output = runCommandOutputToString(exePath, arguments);
             fileSystem()->writeFile(filePath, output);
             return EXIT_SUCCESS;
@@ -101,20 +102,6 @@ namespace diagnose
                 output);
         }
         return output;
-    }
-
-    std::string SystemCommands::getExecutablePath(const std::string& executableName) const
-    {
-        std::vector<std::string> folderLocations = { "/usr/bin", "/bin", "/usr/local/bin", "/sbin", "/usr/sbin" };
-        for (const auto& folder : folderLocations)
-        {
-            Path path = Common::FileSystem::join(folder, executableName);
-            if (fileSystem()->isExecutable(path))
-            {
-                return path;
-            }
-        }
-        throw std::invalid_argument("Executable " + executableName + " is not installed.");
     }
 
     void SystemCommands::tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const

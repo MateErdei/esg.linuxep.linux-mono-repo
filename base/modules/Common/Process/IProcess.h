@@ -135,5 +135,7 @@ namespace Common
         };
         using IProcessPtr = std::unique_ptr<IProcess>;
         extern IProcessPtr createProcess();
+        void replaceCreator(std::function<std::unique_ptr<Common::Process::IProcess>(void)> creator);
+        void restoreCreator();
     } // namespace Process
 } // namespace Common

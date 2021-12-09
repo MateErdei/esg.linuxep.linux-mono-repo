@@ -13,6 +13,7 @@ namespace UpdateSchedulerImpl
     {
     public:
             static std::string calculateHealth(StateData::StateMachineData stateMachineData);
+            static void cleanUpMarkerFile();
     };
 }
 

@@ -462,6 +462,39 @@ def generate_file(file_path, size_in_mb):
         for i in range(1024):
             fout.write(os.urandom(int(size_in_mb)))
 
+def replace_service_with_sleep(service_name):
+    dir_path = get_service_folder()
+
+    file_path = os.path.join(dir_path,service_name)
+    if not os.path.isfile(file_path):
+        raise AssertionError("no service file detected at {}".format(file_path))
+    with open(file_path, 'r') as f:
+        contents = f.readlines()
+    new_contents =[]
+    for line in contents:
+        if line.startswith("ExecStart"):
+            new_contents.append("ExecStart=sleep 1000")
+        else:
+            new_contents.append(line)
+    shutil.move(file_path, file_path+".bak")
+    with open(file_path, 'w') as f:
+        f.write('\n'.join(new_contents))
+
+def revert_service(service_name):
+    dir_path = get_service_folder()
+
+    file_path = os.path.join(dir_path,service_name)
+    shutil.move(file_path+".bak", file_path)
+
+def get_service_folder():
+    dir_path = ""
+    if os.path.isdir("/lib/systemd/system"):
+        dir_path = "/lib/systemd/system"
+    elif os.path.isdir("/usr/lib/systemd/system"):
+        dir_path = "/usr/lib/systemd/system"
+    else:
+        raise AssertionError("no service dir detected cannot replace service file")
+    return dir_path
 class ETCHostsWarehouseHandler:
     INTERNAL_WAREHOUSE_IP = '10.1.200.228'
     INTERNAL_WAREHOUSE_NAMES = ['dci.sophosupd.com', 'dci.sophosupd.net',
