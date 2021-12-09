@@ -150,6 +150,7 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     ...  <status><appId>MCS</appId>
     ...  <status><appId>ALC</appId>
     ...  <status><appId>SDU</appId>
+    ...  <status><appId>SHS</appId>
     ...  <status><appId>APPSPROXY</appId>
     ...  <status><appId>AGENT</appId>
 
