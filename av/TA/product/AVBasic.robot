@@ -33,6 +33,7 @@ AV Plugin Can Receive Actions
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Received new Action
 
+
 AV plugin Can Send Status
     [Tags]    PRODUCT  AV_BASIC_STATUS
     ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
@@ -148,6 +149,9 @@ AV Plugin Will Fail Scan Now If No Policy
     Wait Until AV Plugin Log Contains With Offset  Refusing to run invalid scan: INVALID
     AV Plugin Log Contains With Offset  Received new Action
     AV Plugin Log Contains With Offset  Evaluating Scan Now
+
+    mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Refusing to run invalid scan: INVALID
+
 
 
 AV Plugin Scans local secondary mount only once
@@ -471,6 +475,11 @@ Product Test Setup
 Product Test Teardown
     Delete Eicars From Tmp
     run teardown functions
+
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
+    mark_expected_error_in_log  ${AV_LOG_PATH}  av <> Exception caught from plugin at top level (std::runtime_error): Error parsing xml: syntax error
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Error
     Component Test TearDown

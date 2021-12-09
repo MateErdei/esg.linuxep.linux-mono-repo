@@ -51,16 +51,26 @@ AVCommandLineScanner Test Setup
     Mark Sophos Threat Detector Log
     Mark Susi Debug Log
 
+
 AVCommandLineScanner Test TearDown
     Run Teardown Functions
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Dump Log On Failure   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
+    Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
     Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Error
 
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  UnixSocket <> Exiting Scanning Connection Thread: Environment interruption
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  UnixSocket <> Exiting Scanning Connection Thread: Environment interruption
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  UnixSocket <> Reading socket returned error: Connection reset by peer
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  UnixSocket <> Reading socket returned error: Connection reset by peer
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  UnixSocket <> Aborting Scanning Server Connection Thread: failed to read length
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  UnixSocket <> Aborting Scanning Server Connection Thread: failed to read length
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
+    Check All Product Logs Do Not Contain Error
+    Run Keyword If Test Failed  Clear logs
 
 Clear logs
     Stop AV
@@ -176,6 +186,9 @@ CLS Can Scan Shallow Archive But not Deep Archive
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/archives/eicar16.tar
     Should Contain  ${output}  as it is a Zip Bomb
 
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is a Zip Bomb
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is a Zip Bomb
+
 
 CLS Summary is Correct
     Create Directory  ${NORMAL_DIRECTORY}/EXTRA_FOLDER
@@ -215,7 +228,6 @@ CLS Duration Summary is Displayed Correctly
     Send Signal To Process  2
     ${result} =  Wait For Process  timeout=10s
     Process Should Be Stopped
-
     Should Contain   ${result.stdout}  files scanned in 1 minute
     ${seconds} =  Find Value After Phrase  minute,  ${result.stdout}
     Check Is Greater Than  ${seconds}  ${0}
@@ -358,6 +370,8 @@ CLS Reports Reason for Scan Error on Zip Bomb
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/zipbomb.zip
     Should Contain  ${output}  as it is a Zip Bomb
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is a Zip Bomb
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is a Zip Bomb
 
 
 CLS Aborts Scanning of Password Protected File
@@ -369,7 +383,8 @@ CLS Aborts Scanning of Password Protected File
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${PASSWORD_PROTECTED_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected
-
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is password protected
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is password protected
 
 CLS Aborts Scanning of Corrupted File
     Copy File  ${RESOURCES_PATH}/file_samples/corrupt_tar.tar  ${NORMAL_DIRECTORY}
@@ -381,6 +396,8 @@ CLS Aborts Scanning of Corrupted File
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/corrupt_tar.tar/my.file as it is corrupted
 
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is corrupted
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is corrupted
 
 CLS Can Report Scan Error And Detection For Archive
     Copy File  ${RESOURCES_PATH}/file_samples/scanErrorAndThreat.tar  ${NORMAL_DIRECTORY}
@@ -393,6 +410,10 @@ CLS Can Report Scan Error And Detection For Archive
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/EncryptedSpreadsheet.xlsx as it is password protected
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/eicar.com" is infected with EICAR-AV-Test
 
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is password protected
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is password protected
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  is infected with EICAR-AV-Test
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  is infected with EICAR-AV-Test
 
 AV Log Contains No Errors When Scanning File
     Mark AV Log
@@ -1347,6 +1368,8 @@ CLS Can Scan Infected And Error Files
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is a Zip Bomb
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is a Zip Bomb
 
 
 CLS Can Scan Clean And Error Files
@@ -1357,6 +1380,9 @@ CLS Can Scan Clean And Error Files
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is a Zip Bomb
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is a Zip Bomb
 
 
 CLS Can Scan PE Files without Crashing
@@ -1403,6 +1429,11 @@ CLS Return Codes Are Correct
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/ ${NORMAL_DIRECTORY}/corrupt_tar.tar ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is password protected
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is password protected
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is corrupted
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is corrupted
+
 CLS Can Append Summary To Log When SigTerm Occurs
     ${SCAN_LOG} =    Set Variable    /tmp/sigterm_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
@@ -1419,6 +1450,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
 
     Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=1
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
+
 
 CLS Can Append Summary To Log When SigTerm Occurs Strace
     [Tags]  STRACE  MANUAL
