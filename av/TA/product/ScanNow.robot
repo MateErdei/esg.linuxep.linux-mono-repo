@@ -85,6 +85,15 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
     File Log Contains Once  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
 
+    mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Scan: Scan Now, terminated with exit code: 36
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  UnixSocket <> Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan file: /run/motd.dynamic after 60 retries
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  UnixSocket <> Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan file: /run/mlocate.daily.lock after 60 retries
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan file: /run/agetty.reload after 60 retries
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan file: /run/vboxadd-service.sh after 60 retries
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan/run/sshd.pid [Reached total maximum number of reconnection attempts. Aborting scan.]
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan one or more files due to an error
 
 
 
@@ -129,6 +138,10 @@ ScanNow Test Teardown
     Dump Log On Failure   ${SCANNOW_LOG_PATH}
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
+
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Error
 

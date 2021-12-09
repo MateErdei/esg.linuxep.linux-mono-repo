@@ -34,6 +34,10 @@ List AV Plugin Path
 Threat Detector Test Teardown
     List AV Plugin Path
     run teardown functions
+
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to read customerID - using default value
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
@@ -122,6 +126,7 @@ Threat detector is killed gracefully
     Stop AV
     Process Should Be Stopped
 
+
 Threat detector triggers reload on SIGUSR1
     Mark Sophos Threat Detector Log
     Start AV
@@ -138,6 +143,7 @@ Threat detector triggers reload on SIGUSR1
 
     Stop AV
     Process Should Be Stopped
+
 
 Threat detector exits if it cannot acquire the susi update lock
     Start AV
@@ -166,6 +172,11 @@ Threat detector exits if it cannot acquire the susi update lock
 
     Stop AV
 
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to acquire lock on /opt/sophos-spl/plugins/av/chroot/var/susi_update.lock
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to acquire lock on /opt/sophos-spl/plugins/av/chroot/var/susi_update.lock
+
+
+
 Threat Detector Logs Susi Version when applicable
     Start AV
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
@@ -183,6 +194,7 @@ Threat Detector Logs Susi Version when applicable
     Sophos Threat Detector Log Contains With Offset  Threat scanner is already up to date
     threat detector log should not contain with offset  SUSI Libraries loaded:
 
+
 Threat Detector Doesnt Log Every Scan
     Register On Fail   dump log  ${SUSI_DEBUG_LOG_PATH}
     Set Log Level  INFO
@@ -193,3 +205,4 @@ Threat Detector Doesnt Log Every Scan
     check log does not contain   Starting scan of    ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
     check log does not contain   Finished scanning   ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
     dump log  ${SUSI_DEBUG_LOG_PATH}
+
