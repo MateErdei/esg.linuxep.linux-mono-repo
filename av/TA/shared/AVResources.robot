@@ -24,12 +24,13 @@ ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${CLI_SCANNER_PATH}      ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
 ${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
-${THREAT_DETECTOR_INFO_LOG_PATH}     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.info.log
+${THREAT_DETECTOR_INFO_LOG_PATH}  ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.info.log
 ${SUSI_DEBUG_LOG_PATH}          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
 ${SCANNOW_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Scan Now.log
 ${CLOUDSCAN_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Sophos Cloud Scheduled Scan.log
 ${TELEMETRY_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
 ${WATCHDOG_BINARY}      ${SOPHOS_INSTALL}/base/bin/sophos_watchdog
+${WATCHDOG_LOG}         ${SOPHOS_INSTALL}/logs/base/watchdog.log
 ${CHROOT_LOGGING_SYMLINK}   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
 ${SUSI_STARTUP_SETTINGS_FILE}    ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
 ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}    ${COMPONENT_ROOT_PATH}/chroot/${AV_PLUGIN_PATH}/var/susi_startup_settings.json
@@ -491,6 +492,7 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
+    Remove File    ${THREAT_DETECTOR_INFO_LOG_PATH}
 
     Empty Directory  /opt/sophos-spl/base/mcs/event/
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start threat_detector   OnError=failed to start sophos_threat_detector
