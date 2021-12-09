@@ -131,7 +131,7 @@ class TargetSystem:
         detect_instance_info
         :return:
         """
-        return self.get_aws_info() or self.get_oracle_info() or self.get_azure_info() or ""
+        return self.get_aws_info() or self.get_oracle_info() or self.get_azure_info() or self.get_google_info() or ""
 
     def get_aws_info(self):
         try:
@@ -164,6 +164,37 @@ class TargetSystem:
             pass
         return None
 
+    def get_google_info(self):
+        try:
+            proxy_handler = urllib.request.ProxyHandler({})
+            opener = urllib.request.build_opener(proxy_handler)
+            request = urllib.request.Request('http://metadata.google.internal/computeMetadata/v1/instance/id')
+            request.add_header('Metadata-Flavor', "Google")
+            id = opener.open(request, timeout=1).read().decode()
+
+            request = urllib.request.Request('http://metadata.google.internal/computeMetadata/v1/instance/zone')
+            request.add_header('Metadata-Flavor', "Google")
+            zone = opener.open(request, timeout=1).read().decode()
+
+            request = urllib.request.Request('http://metadata.google.internal/computeMetadata/v1/instance/hostname')
+            request.add_header('Metadata-Flavor', "Google")
+            hostname = opener.open(request, timeout=1).read().decode()
+            google_info_json = {"platform": "google",
+                             "hostname": hostname,
+                             "id": id,
+                             "zone": zone
+                             }
+            write_info_to_metadata_json(google_info_json)
+
+            return "".join((
+                "<google>",
+                "<hostname>%s</hostname>" % hostname,
+                "<id>%s</id>" % id,
+                "<zone>%s</zone>" % zone,
+                "</google>"))
+        except:  # pylint: disable=bare-except
+            pass
+        return None
     def get_oracle_info(self):
         try:
             proxy_handler = urllib.request.ProxyHandler({})
