@@ -6,6 +6,7 @@ Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/BaseResources.robot
+Resource    ../shared/ErrorMarkers.robot
 
 Library         Collections
 Library         Process
@@ -73,7 +74,7 @@ Restart then Update Sophos Threat Detector
 
     # Extra log dump to check we have the right events happening
     dump log  ${THREAT_DETECTOR_LOG_PATH}
-
+    Mark SPPLAV Processes Are Killed With SIGKILL
 
 Update then Restart Sophos Threat Detector
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
@@ -94,6 +95,7 @@ Update then Restart Sophos Threat Detector
 
     # Extra log dump to check we have the right events happening
     dump log  ${THREAT_DETECTOR_LOG_PATH}
+    Mark SPPLAV Processes Are Killed With SIGKILL
 
 Installer doesnt try to create an existing user
     Modify manifest
@@ -128,7 +130,7 @@ Scanner works after upgrade
     # check that the logs are still working (LINUXDAR-2535)
     Sophos Threat Detector Log Contains With Offset   EICAR-AV-Test
     AV Plugin Log Contains With Offset   EICAR-AV-Test
-
+    Mark SPPLAV Processes Are Killed With SIGKILL
 
 AV Plugin gets customer id after upgrade
     ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
@@ -170,6 +172,8 @@ AV Plugin gets customer id after upgrade
     Should Be Equal   ${customerId2}   ${expectedId}
 
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket  timeout=30
+    Mark Failed To connect To Warehouse Error
+    Mark UpdateScheduler Fails
 
 
 IDE can be removed
@@ -355,6 +359,9 @@ Check installer corrects permissions of var directory on upgrade
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Threat Detector Does Not Log Contain  Failed to read customerID - using default value
+    Mark Failed To connect To Warehouse Error
+    Mark UpdateScheduler Fails
+    Mark SPPLAV Processes Are Killed With SIGKILL
 
 Check installer corrects permissions of logs directory on upgrade
     Register On Fail  dump watchdog log
@@ -371,6 +378,9 @@ Check installer corrects permissions of logs directory on upgrade
     ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
     Should Be Equal As Integers  ${rc}  0
     Should Be Empty  ${output}
+    Mark Failed To connect To Warehouse Error
+    Mark UpdateScheduler Fails
+    Mark SPPLAV Processes Are Killed With SIGKILL
 
 Check installer corrects permissions of chroot files on upgrade
     Register On Fail  dump watchdog log
@@ -510,7 +520,17 @@ Check installer keeps SUSI startup settings as writable by AV Plugin
     Send Sav Policy To Base  SAV_Policy.xml
     Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
     AV Plugin Log Does Not Contain With Offset  Failed to create file
+    Mark Invalid Day From Policy Error
 
+Check installer removes sophos_threat_detector log symlink
+    Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector/sophos_threat_detector.log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
+    File Should Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
+    # modify the manifest to force the installer to perform a full product update
+    Modify manifest
+    Run Installer From Install Set
+
+    File Should Not Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
+    Mark Invalid Day From Policy Error
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
@@ -552,7 +572,8 @@ Installer Test Setup
 
 Installer Test TearDown
     Run Teardown Functions
-    Check All Product Logs Do Not Contain Error
+    Mark CustomerID Failed To Read Error
+    Mark MCS Router is dead
     Check All Product Logs Do Not Contain Error
     Run Keyword If Test Failed   Installer Suite Setup
 

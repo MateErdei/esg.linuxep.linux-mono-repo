@@ -3,6 +3,19 @@ Library         ../Libs/LogUtils.py
 Resource    AVResources.robot
 
 *** Keywords ***
+Mark UpdateScheduler Fails
+   mark_expected_error_in_log   ${UPDATE_SCHEDULER}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
+
+Mark SPPLAV Processes Are Killed With SIGKILL
+    mark_expected_error_in_log  ${WATCHDOG_LOG}   ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 9
+    mark_expected_error_in_log  ${WATCHDOG_LOG}   ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/av died with 9
+
+Mark Invalid Day From Policy Error
+    mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Invalid day from policy:
+
+Mark Failed To connect To Warehouse Error
+    mark_expected_error_in_log   ${SULDOWNLOADER_LOG}    suldownloaderdata <> Failed to connect to the warehouse: 5
+
 Mark Failed To Acquire Susi Lock
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to acquire lock on /opt/sophos-spl/plugins/av/chroot/var/susi_update.lock
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> Failed to acquire lock on /opt/sophos-spl/plugins/av/chroot/var/susi_update.lock

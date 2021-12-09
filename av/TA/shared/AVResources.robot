@@ -31,6 +31,8 @@ ${CLOUDSCAN_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Sophos Cloud Scheduled Scan.log
 ${TELEMETRY_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
 ${WATCHDOG_BINARY}      ${SOPHOS_INSTALL}/base/bin/sophos_watchdog
 ${WATCHDOG_LOG}         ${SOPHOS_INSTALL}/logs/base/watchdog.log
+${SULDOWNLOADER_LOG}         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+${UPDATE_SCHEDULER}         ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 ${CHROOT_LOGGING_SYMLINK}   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
 ${SUSI_STARTUP_SETTINGS_FILE}    ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
 ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}    ${COMPONENT_ROOT_PATH}/chroot/${AV_PLUGIN_PATH}/var/susi_startup_settings.json
