@@ -1,10 +1,11 @@
 /******************************************************************************************************
 
-Copyright 2018-2020 Sophos Limited.  All rights reserved.
+Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "PluginAdapter.h"
+#include <common/PluginUtils.h>
 
 #include "Logger.h"
 #include "StringUtils.h"
@@ -23,20 +24,14 @@ namespace Plugin
 {
     namespace
     {
-        fs::path pluginInstall()
-        {
-            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            return appConfig.getData("PLUGIN_INSTALL");
-        }
-
         fs::path threat_reporter_socket()
         {
-            return pluginInstall() / "chroot/var/threat_report_socket";
+            return common::getPluginInstallPath() / "chroot/var/threat_report_socket";
         }
 
         fs::path process_controller_socket()
         {
-            return pluginInstall() / "chroot/var/process_control_socket";
+            return common::getPluginInstallPath() / "chroot/var/process_control_socket";
         }
 
         class ThreatReportCallbacks : public IMessageCallback

@@ -1,11 +1,10 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "PluginUtils.h"
-#include "datatypes/sophos_filesystem.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
@@ -35,5 +34,11 @@ namespace common
             }
         }
         return "unknown";
+    }
+
+    fs::path getPluginInstallPath()
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        return appConfig.getData("PLUGIN_INSTALL");
     }
 }

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -258,11 +258,34 @@ static fs::path threat_detector_config(const fs::path& pluginInstall)
     return pluginInstall / "chroot/etc/threat_detector_config";
 }
 
+static void write_pid_file(const fs::path& pluginInstall)
+{
+    fs::path pidFilePath = pluginInstall / "chroot/var/threat_detector.pid";
+    fs::remove(pidFilePath);
+    pid_t pid = getpid();
+    LOGDEBUG("Writing Pid: " << pid << " to: " << pidFilePath);
+    std::ofstream ofs(pidFilePath, std::ofstream::trunc);
+    ofs << pid;
+    ofs.close();
+}
+
+static void remove_shutdown_notice_file(const fs::path& pluginInstall)
+{
+    fs::remove(pluginInstall / "chroot/var/threat_detector_expected_shutdown");
+}
+
+static void create_shutdown_notice_file(const fs::path& pluginInstall)
+{
+    std::ofstream ofs(pluginInstall / "chroot/var/threat_detector_expected_shutdown");
+    ofs.close();
+}
+
 static int inner_main()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
     fs::path chrootPath = pluginInstall / "chroot";
+
     LOGDEBUG("Preparing to enter chroot at: " << chrootPath);
 #ifdef USE_CHROOT
     // attempt DNS query
@@ -335,6 +358,9 @@ static int inner_main()
     fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
 #endif
 
+    remove_shutdown_notice_file(pluginInstall);
+    write_pid_file(pluginInstall);
+
     threat_scanner::IThreatReporterSharedPtr threatReporter =
         std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>(threat_reporter_socket(pluginInstall));
 
@@ -400,6 +426,7 @@ static int inner_main()
                 if (currentTimeout <= 0)
                 {
                     LOGDEBUG("No scans requested for " << timeout.tv_sec << " seconds - shutting down.");
+                    create_shutdown_notice_file(pluginInstall);
                     break;
                 }
                 else
@@ -434,6 +461,7 @@ static int inner_main()
         if (FDUtils::fd_isset(processController.monitorFd(), &tempRead))
         {
             LOGINFO("Sophos Threat Detector received shutdown request");
+            create_shutdown_notice_file(pluginInstall);
             processController.triggered();
             break;
         }

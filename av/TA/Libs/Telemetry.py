@@ -18,4 +18,4 @@ def check_telemetry(telemetry):
     assert av_dict["vdl-ide-count"] != "unknown", "No IDE Count is set to unknown in telemetry"
     assert av_dict["vdl-version"] != "unknown", "No VDL Version is set to unknown in telemetry"
     assert av_dict["sxl4-lookup"] is True, "SXL4 Lookup is defaulting to True in telemetry"
-    assert av_dict["health"] is 0, "Health is defaulting to running in telemetry"
+    assert av_dict["health"] is 0, "Health is not set to 0 in telemetry, showing bad AV Plugin Health"

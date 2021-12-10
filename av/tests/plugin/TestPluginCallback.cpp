@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,12 +8,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "pluginimpl/PluginCallback.h"
 #include "pluginimpl/QueueTask.h"
 
-#include <tests/common/LogInitializedTests.h>
-
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/MockFilePermissions.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/UtilityImpl/StringUtils.h>
-
 #include <gtest/gtest.h>
+#include <tests/common/LogInitializedTests.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
@@ -375,25 +378,420 @@ TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup_fileDoesNotExist) //NOLINT
     EXPECT_EQ(telemetry["sxl4-lookup"], true);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_health_fileDoesNotExist) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_health) //NOLINT
 {
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    ASSERT_EQ(initialTelemetry["health"], 1);
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+    int pidFileContentsConverted = 1234;
+    std::optional<std::string> statusProcContents = "Uid: 5678";
+    int uidContentsConverted = 5678;
+    std::string expectedUsername = "sophos-spl-threat-detector";
+    std::optional<std::string> cmdlineProcContents = "sophos_threat_detector\0";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Return(cmdlineProcContents));
+
     json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
-    EXPECT_EQ(modifiedTelemetry["health"], 0);
+
+    ASSERT_EQ(modifiedTelemetry["health"], 0);
 }
 
-TEST_F(TestPluginCallback, getTelemetryHealthReturnsZeroWhenHealthSuccessfullyCalculated) //NOLINT
+TEST_F(TestPluginCallback, getHealthReturnsZeroWhenCalculateHealthSuccessful) //NOLINT
 {
-    m_pluginCallback->calculateHealth();
-    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
-    EXPECT_EQ(modifiedTelemetry["health"], 0);
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+    int pidFileContentsConverted = 1234;
+    std::optional<std::string> statusProcContents = "Uid: 5678";
+    int uidContentsConverted = 5678;
+    std::string expectedUsername = "sophos-spl-threat-detector";
+    std::optional<std::string> cmdlineProcContents = "sophos_threat_detector\0";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Return(cmdlineProcContents));
+
+    long expectedResult = 0;
+    long result = m_pluginCallback->calculateHealth();
+
+    ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsZero) //NOLINT
+TEST_F(TestPluginCallback, getHealthReturnsZeroWhenShutdownFileIsValid) //NOLINT
 {
-    nlohmann::json j;
-    j["Health"] = 0;
-    std::string expectedResult = j.dump();
-    std::string result = m_pluginCallback->getHealth();
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
 
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Return(std::time(nullptr) - 7));
+
+    long expectedResult = 0;
+    long result = m_pluginCallback->calculateHealth();
+
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownFileHasExpired) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Return(std::time(nullptr) - 15));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Throw(
+            Common::FileSystem::IFileSystemException("File does not exist.")));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing threat detector pid file: "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownHasAFileSystemException) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
+            Common::FileSystem::IFileSystemException("Shutdown file read error.")));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Throw(
+            Common::FileSystem::IFileSystemException("File does not exist.")));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing threat detector expected shutdown file: "));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing threat detector pid file: "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidFileContentsAreMalformed) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string badPidContents = "notanint";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(badPidContents));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to read Pid file to int due to: "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidDirectoryInProcIsMissing) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(false));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Health found previous Sophos Threat Detector process no longer running: "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfAccessingPidDirectoryHasAFileSystemException) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Throw(
+            Common::FileSystem::IFileSystemException("Cannot check this directory.")));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing proc directory of pid: 1234 due to: "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusUidMalformed) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+    int pidFileContentsConverted = 1234;
+    std::string badProcStatusContents = "Uid: notanint";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(badProcStatusContents));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to read Pid Status file to int due to: "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfUidUsernameDoesNotCorrespondToSophosThreatDetector) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+    int pidFileContentsConverted = 1234;
+    std::string statusProcContents = "Uid: 5678";
+    int uidContentsConverted = 5678;
+    std::string unexpectedUsername = "some-other-username";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(unexpectedUsername));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Unexpected user permissions for /proc/"));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusFileFailsToBeRead) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+    int pidFileContentsConverted = 1234;
+    std::optional<std::string> statusProcContents = std::nullopt;
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Status file of Pid: 1234 is empty. Returning bad health due to: "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenGettingUsername) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+    int pidFileContentsConverted = 1234;
+    std::string statusProcContents = "Uid: 5678";
+    int uidContentsConverted = 5678;
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Throw(
+            Common::FileSystem::IFileSystemException("File does not exist.")));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed whilst validating user file permissions of /proc/1234 due to: "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, getHealthReturnsOneWhenCmdlineArgOfPidIsNotSophosThreatDetector) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+    int pidFileContentsConverted = 1234;
+    std::optional<std::string> statusProcContents = "Uid: 5678";
+    int uidContentsConverted = 5678;
+    std::string expectedUsername = "sophos-spl-threat-detector";
+    std::optional<std::string> wrongCmdlineProcContents = "not_sophos_threat_detector\0";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Return(wrongCmdlineProcContents));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("The proc cmdline for 1234 does not equal the expected value (sophos_threat_detector): "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsOneOnWhenCmdlineProcFileCannotBeRead) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+    int pidFileContentsConverted = 1234;
+    std::optional<std::string> statusProcContents = "Uid: 5678";
+    int uidContentsConverted = 5678;
+    std::string expectedUsername = "sophos-spl-threat-detector";
+    std::optional<std::string> cmdlineProcContents = std::nullopt;
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Return(cmdlineProcContents));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Cmdline file of Pid: 1234 is empty. Returning bad health due to: "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenAccessingCmdlineProcFile) //NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    std::string pidFileContents = "1234";
+    Path pidProcDirectory = "/proc/1234";
+    int pidFileContentsConverted = 1234;
+    std::optional<std::string> statusProcContents = "Uid: 5678";
+    int uidContentsConverted = 5678;
+    std::string expectedUsername = "sophos-spl-threat-detector";
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Throw(
+            Common::FileSystem::IFileSystemException("File does not exist.")));
+
+    long expectedResult = 1;
+    long result = m_pluginCallback->calculateHealth();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error reading threat detector cmdline proc file due to: "));
     ASSERT_EQ(result, expectedResult);
 }

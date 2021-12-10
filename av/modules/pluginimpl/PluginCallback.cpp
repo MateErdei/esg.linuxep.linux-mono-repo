@@ -1,23 +1,26 @@
 /******************************************************************************************************
 
-Copyright 2020 Sophos Limited.  All rights reserved.
+Copyright 2020-2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "PluginCallback.h"
 
 #include "Logger.h"
-#include "common/StringUtils.h"
+
 #include "common/PluginUtils.h"
-#include "datatypes/sophos_filesystem.h"
+#include "common/StringUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-
 #include <thirdparty/nlohmann-json/json.hpp>
+
 #include <fstream>
+
 #include <unistd.h>
 
 namespace fs = sophos_filesystem;
@@ -89,7 +92,7 @@ namespace Plugin
         telemetry.set("vdl-version", getVirusDataVersion());
         telemetry.set("version", common::getPluginVersion());
         telemetry.set("sxl4-lookup", m_lookupEnabled);
-        telemetry.set("health", static_cast<long> (getServiceHealth()));
+        telemetry.set("health", calculateHealth());
 
         return telemetry.serialiseAndReset();
     }
@@ -198,6 +201,36 @@ namespace Plugin
         return versionStr;
     }
 
+    bool PluginCallback::shutdownFileValid()
+    {
+        // Threat detector is expected to shut down periodically but should be restarted by watchdog after 10 seconds
+
+        auto fileSystem = Common::FileSystem::fileSystem();
+
+        Path threatDetectorExpectedShutdownFile = common::getPluginInstallPath() / "chroot/var/threat_detector_expected_shutdown";
+        bool valid = false;
+
+        try
+        {
+            if (fileSystem->exists(threatDetectorExpectedShutdownFile))
+            {
+                std::time_t currentTime = std::time(nullptr);
+                std::time_t lastModifiedTime = fileSystem->lastModifiedTime(threatDetectorExpectedShutdownFile);
+
+                if (currentTime - lastModifiedTime < m_allowedShutdownTime)
+                {
+                    valid = true;
+                }
+            }
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGDEBUG("Error accessing threat detector expected shutdown file: " << threatDetectorExpectedShutdownFile << " due to: " << e.what() << " --- treating file as invalid");
+        }
+
+        return valid;
+    }
+
     std::string PluginCallback::generateSAVStatusXML()
     {
         std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
@@ -249,27 +282,136 @@ namespace Plugin
         return m_running;
     }
 
-    int PluginCallback::getServiceHealth()
+    std::string PluginCallback::extractValueFromProcStatus(const std::string& procStatusContent, const std::string& key)
     {
-        return m_health;
+        auto contents = Common::UtilityImpl::StringUtils::splitString(procStatusContent, "\n");
+
+        for (auto const& line : contents)
+        {
+            if (Common::UtilityImpl::StringUtils::startswith(line, key + ":"))
+            {
+                std::vector<std::string> list = Common::UtilityImpl::StringUtils::splitString(line, ":");
+                std::string s = list[1];
+                s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](char c) { return !std::isspace(c); }));
+                return s;
+            }
+        }
+        return "";
     }
 
-    void PluginCallback::setServiceHealth(int health)
+    long PluginCallback::calculateHealth()
     {
-        m_health = health;
-    }
+        // Returning: 0 = Good Health, 1 = Bad Health
 
-    void PluginCallback::calculateHealth()
-    {
-        // Infer that AV plugin healthy if this code can be reached.
-        setServiceHealth(0);
+        auto fileSystem = Common::FileSystem::fileSystem();
+        auto filePermissions = Common::FileSystem::filePermissions();
+
+        int pid;
+        std::string pidAsString;
+        std::optional<std::string> statusFileContents;
+        std::optional<std::string> procFileCmdlineContent;
+
+        Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
+
+        if (shutdownFileValid())
+        {
+            LOGDEBUG("Valid shutdown file found for Sophos Threat Detector, plugin considered healthy.");
+            return 0;
+        }
+
+        try
+        {
+            pidAsString = fileSystem->readFile(threatDetectorPidFile);
+            std::pair<int, std::string> stringToIntResult =
+                Common::UtilityImpl::StringUtils::stringToInt(pidAsString);
+            if (!stringToIntResult.second.empty())
+            {
+                LOGWARN("Failed to read Pid file to int due to: " << stringToIntResult.second);
+                return 1;
+            }
+            pid = stringToIntResult.first;
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGWARN("Error accessing threat detector pid file: " << threatDetectorPidFile << " due to: " << e.what());
+            return 1;
+        }
+
+        try
+        {
+            if (!fileSystem->isDirectory("/proc/" + pidAsString))
+            {
+                LOGDEBUG("Health found previous Sophos Threat Detector process no longer running: " << pidAsString);
+                return 1;
+            }
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGWARN("Error accessing proc directory of pid: " << pidAsString << " due to: " << e.what());
+            return 1;
+        }
+
+        try
+        {
+            statusFileContents = fileSystem->readProcFile(pid, "status");
+
+            std::pair<int, std::string> stringToIntResult = Common::UtilityImpl::StringUtils::stringToInt(
+                extractValueFromProcStatus(statusFileContents.value(), "Uid"));
+
+            if (!stringToIntResult.second.empty())
+            {
+                LOGWARN("Failed to read Pid Status file to int due to: " << stringToIntResult.second);
+                return 1;
+            }
+            int uid = stringToIntResult.first;
+            std::string username = filePermissions->getUserName(uid);
+
+            if (username != "sophos-spl-threat-detector")
+            {
+                LOGWARN("Unexpected user permissions for /proc/" << pid << ": " << username << " does not equal 'sophos-spl-threat-detector'");
+                return 1;
+            }
+        }
+        catch (const std::bad_optional_access& e)
+        {
+            LOGWARN("Status file of Pid: " << pid << " is empty. Returning bad health due to: " << e.what());
+            return 1;
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGWARN("Failed whilst validating user file permissions of /proc/" << pid << " due to: " << e.what());
+            return 1;
+        }
+
+        try
+        {
+            procFileCmdlineContent = fileSystem->readProcFile(pid, "cmdline");
+            std::string procCmdline = Common::UtilityImpl::StringUtils::splitString(procFileCmdlineContent.value(), { '\0' })[0];
+
+            if (procCmdline != "sophos_threat_detector")
+            {
+                LOGWARN("The proc cmdline for " << pid << " does not equal the expected value (sophos_threat_detector): " << procFileCmdlineContent.value());
+                return 1;
+            }
+        }
+        catch (const std::bad_optional_access& e)
+        {
+            LOGWARN("Cmdline file of Pid: " << pid << " is empty. Returning bad health due to: " << e.what());
+            return 1;
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGWARN("Error reading threat detector cmdline proc file due to: " << e.what());
+            return 1;
+        }
+
+        return 0;
     }
 
     std::string PluginCallback::getHealth()
     {
         nlohmann::json j;
-        calculateHealth();
-        j["Health"] = getServiceHealth();
+        j["Health"] = calculateHealth();
         return j.dump();
     }
 

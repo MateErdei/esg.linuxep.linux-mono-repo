@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,7 +8,11 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 #include "QueueTask.h"
 
+#include "datatypes/sophos_filesystem.h"
+
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/PluginApi/IPluginCallbackApi.h>
+#include <common/PluginUtils.h>
 
 #include <atomic>
 
@@ -29,9 +33,7 @@ namespace Plugin
         std::string getTelemetry() override;
         std::string getHealth() override;
 
-        int getServiceHealth();
-        void setServiceHealth(int health);
-        void calculateHealth();
+        long calculateHealth();
 
         void sendStatus(const std::string& revID);
         void setRunning(bool running);
@@ -45,12 +47,32 @@ namespace Plugin
         std::string getMlLibHash();
         std::string getMlModelVersion();
         std::string getVirusDataVersion();
+        bool shutdownFileValid();
+
+        /**
+         * Takes a linux process status file's contents and returns a value at of a
+         * given key.
+         *
+         * As the status file is human readable, this function strips all whitespace
+         * following the key until it gets a non-whitespace char.
+         *
+         * e.g.
+         * Value in status file:
+         * Uid:     1000    1000    1000    1000
+         * Returns:
+         * "1000    1000    1000    1000"
+         *
+         * @param procStatusContent is the contents of a linux process' status file
+         * @param key of the value being extracted
+         * @return value at key, or empty string
+         */
+        static std::string extractValueFromProcStatus(const std::string& procStatusContent, const std::string& key);
 
         std::shared_ptr<QueueTask> m_task;
         Common::PluginApi::StatusInfo m_statusInfo;
         std::string m_revID;
         std::atomic_bool m_running = false;
         bool m_lookupEnabled = true;
-        int m_health = 0;
+        int m_allowedShutdownTime = 15;
     };
 }; // namespace Plugin
