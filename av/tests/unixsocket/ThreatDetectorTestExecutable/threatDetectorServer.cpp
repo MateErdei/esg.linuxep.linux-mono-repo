@@ -40,7 +40,6 @@ namespace
             std::stringstream fullResult;
             fullResult << "fd=" << fd << ", scanType=" << scanType << ", userID=" << userID;
             response.addDetection(file_path, "fuzz-test","");
-            response.setFullScanResult(fullResult.str());
             return response;
         }
 

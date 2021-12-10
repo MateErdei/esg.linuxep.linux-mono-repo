@@ -27,7 +27,6 @@ namespace scan_messages
         explicit ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader);
 
         void addDetection(const std::string& filePath, const std::string& threatName, const std::string& sha256);
-        void setFullScanResult(std::string fullScanResult);
         void setErrorMsg(std::string errorMsg);
 
         [[nodiscard]] std::vector<Detection> getDetections();
@@ -40,7 +39,6 @@ namespace scan_messages
 
     private:
         std::vector<Detection> m_detections;
-        std::string m_fullScanResult;
         std::string m_errorMsg;
     };
 }

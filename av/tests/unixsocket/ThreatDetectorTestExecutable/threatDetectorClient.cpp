@@ -112,7 +112,6 @@ static int writeSampleFile(std::string path)
     scan_messages::ScanResponse scanResponse;
 
     scanResponse.addDetection("/home/vagrant/eicar1", "EICAR-AV-Test","");
-    scanResponse.setFullScanResult(Fuzzing::m_scanResult);
 
     std::ofstream outfile(path, std::ios::binary);
 
