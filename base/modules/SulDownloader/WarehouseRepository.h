@@ -137,7 +137,7 @@ namespace SulDownloader
         std::string getSourceURL() const override;
 
         std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const override;
-
+        void purge() const override;
         WarehouseRepository();
 
         void reset() override;

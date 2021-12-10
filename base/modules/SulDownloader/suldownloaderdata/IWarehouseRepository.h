@@ -101,7 +101,7 @@ namespace SulDownloader
             virtual SulLogsVector getLogs() const = 0;
 
             virtual void dumpLogs() const = 0;
-
+            virtual void purge() const = 0;
             virtual void reset() = 0;
 
         };

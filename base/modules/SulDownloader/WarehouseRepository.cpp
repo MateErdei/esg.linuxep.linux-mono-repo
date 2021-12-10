@@ -423,7 +423,10 @@ namespace SulDownloader
             m_error.status = WarehouseStatus::DOWNLOADFAILED;
         }
     }
-
+    void WarehouseRepository::purge() const
+    {
+        SU_purge(session());
+    }
     void WarehouseRepository::distribute()
     {
         assert(m_state == State::Synchronized);
