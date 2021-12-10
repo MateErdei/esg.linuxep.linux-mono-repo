@@ -293,6 +293,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanArchives) // NOLI
     runner.run();
 
     EXPECT_TRUE(appenderContains("Archive scanning enabled: yes"));
+    EXPECT_TRUE(appenderContains("Image scanning enabled: no"));
 
     ASSERT_EQ(socket->m_paths.size(), 1);
     EXPECT_EQ(socket->m_paths.at(0), fs::absolute("sandbox/a/b/file1.txt").string());
@@ -315,6 +316,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanImages) // NOLINT
     runner.setSocket(socket);
     runner.run();
 
+    EXPECT_TRUE(appenderContains("Archive scanning enabled: no"));
     EXPECT_TRUE(appenderContains("Image scanning enabled: yes"));
 
     ASSERT_EQ(socket->m_paths.size(), 1);
