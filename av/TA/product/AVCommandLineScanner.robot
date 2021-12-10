@@ -589,16 +589,17 @@ ClS Scans DiscImage When Image Setting Is On
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
     Should Not Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/directory/subdir/eicar.com" is infected with EICAR-AV-Test
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso --scan-archives
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Not Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/directory/subdir/eicar.com" is infected with EICAR-AV-Test
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso --scan-images
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/directory/subdir/eicar.com" is infected with EICAR-AV-Test
 
+CLS Does Not Scan DiscImage When Archives Setting Is On
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso --scan-archives
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Not Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/directory/subdir/eicar.com" is infected with EICAR-AV-Test
 
 CLS Encoded Eicars
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true

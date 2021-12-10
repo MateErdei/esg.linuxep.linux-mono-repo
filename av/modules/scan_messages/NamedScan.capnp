@@ -15,11 +15,11 @@ struct NamedScan {
     sophosExtensionExclusions       @2  :List(Text);
     userDefinedExtensionInclusions  @3  :List(Text);
     scanArchives                    @4  :Bool;
-    scanImages                      @5  :Bool;
-    scanAllFiles                    @6  :Bool;
-    scanFilesWithNoExtensions       @7  :Bool;
-    scanHardDrives                  @8  :Bool;
-    scanCDDVDDrives                 @9  :Bool;
-    scanNetworkDrives               @10  :Bool;
-    scanRemovableDrives             @11 :Bool;
+    scanAllFiles                    @5  :Bool;
+    scanFilesWithNoExtensions       @6  :Bool;
+    scanHardDrives                  @7  :Bool;
+    scanCDDVDDrives                 @8  :Bool;
+    scanNetworkDrives               @9  :Bool;
+    scanRemovableDrives             @10 :Bool;
+    scanImages                      @11 :Bool;
 }

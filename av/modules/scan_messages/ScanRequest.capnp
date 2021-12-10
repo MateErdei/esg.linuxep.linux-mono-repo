@@ -12,7 +12,7 @@ $Cxx.namespace("Sophos::ssplav");
 struct FileScanRequest {
     pathname                @0 :Text;
     scanInsideArchives      @1 :Bool;
-    scanInsideImages        @2 :Bool;
-    scanType                @3 :Int64;
-    userID                  @4 :Text;
+    scanType                @2 :Int64;
+    userID                  @3 :Text;
+    scanInsideImages        @4 :Bool;
 }

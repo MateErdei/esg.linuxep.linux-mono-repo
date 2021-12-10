@@ -133,7 +133,7 @@ TEST(TestScanClient, TestScanImage) // NOLINT
             .Times(1);
 
     ScanClient s(mock_socket, mock_callbacks, false, true, E_SCAN_TYPE_ON_DEMAND);
-    // Note: we need to scan a file which exists on all build systems (but will pretend this is an archive for test purposes)
+    // Note: we need to scan a file which exists on all build systems (but will pretend this is an image for test purposes)
     auto result = s.scan("/etc/passwd");
     EXPECT_FALSE(result.allClean());
     EXPECT_EQ(result.getDetections().size(), 1);
