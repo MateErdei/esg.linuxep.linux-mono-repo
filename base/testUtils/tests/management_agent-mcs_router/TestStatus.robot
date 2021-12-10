@@ -46,3 +46,39 @@ Verify Status Sent To Management Agent Will Be Passed To MCS And Received In Fak
     # clean up
     Stop Plugin
     Stop Management Agent
+
+Verify Health Status Sent To Cloud Only If Changed
+    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  [mcs_router]\nVERBOSITY=DEBUG\n
+    Start MCSRouter
+
+    Remove Status Xml Files
+
+    Setup Plugin Registry
+    Start Management Agent
+
+    Start Plugin
+
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Check MCS Router Log Contains  Adapter SHS changed status
+
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Check Cloud Server Log Contains  Endpoint health status set to
+
+    Restart MCSRouter And Clear Logs
+
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Check MCS Router Log Contains  Adapter SHS hasn't changed status
+
+    # clean up
+    Stop Plugin
+    Stop Management Agent
