@@ -93,11 +93,6 @@
     <buildcommands>
       <command mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060">
         <program>py.exe</program>
-        <args>-3 -u -m pip install -r requirements.txt --index-url=https://authproxy.sophos-ops.com/artifactory/api/pypi/esg-pypi-trusted/simple</args>
-        <workingdir>src</workingdir>
-      </command>
-      <command mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060">
-        <program>py.exe</program>
         <args>-3 -u prepare.py</args>
         <workingdir>src</workingdir>
       </command>
