@@ -28,6 +28,7 @@ namespace avscanner::avscannerimpl
         Logger m_logger;
 
         bool m_archiveScanning = false;
+        bool m_imageScanning = false;
         bool m_followSymlinks = false;
     };
 }

@@ -272,7 +272,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
             if (!scanner)
             {
-                scanner = m_scannerFactory->createScanner(requestReader->scanInsideArchives());
+                scanner = m_scannerFactory->createScanner(requestReader->scanInsideArchives(), requestReader->scanInsideImages());
                 if (!scanner)
                 {
                     throw std::runtime_error("Failed to create scanner");

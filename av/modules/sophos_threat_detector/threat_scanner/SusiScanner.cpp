@@ -28,12 +28,13 @@ static std::string create_scanner_config(const std::string& scannerInfo)
 SusiScanner::SusiScanner(
     const ISusiWrapperFactorySharedPtr& susiWrapperFactory,
     bool scanArchives,
+    bool scanImages,
     IThreatReporterSharedPtr threatReporter,
     IScanNotificationSharedPtr shutdownTimer)
     : m_threatReporter(std::move(threatReporter))
     , m_shutdownTimer(std::move(shutdownTimer))
 {
-    std::string scannerInfo = create_scanner_info(scanArchives);
+    std::string scannerInfo = create_scanner_info(scanArchives, scanImages);
     std::string scannerConfig = create_scanner_config(scannerInfo);
     m_susi = susiWrapperFactory->createSusiWrapper(scannerConfig);
 }

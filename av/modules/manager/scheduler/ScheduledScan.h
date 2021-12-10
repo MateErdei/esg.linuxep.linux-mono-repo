@@ -60,7 +60,7 @@ namespace manager::scheduler
 
         /**
          *
-         * @return True if the scan should look inside archive files.
+         * @return True if the scan should look inside archive and image files.
          */
         [[nodiscard]] bool archiveScanning() const
         {

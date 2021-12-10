@@ -17,6 +17,7 @@ static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket
     scan_messages::ClientScanRequest request;
     request.setPath(filename);
     request.setScanInsideArchives(false);
+    request.setScanInsideImages(false);
     request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     request.setUserID("root");
     return socket.scan(fd, request);

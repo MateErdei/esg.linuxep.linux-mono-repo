@@ -37,6 +37,12 @@ namespace scan_messages
          */
          [[nodiscard]] bool scanInsideArchives() const;
 
+
+        /**
+         * Should we scan inside images
+         * */
+        [[nodiscard]] bool scanInsideImages() const;
+
         /**
          * The path to scan
          */

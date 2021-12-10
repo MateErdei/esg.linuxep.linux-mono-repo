@@ -76,7 +76,7 @@ namespace Fuzzing
         auto clientSocket = std::make_shared<unixsocket::ScanningClientSocket>(m_socketPath, timespec{0,1});
         auto scanCallbacks = std::make_shared<FakeCallbacks>();
 
-        avscanner::avscannerimpl::ScanClient scanner(*clientSocket, scanCallbacks, false, E_SCAN_TYPE_ON_DEMAND);
+        avscanner::avscannerimpl::ScanClient scanner(*clientSocket, scanCallbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
 
         try
         {

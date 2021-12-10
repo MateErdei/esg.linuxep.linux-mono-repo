@@ -29,6 +29,12 @@ namespace scan_messages
             m_scanInsideArchives = a;
         }
 
+        void setScanInsideImages(bool a)
+        {
+
+            m_scanInsideImages = a;
+        }
+
         void setScanType(E_SCAN_TYPE scanType);
 
         void setUserID(const std::string& userID);
@@ -39,6 +45,7 @@ namespace scan_messages
     protected:
         std::string m_path;
         bool m_scanInsideArchives = false;
+        bool m_scanInsideImages = false;
         std::string m_userID;
         E_SCAN_TYPE m_scanType = E_SCAN_TYPE_UNKNOWN;
     };

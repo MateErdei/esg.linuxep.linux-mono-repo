@@ -22,6 +22,7 @@ namespace fs = sophos_filesystem;
 NamedScanConfig::NamedScanConfig(const Sophos::ssplav::NamedScan::Reader& namedScanConfig)
     : m_scanName(namedScanConfig.getName())
     , m_scanArchives(namedScanConfig.getScanArchives())
+    , m_scanImages(namedScanConfig.getScanImages())
     , m_scanHardDisc(namedScanConfig.getScanHardDrives())
     , m_scanOptical(namedScanConfig.getScanCDDVDDrives())
     , m_scanNetwork(namedScanConfig.getScanNetworkDrives())

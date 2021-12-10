@@ -42,7 +42,7 @@ namespace
     class MockScannerFactory : public threat_scanner::IThreatScannerFactory
     {
     public:
-        MOCK_METHOD1(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives));
+        MOCK_METHOD2(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives, bool scanImages));
 
         MOCK_METHOD0(update, bool());
         MOCK_METHOD0(susiIsInitialized, bool());
@@ -317,7 +317,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
     expected_response.addDetection("/tmp/eicar.com", "THREAT","");
 
     EXPECT_CALL(*scanner, scan(_, "/file/to/scan", _, _)).WillOnce(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
+    EXPECT_CALL(*scannerFactory, createScanner(false, false)).WillOnce(Return(ByMove(std::move(scanner))));
 
     ScanningServerConnectionThread connectionThread(m_serverFd, scannerFactory);
     connectionThread.start();

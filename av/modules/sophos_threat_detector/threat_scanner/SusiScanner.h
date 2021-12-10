@@ -23,6 +23,7 @@ namespace threat_scanner
         explicit SusiScanner(
             const ISusiWrapperFactorySharedPtr& susiWrapperFactory,
             bool scanArchives,
+            bool scanImages,
             IThreatReporterSharedPtr threatReporter,
             IScanNotificationSharedPtr shutdownTimer);
 

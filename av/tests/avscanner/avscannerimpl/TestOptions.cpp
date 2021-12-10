@@ -19,6 +19,7 @@ TEST(Options, TestNoArgs) // NOLINT
     EXPECT_EQ(o.paths().size(), 0);
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.imageScanning());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -37,6 +38,7 @@ TEST(Options, TestPaths) // NOLINT
     EXPECT_EQ(paths.at(0), "/foo");
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.imageScanning());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -57,6 +59,7 @@ TEST(Options, TestMultiplePaths) // NOLINT
     EXPECT_EQ(paths.at(1), "/bar");
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.imageScanning());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -75,6 +78,7 @@ TEST(Options, TestConfig) // NOLINT
     ASSERT_EQ(paths.size(), 0);
     EXPECT_EQ(o.config(), "/bar");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.imageScanning());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -92,6 +96,26 @@ TEST(Options, TestArchiveScanning) // NOLINT
     ASSERT_EQ(paths.size(), 0);
     EXPECT_EQ(o.config(), "");
     EXPECT_TRUE(o.archiveScanning());
+    EXPECT_FALSE(o.imageScanning());
+    EXPECT_FALSE(o.followSymlinks());
+    EXPECT_FALSE(o.help());
+    auto exclusions = o.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+}
+
+
+TEST(Options, TestImageScanning) // NOLINT
+{
+    const int argc = 2;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--scan-images";
+    Options o(argc, const_cast<char**>(argv));
+    auto paths = o.paths();
+    ASSERT_EQ(paths.size(), 0);
+    EXPECT_EQ(o.config(), "");
+    EXPECT_FALSE(o.archiveScanning());
+    EXPECT_TRUE(o.imageScanning());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -109,6 +133,7 @@ TEST(Options, TestFollowSymlinks) // NOLINT
     ASSERT_EQ(paths.size(), 0);
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.imageScanning());
     EXPECT_TRUE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -126,6 +151,7 @@ TEST(Options, TestHelp) // NOLINT
     ASSERT_EQ(paths.size(), 0);
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.imageScanning());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_TRUE(o.help());
     auto exclusions = o.exclusions();
@@ -144,6 +170,7 @@ TEST(Options, TestExclusions) // NOLINT
     ASSERT_EQ(paths.size(), 0);
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.imageScanning());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -178,27 +205,29 @@ TEST(Options, TestLogLevel) // NOLINT
 TEST(Options, TestShortArguments) // NOLINT
 {
     std::string logFile = "scan.log";
-    const int argc = 16;
+    const int argc = 17;
     const char* argv[argc];
     argv[0] = "/usr/bin/avscanner";
     argv[1] = "-c";
     argv[2] = "/bar";
     argv[3] = "-a";
-    argv[4] = "-s";
-    argv[5] = "-h";
-    argv[6] = "-x";
-    argv[7] = "file.txt";
-    argv[8] = "-f";
-    argv[9] = "/foo";
-    argv[10] = "-o";
-    argv[11] = logFile.c_str();
-    argv[12] = "-l";
-    argv[13] = "DEBUG";
-    argv[14] = "--";
-    argv[15] = "/baz";
+    argv[4] = "-i";
+    argv[5] = "-s";
+    argv[6] = "-h";
+    argv[7] = "-x";
+    argv[8] = "file.txt";
+    argv[9] = "-f";
+    argv[10] = "/foo";
+    argv[11] = "-o";
+    argv[12] = logFile.c_str();
+    argv[13] = "-l";
+    argv[14] = "DEBUG";
+    argv[15] = "--";
+    argv[16] = "/baz";
     Options o(argc, const_cast<char**>(argv));
     EXPECT_EQ(o.config(), "/bar");
     EXPECT_TRUE(o.archiveScanning());
+    EXPECT_TRUE(o.imageScanning());
     EXPECT_TRUE(o.followSymlinks());
     EXPECT_TRUE(o.help());
     auto exclusions = o.exclusions();

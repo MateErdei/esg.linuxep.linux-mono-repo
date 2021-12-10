@@ -45,6 +45,7 @@ namespace avscanner::avscannerimpl
         explicit ScanClient(unixsocket::IScanningClientSocket& socket,
                 std::shared_ptr<IScanCallbacks> callbacks,
                 bool scanInArchives,
+                bool scanInImages,
                 E_SCAN_TYPE scanType);
 
         /**
@@ -75,6 +76,7 @@ namespace avscanner::avscannerimpl
         unixsocket::IScanningClientSocket& m_socket;
         std::shared_ptr<IScanCallbacks> m_callbacks;
         bool m_scanInArchives;
+        bool m_scanInImages;
         E_SCAN_TYPE m_scanType;
     };
 }

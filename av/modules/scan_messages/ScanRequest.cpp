@@ -34,6 +34,7 @@ void scan_messages::ScanRequest::setRequestFromMessage(Reader &requestMessage)
 {
     setPath(requestMessage.getPathname());
     setScanInsideArchives(requestMessage.getScanInsideArchives());
+    setScanInsideImages(requestMessage.getScanInsideImages());
     setScanType(static_cast<E_SCAN_TYPE>(requestMessage.getScanType()));
     setUserID(requestMessage.getUserID());
 }
@@ -51,6 +52,11 @@ std::string ScanRequest::path() const
 bool ScanRequest::scanInsideArchives() const
 {
     return m_scanInsideArchives;
+}
+
+bool ScanRequest::scanInsideImages() const
+{
+    return m_scanInsideImages;
 }
 
 E_SCAN_TYPE ScanRequest::getScanType() const

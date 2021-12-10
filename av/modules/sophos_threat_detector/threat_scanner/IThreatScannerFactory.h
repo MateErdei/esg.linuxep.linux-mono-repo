@@ -13,7 +13,7 @@ namespace threat_scanner
     class IThreatScannerFactory
     {
     public:
-        virtual IThreatScannerPtr createScanner(bool scanArchives) = 0;
+        virtual IThreatScannerPtr createScanner(bool scanArchives, bool scanImages) = 0;
         virtual ~IThreatScannerFactory() = default;
 
         virtual bool update() = 0;

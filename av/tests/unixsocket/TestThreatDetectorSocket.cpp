@@ -59,7 +59,7 @@ namespace
     class MockScannerFactory : public threat_scanner::IThreatScannerFactory
     {
     public:
-        MOCK_METHOD1(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives));
+        MOCK_METHOD2(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives, bool scanImages));
 
         MOCK_METHOD0(update, bool());
         MOCK_METHOD0(susiIsInitialized, bool());
@@ -108,7 +108,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
     expected_response.addDetection("/tmp/eicar.com", "THREAT","");
 
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillOnce(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
+    EXPECT_CALL(*scannerFactory, createScanner(false, false)).WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
     server.start();
@@ -139,7 +139,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
     expected_response.addDetection("/bin/bash", "","");
 
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillOnce(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
+    EXPECT_CALL(*scannerFactory, createScanner(false, false)).WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
     server.start();
@@ -169,7 +169,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
     expected_response.addDetection("/bin/bash", "","");
 
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillRepeatedly(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false)).WillOnce(Return(ByMove(std::move(scanner))));
+    EXPECT_CALL(*scannerFactory, createScanner(false, false)).WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
     server.start();
@@ -204,9 +204,9 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws) // NOLINT
     auto* scannerPtr = scanner.get();
 
     EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillRepeatedly(Throw(std::runtime_error("Intentional throw")));
-    EXPECT_CALL(*scannerFactory, createScanner(false))
+    EXPECT_CALL(*scannerFactory, createScanner(false, false))
             .WillOnce(Return(ByMove(std::move(scanner))))
-            .WillRepeatedly([](bool)->threat_scanner::IThreatScannerPtr{ return nullptr; });
+            .WillRepeatedly([](bool, bool)->threat_scanner::IThreatScannerPtr{ return nullptr; });
 
     unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory);
     server.start();
@@ -237,8 +237,8 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLIN
     static const std::string THREAT_PATH = "/dev/null";
     std::string socketPath = "/tmp/scanning_socket";
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    EXPECT_CALL(*scannerFactory, createScanner(false))
-        .WillRepeatedly([](bool)->threat_scanner::IThreatScannerPtr { return std::make_unique<StrictMock<MockScanner>>(); } );
+    EXPECT_CALL(*scannerFactory, createScanner(false, false))
+        .WillRepeatedly([](bool, bool)->threat_scanner::IThreatScannerPtr { return std::make_unique<StrictMock<MockScanner>>(); } );
 
     unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory);
     server.start();

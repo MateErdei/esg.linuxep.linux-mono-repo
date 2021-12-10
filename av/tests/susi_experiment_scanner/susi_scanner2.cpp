@@ -185,8 +185,8 @@ static int scan(const char* filename, const char* chroot)
 
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
         = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer);
-
-    auto scanner = scannerFactory->createScanner(true);
+//CHECK
+    auto scanner = scannerFactory->createScanner(true, true);
 
     auto scanType = scan_messages::E_SCAN_TYPE_ON_DEMAND;
     auto result = scanner->scan(fd, filename, scanType, "root");

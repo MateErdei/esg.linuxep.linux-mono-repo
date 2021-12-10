@@ -583,7 +583,7 @@ CLS simple eicar in encoded archive
     Wait Until AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/脅威.tar/eicar'"
     AV Plugin Log Contains With Offset  name="EICAR-AV-Test"
 
-ClS Scans DiscImage When Archive Setting Is On
+ClS Scans DiscImage When Image Setting Is On
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
@@ -591,9 +591,13 @@ ClS Scans DiscImage When Archive Setting Is On
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso --scan-archives
     Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Not Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/directory/subdir/eicar.com" is infected with EICAR-AV-Test
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso --scan-images
+    Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/directory/subdir/eicar.com" is infected with EICAR-AV-Test
-
 
 
 CLS Encoded Eicars

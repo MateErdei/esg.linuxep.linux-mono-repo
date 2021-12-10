@@ -22,6 +22,7 @@ std::string ScanSerialiser::serialiseScan(const ScheduledScanConfiguration& conf
 
     requestBuilder.setName(nextScan.name());
     requestBuilder.setScanArchives(nextScan.archiveScanning());
+    requestBuilder.setScanImages(nextScan.archiveScanning());
     requestBuilder.setScanAllFiles(config.scanAllFileExtensions());
     requestBuilder.setScanFilesWithNoExtensions(config.scanFilesWithNoExtensions());
     requestBuilder.setScanHardDrives(nextScan.hardDrives());

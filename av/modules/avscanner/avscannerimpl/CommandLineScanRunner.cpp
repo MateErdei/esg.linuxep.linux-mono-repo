@@ -66,6 +66,7 @@ namespace avscanner::avscannerimpl
         m_exclusions(options.exclusions()),
         m_logger(options.logFile(), options.logLevel(), true),
         m_archiveScanning(options.archiveScanning()),
+        m_imageScanning(options.imageScanning()),
         m_followSymlinks(options.followSymlinks())
     {
     }
@@ -81,6 +82,9 @@ namespace avscanner::avscannerimpl
 
         std::string printArchiveScanning = m_archiveScanning ? "yes" : "no";
         LOGINFO("Archive scanning enabled: " << printArchiveScanning);
+
+        std::string printImageScanning = m_imageScanning ? "yes" : "no";
+        LOGINFO("Image scanning enabled: " << printImageScanning);
 
         std::string printFollowSymlink = m_followSymlinks ? "yes" : "no";
         LOGINFO("Following symlinks: " << printFollowSymlink);
@@ -143,7 +147,7 @@ namespace avscanner::avscannerimpl
 
         m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
         auto scanner =
-            std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_archiveScanning, E_SCAN_TYPE_ON_DEMAND);
+            std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_archiveScanning, m_imageScanning, E_SCAN_TYPE_ON_DEMAND);
         CommandLineWalkerCallbackImpl commandLineWalkerCallbacks(scanner, excludedMountPoints, cmdExclusions);
         filewalker::FileWalker fw(commandLineWalkerCallbacks);
         fw.followSymlinks(m_followSymlinks);

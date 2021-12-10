@@ -25,10 +25,12 @@ namespace fs = sophos_filesystem;
 ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
                        std::shared_ptr<IScanCallbacks> callbacks,
                        bool scanInArchives,
+                       bool scanInImages,
                        E_SCAN_TYPE scanType)
         : m_socket(socket)
         , m_callbacks(std::move(callbacks))
         , m_scanInArchives(scanInArchives)
+        , m_scanInImages(scanInImages)
         , m_scanType(scanType)
 {
 }
@@ -75,6 +77,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
     scan_messages::ClientScanRequest request;
     request.setPath(fileToScanPath);
     request.setScanInsideArchives(m_scanInArchives);
+    request.setScanInsideImages(m_scanInImages);
     request.setScanType(m_scanType);
     const char* user = std::getenv("USER");
     request.setUserID(user ? user : "root");

@@ -2,7 +2,7 @@
 # Copyright 2019 Sophos Limited. All rights reserved.
 #
 #------------------------------------------------------------------------------
-@0xf000f3e564740746;
+@0xaa58c62c6d7f7805;
 
 using Cxx = import "capnp/c++.capnp";
 
@@ -12,6 +12,7 @@ $Cxx.namespace("Sophos::ssplav");
 struct FileScanRequest {
     pathname                @0 :Text;
     scanInsideArchives      @1 :Bool;
-    scanType                @2 :Int64;
-    userID                  @3 :Text;
+    scanInsideImages        @2 :Bool;
+    scanType                @3 :Int64;
+    userID                  @4 :Text;
 }

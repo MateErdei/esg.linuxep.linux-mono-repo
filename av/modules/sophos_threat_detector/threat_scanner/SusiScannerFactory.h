@@ -21,7 +21,7 @@ namespace threat_scanner
         SusiScannerFactory(ISusiWrapperFactorySharedPtr wrapperFactory,
                            IThreatReporterSharedPtr reporter,
                            IScanNotificationSharedPtr shutdownTimer);
-        IThreatScannerPtr createScanner(bool scanArchives) override;
+        IThreatScannerPtr createScanner(bool scanArchives, bool scanImages) override;
 
         bool update() override;
         bool susiIsInitialized() override;

@@ -17,14 +17,23 @@ using namespace threat_scanner;
 
 TEST(TestSusiScannerFactory, testWithoutPLUGIN_INSTALL) // NOLINT
 {
+    // SUSI initialization config is now deferred, so constructor won't fail.
+    SusiScannerFactory factory(nullptr, nullptr);
+}
+
+TEST(TestSusiScannerFactory, throwsDuringInitializeWithoutPLUGIN_INSTALL) // NOLINT
+{
+    // SUSI initialization is now deferred, so constructor won't fail.
+    SusiScannerFactory factory(nullptr, nullptr);
+
     try
     {
-        SusiScannerFactory factory(nullptr, nullptr);
-        FAIL() << "Able to construct SusiScannerFactory!";
+        factory.createScanner(false, false);
+        FAIL() << "Able to construct scanner without PLUGIN_INSTALL!";
     }
     catch (const std::exception& ex)
     {
-        PRINT("Unable to construct factory: " << ex.what() << '\n');
+        PRINT("Unable to construct instance: " << ex.what() << '\n');
     }
 }
 
@@ -33,17 +42,28 @@ TEST(TestSusiScannerFactory, testConstruction) // NOLINT
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");
 
+    // SUSI initialization is now deferred, so constructor won't fail.
+    SusiScannerFactory factory(nullptr, nullptr);
+}
+
+TEST(TestSusiScannerFactory, throwsDuringInitialize) //NOLINT
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");
+
+    // SUSI initialization is now deferred, so constructor won't fail.
+    SusiScannerFactory factory(nullptr, nullptr);
+
     try
     {
-        SusiScannerFactory factory(nullptr, nullptr);
-        FAIL() << "Able to construct SusiScannerFactory!";
+        factory.createScanner(false, false);
+        FAIL() << "Able to construct scanner!";
     }
     catch (const std::exception& ex)
     {
-        PRINT("Unable to construct factory: " << ex.what() << '\n');
+        PRINT("Unable to construct instance: " << ex.what() << '\n');
     }
 }
-
 
 TEST(TestSusiScannerFactory, testConstructionWithMockSusiWrapper) // NOLINT
 {
@@ -51,7 +71,7 @@ TEST(TestSusiScannerFactory, testConstructionWithMockSusiWrapper) // NOLINT
     EXPECT_NO_THROW(SusiScannerFactory factory(wrapperFactory, nullptr, nullptr));
 }
 
-TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesFalse) // NOLINT
+TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesAndImagesFalse) // NOLINT
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr);
@@ -69,21 +89,22 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesFalse) 
                 "webArchive": false,
                 "webEncoding": true,
                 "media": true,
-                "macintosh": true
+                "macintosh": true,
+                "discImage": false
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true
+                "stopOnArchiveBombs": true,
+                "submitToAnalysis": false
             }
         }
     }})sophos";
 
     auto susiWrapper = std::make_shared<::testing::StrictMock<MockSusiWrapper>>();
     EXPECT_CALL(*wrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
-
-    EXPECT_NO_THROW(auto scanner = factory.createScanner(false));
+    EXPECT_NO_THROW(auto scanner = factory.createScanner(false, false));
 }
 
 
@@ -105,20 +126,57 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue) /
                 "webArchive": true,
                 "webEncoding": true,
                 "media": true,
-                "macintosh": true
+                "macintosh": true,
+                "discImage": false
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
                 "puaDetection": false,
                 "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true
+                "stopOnArchiveBombs": true,
+                "submitToAnalysis": false
             }
         }
     }})sophos";
 
     auto susiWrapper = std::make_shared<::testing::StrictMock<MockSusiWrapper>>();
     EXPECT_CALL(*wrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
-
-    EXPECT_NO_THROW(auto scanner = factory.createScanner(true));
+    EXPECT_NO_THROW(auto scanner = factory.createScanner(true, false));
 }
 
+
+TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperImagesTrue) // NOLINT
+{
+    auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
+    SusiScannerFactory factory(wrapperFactory, nullptr, nullptr);
+
+    const std::string scannerConfig = R"sophos({"scanner": {
+        "signatureBased": {
+            "fileTypeCategories": {
+                "archive": false,
+                "selfExtractor": true,
+                "executable": true,
+                "office": true,
+                "adobe": true,
+                "android": true,
+                "internet": true,
+                "webArchive": false,
+                "webEncoding": true,
+                "media": true,
+                "macintosh": true,
+                "discImage": true
+            },
+            "scanControl": {
+                "trueFileTypeDetection": false,
+                "puaDetection": false,
+                "archiveRecursionDepth": 16,
+                "stopOnArchiveBombs": true,
+                "submitToAnalysis": false
+            }
+        }
+    }})sophos";
+
+    auto susiWrapper = std::make_shared<::testing::StrictMock<MockSusiWrapper>>();
+    EXPECT_CALL(*wrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
+    EXPECT_NO_THROW(auto scanner = factory.createScanner(false, true));
+}

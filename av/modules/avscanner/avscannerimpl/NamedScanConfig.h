@@ -22,6 +22,7 @@ namespace avscanner::avscannerimpl
         std::string m_scanName;
         std::vector<Exclusion> m_excludePaths;
         bool m_scanArchives;
+        bool m_scanImages;
         bool m_scanHardDisc;
         bool m_scanOptical;
         bool m_scanNetwork;
