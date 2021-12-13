@@ -506,6 +506,17 @@ class MCSEndpointManager(object):
     def getPolicy(self):
         return self.__m_policy
 
+class SHSEndpointManager(object):
+    def __init__(self):
+        self.__m_resetHealth = None
+
+    def resetHealthPending(self):
+        return self.__m_resetHealth is not None
+
+    def resetHealth(self):
+        logger.info("Triggering a threat health reset")
+        self.__m_resetHealth = True
+
 # ALC Policy
 class ALCEndpointManager(object):
     def __init__(self):
@@ -603,6 +614,7 @@ class Endpoint(object):
         self.__edr = EDREndpointManager()
         self.__liveTerminal = LiveTerminalEndpointManager()
         self.__mcs = MCSEndpointManager()
+        self.__shs = SHSEndpointManager()
         self.__alc = ALCEndpointManager()
         self.__mdr = MDREndpointManager()
         self.__livequery = LiveQueryEndpointManager()
@@ -814,6 +826,18 @@ class Endpoint(object):
         <body>{}</body>
       </command>""".format(creation_time, xml.sax.saxutils.escape(body))
 
+    def resetHealthCommand(self, creation_time="FakeTime"):
+        body = r"""<action type="sophos.core.threat.reset"/>"""
+
+        return r"""<command>
+        <id>SHS</id>
+        <seq>1</seq>
+        <appId>SHS</appId>
+        <creationTime>{}</creationTime>
+        <ttl>PT10000S</ttl>
+        <body>{}</body>
+      </command>""".format(creation_time, xml.sax.saxutils.escape(body))
+
     def scanNowCommand(self):
         body = r"""<?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>"""
         
@@ -886,6 +910,8 @@ class Endpoint(object):
             commands.append(self.policyCommand("MCS", self.__mcs.policyID()))
         if "MCS" in apps and self.__mcs.migrationPending():
             commands.append(self.migrateCommand())
+        if "SHS" in apps and self.__shs.resetHealthPending():
+            commands.append(self.resetHealthCommand())
         if "ALC" in apps and self.__alc.policyPending():
             for policy_id in self.__alc.policiesID():
                 commands.append(self.policyCommand("ALC", policy_id))
@@ -967,6 +993,9 @@ class Endpoint(object):
 
     def queueUpdateNow(self, creation_time):
         self.queued_actions.append(self.updateNowCommand(creation_time))
+
+    def resetHealth(self):
+        self.__shs.resetHealth()
 
     def scanNow(self):
         self.__sav.scanNow()
@@ -1118,6 +1147,11 @@ class Endpoints(object):
     def scanNow(self):
         for e in self.__m_endpoints.values():
             e.scanNow()
+
+    def resetHealth(self):
+        for e in self.__m_endpoints.values():
+            e.resetHealth()
+
     def clearNonAsciiAction(self):
         for e in self.__m_endpoints.values():
             e.clearNonAsciiAction()
@@ -1440,6 +1474,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path == "/action/scannow" :
             logger.info("Received on demand scan trigger")
             GL_ENDPOINTS.scanNow()
+            return self.ret("")
+        elif self.path == "/action/resetHealth" :
+            logger.info("Received on threat health reset")
+            GL_ENDPOINTS.resetHealth()
             return self.ret("")
         elif self.path == "/action/clearNonAsciiAction":
             logger.info("Received on demand clear now non ascii action ")

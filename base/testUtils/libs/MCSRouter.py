@@ -693,6 +693,8 @@ class MCSRouter(object):
     def trigger_clear_nonascii(self):
         self.send_cmd_to_fake_cloud("action/clearNonAsciiAction")
 
+    def trigger_health_reset(self):
+        self.send_cmd_to_fake_cloud("action/resetHealth")
 
     def set_mcs_policy_command_poll(self, interval):
         self.update_mcs_policy_and_send("commandPollingDelay default=\"5\"", "commandPollingDelay default=\"{}\"".format(interval))
