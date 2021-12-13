@@ -272,6 +272,7 @@ Invalid creds
 
     Check SulDownloader Log Contains
     ...     Couldn't find DCI for user
+    fail
 
 
 Simple proxy
@@ -293,7 +294,7 @@ Simple proxy
     should exist  /opt/sophos-spl/tmp
     should exist  /opt/sophos-spl/tmp/SDT
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${SOPHOS_INSTALL}
-
+    log   ${result.stdout}
     Check SulDownloader Result   ${result}   ${SUCCESS}
 
     Check SulDownloader Report Contains
@@ -1793,7 +1794,7 @@ Suldownloader Should Keep Reporting Failure While Verification Fails
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json  env:SOPHOS_INSTALL=${tmpdir}/sspl
 
     Verify Product Installed and Report Upgraded   ${result}
-
+    create file   /opt/sophos-spl/base/update/cache/primarywarehouse/catalogue/purge.txt   2021-09-13T11:13:16Z
     Move File   ${tmpdir}/update_report.json  ${tmpdir}/update_report_first.json
 
     Stop Update Server
@@ -1818,6 +1819,7 @@ Suldownloader Should Keep Reporting Failure While Verification Fails
     ${log_contents} =   Get File   ${tmpdir}/sspl/logs/base/suldownloader.log
     Should Contain  ${log_contents}  Checking signature.
     Verify SulDownloader Failed With The Expected Errors  ${result}   ${INSTALLFAILED}   INSTALLFAILED  failed signature verification
+    fail
 
 Test SulDownloader Will Obtain Dictionary Values For Product Names In Warehouse
 

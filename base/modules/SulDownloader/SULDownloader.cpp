@@ -325,7 +325,8 @@ namespace SulDownloader
                 productChanging = true;
             }
         }
-
+        warehouseRepository->purge();
+        warehouseRepository->dumpLogs();
         if (hasError(products))
         {
             LOGWARN("Verification of the downloaded products failed.");
@@ -443,7 +444,7 @@ namespace SulDownloader
                 LOGWARN("Failed to remove marker file with error: " << ex.what());
             }
         }
-        warehouseRepository->purge();
+
         // if any error happened during installation, it reports correctly.
         // the report also contains the successful ones.
         return DownloadReport::Report(
