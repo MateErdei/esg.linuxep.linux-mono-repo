@@ -27,12 +27,12 @@
 
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
-            <release-version branch="release/3.83.1" build-id="20210707160437-126dd43657b7f631b06f37e23c90aaae8bf9e260-ipSpU3"/>
+            <release-version branch="release/3.84.0" build-id="20211124093937-d236f0cf0b9936dc1f28f905cb241792c5747817-iL735K"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
         </build-asset>
 
         <build-asset project="core" repo="engine">
-            <release-version branch="release/3.83.1" build-id="20210707160437-126dd43657b7f631b06f37e23c90aaae8bf9e260-ipSpU3"/>
+            <release-version branch="release/3.84.0" build-id="20211124093937-d236f0cf0b9936dc1f28f905cb241792c5747817-iL735K"/>
             <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
