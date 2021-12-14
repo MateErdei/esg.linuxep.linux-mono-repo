@@ -167,7 +167,7 @@ namespace UpdateSchedulerImpl
         LOGINFO("Update Scheduler Starting");
         m_callback->setRunning(true);
         waitForSulDownloaderToFinish(600);
-        UpdateSchedulerUtils::cleanUpMarkerFile();
+
         m_cronThread->start();
 
         // Request policy on startup
@@ -750,11 +750,13 @@ namespace UpdateSchedulerImpl
             if (exitCode == 1)
             {
                 // pidof returns 1 if no process with the given name is found.
+                UpdateSchedulerUtils::cleanUpMarkerFile();
                 break;
             }
             else if (exitCode != 0 && exitCode != SIGTERM)
             {
                 LOGWARN("pidof(SulDownloader) returned " << exitCode);
+                UpdateSchedulerUtils::cleanUpMarkerFile();
                 break;
             }
 
@@ -770,6 +772,7 @@ namespace UpdateSchedulerImpl
             else
             {
                 LOGWARN("Can not convert '" << outputPidOf << "' to int pid of SulDownloader");
+                UpdateSchedulerUtils::cleanUpMarkerFile();
                 break; // Assume empty or non-convertable output means there is no SulDownloader running
             }
 
@@ -788,6 +791,7 @@ namespace UpdateSchedulerImpl
             {
                 assert(pidOfSulDownloader > 0);
                 LOGWARN("SulDownloader (PID=" << pidOfSulDownloader << ") still running after wait period");
+                UpdateSchedulerUtils::cleanUpMarkerFile();
                 return;
             }
 

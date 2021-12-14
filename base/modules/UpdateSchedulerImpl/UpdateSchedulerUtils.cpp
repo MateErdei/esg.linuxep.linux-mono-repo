@@ -49,7 +49,7 @@ namespace UpdateSchedulerImpl
             {
                 fs->removeFile(path);
             }
-            catch(Common::FileSystem::IFileSystemException& ex)
+            catch (Common::FileSystem::IFileSystemException& ex)
             {
                 LOGERROR("Failed to remove file "<< path << " due to error "<< ex.what());
             }

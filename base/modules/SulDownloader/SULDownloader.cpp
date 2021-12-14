@@ -426,7 +426,22 @@ namespace SulDownloader
         timeTracker.setFinishedTime(TimeUtils::getCurrTime());
         if (productChanging)
         {
-            fs->removeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile());
+            try
+            {
+                std::string path = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
+                if (fs->isFile(path))
+                {
+                    fs->removeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile());
+                }
+                else
+                {
+                    LOGWARN("Marker file removed before update finished");
+                }
+            }
+            catch (Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to remove marker file with error: " << ex.what());
+            }
         }
 
         // if any error happened during installation, it reports correctly.

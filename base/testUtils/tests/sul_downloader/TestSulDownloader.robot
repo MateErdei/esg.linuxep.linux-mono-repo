@@ -1757,6 +1757,7 @@ Test Suldownloader Does Not Install MDR When Features And Subscription Do Not Ma
     Should Contain  ${log_contents}  Update success
     Check MDR Plugin Installed
 
+
 Test Suldownloader Logs Warning When Plugin In Subscription And In Feature List But Missing From Warehouse
     Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
     Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}

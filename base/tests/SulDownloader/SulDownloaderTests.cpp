@@ -333,6 +333,9 @@ public:
         EXPECT_CALL(
             mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file")
         ).Times(::testing::AtMost(1));
+        EXPECT_CALL(
+            mockFileSystem, isFile("/opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file")
+        ).Times(::testing::AtMost(1));
     }
 
     void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains,bool markerFileWritten)
