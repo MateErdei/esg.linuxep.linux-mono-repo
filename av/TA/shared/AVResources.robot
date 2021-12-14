@@ -473,9 +473,20 @@ AV And Base Teardown
     Register On Fail  dump log  ${AV_LOG_PATH}
     Register On Fail  dump log  ${TELEMETRY_LOG_PATH}
     Register On Fail  dump log  ${AV_INSTALL_LOG}
+    Register On Fail  Restart AV Plugin And Clear The Logs For Integration Tests
+
+    Mark Invalid Settings No Primary Product
+    Mark Configuration Data Invalid
+    Mark CustomerID Failed To Read Error
+    Mark MCS Router is dead
+    Mark Failed To Scan Multiple Files Cloud
+    Mark UnixSocket Interrupted System Call Error Cloud Scan
+    Mark SPPLAV Processes Are Killed With SIGKILL
+    Mark Watchdog Log Unable To Open File Error
+    Mark Failed To connect To Warehouse Error
+
+    Check All Product Logs Do Not Contain Error
     Run Teardown Functions
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Error
 
 Restart AV Plugin And Clear The Logs For Integration Tests
     Log  Logs have to be rotated

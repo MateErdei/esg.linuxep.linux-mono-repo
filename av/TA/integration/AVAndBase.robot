@@ -12,6 +12,7 @@ Library         ../Libs/OnFail.py
 Library         ../Libs/ThreatReportUtils.py
 Library         ../Libs/Telemetry.py
 
+Resource        ../shared/ErrorMarkers.robot
 Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
 Resource        ../shared/AVAndBaseResources.robot
@@ -57,6 +58,10 @@ AV plugin runs scan now while CLS is running
     Wait Until AV Plugin Log Contains With Offset  Sending scan complete
     ${result} =   Terminate Process  ${cls_handle}
 
+    Mark UnixSocket Failed To Read Length
+    Mark UnixSocket Connection Reset By Peer
+    Mark UnixSocket Environment Interruption Error
+
 AV plugin runs CLS while scan now is running
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
@@ -78,6 +83,9 @@ AV plugin runs CLS while scan now is running
     List Directory   ${AV_PLUGIN_PATH}/log/
     File Log Contains  ${SCANNOW_LOG_PATH}  Attempting to scan mount point:
     Process Should Be Stopped   ${cls_handle}
+
+    Mark UnixSocket Environment Interruption Error
+
 
 AV plugin runs scan now twice consecutively
     Configure and check scan now with offset
@@ -127,6 +135,8 @@ AV plugin runs multiple scheduled scans
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     Wait Until AV Plugin Log Contains With Offset  Refusing to run a second Scan named: Sophos Cloud Scheduled Scan  timeout=120
 
+    Mark File Name Too Long For Cloud Scan
+
 AV plugin runs scheduled scan after restart
     Send Sav Policy With Imminent Scheduled Scan To Base
     Stop AV Plugin
@@ -151,12 +161,16 @@ AV plugin fails scan now if no policy
     Wait Until AV Plugin Log Contains With Offset  Evaluating Scan Now
     AV Plugin Log Contains With Offset  Refusing to run invalid scan: INVALID
 
+    Mark Scan As Invalid
+
 AV plugin SAV Status contains revision ID of policy
     ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
     Send Sav Policy To Base  SAV_Policy.xml
     Wait Until SAV Status XML Contains  Res="Same"  timeout=60
     SAV Status XML Contains  RevID="ac9eaa2f09914ce947cfb14f1326b802ef0b9a86eca7f6c77557564e36dbff9a"
     SAV Status XML Contains  <product-version>${version}</product-version>
+
+    Mark Invalid Day From Policy
 
 AV plugin sends Scan Complete event and (fake) Report To Central
     ${now} =  Get Current Date  result_format=epoch
@@ -196,12 +210,17 @@ AV Gets ALC Policy When Plugin Restarts
     Threat Detector Does Not Log Contain  Failed to read customerID - using default value
     Wait Until AV Plugin Log Contains  Received policy from management agent for AppId: ALC
 
+    Mark UpdateScheduler Fails
+
 AV Configures No Scheduled Scan Correctly
     Mark AV Log
     Send Sav Policy With No Scheduled Scans
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 0
+
+    Mark UpdateScheduler Fails
+    Mark Failed To connect To Warehouse Error
 
 AV plugin runs scheduled scan while CLS is running
     Mark AV Log
@@ -215,6 +234,8 @@ AV plugin runs scheduled scan while CLS is running
     Process Should Be Running   ${cls_handle}
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     ${result} =   Terminate Process  ${cls_handle}
+
+    Mark Failed To connect To Warehouse Error
 
 AV plugin runs CLS while scheduled scan is running
     [Teardown]  Run Keywords    AV And Base Teardown
@@ -231,6 +252,9 @@ AV plugin runs CLS while scheduled scan is running
     Wait for Process    ${cls_handle}
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     Process Should Be Stopped   ${cls_handle}
+
+    Mark UnixSocket Environment Interruption Error
+    Mark Failed To connect To Warehouse Error
 
 AV Configures Single Scheduled Scan Correctly
     Mark AV Log
@@ -271,6 +295,9 @@ AV Handles Scheduled Scan With Badly Configured Day
     Wait Until AV Plugin Log Contains With Offset  Days: INVALID
     Wait Until AV Plugin Log Contains With Offset  Times: 11:00:00
 
+    Mark Invalid Day From Policy
+    Mark Scan As Invalid
+
 AV Handles Scheduled Scan With No Configured Day
     Mark AV Log
     Mark Watchdog Log
@@ -282,6 +309,8 @@ AV Handles Scheduled Scan With No Configured Day
     Wait Until AV Plugin Log Contains With Offset  Times: 11:00:00
     File Log Does Not Contain
     ...   Check Marked Watchdog Log Contains   av died
+
+    Mark Invalid Day From Policy
 
 AV Handles Scheduled Scan With Badly Configured Time
     Mark Av Log
@@ -407,6 +436,7 @@ AV Plugin Reports encoded eicars To Base
 
    check_all_eicars_are_found  /tmp_test/encoded_eicars/
 
+    Mark Failed To connect To Warehouse Error
 
 AV Plugin uninstalls
     Register Cleanup  Install With Base SDDS
@@ -546,6 +576,12 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, terminated with exit code: ${SCAN_ABORTED}
     ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}    interval=10
 
+    Mark Threat Detector Launcher Died With 70
+    Mark Threat Detector Launcher Died With 11
+    Mark Scan Now Terminated
+    Mark Failed To Scan Files
+    Mark Failed To Send Scan Request To STD
+    Mark Failed To Read Message From Scanning Server
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
     [Timeout]  15min
@@ -571,14 +607,19 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
 
     Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
     ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}    interval=20
+    Mark Threat Detector Launcher Died With 70
+    Mark Threat Detector Launcher Died With 11
+    Mark Scan Now Terminated
+    Mark Failed To Scan Files
+    Mark Failed To Send Scan Request To STD
+    Mark Failed To Read Message From Scanning Server
+    Mark Scan Now Found Threats But Aborted With 25
 
 AV Runs Scan With SXL Lookup Enable
-    Mark AV Log
     Mark Susi Debug Log
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
     Configure and check scan now with offset
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
-
     Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central   timeout=60
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now
     SUSI Debug Log Contains With Offset  Post-scan lookup succeeded
@@ -659,6 +700,11 @@ AV Plugin restarts threat detector on customer id change
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket   timeout=120
     Wait For Sophos Threat Detector to restart   ${pid}
 
+#    Get ALC Policy doesn't have Core and Base
+    Mark Core Not In Policy Features
+    Mark SPL Base Not In Subscription Of The Policy
+    Mark Configuration Data Invalid
+    Mark Invalid Settings No Primary Product
 
 AV Plugin restarts threat detector on susi startup settings change
     ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
@@ -788,9 +834,14 @@ AV Plugin tries to restart threat detector on susi startup settings change
 
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled   timeout=180
 
+    Mark Threat Detector Launcher Died
+    Mark Failed To Write To UnixSocket Environment Interuption
+    Mark Invalid Settings No Primary Product
+    Mark Configuration Data Invalid
+
 Sophos Threat Detector sets default if susi startup settings permissions incorrect
+    [Tags]  FAULT INJECTION
     Restart sophos_threat_detector
-    Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=60
@@ -823,6 +874,155 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
 
+    Mark Configuration Data Invalid
+    Mark Invalid Settings No Primary Product
+
+AV Plugin Can Work Despite Specified Log File Being Read-Only
+    [Tags]  FAULT INJECTION
+    Register Cleanup  Empty Directory  /opt/sophos-spl/base/mcs/event
+    Empty Directory  /opt/sophos-spl/base/mcs/event/
+
+    Create File  ${NORMAL_DIRECTORY}/naugthy_eicar  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naugthy_eicar
+
+    Mark AV Log
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naugthy_eicar
+
+    # Verify that we get a log message for the eicar
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+
+    # Verify that the AV Plugin sends an alert when logging is working
+    Wait Until Keyword Succeeds
+       ...  60 secs
+       ...  5 secs
+       ...  check threat event received by base  1  naugthyEicarThreatReport
+
+    Empty Directory  /opt/sophos-spl/base/mcs/event/
+
+    Run  chmod 444 ${AV_LOG_PATH}
+    Register Cleanup  Stop AV Plugin
+    Register Cleanup  Run  chmod 600 ${AV_LOG_PATH}
+
+    ${INITIAL_AV_PID} =  Record AV Plugin PID
+    Log  Initial PID: ${INITIAL_AV_PID}
+    Stop AV Plugin
+    Start AV Plugin
+    ${END_AV_PID} =  Record AV Plugin PID
+    Log  Restarted PID: ${END_AV_PID}
+    # Verify the restart actually happened
+    Should Not Be Equal As Integers  ${INITIAL_AV_PID}  ${END_AV_PID}
+
+    Mark AV Log
+
+    ${result} =  Run Process  ls  -l  ${AV_LOG_PATH}
+    Log  New permissions: ${result.stdout}
+
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naugthy_eicar
+
+    # Verify the av plugin still sent the alert
+    Wait Until Keyword Succeeds
+        ...  60 secs
+        ...  5 secs
+        ...  check threat event received by base  1  naugthyEicarThreatReport
+
+    # Verify that the log wasn't written (permission blocked)
+    AV Plugin Log Should Not Contain With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+
+    Mark SPL Base Not In Subscription Of The Policy
+    Mark Core Not In Policy Features
+
+
+
+Scan Now Can Work Despite Specified Log File Being Read-Only
+    [Tags]  FAULT INJECTION
+    Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
+    Remove File  ${SCANNOW_LOG_PATH}
+
+    Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
+    Register Cleanup    Remove File  /tmp_test/naughty_eicar
+
+    Configure scan now
+    Mark AV Log
+
+    Send Sav Action To Base  ScanNow_Action.xml
+
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=40
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    Wait Until AV Plugin Log Contains With Offset  Sending scan complete
+    Log File  ${SCANNOW_LOG_PATH}
+    File Log Contains  ${SCANNOW_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
+
+    ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
+    Log  Old permissions: ${result.stdout}
+
+    Mark Scan Now Log
+
+    Run  chmod 444 '${SCANNOW_LOG_PATH}'
+    Register Cleanup  Run  chmod 600 '${SCANNOW_LOG_PATH}'
+
+    ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
+    Log  New permissions: ${result.stdout}
+
+    Configure scan now
+    Mark AV Log
+
+    Send Sav Action To Base  ScanNow_Action.xml
+
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=40
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    Wait Until AV Plugin Log Contains With Offset  Sending scan complete
+    Log File  ${SCANNOW_LOG_PATH}
+    File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${SCAN_NOW_LOG_MARK}
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
+
+    Mark SPL Base Not In Subscription Of The Policy
+    Mark Core Not In Policy Features
+    Mark Permission Denied Setting Default Values For Susi Startup Settings
+
+Scheduled Scan Can Work Despite Specified Log File Being Read-Only
+    [Tags]  FAULT INJECTION
+    Register Cleanup    Remove File  ${CLOUDSCAN_LOG_PATH}
+    Remove File  ${CLOUDSCAN_LOG_PATH}
+
+    Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
+    Register Cleanup    Remove File  /tmp_test/naughty_eicar
+
+    Mark AV Log
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+
+    Wait until scheduled scan updated With Offset
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=250
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=18
+    Log File  ${CLOUDSCAN_LOG_PATH}
+    File Log Contains  ${CLOUDSCAN_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
+
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
+
+    ${result} =  Run Process  ls  -l  ${CLOUDSCAN_LOG_PATH}
+    Log  Old permissions: ${result.stdout}
+
+    Mark Log  ${CLOUDSCAN_LOG_PATH}
+
+    Run  chmod 444 '${CLOUDSCAN_LOG_PATH}'
+    Register Cleanup  Run  chmod 600 '${CLOUDSCAN_LOG_PATH}'
+
+    ${result} =  Run Process  ls  -l  ${CLOUDSCAN_LOG_PATH}
+    Log  New permissions: ${result.stdout}
+
+    Mark AV Log
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+
+    Wait until scheduled scan updated With Offset
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=250
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=18
+    Log File  ${CLOUDSCAN_LOG_PATH}
+    File Log Should Not Contain With Offset  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
+
+
 Sophos Threat Detector always writes susi startup settings following a restart
     Restart AV Plugin And Clear The Logs For Integration Tests
     Wait Until Sophos Threat Detector Log Contains With Offset
@@ -850,3 +1050,6 @@ Sophos Threat Detector always writes susi startup settings following a restart
     Wait Until File exists  ${SUSI_STARTUP_SETTINGS_FILE}
     Wait Until File exists  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Threat Detector Does Not Log Contain  Turning Live Protection on as default - no susi startup settings found
+
+    Mark Core Not In Policy Features
+    Mark SPL Base Not In Subscription Of The Policy

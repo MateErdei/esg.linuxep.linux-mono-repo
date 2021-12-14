@@ -58,6 +58,7 @@ Run plugin uninstaller with downgrade flag
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh  --downgrade
 
 Configure and check scan now with offset
+    Register Cleanup    Empty Directory  /opt/sophos-spl/base/mcs/action/
     Configure scan now
     Check scan now with Offset
 
