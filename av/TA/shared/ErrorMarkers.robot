@@ -4,6 +4,7 @@ Resource    AVResources.robot
 
 *** Keywords ***
 Mark Scan Now Found Threats But Aborted With 25
+    mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Scan: Scan Now, found threats but aborted with exit code: 25
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  ScanScheduler <> Scan: Scan Now, found threats but aborted with exit code: 25
 
 Mark Permission Denied Setting Default Values For Susi Startup Settings

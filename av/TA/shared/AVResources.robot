@@ -475,15 +475,18 @@ AV And Base Teardown
     Register On Fail  dump log  ${AV_INSTALL_LOG}
     Register On Fail  Restart AV Plugin And Clear The Logs For Integration Tests
 
+    #mark generic errors caused by the lack of a central connection/warehouse/subscription
     Mark Invalid Settings No Primary Product
     Mark Configuration Data Invalid
     Mark CustomerID Failed To Read Error
     Mark MCS Router is dead
+    Mark Failed To connect To Warehouse Error
+    Mark Invalid Day From Policy
+    #mark errors related to scheduled scans being forcefully terminated at the end of a test
     Mark Failed To Scan Multiple Files Cloud
     Mark UnixSocket Interrupted System Call Error Cloud Scan
     Mark SPPLAV Processes Are Killed With SIGKILL
     Mark Watchdog Log Unable To Open File Error
-    Mark Failed To connect To Warehouse Error
 
     Check All Product Logs Do Not Contain Error
     Run Teardown Functions
@@ -496,20 +499,29 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     ...  30 secs
     ...  2 secs
     ...  Check AV Plugin Not Running
+    Run Shell Process  systemctl stop sophos-spl  OnError=failed to stop plugin
 
     Log  Backup logs before removing them
     Log  ${AV_LOG_PATH}
     Log  ${THREAT_DETECTOR_LOG_PATH}
     Log  ${SUSI_DEBUG_LOG_PATH}
+    Log  ${SCANNOW_LOG_PATH}
+    Log  ${CLOUDSCAN_LOG_PATH}
+    Log  ${WATCHDOG_LOG}
 
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_INFO_LOG_PATH}
+    Remove File    ${WATCHDOG_LOG}
+    Remove File    ${CLOUDSCAN_LOG_PATH}
+    Remove File    ${UPDATE_SCHEDULER}
+    Remove File    ${SULDOWNLOADER_LOG}
+    Remove File    ${SCANNOW_LOG_PATH}
 
     Empty Directory  /opt/sophos-spl/base/mcs/event/
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start threat_detector   OnError=failed to start sophos_threat_detector
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start av   OnError=failed to start plugin
+
+    Run Shell Process  systemctl start sophos-spl  OnError=failed to stop plugin
     Wait until AV Plugin running
 
 Create Install Options File With Content
