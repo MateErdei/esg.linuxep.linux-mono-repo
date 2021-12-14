@@ -125,6 +125,15 @@ namespace ManagementAgent
                 bool threatHealth,
                 const std::string& displayName,
                 std::lock_guard<std::mutex>& lock);
+
+            /**
+             * Threat resets are passed through the Task Queue but need to be acted on by Management Agent.
+             * This function checks an Action file's contents to see if it's a Health Reset.
+             *
+             * @param filePath
+             * @return true if task is threat reset
+             */
+            bool isThreatResetTask(std::string filePath);
         };
 
     } // namespace PluginCommunicationImpl

@@ -27,6 +27,12 @@ namespace ManagementAgent
             void resetPluginHealthLists();
 
             /**
+             * Function to set threat value back to good (1). This can only be called by a manual reset request
+             * from Central or when a full AV Scan returns healthy.
+             */
+            void resetThreatDetectionHealth();
+
+            /**
              * Add plugin health status object to the health status information used to generate the health status xml
              * @param pluginName
              * @param status the PluginHealthStatus object containing the health status and type of health.

@@ -11,6 +11,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
 #include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/PluginCommunicationImpl/PluginProxy.h>
@@ -143,6 +144,16 @@ namespace ManagementAgent
                     }
                 }
             }
+
+            // extra check for does MA also subscribe to this APPID then ingest/use
+            if (appId == "SHS")
+            {
+                if (isThreatResetTask(actionXml))
+                {
+                    // m_healthStatus->resetThreatDetectionHealth();
+                }
+            }
+
             // If we failed to communicate with plugins, check they are still installed. If not, remove them from
             // memory.
             checkPluginRegistry(pluginNamesAndErrors);
@@ -190,6 +201,25 @@ namespace ManagementAgent
             LOGDEBUG("PluginManager: get health " << pluginName);
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
             return getPlugin(pluginName)->getHealth();
+        }
+
+        bool PluginManager::isThreatResetTask(std::string filePath)
+        {
+            auto fs = Common::FileSystem::fileSystem();
+            std::string expectedActionFileContents = "<action type=\"sophos.core.threat.reset\"/>";
+            try
+            {
+                std::string actionFileContents = fs->readFile(filePath);
+                if (actionFileContents == expectedActionFileContents)
+                {
+                    return true;
+                }
+            }
+            catch (Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Unable to read Health Action Task at: " << filePath << " due to: " << ex.what());
+            }
+            return false;
         }
 
         void PluginManager::locked_setAppIds(
