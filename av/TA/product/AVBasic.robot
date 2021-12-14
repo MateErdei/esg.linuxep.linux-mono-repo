@@ -481,8 +481,8 @@ Product Test Teardown
     Mark Parse Xml Error
 
     Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Error
     Component Test TearDown
+    Run Keyword If Test Failed  Clear logs
 
 Test Remote Share
     [Arguments]  ${destination}

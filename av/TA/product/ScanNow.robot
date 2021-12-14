@@ -137,9 +137,9 @@ ScanNow Test Teardown
     Mark CustomerID Failed To Read Error
 
     Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Error
 
     run teardown functions
+    Run Keyword If Test Failed  Clear logs
 
 Clear threat detector log
     Remove File   ${THREAT_DETECTOR_LOG_PATH}

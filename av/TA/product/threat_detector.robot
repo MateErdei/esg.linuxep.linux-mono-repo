@@ -39,8 +39,8 @@ Threat Detector Test Teardown
     Mark CustomerID Failed To Read Error
 
     Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Error
     Component Test TearDown
+    Run Keyword If Test Failed  Clear logs
 
 Start AV
     Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
