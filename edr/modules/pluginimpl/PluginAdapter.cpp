@@ -509,7 +509,7 @@ namespace Plugin
             while (m_osqueryProcess && m_monitor.valid())
             {
                 LOGINFO("Issue request to stop to osquery.");
-                m_callback->setOsqueryShouldBeRunning(false);
+
                 m_osqueryProcess->requestStop();
 
                 if (m_monitor.wait_for(std::chrono::seconds(5)) == std::future_status::timeout)
