@@ -10,7 +10,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 namespace ManagementAgent
 {
-    namespace McsRouterPluginCommunicationImpl
+    namespace HealthStatusImpl
     {
         HealthStatus::HealthStatus()
         : m_overallHealth(0)

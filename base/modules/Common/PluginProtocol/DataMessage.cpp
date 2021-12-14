@@ -33,6 +33,8 @@ namespace Common
                     return "Telemetry";
                 case Commands::REQUEST_PLUGIN_HEALTH:
                     return "RequestHealth";
+                case Commands::PLUGIN_SEND_THREAT_HEALTH:
+                    return "SendThreatHealth";
                 case Commands::PLUGIN_QUERY_CURRENT_POLICY:
                     return "RequestCurrentPolicy";
                 case Commands::UNKNOWN:

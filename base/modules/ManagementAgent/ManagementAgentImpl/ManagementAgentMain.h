@@ -10,7 +10,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/TaskQueue/ITaskQueue.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/TaskDirectoryListener.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/HealthStatus.h>
+#include <ManagementAgent/HealthStatusImpl/HealthStatus.h>
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
 #include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
@@ -47,11 +47,12 @@ namespace ManagementAgent
             std::shared_ptr<ManagementAgent::PluginCommunication::IPolicyReceiver> m_policyReceiver;
             std::shared_ptr<ManagementAgent::PluginCommunication::IStatusReceiver> m_statusReceiver;
             std::shared_ptr<ManagementAgent::PluginCommunication::IEventReceiver> m_eventReceiver;
+            std::shared_ptr<ManagementAgent::PluginCommunication::IThreatHealthReceiver> m_threatHealthReceiver;
 
             std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
             std::unique_ptr<Common::TaskQueue::ITaskProcessor> m_taskQueueProcessor;
             std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> m_statusCache;
-            std::shared_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::HealthStatus> m_healthStatus;
+//            std::shared_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::HealthStatus> m_healthStatus;
 
             /**
              * Remember the original parent PID so that we can exit if it changes.

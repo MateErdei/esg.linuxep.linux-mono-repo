@@ -12,18 +12,17 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 namespace ManagementAgent
 {
-    namespace McsRouterPluginCommunicationImpl
+    namespace HealthStatusImpl
     {
         class HealthTask : public Common::TaskQueue::ITask
         {
         public:
-            HealthTask(PluginCommunication::IPluginManager& pluginManager, std::shared_ptr<HealthStatus> healthStatus);
+            explicit HealthTask(PluginCommunication::IPluginManager& pluginManager);
 
             void run() override;
 
         private:
             PluginCommunication::IPluginManager& m_pluginManager;
-            std::shared_ptr<HealthStatus> m_healthStatus;
         };
     } // namespace McsRouterPluginCommunicationImpl
 } // namespace ManagementAgent

@@ -8,6 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "IEventReceiver.h"
 #include "IStatusReceiver.h"
+#include "IThreatHealthReceiver.h"
 
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginProtocol/DataMessage.h>
@@ -18,7 +19,7 @@ namespace ManagementAgent
 {
     namespace PluginCommunication
     {
-        class IPluginServerCallback : public virtual IStatusReceiver, public virtual IEventReceiver
+        class IPluginServerCallback : public virtual IStatusReceiver, public virtual IEventReceiver, public virtual IThreatHealthReceiver
         {
         public:
             ~IPluginServerCallback() override = default;

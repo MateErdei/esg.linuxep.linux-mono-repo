@@ -13,7 +13,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 namespace ManagementAgent
 {
-    namespace McsRouterPluginCommunicationImpl
+    namespace HealthStatusImpl
     {
         class HealthStatus
         {
@@ -53,6 +53,7 @@ namespace ManagementAgent
                 std::map<std::string, PluginCommunication::PluginHealthStatus>& healthMap,
                 unsigned int overallHealthValue);
 
+
             std::map<std::string, PluginCommunication::PluginHealthStatus> m_pluginServiceHealth;
             std::map<std::string, PluginCommunication::PluginHealthStatus> m_pluginThreatServiceHealth;
             std::map<std::string, PluginCommunication::PluginHealthStatus> m_pluginThreatDetectionHealth;
@@ -64,4 +65,3 @@ namespace ManagementAgent
         };
     }
 }
-

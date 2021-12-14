@@ -9,7 +9,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <FileSystem/IFileSystemException.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/HealthTask.h>
+#include <ManagementAgent/HealthStatus/HealthTask.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
@@ -48,7 +48,7 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenDifferentFromCachedV
     EXPECT_CALL(*filesystemMock, writeFileAtomically(m_statusFilePath, expectedXml, m_tempDir, m_statusFileMode)).Times(1);
     EXPECT_CALL(m_mockPluginManager, getRegisteredPluginNames()).WillOnce(Return(std::vector<std::string>{}));
 
-    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task(m_mockPluginManager, m_healthStatus);
+    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task(m_mockPluginManager);
     task.run();
 }
 
@@ -62,10 +62,10 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsNotUpdatedWhenStatusValueHasNot
     EXPECT_CALL(*filesystemMock, writeFileAtomically(m_statusFilePath, expectedXml, m_tempDir, m_statusFileMode)).Times(1);
     EXPECT_CALL(m_mockPluginManager, getRegisteredPluginNames()).Times(2).WillRepeatedly(Return(std::vector<std::string>{}));
 
-    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task1(m_mockPluginManager, m_healthStatus);
+    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task1(m_mockPluginManager);
     task1.run();
 
-    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task2(m_mockPluginManager, m_healthStatus);
+    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task2(m_mockPluginManager);
     task2.run();
 }
 
@@ -98,12 +98,12 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenStatusFileFailsToWri
     EXPECT_CALL(m_mockPluginManager, getHealthStatusForPlugin("pluginone")).WillOnce(Return(pluginHealthGood)).RetiresOnSaturation();
 
     // Status Updated, Cached and file written
-    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task1(m_mockPluginManager, m_healthStatus);
+    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task1(m_mockPluginManager);
     task1.run();
     // Status Updated, Cached and file written results in ERROR
-    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task2(m_mockPluginManager, m_healthStatus);
+    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task2(m_mockPluginManager);
     task2.run();
     // Status Updated, Cached and file written due to cached cleared.
-    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task3(m_mockPluginManager, m_healthStatus);
+    ManagementAgent::McsRouterPluginCommunicationImpl::HealthTask task3(m_mockPluginManager);
     task3.run();
 }

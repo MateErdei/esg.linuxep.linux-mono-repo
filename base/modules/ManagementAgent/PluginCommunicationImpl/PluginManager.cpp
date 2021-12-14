@@ -30,6 +30,7 @@ namespace ManagementAgent
     {
         PluginManager::PluginManager() :
             m_context(Common::ZMQWrapperApi::createContext()),
+            m_healthStatus(std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>()),
             m_serverCallbackHandler(),
             m_defaultTimeout(5000),
             m_defaultConnectTimeout(5000)
@@ -56,7 +57,8 @@ namespace ManagementAgent
             }
 
             std::shared_ptr<PluginServerCallback> serverCallback = std::make_shared<PluginServerCallback>(*this);
-            m_serverCallbackHandler.reset(new PluginServerCallbackHandler(std::move(replier), serverCallback));
+
+            m_serverCallbackHandler.reset(new PluginServerCallbackHandler(std::move(replier), serverCallback, m_healthStatus));
             m_serverCallbackHandler->start();
         }
 
@@ -77,7 +79,7 @@ namespace ManagementAgent
                 m_serverCallbackHandler->stop();
             }
             m_serverCallbackHandler.reset(
-                new PluginServerCallbackHandler(std::move(replier), std::move(serverCallback)));
+                new PluginServerCallbackHandler(std::move(replier), std::move(serverCallback), m_healthStatus));
             m_serverCallbackHandler->start();
         }
 
@@ -361,6 +363,11 @@ namespace ManagementAgent
                 pluginHealthStatus.healthValue = 1;
             }
             return pluginHealthStatus;
+        }
+        std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> PluginManager::
+            getSharedHealthStatusObj()
+        {
+            return m_healthStatus;
         }
 
     } // namespace PluginCommunicationImpl

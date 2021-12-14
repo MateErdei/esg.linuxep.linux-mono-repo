@@ -19,10 +19,12 @@ namespace ManagementAgent
     {
         PluginServerCallbackHandler::PluginServerCallbackHandler(
             std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-            std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback) :
+            std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback,
+            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) :
             AbstractListenerServer(std::move(ireadWrite), ARMSHUTDOWNPOLICY::DONOTARM),
             m_messageBuilder("NotUsed"),
-            m_serverCallback(std::move(serverCallback))
+            m_serverCallback(std::move(serverCallback)),
+            m_healthStatusSharedObj(std::move(healthStatusSharedObj))
         {
         }
 
@@ -55,6 +57,9 @@ namespace ManagementAgent
                     }
                     case Commands::PLUGIN_SEND_REGISTER:
                         m_serverCallback->receivedRegisterWithManagementAgent(request.m_pluginName);
+                        return m_messageBuilder.replyAckMessage(request);
+                    case Commands::PLUGIN_SEND_THREAT_HEALTH:
+                        m_serverCallback->receivedThreatHealth(request.m_pluginName, m_messageBuilder.requestExtractThreatHealth(request), m_healthStatusSharedObj);
                         return m_messageBuilder.replyAckMessage(request);
                     default:
                         return m_messageBuilder.replySetErrorIfEmpty(request, "Request not supported");

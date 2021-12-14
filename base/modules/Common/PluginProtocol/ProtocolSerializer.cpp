@@ -44,6 +44,9 @@ namespace Common
                 case Commands::REQUEST_PLUGIN_HEALTH:
                     return PluginProtocolProto::PluginAPIMessage_CommandOption::
                         PluginAPIMessage_CommandOption_RequestHealth;
+                case Commands::PLUGIN_SEND_THREAT_HEALTH:
+                    return PluginProtocolProto::PluginAPIMessage_CommandOption::
+                        PluginAPIMessage_CommandOption_SendThreatHealth;
                 case Commands::PLUGIN_QUERY_CURRENT_POLICY:
                     return PluginProtocolProto::PluginAPIMessage_CommandOption::
                         PluginAPIMessage_CommandOption_RequestCurrentPolicy;
@@ -91,6 +94,10 @@ namespace Common
             else if (commandOption == serializeCommand(Commands::PLUGIN_QUERY_CURRENT_POLICY))
             {
                 return Commands::PLUGIN_QUERY_CURRENT_POLICY;
+            }
+            else if (commandOption == serializeCommand(Commands::PLUGIN_SEND_THREAT_HEALTH))
+            {
+                return Commands::PLUGIN_SEND_THREAT_HEALTH;
             }
             return Commands::UNKNOWN;
         }

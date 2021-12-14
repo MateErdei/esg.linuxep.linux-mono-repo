@@ -196,5 +196,11 @@ namespace Common
             return reply;
         }
 
+        std::string MessageBuilder::requestExtractThreatHealth(const DataMessage& dataMessage) const
+        {
+//            assert(dataMessage.m_command == Commands::PLUGIN_SEND_THREAT_HEALTH);
+            return dataMessage.m_payload.at(0);
+        }
+
     } // namespace PluginProtocol
 } // namespace Common

@@ -14,12 +14,10 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 namespace ManagementAgent
 {
-    namespace McsRouterPluginCommunicationImpl
+    namespace HealthStatusImpl
     {
-        HealthTask::HealthTask(PluginCommunication::IPluginManager& pluginManager,
-                               std::shared_ptr<HealthStatus> healthStatus)
+        HealthTask::HealthTask(PluginCommunication::IPluginManager& pluginManager)
             : m_pluginManager(pluginManager)
-            , m_healthStatus(healthStatus)
         {
         }
 
@@ -27,14 +25,14 @@ namespace ManagementAgent
         {
             LOGDEBUG("Process health task");
 
-            m_healthStatus->resetPluginHealthLists();
+            m_pluginManager.getSharedHealthStatusObj()->resetPluginHealthLists();
 
             for (const auto& pluginName : m_pluginManager.getRegisteredPluginNames())
             {
                 ManagementAgent::PluginCommunication::PluginHealthStatus pluginHealthStatus =
                     m_pluginManager.getHealthStatusForPlugin(pluginName);
 
-                m_healthStatus->addPluginHealth(pluginName, pluginHealthStatus);
+                m_pluginManager.getSharedHealthStatusObj()->addPluginHealth(pluginName, pluginHealthStatus);
             }
 
             // Hard coding MCSRouter status to Good
@@ -42,9 +40,9 @@ namespace ManagementAgent
             mcsRouterHealthStatus.healthValue = 0;
             mcsRouterHealthStatus.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE_AND_THREAT;
             mcsRouterHealthStatus.displayName = "Sophos MCS Client";
-            m_healthStatus->addPluginHealth("MCS", mcsRouterHealthStatus);
+            m_pluginManager.getSharedHealthStatusObj()->addPluginHealth("MCS", mcsRouterHealthStatus);
 
-            std::pair<bool, std::string> statusXmlResult =  m_healthStatus->generateHealthStatusXml();
+            std::pair<bool, std::string> statusXmlResult =  m_pluginManager.getSharedHealthStatusObj()->generateHealthStatusXml();
 
             Path tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
             Path statusDir = Common::ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();
@@ -61,7 +59,7 @@ namespace ManagementAgent
                 {
                     LOGWARN("Failed to write SHS status file with error, " << ex.what());
                     // make sure that write the status file is attempted again on next run.
-                    m_healthStatus->resetCachedHealthStatusXml();
+                    m_pluginManager.getSharedHealthStatusObj()->resetCachedHealthStatusXml();
                 }
             }
 

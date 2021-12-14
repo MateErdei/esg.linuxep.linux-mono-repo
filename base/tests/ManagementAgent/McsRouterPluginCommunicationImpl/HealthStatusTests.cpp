@@ -7,7 +7,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/HealthStatus.h>
+#include <ManagementAgent/HealthStatusImpl/HealthStatus.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

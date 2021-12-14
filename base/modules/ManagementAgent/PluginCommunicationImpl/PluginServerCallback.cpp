@@ -20,7 +20,7 @@ namespace ManagementAgent
 
         void PluginServerCallback::receivedSendEvent(const std::string& appId, const std::string& eventXml)
         {
-            LOGSUPPORT("Management: Event received for  " << appId);
+            LOGDEBUG("Management: Event received for  " << appId);
             if (m_eventReceiver != nullptr)
             {
                 m_eventReceiver->receivedSendEvent(appId, eventXml);
@@ -31,7 +31,7 @@ namespace ManagementAgent
             const std::string& appId,
             const Common::PluginApi::StatusInfo& statusInfo)
         {
-            LOGSUPPORT("Management: Status changed notification for " << appId);
+            LOGDEBUG("Management: Status changed notification for " << appId);
             if (m_statusReceiver != nullptr)
             {
                 m_statusReceiver->receivedChangeStatus(appId, statusInfo);
@@ -40,7 +40,7 @@ namespace ManagementAgent
 
         bool PluginServerCallback::receivedGetPolicyRequest(const std::string& appId)
         {
-            LOGSUPPORT("Management: Policy request received for  " << appId);
+            LOGDEBUG("Management: Policy request received for  " << appId);
             if (m_policyReceiver != nullptr)
             {
                 return m_policyReceiver->receivedGetPolicyRequest(appId);
@@ -85,6 +85,16 @@ namespace ManagementAgent
         {
             LOGDEBUG("Policy Receiver armed");
             m_policyReceiver = receiver;
+        }
+
+        void PluginServerCallback::receivedThreatHealth(const std::string& pluginName, const std::string& threatHealth,  std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj)
+        {
+            // todo push threat health task onto queue
+            LOGDEBUG("receivedThreatHealth: " << pluginName << ":" << threatHealth);
+            if (m_threatHealthReceiver != nullptr)
+            {
+                m_threatHealthReceiver->receivedThreatHealth(pluginName, threatHealth, healthStatusSharedObj);
+            }
         }
     } // namespace PluginCommunicationImpl
 } // namespace ManagementAgent

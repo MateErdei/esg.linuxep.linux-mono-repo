@@ -17,6 +17,7 @@ message PluginAPIMessage
         RequestCurrentPolicy = 8;
         InvalidCommand = 9;
         RequestHealth = 10;
+        SendThreatHealth = 11;
     }
     optional CommandOption command = 2;
     optional string applicationId = 3;

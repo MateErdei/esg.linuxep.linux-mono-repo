@@ -174,6 +174,12 @@ namespace ManagementAgent
              */
             virtual ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(const std::string& pluginName) = 0;
 
+            /**
+             * An accessor to expose the shared health object. Needed so that other parts of
+             * Management Agent can interact with this Health object.
+             */
+            virtual std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> getSharedHealthStatusObj() = 0;
+
         };
     } // namespace PluginCommunication
 } // namespace ManagementAgent

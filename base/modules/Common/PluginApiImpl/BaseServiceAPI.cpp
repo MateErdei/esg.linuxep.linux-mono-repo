@@ -59,7 +59,7 @@ void Common::PluginApiImpl::BaseServiceAPI::sendEvent(const std::string& appId, 
         throw Common::PluginApi::ApiException(errorMessage);
     }
 }
-
+// todo add threat api call
 void Common::PluginApiImpl::BaseServiceAPI::sendStatus(
     const std::string& appId,
     const std::string& statusXml,

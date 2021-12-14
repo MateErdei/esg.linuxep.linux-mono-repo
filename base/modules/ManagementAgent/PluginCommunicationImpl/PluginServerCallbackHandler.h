@@ -9,6 +9,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/PluginProtocol/MessageBuilder.h>
 #include <Common/ZeroMQWrapper/IReadWrite.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
+#include <ManagementAgent/HealthStatusImpl/HealthStatus.h>
 #include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
 #include <ManagementAgent/PluginCommunication/IPolicyReceiver.h>
 
@@ -23,7 +24,8 @@ namespace ManagementAgent
         public:
             PluginServerCallbackHandler(
                 std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-                std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback);
+                std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback,
+                std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj);
 
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver);
             void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver);
@@ -36,6 +38,7 @@ namespace ManagementAgent
 
             MessageBuilder m_messageBuilder;
             std::shared_ptr<PluginCommunication::IPluginServerCallback> m_serverCallback;
+            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> m_healthStatusSharedObj;
         };
 
     } // namespace PluginCommunicationImpl

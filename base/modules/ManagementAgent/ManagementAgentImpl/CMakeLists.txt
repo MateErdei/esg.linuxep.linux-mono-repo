@@ -16,6 +16,7 @@ target_link_libraries(managementagentimpl PUBLIC
         mcsrouterplugincommunicationimpl
         managementagentloggerimpl
         telemetryhelperimpl
+        ThreatHealthReceiverImpl
         )
 
 SET_TARGET_PROPERTIES( managementagentimpl

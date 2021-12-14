@@ -12,6 +12,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ZMQWrapperApi/IContextSharedPtr.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
 #include <Common/ZeroMQWrapper/ISocketReplierPtr.h>
+#include <ManagementAgent/HealthStatusImpl/HealthStatus.h>
 #include <ManagementAgent/PluginCommunication/IPluginManager.h>
 #include <ManagementAgent/PluginCommunication/IPluginServerCallback.h>
 #include <PluginRegistryImpl/PluginInfo.h>
@@ -60,6 +61,8 @@ namespace ManagementAgent
 
             ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(const std::string& pluginName) override;
 
+            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> getSharedHealthStatusObj();
+
             /**
              * Used mainly for Tests
              */
@@ -73,8 +76,8 @@ namespace ManagementAgent
             Common::ZMQWrapperApi::IContextSharedPtr m_context;
             Common::ZeroMQWrapper::IProxyPtr m_proxy;
             std::map<std::string, std::unique_ptr<Common::PluginCommunication::IPluginProxy>> m_RegisteredPlugins;
+            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> m_healthStatus;
             std::unique_ptr<PluginServerCallbackHandler> m_serverCallbackHandler;
-
             int m_defaultTimeout;
             int m_defaultConnectTimeout;
             std::mutex m_pluginMapMutex;

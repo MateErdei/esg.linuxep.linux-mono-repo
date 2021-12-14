@@ -25,7 +25,8 @@ namespace Common
             REQUEST_PLUGIN_DO_ACTION,
             REQUEST_PLUGIN_STATUS,
             REQUEST_PLUGIN_TELEMETRY,
-            REQUEST_PLUGIN_HEALTH
+            REQUEST_PLUGIN_HEALTH,
+            PLUGIN_SEND_THREAT_HEALTH
         };
 
         struct DataMessage

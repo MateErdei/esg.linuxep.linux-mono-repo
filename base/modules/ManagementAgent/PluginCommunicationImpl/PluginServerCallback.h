@@ -28,6 +28,7 @@ namespace ManagementAgent
 
             bool receivedGetPolicyRequest(const std::string& appId) override;
             void receivedRegisterWithManagementAgent(const std::string& pluginName) override;
+            void receivedThreatHealth(const std::string& pluginName, const std::string& threatHealth,  std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) override;
 
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver);
             void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver);
@@ -38,6 +39,7 @@ namespace ManagementAgent
             std::shared_ptr<PluginCommunication::IStatusReceiver> m_statusReceiver;
             std::shared_ptr<PluginCommunication::IEventReceiver> m_eventReceiver;
             std::shared_ptr<PluginCommunication::IPolicyReceiver> m_policyReceiver;
+            std::shared_ptr<PluginCommunication::IThreatHealthReceiver> m_threatHealthReceiver;
         };
     } // namespace PluginCommunicationImpl
 } // namespace ManagementAgent

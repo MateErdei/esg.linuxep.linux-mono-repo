@@ -41,6 +41,7 @@ public:
         setPolicyReceiver,
         void(std::shared_ptr<ManagementAgent::PluginCommunication::IPolicyReceiver>& receiver));
     MOCK_METHOD1(getHealthStatusForPlugin, ManagementAgent::PluginCommunication::PluginHealthStatus(const std::string& pluginName));
+    MOCK_METHOD0(getSharedHealthStatusObj, std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus>());
 
 public:
 };

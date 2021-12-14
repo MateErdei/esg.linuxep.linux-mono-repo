@@ -329,3 +329,17 @@ TEST_F(TestPluginServerCallbackHandler, TestThatMessageInWrongSerialisationDoesN
     auto replyMessage = sendReceive(registerMessage);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
+
+TEST_F(TestPluginServerCallbackHandler, abc) // NOLINT
+{
+    Common::PluginProtocol::DataMessage registerMessage =
+        createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH, "threathealth");
+    std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj;
+    EXPECT_CALL(*m_mockServerCallback, receivedThreatHealth(registerMessage.m_pluginName, "threathealth", healthStatusSharedObj)).WillOnce(Return());
+
+    Common::PluginProtocol::DataMessage ackMessage =
+        createAcknowledgementMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH);
+
+    auto replyMessage = sendReceive(registerMessage);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
+}

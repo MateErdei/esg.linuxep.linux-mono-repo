@@ -22,7 +22,7 @@ namespace Common
 
             /** Create the requests as client **/
             DataMessage requestSendEventMessage(const std::string& appId, const std::string& eventXml) const;
-
+//
             DataMessage requestSendStatusMessage(
                 const std::string& appId,
                 const std::string& statusXml,
@@ -47,6 +47,7 @@ namespace Common
             PluginApi::StatusInfo requestExtractStatus(const DataMessage&) const;
             std::string requestExtractPolicy(const DataMessage&) const;
             std::string requestExtractAction(const DataMessage&) const;
+            std::string requestExtractThreatHealth(const DataMessage&) const;
 
             /** Build replies as servers **/
             DataMessage replyAckMessage(const DataMessage&) const;
