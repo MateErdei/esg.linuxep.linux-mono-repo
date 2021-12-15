@@ -487,6 +487,19 @@ CLS Cannot Open Permission Denied File
     Should Contain       ${output}  Failed to open as permission denied: /home/vagrant/this/is/a/directory/for/scanning/eicar
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
+CLS Long Threat Paths Are Not Truncated
+    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird
+    Create Directory  ${ARCHIVE_DIR}
+
+    Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${ARCHIVE_DIR}
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    Should Contain  ${output}  Detected "/home/vagrant/this/is/a/directory/for/scanning/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird/1_eicar" is infected with EICAR-AV-Test
+
 
 CLS Can Scan Zero Byte File
     Create File  ${NORMAL_DIRECTORY}/zero_bytes
