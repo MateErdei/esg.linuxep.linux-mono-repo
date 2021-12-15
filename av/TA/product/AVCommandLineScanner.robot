@@ -488,17 +488,17 @@ CLS Cannot Open Permission Denied File
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
 CLS Long Threat Paths Are Not Truncated
-    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird
+    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
     Create Directory  ${ARCHIVE_DIR}
+    Create File  ${ARCHIVE_DIR}/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird/1_eicar    ${EICAR_STRING}
 
-    Create File  ${ARCHIVE_DIR}/1_eicar    ${EICAR_STRING}
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${ARCHIVE_DIR}
+    Run Process     tar  -cf  ${NORMAL_DIRECTORY}/test.tar  ${ARCHIVE_DIR}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.tar --scan-archives
 
     Log  return code is ${rc}
     Log  output is ${output}
 
-    Should Contain  ${output}  Detected "/home/vagrant/this/is/a/directory/for/scanning/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird/1_eicar" is infected with EICAR-AV-Test
 
 
 CLS Can Scan Zero Byte File
