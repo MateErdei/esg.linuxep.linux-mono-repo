@@ -59,7 +59,6 @@ Run plugin uninstaller with downgrade flag
     Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh  --downgrade
 
 Configure and check scan now with offset
-    Register Cleanup    Empty Directory  /opt/sophos-spl/base/mcs/action/
     Configure scan now
     Check scan now with Offset
 
@@ -68,11 +67,13 @@ Configure and check scan now with lookups disabled
     Check scan now with Offset
 
 Configure scan now
+    register cleanup  Empty Directory  ${MCS_PATH}/action/
     Mark Sophos Threat Detector Log
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
     Run Keyword and Ignore Error  Wait until scheduled scan updated
 
 Configure scan now with lookups disabled
+    register cleanup  Empty Directory  ${MCS_PATH}/action/
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
     Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system/susi configuration has changed
     AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
