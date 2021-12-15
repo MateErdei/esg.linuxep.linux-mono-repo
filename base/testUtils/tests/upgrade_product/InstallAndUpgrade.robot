@@ -537,7 +537,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check AV Plugin Permissions
     Check AV Plugin Can Scan Files
     Check Update Reports Have Been Processed
-    fail
 
 
 We Can Downgrade From VUT to Release Without Unexpected Errors
