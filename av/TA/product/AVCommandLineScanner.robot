@@ -163,6 +163,7 @@ CLS Can Scan Infected File
 
 
 CLS Can Scan Shallow Archive But not Deep Archive
+    Register Cleanup      Mark As Zip Bomb
     Create File     ${NORMAL_DIRECTORY}/archives/eicar    ${EICAR_STRING}
     create archive test files  ${NORMAL_DIRECTORY}/archives
 
@@ -183,8 +184,6 @@ CLS Can Scan Shallow Archive But not Deep Archive
     Log  ${output}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/archives/eicar16.tar
     Should Contain  ${output}  as it is a Zip Bomb
-
-    Mark As Zip Bomb
 
 
 CLS Summary is Correct
@@ -219,6 +218,7 @@ CLS Summary in Less Than a Second
 
 
 CLS Duration Summary is Displayed Correctly
+    Register Cleanup     Mark UnixSocket Environment Interruption Error
     Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout
 
     Sleep  65s
@@ -228,7 +228,6 @@ CLS Duration Summary is Displayed Correctly
     Should Contain   ${result.stdout}  files scanned in 1 minute
     ${seconds} =  Find Value After Phrase  minute,  ${result.stdout}
     Check Is Greater Than  ${seconds}  ${0}
-    Mark UnixSocket Environment Interruption Error
 
 
 CLS Summary is Printed When Avscanner Is Terminated Prematurely
@@ -359,6 +358,7 @@ CLS Can Scan Multiple Archive Files
 
 
 CLS Reports Reason for Scan Error on Zip Bomb
+    Register Cleanup     Mark As Zip Bomb
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zipbomb.zip --scan-archives
@@ -368,10 +368,10 @@ CLS Reports Reason for Scan Error on Zip Bomb
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/zipbomb.zip
     Should Contain  ${output}  as it is a Zip Bomb
-    Mark As Zip Bomb
 
 
 CLS Aborts Scanning of Password Protected File
+    Register Cleanup     Mark As Password Protected
     Copy File  ${RESOURCES_PATH}/file_samples/password_protected.7z  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
@@ -381,9 +381,9 @@ CLS Aborts Scanning of Password Protected File
     Should Be Equal As Integers  ${rc}  ${PASSWORD_PROTECTED_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected
 
-    Mark As Password Protected
 
 CLS Aborts Scanning of Corrupted File
+    Register Cleanup     Mark As Corrupted
     Copy File  ${RESOURCES_PATH}/file_samples/corrupt_tar.tar  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/corrupt_tar.tar --scan-archives
@@ -393,9 +393,9 @@ CLS Aborts Scanning of Corrupted File
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/corrupt_tar.tar/my.file as it is corrupted
 
-    Mark As Corrupted
 
 CLS Can Report Scan Error And Detection For Archive
+    Register Cleanup     Mark As Password Protected
     Copy File  ${RESOURCES_PATH}/file_samples/scanErrorAndThreat.tar  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar --scan-archives
@@ -406,7 +406,6 @@ CLS Can Report Scan Error And Detection For Archive
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/EncryptedSpreadsheet.xlsx as it is password protected
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/eicar.com" is infected with EICAR-AV-Test
 
-    Mark As Password Protected
 
 
 AV Log Contains No Errors When Scanning File
@@ -1355,6 +1354,7 @@ CLS scan two mounts same inode numbers
 
 
 CLS Can Scan Infected And Error Files
+    Register Cleanup  Mark As Zip Bomb
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
     Create File  ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
 
@@ -1363,10 +1363,10 @@ CLS Can Scan Infected And Error Files
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    Mark As Zip Bomb
 
 
 CLS Can Scan Clean And Error Files
+    Register Cleanup  Mark As Zip Bomb
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
     Create File  ${NORMAL_DIRECTORY}/cleanfile.txt    ${CLEAN_STRING}
 
@@ -1374,8 +1374,6 @@ CLS Can Scan Clean And Error Files
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
-
-    Mark As Zip Bomb
 
 
 CLS Can Scan PE Files without Crashing
@@ -1395,6 +1393,9 @@ CLS Skips scanning of special file
     Should Contain   ${output}   Not scanning special file/device: "/dev/null"
 
 CLS Return Codes Are Correct
+    Register Cleanup  Mark As Password Protected
+    Register Cleanup  Mark As Corrupted
+
     Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
 
@@ -1422,8 +1423,6 @@ CLS Return Codes Are Correct
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/ ${NORMAL_DIRECTORY}/corrupt_tar.tar ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    Mark As Password Protected
-    Mark As Corrupted
 
 CLS Can Append Summary To Log When SigTerm Occurs
     ${SCAN_LOG} =    Set Variable    /tmp/sigterm_test.log

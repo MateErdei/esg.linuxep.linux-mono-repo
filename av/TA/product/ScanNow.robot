@@ -67,6 +67,9 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     register cleanup  Start AV
     register cleanup  Stop AV
     register cleanup  Dump Log  ${SCANNOW_LOG_PATH}
+    register cleanup    Mark Scan Now Terminated
+    register cleanup    Mark Unixsocket Failed To Send Scan Request To STD
+    register cleanup    Mark Failed To Scan Files
 
     # Start scan now - abort or timeout...
     Run Scan Now Scan With No Exclusions
@@ -85,11 +88,6 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Should Be True   3 <= ${line_count} <= 7
 
     File Log Contains Once  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
-
-    Mark Scan Now Terminated
-    Mark Unixsocket Failed To Send Scan Request To STD
-    Mark Failed To Scan Files
-
 
 
 Scan Now scans dir with name similar to excluded mount

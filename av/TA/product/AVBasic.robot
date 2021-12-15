@@ -144,15 +144,13 @@ Scan Now Logs Should Be As Expected
 
 AV Plugin Will Fail Scan Now If No Policy
     Register Cleanup  Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
+    Register Cleanup  Mark Scan As Invalid
 
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Refusing to run invalid scan: INVALID
     AV Plugin Log Contains With Offset  Received new Action
     AV Plugin Log Contains With Offset  Evaluating Scan Now
-
-    Mark Scan As Invalid
-
 
 
 AV Plugin Scans local secondary mount only once

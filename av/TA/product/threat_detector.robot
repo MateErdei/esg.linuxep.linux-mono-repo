@@ -146,6 +146,7 @@ Threat detector triggers reload on SIGUSR1
 
 
 Threat detector exits if it cannot acquire the susi update lock
+    Register Cleanup    Mark Failed To Acquire Susi Lock
     Start AV
     Wait until threat detector running
     Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120
@@ -171,8 +172,6 @@ Threat detector exits if it cannot acquire the susi update lock
     ...  Check Threat Detector Not Running
 
     Stop AV
-
-    Mark Failed To Acquire Susi Lock
 
 
 Threat Detector Logs Susi Version when applicable
