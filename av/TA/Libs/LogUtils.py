@@ -304,8 +304,7 @@ File Log Contains
                 if string_to_contain in line:
                     logger.info("{} contains: {} in {}".format(os.path.basename(pathToLog), string_to_contain, line))
 
-    def check_all_product_logs_do_not_contain_string(self, string_to_find):
-        search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/*.log*"]
+    def check_all_product_logs_do_not_contain_string(self, string_to_find, search_list):
         glob_search_pattern = [os.path.join(self.install_path, search_entry) for search_entry in search_list]
         combined_files = [glob.glob(search_pattern) for search_pattern in glob_search_pattern]
         flat_files = [item for sublist in combined_files for item in sublist]
@@ -319,10 +318,15 @@ File Log Contains
             raise AssertionError("These program logs contain {}:\n {}".format(string_to_find, list_of_logs_containing_string))
 
     def check_all_product_logs_do_not_contain_error(self):
-        self.check_all_product_logs_do_not_contain_string("ERROR")
+        search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/sophos_threat_detector*.log*"]
+        self.check_all_product_logs_do_not_contain_string("]   ERROR [", search_list)
+        search_list = ["plugins/av/log/sophos_threat_detector/susi*.log*"]
+        self.check_all_product_logs_do_not_contain_string("\
+E  ", search_list)
 
     def check_all_product_logs_do_not_contain_critical(self):
-        self.check_all_product_logs_do_not_contain_string("CRITICAL")
+        search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/*.log*"]
+        self.check_all_product_logs_do_not_contain_string("CRITICAL", search_list)
 
     def get_number_of_occurrences_of_substring_in_log(self, log_location, substring) -> int:
         contents = _get_log_contents(log_location)
