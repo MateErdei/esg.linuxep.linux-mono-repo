@@ -150,6 +150,8 @@ namespace ManagementAgent
             {
                 if (isThreatResetTask(actionXml))
                 {
+                    LOGDEBUG("Processing Health Reset Action.");
+                    // TODO: LINUXDAR-3796 uncomment below code to enable threat detection resets
                     // m_healthStatus->resetThreatDetectionHealth();
                 }
             }
@@ -207,9 +209,10 @@ namespace ManagementAgent
         {
             auto fs = Common::FileSystem::fileSystem();
             std::string expectedActionFileContents = "<action type=\"sophos.core.threat.reset\"/>";
+            Path fullPath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(), filePath);
             try
             {
-                std::string actionFileContents = fs->readFile(filePath);
+                std::string actionFileContents = fs->readFile(fullPath);
                 if (actionFileContents == expectedActionFileContents)
                 {
                     return true;

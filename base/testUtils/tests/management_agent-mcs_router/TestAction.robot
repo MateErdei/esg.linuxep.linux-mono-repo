@@ -66,6 +66,32 @@ Verify Initiate LiveTerminal Action Sent Through MCS Router And Management Agent
 
     Check Temp Folder Doesnt Contain Atomic Files
 
+Verify Management Agent Handles SHS Health Reset Action When Received
+    [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+
+    Remove Action Xml Files
+    Start MCSRouter
+    Setup Plugin Registry
+    Start Management Agent
+    Start Plugin
+    Check Cloud Server Log For Command Poll
+
+    Trigger Health Reset
+    # Action will not be received until the next command poll
+    Check Cloud Server Log For Command Poll    2
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Log Contains In Order
+         ...  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
+         ...  PluginManager: Queue action SHS
+         ...  Processing Health Reset Action.       # TODO: LINUXDAR-3796 Check health reset action is carried out
+
+    Check Temp Folder Doesnt Contain Atomic Files
+
 
 *** Keywords ***
 Test Action Teardown

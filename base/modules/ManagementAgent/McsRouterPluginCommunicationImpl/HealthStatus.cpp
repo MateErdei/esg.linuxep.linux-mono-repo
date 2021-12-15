@@ -30,7 +30,7 @@ namespace ManagementAgent
 
         void HealthStatus::resetThreatDetectionHealth()
         {
-            for (auto health : m_pluginThreatDetectionHealth)
+            for (std::pair<std::string, PluginCommunication::PluginHealthStatus> health : m_pluginThreatDetectionHealth)
             {
                 health.second.healthValue = 1;
             }
