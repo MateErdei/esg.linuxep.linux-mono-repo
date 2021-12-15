@@ -45,6 +45,7 @@ Threat detector does not recreate logging symlink if present
     Threat Detector Log Should Not Contain With Offset   LogSetup <> Failed to create symlink for logs at
 
 Threat detector recreates logging symlink if missing
+    register cleanup   Mark STD Symlink Error
     register cleanup   Install With Base SDDS
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
 
@@ -60,10 +61,11 @@ Threat detector recreates logging symlink if missing
     Should not exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
     Create file   ${CHROOT_LOGGING_SYMLINK}/testfile
     Should exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
-    Mark STD Symlink Error
+
 
 
 Threat detector aborts if logging symlink cannot be created
+    register cleanup   Mark Failed To Create Symlink
     register cleanup   Install With Base SDDS
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
 
@@ -76,8 +78,6 @@ Threat detector aborts if logging symlink cannot be created
     Threat Detector Log Should Not Contain With Offset   LogSetup <> Create symlink for logs at
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
 
-    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  LogSetup <> Failed to create symlink for logs at /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/log/sophos_threat_detector: 13
-    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  LogSetup <> Failed to create symlink for logs at /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/log/sophos_threat_detector: 13
 
 
 Threat Detector Restarts When /etc/hosts changed
@@ -99,7 +99,6 @@ Threat Detector Restarts When /etc/hosts changed
     Wait until threat detector running
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
     Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}
-
 
 Threat Detector restarts if no scans requested within the configured timeout
     Stop sophos_threat_detector
@@ -130,7 +129,6 @@ Threat Detector restarts if no scans requested within the configured timeout
     Wait until threat detector running
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
     Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}
-
 
 Threat Detector prolongs timeout if a scan is requested within the configured timeout
     Stop sophos_threat_detector
@@ -163,9 +161,9 @@ Threat Detector prolongs timeout if a scan is requested within the configured ti
 
     Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
 
-
 Threat Detector Is Given Non-Permission EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup  Mark MachineID Permission Error
     Stop sophos_threat_detector and mark log
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
     Run Process  chmod  000  ${MACHINEID_FILE}
@@ -173,10 +171,10 @@ Threat Detector Is Given Non-Permission EndpointId
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to copy: "${MACHINEID_FILE}"
     Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
-    Mark MachineID Permission Error
 
 SUSI Is Given Non-Permission EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup  Mark MachineID Permission Error
     Stop sophos_threat_detector and mark log
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
     Register Cleanup  Remove File  ${MACHINEID_FILE}
@@ -186,85 +184,84 @@ SUSI Is Given Non-Permission EndpointId
     Register Cleanup  Remove File  ${MACHINEID_CHROOT_FILE}
     Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
-    Mark MachineID Permission Error
 
 SUSI Is Given Empty EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark EndpointID Cannot Be Empty
+    register cleanup    Mark MachineID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${MACHINEID_FILE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID cannot be empty
-    Mark MachineID Failed To Read Error
-    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ThreatScanner <> EndpointID cannot be empty
-    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> EndpointID cannot be empty
 
 
 SUSI Is Given A New Line As EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup     Mark MachineID New Line Error
+    register cleanup     Mark MachineID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${MACHINEID_FILE}  \n
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID cannot contain a new line
-    Mark MachineID New Line Error
-    Mark MachineID Failed To Read Error
 
 SUSI Is Given An Empty Space As EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark MachineID Empty Space Error
+    register cleanup    Mark MachineID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${MACHINEID_FILE}  ${SPACE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID cannot contain a empty space
-    Mark MachineID Empty Space Error
-    Mark MachineID Failed To Read Error
 
 SUSI Is Given Short EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark MachineID Shoulb Be 32 Hex Error
+    register cleanup    Mark MachineID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${MACHINEID_FILE}  d22829d94b76c016ec4e04b08baef
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID should be 32 hex characters
-    Mark MachineID Shoulb Be 32 Hex Error
-    Mark MachineID Failed To Read Error
 
 SUSI Is Given Long EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark MachineID Shoulb Be 32 Hex Error
+    register cleanup    Mark MachineID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${MACHINEID_FILE}  d22829d94b76c016ec4e04b08baefaaaaaaaaaaaaaaa
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID should be 32 hex characters
-    Mark MachineID Shoulb Be 32 Hex Error
-    Mark MachineID Failed To Read Error
-
 
 SUSI Is Given Non-hex EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark MachineID Hex Format Error
+    register cleanup    Mark MachineID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${MACHINEID_FILE}  GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID must be in hex format
-    Mark MachineID Hex Format Error
-    Mark MachineID Failed To Read Error
 
 SUSI Is Given Non-UTF As EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark MachineID Hex Format Error
+    register cleanup    Mark MachineID Failed To Read Error
     Stop sophos_threat_detector and mark log
     ${rc}   ${output} =    Run And Return Rc And Output  echo -n "ソフォスソフォスソフォスソフォス" | iconv -f utf-8 -t euc-jp > ${MACHINEID_FILE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID must be in hex format
-    Mark MachineID Hex Format Error
-    Mark MachineID Failed To Read Error
 
 SUSI Is Given Binary EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark MachineID Failed To Read Error
+    register cleanup    Mark MachineID New Line Error
     Stop sophos_threat_detector and mark log
     Copy File  /bin/true  ${MACHINEID_FILE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
-    Mark MachineID Failed To Read Error
-    Mark MachineID New Line Error
 
 SUSI Is Given Large File EndpointId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark MachineID Shoulb Be 32 Hex Error
+    register cleanup    Mark MachineID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${MACHINEID_FILE}
 
@@ -281,98 +278,90 @@ SUSI Is Given Large File EndpointId
 
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  EndpointID should be 32 hex characters
-    Mark MachineID Shoulb Be 32 Hex Error
-    Mark MachineID Failed To Read Error
-
 
 SUSI Is Given Empty CustomerId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark CustomerID Cannot Be Empty Error
+    register cleanup    Mark CustomerID Hex Format Error
+    register cleanup    Mark CustomerID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${CUSTOMERID_FILE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID cannot be empty
-    Mark CustomerID Cannot Be Empty Error
-    Mark CustomerID Hex Format Error
-    Mark CustomerID Failed To Read Error
-
 
 SUSI Is Given A New Line As CustomerId
     [Tags]  FAULT INJECTION
+    register cleanup   Mark CustomerID New Line Error
+    register cleanup   Mark CustomerID Hex Format Error
+    register cleanup   Mark CustomerID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${CUSTOMERID_FILE}  \n
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID cannot contain a new line
-    Mark CustomerID New Line Error
-    Mark CustomerID Hex Format Error
-    Mark CustomerID Failed To Read Error
-
 
 SUSI Is Given An Empty Space As CustomerId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark CustomerID Cannot Be Empty Space Error
+    register cleanup    Mark CustomerID Hex Format Error
+    register cleanup    Mark CustomerID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${CUSTOMERID_FILE}  ${SPACE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID cannot contain a empty space
-    Mark CustomerID Cannot Be Empty Space Error
-    Mark CustomerID Hex Format Error
-    Mark CustomerID Failed To Read Error
-
 
 SUSI Is Given Short CustomerId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark CustomerID Shoulb Be 32 Hex Error
     Stop sophos_threat_detector and mark log
     Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baef
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
-    Mark CustomerID Shoulb Be 32 Hex Error
-
 
 SUSI Is Given Long CustomerId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark CustomerID Shoulb Be 32 Hex Error
+    register cleanup    Mark CustomerID Hex Format Error
+    register cleanup    Mark CustomerID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baefaaaaaaaaaaaaaaa
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
-    Mark CustomerID Shoulb Be 32 Hex Error
-    Mark CustomerID Hex Format Error
-    Mark CustomerID Failed To Read Error
-
 
 SUSI Is Given Non-hex CustomerId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark CustomerID Shoulb Be 32 Hex Error
+    register cleanup    Mark CustomerID Hex Format Error
+    register cleanup    Mark CustomerID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Create File  ${CUSTOMERID_FILE}  GgGgGgGgGgGgGgGgGgGgGgGgGgGgGgGg
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID must be in hex format
-    Mark CustomerID Shoulb Be 32 Hex Error
-    Mark CustomerID Hex Format Error
-    Mark CustomerID Failed To Read Error
-
 
 SUSI Is Given Non-UTF As CustomerId
     [Tags]  FAULT INJECTION
+    register cleanup   Mark CustomerID Hex Format Error
+    register cleanup   Mark CustomerID Hex Format Error
+    register cleanup   Mark CustomerID Failed To Read Error
     Stop sophos_threat_detector and mark log
     ${rc}   ${output} =    Run And Return Rc And Output  echo -n "ソフォスソフォスソフォスソフォス" | iconv -f utf-8 -t euc-jp > ${CUSTOMERID_FILE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID must be in hex format
-    Mark CustomerID Hex Format Error
-    Mark CustomerID Hex Format Error
-    Mark CustomerID Failed To Read Error
-
 
 SUSI Is Given Binary CustomerId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark CustomerID New Line Error
+    register cleanup    Mark CustomerID Hex Format Error
+    register cleanup    Mark CustomerID Failed To Read Error
     Stop sophos_threat_detector and mark log
     Copy File  /bin/true  ${CUSTOMERID_FILE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
-    Mark CustomerID New Line Error
-    Mark CustomerID Hex Format Error
-    Mark CustomerID Failed To Read Error
-
 
 SUSI Is Given Large File CustomerId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark CustomerID Hex Format Error
+    register cleanup    Mark CustomerID Failed To Read Error
+    register cleanup    Mark CustomerID Shoulb Be 32 Hex Error
     Stop sophos_threat_detector and mark log
     Create File  ${CUSTOMERID_FILE}
 
@@ -388,25 +377,20 @@ SUSI Is Given Large File CustomerId
     END
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  CustomerID should be 32 hex characters
-    Mark CustomerID Hex Format Error
-    Mark CustomerID Failed To Read Error
-    Mark CustomerID Shoulb Be 32 Hex Error
-
 
 SUSI Is Given Non-Permission CustomerId
     [Tags]  FAULT INJECTION
+    register cleanup    Mark CustomerID Failed To Read Error
+    register cleanup    Mark CustomerID Hex Format Error
     Stop sophos_threat_detector and mark log
     Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baeffaa
     Run Process  chmod  000  ${CUSTOMERID_FILE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
-    Mark CustomerID Failed To Read Error
-    Mark CustomerID Hex Format Error
-
 
 Threat Detector Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
-
+    register cleanup    Mark Watchdog Log Unable To Open File Error
     Create Temporary eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
 
     Mark Sophos Threat Detector Log
@@ -430,10 +414,10 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
 
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
     Threat Detector Log Should Not Contain With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
-    Mark Watchdog Log Unable To Open File Error
 
 SUSI Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
+    register cleanup    Mark Watchdog Log Unable To Open File Error
     Create Temporary eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
     register on fail  dump log  ${AV_LOG_PATH}
 
@@ -458,9 +442,9 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
     SUSI Debug Log Does Not Contain With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
-    Mark Watchdog Log Unable To Open File Error
 
 SUSI Debug Log Does Not Contain Info Level Logs By Default
+    register cleanup     Mark Watchdog Log Unable To Open File Error
     Create Temporary eicar in  ${NORMAL_DIRECTORY}/eicar.com
     register cleanup  Set Log Level  DEBUG
     run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
@@ -483,7 +467,6 @@ SUSI Debug Log Does Not Contain Info Level Logs By Default
         Log  ${line}
         Should Not Start With  ${line}  I
     END
-    Mark Watchdog Log Unable To Open File Error
 
 *** Keywords ***
 Stop sophos_threat_detector and mark log

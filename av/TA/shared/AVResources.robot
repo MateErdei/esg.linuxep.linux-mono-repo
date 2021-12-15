@@ -482,6 +482,8 @@ AV And Base Teardown
     Mark MCS Router is dead
     Mark Failed To connect To Warehouse Error
     Mark Invalid Day From Policy
+    Mark Core Not In Policy Features
+    Mark SPL Base Not In Subscription Of The Policy
     #mark errors related to scheduled scans being forcefully terminated at the end of a test
     Mark Failed To Scan Multiple Files Cloud
     Mark UnixSocket Interrupted System Call Error Cloud Scan
