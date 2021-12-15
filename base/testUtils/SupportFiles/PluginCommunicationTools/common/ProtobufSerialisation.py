@@ -38,6 +38,7 @@ class Messages(Enum):
     REGISTRATION = PluginAPIMessage.Registration
     SEND_EVENT = PluginAPIMessage.SendEvent
     SEND_STATUS = PluginAPIMessage.SendStatus
+    SEND_THREAT_HEALTH = PluginAPIMessage.SendThreatHealth
     REQUEST_POLICY = PluginAPIMessage.RequestCurrentPolicy
     INVALID_COMMAND = PluginAPIMessage.InvalidCommand
     # both

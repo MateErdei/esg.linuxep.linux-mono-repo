@@ -346,6 +346,11 @@ namespace Common
             return Common::FileSystem::join(getSulDownloaderReportPath(), "upgrade_marker_file");
         }
 
+        std::string ApplicationPathManager::getThreatHealthJsonFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "var/sophosspl/ThreatHealth.json");
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

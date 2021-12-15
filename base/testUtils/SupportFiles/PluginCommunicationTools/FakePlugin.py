@@ -355,6 +355,11 @@ class FakePlugin(object):
         else:
             self.send_message_to_controller(Messages.Error.value)
 
+    def send_threat_health(self, app_id, threat_health_json):
+        threat_health_message = self.build_message(Messages.SEND_THREAT_HEALTH.value, app_id, threat_health_json)
+        response = self.send_message_over_agent_socket(threat_health_message)
+        return response
+
     def send_request_policy(self, app_id):
         request_policy_message = self.build_message(Messages.REQUEST_POLICY.value, app_id, [])
         response = self.send_message_over_agent_socket(request_policy_message)

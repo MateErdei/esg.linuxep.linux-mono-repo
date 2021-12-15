@@ -23,8 +23,12 @@ namespace ManagementAgent
 
         struct PluginHealthStatus
         {
-            PluginHealthStatus() : healthType(HealthType::NONE), healthValue(0)
+            PluginHealthStatus() : healthType(HealthType::NONE), healthValue(0) {}
+
+            bool operator==(const PluginHealthStatus& rhs) const
             {
+                return this->healthValue == rhs.healthValue && this->displayName == rhs.displayName &&
+                       this->healthValue == rhs.healthValue;
             }
 
             HealthType healthType;
@@ -32,20 +36,5 @@ namespace ManagementAgent
             unsigned int healthValue;
         };
 
-//        static void to_json( nlohmann::json& j, const PluginHealthStatus& phs)
-//        {
-//            j =  nlohmann::json{
-//                {"healthType", phs.healthType},
-//                {"displayName", phs.displayName},
-//                {"healthValue", phs.healthValue}};
-//        }
-//
-//        static void from_json(const  nlohmann::json& j, PluginHealthStatus& phs)
-//        {
-//            j.at("healthType").get_to(phs.healthType);
-//            j.at("displayName").get_to(phs.displayName);
-//            j.at("healthValue").get_to(phs.healthValue);
-//        }
-    }
-}
-
+    } // namespace PluginCommunication
+} // namespace ManagementAgent

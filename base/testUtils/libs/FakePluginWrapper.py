@@ -109,6 +109,9 @@ class FakePluginWrapper(object):
         status_content = self.plugin.apply_refid_to_status(status_content, policy_file_or_ref_id, res)
         return self.send_plugin_status(status_content)
 
+    def send_plugin_threat_health(self, threat_health_json):
+        self.plugin.send_threat_health(self.appId, [threat_health_json])
+
     def get_plugin_action(self):
         action = self.plugin.get_action()
         if action is None:

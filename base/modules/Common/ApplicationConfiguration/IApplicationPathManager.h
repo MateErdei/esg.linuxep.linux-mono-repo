@@ -105,6 +105,8 @@ namespace Common::ApplicationConfiguration
          * @return the full path for sophos_alias.txt file.
          */
         virtual std::string getSophosAliasFilePath() const = 0;
+
+        virtual std::string getThreatHealthJsonFilePath() const = 0;
     };
 
     IApplicationPathManager& applicationPathManager();

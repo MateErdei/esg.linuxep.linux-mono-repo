@@ -344,6 +344,7 @@ add_to_group "${UPDATESCHEDULER_USER_NAME}" "${SOPHOS_SPL_IPC_GROUP}"
 makedir 1770 "${SOPHOS_INSTALL}/tmp"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/tmp"
 
+# Var directories
 makedir 711 "${SOPHOS_INSTALL}/var"
 makedir 710 "${SOPHOS_INSTALL}/var/ipc"
 makedir 770 "${SOPHOS_INSTALL}/var/ipc/plugins"
@@ -356,13 +357,16 @@ if [[ -f "${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid" ]]
 then
     chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid"*
 fi
-
 makedir 700 "${SOPHOS_INSTALL}/var/lock"
 
 makedir 711 "${SOPHOS_INSTALL}/var/cache"
 makedir 700 "${SOPHOS_INSTALL}/var/cache/mcs_fragmented_policies"
 chown "${LOCAL_USER_NAME}:root" "${SOPHOS_INSTALL}/var/cache/mcs_fragmented_policies"
 
+makedir 710 "${SOPHOS_INSTALL}/var/sophosspl"
+chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/sophosspl"
+
+# Log directories
 makedir 711 "${SOPHOS_INSTALL}/logs"
 makedir 711 "${SOPHOS_INSTALL}/logs/base"
 makedir 770 "${SOPHOS_INSTALL}/logs/base/sophosspl"

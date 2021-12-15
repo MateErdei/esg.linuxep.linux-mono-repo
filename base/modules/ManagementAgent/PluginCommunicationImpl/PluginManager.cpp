@@ -298,6 +298,15 @@ namespace ManagementAgent
             }
         }
 
+        void PluginManager::setThreatHealthReceiver(
+            std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver)
+        {
+            if (m_serverCallbackHandler != nullptr)
+            {
+                m_serverCallbackHandler->setThreatHealthReceiver(receiver);
+            }
+        }
+
         std::vector<std::string> PluginManager::getRegisteredPluginNames()
         {
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);

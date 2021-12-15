@@ -179,6 +179,7 @@ namespace ManagementAgent
             m_pluginManager->setPolicyReceiver(m_policyReceiver);
             m_pluginManager->setStatusReceiver(m_statusReceiver);
             m_pluginManager->setEventReceiver(m_eventReceiver);
+            m_pluginManager->setThreatHealthReceiver(m_threatHealthReceiver);
         }
 
         void ManagementAgentMain::sendCurrentPluginsStatus(const std::vector<std::string>& registeredPlugins)

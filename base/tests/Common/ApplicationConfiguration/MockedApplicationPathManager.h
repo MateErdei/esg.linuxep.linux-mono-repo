@@ -62,7 +62,7 @@ public:
 
     MOCK_CONST_METHOD0(getSavedEnvironmentProxyFilePath, std::string(void));
 
-    MOCK_CONST_METHOD0(getTelemetrySchedulerConfigFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getTelemetrySchedulerStatusFilePath, std::string(void));
     MOCK_CONST_METHOD0(getTelemetrySupplementaryFilePath, std::string(void));
 
     MOCK_CONST_METHOD0(getTelemetryExeConfigFilePath, std::string(void));
@@ -88,6 +88,5 @@ public:
     MOCK_CONST_METHOD0(getDiagnoseOutputPath, std::string (void));
 
     MOCK_CONST_METHOD0(getCloudMetadataJsonPath, std::string (void));
-
-    MOCK_CONST_METHOD0(getUpdateMarkerFile, std::string (void));
+    MOCK_CONST_METHOD0(getThreatHealthJsonFilePath, std::string (void));
 };

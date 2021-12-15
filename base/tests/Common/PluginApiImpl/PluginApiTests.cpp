@@ -197,4 +197,12 @@ namespace
             resourceManagement.createPluginAPI("plugin", mockPluginCallback),
             Common::PluginApi::ApiException); // NOLINT
     }
+
+    TEST_F(PluginApiTests, test1) // NOLINT
+    {
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH;
+        responseServer.setReply(dataMessage);
+        EXPECT_NO_THROW(plugin->sendThreatHealth("json")); // NOLINT
+    }
 } // namespace

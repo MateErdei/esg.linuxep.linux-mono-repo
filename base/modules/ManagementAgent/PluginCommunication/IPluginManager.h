@@ -168,6 +168,12 @@ namespace ManagementAgent
             virtual void setPolicyReceiver(std::shared_ptr<IPolicyReceiver>& receiver) = 0;
 
             /**
+             *
+             * @param receiver
+             */
+            virtual void setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver) = 0;
+
+            /**
              * used to identify if a plugin needs to contribute to periodic health check
              * @param pluginName
              * @return true if should contribute, false otherwise

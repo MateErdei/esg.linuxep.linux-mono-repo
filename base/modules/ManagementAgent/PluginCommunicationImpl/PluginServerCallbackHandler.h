@@ -30,6 +30,7 @@ namespace ManagementAgent
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver);
             void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver);
             void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver);
+            void setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver);
 
         private:
             DataMessage process(const DataMessage& request) const override;

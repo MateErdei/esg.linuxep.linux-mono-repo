@@ -4,15 +4,18 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 ***********************************************************************************************/
 
-
+#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <ManagementAgent/HealthStatusImpl/HealthStatus.h>
-
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
-class HealthStatusTests : public testing::Test
+class HealthStatusTests : public LogInitializedTests
 {
 protected:
     void xmlAttributesContainExpectedValues(
@@ -36,13 +39,19 @@ protected:
             }
         }
 
-        EXPECT_EQ(itemFoundCount, expectedNumberOfInstances) << "name: " + valueToCompare.first + ", value: " + valueToCompare.second;
+        EXPECT_EQ(itemFoundCount, expectedNumberOfInstances)
+            << "name: " + valueToCompare.first + ", value: " + valueToCompare.second;
+
+        //        Tests::ScopedReplaceFileSystem m_replacer;
+        //        m_mockFileSystem = new StrictMock<MockFileSystem>();
+        //        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystem));
     }
 
     ManagementAgent::HealthStatusImpl::HealthStatus m_status;
+    //    MockFileSystem* m_mockFileSystem = nullptr;
 
-private:
-    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    // private:
+    //     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodServiceHealthValues) // NOLINT
@@ -60,8 +69,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodServiceHealthV
     m_status.addPluginHealth("testpluginOne", pluginStatusOne);
     m_status.addPluginHealth("testpluginTwo", pluginStatusTwo);
     std::string xmlString = m_status.generateHealthStatusXml().second;
-    Common::XmlUtilities::AttributesMap xmlMap =
-        Common::XmlUtilities::parseXml(xmlString);
+    Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
 
@@ -117,8 +125,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodThreatServiceH
     m_status.addPluginHealth("testpluginOne", pluginStatusOne);
     m_status.addPluginHealth("testpluginTwo", pluginStatusTwo);
     std::string xmlString = m_status.generateHealthStatusXml().second;
-    Common::XmlUtilities::AttributesMap xmlMap =
-        Common::XmlUtilities::parseXml(xmlString);
+    Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
 
@@ -260,7 +267,14 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTy
     m_status.addPluginHealth("testpluginDetectionOne", pluginDetectionStatusOne);
     m_status.addPluginHealth("testpluginDetectionTwo", pluginDetectionStatusTwo);
 
-    std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\"><item name=\"health\" value=\"3\" /><item name=\"service\" value=\"3\" ><detail name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin Service One\" value=\"2\" /><detail name=\"Test Plugin Service Two\" value=\"1\" /></item><item name=\"threatService\" value=\"3\" ><detail name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin Threat One\" value=\"2\" /><detail name=\"Test Plugin Threat Two\" value=\"1\" /></item><item name=\"threat\" value=\"3\" /></health>";
+    std::string expectedXml =
+        "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" activeHeartbeat=\"false\" "
+        "activeHeartbeatUtmId=\"\"><item name=\"health\" value=\"3\" /><item name=\"service\" value=\"3\" ><detail "
+        "name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin Service One\" "
+        "value=\"2\" /><detail name=\"Test Plugin Service Two\" value=\"1\" /></item><item name=\"threatService\" "
+        "value=\"3\" ><detail name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin "
+        "Threat One\" value=\"2\" /><detail name=\"Test Plugin Threat Two\" value=\"1\" /></item><item name=\"threat\" "
+        "value=\"3\" /></health>";
 
     std::string xmlString = m_status.generateHealthStatusXml().second;
     EXPECT_EQ(expectedXml, xmlString);
@@ -321,4 +335,97 @@ TEST_F(HealthStatusTests, healthStatusXML_StatusMarkedAsUnchangedWhenStatusReord
     EXPECT_TRUE(xmlStatus1.first);
     std::pair<bool, std::string> xmlStatus2 = m_status.generateHealthStatusXml();
     EXPECT_FALSE(xmlStatus2.first);
+}
+
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorValidJsonTest) // NOLINT
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return("{}"));
+    EXPECT_CALL(
+        *mockFileSystem,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath(), "{}"));
+
+    {
+        ASSERT_NO_THROW(ManagementAgent::HealthStatusImpl::HealthStatus healthStatus);
+    }
+}
+
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorInvalidJsonTest) // NOLINT
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return("NOT JSON"));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath(), "{}"));
+
+    {
+        ASSERT_NO_THROW(ManagementAgent::HealthStatusImpl::HealthStatus healthStatus);
+    }
+}
+
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorInvalidNoJsonFileTest) // NOLINT
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(false));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath(), "{}"));
+
+    {
+        ASSERT_NO_THROW(ManagementAgent::HealthStatusImpl::HealthStatus healthStatus);
+    }
+}
+
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorReadThrowsFileTest) // NOLINT
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException("can't read file")));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath(), "{}"));
+
+    {
+        ASSERT_NO_THROW(ManagementAgent::HealthStatusImpl::HealthStatus healthStatus);
+    }
 }

@@ -5,6 +5,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ThreatHealthTask.h"
+#include <ManagementAgent/LoggerImpl/Logger.h>
 
 ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthTask::ThreatHealthTask(
     std::string pluginName,
@@ -19,6 +20,7 @@ ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthTask::ThreatHealthTask(
 
 void ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthTask::run()
 {
+    LOGDEBUG("Running threat health task");
     PluginCommunication::PluginHealthStatus threatHealthStatus;
     threatHealthStatus.healthType = PluginCommunication::HealthType::THREAT_DETECTION;
     threatHealthStatus.healthValue = m_threatHealth;

@@ -87,13 +87,22 @@ namespace ManagementAgent
             m_policyReceiver = receiver;
         }
 
+        void PluginServerCallback::setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver)
+        {
+            LOGDEBUG("Threat Health Receiver armed");
+            m_threatHealthReceiver = receiver;
+        }
+
         void PluginServerCallback::receivedThreatHealth(const std::string& pluginName, const std::string& threatHealth,  std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj)
         {
-            // todo push threat health task onto queue
-            LOGDEBUG("receivedThreatHealth: " << pluginName << ":" << threatHealth);
+            LOGDEBUG("Received Threat Health: " << pluginName << ":" << threatHealth);
             if (m_threatHealthReceiver != nullptr)
             {
                 m_threatHealthReceiver->receivedThreatHealth(pluginName, threatHealth, healthStatusSharedObj);
+            }
+            else
+            {
+                LOGERROR("ThreatHealthReceiver was not initialised, failed to process Threat Health from: " << pluginName);
             }
         }
     } // namespace PluginCommunicationImpl

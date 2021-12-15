@@ -8,8 +8,8 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 #include <ManagementAgent/PluginCommunication/PluginHealthStatus.h>
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace ManagementAgent
 {
@@ -19,7 +19,7 @@ namespace ManagementAgent
         {
         public:
             HealthStatus();
-            ~HealthStatus() = default;
+            ~HealthStatus();
             /**
              * Function to clear the internal containers 'i.e. maps' to ensure the generated xml only contains
              * the current set of plugin information.
@@ -52,12 +52,8 @@ namespace ManagementAgent
                 std::stringstream& statusXml,
                 std::map<std::string, PluginCommunication::PluginHealthStatus>& healthMap,
                 unsigned int overallHealthValue);
-            std::string serialiseThreatHealth();
-            void deserialiseThreatHealth();
             void storeThreatHealth();
             void loadThreatHealth();
-
-
 
             std::map<std::string, PluginCommunication::PluginHealthStatus> m_pluginServiceHealth;
             std::map<std::string, PluginCommunication::PluginHealthStatus> m_pluginThreatServiceHealth;
@@ -68,5 +64,5 @@ namespace ManagementAgent
             unsigned int m_overallPluginThreatDetectionHealth;
             std::string m_cachedHealthStatusXml;
         };
-    }
-}
+    } // namespace HealthStatusImpl
+} // namespace ManagementAgent

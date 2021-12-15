@@ -114,5 +114,16 @@ namespace ManagementAgent
                 serverCallbackAsPluginServerCallback->setPolicyReceiver(policyReceiver);
             }
         }
+        void PluginServerCallbackHandler::setThreatHealthReceiver(
+            std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver)
+        {
+            auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
+            assert(serverCallbackAsPluginServerCallback != nullptr);
+
+            if (serverCallbackAsPluginServerCallback != nullptr) // for non-debug builds, don't crash
+            {
+                serverCallbackAsPluginServerCallback->setThreatHealthReceiver(receiver);
+            }
+        }
     } // namespace PluginCommunicationImpl
 } // namespace ManagementAgent

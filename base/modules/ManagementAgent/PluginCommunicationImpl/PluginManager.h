@@ -58,6 +58,7 @@ namespace ManagementAgent
             void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver) override;
 
             void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver) override;
+            void setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver) override;
 
             ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(const std::string& pluginName) override;
 
