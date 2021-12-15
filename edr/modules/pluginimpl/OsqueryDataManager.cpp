@@ -8,9 +8,11 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 #include "ApplicationPaths.h"
 #include "Logger.h"
+#include "OsqueryConfigurator.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 
 void OsqueryDataManager::cleanUpOsqueryLogs()
 {
@@ -119,5 +121,216 @@ void OsqueryDataManager::rotateFiles(std::string path, int limit)
     catch (Common::FileSystem::IFileSystemException& ex)
     {
         LOGERROR("Failed to rotate files with error: " << ex.what());
+    }
+}
+
+void OsqueryDataManager::reconfigureDataRetentionParameters(unsigned long currentEpochTime, unsigned long oldestRecordTime)
+{
+    unsigned long newRetentionDataTimeInSeconds = MAX_EVENTED_DATA_RETENTION_TIME;
+
+    if ((oldestRecordTime != MAX_EVENTED_DATA_RETENTION_TIME) &&
+        (currentEpochTime > oldestRecordTime) &&
+        ((currentEpochTime - oldestRecordTime) < MAX_EVENTED_DATA_RETENTION_TIME))
+    {
+        newRetentionDataTimeInSeconds = currentEpochTime - oldestRecordTime;
+        LOGDEBUG("Data retention time is being set to : " << newRetentionDataTimeInSeconds);
+    }
+
+    Plugin::OsqueryConfigurator osqueryConfigurator;
+    std::string configFile = Common::FileSystem::join(Plugin::osqueryConfigDirectoryPath(), "options.conf");
+    osqueryConfigurator.regenerateOsqueryOptionsConfigFile(configFile, newRetentionDataTimeInSeconds);
+}
+
+unsigned long OsqueryDataManager::getOldestAllowedTimeForCurrentEventedData()
+{
+    /**
+     * The following query will obtain the time stamp of the 100000 record (if it exists) in each evented table and then
+     * return the lowest time across the result for each table.
+     */
+    std::string queryString =
+        R"(
+            WITH time_values AS (
+            SELECT (SELECT time FROM process_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+            union
+            SELECT(SELECT time FROM user_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+            union
+            SELECT(SELECT time FROM selinux_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+            union
+            SELECT(SELECT time FROM socket_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+            union
+            SELECT(SELECT time FROM syslog_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+            )
+            SELECT MIN(oldest_time) AS time_to_keep FROM time_values WHERE oldest_time > 0
+        )";
+
+
+    auto resultData = runQuery(queryString);
+
+    if (resultData.has_value() && resultData->size() == 1)
+    {
+        auto row = resultData->back();
+
+        if (row.find("time_to_keep") != row.end())
+        {
+            if (!row["time_to_keep"].empty())
+            {
+                LOGINFO("Lowest record time to keep: " << row["time_to_keep"]);
+                try
+                {
+                    return std::stoll(row["time_to_keep"]);
+                }
+                catch(const std::invalid_argument&)
+                {
+                    return MAX_EVENTED_DATA_RETENTION_TIME;
+                }
+                catch (const std::out_of_range&)
+                {
+                    return MAX_EVENTED_DATA_RETENTION_TIME;
+                }
+            }
+        }
+    }
+    throw std::runtime_error("Failed to obtain lowest record time to keep time from osquery");
+    // return MAX_EVENTED_DATA_RETENTION_TIME;
+}
+
+std::optional<OsquerySDK::QueryData> OsqueryDataManager::runQuery(const std::string& query)
+{
+    if (!m_clientAlive)
+    {
+        m_clientAlive = connectToOsquery();
+    }
+
+    if (m_clientAlive)
+    {
+        try
+        {
+            OsquerySDK::QueryData queryData;
+            auto status = m_osqueryClient->query(query, queryData);
+            LOGDEBUG("Internal query returned status: " << status.code);
+            if (status.code == QUERY_SUCCESS)
+            {
+                return queryData;
+            }
+            else
+            {
+                LOGWARN("Failed to run internal data manager query : " << status.code << " " << status.message);
+                m_clientAlive = false;
+            }
+        }
+        catch (const std::exception& exception)
+        {
+            LOGWARN("Failed to run internal data manager query: " << exception.what());
+            m_clientAlive = false;
+        }
+    }
+    return std::nullopt;
+}
+
+bool OsqueryDataManager::connectToOsquery()
+{
+    std::optional<std::string> currentMtrSocket = Plugin::osquerySocket();
+    if (currentMtrSocket.has_value())
+    {
+        auto filesystem = Common::FileSystem::fileSystem();
+        if (filesystem->exists(currentMtrSocket.value()))
+        {
+            try
+            {
+                m_osqueryClient = osqueryclient::factory().create();
+                m_osqueryClient->connect(currentMtrSocket.value());
+                return true;
+            }
+            catch (const std::exception& exception)
+            {
+                LOGERROR("Failed to connect to data manager to OSQuery: " << exception.what());
+            }
+            catch(...)
+            {
+                LOGERROR("Failed to connect to OSQuery, unknown error");
+            }
+        }
+    }
+    return false;
+}
+
+void OsqueryDataManager::purgeDatabase()
+{
+    auto* ifileSystem = Common::FileSystem::fileSystem();
+    try
+    {
+        LOGINFO("Purging osquery database");
+        std::string databasePath = Plugin::osQueryDataBasePath();
+        if (ifileSystem->isDirectory(databasePath))
+        {
+            std::vector<std::string> paths = ifileSystem->listFiles(databasePath);
+
+            for (const auto& filepath : paths)
+            {
+                ifileSystem->removeFile(filepath);
+            }
+
+            LOGINFO("Purging Done");
+        }
+    }
+    catch (Common::FileSystem::IFileSystemException& e)
+    {
+        LOGERROR("Database cannot be purged due to exception: " << e.what());
+    }
+
+}
+
+void OsqueryDataManager::asyncCheckAndReconfigureDataRetention(std::shared_ptr<OsqueryDataRetentionCheckState> osqueryDataRetentionCheckState)
+{
+    auto timeNow = std::chrono::steady_clock::now();
+    if(osqueryDataRetentionCheckState->firstRun ||
+    ((osqueryDataRetentionCheckState->numberOfRetries != 5) ||
+     (timeNow > (osqueryDataRetentionCheckState->lastOSQueryDataCheck + osqueryDataRetentionCheckState->osqueryDataCheckPeriod))))
+    {
+        osqueryDataRetentionCheckState->firstRun = false;
+        std::async(
+            std::launch::async,
+            [osqueryDataRetentionCheckState, timeNow]
+            {
+                osqueryDataRetentionCheckState->running = true;
+                Common::UtilityImpl::FormattedTime formattedTime;
+                unsigned long currentepochTime = 0;
+                try
+                {
+                    currentepochTime = std::stoll(formattedTime.currentEpochTimeInSeconds());
+                }
+                catch (const std::invalid_argument& ex)
+                {
+                    LOGDEBUG("Failed to convert current epoch time, invalid argument error: " << ex.what());
+                }
+                catch (const std::out_of_range& ex)
+                {
+                    LOGDEBUG("Failed to convert current epoch time, out of range error: " << ex.what());
+                }
+
+                while(osqueryDataRetentionCheckState->numberOfRetries > 0)
+                {
+                    LOGDEBUG("Number of reconfigure Data Retention tries left: " << osqueryDataRetentionCheckState->numberOfRetries);
+                    OsqueryDataManager osqueryDataManager;
+                    try
+                    {
+                        LOGDEBUG("Running Reconfigure osquery data retention times");
+
+                        osqueryDataManager.reconfigureDataRetentionParameters(
+                            currentepochTime, osqueryDataManager.getOldestAllowedTimeForCurrentEventedData());
+                        osqueryDataRetentionCheckState->numberOfRetries = 5;
+                        LOGDEBUG("Completed Running Reconfigure osquery");
+                        break;
+                    }
+                    catch (const std::runtime_error&)
+                    {
+                        osqueryDataManager.reconfigureDataRetentionParameters(currentepochTime, osqueryDataManager.MAX_EVENTED_DATA_RETENTION_TIME);
+                        osqueryDataRetentionCheckState->numberOfRetries--;
+                        std::this_thread::sleep_for(std::chrono::seconds(2));
+                    }
+                }
+                osqueryDataRetentionCheckState->lastOSQueryDataCheck = timeNow;
+                osqueryDataRetentionCheckState->running = false;
+            });
     }
 }

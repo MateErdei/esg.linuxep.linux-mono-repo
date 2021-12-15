@@ -73,6 +73,45 @@ EDR Plugin Does Not Hang When OSQuery Socket Is Not Created
     ...   2 secs
     ...   Check Log Contains In Order   ${EDR_PLUGIN_PATH}/log/edr.log   edr.log  ${ExpectedLogMessages}
 
+EDR Plugin Purges OSQuery Database If Event Data Retention Time Check Fails
+    [Documentation]  This test will replace osquery with a simple bash script to ensure that EDR does not hang
+    ...  if OSQUery fails to start-up properly.
+    [Teardown]  EDR Hanging TearDown
+
+    create_users_and_group
+
+    Move File  ${EDR_PLUGIN_PATH}/bin/osqueryd  ${EDR_PLUGIN_PATH}/bin/osqueryd.bak
+    Create File   ${EDR_PLUGIN_PATH}/bin/osqueryd   echo starting
+    Create Directory   ${EDR_PLUGIN_PATH}/etc/osquery.conf.d/
+    Create File  ${EDR_PLUGIN_PATH}/var/osquery.db/test_file   echo basic_test_file_to_prove_purge_works
+    Run Process  chmod  +x  ${EDR_PLUGIN_PATH}/bin/osqueryd
+
+    ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
+    Check EDR Plugin Installed
+
+    ${ExpectedLogMessages}=  Create List
+            ...  Run osquery process
+            ...  Timed out waiting for osquery socket file to be created
+            ...  The osquery process finished
+            ...  Restarting osquery
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Should Not Exist  ${EDR_PLUGIN_PATH}/var/osquery.db/test_file
+
+EDR Plugin Will Create OSQuery Options File To Configure OSQuery Data Retention Time
+    create_users_and_group
+    ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
+    Create Directory   ${EDR_PLUGIN_PATH}/etc/osquery.conf.d/
+    Check EDR Plugin Installed
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Should Exist  ${EDR_PLUGIN_PATH}/etc/osquery.conf.d/options.conf
+
+    Log File  ${EDR_PLUGIN_PATH}/etc/osquery.conf.d/options.conf
+
 
 *** Keywords ***
 

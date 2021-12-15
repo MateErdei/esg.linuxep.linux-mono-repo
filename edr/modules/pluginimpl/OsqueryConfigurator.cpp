@@ -25,6 +25,32 @@ namespace Plugin
     {
     }
 
+    void OsqueryConfigurator::regenerateOsqueryOptionsConfigFile(const std::string& osqueryConfigFilePath, unsigned long expiry)
+    {
+        LOGINFO("Creating osquery options config file");
+        auto fileSystem = Common::FileSystem::fileSystem();
+        if (fileSystem->isFile(osqueryConfigFilePath))
+        {
+            fileSystem->removeFile(osqueryConfigFilePath);
+        }
+
+        std::stringstream osqueryConfiguration;
+
+        osqueryConfiguration << R"(
+        {
+            "options": {
+                "events_expiry": @@expiry@@,
+                "syslog_events_expiry": @@expiry@@
+            }
+        })";
+
+        std::string finalConfigString =
+            Common::UtilityImpl::StringUtils::replaceAll(
+                osqueryConfiguration.str(), "@@expiry@@", std::to_string(expiry));
+
+        fileSystem->writeFile(osqueryConfigFilePath, finalConfigString);
+    }
+
     void OsqueryConfigurator::regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath)
     {
         LOGINFO("Creating osquery root scheduled pack");
@@ -44,23 +70,23 @@ namespace Plugin
             "schedule": {
                 "process_events": {
                     "query": "select count(*) as process_events_count from process_events;",
-                    "interval": 86400
+                    "interval": 3600
                 },
                 "user_events": {
                     "query": "select count(*) as user_events_count from user_events;",
-                    "interval": 86400
+                    "interval": 3600
                 },
                 "selinux_events": {
                     "query": "select count(*) as selinux_events_count from selinux_events;",
-                    "interval": 86400
+                    "interval": 3600
                 },
                 "socket_events": {
                     "query": "select count(*) as socket_events_count from socket_events;",
-                    "interval": 86400
+                    "interval": 3600
                 },
                 "syslog_events": {
                     "query": "select count(*) as syslog_events_count from syslog_events;",
-                    "interval": 86400
+                    "interval": 3600
                 }
             }
         })";
@@ -108,7 +134,8 @@ namespace Plugin
                                          "--force=true",
                                          "--disable_enrollment=true",
                                          "--enable_killswitch=false",
-                                         "--verbose"};
+                                         "--verbose",
+                                         "--config_refresh=3600"};
 
         std::string eventsMaxValue = "100000";
         std::pair<std::string,std::string> eventsMax = Common::UtilityImpl::FileUtils::extractValueFromFile(Plugin::edrConfigFilePath(), "events_max");

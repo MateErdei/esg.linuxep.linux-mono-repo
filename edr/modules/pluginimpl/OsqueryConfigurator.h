@@ -26,6 +26,7 @@ namespace Plugin
                                                bool xdrEnabled,
                                                time_t scheduleEpoch);
         static void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
+        static void regenerateOsqueryOptionsConfigFile(const std::string& osqueryConfigFilePath, unsigned long expiry);
         static void addTlsServerCertsOsqueryFlag(std::vector<std::string>& flags);
 
     protected:

@@ -116,6 +116,7 @@ namespace Plugin
         inline static const std::string XDR_FLAG = "xdr.enabled";
         inline static const std::string QUERY_PACK_NEXT = "scheduled_queries.next";
         inline static const std::string NETWORK_TABLES_FLAG = "livequery.network-tables.available";
+        inline static const unsigned long MAXIMUM_EVENTED_RECORDS_ALLOWED = 100000;
    };
 }
 

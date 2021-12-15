@@ -181,11 +181,9 @@ namespace Plugin
         LOGINFO("Entering the main loop");
         m_callback->initialiseTelemetry();
         ensureMCSCanReadOldResponses();
-        std::string alcPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "ALC");
         std::string liveQueryPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "LiveQuery");
         std::string flagsPolicy = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(5), 5, "FLAGS");
 
-        processALCPolicy(alcPolicy, true);
         processFlags(flagsPolicy, true);
         processLiveQueryPolicy(liveQueryPolicy, true);
 //      Send Status On Startup
@@ -199,8 +197,9 @@ namespace Plugin
         auto lastCleanUpTime = std::chrono::steady_clock::now();
         auto cleanupPeriod = std::chrono::minutes(10);
 
-        auto lastTimeQueriedMtr = std::chrono::steady_clock::now();
-        auto mtrConfigQueryPeriod = std::chrono::minutes(1);
+        OsqueryDataManager osqueryDataManager;
+        std::shared_ptr<OsqueryDataRetentionCheckState> osqueryDataRetentionCheckState =
+            std::make_shared<OsqueryDataRetentionCheckState>();
 
         while (true)
         {
@@ -219,8 +218,6 @@ namespace Plugin
             {
                 LOGINFO("Restarting OSQuery after unexpected extension exit");
                 stopOsquery();
-
-
             }
             // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
             // make sure that the query pack is either still enabled or becomes enabled.
@@ -251,21 +248,26 @@ namespace Plugin
                 }
             }
 
+            auto timeNow = std::chrono::steady_clock::now();
+
+            if (!osqueryDataRetentionCheckState->running)
+            {
+                osqueryDataManager.asyncCheckAndReconfigureDataRetention(osqueryDataRetentionCheckState);
+
+                if (osqueryDataRetentionCheckState->numberOfRetries == 0)
+                {
+                    LOGINFO("Failed to reconfigure osquery.");
+                    osqueryDataRetentionCheckState->numberOfRetries = 5;
+                    stopOsquery();
+                    osqueryDataManager.purgeDatabase();
+                    m_restartNoDelay = true;
+                }
+
+            }
+
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
-                auto timeNow = std::chrono::steady_clock::now();
-
-                // only attempt MTR config query every 1 min
-                if (timeNow > (lastTimeQueriedMtr + mtrConfigQueryPeriod))
-                {
-                    lastTimeQueriedMtr = timeNow;
-                    if (m_osqueryConfigurator.checkIfReconfigurationRequired())
-                    {
-                        m_queueTask->pushOsqueryRestart("Restarting due to MTR Configuration change");
-                        m_expectedOsqueryRestart = true;
-                    }
-                }
 
                 // only attempt cleanup after the 10 minute period has elapsed
                 if (timeNow > (lastCleanUpTime + cleanupPeriod))
@@ -327,10 +329,6 @@ namespace Plugin
                         if (task.m_appId == "FLAGS")
                         {
                             processFlags(task.m_content, false);
-                        }
-                        else if (task.m_appId == "ALC")
-                        {
-                            processALCPolicy(task.m_content, false);
                         }
                         else if (task.m_appId == "LiveQuery")
                         {
@@ -547,30 +545,6 @@ namespace Plugin
     void PluginAdapter::processQuery(const std::string& queryJson, const std::string& correlationId)
     {
         m_parallelQueryProcessor.addJob(queryJson, correlationId);
-    }
-
-    void PluginAdapter::processALCPolicy(const std::string& policy, bool firstTime)
-    {
-        LOGINFO("Processing ALC Policy");
-        m_osqueryConfigurator.loadALCPolicy(policy);
-        bool enableAuditDataCollection = m_osqueryConfigurator.enableAuditDataCollection();
-        if (firstTime)
-        {
-            m_collectAuditEnabled = enableAuditDataCollection;
-            return;
-        }
-
-        std::string option{ enableAuditDataCollection ?"true":"false"};
-        if (enableAuditDataCollection != m_collectAuditEnabled)
-        {
-            m_collectAuditEnabled = enableAuditDataCollection;
-            LOGDEBUG("Option to enable audit collection changed to "<< option);
-            m_queueTask->pushOsqueryRestart("Restarting osquery due to auditd collection configuration change");
-        }
-        else
-        {
-            LOGDEBUG("Option to enable audit collection remains "<< option);
-        }
     }
 
     void PluginAdapter::processFlags(const std::string& flagsContent, bool firstTime)
