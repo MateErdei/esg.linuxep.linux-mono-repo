@@ -8,6 +8,7 @@ AV and Base Setup
     Require Plugin Installed and Running
     Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     Remove Directory  /tmp/DiagnoseOutput  true
+    register cleanup      Check All Product Logs Do Not Contain Error
 
 Check avscanner in /usr/local/bin
     File Should Exist  /usr/local/bin/avscanner

@@ -490,7 +490,6 @@ AV And Base Teardown
     Mark SPPLAV Processes Are Killed With SIGKILL
     Mark Watchdog Log Unable To Open File Error
 
-    Check All Product Logs Do Not Contain Error
     Run Teardown Functions
 
 Restart AV Plugin And Clear The Logs For Integration Tests

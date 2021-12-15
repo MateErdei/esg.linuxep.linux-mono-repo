@@ -82,8 +82,7 @@ Threat detector aborts if logging symlink cannot be created
 
 Threat Detector Restarts When /etc/hosts changed
     register cleanup   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
-    Wait until threat detector running
-    ${SOPHOS_THREAT_DETECTOR_PID_AT_START} =  Get Sophos Threat Detector PID From File
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Mark AV Log
     Mark Sophos Threat Detector Log
     Wait Until AV Plugin Log Contains With Offset  Starting sophos_threat_detector monitor
@@ -92,13 +91,11 @@ Threat Detector Restarts When /etc/hosts changed
 
     # wait for AV log
     Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system/susi configuration has changed
-    Wait Until Sophos Threat Detector Shutdown File Exists
     Mark Sophos Threat Detector Log
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
 
     Wait until threat detector running
-    ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
-    Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}
+    Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
 Threat Detector restarts if no scans requested within the configured timeout
     Stop sophos_threat_detector
@@ -115,20 +112,16 @@ Threat Detector restarts if no scans requested within the configured timeout
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    ${SOPHOS_THREAT_DETECTOR_PID_AT_START} =  Get Sophos Threat Detector PID From File
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
     Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
 
     ${timeout} =  Get Shutdown Timeout From Threat Detector Log
 
     Wait Until Sophos Threat Detector Log Contains With Offset  No scans requested for ${timeout} seconds - shutting down.  timeout=20
-    Wait Until Sophos Threat Detector Shutdown File Exists
     Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
-
-    Wait until threat detector running
-    ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
-    Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}
+    Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
 Threat Detector prolongs timeout if a scan is requested within the configured timeout
     Stop sophos_threat_detector
@@ -521,14 +514,13 @@ AVSophosThreatDetector Test Setup
     register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/wdctl.log
     register on fail  dump log  ${SOPHOS_INSTALL}/plugins/av/log/av.log
     register on fail  Restart AV Plugin And Clear The Logs For Integration Tests
-
-    Register Cleanup      Check All Product Logs Do Not Contain Error
-    Register Cleanup      Mark MCS Router is dead
-    Register Cleanup      Mark CustomerID Failed To Read Error
+    register cleanup  Check All Product Logs Do Not Contain Error
 
 AVSophosThreatDetector Test TearDown
     #restore machineID file
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
+    Mark CustomerID Failed To Read Error
+    Mark MCS Router is dead
     run teardown functions
 
 Alter Hosts
