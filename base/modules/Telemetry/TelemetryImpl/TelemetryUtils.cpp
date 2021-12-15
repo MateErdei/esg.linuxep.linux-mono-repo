@@ -41,7 +41,7 @@ namespace Telemetry
                     {
                         return "Azure";
                     }
-                    else if (platform == "googlecloud")
+                    else if (platform == "google")
                     {
                         return "Google";
                     }

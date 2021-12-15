@@ -65,7 +65,7 @@ TEST_F(TestTelemetryUtils, returnGoogleWhenFileContainsgoogle)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(R"({ "platform": "googlecloud" })"));
+    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Return(R"({ "platform": "google" })"));
     std::string cloudPlatform = Telemetry::TelemetryUtils::getCloudPlatform();
     ASSERT_EQ(cloudPlatform, "Google");
 }
