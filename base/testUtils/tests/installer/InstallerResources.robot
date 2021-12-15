@@ -267,7 +267,6 @@ Combine MTR Component Suite
      copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-DBOS-COMPONENT   ${dest}  1
      copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-MDR-COMPONENT  ${dest}
      copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-MDR-COMPONENT-SUITE  ${dest}
-     copy_files_and_folders_from_within_source_folder  ${source}/SDDS-SSPL-OSQUERY-COMPONENT  ${dest}
 
 
 

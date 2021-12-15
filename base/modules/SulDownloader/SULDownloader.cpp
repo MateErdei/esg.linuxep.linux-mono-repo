@@ -447,6 +447,9 @@ namespace SulDownloader
 
         // if any error happened during installation, it reports correctly.
         // the report also contains the successful ones.
+
+        LOGDEBUG("Triggering purge");
+        warehouseRepository->purge();
         return DownloadReport::Report(
             sourceURL,
             products,

@@ -193,7 +193,8 @@ Setup Warehouse For MDR
     ${base_dist} =  Get Folder With Installer
     ${mdr_component_suite} =  Get SSPL MDR Component Suite
 
-    Remove Directory  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}  recursive=${TRUE}
+    Remove Directory  ${tmpdir}/TestInstallFiles/  recursive=${TRUE}
+    Remove Directory  ${tmpdir}/temp_warehouse/  recursive=${TRUE}
     Copy Directory     ${base_dist}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
 
     Copy MDR Component Suite To   ${tmpdir}/TestInstallFiles   mdr_component_suite=${mdr_component_suite}
@@ -212,13 +213,41 @@ Setup Warehouse For MDR
     Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
     Can Curl Url    https://localhost:1233
 
+Setup Warehouse For MDR 060
+    Generate Update Certs
+    ${base_dist} =  Get Folder With Installer
+    ${mdr_component_suite} =  get_sspl_mdr_component_suite_060
+
+    Remove Directory  ${tmpdir}/TestInstallFiles/  recursive=${TRUE}
+    Remove Directory  ${tmpdir}/temp_warehouse/  recursive=${TRUE}
+    Copy Directory     ${base_dist}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
+
+#    ${Root_Install_Location} =  Set Variable   /tmp/system-product-test-inputs
+#    Combine MTR 0-6-0 Component Suite
+
+#    Copy Directory   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/  ${tmpdir}/TestInstallFiles/${mdr_component_suite.mdr_suite.rigid_name}
+    Copy MDR Component Suite To   ${tmpdir}/TestInstallFiles   mdr_component_suite=${mdr_component_suite}
+    Clear Warehouse Config
+    Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}  Warehouse1
+
+    Add Component Suite Warehouse Config   ${mdr_component_suite.mdr_suite.rigid_name}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   Warehouse1
+    Add Component Warehouse Config   ${mdr_component_suite.mdr_plugin.rigid_name}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/  ${mdr_component_suite.mdr_suite.rigid_name}  Warehouse1
+    Add Component Warehouse Config   ${mdr_component_suite.dbos.rigid_name}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/  ${mdr_component_suite.mdr_suite.rigid_name}  Warehouse1
+
+    Generate Warehouse   MDR_FEATURES=MDR  MDR_Control_FEATURES=MDR  MDR_DBOS_Component_FEATURES=MDR
+
+    Start Update Server    1233    ${tmpdir}/temp_warehouse/customer_files/
+    Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
+    Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
+    Can Curl Url    https://localhost:1233
 
 Setup Environment Before Warehouse Generation
     Setup Update Scheduler Environment
     Create Directory    ${tmpdir}
 
 Setup Environment After Warehouse Generation
-    Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log  updatescheduler   DEBUG    suldownloader=DEBUG
+    [Arguments]  ${suldownloader_log_level}=DEBUG
+    Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log  updatescheduler   DEBUG    suldownloader=${suldownloader_log_level}
     Create Empty Config File To Stop First Update On First Policy Received
     Stop Update Scheduler
 

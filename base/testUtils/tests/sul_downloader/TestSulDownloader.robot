@@ -1758,6 +1758,67 @@ Test Suldownloader Does Not Install MDR When Features And Subscription Do Not Ma
     Should Contain  ${log_contents}  Update success
     Check MDR Plugin Installed
 
+Test Suldownloader purges files
+    [Tags]  SULDOWNLOADER  MDR_PLUGIN
+    Setup Warehouse For MDR 060
+    Setup Environment After Warehouse Generation  suldownloader_log_level=INFO
+    Check MDR Plugin Uninstalled
+    Check SSPL Installed
+
+    # MDR feature and MDR subscription in ALC policy (MDR does get installed)
+    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Copy File   ${SUPPORT_FILES}/update_config/update_config_MDR_BASE_features_and_subscriptions.json  ${tmpdir}/update_config.json
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt     ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Log  ${result.stdout}
+    ${log_contents} =   Get File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Should Contain  ${log_contents}  Update success
+    Check MDR Plugin Installed
+
+    Should Exist  /opt/sophos-spl/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
+    ${also_a_fake_lib_md5} =  Get MD5 of file   /opt/sophos-spl/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
+    Should Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${also_a_fake_lib_md5}x000.dat
+    Should Exist  /opt/sophos-spl/plugins/mtr/lib64/fake_lib.so.1.66.999
+    ${fake_lib_md5} =  Get MD5 of file   /opt/sophos-spl/plugins/mtr/lib64/fake_lib.so.1.66.999
+    Should Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${fake_lib_md5}x000.dat
+    Should Exist  /opt/sophos-spl/plugins/mtr/lib64/faker_lib.so.2.23.999
+    ${faker_lib_md5} =  Get MD5 of file   /opt/sophos-spl/plugins/mtr/lib64/faker_lib.so.2.23.999
+    Should Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${faker_lib_md5}x000.dat
+
+    Stop Update Server
+    Setup Warehouse For MDR
+    # MDR feature and MDR subscription in ALC policy (MDR does get installed)
+    Remove File  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Copy File   ${SUPPORT_FILES}/update_config/update_config_MDR_BASE_features_and_subscriptions.json  ${tmpdir}/update_config.json
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt     ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    Log  ${result.stdout}
+    ${log_contents} =   Get File   ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Should Contain  ${log_contents}  Update success
+    Check MDR Plugin Installed
+
+    Should Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${also_a_fake_lib_md5}x000.dat
+    Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
+    Should Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${fake_lib_md5}x000.dat
+    Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/fake_lib.so.1.66.999
+    Should Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${faker_lib_md5}x000.dat
+    Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/faker_lib.so.2.23.999
+
+    # 3rd/4th update (causes purge)
+    Create File   /opt/sophos-spl/base/update/cache/primarywarehouse/catalogue/purge.txt   2009-09-13T11:13:16Z
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    log  ${result.stdout}
+    Create File   /opt/sophos-spl/base/update/cache/primarywarehouse/catalogue/purge.txt   2009-09-13T11:13:16Z
+    ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
+    log  ${result.stdout}
+    Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${also_a_fake_lib_md5}ex000.dat
+    Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
+    Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${fake_lib_md5}x000.dat
+    Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/fake_lib.so.1.66.999
+    Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${faker_lib_md5}x000.dat
+    Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/faker_lib.so.2.23.999
 
 Test Suldownloader Logs Warning When Plugin In Subscription And In Feature List But Missing From Warehouse
     Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
@@ -1865,6 +1926,12 @@ Test SulDownloader Will Obtain Dictionary Values For Product Names In Warehouse
 
 
 *** Keywords ***
+
+Get MD5 of file
+    [Arguments]  ${path}
+    ${result} =  Run Process  md5sum ${path} | awk '{ print $1 }'  shell=${True}
+    Should Be Equal As Strings  ${result.rc}  0
+    [Return]  ${result.stdout}
 
 Check SulDownloader Result
     [Arguments]  ${result}  ${expectedExitCode}  @{expectedStdErrLines}

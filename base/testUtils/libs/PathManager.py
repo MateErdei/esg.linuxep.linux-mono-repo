@@ -88,4 +88,6 @@ def addPathToSysPath(p):
     if p not in sys.path:
         sys.path.append(p)
 
+SYSTEM_PRODUCT_TEST_INPUTS=os.path.join("/tmp", "system-product-test-inputs")
+
 SOPHOS_INSTALL = os.path.join("/","opt", "sophos-spl")
