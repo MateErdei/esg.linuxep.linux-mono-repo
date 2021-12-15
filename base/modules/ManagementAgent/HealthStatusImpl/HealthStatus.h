@@ -52,6 +52,11 @@ namespace ManagementAgent
                 std::stringstream& statusXml,
                 std::map<std::string, PluginCommunication::PluginHealthStatus>& healthMap,
                 unsigned int overallHealthValue);
+            std::string serialiseThreatHealth();
+            void deserialiseThreatHealth();
+            void storeThreatHealth();
+            void loadThreatHealth();
+
 
 
             std::map<std::string, PluginCommunication::PluginHealthStatus> m_pluginServiceHealth;

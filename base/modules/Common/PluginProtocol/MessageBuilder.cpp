@@ -202,5 +202,10 @@ namespace Common
             return dataMessage.m_payload.at(0);
         }
 
+        DataMessage MessageBuilder::requestSendThreatHealthMessage(const std::string& threatHealthJson) const
+        {
+            return createDefaultDataMessage(Commands::PLUGIN_SEND_THREAT_HEALTH, "SHS", threatHealthJson);
+        }
+
     } // namespace PluginProtocol
 } // namespace Common

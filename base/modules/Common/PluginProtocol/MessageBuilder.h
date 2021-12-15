@@ -41,6 +41,8 @@ namespace Common
             DataMessage requestRequestPluginStatusMessage(const std::string& appId) const;
             DataMessage requestRequestTelemetryMessage() const;
             DataMessage requestRequestHealthMessage() const;
+            DataMessage requestSendThreatHealthMessage(const std::string& threatHealthJson) const;
+
 
             /** Extracting information from requests as server **/
             std::string requestExtractEvent(const DataMessage&) const;

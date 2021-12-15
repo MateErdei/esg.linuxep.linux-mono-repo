@@ -39,7 +39,7 @@ protected:
         EXPECT_EQ(itemFoundCount, expectedNumberOfInstances) << "name: " + valueToCompare.first + ", value: " + valueToCompare.second;
     }
 
-    ManagementAgent::McsRouterPluginCommunicationImpl::HealthStatus m_status;
+    ManagementAgent::HealthStatusImpl::HealthStatus m_status;
 
 private:
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;

@@ -39,6 +39,8 @@ namespace Common
 
             void registerWithManagementAgent() const;
 
+            void sendThreatHealth(const std::string& healthJson) const override;
+
         private:
             Common::PluginProtocol::DataMessage getReply(const Common::PluginProtocol::DataMessage& request) const;
 

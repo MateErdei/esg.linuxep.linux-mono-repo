@@ -143,3 +143,17 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
 
     return reply;
 }
+
+void Common::PluginApiImpl::BaseServiceAPI::sendThreatHealth(const std::string& healthJson) const
+{
+    LOGDEBUG("Change threat health message for plugin: " << m_pluginName << ", " << healthJson);
+
+    Common::PluginProtocol::DataMessage replyMessage = getReply(m_messageBuilder.requestSendThreatHealthMessage(healthJson));
+
+    if (!m_messageBuilder.hasAck(replyMessage))
+    {
+        std::string errorMessage("Invalid reply for: threat health message");
+        LOGERROR(errorMessage);
+        throw Common::PluginApi::ApiException(errorMessage);
+    }
+}

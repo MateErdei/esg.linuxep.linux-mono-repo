@@ -145,5 +145,17 @@ namespace ManagementAgent
         {
             m_cachedHealthStatusXml.clear();
         }
+
+        void HealthStatus::storeThreatHealth()
+        {
+
+
+        }
+        void HealthStatus::loadThreatHealth()
+        {
+
+        }
+
+
     }
 }

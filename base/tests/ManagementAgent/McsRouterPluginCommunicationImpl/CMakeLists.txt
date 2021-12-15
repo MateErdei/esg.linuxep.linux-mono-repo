@@ -7,9 +7,20 @@ add_executable(McsRouterPluginCommunicationImplTests
         TaskDirectoryListenerTests.cpp
         ActionTaskTests.cpp
         HealthTaskTests.cpp
-        HealthStatusTests.cpp)
+        HealthStatusTests.cpp
+        SerialiseFunctionsTests.cpp)
+
 target_include_directories(McsRouterPluginCommunicationImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
 target_include_directories(McsRouterPluginCommunicationImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}"  "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include" ${CMAKE_SOURCE_DIR})
-target_link_libraries(McsRouterPluginCommunicationImplTests gtest gmock gtest_main xmlutilities)
-target_link_libraries(McsRouterPluginCommunicationImplTests mcsrouterplugincommunicationimpl testhelpers)
+
+target_link_libraries(McsRouterPluginCommunicationImplTests
+        gtest
+        gmock
+        gtest_main
+        xmlutilities
+        mcsrouterplugincommunicationimpl
+        testhelpers
+        HealthStatusImpl # move this to other test location
+        )
+
 gtest_discover_tests(McsRouterPluginCommunicationImplTests)

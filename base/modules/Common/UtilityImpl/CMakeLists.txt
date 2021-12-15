@@ -9,8 +9,8 @@ add_library(utilityimplobject OBJECT
         UniformIntDistribution.cpp
         UniformIntDistribution.h
         Main.h
-        MapSerialiser.h
-        MapSerialiser.cpp
+#        MapSerialiser.h
+#        MapSerialiser.cpp
         VectorAsSet.cpp
         VectorAsSet.h
         OrderedSet.h

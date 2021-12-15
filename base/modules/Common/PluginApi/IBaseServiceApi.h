@@ -95,7 +95,7 @@ namespace Common
             /*
              *
              */
-//            virtual void sendThreatHealth(const std::string& pluginName, const std::string& healthJson) const = 0;
+            virtual void sendThreatHealth(const std::string& healthJson) const = 0;
         };
 
         // std::string getLibraryVersion();
