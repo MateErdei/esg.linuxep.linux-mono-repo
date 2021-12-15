@@ -325,8 +325,6 @@ namespace SulDownloader
                 productChanging = true;
             }
         }
-        warehouseRepository->purge();
-        warehouseRepository->dumpLogs();
         if (hasError(products))
         {
             LOGWARN("Verification of the downloaded products failed.");
