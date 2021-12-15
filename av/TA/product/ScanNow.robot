@@ -64,12 +64,13 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Mark AV Log
     Mark Sophos Threat Detector Log
     Start AV
+    register cleanup  Mark Scan Now Terminated
+    register cleanup  Mark Unixsocket Failed To Send Scan Request To STD
+    register cleanup  Mark Failed To Scan Files
+
     register cleanup  Start AV
     register cleanup  Stop AV
     register cleanup  Dump Log  ${SCANNOW_LOG_PATH}
-    register cleanup    Mark Scan Now Terminated
-    register cleanup    Mark Unixsocket Failed To Send Scan Request To STD
-    register cleanup    Mark Failed To Scan Files
 
     # Start scan now - abort or timeout...
     Run Scan Now Scan With No Exclusions
@@ -125,6 +126,7 @@ ScanNow Test Setup
     Check AV Plugin Log exists
     Mark AV Log
     Mark Sophos Threat Detector Log
+    Register Cleanup      Check All Product Logs Do Not Contain Error
 
 ScanNow Test Teardown
     Dump Log On Failure   ${AV_LOG_PATH}
@@ -133,8 +135,6 @@ ScanNow Test Teardown
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
 
     Mark CustomerID Failed To Read Error
-
-    Check All Product Logs Do Not Contain Error
 
     run teardown functions
     Run Keyword If Test Failed  Clear logs

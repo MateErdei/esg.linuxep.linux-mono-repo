@@ -470,6 +470,7 @@ Product Test Setup
     register on fail  Dump Log  ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
     register on fail  Dump Log  ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     register on fail  Dump Log  ${THREAT_DETECTOR_LOG_PATH}
+    Register Cleanup      Check All Product Logs Do Not Contain Error
 
 Product Test Teardown
     Delete Eicars From Tmp
@@ -478,7 +479,6 @@ Product Test Teardown
     Mark CustomerID Failed To Read Error
     Mark Parse Xml Error
 
-    Check All Product Logs Do Not Contain Error
     Component Test TearDown
     Run Keyword If Test Failed  Clear logs
 

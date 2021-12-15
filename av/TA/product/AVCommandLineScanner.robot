@@ -51,10 +51,10 @@ AVCommandLineScanner Test Setup
     Mark AV Log
     Mark Sophos Threat Detector Log
     Mark Susi Debug Log
+    Register Cleanup      Check All Product Logs Do Not Contain Error
 
 
 AVCommandLineScanner Test TearDown
-    Run Teardown Functions
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Dump Log On Failure   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
@@ -66,8 +66,7 @@ AVCommandLineScanner Test TearDown
     Mark UnixSocket Connection Reset By Peer
     Mark UnixSocket Failed To Read Length
     Mark CustomerID Failed To Read Error
-
-    Check All Product Logs Do Not Contain Error
+    Run Teardown Functions
     Run Keyword If Test Failed  Clear logs
 
 Clear logs
