@@ -62,7 +62,7 @@ namespace ManagementAgent
 
             ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(const std::string& pluginName) override;
 
-            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> getSharedHealthStatusObj();
+            std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> getSharedHealthStatusObj() override;
 
             /**
              * Used mainly for Tests

@@ -5,17 +5,15 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ThreatHealthTask.h"
+
 #include <ManagementAgent/LoggerImpl/Logger.h>
 
 ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthTask::ThreatHealthTask(
     std::string pluginName,
     unsigned int threatHealth,
     std::shared_ptr<HealthStatusImpl::HealthStatus> healthStatus) :
-    m_pluginName(std::move(pluginName)),
-    m_threatHealth(threatHealth),
-    m_healthStatus(std::move(healthStatus))
+    m_pluginName(std::move(pluginName)), m_threatHealth(threatHealth), m_healthStatus(std::move(healthStatus))
 {
-
 }
 
 void ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthTask::run()

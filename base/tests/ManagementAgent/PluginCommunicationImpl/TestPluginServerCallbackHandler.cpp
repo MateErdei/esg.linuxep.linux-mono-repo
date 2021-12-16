@@ -15,6 +15,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/PluginApiImpl/TestCompare.h>
 
 namespace
@@ -52,7 +54,7 @@ public:
     }
 
     ~TestPluginServerCallbackHandler() override = default;
-
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     Common::ZMQWrapperApi::IContextSharedPtr m_context;
     Common::ZeroMQWrapper::ISocketRequesterPtr m_requester;
     std::shared_ptr<MockPluginServerCallback> m_mockServerCallback;
@@ -93,9 +95,6 @@ public:
         auto rawReply = m_requester->read();
         return m_Protocol.deserialize(rawReply);
     }
-
-private:
-    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendEvent) // NOLINT
@@ -330,16 +329,29 @@ TEST_F(TestPluginServerCallbackHandler, TestThatMessageInWrongSerialisationDoesN
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }
 
-TEST_F(TestPluginServerCallbackHandler, abc) // NOLINT
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowledgementOnPluginSendThreatHealth) // NOLINT
 {
-    Common::PluginProtocol::DataMessage registerMessage =
+    // File system mocks for the health status obj constructor and destructor
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(false));
+    EXPECT_CALL(
+        *mockFileSystem,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath(), "{}"));
+
+    Common::PluginProtocol::DataMessage messageFromPlugin =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH, "threathealth");
-    std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj;
-    EXPECT_CALL(*m_mockServerCallback, receivedThreatHealth(registerMessage.m_pluginName, "threathealth", healthStatusSharedObj)).WillOnce(Return());
+
+    auto healthStatusSharedObj = std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>();
+    EXPECT_CALL(*m_mockServerCallback, receivedThreatHealth(messageFromPlugin.m_pluginName, "threathealth", _)).WillOnce(Return());
 
     Common::PluginProtocol::DataMessage ackMessage =
         createAcknowledgementMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH);
 
-    auto replyMessage = sendReceive(registerMessage);
+    auto replyMessage = sendReceive(messageFromPlugin);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
 }

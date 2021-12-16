@@ -143,6 +143,7 @@ namespace
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
+        EXPECT_CALL(m_mockPluginManager, setThreatHealthReceiver(_)).Times(1);
 
         std::vector<Common::PluginApi::StatusInfo> pluginStatusInfoList;
 
@@ -191,6 +192,7 @@ namespace
         EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
         EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
+        EXPECT_CALL(m_mockPluginManager, setThreatHealthReceiver(_)).Times(1);
 
         std::vector<Common::PluginApi::StatusInfo> pluginStatusInfoList;
         Common::PluginApi::StatusInfo statusInfo;

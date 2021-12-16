@@ -18,11 +18,14 @@ namespace ManagementAgent
         public:
             explicit ThreatHealthReceiverImpl(Common::TaskQueue::ITaskQueueSharedPtr taskQueue);
 
-            void receivedThreatHealth(const std::string& pluginName, const std::string& threatHealth, std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) override;
+            void receivedThreatHealth(
+                const std::string& pluginName,
+                const std::string& threatHealth,
+                std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) override;
 
         private:
             Common::TaskQueue::ITaskQueueSharedPtr m_taskQueue;
         };
 
-    } // namespace EventReceiverImpl
+    } // namespace ThreatHealthReceiverImpl
 } // namespace ManagementAgent
