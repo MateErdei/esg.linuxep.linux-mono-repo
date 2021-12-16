@@ -93,6 +93,14 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
             telemetry.increment(plugin::telemetryMTRExtensionRestarts, 1L);
         }
     }
+    else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Created and monitoring extension child"))
+    {
+        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "SophosMTR.ext"))
+        {
+            LOGDEBUG("Increment telemetry: " << plugin::telemetryMTRExtensionRestarts);
+            telemetry.increment(plugin::telemetryMTRExtensionRestarts, 1L);
+        }
+    }
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Error executing scheduled query "))
     {
         //example error log: Error executing scheduled query bad_query_malformed: near "selectts": syntax error

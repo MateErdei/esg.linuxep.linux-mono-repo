@@ -85,9 +85,10 @@ Edr Plugin reports health correctly
     Should Be Equal As Integers  ${health}  1
     ${mark} =  Mark File  ${EDR_LOG_PATH}
     Wait Until Keyword Succeeds
-    ...  30 secs
+    ...  90 secs
     ...  5 secs
-    ...  Marked File Contains  ${EDR_LOG_PATH}  Unable to execute osquery: Executable does not exist at   ${mark}
+    ...  Marked File Contains  ${EDR_LOG_PATH}  The osquery process failed to start   ${mark}
+
     ${edr_telemetry} =  Get Plugin Telemetry  edr
     ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
     ${health} =  Set Variable  ${telemetry_json['health']}
