@@ -196,10 +196,7 @@ Install master of base and edr and mtr and upgrade to edr 999
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
 
     Wait for first update
-    ${result}=  Run Process    du -sh /opt/sophos-spl/base/update/cache/primary  shell=true
-    Log  ${result.stdout}
-    ${result}=  Run Process    du -sh /opt/sophos-spl/base/update/cache/primarywarehouse  shell=true
-    Log  ${result.stdout}
+
     Mark Edr Log
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
 
@@ -241,10 +238,6 @@ Install master of base and edr and mtr and upgrade to edr 999
     ...  wdctl <> start edr
 
     Wait For Suldownloader To Finish
-    ${result}=  Run Process    du -sh /opt/sophos-spl/base/update/cache/primary  shell=true
-    Log  ${result.stdout}
-    ${result}=  Run Process    du -sh /opt/sophos-spl/base/update/cache/primarywarehouse  shell=true
-    Log  ${result.stdout}
     Mark Known Upgrade Errors
 
     Check All Product Logs Do Not Contain Error

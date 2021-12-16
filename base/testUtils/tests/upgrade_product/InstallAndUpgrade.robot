@@ -428,11 +428,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    create file   /opt/sophos-spl/base/update/cache/primarywarehouse/catalogue/purge.txt   2021-09-13T11:13:16Z
-    ${result}=  Run Process    du -sh /opt/sophos-spl/base/update/cache/primary  shell=true
-    Log  ${result.stdout}
-    ${result}=  Run Process    du -sh /opt/sophos-spl/base/update/cache/primarywarehouse  shell=true
-    Log  ${result.stdout}
     Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
     Override LogConf File as Global Level  DEBUG
     Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
@@ -512,10 +507,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check All Product Logs Do Not Contain Critical
 
     Check Current Release With AV Installed Correctly
-    ${result}=  Run Process    du -sh /opt/sophos-spl/base/update/cache/primary  shell=true
-    Log  ${result.stdout}
-    ${result}=  Run Process    du -sh /opt/sophos-spl/base/update/cache/primarywarehouse  shell=true
-    Log  ${result.stdout}
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseDevVersion}
