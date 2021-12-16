@@ -416,6 +416,7 @@ class TelemetryUtils:
                                             events_max='100000',
                                             ignore_cpu_restarts=False,
                                             ignore_memory_restarts=False,
+                                            ignore_mtr_extension_restarts=True,
                                             ignore_scheduled_queries=True,
                                             queries=None,
                                             scheduled_queries=None,
@@ -453,6 +454,12 @@ class TelemetryUtils:
             scheduled_queries_key = "scheduled-queries"
             expected_edr_telemetry_dict.pop(scheduled_queries_key, None)
             actual_edr_telemetry_dict.pop(scheduled_queries_key, None)
+        if ignore_mtr_extension_restarts:
+            # OSQuery 5.0.1 has changed logging, so we cannot directly tell when the mtr extension stops
+            # All we can do is tell when os query starts the mtr extension.
+            mtr_extension_restarts_key = "mtr-extension-restarts"
+            expected_edr_telemetry_dict.pop(mtr_extension_restarts_key, None)
+            actual_edr_telemetry_dict.pop(mtr_extension_restarts_key, None)
         osquery_db_size_key = "osquery-database-size"
         if actual_edr_telemetry_dict[osquery_db_size_key] < 1:
             raise AssertionError("EDR telemetry doesn't contain a valid osquery database size field")
