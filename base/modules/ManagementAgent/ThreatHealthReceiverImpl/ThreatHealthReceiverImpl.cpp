@@ -8,7 +8,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include "ThreatHealthTask.h"
 
-#include "../../../thirdparty/nlohmann-json/json.hpp"
+#include <json.hpp>
 
 #include <ManagementAgent/LoggerImpl/Logger.h>
 
