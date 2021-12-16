@@ -222,10 +222,6 @@ Setup Warehouse For MDR 060
     Remove Directory  ${tmpdir}/temp_warehouse/  recursive=${TRUE}
     Copy Directory     ${base_dist}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
 
-#    ${Root_Install_Location} =  Set Variable   /tmp/system-product-test-inputs
-#    Combine MTR 0-6-0 Component Suite
-
-#    Copy Directory   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/  ${tmpdir}/TestInstallFiles/${mdr_component_suite.mdr_suite.rigid_name}
     Copy MDR Component Suite To   ${tmpdir}/TestInstallFiles   mdr_component_suite=${mdr_component_suite}
     Clear Warehouse Config
     Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}  Warehouse1
