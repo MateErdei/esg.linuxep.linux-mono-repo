@@ -176,3 +176,6 @@ Mark EndpointID Cannot Be Empty
 Mark Failed To Create Symlink
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  LogSetup <> Failed to create symlink for logs at /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/log/sophos_threat_detector: 13
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  LogSetup <> Failed to create symlink for logs at /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/log/sophos_threat_detector: 13
+
+Mark Failed Communication Between AV And Base Due To No Incomming Data
+    mark_expected_error_in_log  ${MANAGEMENT_AGENT_LOG_PATH}    managementagent <> Failure on sending message to av. Reason: No incoming data

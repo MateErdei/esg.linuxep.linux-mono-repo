@@ -573,9 +573,12 @@ Installer Test Setup
     Check Plugin Installed and Running
     Mark AV Log
     Mark Sophos Threat Detector Log
+    #Register Cleanup has LIFO order, so checking for errors is done last.
     Register Cleanup    Check All Product Logs Do Not Contain Error
     Register Cleanup    Mark CustomerID Failed To Read Error
     Register Cleanup    Mark MCS Router is dead
+    Register Cleanup    Mark Failed Communication Between AV And Base Due To No Incomming Data
+
 Installer Test TearDown
     Run Teardown Functions
     Run Keyword If Test Failed   Installer Suite Setup
