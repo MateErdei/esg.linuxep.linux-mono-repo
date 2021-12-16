@@ -39,6 +39,7 @@ Event Journaler Can Receive Events
     ...  30 secs
     ...  5 secs
     ...  Check Journal Contains Detection Event With Content   {"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"}
+    Check Journal Contains Detection Event With Content  LinuxThreat
 
 Event Journaler Restarts Subscriber After Socket Removed
     Wait Until Keyword Succeeds
