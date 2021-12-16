@@ -170,8 +170,15 @@
 				 artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--Version_4_9_0/20211029090226-5545f0f5e5b58bd91a740c0f2d110341f1edbaeb-iW8h65/SDDS-COMPONENT"
 				 longdic="Sophos Linux Runtime Detection Plugin"
 				 shortdic="Sophos Linux Runtime Detection Plugin"/>
-	</line>
-	<line id="ServerProtectionLinux-Plugin-AV">
+    </line>
+    <line id="ServerProtectionLinux-Plugin-Heartbeat">
+      <component id="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.120"
+				 version="1.0.0.120"
+				 artifact="esg-releasable-candidate/linuxep.heartbeat/release--2021.49/20211216120314-646ea07be5dbfa7d33dcbb7a850223e757944c21-wK1tAm/sspl-plugin-heartbeat/SDDS-COMPONENT"
+				 longdic="Sophos Linux Heartbeat Plugin"
+				 shortdic="Sophos Linux Heartbeat Plugin"/>
+    </line>
+    <line id="ServerProtectionLinux-Plugin-AV">
       <component id="ServerProtectionLinux-Plugin-AV-1.0.4.39"
 				   version="1.0.4.39"
 				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2021-49/20211129165555-a3f46ede01f85eee09e4cf338a16b282ab4dee3b-ZRik9R//sspl-plugin-anti-virus/SDDS-COMPONENT"

@@ -55,3 +55,8 @@ sspl-runtimedetections:
     canonical-name: ServerProtectionLinux-Plugin-RuntimeDetections
     line-id: ServerProtectionLinux-Plugin-RuntimeDetections
     mountpoint: ServerProtectionLinux-Plugin-runtimedetections
+sspl-heartbeat:
+    fileset: ..\redist\heartbeat
+    canonical-name: ServerProtectionLinux-Plugin-Heartbeat
+    line-id: ServerProtectionLinux-Plugin-Heartbeat
+    mountpoint: ServerProtectionLinux-Plugin-heartbeat
