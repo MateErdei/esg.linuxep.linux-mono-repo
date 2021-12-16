@@ -158,7 +158,7 @@ AV plugin doesnt report a error message if no policy is received
 AV plugin does report a info message if no policy is received
     Mark AV Log
     Stop AV Plugin
-    Run Shell Process  ls -l  /opt/sophos-spl/base/mcs/policy/
+    Log  Run Shell Process  ls -l  /opt/sophos-spl/base/mcs/policy/
     Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
 
     Start AV Plugin
