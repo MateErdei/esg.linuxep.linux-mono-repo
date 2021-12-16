@@ -40,7 +40,6 @@ Threat Detector Test Teardown
 
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
-    Run Keyword If Test Failed  Clear logs
 
 Start AV
     Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
@@ -60,12 +59,14 @@ Verify threat detector log rotated
     List Directory  ${AV_PLUGIN_PATH}/log/sophos_threat_detector
     Should Exist  ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1
 
+Dump and Reset Logs
+    Register Cleanup   Empty Directory   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
+    Register Cleanup   Dump log          ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
 
 *** Test Cases ***
 
 Threat Detector Log Rotates
-    Register Cleanup   Empty Directory   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
-
+    Dump and Reset Logs
     # Ensure the log is created
     Start AV
     Stop AV
@@ -81,7 +82,7 @@ Threat Detector Log Rotates
     Verify threat detector log rotated
 
 Threat Detector Log Rotates while in chroot
-    Register Cleanup   Empty Directory   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
+    Dump and Reset Logs
     Register On Fail   Stop AV
     Register On Fail   dump log  ${AV_LOG_PATH}
     Register On Fail   dump log  ${THREAT_DETECTOR_LOG_PATH}
@@ -103,6 +104,7 @@ Threat Detector Log Rotates while in chroot
 
 
 Threat detector is killed gracefully
+    Dump and Reset Logs
     Start AV
     Wait until threat detector running
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /
@@ -128,6 +130,7 @@ Threat detector is killed gracefully
 
 
 Threat detector triggers reload on SIGUSR1
+    Dump and Reset Logs
     Mark Sophos Threat Detector Log
     Start AV
     Wait until threat detector running
@@ -146,7 +149,8 @@ Threat detector triggers reload on SIGUSR1
 
 
 Threat detector exits if it cannot acquire the susi update lock
-    Register Cleanup    Mark Failed To Acquire Susi Lock
+    Dump and Reset Logs
+#    Register Cleanup    Mark Failed To Acquire Susi Lock
     Start AV
     Wait until threat detector running
     Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120
@@ -175,6 +179,7 @@ Threat detector exits if it cannot acquire the susi update lock
 
 
 Threat Detector Logs Susi Version when applicable
+    Dump and Reset Logs
     Start AV
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
     Sophos Threat Detector Log Contains With Offset  Initializing SUSI
@@ -193,6 +198,7 @@ Threat Detector Logs Susi Version when applicable
 
 
 Threat Detector Doesnt Log Every Scan
+    Dump and Reset Logs
     Register On Fail   dump log  ${SUSI_DEBUG_LOG_PATH}
     Set Log Level  INFO
     Remove File    ${SUSI_DEBUG_LOG_PATH}
