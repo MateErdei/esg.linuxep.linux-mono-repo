@@ -517,6 +517,9 @@ class SHSEndpointManager(object):
         logger.info("Triggering a threat health reset")
         self.__m_resetHealth = True
 
+    def commandDeleted(self):
+        self.__m_resetHealth = None
+
 # ALC Policy
 class ALCEndpointManager(object):
     def __init__(self):
@@ -941,6 +944,8 @@ class Endpoint(object):
                 self.__hb.commandDeleted()
             elif c == "SAV":
                 self.__sav.commandDeleted()
+            elif c == "SHS":
+                self.__shs.commandDeleted()
             elif c == "MCS":
                 self.__mcs.commandDeleted()
             elif c == "ALC":
