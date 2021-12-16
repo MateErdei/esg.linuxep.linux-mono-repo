@@ -352,7 +352,6 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesAllThre
 
     m_status.resetThreatDetectionHealth();
 
-    // TODO: LINUXDAR-3796 expected status will change once we're reporting Threat Detection Status.
     std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" "
                               "activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
                               "<item name=\"health\" value=\"3\" />"
@@ -360,7 +359,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesAllThre
                               "<detail name=\"Plugin With Service Health\" value=\"3\" /></item>"
                               "<item name=\"threatService\" value=\"3\" >"
                               "<detail name=\"Plugin With Threat Service Health\" value=\"3\" /></item>"
-                              "<item name=\"threat\" value=\"3\" /></health>";
+                              "<item name=\"threat\" value=\"1\" /></health>";
 
     std::string xmlString = m_status.generateHealthStatusXml().second;
     EXPECT_EQ(expectedXml, xmlString);
@@ -374,7 +373,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesAllThre
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "3"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "3"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
 
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Plugin With Service Health", "3"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Plugin With Threat Service Health", "3"), 1);
@@ -391,11 +390,10 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesSingleT
 
     m_status.resetThreatDetectionHealth();
 
-    // TODO: LINUXDAR-3796 Threat Detection Plugin Status not yet reported.
     std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
                               "<health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
-                              "<item name=\"health\" value=\"3\" />"
-                              "<item name=\"threat\" value=\"3\" />"
+                              "<item name=\"health\" value=\"1\" />"
+                              "<item name=\"threat\" value=\"1\" />"
                               "</health>";
 
     std::string xmlString = m_status.generateHealthStatusXml().second;
@@ -407,8 +405,8 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesSingleT
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
 
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
-    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
 }
 
 TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectIfThereAreNoThreatDetectionPlugins) // NOLINT
@@ -472,6 +470,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectI
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "3"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
 
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service One", "2"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service Two", "1"), 1);
@@ -496,6 +495,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectI
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "3"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
 
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service One", "2"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service Two", "1"), 1);
@@ -515,7 +515,6 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectW
 
     m_status.resetThreatDetectionHealth();
 
-    // TODO: LINUXDAR-3796 Threat Detection Plugin Status not yet reported.
     std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
                               "<health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
                               "<item name=\"health\" value=\"1\" />"
