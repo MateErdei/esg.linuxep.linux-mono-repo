@@ -58,9 +58,7 @@ Management Agent Persists Threat Health Of Plugins
     ...  Check Management Agent Log Contains  Running threat health task
 
     Stop Management Agent
-    ${threatHealthJsonString} =  Get File  ${VAR_DIR}/sophosspl/ThreatHealth.json
-    Log  ${threatHealthJsonString}
-    Should Be Equal As Strings  ${threatHealthJsonString}  {"FakePlugin":{"displayName":"","healthType":4,"healthValue":2}}
+    Wait For Threat Health Json to Contain  {"FakePlugin":{"displayName":"","healthType":4,"healthValue":2}}
 
     # Restart MA to force a re-write of the file on MA shutdown
     # It should have been read in on start and then re-saved as it on shutdown
@@ -71,7 +69,18 @@ Management Agent Persists Threat Health Of Plugins
     ...  SHS Status File Contains  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="2" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="2" /></health>
 
     Stop Management Agent
-    ${threatHealthJsonString} =  Get File  ${VAR_DIR}/sophosspl/ThreatHealth.json
-    Log  ${threatHealthJsonString}
-    Should Be Equal As Strings  ${threatHealthJsonString}  {"FakePlugin":{"displayName":"","healthType":4,"healthValue":2}}
+    Wait For Threat Health Json to Contain  {"FakePlugin":{"displayName":"","healthType":4,"healthValue":2}}
 
+*** Keywords ***
+Wait For Threat Health Json to Contain
+    [Arguments]   ${content_to_contain}
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  Threat Health Json Contains  ${content_to_contain}
+
+Threat Health Json Contains
+    [Arguments]   ${content_to_contain}
+    ${threat_health_json} =  Get File  ${VAR_DIR}/sophosspl/ThreatHealth.json
+    Log  ${threat_health_json}
+    Should Be Equal As Strings  ${threat_health_json}  ${content_to_contain}
