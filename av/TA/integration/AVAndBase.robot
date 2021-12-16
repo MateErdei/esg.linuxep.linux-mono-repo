@@ -151,6 +151,7 @@ AV plugin doesnt report a error message if no policy is received
 
     Set Log Level  ERROR
     Start AV Plugin
+    Wait until AV Plugin running
     AV Plugin Log Does Not Contain With Offset  Failed to get SAV policy at startup (No Policy Available)
     AV Plugin Log Does Not Contain With Offset  Failed to get ALC policy at startup (No Policy Available)
 
