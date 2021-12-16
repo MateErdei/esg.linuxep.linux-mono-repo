@@ -32,7 +32,7 @@ void ThreatHealthReceiverImpl::receivedThreatHealth(
         try
         {
             nlohmann::json j = nlohmann::json::parse(threatHealth);
-            unsigned int threatHealthValue = j["threatHealth"];
+            unsigned int threatHealthValue = j["ThreatHealth"];
 
             Common::TaskQueue::ITaskPtr task(
                 new ThreatHealthTask(pluginName, threatHealthValue, healthStatusSharedObj));

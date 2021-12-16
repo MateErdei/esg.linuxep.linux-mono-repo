@@ -26,7 +26,7 @@ TEST_F(TestThreatHealthReceiverImpl, ThreatHealthReceiverReceivesValidJsonAndCre
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl healthReceiver(fakeQueue);
     auto healthStatusSharedObj = std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>();
-    std::string threatHealthJson = R"({"threatHealth": 123})";
+    std::string threatHealthJson = R"({"ThreatHealth": 123})";
     healthReceiver.receivedThreatHealth("pluginName", threatHealthJson, healthStatusSharedObj);
 
     auto task = fakeQueue->popTask();
@@ -57,6 +57,6 @@ TEST_F(TestThreatHealthReceiverImpl, unsetHealthStatusSharedObjPtrDoesNotCauseTh
     // not being initialised
     std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj;
 
-    std::string threatHealthJson = R"({"threatHealth": 1})";
+    std::string threatHealthJson = R"({"ThreatHealth": 1})";
     ASSERT_NO_THROW(healthReceiver.receivedThreatHealth("pluginName", threatHealthJson, healthStatusSharedObj));
 }

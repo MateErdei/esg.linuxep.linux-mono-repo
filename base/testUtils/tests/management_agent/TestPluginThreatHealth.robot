@@ -18,7 +18,7 @@ Management Agent Can Receive Plugin Threat Health
     Start Management Agent
     Start Plugin
 
-    ${content}    Evaluate    str('{"threatHealth": 99}')
+    ${content}    Evaluate    str('{"ThreatHealth": 99}')
     send_plugin_threat_health   ${content}
 
     Wait Until Keyword Succeeds
@@ -33,7 +33,7 @@ Management Agent Persists Threat Health Of Plugins
     Start Management Agent
     Start Plugin
 
-    ${content}    Evaluate    str('{"threatHealth": 2}')
+    ${content}    Evaluate    str('{"ThreatHealth": 2}')
     send_plugin_threat_health   ${content}
 
     Wait Until Keyword Succeeds
