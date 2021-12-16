@@ -17,22 +17,32 @@ namespace UpdateSchedulerImpl
     std::string UpdateSchedulerUtils::calculateHealth(StateData::StateMachineData stateMachineData)
     {
 
-        auto const& downloadState = stateMachineData.getDownloadState();
-        auto const& installState = stateMachineData.getInstallState();
-
         nlohmann::json healthResponseMessage;
         healthResponseMessage["downloadState"] = 0;
         healthResponseMessage["installState"] = 0;
         healthResponseMessage["overall"] = 0;
+
+        auto const& eventStateLastTime = stateMachineData.getEventStateLastTime();
+        auto const& goodInstallTime = stateMachineData.getLastGoodInstallTime();
+        auto const& installFailedTime = stateMachineData.getInstallFailedSinceTime();
+        auto const& downloadFailedTime = stateMachineData.getDownloadFailedSinceTime();
+
+        if (eventStateLastTime == "0" && goodInstallTime == "0"
+            && installFailedTime == "0" && downloadFailedTime == "0" )
+        {
+            // update has not run yet
+            return healthResponseMessage.dump();
+        }
+        auto const& downloadState = stateMachineData.getDownloadState();
+        auto const& installState = stateMachineData.getInstallState();
+        
         if (downloadState != "0")
         {
-            LOGWARN("setting health to bad due to download state which is " << downloadState);
             healthResponseMessage["downloadState"] = 1;
             healthResponseMessage["overall"] = 1;
         }
         if (installState != "0")
         {
-            LOGWARN("setting health to bad due to installState  which is " << installState);
             healthResponseMessage["installState"] = 1;
             healthResponseMessage["overall"] = 1;
         }

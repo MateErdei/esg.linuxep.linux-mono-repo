@@ -34,6 +34,7 @@ TEST_F(UpdateSchedulerUtils, OverallHealthBadWhenInstallStateIsBad)
     UpdateSchedulerImpl::StateData::StateMachineData expectedStateMachineData;
     expectedStateMachineData.setDownloadState("0");
     expectedStateMachineData.setInstallState("1");
+    expectedStateMachineData.setDownloadFailedSinceTime("10");
 
     nlohmann::json actualHealth = nlohmann::json::parse(UpdateSchedulerImpl::UpdateSchedulerUtils::calculateHealth(expectedStateMachineData));
     nlohmann::json expectedHealth;
@@ -48,6 +49,7 @@ TEST_F(UpdateSchedulerUtils, OverallHealthBadWhenDownloadStateIsBad)
     UpdateSchedulerImpl::StateData::StateMachineData expectedStateMachineData;
     expectedStateMachineData.setDownloadState("1");
     expectedStateMachineData.setInstallState("0");
+    expectedStateMachineData.setDownloadFailedSinceTime("10");
 
     nlohmann::json actualHealth = nlohmann::json::parse(UpdateSchedulerImpl::UpdateSchedulerUtils::calculateHealth(expectedStateMachineData));
     nlohmann::json expectedHealth;
@@ -62,6 +64,7 @@ TEST_F(UpdateSchedulerUtils, allHealthBadWhendownloadStateeIsGarbage)
     UpdateSchedulerImpl::StateData::StateMachineData expectedStateMachineData;
     expectedStateMachineData.setDownloadState("788");
     expectedStateMachineData.setInstallState("0");
+    expectedStateMachineData.setDownloadFailedSinceTime("10");
 
     nlohmann::json actualHealth = nlohmann::json::parse(UpdateSchedulerImpl::UpdateSchedulerUtils::calculateHealth(expectedStateMachineData));
     nlohmann::json expectedHealth;
