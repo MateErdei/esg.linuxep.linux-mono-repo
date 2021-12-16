@@ -474,6 +474,8 @@ AV And Base Teardown
     Register On Fail  dump log  ${TELEMETRY_LOG_PATH}
     Register On Fail  dump log  ${AV_INSTALL_LOG}
 
+    #Just in case something restarted it, stop mcsrouter
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter   OnError=failed to stop plugin
     #mark errors related to scheduled scans being forcefully terminated at the end of a test
     Exclude Failed To Scan Multiple Files Cloud
     Exclude UnixSocket Interrupted System Call Error Cloud Scan
