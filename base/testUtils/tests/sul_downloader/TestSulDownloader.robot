@@ -52,6 +52,10 @@ Setup For Test
     Install Local SSL Server Cert To System
     Set Environment Variable  CORRUPTINSTALL  no
 
+Setup For Test With MTR
+    Uninstall MDR Plugin
+    Setup For Test
+
 Teardown for Test
     General Test Teardown
     Run Keyword If Test Failed  LogUtils.Dump Log  ./tmp/proxy_server.log
@@ -1760,6 +1764,7 @@ Test Suldownloader Does Not Install MDR When Features And Subscription Do Not Ma
 
 Test Suldownloader purges files
     [Tags]  SULDOWNLOADER  MDR_PLUGIN
+    [Setup]  Setup For Test With MTR
     Setup Warehouse For MDR 060
     Setup Environment After Warehouse Generation  suldownloader_log_level=INFO
     Check MDR Plugin Uninstalled
