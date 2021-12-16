@@ -443,9 +443,9 @@ Clear Logs
     ...  Check AV Plugin Not Running
 
     Log  Backup logs before removing them
-    Log  ${AV_LOG_PATH}
-    Log  ${THREAT_DETECTOR_LOG_PATH}
-    Log  ${SUSI_DEBUG_LOG_PATH}
+    Dump Log  ${AV_LOG_PATH}
+    Dump Log  ${THREAT_DETECTOR_LOG_PATH}
+    Dump Log  ${SUSI_DEBUG_LOG_PATH}
 
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}

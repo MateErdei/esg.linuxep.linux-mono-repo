@@ -503,12 +503,12 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     Run Shell Process  systemctl stop sophos-spl  OnError=failed to stop plugin
 
     Log  Backup logs before removing them
-    Log  ${AV_LOG_PATH}
-    Log  ${THREAT_DETECTOR_LOG_PATH}
-    Log  ${SUSI_DEBUG_LOG_PATH}
-    Log  ${SCANNOW_LOG_PATH}
-    Log  ${CLOUDSCAN_LOG_PATH}
-    Log  ${WATCHDOG_LOG}
+    Dump Log  ${AV_LOG_PATH}
+    Dump Log  ${THREAT_DETECTOR_LOG_PATH}
+    Dump Log  ${SUSI_DEBUG_LOG_PATH}
+    Dump Log  ${SCANNOW_LOG_PATH}
+    Dump Log  ${CLOUDSCAN_LOG_PATH}
+    Dump Log  ${WATCHDOG_LOG}
 
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}

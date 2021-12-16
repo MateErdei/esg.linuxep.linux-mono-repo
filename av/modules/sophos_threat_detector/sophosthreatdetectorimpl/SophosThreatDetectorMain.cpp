@@ -282,6 +282,8 @@ static void create_shutdown_notice_file(const fs::path& pluginInstall)
 
 static int inner_main()
 {
+    common::SigTermMonitor sigTermMonitor;
+
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
     fs::path chrootPath = pluginInstall / "chroot";
@@ -378,7 +380,6 @@ static int inner_main()
         scanningSocketPath, 0666, scannerFactory);
     server.start();
 
-    common::SigTermMonitor sigTermMonitor;
     LOGINFO("Starting USR1 monitor");
     SigUSR1Monitor usr1Monitor(reloader); // Create monitor before loading SUSI
 
