@@ -7,7 +7,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
 #include <ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthReceiverImpl.h>
-
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 

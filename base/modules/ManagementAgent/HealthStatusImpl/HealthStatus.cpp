@@ -40,6 +40,12 @@ namespace ManagementAgent
             const std::string& pluginName,
             const PluginCommunication::PluginHealthStatus& status)
         {
+            if (pluginName.empty())
+            {
+                LOGDEBUG("Not adding health because plugin name was empty");
+                return;
+            }
+
             switch (status.healthType)
             {
                 case PluginCommunication::HealthType::SERVICE:

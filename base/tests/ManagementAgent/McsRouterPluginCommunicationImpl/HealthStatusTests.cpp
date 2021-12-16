@@ -429,3 +429,17 @@ TEST_F(HealthStatusTests, HealthStatusConstructorDestructorReadThrowsFileTest) /
         ASSERT_NO_THROW(ManagementAgent::HealthStatusImpl::HealthStatus healthStatus);
     }
 }
+
+TEST_F(HealthStatusTests, HealthStatusDoesNotAddPluginHealthWithEmptyName) // NOLINT
+{
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
+    pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
+    pluginStatusOne.healthValue = 0;
+    pluginStatusOne.displayName = "Plugin Display Name";
+
+    m_status.addPluginHealth("", pluginStatusOne);
+
+    std::string xmlString = m_status.generateHealthStatusXml().second;
+    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="threat" value="1" /></health>)";
+    ASSERT_EQ(xmlString, expectedXml);
+}
