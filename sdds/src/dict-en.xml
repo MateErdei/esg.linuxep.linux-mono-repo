@@ -1732,6 +1732,15 @@
     </Features>
     <Features>
       <Label>
+        <Token>HEARTBEAT</Token>
+        <Language lang="en">
+          <ShortDesc>Heartbeat</ShortDesc>
+          <LongDesc>Heartbeat</LongDesc>
+        </Language>
+      </Label>
+    </Features>
+    <Features>
+      <Label>
         <Token>HIPS</Token>
         <Language lang="en">
           <ShortDesc>HIPS</ShortDesc>
