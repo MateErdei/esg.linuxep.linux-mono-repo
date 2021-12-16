@@ -479,6 +479,7 @@ AV And Base Teardown
     Exclude UnixSocket Interrupted System Call Error Cloud Scan
     Exclude SPPLAV Processes Are Killed With SIGKILL
     Exclude Watchdog Log Unable To Open File Error
+    Exclude Expected Sweep Errors
     #mark generic errors caused by the lack of a central connection/warehouse/subscription
     Exclude Invalid Settings No Primary Product
     Exclude Configuration Data Invalid

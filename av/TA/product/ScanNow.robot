@@ -123,7 +123,7 @@ ScanNow Suite TearDown
 
 ScanNow Test Setup
     Require Sophos Threat Detector Running
-    register cleanup  Delete Eicars From Tmp
+    Register Cleanup      Delete Eicars From Tmp
     Check AV Plugin Log exists
     Mark AV Log
     Mark Sophos Threat Detector Log

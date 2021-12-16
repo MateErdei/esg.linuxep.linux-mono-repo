@@ -215,6 +215,8 @@ AV Configures No Scheduled Scan Correctly
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 0
 
 AV plugin runs scheduled scan while CLS is running
+    #Terminate Process might cause this error
+    Register Cleanup    Exclude UnixSocket Connection Reset By Peer
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
@@ -574,6 +576,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
     [Timeout]  15min
+    register cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude Threat Detector Launcher Died With 70
     Register Cleanup    Exclude Threat Detector Launcher Died With 11
     Register Cleanup    Exclude Scan Now Terminated
@@ -866,6 +869,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
+    Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
     Register Cleanup    Exclude Core Not In Policy Features
     Register Cleanup  Empty Directory  /opt/sophos-spl/base/mcs/event
