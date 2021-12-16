@@ -76,6 +76,14 @@ Verify Management Agent Handles SHS Health Reset Action When Received
     Setup Plugin Registry
     Start Management Agent
     Start Plugin
+
+    ${content}    Evaluate    str('{"ThreatHealth": 2}')
+    Send Plugin Threat Health   ${content}
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  SHS Status File Contains  <item name="threat" value="2" />
+
     Check Cloud Server Log For Command Poll
 
     Trigger Health Reset
@@ -88,7 +96,12 @@ Verify Management Agent Handles SHS Health Reset Action When Received
     ...  Check Log Contains In Order
          ...  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
          ...  PluginManager: Queue action SHS
-         ...  Processing Health Reset Action.       # TODO: LINUXDAR-3796 Check health reset action is carried out
+         ...  Processing Health Reset Action.
+
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  SHS Status File Contains  <item name="threat" value="1" />
 
     Check Temp Folder Doesnt Contain Atomic Files
 

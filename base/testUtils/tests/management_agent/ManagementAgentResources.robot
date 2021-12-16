@@ -140,3 +140,9 @@ Require Watchdog Running
     ...  5 secs
     ...  1 secs
     ...  Check Watchdog Running
+
+SHS Status File Contains
+    [Arguments]  ${content_to_contain}
+    ${shsStatus} =  Get File   ${MCS_DIR}/status/SHS_status.xml
+    Log  ${shsStatus}
+    Should Contain  ${shsStatus}  ${content_to_contain}

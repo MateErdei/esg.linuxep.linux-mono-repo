@@ -151,8 +151,7 @@ namespace ManagementAgent
                 if (isThreatResetTask(actionXml))
                 {
                     LOGDEBUG("Processing Health Reset Action.");
-                    // TODO: LINUXDAR-3796 uncomment below code to enable threat detection resets
-                    // m_healthStatus->resetThreatDetectionHealth();
+                    m_healthStatus->resetThreatDetectionHealth();
                 }
             }
 

@@ -19,7 +19,7 @@ Management Agent Can Receive Plugin Threat Health And It Updates
     Start Plugin
 
     ${content}    Evaluate    str('{"ThreatHealth": 99}')
-    send_plugin_threat_health   ${content}
+    Send Plugin Threat Health   ${content}
 
     Wait Until Keyword Succeeds
     ...  60 secs
@@ -50,14 +50,13 @@ Management Agent Persists Threat Health Of Plugins
     Start Plugin
 
     ${content}    Evaluate    str('{"ThreatHealth": 2}')
-    send_plugin_threat_health   ${content}
+    Send Plugin Threat Health   ${content}
 
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
     ...  Check Management Agent Log Contains  Running threat health task
 
-#    Stop Plugin
     Stop Management Agent
     ${threatHealthJsonString} =  Get File  ${VAR_DIR}/sophosspl/ThreatHealth.json
     Log  ${threatHealthJsonString}
@@ -76,10 +75,3 @@ Management Agent Persists Threat Health Of Plugins
     Log  ${threatHealthJsonString}
     Should Be Equal As Strings  ${threatHealthJsonString}  {"FakePlugin":{"displayName":"","healthType":4,"healthValue":2}}
 
-
-*** Keywords ***
-SHS Status File Contains
-    [Arguments]  ${content_to_contain}
-    ${shsStatus} =  Get File   ${MCS_DIR}/status/SHS_status.xml
-    Log  ${shsStatus}
-    Should Contain  ${shsStatus}  ${content_to_contain}
