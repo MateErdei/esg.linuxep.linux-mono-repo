@@ -39,6 +39,15 @@
     </Identity>
     <Identity>
       <Label>
+        <Token>ServerProtectionLinux-Plugin-Heartbeat</Token>
+        <Language lang="en">
+          <LongDesc>Sophos Linux Heartbeat Plugin</LongDesc>
+          <ShortDesc>Sophos Linux Heartbeat Plugin</ShortDesc>
+        </Language>
+      </Label>
+    </Identity>
+    <Identity>
+      <Label>
         <Token>ServerProtectionLinux-Plugin-EventJournaler</Token>
         <Language lang="en">
           <LongDesc>ServerProtectionLinux Plugin Event Journal</LongDesc>
