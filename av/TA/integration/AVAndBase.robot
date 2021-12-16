@@ -143,6 +143,26 @@ AV plugin runs scheduled scan after restart
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
+AV plugin doesnt report a error message if no policy is received
+    register cleanup  Set Log Level  DEBUG
+    Mark AV Log
+    Stop AV Plugin
+    Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+
+    Set Log Level  ERROR
+    Start AV Plugin
+    AV Plugin Log Does Not Contain With Offset  Failed to get SAV policy at startup (No Policy Available)
+    AV Plugin Log Does Not Contain With Offset  Failed to get ALC policy at startup (No Policy Available)
+#Note this next test should be run in conjunction with the above test
+AV plugin does report a info message if no policy is received
+    Mark AV Log
+    Stop AV Plugin
+    Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+
+    Start AV Plugin
+    AV Plugin Log Contains With Offset  Failed to get SAV policy at startup (No Policy Available)
+    AV Plugin Log Contains With Offset  Failed to get ALC policy at startup (No Policy Available)
+
 AV plugin fails scan now if no policy
     Register Cleanup    Exclude Scan As Invalid
     Stop AV Plugin
