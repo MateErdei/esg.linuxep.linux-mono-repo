@@ -188,6 +188,10 @@ unsigned long OsqueryDataManager::getOldestAllowedTimeForCurrentEventedData()
                     return MAX_EVENTED_DATA_RETENTION_TIME;
                 }
             }
+            else
+            {
+                return MAX_EVENTED_DATA_RETENTION_TIME;
+            }
         }
     }
     throw std::runtime_error("Failed to obtain lowest record time to keep time from osquery");
@@ -326,7 +330,7 @@ void OsqueryDataManager::asyncCheckAndReconfigureDataRetention(std::shared_ptr<O
                     {
                         osqueryDataManager.reconfigureDataRetentionParameters(currentepochTime, osqueryDataManager.MAX_EVENTED_DATA_RETENTION_TIME);
                         osqueryDataRetentionCheckState->numberOfRetries--;
-                        std::this_thread::sleep_for(std::chrono::seconds(2));
+                        std::this_thread::sleep_for(std::chrono::seconds(10));
                     }
                 }
                 osqueryDataRetentionCheckState->lastOSQueryDataCheck = timeNow;
