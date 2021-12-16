@@ -78,7 +78,7 @@ EDR Plugin Tags All Queries Correctly
     Restart EDR
 
     Wait Until Keyword Succeeds
-    ...  100 secs
+    ...  200 secs
     ...  5 secs
     ...  Check All Query Results Contain Correct Tag  ${SOPHOS_INSTALL}/base/mcs/datafeed/  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf    ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
