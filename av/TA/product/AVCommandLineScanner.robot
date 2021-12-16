@@ -186,25 +186,25 @@ CLS Can Scan Shallow Archive But not Deep Archive
     Should Contain  ${output}  as it is a Zip Bomb
 
 
-#CLS Summary is Correct
-#    Create Directory  ${NORMAL_DIRECTORY}/EXTRA_FOLDER
-#    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
-#    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_2    ${EICAR_STRING}
-#    Run Process     tar  -cf  ${NORMAL_DIRECTORY}/EXTRA_FOLDER/multiple_eicar.tar  ${NORMAL_DIRECTORY}/naughty_eicar  ${NORMAL_DIRECTORY}/naughty_eicar_2
-#    Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/clean_file    ${CLEAN_STRING}
-#
-#    FOR  ${i}  IN RANGE  1500
-#           Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/eicar_${i}    ${EICAR_STRING}
-#    END
-#
-#    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/EXTRA_FOLDER /this/file/does/not/exist -a
-#
-#    Log  ${output}
-#    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-#    Should Contain   ${output}  1502 files scanned in  minute  second
-#    Should Contain   ${output}  1501 files out of 1502 were infected.
-#    Should Contain   ${output}  1502 EICAR-AV-Test infections discovered.
-#    Should Contain   ${output}  1 scan error encountered
+CLS Summary is Correct
+    Create Directory  ${NORMAL_DIRECTORY}/EXTRA_FOLDER
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_2    ${EICAR_STRING}
+    Run Process     tar  -cf  ${NORMAL_DIRECTORY}/EXTRA_FOLDER/multiple_eicar.tar  ${NORMAL_DIRECTORY}/naughty_eicar  ${NORMAL_DIRECTORY}/naughty_eicar_2
+    Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/clean_file    ${CLEAN_STRING}
+
+    FOR  ${i}  IN RANGE  1500
+           Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/eicar_${i}    ${EICAR_STRING}
+    END
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/EXTRA_FOLDER /this/file/does/not/exist -a
+
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain   ${output}  1502 files scanned in  minute  second
+    Should Contain   ${output}  1501 files out of 1502 were infected.
+    Should Contain   ${output}  1502 EICAR-AV-Test infections discovered.
+    Should Contain   ${output}  1 scan error encountered
 
 
 CLS Summary in Less Than a Second
