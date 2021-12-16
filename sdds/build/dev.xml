@@ -33,7 +33,7 @@
       <build-asset project="linuxep" repo="sspl-plugin-heartbeat" >
         <development-version branch="develop"/>
 	<include artifact-path="sspl-plugin-heartbeat/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-heartbeat" mode="release-package-edr-999,release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
-	<include artifact-path="sspl-plugin-heartbeat-999/SDDS-COMPONENT-999" dest-dir="redist/sspl-plugin-heartbeat-999" mode="release-package-edr-mdr-999"/>
+	<include artifact-path="sspl-plugin-heartbeat-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-heartbeat-999" mode="release-package-edr-mdr-999"/>
       </build-asset>
 
       <build-asset project="winep" repo="liveterminal" >
