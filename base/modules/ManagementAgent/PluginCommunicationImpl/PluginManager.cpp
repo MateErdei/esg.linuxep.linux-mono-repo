@@ -344,13 +344,15 @@ namespace ManagementAgent
             }
             catch (const Common::PluginCommunication::IPluginCommunicationException&)
             {
-                pluginHealthStatus.healthValue = 1;
+                LOGWARN("could not get health for plugin " << plugin->getDisplayPluginName());
+                pluginHealthStatus.healthValue = 2;
                 return pluginHealthStatus;
             }
 
             try
             {
                 nlohmann::json healthResult = nlohmann::json::parse(health);
+                LOGWARN("setting plugin health for: " << pluginName << ", as" << healthResult["Health"]);
                 pluginHealthStatus.healthValue = healthResult["Health"];
             }
             catch(const std::exception& ex)

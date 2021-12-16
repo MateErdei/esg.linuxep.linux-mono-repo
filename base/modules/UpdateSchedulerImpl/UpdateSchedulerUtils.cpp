@@ -26,11 +26,13 @@ namespace UpdateSchedulerImpl
         healthResponseMessage["overall"] = 0;
         if (downloadState != "0")
         {
+            LOGWARN("setting health to bad due to download state which is " << downloadState);
             healthResponseMessage["downloadState"] = 1;
             healthResponseMessage["overall"] = 1;
         }
         if (installState != "0")
         {
+            LOGWARN("setting health to bad due to installState  which is " << installState);
             healthResponseMessage["installState"] = 1;
             healthResponseMessage["overall"] = 1;
         }
