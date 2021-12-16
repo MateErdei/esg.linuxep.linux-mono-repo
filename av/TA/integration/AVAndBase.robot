@@ -44,9 +44,9 @@ AV plugin runs scan now
     Configure and check scan now with offset
 
 AV plugin runs scan now while CLS is running
-    Register Cleanup    Mark UnixSocket Failed To Read Length
-    Register Cleanup    Mark UnixSocket Connection Reset By Peer
-    Register Cleanup    Mark UnixSocket Environment Interruption Error
+    Register Cleanup    Exclude UnixSocket Failed To Read Length
+    Register Cleanup    Exclude UnixSocket Connection Reset By Peer
+    Register Cleanup    Exclude UnixSocket Environment Interruption Error
     Configure scan now
     Mark AV Log
 
@@ -61,7 +61,7 @@ AV plugin runs scan now while CLS is running
     ${result} =   Terminate Process  ${cls_handle}
 
 AV plugin runs CLS while scan now is running
-    Register Cleanup    Mark UnixSocket Environment Interruption Error
+    Register Cleanup    Exclude UnixSocket Environment Interruption Error
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
 
@@ -123,7 +123,7 @@ AV plugin runs scheduled scan
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
 AV plugin runs multiple scheduled scans
-    Register Cleanup    Mark File Name Too Long For Cloud Scan
+    Register Cleanup    Exclude File Name Too Long For Cloud Scan
     Mark AV Log
     Register Cleanup  Restart AV Plugin And Clear The Logs For Integration Tests
     Send Sav Policy With Multiple Imminent Scheduled Scans To Base
@@ -143,7 +143,7 @@ AV plugin runs scheduled scan after restart
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
 AV plugin fails scan now if no policy
-    Register Cleanup    Mark Scan As Invalid
+    Register Cleanup    Exclude Scan As Invalid
     Stop AV Plugin
     Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
     Mark AV Log
@@ -158,7 +158,7 @@ AV plugin fails scan now if no policy
     AV Plugin Log Contains With Offset  Refusing to run invalid scan: INVALID
 
 AV plugin SAV Status contains revision ID of policy
-    Register Cleanup    Mark Invalid Day From Policy
+    Register Cleanup    Exclude Invalid Day From Policy
     ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
     Send Sav Policy To Base  SAV_Policy.xml
     Wait Until SAV Status XML Contains  Res="Same"  timeout=60
@@ -189,7 +189,7 @@ AV Gets SAV Policy When Plugin Restarts
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans: 0
 
 AV Gets ALC Policy When Plugin Restarts
-    Register Cleanup    Mark UpdateScheduler Fails
+    Register Cleanup    Exclude UpdateScheduler Fails
     # Doesn't mark AV log since it removes it
     Send Alc Policy
     File Should Exist  /opt/sophos-spl/base/mcs/policy/ALC-1_policy.xml
@@ -205,8 +205,8 @@ AV Gets ALC Policy When Plugin Restarts
     Wait Until AV Plugin Log Contains  Received policy from management agent for AppId: ALC
 
 AV Configures No Scheduled Scan Correctly
-    Register Cleanup    Mark UpdateScheduler Fails
-    Register Cleanup    Mark Failed To connect To Warehouse Error
+    Register Cleanup    Exclude UpdateScheduler Fails
+    Register Cleanup    Exclude Failed To connect To Warehouse Error
     Mark AV Log
     Send Sav Policy With No Scheduled Scans
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
@@ -214,7 +214,7 @@ AV Configures No Scheduled Scan Correctly
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 0
 
 AV plugin runs scheduled scan while CLS is running
-    Register Cleanup    Mark Failed To connect To Warehouse Error
+    Register Cleanup    Exclude Failed To connect To Warehouse Error
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
@@ -229,8 +229,8 @@ AV plugin runs scheduled scan while CLS is running
 
 AV plugin runs CLS while scheduled scan is running
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
-    Register Cleanup    Mark UnixSocket Environment Interruption Error
-    Register Cleanup    Mark Failed To connect To Warehouse Error
+    Register Cleanup    Exclude UnixSocket Environment Interruption Error
+    Register Cleanup    Exclude Failed To connect To Warehouse Error
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
 
@@ -274,8 +274,8 @@ AV Configures Multiple Scheduled Scans Correctly
     Wait Until AV Plugin Log Contains With Offset  Configured number of User Defined Extension Exclusions: 0
 
 AV Handles Scheduled Scan With Badly Configured Day
-    Register Cleanup    Mark Invalid Day From Policy
-    Register Cleanup    Mark Scan As Invalid
+    Register Cleanup    Exclude Invalid Day From Policy
+    Register Cleanup    Exclude Scan As Invalid
     Mark AV Log
     Send Sav Policy With Invalid Scan Day
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
@@ -286,7 +286,7 @@ AV Handles Scheduled Scan With Badly Configured Day
     Wait Until AV Plugin Log Contains With Offset  Times: 11:00:00
 
 AV Handles Scheduled Scan With No Configured Day
-    Register Cleanup    Mark Invalid Day From Policy
+    Register Cleanup    Exclude Invalid Day From Policy
     Mark AV Log
     Mark Watchdog Log
     Send Sav Policy With No Scan Day
@@ -403,7 +403,7 @@ Avscanner runs as non-root
          ...  check threat event received by base  1  naugthyEicarThreatReportAsNobody
 
 AV Plugin Reports encoded eicars To Base
-   Register Cleanup  Mark Failed To connect To Warehouse Error
+   Register Cleanup  Exclude Failed To connect To Warehouse Error
    Create Encoded Eicars
    register cleanup  Remove Directory  /tmp_test/encoded_eicars  true
    register cleanup  Empty Directory  ${MCS_PATH}/event/
@@ -544,12 +544,12 @@ AV plugin increments Scan Now Counter after Save and Restore
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now
     [Timeout]  15min
-    Register Cleanup    Mark Threat Detector Launcher Died With 70
-    Register Cleanup    Mark Threat Detector Launcher Died With 11
-    Register Cleanup    Mark Scan Now Terminated
-    Register Cleanup    Mark Failed To Scan Files
-    Register Cleanup    Mark Failed To Send Scan Request To STD
-    Register Cleanup    Mark Failed To Read Message From Scanning Server
+    Register Cleanup    Exclude Threat Detector Launcher Died With 70
+    Register Cleanup    Exclude Threat Detector Launcher Died With 11
+    Register Cleanup    Exclude Scan Now Terminated
+    Register Cleanup    Exclude Failed To Scan Files
+    Register Cleanup    Exclude Failed To Send Scan Request To STD
+    Register Cleanup    Exclude Failed To Read Message From Scanning Server
     Register On Fail  dump log  ${SCANNOW_LOG_PATH}
     Configure scan now
     Run Process  bash  ${BASH_SCRIPTS_PATH}/fileMaker.sh  1000  stderr=STDOUT
@@ -569,13 +569,13 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
     [Timeout]  15min
-    Register Cleanup    Mark Threat Detector Launcher Died With 70
-    Register Cleanup    Mark Threat Detector Launcher Died With 11
-    Register Cleanup    Mark Scan Now Terminated
-    Register Cleanup    Mark Failed To Scan Files
-    Register Cleanup    Mark Failed To Send Scan Request To STD
-    Register Cleanup    Mark Failed To Read Message From Scanning Server
-    Register Cleanup    Mark Scan Now Found Threats But Aborted With 25
+    Register Cleanup    Exclude Threat Detector Launcher Died With 70
+    Register Cleanup    Exclude Threat Detector Launcher Died With 11
+    Register Cleanup    Exclude Scan Now Terminated
+    Register Cleanup    Exclude Failed To Scan Files
+    Register Cleanup    Exclude Failed To Send Scan Request To STD
+    Register Cleanup    Exclude Failed To Read Message From Scanning Server
+    Register Cleanup    Exclude Scan Now Found Threats But Aborted With 25
     Configure scan now
     Start Sophos Threat Detector if not running
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   /tmp_test/many_eicars  600  stderr=STDOUT
@@ -633,10 +633,10 @@ AV Runs Scan With SXL Lookup Disabled
 
 AV Plugin restarts threat detector on customer id change
     #    Get ALC Policy doesn't have Core and Base
-    Register Cleanup    Mark Core Not In Policy Features
-    Register Cleanup    Mark SPL Base Not In Subscription Of The Policy
-    Register Cleanup    Mark Configuration Data Invalid
-    Register Cleanup    Mark Invalid Settings No Primary Product
+    Register Cleanup    Exclude Core Not In Policy Features
+    Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
+    Register Cleanup    Exclude Configuration Data Invalid
+    Register Cleanup    Exclude Invalid Settings No Primary Product
     ${pid} =   Record Sophos Threat Detector PID
 
     ${id1} =   Generate Random String
@@ -765,10 +765,10 @@ AV Plugin restarts threat detector on susi startup settings change
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled   timeout=180
 
 AV Plugin tries to restart threat detector on susi startup settings change
-    Register Cleanup    Mark Threat Detector Launcher Died
-    Register Cleanup    Mark Failed To Write To UnixSocket Environment Interuption
-    Register Cleanup    Mark Invalid Settings No Primary Product
-    Register Cleanup    Mark Configuration Data Invalid
+    Register Cleanup    Exclude Threat Detector Launcher Died
+    Register Cleanup    Exclude Failed To Write To UnixSocket Environment Interuption
+    Register Cleanup    Exclude Invalid Settings No Primary Product
+    Register Cleanup    Exclude Configuration Data Invalid
 
     ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
     Log   ${policyContent}
@@ -824,8 +824,8 @@ AV Plugin tries to restart threat detector on susi startup settings change
 
 Sophos Threat Detector sets default if susi startup settings permissions incorrect
     [Tags]  FAULT INJECTION
-    Register Cleanup    Mark Configuration Data Invalid
-    Register Cleanup    Mark Invalid Settings No Primary Product
+    Register Cleanup    Exclude Configuration Data Invalid
+    Register Cleanup    Exclude Invalid Settings No Primary Product
     Restart sophos_threat_detector
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
@@ -861,8 +861,8 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
-    Register Cleanup    Mark SPL Base Not In Subscription Of The Policy
-    Register Cleanup    Mark Core Not In Policy Features
+    Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
+    Register Cleanup    Exclude Core Not In Policy Features
     Register Cleanup  Empty Directory  /opt/sophos-spl/base/mcs/event
     Empty Directory  /opt/sophos-spl/base/mcs/event/
 
@@ -914,9 +914,9 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
 
 Scan Now Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
-    Register Cleanup    Mark SPL Base Not In Subscription Of The Policy
-    Register Cleanup    Mark Core Not In Policy Features
-    Register Cleanup    Mark Permission Denied Setting Default Values For Susi Startup Settings
+    Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
+    Register Cleanup    Exclude Core Not In Policy Features
+    Register Cleanup    Exclude Permission Denied Setting Default Values For Susi Startup Settings
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
     Remove File  ${SCANNOW_LOG_PATH}
 
@@ -961,7 +961,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
 Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
     Register Cleanup    Remove File  ${CLOUDSCAN_LOG_PATH}
-    Register Cleanup    Mark Failed To Write To UnixSocket Environment Interuption
+    Register Cleanup    Exclude Failed To Write To UnixSocket Environment Interuption
 
     Remove File  ${CLOUDSCAN_LOG_PATH}
 
@@ -1003,8 +1003,8 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
 
 Sophos Threat Detector always writes susi startup settings following a restart
-    Register Cleanup    Mark Core Not In Policy Features
-    Register Cleanup    Mark SPL Base Not In Subscription Of The Policy
+    Register Cleanup    Exclude Core Not In Policy Features
+    Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
     Restart AV Plugin And Clear The Logs For Integration Tests
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket

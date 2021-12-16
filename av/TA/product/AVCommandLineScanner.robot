@@ -56,10 +56,10 @@ AVCommandLineScanner Test Setup
     run keyword if  ${result}   Clear logs
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
-    Register Cleanup      Mark UnixSocket Environment Interruption Error
-    Register Cleanup      Mark UnixSocket Connection Reset By Peer
-    Register Cleanup      Mark UnixSocket Failed To Read Length
-    Register Cleanup      Mark CustomerID Failed To Read Error
+    Register Cleanup      Exclude UnixSocket Environment Interruption Error
+    Register Cleanup      Exclude UnixSocket Connection Reset By Peer
+    Register Cleanup      Exclude UnixSocket Failed To Read Length
+    Register Cleanup      Exclude CustomerID Failed To Read Error
 
 AVCommandLineScanner Test TearDown
     Run Teardown Functions
@@ -163,7 +163,7 @@ CLS Can Scan Infected File
 
 
 CLS Can Scan Shallow Archive But not Deep Archive
-    Register Cleanup      Mark As Zip Bomb
+    Register Cleanup      Exclude As Zip Bomb
     Create File     ${NORMAL_DIRECTORY}/archives/eicar    ${EICAR_STRING}
     create archive test files  ${NORMAL_DIRECTORY}/archives
 
@@ -218,7 +218,7 @@ CLS Summary in Less Than a Second
 
 
 CLS Duration Summary is Displayed Correctly
-    Register Cleanup     Mark UnixSocket Environment Interruption Error
+    Register Cleanup     Exclude UnixSocket Environment Interruption Error
     Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout
 
     Sleep  65s
@@ -358,7 +358,7 @@ CLS Can Scan Multiple Archive Files
 
 
 CLS Reports Reason for Scan Error on Zip Bomb
-    Register Cleanup     Mark As Zip Bomb
+    Register Cleanup     Exclude As Zip Bomb
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/zipbomb.zip --scan-archives
@@ -371,7 +371,7 @@ CLS Reports Reason for Scan Error on Zip Bomb
 
 
 CLS Aborts Scanning of Password Protected File
-    Register Cleanup     Mark As Password Protected
+    Register Cleanup     Exclude As Password Protected
     Copy File  ${RESOURCES_PATH}/file_samples/password_protected.7z  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
@@ -383,7 +383,7 @@ CLS Aborts Scanning of Password Protected File
 
 
 CLS Aborts Scanning of Corrupted File
-    Register Cleanup     Mark As Corrupted
+    Register Cleanup     Exclude As Corrupted
     Copy File  ${RESOURCES_PATH}/file_samples/corrupt_tar.tar  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/corrupt_tar.tar --scan-archives
@@ -395,7 +395,7 @@ CLS Aborts Scanning of Corrupted File
 
 
 CLS Can Report Scan Error And Detection For Archive
-    Register Cleanup     Mark As Password Protected
+    Register Cleanup     Exclude As Password Protected
     Copy File  ${RESOURCES_PATH}/file_samples/scanErrorAndThreat.tar  ${NORMAL_DIRECTORY}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar --scan-archives
@@ -1355,7 +1355,7 @@ CLS scan two mounts same inode numbers
 
 
 CLS Can Scan Infected And Error Files
-    Register Cleanup  Mark As Zip Bomb
+    Register Cleanup  Exclude As Zip Bomb
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
     Create File  ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
 
@@ -1367,7 +1367,7 @@ CLS Can Scan Infected And Error Files
 
 
 CLS Can Scan Clean And Error Files
-    Register Cleanup  Mark As Zip Bomb
+    Register Cleanup  Exclude As Zip Bomb
     Copy File  ${RESOURCES_PATH}/file_samples/zipbomb.zip  ${NORMAL_DIRECTORY}
     Create File  ${NORMAL_DIRECTORY}/cleanfile.txt    ${CLEAN_STRING}
 
@@ -1394,8 +1394,8 @@ CLS Skips scanning of special file
     Should Contain   ${output}   Not scanning special file/device: "/dev/null"
 
 CLS Return Codes Are Correct
-    Register Cleanup  Mark As Password Protected
-    Register Cleanup  Mark As Corrupted
+    Register Cleanup  Exclude As Password Protected
+    Register Cleanup  Exclude As Corrupted
 
     Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}

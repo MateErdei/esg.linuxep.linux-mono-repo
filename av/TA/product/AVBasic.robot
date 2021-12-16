@@ -144,7 +144,7 @@ Scan Now Logs Should Be As Expected
 
 AV Plugin Will Fail Scan Now If No Policy
     Register Cleanup  Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
-    Register Cleanup  Mark Scan As Invalid
+    Register Cleanup  Exclude Scan As Invalid
 
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     Send Plugin Action  av  sav  corr123  ${actionContent}
@@ -463,8 +463,8 @@ Product Test Setup
     register on fail  Dump Log  ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     register on fail  Dump Log  ${THREAT_DETECTOR_LOG_PATH}
     Register Cleanup  Check All Product Logs Do Not Contain Error
-    Register Cleanup  Mark CustomerID Failed To Read Error
-    Register Cleanup  Mark Parse Xml Error
+    Register Cleanup  Exclude CustomerID Failed To Read Error
+    Register Cleanup  Exclude Parse Xml Error
 
 Product Test Teardown
     Delete Eicars From Tmp

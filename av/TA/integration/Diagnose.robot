@@ -27,8 +27,8 @@ Diagnose Test Setup
     AV And Base Setup
 
 Diagnose Test TearDown
-    Mark CustomerID Failed To Read Error
-    Mark MCS Router is dead
+    Exclude CustomerID Failed To Read Error
+    Exclude MCS Router is dead
     Check All Product Logs Do Not Contain Error
     Run Teardown Functions
     AV And Base Teardown

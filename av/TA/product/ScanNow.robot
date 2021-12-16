@@ -64,10 +64,10 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Mark AV Log
     Mark Sophos Threat Detector Log
     Start AV
-    register cleanup  Mark Scan Now Terminated
-    register cleanup  Mark Unixsocket Failed To Send Scan Request To STD
-    register cleanup  Mark Failed To Scan Files
-    register cleanup  Mark UnixSocket Connection Reset By Peer
+    register cleanup  Exclude Scan Now Terminated
+    register cleanup  Exclude Unixsocket Failed To Send Scan Request To STD
+    register cleanup  Exclude Failed To Scan Files
+    register cleanup  Exclude UnixSocket Connection Reset By Peer
 
     register cleanup  Start AV
     register cleanup  Stop AV
@@ -135,7 +135,7 @@ ScanNow Test Teardown
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
 
-    Mark CustomerID Failed To Read Error
+    Exclude CustomerID Failed To Read Error
 
     run teardown functions
     Run Keyword If Test Failed  Clear logs

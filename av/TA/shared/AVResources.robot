@@ -476,19 +476,19 @@ AV And Base Teardown
     Register On Fail  Restart AV Plugin And Clear The Logs For Integration Tests
 
     #mark generic errors caused by the lack of a central connection/warehouse/subscription
-    Mark Invalid Settings No Primary Product
-    Mark Configuration Data Invalid
-    Mark CustomerID Failed To Read Error
-    Mark MCS Router is dead
-    Mark Failed To connect To Warehouse Error
-    Mark Invalid Day From Policy
-    Mark Core Not In Policy Features
-    Mark SPL Base Not In Subscription Of The Policy
+    Exclude Invalid Settings No Primary Product
+    Exclude Configuration Data Invalid
+    Exclude CustomerID Failed To Read Error
+    Exclude MCS Router is dead
+    Exclude Failed To connect To Warehouse Error
+    Exclude Invalid Day From Policy
+    Exclude Core Not In Policy Features
+    Exclude SPL Base Not In Subscription Of The Policy
     #mark errors related to scheduled scans being forcefully terminated at the end of a test
-    Mark Failed To Scan Multiple Files Cloud
-    Mark UnixSocket Interrupted System Call Error Cloud Scan
-    Mark SPPLAV Processes Are Killed With SIGKILL
-    Mark Watchdog Log Unable To Open File Error
+    Exclude Failed To Scan Multiple Files Cloud
+    Exclude UnixSocket Interrupted System Call Error Cloud Scan
+    Exclude SPPLAV Processes Are Killed With SIGKILL
+    Exclude Watchdog Log Unable To Open File Error
 
     Run Teardown Functions
 

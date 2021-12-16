@@ -36,7 +36,7 @@ Threat Detector Test Teardown
     List AV Plugin Path
     run teardown functions
 
-    Mark CustomerID Failed To Read Error
+    Exclude CustomerID Failed To Read Error
 
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
@@ -150,7 +150,7 @@ Threat detector triggers reload on SIGUSR1
 
 Threat detector exits if it cannot acquire the susi update lock
     Dump and Reset Logs
-#    Register Cleanup    Mark Failed To Acquire Susi Lock
+#    Register Cleanup    Exclude Failed To Acquire Susi Lock
     Start AV
     Wait until threat detector running
     Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120

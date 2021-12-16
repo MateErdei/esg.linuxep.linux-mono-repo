@@ -95,7 +95,7 @@ VQA Test Setup
 
 VQA Test TearDown
     Run Teardown Functions
-    Mark MCS Router is dead
-    Mark CustomerID Failed To Read Error
+    Exclude MCS Router is dead
+    Exclude CustomerID Failed To Read Error
     Check All Product Logs Do Not Contain Error
     Run Keyword If Test Failed   VQA Suite Setup

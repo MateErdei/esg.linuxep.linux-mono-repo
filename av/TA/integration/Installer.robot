@@ -54,7 +54,7 @@ IDE update only copies updated ide
 
 
 Restart then Update Sophos Threat Detector
-    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
+    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
@@ -77,7 +77,7 @@ Restart then Update Sophos Threat Detector
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 Update then Restart Sophos Threat Detector
-    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
+    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Sophos Threat Detector Log
     Install IDE without reload check  ${IDE_NAME}
@@ -105,7 +105,7 @@ Installer doesnt try to create an existing user
 
 
 Scanner works after upgrade
-    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
+    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     Mark AV Log
     Mark Sophos Threat Detector Log
 
@@ -133,8 +133,8 @@ Scanner works after upgrade
     AV Plugin Log Contains With Offset   EICAR-AV-Test
 
 AV Plugin gets customer id after upgrade
-    Register Cleanup    Mark Failed To connect To Warehouse Error
-    Register Cleanup    Mark UpdateScheduler Fails
+    Register Cleanup    Exclude Failed To connect To Warehouse Error
+    Register Cleanup    Exclude UpdateScheduler Fails
     ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
     ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
@@ -178,7 +178,7 @@ AV Plugin gets customer id after upgrade
 
 IDE can be removed
     #Our "fake" IDE update might cause a SIGTERM to STD
-    Register Cleanup  Mark Threat Detector Launcher Died
+    Register Cleanup  Exclude Threat Detector Launcher Died
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
@@ -341,9 +341,9 @@ Check no duplicate virus data files
     Check no duplicate files in directory  ${vdlUpdate}
 
 Check installer corrects permissions of var directory on upgrade
-    Register Cleanup    Mark Failed To connect To Warehouse Error
-    Register Cleanup    Mark UpdateScheduler Fails
-    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
+    Register Cleanup    Exclude Failed To connect To Warehouse Error
+    Register Cleanup    Exclude UpdateScheduler Fails
+    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     Register On Fail  dump watchdog log
 
     Mark Watchdog Log
@@ -367,9 +367,9 @@ Check installer corrects permissions of var directory on upgrade
     Threat Detector Does Not Log Contain  Failed to read customerID - using default value
 
 Check installer corrects permissions of logs directory on upgrade
-    Register Cleanup    Mark Failed To connect To Warehouse Error
-    Register Cleanup    Mark UpdateScheduler Fails
-    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
+    Register Cleanup    Exclude Failed To connect To Warehouse Error
+    Register Cleanup    Exclude UpdateScheduler Fails
+    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
 
     Register On Fail  dump watchdog log
     Mark Watchdog Log
@@ -511,7 +511,7 @@ AV Can not install from SDDS Component
     Should Be Equal As Integers  ${result.rc}  ${26}
 
 Check installer keeps SUSI startup settings as writable by AV Plugin
-    Register Cleanup  Mark Invalid Day From Policy Error
+    Register Cleanup  Exclude Invalid Day From Policy Error
     Restart AV Plugin And Clear The Logs For Integration Tests
     Create file   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Change Owner  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}  sophos-spl-av  sophos-spl-group
@@ -527,7 +527,7 @@ Check installer keeps SUSI startup settings as writable by AV Plugin
     AV Plugin Log Does Not Contain With Offset  Failed to create file
 
 Check installer removes sophos_threat_detector log symlink
-    Register Cleanup    Mark Invalid Day From Policy Error
+    Register Cleanup    Exclude Invalid Day From Policy Error
     Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector/sophos_threat_detector.log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
     File Should Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
     # modify the manifest to force the installer to perform a full product update
@@ -575,9 +575,9 @@ Installer Test Setup
     Mark Sophos Threat Detector Log
     #Register Cleanup has LIFO order, so checking for errors is done last.
     Register Cleanup    Check All Product Logs Do Not Contain Error
-    Register Cleanup    Mark CustomerID Failed To Read Error
-    Register Cleanup    Mark MCS Router is dead
-    Register Cleanup    Mark Failed Communication Between AV And Base Due To No Incomming Data
+    Register Cleanup    Exclude CustomerID Failed To Read Error
+    Register Cleanup    Exclude MCS Router is dead
+    Register Cleanup    Exclude Communication Between AV And Base Due To No Incomming Data
 
 Installer Test TearDown
     Run Teardown Functions
