@@ -22,7 +22,7 @@ namespace Common
 
             /** Create the requests as client **/
             DataMessage requestSendEventMessage(const std::string& appId, const std::string& eventXml) const;
-//
+
             DataMessage requestSendStatusMessage(
                 const std::string& appId,
                 const std::string& statusXml,

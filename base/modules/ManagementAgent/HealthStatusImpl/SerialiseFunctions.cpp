@@ -38,6 +38,7 @@ namespace ManagementAgent::HealthStatusImpl
     std::map<std::string, PluginCommunication::PluginHealthStatus> deserialiseThreatHealth(
         const std::string& pluginThreatHealthJsonString)
     {
+        LOGDEBUG("Deserialising Threat Health JSON: " << pluginThreatHealthJsonString);
         std::map<std::string, PluginCommunication::PluginHealthStatus> threatHealthMap;
         try
         {

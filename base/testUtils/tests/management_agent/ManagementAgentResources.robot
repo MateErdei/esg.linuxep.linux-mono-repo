@@ -120,7 +120,7 @@ Remove Status Xml Files
 Check File With Wait
     [Arguments]  ${expectedFileContent}  ${file}
     Wait Until Keyword Succeeds
-    ...  10
+    ...  20
     ...  1
     ...  Check File Content    ${expectedFileContent}  ${file}
 

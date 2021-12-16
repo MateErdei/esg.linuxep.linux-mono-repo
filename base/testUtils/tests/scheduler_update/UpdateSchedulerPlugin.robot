@@ -660,9 +660,11 @@ UpdateScheduler Performs Update After Receiving Policy With Different Primary Su
 
     # Ensure update will be invoked when previous config subscriptions differ from current, when feature set is the same.
     Send Policy To UpdateScheduler  ALC_BaseOnlyFixedVersionPolicy.xml
-    ${UpdateSchedulerLog} =    Get File  /opt/sophos-spl/logs/base/sophosspl/updatescheduler.log
-    Should Contain  ${UpdateSchedulerLog}  Detected product configuration change, triggering update.
 
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Log Contains   Detected product configuration change, triggering update.    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    Updatescheduler Log
 
 
 UpdateScheduler Performs Update After Receiving Policy With Different Non Primary Subscription release tag Values
