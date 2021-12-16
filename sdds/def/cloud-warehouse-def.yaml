@@ -25,6 +25,7 @@ warehouses:
                     sspl-runtimedetections:
                         supplements:
                             - sspl-runtimedetections-detectionrules-supp
+                    sspl-heartbeat:
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
@@ -79,6 +80,7 @@ warehouses:
                     sspl-runtimedetections:
                         supplements:
                             - sspl-runtimedetections-detectionrules-supp
+                    sspl-heartbeat:
             sspl-edr:
                 import:
                     description: "Sophos Linux Endpoint Detection and Response"
