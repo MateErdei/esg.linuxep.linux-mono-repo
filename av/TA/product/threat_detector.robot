@@ -37,7 +37,7 @@ Threat Detector Test Teardown
     run teardown functions
 
     Exclude CustomerID Failed To Read Error
-
+    Exclude Expected Sweep Errors
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
 

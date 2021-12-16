@@ -372,6 +372,11 @@ static int inner_main()
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
         = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer);
 
+    if(sigTermMonitor.triggered())
+    {
+        LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
+        return common::E_CLEAN_SUCCESS;
+    }
     scannerFactory->update(); // always force an update during start-up
 
     auto reloader = std::make_shared<Reloader>(scannerFactory);

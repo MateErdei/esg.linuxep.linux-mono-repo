@@ -123,6 +123,7 @@ AV plugin runs scheduled scan
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
 AV plugin runs multiple scheduled scans
+    Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude File Name Too Long For Cloud Scan
     Mark AV Log
     Register Cleanup  Restart AV Plugin And Clear The Logs For Integration Tests
@@ -424,13 +425,15 @@ AV Plugin Reports encoded eicars To Base
    check_all_eicars_are_found  /tmp_test/encoded_eicars/
 
 AV Plugin uninstalls
-    Register Cleanup  Install With Base SDDS
+    Register Cleanup    Exclude MCS Router is dead
+    Register Cleanup    Install With Base SDDS
     Check avscanner in /usr/local/bin
     Run plugin uninstaller
     Check avscanner not in /usr/local/bin
     Check AV Plugin Not Installed
 
 AV Plugin Saves Logs On Downgrade
+    Register Cleanup  Exclude MCS Router is dead
     Register Cleanup  Install With Base SDDS
     Check AV Plugin Running
     Run plugin uninstaller with downgrade flag
@@ -544,13 +547,15 @@ AV plugin increments Scan Now Counter after Save and Restore
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now
     [Timeout]  15min
+    #We do a full uninstall so after the re-installation exclude this error
+    Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude Threat Detector Launcher Died With 70
     Register Cleanup    Exclude Threat Detector Launcher Died With 11
     Register Cleanup    Exclude Scan Now Terminated
     Register Cleanup    Exclude Failed To Scan Files
     Register Cleanup    Exclude Failed To Send Scan Request To STD
     Register Cleanup    Exclude Failed To Read Message From Scanning Server
-    Register On Fail  dump log  ${SCANNOW_LOG_PATH}
+    Register On Fail    dump log  ${SCANNOW_LOG_PATH}
     Configure scan now
     Run Process  bash  ${BASH_SCRIPTS_PATH}/fileMaker.sh  1000  stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/file_maker/  recursive=True

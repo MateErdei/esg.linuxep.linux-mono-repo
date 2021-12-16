@@ -473,24 +473,25 @@ AV And Base Teardown
     Register On Fail  dump log  ${AV_LOG_PATH}
     Register On Fail  dump log  ${TELEMETRY_LOG_PATH}
     Register On Fail  dump log  ${AV_INSTALL_LOG}
-    Register On Fail  Restart AV Plugin And Clear The Logs For Integration Tests
 
-    #mark generic errors caused by the lack of a central connection/warehouse/subscription
-    Exclude Invalid Settings No Primary Product
-    Exclude Configuration Data Invalid
-    Exclude CustomerID Failed To Read Error
-    Exclude MCS Router is dead
-    Exclude Failed To connect To Warehouse Error
-    Exclude Invalid Day From Policy
-    Exclude Core Not In Policy Features
-    Exclude SPL Base Not In Subscription Of The Policy
     #mark errors related to scheduled scans being forcefully terminated at the end of a test
     Exclude Failed To Scan Multiple Files Cloud
     Exclude UnixSocket Interrupted System Call Error Cloud Scan
     Exclude SPPLAV Processes Are Killed With SIGKILL
     Exclude Watchdog Log Unable To Open File Error
+    #mark generic errors caused by the lack of a central connection/warehouse/subscription
+    Exclude Invalid Settings No Primary Product
+    Exclude Configuration Data Invalid
+    Exclude CustomerID Failed To Read Error
+    Exclude Failed To connect To Warehouse Error
+    Exclude Invalid Day From Policy
+    Exclude Core Not In Policy Features
+    Exclude SPL Base Not In Subscription Of The Policy
+    Exclude UpdateScheduler Fails
+    Exclude MCS Router is dead
 
     Run Teardown Functions
+    Run Keyword If Test Failed   Restart AV Plugin And Clear The Logs For Integration Tests
 
 Restart AV Plugin And Clear The Logs For Integration Tests
     Log  Logs have to be rotated
