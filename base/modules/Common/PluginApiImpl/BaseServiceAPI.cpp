@@ -59,7 +59,7 @@ void Common::PluginApiImpl::BaseServiceAPI::sendEvent(const std::string& appId, 
         throw Common::PluginApi::ApiException(errorMessage);
     }
 }
-// todo add threat api call
+
 void Common::PluginApiImpl::BaseServiceAPI::sendStatus(
     const std::string& appId,
     const std::string& statusXml,
@@ -146,13 +146,12 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
 
 void Common::PluginApiImpl::BaseServiceAPI::sendThreatHealth(const std::string& healthJson) const
 {
-    LOGDEBUG("Change threat health message for plugin: " << m_pluginName << ", " << healthJson);
-
-    Common::PluginProtocol::DataMessage replyMessage = getReply(m_messageBuilder.requestSendThreatHealthMessage(healthJson));
+    LOGDEBUG("Sending Threat Health message for plugin: " << m_pluginName << ", " << healthJson);
+    Common::PluginProtocol::DataMessage replyMessage = getReply(m_messageBuilder.sendThreatHealthMessage(healthJson));
 
     if (!m_messageBuilder.hasAck(replyMessage))
     {
-        std::string errorMessage("Invalid reply for: threat health message");
+        std::string errorMessage("Invalid reply for: Threat Health message");
         LOGERROR(errorMessage);
         throw Common::PluginApi::ApiException(errorMessage);
     }

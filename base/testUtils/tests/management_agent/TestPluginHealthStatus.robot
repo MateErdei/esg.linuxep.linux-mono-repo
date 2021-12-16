@@ -25,7 +25,7 @@ Verify Management Agent Can Check Good Plugin Health Status
 
     Start Plugin
 
-    ${SHS_STATUS_FILE} =  Set Variable  ${MCS_DIR}/status/SHS_status.xml
+    ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
 
     Wait Until Keyword Succeeds
     ...  40

@@ -10,7 +10,7 @@ add_custom_target(echogTest
 add_subdirectory(manualTools)
 add_subdirectory(Common)
 add_subdirectory(CommsComponent)
-#add_subdirectory(diagnose)
+add_subdirectory(diagnose)
 add_subdirectory(SulDownloader)
 add_subdirectory(sdu)
 add_subdirectory(Installer)

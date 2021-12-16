@@ -52,7 +52,6 @@ namespace ManagementAgent
             std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQueue;
             std::unique_ptr<Common::TaskQueue::ITaskProcessor> m_taskQueueProcessor;
             std::shared_ptr<ManagementAgent::StatusCache::IStatusCache> m_statusCache;
-//            std::shared_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::HealthStatus> m_healthStatus;
 
             /**
              * Remember the original parent PID so that we can exit if it changes.

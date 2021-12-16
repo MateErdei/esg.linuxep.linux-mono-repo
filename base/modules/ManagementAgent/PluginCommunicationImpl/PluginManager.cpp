@@ -57,7 +57,6 @@ namespace ManagementAgent
             }
 
             std::shared_ptr<PluginServerCallback> serverCallback = std::make_shared<PluginServerCallback>(*this);
-
             m_serverCallbackHandler.reset(new PluginServerCallbackHandler(std::move(replier), serverCallback, m_healthStatus));
             m_serverCallbackHandler->start();
         }

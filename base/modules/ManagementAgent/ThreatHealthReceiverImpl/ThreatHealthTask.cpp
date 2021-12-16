@@ -30,5 +30,4 @@ void ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthTask::run()
     {
         LOGERROR("Failed to receive Threat Health because Health Status shared object has not been initialised");
     }
-
 }

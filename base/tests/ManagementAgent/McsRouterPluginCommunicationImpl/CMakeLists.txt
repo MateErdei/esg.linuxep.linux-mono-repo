@@ -20,7 +20,7 @@ target_link_libraries(McsRouterPluginCommunicationImplTests
         xmlutilities
         mcsrouterplugincommunicationimpl
         testhelpers
-        HealthStatusImpl # move this to other test location
+#        HealthStatusImpl # move this to other test location
         )
 
 gtest_discover_tests(McsRouterPluginCommunicationImplTests)

@@ -41,17 +41,10 @@ protected:
 
         EXPECT_EQ(itemFoundCount, expectedNumberOfInstances)
             << "name: " + valueToCompare.first + ", value: " + valueToCompare.second;
-
-        //        Tests::ScopedReplaceFileSystem m_replacer;
-        //        m_mockFileSystem = new StrictMock<MockFileSystem>();
-        //        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystem));
     }
 
     ManagementAgent::HealthStatusImpl::HealthStatus m_status;
-    //    MockFileSystem* m_mockFileSystem = nullptr;
 
-    // private:
-    //     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodServiceHealthValues) // NOLINT
@@ -267,14 +260,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTy
     m_status.addPluginHealth("testpluginDetectionOne", pluginDetectionStatusOne);
     m_status.addPluginHealth("testpluginDetectionTwo", pluginDetectionStatusTwo);
 
-    std::string expectedXml =
-        "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" activeHeartbeat=\"false\" "
-        "activeHeartbeatUtmId=\"\"><item name=\"health\" value=\"3\" /><item name=\"service\" value=\"3\" ><detail "
-        "name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin Service One\" "
-        "value=\"2\" /><detail name=\"Test Plugin Service Two\" value=\"1\" /></item><item name=\"threatService\" "
-        "value=\"3\" ><detail name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin "
-        "Threat One\" value=\"2\" /><detail name=\"Test Plugin Threat Two\" value=\"1\" /></item><item name=\"threat\" "
-        "value=\"3\" /></health>";
+    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="service" value="3" ><detail name="Test Plugin Service And Threat One" value="2" /><detail name="Test Plugin Service One" value="2" /><detail name="Test Plugin Service Two" value="1" /></item><item name="threatService" value="3" ><detail name="Test Plugin Service And Threat One" value="2" /><detail name="Test Plugin Threat One" value="2" /><detail name="Test Plugin Threat Two" value="1" /></item><item name="threat" value="3" /></health>)";
 
     std::string xmlString = m_status.generateHealthStatusXml().second;
     EXPECT_EQ(expectedXml, xmlString);

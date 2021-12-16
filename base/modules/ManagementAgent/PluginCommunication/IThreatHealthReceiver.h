@@ -1,7 +1,8 @@
-///////////////////////////////////////////////////////////
-// Copyright (C) 2021 Sophos Plc, Oxford, England.
-// All rights reserved.
-///////////////////////////////////////////////////////////
+/******************************************************************************************************
+
+Copyright 2021, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
@@ -21,10 +22,10 @@ namespace ManagementAgent
             virtual ~IThreatHealthReceiver() = default;
 
             /**
-             * Handle plugin sending threat health to management agent
+             * Handle plugin sending threat health to Management Agent
              *
              * @param pluginName
-             * @param threatHealth Threat health in JSON TODO format?
+             * @param threatHealth Threat health in JSON format detailed in IBaseServiceApi.h
              */
             virtual void receivedThreatHealth(
                 const std::string& pluginName,

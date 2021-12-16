@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -9,6 +9,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
@@ -16,6 +17,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/ConfigException.h>
+#include <Common/UtilityImpl/SystemExecutableUtils.h>
 #include <Common/ZeroMQWrapper/IHasFD.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/IProxy.h>
@@ -30,6 +32,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthReceiverImpl.h>
 #include <sys/stat.h>
 
+#include <IProcess.h>
 #include <csignal>
 
 using namespace Common;
@@ -72,8 +75,6 @@ namespace ManagementAgent
         {
             try
             {
-//                m_healthStatus = std::make_shared<ManagementAgent::McsRouterPluginCommunicationImpl::HealthStatus>();
-
                 std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
                     std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
                         new ManagementAgent::PluginCommunicationImpl::PluginManager());
@@ -107,9 +108,8 @@ namespace ManagementAgent
                 sendCurrentPluginPolicies();
                 sendCurrentPluginsStatus(registeredPlugins);
                 sendCurrentActions();
-//                m_healthStatus = std::make_shared<ManagementAgent::McsRouterPluginCommunicationImpl::HealthStatus>();
                 m_ppid = ::getppid();
-            }catch ( std::exception & ex)
+            } catch (std::exception & ex)
             {
                 throw Common::UtilityImpl::ConfigException( "Configure Management Agent", ex.what());
             }
@@ -124,7 +124,7 @@ namespace ManagementAgent
 
             for (auto& plugin : plugins)
             {
-                if(plugin.getIsManagedPlugin())
+                if (plugin.getIsManagedPlugin())
                 {
                     m_pluginManager->registerAndConfigure(
                             plugin.getPluginName(), PluginCommunication::PluginDetails(plugin));
@@ -132,12 +132,12 @@ namespace ManagementAgent
                         << plugin.getExecutableFullPath());
                 }
 
-                if(plugin.getHasThreatServiceHealth())
+                if (plugin.getHasThreatServiceHealth())
                 {
                     LOGDEBUG("Registered plugin " << plugin.getPluginName() << ", has threat health enabled");
                 }
 
-                if(plugin.getHasServiceHealth())
+                if (plugin.getHasServiceHealth())
                 {
                     LOGDEBUG("Registered plugin " << plugin.getPluginName() << ", has service health enabled");
                 }
@@ -241,6 +241,17 @@ namespace ManagementAgent
             }
         }
 
+        bool ManagementAgentMain::updateOngoing()
+        {
+            auto fs = Common::FileSystem::fileSystem();
+            std::string markerFile = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
+            if (fs->isFile(markerFile))
+            {
+                    return true;
+            }
+            return false;
+        }
+
         int ManagementAgentMain::run(bool withPersistentTelemetry)
         {
             LOGINFO("Management Agent starting.. ");
@@ -272,17 +283,33 @@ namespace ManagementAgent
             LOGINFO("Management Agent running.");
 
             bool running = true;
-            auto lastHealthCheck = std::chrono::system_clock::now();
+            auto startTime = std::chrono::system_clock::now();
+            auto lastHealthCheck = startTime;
             const int waitPeriod = 15; // Should not exceed health refresh period of 15 seconds.
-
+            bool servicesShouldHaveStarted = false;
             while (running)
             {
                 auto currentTime = std::chrono::system_clock::now();
-                if ((currentTime - lastHealthCheck) >= std::chrono::seconds (waitPeriod))
+                if (!servicesShouldHaveStarted)
                 {
-                    lastHealthCheck = currentTime;
-                    std::unique_ptr<Common::TaskQueue::ITask> task(new HealthStatusImpl::HealthTask(*m_pluginManager));
-                    m_taskQueue->queueTask(std::move(task));
+                    if ((currentTime - startTime) >= std::chrono::seconds(30))
+                    {
+                        servicesShouldHaveStarted = true;
+                        LOGINFO("Starting service health checks");
+                    }
+                }
+                if (servicesShouldHaveStarted)
+                {
+                    if ((currentTime - lastHealthCheck) >= std::chrono::seconds(waitPeriod))
+                    {
+                        if (!updateOngoing())
+                        {
+                            lastHealthCheck = currentTime;
+                            std::unique_ptr<Common::TaskQueue::ITask> task(
+                                new HealthStatusImpl::HealthTask(*m_pluginManager));
+                            m_taskQueue->queueTask(std::move(task));
+                        }
+                    }
                 }
 
                 poller->poll(std::chrono::seconds(waitPeriod));

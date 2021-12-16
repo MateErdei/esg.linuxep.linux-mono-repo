@@ -120,7 +120,7 @@ namespace ManagementAgent
             auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
             assert(serverCallbackAsPluginServerCallback != nullptr);
 
-            if (serverCallbackAsPluginServerCallback != nullptr) // for non-debug builds, don't crash
+            if (serverCallbackAsPluginServerCallback != nullptr)
             {
                 serverCallbackAsPluginServerCallback->setThreatHealthReceiver(receiver);
             }

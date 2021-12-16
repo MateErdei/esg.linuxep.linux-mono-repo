@@ -6,7 +6,6 @@ Copyright 2021 Sophos Limited. All rights reserved.
 
 #include <Logging/ConsoleLoggingSetup.h>
 #include <ManagementAgent/HealthStatusImpl/SerialiseFunctions.cpp>
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 class SerialiseFunctionsTests : public testing::Test

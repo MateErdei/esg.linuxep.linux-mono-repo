@@ -198,11 +198,19 @@ namespace
             Common::PluginApi::ApiException); // NOLINT
     }
 
-    TEST_F(PluginApiTests, test1) // NOLINT
+    TEST_F(PluginApiTests, pluginApiCanSendThreatHealthMessageValid) // NOLINT
     {
         Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
         dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH;
         responseServer.setReply(dataMessage);
-        EXPECT_NO_THROW(plugin->sendThreatHealth("json")); // NOLINT
+        EXPECT_NO_THROW(plugin->sendThreatHealth(R"({"ThreatHealth":2})")); // NOLINT
+    }
+
+    TEST_F(PluginApiTests, pluginApiCanSendThreatHealthMessageInvalid) // NOLINT
+    {
+        Common::PluginProtocol::DataMessage dataMessage = createDefaultMessage();
+        dataMessage.m_command = Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH;
+        responseServer.setReply(dataMessage);
+        EXPECT_NO_THROW(plugin->sendThreatHealth("not json")); // NOLINT
     }
 } // namespace

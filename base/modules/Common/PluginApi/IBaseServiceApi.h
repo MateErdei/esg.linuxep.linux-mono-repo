@@ -93,7 +93,10 @@ namespace Common
             virtual void requestPolicies(const std::string& appId) const = 0;
 
             /*
-             *
+             * Allow plugins to send Threat Health to Management Agent.
+             * JSON format: {"ThreatHealth": 1}
+             * 1 = good, 2 = suspicious, 3 = bad
+             * https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42132014794/EMP+status-health
              */
             virtual void sendThreatHealth(const std::string& healthJson) const = 0;
         };

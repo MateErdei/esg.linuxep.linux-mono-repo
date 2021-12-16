@@ -168,7 +168,7 @@ namespace ManagementAgent
             virtual void setPolicyReceiver(std::shared_ptr<IPolicyReceiver>& receiver) = 0;
 
             /**
-             *
+             * Set the Threat Health receiver for Threat Health updates from plugins
              * @param receiver
              */
             virtual void setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver) = 0;

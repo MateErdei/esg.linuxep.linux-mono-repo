@@ -29,8 +29,6 @@ TEST_F(TestStatusReceiverImpl, Construction) // NOLINT
          ManagementAgent::StatusReceiverImpl::StatusReceiverImpl foo(fakeQueue, statusCache));
 }
 
-// need these tests too
-
 TEST_F(TestStatusReceiverImpl, checkNewStatusCausesATaskToBeQueued) // NOLINT
 {
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);

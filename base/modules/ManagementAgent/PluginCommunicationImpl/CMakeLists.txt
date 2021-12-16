@@ -22,7 +22,6 @@ target_link_libraries(plugincommunicationimpl PUBLIC
         managementagentloggerimpl
         ThreatHealthReceiverImpl
         HealthStatusImpl
-#        mcsrouterplugincommunicationimpl
         )
 
 SET_TARGET_PROPERTIES( plugincommunicationimpl
