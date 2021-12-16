@@ -575,7 +575,8 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Register Cleanup    Mark Failed To Scan Files
     Register Cleanup    Mark Failed To Send Scan Request To STD
     Register Cleanup    Mark Failed To Read Message From Scanning Server
-    Configure scan now  Mark Scan Now Found Threats But Aborted With 25
+    Register Cleanup    Mark Scan Now Found Threats But Aborted With 25
+    Configure scan now
     Start Sophos Threat Detector if not running
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   /tmp_test/many_eicars  600  stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/many_eicars  recursive=True
