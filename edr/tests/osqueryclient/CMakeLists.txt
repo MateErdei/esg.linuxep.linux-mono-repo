@@ -9,7 +9,7 @@ SophosAddTest(TestOsqueryProcessor
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
         )
 message("show ${log4cpluslib}")
-target_compile_definitions(TestOsqueryProcessor PRIVATE -DOSQUERYBIN="${INPUT}/osquery/usr/local/bin/osqueryd")
+target_compile_definitions(TestOsqueryProcessor PRIVATE -DOSQUERYBIN="${INPUT}/osquery/opt/osquery/bin/osqueryd")
 
 add_dependencies(TestOsqueryProcessor copy_libs)
 
