@@ -36,6 +36,14 @@ namespace ManagementAgent
             m_pluginThreatServiceHealth.clear();
         }
 
+        void HealthStatus::resetThreatDetectionHealth()
+        {
+            for (std::pair<std::string, PluginCommunication::PluginHealthStatus> health : m_pluginThreatDetectionHealth)
+            {
+                health.second.healthValue = 1;
+            }
+        }
+
         void HealthStatus::addPluginHealth(
             const std::string& pluginName,
             const PluginCommunication::PluginHealthStatus& status)
