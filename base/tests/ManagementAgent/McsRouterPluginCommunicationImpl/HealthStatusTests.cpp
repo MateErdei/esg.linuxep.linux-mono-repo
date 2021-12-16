@@ -379,3 +379,177 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesAllThre
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Plugin With Service Health", "3"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Plugin With Threat Service Health", "3"), 1);
 }
+
+TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesSingleThreatDetectionPluginHealthy) // NOLINT
+{
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusThreatDetection;
+    pluginStatusThreatDetection.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_DETECTION;
+    pluginStatusThreatDetection.healthValue = 3;     // Bad Health
+    pluginStatusThreatDetection.displayName = "Single Threat Detection Plugin";
+
+    m_status.addPluginHealth("testpluginOne", pluginStatusThreatDetection);
+
+    m_status.resetThreatDetectionHealth();
+
+    // TODO: LINUXDAR-3796 Threat Detection Plugin Status not yet reported.
+    std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
+                              "<health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
+                              "<item name=\"health\" value=\"3\" />"
+                              "<item name=\"threat\" value=\"3\" />"
+                              "</health>";
+
+    std::string xmlString = m_status.generateHealthStatusXml().second;
+    EXPECT_EQ(expectedXml, xmlString);
+
+    // Check that the XML can also be passed correctly.
+
+    Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
+    auto attributes = xmlMap.lookup("health");
+    auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
+
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "3"), 1);
+}
+
+TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectIfThereAreNoThreatDetectionPlugins) // NOLINT
+{
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginServiceStatusOne;
+    pluginServiceStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
+    pluginServiceStatusOne.healthValue = 2;
+    pluginServiceStatusOne.displayName = "Test Plugin Service One";
+
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginServiceStatusTwo;
+    pluginServiceStatusTwo.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
+    pluginServiceStatusTwo.healthValue = 1;
+    pluginServiceStatusTwo.displayName = "Test Plugin Service Two";
+
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginThreatStatusOne;
+    pluginThreatStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_SERVICE;
+    pluginThreatStatusOne.healthValue = 2;
+    pluginThreatStatusOne.displayName = "Test Plugin Threat One";
+
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginThreatStatusTwo;
+    pluginThreatStatusTwo.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_SERVICE;
+    pluginThreatStatusTwo.healthValue = 1;
+    pluginThreatStatusTwo.displayName = "Test Plugin Threat Two";
+
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginServiceAndThreatStatusOne;
+    pluginServiceAndThreatStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE_AND_THREAT;
+    pluginServiceAndThreatStatusOne.healthValue = 2;
+    pluginServiceAndThreatStatusOne.displayName = "Test Plugin Service And Threat One";
+
+    m_status.addPluginHealth("testpluginServiceOne", pluginServiceStatusOne);
+    m_status.addPluginHealth("testpluginServiceTwo", pluginServiceStatusTwo);
+    m_status.addPluginHealth("testpluginThreatOne", pluginThreatStatusOne);
+    m_status.addPluginHealth("testpluginThreatTwo", pluginThreatStatusTwo);
+    m_status.addPluginHealth("testpluginServiceAndThreatTwo", pluginServiceAndThreatStatusOne);
+
+    std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
+                              "<health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
+                              "<item name=\"health\" value=\"3\" />"
+                              "<item name=\"service\" value=\"3\" >"
+                              "<detail name=\"Test Plugin Service And Threat One\" value=\"2\" />"
+                              "<detail name=\"Test Plugin Service One\" value=\"2\" />"
+                              "<detail name=\"Test Plugin Service Two\" value=\"1\" /></item>"
+                              "<item name=\"threatService\" value=\"3\" >"
+                              "<detail name=\"Test Plugin Service And Threat One\" value=\"2\" />"
+                              "<detail name=\"Test Plugin Threat One\" value=\"2\" />"
+                              "<detail name=\"Test Plugin Threat Two\" value=\"1\" /></item>"
+                              "<item name=\"threat\" value=\"1\" /></health>";
+
+    std::pair<bool, std::string> pairResult = m_status.generateHealthStatusXml();
+    bool stateChanged = pairResult.first;
+    std::string xmlString = pairResult.second;
+    EXPECT_TRUE(stateChanged);
+    EXPECT_EQ(expectedXml, xmlString);
+
+    // Check that the XML can also be passed correctly.
+
+    Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
+    auto attributes = xmlMap.lookup("health");
+    auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
+
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "3"), 1);
+
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service One", "2"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service Two", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Threat One", "2"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Threat Two", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service And Threat One", "2"), 2);
+
+    EXPECT_NO_THROW(m_status.resetThreatDetectionHealth());
+
+    pairResult = m_status.generateHealthStatusXml();
+    stateChanged = pairResult.first;
+    xmlString = pairResult.second;
+    EXPECT_FALSE(stateChanged);
+    EXPECT_EQ(expectedXml, xmlString);
+
+    // Check that the XML can also be passed correctly.
+
+    xmlMap = Common::XmlUtilities::parseXml(xmlString);
+    attributes = xmlMap.lookup("health");
+    xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
+
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("service", "3"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threatService", "3"), 1);
+
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service One", "2"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service Two", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Threat One", "2"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Threat Two", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service And Threat One", "2"), 2);
+}
+
+TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectWhenThreatIsAlreadyHealthy) // NOLINT
+{
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusThreatDetection;
+    pluginStatusThreatDetection.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_DETECTION;
+    pluginStatusThreatDetection.healthValue = 1;     // Good Health
+    pluginStatusThreatDetection.displayName = "Plugin Threat Detection Started Healthy";
+
+    m_status.addPluginHealth("testpluginOne", pluginStatusThreatDetection);
+
+    m_status.resetThreatDetectionHealth();
+
+    // TODO: LINUXDAR-3796 Threat Detection Plugin Status not yet reported.
+    std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
+                              "<health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\">"
+                              "<item name=\"health\" value=\"1\" />"
+                              "<item name=\"threat\" value=\"1\" /></health>";
+
+    std::pair<bool, std::string> pairResult = m_status.generateHealthStatusXml();
+    bool stateChanged = pairResult.first;
+    std::string xmlString = pairResult.second;
+    EXPECT_TRUE(stateChanged);
+    EXPECT_EQ(expectedXml, xmlString);
+
+    // Check that the XML can also be passed correctly.
+
+    Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
+    auto attributes = xmlMap.lookup("health");
+    auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
+
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
+
+    EXPECT_NO_THROW(m_status.resetThreatDetectionHealth());
+
+    pairResult = m_status.generateHealthStatusXml();
+    stateChanged = pairResult.first;
+    xmlString = pairResult.second;
+    EXPECT_FALSE(stateChanged);
+    EXPECT_EQ(expectedXml, xmlString);
+
+    // Check that the XML can also be passed correctly.
+
+    xmlMap = Common::XmlUtilities::parseXml(xmlString);
+    attributes = xmlMap.lookup("health");
+    xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
+
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "1"), 1);
+    xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
+}
