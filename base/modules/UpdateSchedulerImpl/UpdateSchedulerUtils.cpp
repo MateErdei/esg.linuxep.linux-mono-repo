@@ -35,7 +35,7 @@ namespace UpdateSchedulerImpl
         }
         auto const& downloadState = stateMachineData.getDownloadState();
         auto const& installState = stateMachineData.getInstallState();
-        
+
         if (downloadState != "0")
         {
             healthResponseMessage["downloadState"] = 1;
