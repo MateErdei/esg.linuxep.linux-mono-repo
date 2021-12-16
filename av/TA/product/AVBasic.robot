@@ -433,16 +433,10 @@ Start AV
     Register Cleanup   Terminate Process  ${AV_PLUGIN_HANDLE}
     Check AV Plugin Installed
 
-Stop AV
-    Log  ${result.stderr}
-    Log  ${result.stdout}
-    Remove Files   /tmp/av.stdout  /tmp/av.stderr
-
 AVBasic Suite Setup
     Start Fake Management If Required
 
 Clear Logs
-    Stop AV
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
@@ -460,8 +454,6 @@ Clear Logs
 
 Product Test Setup
     Start AV
-    ${result} =   Check If The Logs Are Close To Rotating
-    run keyword if  ${result}   Clear Logs
     Component Test Setup
     Delete Eicars From Tmp
     mark av log
@@ -470,16 +462,18 @@ Product Test Setup
     register on fail  Dump Log  ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
     register on fail  Dump Log  ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     register on fail  Dump Log  ${THREAT_DETECTOR_LOG_PATH}
-    Register Cleanup      Check All Product Logs Do Not Contain Error
+    Register Cleanup  Check All Product Logs Do Not Contain Error
+    Register Cleanup  Mark CustomerID Failed To Read Error
+    Register Cleanup  Mark Parse Xml Error
 
 Product Test Teardown
     Delete Eicars From Tmp
     run teardown functions
 
-    Mark CustomerID Failed To Read Error
-    Mark Parse Xml Error
-
     Component Test TearDown
+    #Run clear logs only after we stopped all the processes
+    ${result} =   Check If The Logs Are Close To Rotating
+    run keyword if  ${result}   Clear Logs
     Run Keyword If Test Failed  Clear logs
 
 Test Remote Share

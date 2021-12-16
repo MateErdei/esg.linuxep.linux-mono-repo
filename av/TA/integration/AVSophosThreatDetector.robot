@@ -522,12 +522,13 @@ AVSophosThreatDetector Test Setup
     register on fail  dump log  ${SOPHOS_INSTALL}/plugins/av/log/av.log
     register on fail  Restart AV Plugin And Clear The Logs For Integration Tests
 
+    Register Cleanup      Check All Product Logs Do Not Contain Error
+    Register Cleanup      Mark MCS Router is dead
+    Register Cleanup      Mark CustomerID Failed To Read Error
+
 AVSophosThreatDetector Test TearDown
     #restore machineID file
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
-    Mark CustomerID Failed To Read Error
-    Mark MCS Router is dead
-    Check All Product Logs Do Not Contain Error
     run teardown functions
 
 Alter Hosts

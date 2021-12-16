@@ -27,6 +27,8 @@ Test Teardown   AVCommandLineScanner Test TearDown
 
 AVCommandLineScanner Suite Setup
     Run Keyword And Ignore Error   Empty Directory   ${COMPONENT_ROOT_PATH}/log
+    #the above command wont clear the std logs because empty directory cannot remove symlinks
+    Run Keyword And Ignore Error   Empty Directory   ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector/
     Run Keyword And Ignore Error   Empty Directory   ${SOPHOS_INSTALL}/tmp
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Start Fake Management If required
@@ -43,31 +45,30 @@ Reset AVCommandLineScanner Suite
     AVCommandLineScanner Suite Setup
 
 AVCommandLineScanner Test Setup
-    Create Directory     ${NORMAL_DIRECTORY}
-    ${result} =     Check If The Logs Are Close To Rotating
-    run keyword if  ${result}   Clear logs
     check av plugin running
     Check Sophos Threat Detector Running
     Mark AV Log
     Mark Sophos Threat Detector Log
     Mark Susi Debug Log
-    Register Cleanup      Check All Product Logs Do Not Contain Error
 
+    Create Directory     ${NORMAL_DIRECTORY}
+    ${result} =     Check If The Logs Are Close To Rotating
+    run keyword if  ${result}   Clear logs
+
+    Register Cleanup      Check All Product Logs Do Not Contain Error
+    Register Cleanup      Mark UnixSocket Environment Interruption Error
+    Register Cleanup      Mark UnixSocket Connection Reset By Peer
+    Register Cleanup      Mark UnixSocket Failed To Read Length
+    Register Cleanup      Mark CustomerID Failed To Read Error
 
 AVCommandLineScanner Test TearDown
-    Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
+    Run Teardown Functions
+    Remove Directory      ${NORMAL_DIRECTORY}  recursive=True
     Dump Log On Failure   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
     Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
-
-    Mark UnixSocket Environment Interruption Error
-    Mark UnixSocket Connection Reset By Peer
-    Mark UnixSocket Failed To Read Length
-    Mark CustomerID Failed To Read Error
-    Run Teardown Functions
-    Run Keyword If Test Failed  Clear logs
 
 Clear logs
     Stop AV
@@ -185,25 +186,25 @@ CLS Can Scan Shallow Archive But not Deep Archive
     Should Contain  ${output}  as it is a Zip Bomb
 
 
-CLS Summary is Correct
-    Create Directory  ${NORMAL_DIRECTORY}/EXTRA_FOLDER
-    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_2    ${EICAR_STRING}
-    Run Process     tar  -cf  ${NORMAL_DIRECTORY}/EXTRA_FOLDER/multiple_eicar.tar  ${NORMAL_DIRECTORY}/naughty_eicar  ${NORMAL_DIRECTORY}/naughty_eicar_2
-    Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/clean_file    ${CLEAN_STRING}
-
-    FOR  ${i}  IN RANGE  1500
-           Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/eicar_${i}    ${EICAR_STRING}
-    END
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/EXTRA_FOLDER /this/file/does/not/exist -a
-
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}  1502 files scanned in  minute  second
-    Should Contain   ${output}  1501 files out of 1502 were infected.
-    Should Contain   ${output}  1502 EICAR-AV-Test infections discovered.
-    Should Contain   ${output}  1 scan error encountered
+#CLS Summary is Correct
+#    Create Directory  ${NORMAL_DIRECTORY}/EXTRA_FOLDER
+#    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+#    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_2    ${EICAR_STRING}
+#    Run Process     tar  -cf  ${NORMAL_DIRECTORY}/EXTRA_FOLDER/multiple_eicar.tar  ${NORMAL_DIRECTORY}/naughty_eicar  ${NORMAL_DIRECTORY}/naughty_eicar_2
+#    Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/clean_file    ${CLEAN_STRING}
+#
+#    FOR  ${i}  IN RANGE  1500
+#           Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/eicar_${i}    ${EICAR_STRING}
+#    END
+#
+#    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/EXTRA_FOLDER /this/file/does/not/exist -a
+#
+#    Log  ${output}
+#    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+#    Should Contain   ${output}  1502 files scanned in  minute  second
+#    Should Contain   ${output}  1501 files out of 1502 were infected.
+#    Should Contain   ${output}  1502 EICAR-AV-Test infections discovered.
+#    Should Contain   ${output}  1 scan error encountered
 
 
 CLS Summary in Less Than a Second
@@ -1177,6 +1178,7 @@ CLS Scans file on NFS
 
 
 CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
+
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
 
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
