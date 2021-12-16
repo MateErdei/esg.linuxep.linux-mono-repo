@@ -153,7 +153,7 @@ AV plugin doesnt report a error message if no policy is received
     Start AV Plugin
     AV Plugin Log Does Not Contain With Offset  Failed to get SAV policy at startup (No Policy Available)
     AV Plugin Log Does Not Contain With Offset  Failed to get ALC policy at startup (No Policy Available)
-#Note this next test should be run in conjunction with the above test
+
 AV plugin does report a info message if no policy is received
     Mark AV Log
     Stop AV Plugin
