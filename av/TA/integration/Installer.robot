@@ -24,113 +24,113 @@ Test Setup      Installer Test Setup
 Test Teardown   Installer Test TearDown
 
 *** Test Cases ***
-#
-#IDE update doesnt restart av processes
-#    ${AVPLUGIN_PID} =  Record AV Plugin PID
-#    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-#    Install IDE without SUSI loaded  ${IDE_NAME}
-#    Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
-#    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-#
-#    # Check we can detect EICAR following update
-#    Check avscanner can detect eicar
-#
-#    # Check we can detect PEEND following update
-#    # This test also proves that SUSI is configured to scan executables
-#    Check Threat Detected  peend.exe  PE/ENDTEST
-#
-#IDE update only copies updated ide
-#    [Tags]  DISABLED
-#    # /proc/diskstats sda
-#    ${AVPLUGIN_PID} =  Record AV Plugin PID
-#    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-#    ${WRITTEN_TO_DISK_BEFORE} =  Get Amount Written To Disk
-#    Install IDE  ${IDE_NAME}
-#    Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
-#    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-#    ${WRITTEN_TO_DISK_AFTER} =  Get Amount Written To Disk
-#    ${WRITTEN_TO_DISK_DURING} =  Evaluate  ${WRITTEN_TO_DISK_AFTER} - ${WRITTEN_TO_DISK_BEFORE}
-#    Should Be True  ${WRITTEN_TO_DISK_DURING} < 10000
-#
-#
-#Restart then Update Sophos Threat Detector
-#    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
-#    Mark Sophos Threat Detector Log
-#    Restart sophos_threat_detector
-#    Check Plugin Installed and Running
-#    Wait Until Sophos Threat Detector Log Contains With Offset
-#    ...   UnixSocket <> Starting listening on socket
-#    ...   timeout=60
-#    ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
-#    Install IDE without reload check  ${IDE_NAME}
-#    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-#
-#    # Check we can detect PEEND following update
-#    Wait Until Keyword Succeeds
-#        ...    60 secs
-#        ...    1 secs
-#        ...    Check Threat Detected  peend.exe  PE/ENDTEST
-#
-#    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-#
-#    # Extra log dump to check we have the right events happening
-#    dump log  ${THREAT_DETECTOR_LOG_PATH}
-#
-#Update then Restart Sophos Threat Detector
-#    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
-#    ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
-#    Mark Sophos Threat Detector Log
-#    Install IDE without reload check  ${IDE_NAME}
-#    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-#    Restart sophos_threat_detector
-#    Check Plugin Installed and Running
-#    Wait Until Sophos Threat Detector Log Contains With Offset
-#    ...   UnixSocket <> Starting listening on socket
-#    ...   timeout=60
-#
-#    # Check we can detect PEEND following update
-#    Wait Until Keyword Succeeds
-#        ...    60 secs
-#        ...    1 secs
-#        ...    Check Threat Detected  peend.exe  PE/ENDTEST
-#
-#    # Extra log dump to check we have the right events happening
-#    dump log  ${THREAT_DETECTOR_LOG_PATH}
-#
-#Installer doesnt try to create an existing user
-#    Modify manifest
-#    Install AV Directly from SDDS
-#
-#    File Log Should Not Contain  ${AV_INSTALL_LOG}  useradd: user 'sophos-spl-av' already exists
-#
-#
-#Scanner works after upgrade
-#    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
-#    Mark AV Log
-#    Mark Sophos Threat Detector Log
-#
-#    # modify the manifest to force the installer to perform a full product update
-#    Modify manifest
-#    Run Installer From Install Set
-#
-#    # Existing robot functions don't check marked logs, so we do our own log check instead
-#    Check Plugin Installed and Running With Offset
-#    Wait Until Sophos Threat Detector Log Contains With Offset
-#    ...   UnixSocket <> Starting listening on socket
-#    ...   timeout=60
-#    Wait Until AV Plugin Log Contains With Offset
-#    ...   Starting threatReporter
-#    ...   timeout=60
-#
-#    Mark AV Log
-#    Mark Sophos Threat Detector Log
-#
-#    # Check we can detect EICAR following upgrade
-#    Check avscanner can detect eicar
-#
-#    # check that the logs are still working (LINUXDAR-2535)
-#    Sophos Threat Detector Log Contains With Offset   EICAR-AV-Test
-#    AV Plugin Log Contains With Offset   EICAR-AV-Test
+
+IDE update doesnt restart av processes
+    ${AVPLUGIN_PID} =  Record AV Plugin PID
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    Install IDE without SUSI loaded  ${IDE_NAME}
+    Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+    # Check we can detect EICAR following update
+    Check avscanner can detect eicar
+
+    # Check we can detect PEEND following update
+    # This test also proves that SUSI is configured to scan executables
+    Check Threat Detected  peend.exe  PE/ENDTEST
+
+IDE update only copies updated ide
+    [Tags]  DISABLED
+    # /proc/diskstats sda
+    ${AVPLUGIN_PID} =  Record AV Plugin PID
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    ${WRITTEN_TO_DISK_BEFORE} =  Get Amount Written To Disk
+    Install IDE  ${IDE_NAME}
+    Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    ${WRITTEN_TO_DISK_AFTER} =  Get Amount Written To Disk
+    ${WRITTEN_TO_DISK_DURING} =  Evaluate  ${WRITTEN_TO_DISK_AFTER} - ${WRITTEN_TO_DISK_BEFORE}
+    Should Be True  ${WRITTEN_TO_DISK_DURING} < 10000
+
+
+Restart then Update Sophos Threat Detector
+    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
+    Mark Sophos Threat Detector Log
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=60
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    Install IDE without reload check  ${IDE_NAME}
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+    # Check we can detect PEEND following update
+    Wait Until Keyword Succeeds
+        ...    60 secs
+        ...    1 secs
+        ...    Check Threat Detected  peend.exe  PE/ENDTEST
+
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+    # Extra log dump to check we have the right events happening
+    dump log  ${THREAT_DETECTOR_LOG_PATH}
+
+Update then Restart Sophos Threat Detector
+    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
+    ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    Mark Sophos Threat Detector Log
+    Install IDE without reload check  ${IDE_NAME}
+    Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=60
+
+    # Check we can detect PEEND following update
+    Wait Until Keyword Succeeds
+        ...    60 secs
+        ...    1 secs
+        ...    Check Threat Detected  peend.exe  PE/ENDTEST
+
+    # Extra log dump to check we have the right events happening
+    dump log  ${THREAT_DETECTOR_LOG_PATH}
+
+Installer doesnt try to create an existing user
+    Modify manifest
+    Install AV Directly from SDDS
+
+    File Log Should Not Contain  ${AV_INSTALL_LOG}  useradd: user 'sophos-spl-av' already exists
+
+
+Scanner works after upgrade
+    Register Cleanup    Mark SPPLAV Processes Are Killed With SIGKILL
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
+    # modify the manifest to force the installer to perform a full product update
+    Modify manifest
+    Run Installer From Install Set
+
+    # Existing robot functions don't check marked logs, so we do our own log check instead
+    Check Plugin Installed and Running With Offset
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Starting listening on socket
+    ...   timeout=60
+    Wait Until AV Plugin Log Contains With Offset
+    ...   Starting threatReporter
+    ...   timeout=60
+
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
+    # Check we can detect EICAR following upgrade
+    Check avscanner can detect eicar
+
+    # check that the logs are still working (LINUXDAR-2535)
+    Sophos Threat Detector Log Contains With Offset   EICAR-AV-Test
+    AV Plugin Log Contains With Offset   EICAR-AV-Test
 
 AV Plugin gets customer id after upgrade
     Register Cleanup    Mark Failed To connect To Warehouse Error
