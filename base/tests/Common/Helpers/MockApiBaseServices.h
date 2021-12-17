@@ -17,4 +17,6 @@ public:
     MOCK_CONST_METHOD3(sendStatus, void(const std::string&, const std::string&, const std::string&));
 
     MOCK_CONST_METHOD1(requestPolicies, void(const std::string&));
+
+    MOCK_CONST_METHOD1(sendThreatHealth, void(const std::string&));
 };

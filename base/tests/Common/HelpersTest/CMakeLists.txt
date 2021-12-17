@@ -10,6 +10,7 @@ add_executable(TestHelpersTest
         TestExampleTempDirSuiteTest.cpp
         ExecutionSynchronizerDemoTests.cpp
         TestFakeTimeUtils.cpp
+        MockApiBaseServicesTests.cpp
         )
 target_include_directories(TestHelpersTest SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CMAKE_SOURCE_DIR})
 target_include_directories(TestHelpersTest BEFORE PUBLIC "${gtest_SOURCE_DIR}" ${PROJECT_SOURCE_DIR}/modules)
