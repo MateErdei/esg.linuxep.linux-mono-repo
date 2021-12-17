@@ -40,19 +40,6 @@ TEST_F(TestProcessProxy, createProcessProxyDoesntThrow) // NOLINT
     ASSERT_NO_THROW(Common::ProcessMonitoring::createProcessProxy(std::move(processInfoPtr)));
 }
 
-TEST_F(TestProcessProxy, WontStartPluginWithoutExecutable) // NOLINT
-{
-    testing::internal::CaptureStderr();
-    auto info = Common::Process::createEmptyProcessInfo();
-
-    Common::ProcessMonitoringImpl::ProcessProxy proxy(std::move(info));
-    std::chrono::seconds delay = proxy.ensureStateMatchesOptions();
-    EXPECT_EQ(delay.count(), 3600);
-    std::string logMessage = testing::internal::GetCapturedStderr();
-
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Not starting plugin without executable"));
-}
-
 TEST_F(TestProcessProxy, WontStartPluginIfExecutableDoesNotExist) // NOLINT
 {
     testing::internal::CaptureStderr();

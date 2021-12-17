@@ -52,12 +52,6 @@ namespace Common
             std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
             m_exe = Common::FileSystem::join(INST, m_processInfo->getExecutableFullPath());
 
-            if (m_exe.empty())
-            {
-                LOGINFO("Not starting plugin without executable");
-                return;
-            }
-
             if (!FileSystem::fileSystem()->isFile(m_exe))
             {
                 LOGINFO("Executable does not exist at : " << m_exe);

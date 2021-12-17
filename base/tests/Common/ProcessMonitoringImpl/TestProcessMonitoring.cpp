@@ -97,7 +97,6 @@ TEST_F(
 
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("No processes to monitor!")));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Not starting plugin without executable"));
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Process Monitoring Exiting"));
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Stopping processes"));
 }
