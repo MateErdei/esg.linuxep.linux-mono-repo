@@ -130,6 +130,7 @@ namespace
         const std::string& appId,
         const std::string& statusXml,
         const std::string& statusWithoutTimestampsXml));
+        MOCK_CONST_METHOD1(sendThreatHealth, void(const std::string& healthJson));
     };
 }
 

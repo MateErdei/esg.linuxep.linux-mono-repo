@@ -415,8 +415,4 @@ namespace Plugin
         return j.dump();
     }
 
-    void sendThreatHealth(const std::string& healthJson)
-    {
-        LOGDEBUG("Send threat health called" << healthJson);
-    }
 } // namespace Plugin
