@@ -175,7 +175,7 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
             if (proxy != nullptr)
             {
                 bool changed = proxy->updatePluginInfo(loadResult.first);
-                if (changed and proxy->isRunning())
+                if (changed && proxy->isRunning())
                 {
                     LOGINFO("Plugin info changed while plugin running so stopping plugin");
                     proxy->stop();
