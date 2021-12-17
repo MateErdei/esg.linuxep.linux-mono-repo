@@ -15,22 +15,27 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using namespace Common::OSUtilities;
 
-using PairResult = std::pair<std::string, std::string>;
+using PairResult = std::pair<std::string, std::vector<std::string>>;
 using ListInputOutput = std::vector<PairResult>;
+
+extern std::string ipsToString(const std::vector<std::string>& ips);
 
 TEST(TestDnsLookup, shouldBeAbleToResolvValidHosts) // NOLINT
 {
     auto dns = dnsLookup();
-    ListInputOutput url_ip = { { "uk-filer6.eng.sophos", "10.101.200.100" },
-                               { "uk-filer5.prod.sophos", "10.192.1.100" } };
+    ListInputOutput url_ip = {
+        { "uk-filer6.eng.sophos", { "10.101.200.100", "100.78.0.19" } },
+        { "uk-filer5.prod.sophos", { "10.192.1.100", "100.78.0.27" } }
+    };
 
     for (const auto& map : url_ip)
     {
         auto ips = dns->lookup(map.first);
         ASSERT_GT(ips.ip4collection.size(), 0);
         auto answer = ips.ip4collection.at(0).stringAddress();
-        EXPECT_EQ(answer, map.second)
-            << "ip of " << map.first << " differ. Expected: " << map.second << " but got: " << answer;
+        auto it = std::find(map.second.begin(), map.second.end(), answer);
+        ASSERT_NE(it, map.second.end())
+            << "ip of " << map.first << " differ. Expected: " << ipsToString(map.second) << " but got: " << answer;
     }
 }
 

@@ -18,21 +18,48 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <tuple>
 using namespace Common::OSUtilities;
 
-using PairResult = std::pair<std::string, std::string>;
+using PairResult = std::pair<std::string, std::vector<std::string>>;
 using ListInputOutput = std::vector<PairResult>;
+
+std::string ipsToString(const std::vector<std::string>& ips)
+{
+    std::ostringstream os;
+    bool first = true;
+
+    for (const auto& ip : ips)
+    {
+        if (first)
+        {
+            first = false;
+        }
+        else
+        {
+            os << " ";
+        }
+        os << ip;
+    }
+
+    return os.str();
+}
 
 TEST(TestIPUtils, verifyIP4CanbeconstructedByString) // NOLINT
 {
     auto dns = dnsLookup();
-    std::vector<std::pair<std::string, std::string>> url_ip = { { "uk-filer6.eng.sophos", "10.101.200.100" },
-                                                                { "uk-filer5.prod.sophos", "10.192.1.100" } };
+    ListInputOutput url_ip = {
+        { "uk-filer6.eng.sophos", { "10.101.200.100", "100.78.0.19" } },
+        { "uk-filer5.prod.sophos", { "10.192.1.100", "100.78.0.27" } }
+    };
 
     for (const auto& map : url_ip)
     {
         auto ips = dns->lookup(map.first);
         auto answerip = ips.ip4collection.at(0);
 
-        IP4 expected(map.second);
+        auto it = std::find(map.second.begin(), map.second.end(), answerip.stringAddress());
+        ASSERT_NE(it, map.second.end())
+            << "ip of " << map.first << " differ. Expected: " << ipsToString(map.second) << " but got: " << answerip.stringAddress();
+
+        IP4 expected(*it);
 
         EXPECT_EQ(expected.stringAddress(), answerip.stringAddress());
         EXPECT_EQ(expected.ipAddress(), answerip.ipAddress())
