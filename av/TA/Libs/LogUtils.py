@@ -310,6 +310,9 @@ File Log Contains
         flat_files = [item for sublist in combined_files for item in sublist]
         list_of_logs_containing_string = []
         for filepath in flat_files:
+            if "mcs" or "updatescheduler" in filepath:
+                logger.info("Skipping file: {}".format(filepath))
+                continue
             num_occurrence = self.get_number_of_occurrences_of_substring_in_log(filepath, string_to_find)
             if num_occurrence > 0:
                 self.log_string_if_found(string_to_find, filepath)
