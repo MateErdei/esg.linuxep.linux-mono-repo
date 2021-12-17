@@ -257,7 +257,7 @@ CLS Does not request TFTClassification from SUSI
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
+    Should Contain   ${result.stdout}   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
     Threat Detector Log Should Not Contain With Offset  TFTClassifications
 
 
