@@ -41,9 +41,21 @@ std::string PluginProxy::name() const
     return getPluginInfo().getPluginName();
 }
 
-void PluginProxy::updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info)
+bool PluginProxy::updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info)
 {
+    bool changed = false;
+    if (info.getExecutableUserAndGroupAsString() != getPluginInfo().getExecutableUserAndGroupAsString())
+    {
+        LOGINFO("Executable user and group has changed");
+        changed = true;
+    }
+    if (info.getExecutableFullPath() != getPluginInfo().getExecutableFullPath())
+    {
+        LOGINFO("Executable path has changed: " << info.getExecutableFullPath());
+        changed = true;
+    }
     getPluginInfo().copyFrom(info);
+    return changed;
 }
 
 Common::PluginRegistryImpl::PluginInfo& PluginProxy::getPluginInfo() const

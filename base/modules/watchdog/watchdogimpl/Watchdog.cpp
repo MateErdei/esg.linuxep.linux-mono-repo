@@ -174,7 +174,12 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
             PluginProxy* proxy = dynamic_cast<PluginProxy*>(&processProxy);
             if (proxy != nullptr)
             {
-                proxy->updatePluginInfo(loadResult.first);
+                bool changed = proxy->updatePluginInfo(loadResult.first);
+                if (changed and proxy->isRunning())
+                {
+                    LOGINFO("Plugin info changed while plugin running so stopping plugin");
+                    proxy->stop();
+                }
             }
             processProxy.setEnabled(true);
         };

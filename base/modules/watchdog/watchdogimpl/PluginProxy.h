@@ -33,8 +33,9 @@ namespace watchdog
             /**
              * Info has been reloaded, so update the information
              * @param info
+             * @return true if plugin config has changed, false otherwise
              */
-            void updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info);
+            bool updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info);
 
         private:
             /**

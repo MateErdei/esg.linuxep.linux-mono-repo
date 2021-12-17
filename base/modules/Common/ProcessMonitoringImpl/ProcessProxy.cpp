@@ -49,6 +49,8 @@ namespace Common
             m_processInfo->refreshUserAndGroupIds();
             std::pair<bool, uid_t> userId = m_processInfo->getExecutableUser();
             std::pair<bool, gid_t> groupId = m_processInfo->getExecutableGroup();
+            std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+            m_exe = Common::FileSystem::join(INST, m_processInfo->getExecutableFullPath());
 
             if (m_exe.empty())
             {

@@ -186,6 +186,10 @@ Check Telemetry Scheduler Is Running
     ${result} =     Run Process     pgrep  -f   tscheduler
     Should Be Equal As Integers     ${result.rc}    0
 
+Check Telemetry Scheduler Copy Is Running
+    ${result} =     Run Process     pgrep  -f   newTscheduler
+    Should Be Equal As Integers     ${result.rc}    0
+
 Check Comms Component Is Running
     ${result_is_running} =     Run Process     pgrep  -f   ${COMMS_COMPONENT}
     Log  ${result_is_running.stdout}
