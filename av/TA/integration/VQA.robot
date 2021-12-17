@@ -92,10 +92,10 @@ VQA Test Setup
     Register On Fail  dump log  ${AV_LOG_PATH}
     Check Plugin Installed and Running
     Mark AV Log
+    Register Cleanup   Check All Product Logs Do Not Contain Error
+    Register Cleanup   Exclude MCS Router is dead
+    Register Cleanup   Exclude CustomerID Failed To Read Error
 
 VQA Test TearDown
     Run Teardown Functions
-    Exclude MCS Router is dead
-    Exclude CustomerID Failed To Read Error
-    Check All Product Logs Do Not Contain Error
     Run Keyword If Test Failed   VQA Suite Setup

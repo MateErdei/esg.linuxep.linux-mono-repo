@@ -129,14 +129,13 @@ ScanNow Test Setup
     Mark AV Log
     Mark Sophos Threat Detector Log
     Register Cleanup      Check All Product Logs Do Not Contain Error
+    Register Cleanup      Exclude CustomerID Failed To Read Error
 
 ScanNow Test Teardown
     Dump Log On Failure   ${AV_LOG_PATH}
     Dump Log On Failure   ${SCANNOW_LOG_PATH}
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
-
-    Exclude CustomerID Failed To Read Error
 
     run teardown functions
     Run Keyword If Test Failed  Clear logs

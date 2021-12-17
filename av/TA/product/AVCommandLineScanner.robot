@@ -66,7 +66,6 @@ AVCommandLineScanner Test TearDown
     Remove Directory      ${NORMAL_DIRECTORY}  recursive=True
     Dump Log On Failure   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
-    Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
     Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
 
