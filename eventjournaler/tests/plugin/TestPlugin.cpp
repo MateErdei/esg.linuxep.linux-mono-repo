@@ -9,6 +9,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Helpers/LogInitializedTests.h>
+#include <Common/Helpers/MockApiBaseServices.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <SubscriberLib/Subscriber.h>
@@ -23,15 +24,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 using namespace Common::FileSystem;
 
-// Test plugin adapter
-class DummyServiceApi : public Common::PluginApi::IBaseServiceApi
-{
-public:
-    void sendEvent(const std::string&, const std::string&) const override{};
-    void sendStatus(const std::string&, const std::string&, const std::string&) const override{};
-    void requestPolicies(const std::string&) const override{};
-};
-
 class TestablePluginAdapter : public Plugin::PluginAdapter
 {
 public:
@@ -44,7 +36,7 @@ public:
         ) :
         Plugin::PluginAdapter(
             queueTask,
-            std::unique_ptr<Common::PluginApi::IBaseServiceApi>(new DummyServiceApi()),
+            std::unique_ptr<Common::PluginApi::IBaseServiceApi>(std::make_unique<StrictMock<MockApiBaseServices>>()),
             std::make_shared<Plugin::PluginCallback>(queueTask, heartbeat),
             std::move(subscriber),
             std::move(eventWriter),
