@@ -32,7 +32,7 @@ namespace Plugin
 
         std::string getTelemetry() override;
         std::string getHealth() override;
-
+        void sendThreatHealth(const std::string& healthJson) override;
         long calculateHealth();
 
         void sendStatus(const std::string& revID);
