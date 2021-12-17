@@ -3,8 +3,8 @@
 
 import unittest
 import xml.dom.minidom
-import mock
-from mock import patch, mock_open
+from unittest import mock
+from unittest.mock import patch, mock_open
 
 import logging
 logger = logging.getLogger("TestComputer")

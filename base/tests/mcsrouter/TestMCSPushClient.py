@@ -1,6 +1,6 @@
 import unittest
 import logging
-import mock
+from unittest import mock
 import time
 import selectors
 import sseclient

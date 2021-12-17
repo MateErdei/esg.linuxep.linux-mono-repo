@@ -6,8 +6,8 @@ import mcsrouter.utils.atomic_write
 
 import unittest
 import os
-import mock
-from mock import patch, mock_open
+from unittest import mock
+from unittest.mock import patch, mock_open
 import logging
 
 logger = logging.getLogger("TestResponse")

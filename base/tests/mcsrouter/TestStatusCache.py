@@ -4,11 +4,11 @@ import unittest
 import sys
 import time
 import hashlib
-import mock
+from unittest import mock
 import json
 #import logging
 #logger = logging.getLogger("TestStatusCache")
-from mock import patch, mock_open
+from unittest.mock import patch, mock_open
 import PathManager
 
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import os
-import mock
-from mock import patch, mock_open
+from unittest import mock
+from unittest.mock import patch, mock_open
 import json
 import unittest
 import logging

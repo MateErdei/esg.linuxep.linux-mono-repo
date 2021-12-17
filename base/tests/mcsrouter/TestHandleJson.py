@@ -5,9 +5,9 @@ import PathManager
 import mcsrouter.utils.handle_json
 
 import unittest
-import mock
+from unittest import mock
 import json
-from mock import patch, mock_open
+from unittest.mock import patch, mock_open
 import logging
 import time
 

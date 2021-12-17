@@ -3,7 +3,7 @@
 
 
 import unittest
-import mock
+from unittest import mock
 import sys
 import time
 import os

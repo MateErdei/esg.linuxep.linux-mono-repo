@@ -1,7 +1,7 @@
 import datetime
 import unittest
 import os
-import mock
+from unittest import mock
 import gzip
 import time
 

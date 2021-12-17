@@ -2,7 +2,7 @@ import logging
 import os
 import unittest
 
-import mock
+from unittest import mock
 
 logger = logging.getLogger("TestUtils")
 

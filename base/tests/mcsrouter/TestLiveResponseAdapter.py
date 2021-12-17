@@ -1,6 +1,6 @@
 import os
 import unittest
-import mock
+from unittest import mock
 import logging
 
 BUILD_DIR=os.environ.get("ABS_BUILDDIR",".")
