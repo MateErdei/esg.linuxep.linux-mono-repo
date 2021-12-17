@@ -12,6 +12,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/MockFilePermissions.h>
+#include <Common/Helpers/MockApiBaseServices.h>
+
 #include <Common/Helpers/TempDir.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
@@ -23,23 +25,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 
-class DummyServiceApli : public Common::PluginApi::IBaseServiceApi
-{
-public:
-    void sendEvent(const std::string&, const std::string&) const override {};
-
-    void sendStatus(const std::string&, const std::string&, const std::string&) const override {};
-
-    void requestPolicies(const std::string&) const override {};
-};
-
 class TestablePluginAdapter : public Plugin::PluginAdapter
 {
 public:
     TestablePluginAdapter(std::shared_ptr<Plugin::QueueTask> queueTask) :
         Plugin::PluginAdapter(
             queueTask,
-            std::unique_ptr<Common::PluginApi::IBaseServiceApi>(new DummyServiceApli()),
+            std::unique_ptr<Common::PluginApi::IBaseServiceApi>(new MockApiBaseServices()),
             std::make_shared<Plugin::PluginCallback>(queueTask))
     {
 
