@@ -151,7 +151,8 @@ AV plugin doesnt report a error message if no policy is received
 
     Set Log Level  ERROR
     Start AV Plugin
-    Wait until AV Plugin running
+
+    Sleep 60  #Giving a chance for the plugin to start up and request policy
     AV Plugin Log Does Not Contain With Offset  Failed to get SAV policy at startup (No Policy Available)
     AV Plugin Log Does Not Contain With Offset  Failed to get ALC policy at startup (No Policy Available)
 
@@ -159,13 +160,10 @@ AV plugin does report a info message if no policy is received
     Mark AV Log
     Stop AV Plugin
     Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
-    ${result} =  Run Process  ls  -l  /opt/sophos-spl/base/mcs/policy/
-    Log  Policy: ${result.stdout}
 
     Start AV Plugin
-    Wait until AV Plugin running
-    AV Plugin Log Contains With Offset  Failed to get SAV policy at startup (No Policy Available)
-    AV Plugin Log Contains With Offset  Failed to get ALC policy at startup (No Policy Available)
+    Wait Until AV Plugin Log Contains With Offset  Failed to get SAV policy at startup (No Policy Available)
+    Wait Until AV Plugin Log Contains With Offset  Failed to get ALC policy at startup (No Policy Available)
 
 AV plugin fails scan now if no policy
     Register Cleanup    Exclude Scan As Invalid
