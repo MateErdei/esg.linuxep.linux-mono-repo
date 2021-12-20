@@ -40,8 +40,15 @@ IDE update doesnt restart av processes
     Check Threat Detected  peend.exe  PE/ENDTEST
 
 IDE update only copies updated ide
-    [Tags]  DISABLED
+    #[Timeout]  10 minutes
+    Mark Sophos Threat Detector Log
+    Mark Susi Debug Log
+
+    Force SUSI to be initialized
+    Sleep  10
+    SUSI Debug Log Contains With Offset  Initialization succeeded
     # /proc/diskstats sda
+
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     ${WRITTEN_TO_DISK_BEFORE} =  Get Amount Written To Disk
