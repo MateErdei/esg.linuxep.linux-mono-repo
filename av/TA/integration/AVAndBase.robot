@@ -152,7 +152,7 @@ AV plugin doesnt report a error message if no policy is received
     Set Log Level  ERROR
     Start AV Plugin
 
-    Sleep 60  #Giving a chance for the plugin to start up and request policy
+    Sleep  60  #Giving a chance for the plugin to start up and request policy
     AV Plugin Log Does Not Contain With Offset  Failed to get SAV policy at startup (No Policy Available)
     AV Plugin Log Does Not Contain With Offset  Failed to get ALC policy at startup (No Policy Available)
 
