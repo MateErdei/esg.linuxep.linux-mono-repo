@@ -39,7 +39,7 @@
     </Identity>
     <Identity>
       <Label>
-        <Token>ServerProtectionLinux-Plugin-heartbeat</Token>
+        <Token>ServerProtectionLinux-Plugin-Heartbeat</Token>
         <Language lang="en">
           <LongDesc>Sophos Linux Heartbeat Plugin</LongDesc>
           <ShortDesc>Sophos Linux Heartbeat Plugin</ShortDesc>

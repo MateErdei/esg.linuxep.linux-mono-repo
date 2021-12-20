@@ -171,10 +171,10 @@
 				 longdic="Sophos Linux Runtime Detection Plugin"
 				 shortdic="Sophos Linux Runtime Detection Plugin"/>
     </line>
-    <line id="ServerProtectionLinux-Plugin-heartbeat">
-      <component id="ServerProtectionLinux-Plugin-heartbeat-1.0.0.121"
+    <line id="ServerProtectionLinux-Plugin-Heartbeat">
+      <component id="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.121"
 				 version="1.0.0.121"
-				 artifact="esg-releasable-candidate/linuxep.heartbeat/release--2021.49/20211216120314-646ea07be5dbfa7d33dcbb7a850223e757944c21-wK1tAm/sspl-plugin-heartbeat/SDDS-COMPONENT"
+				 artifact="esg-releasable-candidate/linuxep.heartbeat/release--2021.49/20211220150538-659ff46a7c872cb28bc185c8d8a0fe795a5bcccb-lXL250/sspl-plugin-heartbeat/SDDS-COMPONENT"
 				 longdic="Sophos Linux Heartbeat Plugin"
 				 shortdic="Sophos Linux Heartbeat Plugin"/>
     </line>
