@@ -5,6 +5,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/Obfuscation/IObscurityException.h>
+#include <Common/Obfuscation/ICipherException.h>
 #include <Common/ObfuscationImpl/Base64.h>
 #include <Common/ObfuscationImpl/Obfuscate.h>
 #include <Common/ObfuscationImpl/Obscurity.h>
@@ -48,4 +49,12 @@ TEST_F(TestObscurity, SECDeobfuscate) // NOLINT
         Common::ObfuscationImpl::SECDeobfuscate("CCD37FNeOPt7oCSNouRhmb9TKqwDvVsqJXbyTn16EHuw6ksTa3NCk56J5RRoVigjd3E="),
         "regrABC123pass");
     // regruser:regrABC123pass  -  9539d7d1f36a71bbac1259db9e868231
+}
+
+TEST_F(TestObscurity, SECDeobfuscateBufferOverReadFoundByFuzzer) // NOLINT
+{
+    ASSERT_THROW(Common::ObfuscationImpl::SECDeobfuscate(
+                     "CCJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHkDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXg="),
+                     Common::Obfuscation::ICipherException);
+
 }

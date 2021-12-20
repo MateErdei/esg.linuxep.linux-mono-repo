@@ -109,3 +109,21 @@ TEST_F(CipherTest, FailDecryptFinal) // NOLINT
         Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer),
         Common::Obfuscation::ICipherException);
 }
+
+TEST_F(CipherTest, FailDecryptBecauseSaltLongerThanKey) // NOLINT
+{
+    Common::ObfuscationImpl::SecureDynamicBuffer key(5, '*');
+    Common::ObfuscationImpl::SecureDynamicBuffer encrypted(200, '*');
+    // First byte is treated as the salt length
+    encrypted[0] = 150;
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Decrypt(key, encrypted);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "Incorrect number of salt bytes");
+    }
+
+}

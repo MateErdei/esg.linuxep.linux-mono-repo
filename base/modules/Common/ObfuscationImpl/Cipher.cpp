@@ -110,8 +110,15 @@ namespace Common
                 throw Common::Obfuscation::ICipherException("String to decrypt is empty");
             }
 
+            const EVP_CIPHER* cipher = EVP_aes_256_cbc();
+            assert(EVP_CIPHER_key_length(cipher) > 0);
+            const auto REQUIRED_SALT_LENGTH = static_cast<size_t>(EVP_CIPHER_key_length(cipher));
+
             size_t saltLength = encrypted[0];
-            assert(saltLength <= 256);
+            if (saltLength != REQUIRED_SALT_LENGTH)
+            {
+                throw Common::Obfuscation::ICipherException("Incorrect number of salt bytes");
+            }
 
             if (encrypted.size() < saltLength + 1)
             {
@@ -139,11 +146,7 @@ namespace Common
             }
 
             unsigned char* key = keyivarray.data();
-            unsigned char* iv = keyivarray.data() + saltLength;
-
-            int len;
-
-            int plaintext_len = 0;
+            unsigned char* iv = keyivarray.data() + EVP_CIPHER_key_length(cipher);
 
             /* Create and initialise the context */
             EvpCipherContext evpCipherWrapper;
@@ -153,17 +156,19 @@ namespace Common
              * In this example we are using 256 bit AES (i.e. a 256 bit key). The
              * IV size for *most* modes is the same as the block size. For AES this
              * is 128 bits */
-            evpCipherWrapper.DecryptInit_ex(EVP_aes_256_cbc(), key, iv);
+            evpCipherWrapper.DecryptInit_ex(cipher, key, iv);
 
             /* Provide the message to be decrypted, and obtain the plaintext output.
              * EVP_DecryptUpdate can be called multiple times if necessary
              */
             Common::ObfuscationImpl::SecureFixedBuffer<128> plaintextbuffer;
 
+            int len = -1;
             evpCipherWrapper.DecryptUpdate(
                 plaintextbuffer.data(), &len, (const unsigned char*)cipherText.data(), cipherText.size());
+            assert(len >= 0);
 
-            plaintext_len = len;
+            int plaintext_len = len;
 
             /* Finalise the decryption. Further plaintext bytes may be written at
              * this stage.
@@ -187,12 +192,12 @@ Common::ObfuscationImpl::IEvpCipherWrapperPtr& evpCipherWrapperStaticPointer()
 
 void Common::ObfuscationImpl::replaceEvpCipherWrapper(IEvpCipherWrapperPtr pointerToReplace)
 {
-    evpCipherWrapperStaticPointer().reset(pointerToReplace.release());
+    evpCipherWrapperStaticPointer() = std::move(pointerToReplace);
 }
 
 void Common::ObfuscationImpl::restoreEvpCipherWrapper()
 {
-    evpCipherWrapperStaticPointer().reset(new Common::ObfuscationImpl::EvpCipherWrapper());
+    evpCipherWrapperStaticPointer() = std::make_unique<Common::ObfuscationImpl::EvpCipherWrapper>();
 }
 
 Common::Obfuscation::IEvpCipherWrapper* Common::Obfuscation::evpCipherWrapper()
