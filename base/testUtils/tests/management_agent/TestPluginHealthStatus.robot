@@ -87,7 +87,7 @@ Verify Management Agent does not check health when suldownloader is running
     Remove File  /opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file
 
     Wait Until Keyword Succeeds
-    ...  40
+    ...  180
     ...  5
     ...  File Should Exist   ${SHS_STATUS_FILE}
 

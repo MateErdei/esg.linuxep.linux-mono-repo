@@ -18,7 +18,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/TempDir.h>
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
@@ -94,6 +96,11 @@ namespace
         }
 
         Common::TaskQueue::ITaskQueueSharedPtr getTaskQueue() { return m_taskQueue; }
+
+        bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds)
+        {
+            return ManagementAgentMain::updateOngoingWithGracePeriod(gracePeriodSeconds);
+        }
     };
 
     class FakeSchedulerPlugin
@@ -441,6 +448,60 @@ namespace
         synchronizer.notify();
         pluginSynchronizer.notify();
         ASSERT_EQ(0, futureRunner.get());
+    }
+
+    TEST_F(ManagementAgentIntegrationTests, updateOngoingWithGracePeriodReturnsFalseWhenUpdateMarkerNotPresent)
+    {
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+        EXPECT_CALL(
+            *mockFileSystem,
+            isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
+            .WillOnce(Return(false));
+
+        TestManagementAgent agent;
+        ASSERT_FALSE(agent.updateOngoingWithGracePeriod(10));
+    }
+
+    TEST_F(ManagementAgentIntegrationTests, updateOngoingWithGracePeriodReturnsTrueWhenUpdateMarkerPresent)
+    {
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+        EXPECT_CALL(
+            *mockFileSystem,
+            isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
+            .WillOnce(Return(true));
+
+        TestManagementAgent agent;
+        ASSERT_TRUE(agent.updateOngoingWithGracePeriod(10));
+    }
+
+
+    TEST_F(ManagementAgentIntegrationTests, updateOngoingWithGracePeriodReturnsTrueUntilGracePeriodOver)
+    {
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+        EXPECT_CALL(
+            *mockFileSystem,
+            isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
+            .WillOnce(Return(true))
+            .WillRepeatedly(Return(false));
+
+        TestManagementAgent agent;
+
+        ASSERT_TRUE(agent.updateOngoingWithGracePeriod(1));
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        ASSERT_TRUE(agent.updateOngoingWithGracePeriod(1));
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(600));
+        ASSERT_FALSE(agent.updateOngoingWithGracePeriod(1));
     }
 
 } // namespace

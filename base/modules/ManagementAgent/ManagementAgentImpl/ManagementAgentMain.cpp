@@ -252,6 +252,20 @@ namespace ManagementAgent
             return false;
         }
 
+        bool ManagementAgentMain::updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds)
+        {
+            static std::chrono::system_clock::time_point lastTimeWeSawUpdateMarker{};
+            if (updateOngoing())
+            {
+                lastTimeWeSawUpdateMarker = std::chrono::system_clock::now();
+                return true;
+            }
+
+            // If it's been gracePeriodSeconds seconds since we last saw the update marker and it's not there anymore,
+            // then we make sure to give the specified grace period for updates to finish.
+            return (std::chrono::system_clock::now() - lastTimeWeSawUpdateMarker) < std::chrono::seconds(gracePeriodSeconds);
+        }
+
         int ManagementAgentMain::run(bool withPersistentTelemetry)
         {
             LOGINFO("Management Agent starting.. ");
@@ -302,7 +316,7 @@ namespace ManagementAgent
                 {
                     if ((currentTime - lastHealthCheck) >= std::chrono::seconds(waitPeriod))
                     {
-                        if (!updateOngoing())
+                        if (!updateOngoingWithGracePeriod(120))
                         {
                             lastHealthCheck = currentTime;
                             std::unique_ptr<Common::TaskQueue::ITask> task(
