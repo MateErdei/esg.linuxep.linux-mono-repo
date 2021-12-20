@@ -15,6 +15,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 
+#include <thread>
+
 Common::PluginApiImpl::BaseServiceAPI::BaseServiceAPI(
     const std::string& pluginName,
     Common::ZeroMQWrapper::ISocketRequesterPtr socketRequester) :
@@ -110,14 +112,27 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
 {
     Common::PluginProtocol::Protocol protocol;
     Common::PluginProtocol::DataMessage reply;
-    try
+
+    int tries = 5;
+    int waitTimeMillis = 200;
+    while (tries > 0)
     {
-        m_socket->write(protocol.serialize(request));
-        reply = protocol.deserialize(m_socket->read());
-    }
-    catch (std::exception& ex)
-    {
-        throw Common::PluginApi::ApiException(ex.what());
+        tries--;
+        try
+        {
+            m_socket->write(protocol.serialize(request));
+            reply = protocol.deserialize(m_socket->read());
+            break;
+        }
+        catch (std::exception& ex)
+        {
+            if (tries == 0)
+            {
+                throw Common::PluginApi::ApiException(ex.what());
+            }
+            LOGDEBUG("BaseServiceAPI call failed, retrying in " << waitTimeMillis << "ms");
+            std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeMillis));
+        }
     }
 
     if (reply.m_command != request.m_command)
