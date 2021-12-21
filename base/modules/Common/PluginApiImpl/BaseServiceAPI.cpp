@@ -110,6 +110,9 @@ void Common::PluginApiImpl::BaseServiceAPI::requestPolicies(const std::string& a
 Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getReply(
     const Common::PluginProtocol::DataMessage& request) const
 {
+    static std::mutex mutex;
+    std::lock_guard<std::mutex> lk(mutex);
+
     Common::PluginProtocol::Protocol protocol;
     Common::PluginProtocol::DataMessage reply;
 
