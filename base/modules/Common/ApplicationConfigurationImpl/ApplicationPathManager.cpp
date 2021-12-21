@@ -341,9 +341,10 @@ namespace Common
         {
             return Common::FileSystem::join(sophosInstall(), "base/etc/sophosspl/instance-metadata.json");
         }
+
         std::string ApplicationPathManager::getUpdateMarkerFile() const
         {
-            return Common::FileSystem::join(getSulDownloaderReportPath(), "upgrade_marker_file");
+            return Common::FileSystem::join(sophosInstall(), "var/sophosspl/upgrade_marker_file");
         }
 
         std::string ApplicationPathManager::getThreatHealthJsonFilePath() const

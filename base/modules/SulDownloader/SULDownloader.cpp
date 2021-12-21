@@ -346,7 +346,8 @@ namespace SulDownloader
             {
                 fs->writeFile(markerPath, "");
                 auto fp = Common::FileSystem::filePermissions();
-                fp->chown(markerPath, sophos::updateSchedulerUser(), "root");
+                fp->chown(markerPath, sophos::updateSchedulerUser(), sophos::group());
+                fp->chmod(markerPath, S_IRUSR | S_IWUSR | S_IRGRP);
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {
@@ -427,10 +428,10 @@ namespace SulDownloader
         {
             try
             {
-                std::string path = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
-                if (fs->isFile(path))
+                std::string updateMarkerFile = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
+                if (fs->isFile(updateMarkerFile))
                 {
-                    fs->removeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile());
+                    fs->removeFile(updateMarkerFile);
                 }
                 else
                 {

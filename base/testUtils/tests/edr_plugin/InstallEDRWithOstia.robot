@@ -72,11 +72,11 @@ Install all plugins 999 then downgrade to all plugins develop
     Wait Until Keyword Succeeds
     ...   90 secs
     ...   5 secs
-    ...   File Should exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/upgrade_marker_file
+    ...   File Should exist   ${UPGRADING_MARKER_FILE}
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   File Should not exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/upgrade_marker_file
+    ...   File Should not exist   ${UPGRADING_MARKER_FILE}
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   10 secs
@@ -483,11 +483,11 @@ Install master of base and edr and mtr and upgrade to base 999
     Wait Until Keyword Succeeds
     ...   90 secs
     ...   5 secs
-    ...   File Should exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/upgrade_marker_file
+    ...   File Should exist   ${UPGRADING_MARKER_FILE}
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   File Should not exist   ${SOPHOS_INSTALL}/base/update/var/updatescheduler/upgrade_marker_file
+    ...   File Should not exist   ${UPGRADING_MARKER_FILE}
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs

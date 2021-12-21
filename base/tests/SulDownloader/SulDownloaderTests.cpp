@@ -328,13 +328,13 @@ public:
             mockFileSystem, writeFile("/opt/sophos-spl/var/suldownloader_last_product_update.marker", "")
         ).Times(::testing::AtMost(1));
         EXPECT_CALL(
-            mockFileSystem, writeFile("/opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file", "")
+            mockFileSystem, writeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), "")
         ).Times(::testing::AtMost(1));
         EXPECT_CALL(
-            mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file")
+            mockFileSystem, removeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())
         ).Times(::testing::AtMost(1));
         EXPECT_CALL(
-            mockFileSystem, isFile("/opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file")
+            mockFileSystem, isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())
         ).Times(::testing::AtMost(1));
     }
 
@@ -349,7 +349,8 @@ public:
         EXPECT_CALL(*mockFilePermissions, chmod(testing::HasSubstr("/opt/sophos-spl/tmp"), expectedFilePermissions));
         if (markerFileWritten)
         {
-            EXPECT_CALL(*mockFilePermissions, chown("/opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file", sophos::updateSchedulerUser(), "root"));
+            EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), sophos::updateSchedulerUser(), sophos::group()));
+            EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), S_IRUSR | S_IWUSR | S_IRGRP));
         }
 
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =

@@ -33,9 +33,9 @@ UpdateScheduler SulDownloader Report Sync With Warehouse Success
     [Tags]  SMOKE  UPDATE_SCHEDULER  TAP_TESTS
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
     Setup Base and Plugin Sync and UpToDate
-    Create File   /opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file
-    Run process   chown sophos-spl-updatescheduler:sophos-spl-group /opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file  shell=yes
-    Run process   chmod a+w /opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file  shell=yes
+    Create File   ${UPGRADING_MARKER_FILE}
+    Run process   chown sophos-spl-updatescheduler:sophos-spl-group ${UPGRADING_MARKER_FILE}  shell=yes
+    Run process   chmod a+w ${UPGRADING_MARKER_FILE}  shell=yes
 
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created
@@ -53,7 +53,7 @@ UpdateScheduler SulDownloader Report Sync With Warehouse Success
     Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0  True  ${time}  sddsid=regruser
     Cleanup Telemetry Server
     Check Update Scheduler Run as Sophos-spl-user
-    File Should Not Exist  /opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file
+    File Should Not Exist  ${UPGRADING_MARKER_FILE}
 
 UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
     Simulate Send Policy   ALC_policy_invalid.xml

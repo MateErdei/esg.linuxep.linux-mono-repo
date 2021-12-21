@@ -21,7 +21,6 @@ o700, sophos-spl-network, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-com
 o700, sophos-spl-network, sophos-spl-network, /opt/sophos-spl/var/sophos-spl-comms/logs
 o710, sophos-spl-group, root, /opt/sophos-spl/base/update
 o710, sophos-spl-group, root, /opt/sophos-spl/base/update/var
-o710, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/sophosspl
 o710, sophos-spl-ipc, sophos-spl-user, /opt/sophos-spl/var/ipc
 o711, root, root, /opt/sophos-spl/base/etc
 o711, root, root, /opt/sophos-spl/base/lib64
@@ -87,5 +86,6 @@ o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/telemetry/cache
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/logs/base/sophosspl
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/comms/requests
 o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/lock-sophosspl
+o770, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/var/sophosspl
 o770, sophos-spl-ipc, sophos-spl-user, /opt/sophos-spl/var/ipc/plugins
 o777, root, root, /opt/sophos-spl/logs/base/sophos-spl-comms

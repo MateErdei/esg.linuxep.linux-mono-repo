@@ -72,7 +72,7 @@ Verify Management Agent does not check health when suldownloader is running
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
-    Create File   /opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file
+    Create File   ${UPGRADING_MARKER_FILE}
     Setup Plugin Registry
     Start Management Agent
 
@@ -84,7 +84,7 @@ Verify Management Agent does not check health when suldownloader is running
     ...  check_management_agent_log_contains   Starting service health checks
     File Should Not Exist   ${SHS_STATUS_FILE}
 
-    Remove File  /opt/sophos-spl/base/update/var/updatescheduler/upgrade_marker_file
+    Remove File  ${UPGRADING_MARKER_FILE}
 
     Wait Until Keyword Succeeds
     ...  180
