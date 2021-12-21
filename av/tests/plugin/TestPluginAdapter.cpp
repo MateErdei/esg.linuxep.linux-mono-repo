@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "PluginMemoryAppenderUsingTests.h"
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/MockApiBaseServices.h>
 
 #include <pluginimpl/PluginAdapter.h>
 #include <pluginimpl/PluginAdapter.cpp>
@@ -120,18 +121,6 @@ namespace
         std::shared_ptr<Plugin::PluginCallback> m_callback;
         fs::path m_threatEventPublisherSocketPath;
     };
-
-    class MockBase : public Common::PluginApi::IBaseServiceApi
-    {
-    public:
-        MOCK_CONST_METHOD1(requestPolicies, void(const std::string& appId));
-        MOCK_CONST_METHOD2(sendEvent, void(const std::string& appId, const std::string& eventXml));
-        MOCK_CONST_METHOD3(sendStatus, void(
-        const std::string& appId,
-        const std::string& statusXml,
-        const std::string& statusWithoutTimestampsXml));
-        MOCK_CONST_METHOD1(sendThreatHealth, void(const std::string& healthJson));
-    };
 }
 
 ACTION_P(QueueStopTask, taskQueue) {
@@ -140,8 +129,8 @@ ACTION_P(QueueStopTask, taskQueue) {
 
 TEST_F(TestPluginAdapter, testConstruction) //NOLINT
 {
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -152,8 +141,8 @@ TEST_F(TestPluginAdapter, testMainLoop) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -168,8 +157,8 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -208,8 +197,8 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(_,_)).WillRepeatedly(Throw(ex));
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -254,8 +243,8 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -282,8 +271,8 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -319,8 +308,8 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     // Setup Mock filesystem
@@ -357,8 +346,8 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID) //NO
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     // Setup Mock filesystem
@@ -402,8 +391,8 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
     log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
     scanLogger.addAppender(m_sharedAppender);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
@@ -441,8 +430,8 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
     scanLogger.addAppender(m_sharedAppender);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
@@ -477,8 +466,8 @@ TEST_F(TestPluginAdapter, testProcessScanComplete) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string scanCompleteXml = R"sophos(<?xml version="1.0"?>
@@ -512,8 +501,8 @@ TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string threatDetectedXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -613,8 +602,8 @@ TEST_F(TestPluginAdapter, testPublishThreatReport) //NOLINT
     SubscriberThread thread(*subscriberContext, m_threatEventPublisherSocketPath);
     thread.start();
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     pluginAdapter.connectToThreatPublishingSocket(m_threatEventPublisherSocketPath);
@@ -633,8 +622,8 @@ TEST_F(TestPluginAdapter, testPublishThreatReport) //NOLINT
 
 TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
 {
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string threatDetectedXML = R"sophos(
@@ -664,8 +653,8 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
 
 TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount) //NOLINT
 {
-    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string threatDetectedXML = R"sophos(
@@ -697,8 +686,8 @@ TEST_F(TestPluginAdapter, testInvalidTaskType) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
