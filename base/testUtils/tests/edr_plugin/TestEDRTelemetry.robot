@@ -74,7 +74,7 @@ EDR Plugin Counts OSQuery Restarts Correctly And Reports In Telemetry
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  SophosExtension running  3
     Kill OSQuery
-    Wait Until EDR OSQuery Running  20
+    Wait Until EDR OSQuery Running  40
 
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
@@ -124,7 +124,7 @@ EDR Plugin Counts OSQuery Restarts Correctly when XDR is enabled And Reports In 
     Sleep  10s
 
     Kill OSQuery
-    Wait Until EDR OSQuery Running  20
+    Wait Until EDR OSQuery Running  40
     Wait Until Osquery Socket Exists
     Wait Until Keyword Succeeds
     ...  10s
@@ -238,7 +238,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     ...  Check Livequery Log Contains    Extension exited while running
 
     Wait Until Keyword Succeeds
-    ...  30s
+    ...  60s
     ...  2s
     ...  Check Log Contains String N Times  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr.log  OSQUERY_PROCESS_FINISHED  3
     Prepare To Run Telemetry Executable
