@@ -485,7 +485,7 @@ AV plugin Saves and Restores Scan Now Counter
     Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   1
 
     Start AV Plugin
-
+    Wait until AV Plugin running
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
