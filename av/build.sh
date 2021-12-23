@@ -133,6 +133,9 @@ do
             shift
             EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DPLUGINAPIPATH=$1"
             ;;
+          --fuzz)
+            export USE_LIBFUZZER=1
+            ;;
         --plugin-api-tar)
             shift
             PLUGIN_TAR=$1

@@ -15,9 +15,7 @@ set(WARNING_FLAGS "-Wall -Wextra -Werror -Wnon-virtual-dtor -fstack-protector")
 
 if (DEFINED ENV{USE_LIBFUZZER})
     message("fuzz mode")
-    set(FUZZING_FLAGS -DUSING_LIBFUZZER=1 -g -O1 -fno-omit-frame-pointer -fsanitize=fuzzer,address,undefined,integer)
-    add_compile_options(${FUZZING_FLAGS})
-    add_link_options(${FUZZING_FLAGS})
+#    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -DUSING_LIBFUZZER=1")
 endif (DEFINED ENV{USE_LIBFUZZER})
 
 set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SANITISE_FLAGS} ${WARNING_FLAGS}")

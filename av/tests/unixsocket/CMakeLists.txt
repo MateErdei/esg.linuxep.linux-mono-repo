@@ -56,6 +56,24 @@ target_link_libraries(threatDetectorClientExecutable  PUBLIC
 target_include_directories(threatDetectorClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 target_include_directories(threatDetectorClientExecutable SYSTEM PRIVATE ${BOOSTPATH})
 
+if (DEFINED ENV{USE_LIBFUZZER})
+SET_TARGET_PROPERTIES( threatDetectorClientExecutable
+        threatDetectorServerExecutable
+        threatReporterServerExecutable
+        ProcessControlServerExecutable
+        PROPERTIES
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../../../base-sdds/files/base/lib64/"
+        )
+install(TARGETS threatDetectorClientExecutable
+        threatDetectorServerExecutable
+        threatReporterServerExecutable
+        ProcessControlServerExecutable
+        DESTINATION files/plugins/${PLUGIN_NAME}/bin
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        )
+
+endif (DEFINED ENV{USE_LIBFUZZER})
 
 SophosAddTest(TestProcessControllerServerSocket
         ../common/LogInitializedTests.cpp

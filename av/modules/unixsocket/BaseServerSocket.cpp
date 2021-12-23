@@ -132,8 +132,6 @@ void unixsocket::BaseServerSocket::run()
     killThreads();
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
 void unixsocket::BaseServerSocket::logError(const std::string& msg)
 {
     LOGERROR(msg);
@@ -143,4 +141,3 @@ void unixsocket::BaseServerSocket::logDebug(const std::string& msg)
 {
     LOGDEBUG(msg);
 }
-#pragma clang diagnostic pop
