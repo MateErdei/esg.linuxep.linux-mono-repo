@@ -484,8 +484,9 @@ AV plugin Saves and Restores Scan Now Counter
     ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
     Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   1
 
+    Mark AV Log
     Start AV Plugin
-    Wait until AV Plugin running
+    Wait Until AV Plugin Log Contains With Offset  Restoring telemetry from disk for plugin: av
     Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
