@@ -46,9 +46,14 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
     {
         if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
+#ifndef USING_LIBFUZZER
             std::stringstream errMsg;
-            errMsg << "Failed to write Threat Report Client to socket [" << errno << "]";
-            throw std::runtime_error(errMsg.str());
+                errMsg << "Failed to write Process Control Client to socket [" << errno << "]";
+                throw std::runtime_error(errMsg.str());
+#else
+            LOGERROR(errno);
+            throw std::runtime_error("Failed to write Process Control Client to socket");
+#endif
         }
     }
     catch (unixsocket::environmentInterruption& e)

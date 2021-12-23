@@ -79,9 +79,14 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
     {
         if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
-            std::stringstream errMsg;
-            errMsg << "Failed to write Process Control Client to socket [" << errno << "]";
-            throw std::runtime_error(errMsg.str());
+            #ifndef USING_LIBFUZZER
+                std::stringstream errMsg;
+                errMsg << "Failed to write Process Control Client to socket [" << errno << "]";
+                throw std::runtime_error(errMsg.str());
+            #else
+                LOGERROR(errno);
+                throw std::runtime_error("Failed to write Process Control Client to socket");
+            #endif
         }
     }
     catch (unixsocket::environmentInterruption& e)
