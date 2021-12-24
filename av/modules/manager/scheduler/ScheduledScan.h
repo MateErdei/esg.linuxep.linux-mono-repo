@@ -108,7 +108,11 @@ namespace manager::scheduler
         std::string m_name;
         DaySet m_days;
         TimeSet m_times;
+#ifdef USING_LIBFUZZER
         [[maybe_unused]] time_t m_lastRunTime;
+#else
+            time_t m_lastRunTime;
+#endif
         bool m_valid;
         bool m_isScanNow;
         bool m_archiveScanning;
