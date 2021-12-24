@@ -6,6 +6,7 @@ add_custom_target(echogTest
         COMMAND echo gtest_SOURCE_DIR=${gtest_SOURCE_DIR}
         COMMAND ls -l ${gtest_SOURCE_DIR}/include/gtest/gtest.h
         )
+if (NOT DEFINED ENV{USE_LIBFUZZER})
 add_subdirectory(avscanner)
 add_subdirectory(capability)
 add_subdirectory(commonTest)
@@ -20,4 +21,5 @@ add_subdirectory(scan_messages)
 add_subdirectory(sophos_threat_detector)
 add_subdirectory(susi_experiment_scanner)
 add_subdirectory(threat_scanner)
+endif (NOT DEFINED ENV{USE_LIBFUZZER})
 add_subdirectory(unixsocket)

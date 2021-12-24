@@ -108,7 +108,7 @@ namespace manager::scheduler
         std::string m_name;
         DaySet m_days;
         TimeSet m_times;
-        time_t m_lastRunTime;
+        [[maybe_unused]] time_t m_lastRunTime;
         bool m_valid;
         bool m_isScanNow;
         bool m_archiveScanning;

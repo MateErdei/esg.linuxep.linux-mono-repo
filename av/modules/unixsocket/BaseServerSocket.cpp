@@ -132,12 +132,13 @@ void unixsocket::BaseServerSocket::run()
     killThreads();
 }
 
-void unixsocket::BaseServerSocket::logError(const std::string& msg)
+
+void unixsocket::BaseServerSocket::logError([[maybe_unused]] const std::string& msg)
 {
     LOGERROR(msg);
 }
 
-void unixsocket::BaseServerSocket::logDebug(const std::string& msg)
+void unixsocket::BaseServerSocket::logDebug([[maybe_unused]] const std::string& msg)
 {
     LOGDEBUG(msg);
 }

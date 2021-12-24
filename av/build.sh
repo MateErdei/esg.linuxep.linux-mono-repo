@@ -135,6 +135,8 @@ do
             ;;
           --fuzz)
             export USE_LIBFUZZER=1
+            CMAKE_BUILD_TYPE=Debug
+            UNITTEST=0
             ;;
         --plugin-api-tar)
             shift
@@ -391,7 +393,11 @@ function build()
         (( LOCAL_GCC == 0 )) && set_gcc_make
     fi
 
-    addpath "$REDIST/cmake/bin"
+    if [[ ! $USE_LIBFUZZER ]]
+    then
+      addpath "$REDIST/cmake/bin"
+    fi
+
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
     if (( RUN_CPPCHECK == 1 ))
@@ -430,8 +436,15 @@ function build()
     export LD_LIBRARY_PATH=${LIBRARY_PATH}:$(pwd)/${BUILD_DIR}/libs
     echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
 
-    [[ -n $CC ]] || CC=$(which gcc)
-    [[ -n $CXX ]] || CXX=$(which g++)
+    if [[ ! $USE_LIBFUZZER ]]
+    then
+      [[ -n $CXX ]] || CXX=$(which g++)
+      [[ -n $CC ]] || CC=$(which gcc)
+    else
+      [[ -n $CXX ]] || CXX=$(which clang++-9)
+      [[ -n $CC ]] || CC=$(which clang-9)
+    fi
+
     export CC
     export CXX
 

@@ -1,4 +1,6 @@
-
+if (DEFINED ENV{USE_LIBFUZZER})
+    return()
+endif (DEFINED ENV{USE_LIBFUZZER})
 add_executable(avscanner
         cmd_scanner.cpp
         )

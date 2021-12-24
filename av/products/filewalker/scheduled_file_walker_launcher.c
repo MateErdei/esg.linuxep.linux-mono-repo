@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 int main(int argc, char* argv[])
 {
+    (void) argc;
     // TODO get installation location LINUXDAR-2158
     int ret = pass_on_capability(CAP_DAC_READ_SEARCH);
     if (ret != 0)

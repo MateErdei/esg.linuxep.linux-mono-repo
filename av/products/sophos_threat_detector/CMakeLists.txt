@@ -1,4 +1,6 @@
-
+if (DEFINED ENV{USE_LIBFUZZER})
+    return()
+endif (DEFINED ENV{USE_LIBFUZZER})
 add_executable(sophos_threat_detector
         sophos_threat_detector_main.cpp
         LogSetup.cpp LogSetup.h)
