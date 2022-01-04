@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -105,7 +105,7 @@ void ScanRunner::run()
     LOGINFO("Sending scan complete event to Central");
     std::string scanCompletedXml = generateScanCompleteXml(m_name);
     LOGDEBUG("XML" << scanCompletedXml);
-    m_completionNotifier.processScanComplete(scanCompletedXml);
+    m_completionNotifier.processScanComplete(scanCompletedXml, exitCode);
 
     m_scanCompleted = true;
     LOGDEBUG("Exiting scan thread");

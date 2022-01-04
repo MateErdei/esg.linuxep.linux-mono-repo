@@ -76,6 +76,8 @@ class Agent(object):
             self.handle_request_policy(message)
         elif message.command == Messages.SEND_STATUS.value:
             self.handle_send_status(message)
+        elif message.command == Messages.SEND_THREAT_HEALTH.value:
+            self.handle_send_threat_health(message)
         else:
             self.logger.error("Error: Do not recognise message type, message: {}".format(message))
         return
@@ -116,6 +118,17 @@ class Agent(object):
 
     def handle_request_policy(self, message):
         self.logger.info("Received policy request: {}".format(message))
+        message.set_ack()
+        self.send_reply_to_plugin(message)
+
+    def handle_send_threat_health(self, message):
+        self.logger.info("Received threat health: {}".format(message))
+        if len(message.contents) < 1:
+            error_msg = "No contents set in threat health message"
+            self.logger.error(error_msg)
+            message.set_error_with_payload(error_msg)
+            self.send_reply_to_plugin(message)
+            return
         message.set_ack()
         self.send_reply_to_plugin(message)
 

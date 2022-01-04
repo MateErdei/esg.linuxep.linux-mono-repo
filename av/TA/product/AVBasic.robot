@@ -254,7 +254,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test
 
 
-AV Plugin Scan of Infected File Increases Threat Eicar Count
+AV Plugin Scan of Infected File Increases Threat Eicar Count And Reports Suspicious Threat Health
     Create File      /tmp_test/eicar.com    ${EICAR_STRING}
     Register Cleanup  Remove File  /tmp_test/eicar.com
     Remove Files      /file_excluded/eicar.com  /tmp_test/smbshare/eicar.com
@@ -262,6 +262,7 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
     # Run telemetry to reset counters to 0
     ${telemetryString}=  Get Plugin Telemetry  av
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+    Dictionary Should Contain Item   ${telemetryJson}   threatHealth   1
 
     Run Scan Now Scan
 
@@ -271,6 +272,7 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
     Log   ${telemetryJson}
     Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   1
+    Dictionary Should Contain Item   ${telemetryJson}   threatHealth   2
 
 
 AV Plugin Scan Now Does Not Detect PUA

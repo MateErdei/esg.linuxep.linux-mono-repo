@@ -81,6 +81,11 @@ namespace Plugin
         m_lookupEnabled = sxl4Lookup;
     }
 
+    void PluginCallback::setThreatHealth(long threatStatus)
+    {
+        m_threatStatus = threatStatus;
+    }
+
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
@@ -93,6 +98,7 @@ namespace Plugin
         telemetry.set("version", common::getPluginVersion());
         telemetry.set("sxl4-lookup", m_lookupEnabled);
         telemetry.set("health", calculateHealth());
+        telemetry.set("threatHealth", m_threatStatus);
 
         return telemetry.serialiseAndReset();
     }
@@ -301,8 +307,6 @@ namespace Plugin
 
     long PluginCallback::calculateHealth()
     {
-        // Returning: 0 = Good Health, 1 = Bad Health
-
         auto fileSystem = Common::FileSystem::fileSystem();
         auto filePermissions = Common::FileSystem::filePermissions();
 
@@ -316,7 +320,7 @@ namespace Plugin
         if (shutdownFileValid())
         {
             LOGDEBUG("Valid shutdown file found for Sophos Threat Detector, plugin considered healthy.");
-            return 0;
+            return E_HEALTH_STATUS_GOOD;
         }
 
         try
@@ -327,14 +331,14 @@ namespace Plugin
             if (!stringToIntResult.second.empty())
             {
                 LOGWARN("Failed to read Pid file to int due to: " << stringToIntResult.second);
-                return 1;
+                return E_HEALTH_STATUS_BAD;
             }
             pid = stringToIntResult.first;
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
             LOGWARN("Error accessing threat detector pid file: " << threatDetectorPidFile << " due to: " << e.what());
-            return 1;
+            return E_HEALTH_STATUS_BAD;
         }
 
         try
@@ -342,13 +346,13 @@ namespace Plugin
             if (!fileSystem->isDirectory("/proc/" + pidAsString))
             {
                 LOGDEBUG("Health found previous Sophos Threat Detector process no longer running: " << pidAsString);
-                return 1;
+                return E_HEALTH_STATUS_BAD;
             }
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
             LOGWARN("Error accessing proc directory of pid: " << pidAsString << " due to: " << e.what());
-            return 1;
+            return E_HEALTH_STATUS_BAD;
         }
 
         try
@@ -361,7 +365,7 @@ namespace Plugin
             if (!stringToIntResult.second.empty())
             {
                 LOGWARN("Failed to read Pid Status file to int due to: " << stringToIntResult.second);
-                return 1;
+                return E_HEALTH_STATUS_BAD;
             }
             int uid = stringToIntResult.first;
             std::string username = filePermissions->getUserName(uid);
@@ -369,18 +373,18 @@ namespace Plugin
             if (username != "sophos-spl-threat-detector")
             {
                 LOGWARN("Unexpected user permissions for /proc/" << pid << ": " << username << " does not equal 'sophos-spl-threat-detector'");
-                return 1;
+                return E_HEALTH_STATUS_BAD;
             }
         }
         catch (const std::bad_optional_access& e)
         {
             LOGWARN("Status file of Pid: " << pid << " is empty. Returning bad health due to: " << e.what());
-            return 1;
+            return E_HEALTH_STATUS_BAD;
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
             LOGWARN("Failed whilst validating user file permissions of /proc/" << pid << " due to: " << e.what());
-            return 1;
+            return E_HEALTH_STATUS_BAD;
         }
 
         try
@@ -391,21 +395,21 @@ namespace Plugin
             if (procCmdline != "sophos_threat_detector")
             {
                 LOGWARN("The proc cmdline for " << pid << " does not equal the expected value (sophos_threat_detector): " << procFileCmdlineContent.value());
-                return 1;
+                return E_HEALTH_STATUS_BAD;
             }
         }
         catch (const std::bad_optional_access& e)
         {
             LOGWARN("Cmdline file of Pid: " << pid << " is empty. Returning bad health due to: " << e.what());
-            return 1;
+            return E_HEALTH_STATUS_BAD;
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
             LOGWARN("Error reading threat detector cmdline proc file due to: " << e.what());
-            return 1;
+            return E_HEALTH_STATUS_BAD;
         }
 
-        return 0;
+        return E_HEALTH_STATUS_GOOD;
     }
 
     std::string PluginCallback::getHealth()

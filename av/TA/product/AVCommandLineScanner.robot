@@ -964,6 +964,7 @@ CLS Does Not Backtrack Through Symlinks
     Create Directory   ${sourceDir}
     Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
     Create Symlink  ${targetDir}  ${sourceDir}/b
+    Mark Sophos Threat Detector Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/b ${targetDir}
 
     Log  return code is ${rc}

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -481,9 +481,10 @@ TEST_F(TestPluginAdapter, testProcessScanComplete) //NOLINT
         </event>)sophos";
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", scanCompleteXml));
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(1);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    pluginAdapter.processScanComplete(scanCompleteXml);
+    pluginAdapter.processScanComplete(scanCompleteXml, common::E_CLEAN_SUCCESS);
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
 

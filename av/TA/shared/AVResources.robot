@@ -19,35 +19,39 @@ Resource    ComponentSetup.robot
 Resource    RunShellProcess.robot
 
 *** Variables ***
-${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
-${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
-${CLI_SCANNER_PATH}      ${COMPONENT_ROOT_PATH}/bin/avscanner
-${AV_LOG_PATH}     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
-${THREAT_DETECTOR_LOG_PATH}     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
-${THREAT_DETECTOR_INFO_LOG_PATH}  ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.info.log
-${SUSI_DEBUG_LOG_PATH}          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
-${SCANNOW_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Scan Now.log
-${CLOUDSCAN_LOG_PATH}     ${AV_PLUGIN_PATH}/log/Sophos Cloud Scheduled Scan.log
-${TELEMETRY_LOG_PATH}   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
-${WATCHDOG_BINARY}      ${SOPHOS_INSTALL}/base/bin/sophos_watchdog
-${WATCHDOG_LOG}         ${SOPHOS_INSTALL}/logs/base/watchdog.log
-${SULDOWNLOADER_LOG}         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-${UPDATE_SCHEDULER}         ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-${CHROOT_LOGGING_SYMLINK}   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
-${SUSI_STARTUP_SETTINGS_FILE}    ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
-${SUSI_STARTUP_SETTINGS_FILE_CHROOT}    ${COMPONENT_ROOT_PATH}/chroot/${AV_PLUGIN_PATH}/var/susi_startup_settings.json
-${AV_SDDS}         ${COMPONENT_SDDS}
-${PLUGIN_SDDS}     ${COMPONENT_SDDS}
-${PLUGIN_BINARY}   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
-${SOPHOS_THREAT_DETECTOR_BINARY}    ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector
-${SOPHOS_THREAT_DETECTOR_LAUNCHER}  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
-${EXPORT_FILE}     /etc/exports
-${AV_INSTALL_LOG}  /tmp/avplugin_install.log
-${AV_RESTORED_LOGS_DIRECTORY}   ${AV_PLUGIN_PATH}/log/downgrade_backup/
-${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
+${AV_PLUGIN_PATH}                               ${COMPONENT_ROOT_PATH}
+${AV_PLUGIN_BIN}                                ${COMPONENT_BIN_PATH}
+${CLI_SCANNER_PATH}                             ${COMPONENT_ROOT_PATH}/bin/avscanner
+${AV_LOG_PATH}                                  ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
+${SOPHOS_THREAT_DETECTOR_SHUTDOWN_FILE_PATH}    ${AV_PLUGIN_PATH}/chroot/var/threat_detector_expected_shutdown
+${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}         ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
+${THREAT_DETECTOR_LOG_PATH}                     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
+${THREAT_DETECTOR_INFO_LOG_PATH}                ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.info.log
+${SUSI_DEBUG_LOG_PATH}                          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
+${SCANNOW_LOG_PATH}                             ${AV_PLUGIN_PATH}/log/Scan Now.log
+${CLOUDSCAN_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/Sophos Cloud Scheduled Scan.log
+${TELEMETRY_LOG_PATH}                           ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
+${WATCHDOG_BINARY}                              ${SOPHOS_INSTALL}/base/bin/sophos_watchdog
+${WATCHDOG_LOG}                                 ${SOPHOS_INSTALL}/logs/base/watchdog.log
+${SULDOWNLOADER_LOG}                            ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+${UPDATE_SCHEDULER}                             ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+${CHROOT_LOGGING_SYMLINK}                       ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
+${SUSI_STARTUP_SETTINGS_FILE}                   ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
+${SUSI_STARTUP_SETTINGS_FILE_CHROOT}            ${COMPONENT_ROOT_PATH}/chroot/${AV_PLUGIN_PATH}/var/susi_startup_settings.json
+${AV_SDDS}                                      ${COMPONENT_SDDS}
+${PLUGIN_SDDS}                                  ${COMPONENT_SDDS}
+${PLUGIN_BINARY}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
+${SOPHOS_THREAT_DETECTOR_BINARY}                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector
+${SOPHOS_THREAT_DETECTOR_LAUNCHER}              ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
+${EXPORT_FILE}                                  /etc/exports
+${AV_INSTALL_LOG}                               /tmp/avplugin_install.log
+${AV_RESTORED_LOGS_DIRECTORY}                   ${AV_PLUGIN_PATH}/log/downgrade_backup/
+${NORMAL_DIRECTORY}                             /home/vagrant/this/is/a/directory/for/scanning
+${MCS_DIR}                                      ${SOPHOS_INSTALL}/base/mcs
 
-${EICAR_STRING}  X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
-${EICAR_PUA_STRING}  X5]+)D:)D<5N*PZ5[/EICAR-POTENTIALLY-UNWANTED-OBJECT-TEST!$*M*L
+${CLEAN_STRING}         not an eicar
+${EICAR_STRING}         X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+${EICAR_PUA_STRING}     X5]+)D:)D<5N*PZ5[/EICAR-POTENTIALLY-UNWANTED-OBJECT-TEST!$*M*L
 
 ${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
 ${STATUS_XML}       ${MCS_PATH}/status/SAV_status.xml
@@ -307,6 +311,10 @@ Increase AV Log To Max Size
 Wait Until AV Plugin Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15    ${interval}=2
     Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}  interval=${interval}
+
+Wait Until Sophos Threat Detector Shutdown File Exists
+    [Arguments]  ${timeout}=15    ${interval}=2
+    Wait Until File Exists  ${SOPHOS_THREAT_DETECTOR_SHUTDOWN_FILE_PATH}  timeout=${timeout}  interval=${interval}
 
 Wait Until AV Plugin Log Contains
     [Arguments]  ${input}  ${timeout}=15  ${interval}=0
@@ -775,6 +783,10 @@ Record Sophos Threat Detector PID
     # avplugin triggers restart of sophos_threat_detector + 10 seconds for watchdog to restart it
     # It took 10 seconds for watchdog to detect sophos_threat_detector had exited - so allow 30 seconds here
     ${PID} =  ProcessUtils.wait for pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
+    [Return]   ${PID}
+
+Get Sophos Threat Detector PID From File
+    ${PID} =  Get File    ${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}
     [Return]   ${PID}
 
 Check AV Plugin has same PID

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -26,13 +26,15 @@ namespace
     class FakeScanCompletion : public IScanComplete
     {
     public:
-        void processScanComplete(std::string& scanCompletedXml) override
+        void processScanComplete(std::string& scanCompletedXml, int exitCode) override
         {
             m_xml = scanCompletedXml;
             m_count++;
+            m_exitCode = exitCode;
         }
         std::string m_xml;
         int m_count = 0;
+        int m_exitCode;
     };
 
     constexpr char LOG_CATEGORY[] = "ScanScheduler";

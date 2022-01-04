@@ -7,6 +7,7 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include "PluginAdapter.h"
 #include <common/PluginUtils.h>
 
+#include "HealthStatus.h"
 #include "Logger.h"
 #include "StringUtils.h"
 
@@ -45,8 +46,8 @@ namespace Plugin
             void processMessage(const scan_messages::ServerThreatDetected& detection) override
             {
                 m_adapter.processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
-//                std::string subscriberSocketPath = Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile();
-//                m_adapter.publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
+                m_adapter.publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
+                m_adapter.publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
             }
 
         private:
@@ -104,7 +105,7 @@ namespace Plugin
         ThreadRunner scheduler(
             m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
         ThreadRunner sophos_threat_detector(*m_threatDetector, "threatDetector");
-//        connectToThreatPublishingSocket(Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
+        connectToThreatPublishingSocket(Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
         innerLoop();
     }
 
@@ -289,8 +290,14 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
+    void PluginAdapter::processScanComplete(std::string& scanCompletedXml, int exitCode)
     {
+        if (exitCode == common::E_CLEAN_SUCCESS)
+        {
+            LOGDEBUG("Publishing good threat health status after clean scan");
+            publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+        }
+
         LOGDEBUG("Sending scan complete notification to central: " << scanCompletedXml);
 
         m_queueTask->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
@@ -314,6 +321,21 @@ namespace Plugin
         catch (const Common::ZeroMQWrapper::IIPCException& e)
         {
             LOGERROR("Failed to send subscription data: " << e.what());
+        }
+    }
+
+    void PluginAdapter::publishThreatHealth(long threatStatus)
+    {
+        try
+        {
+            LOGDEBUG("Publishing threat health: " << threatStatus << " (1 = good, 2 = suspicious)");
+
+            m_callback->setThreatHealth(threatStatus);
+            m_baseService->sendThreatHealth("{\"ThreatHealth\":" + std::to_string(threatStatus) + "}");
+        }
+        catch (const Common::ZeroMQWrapper::IIPCException& e)
+        {
+            LOGERROR("Failed to send threat health: " << e.what());
         }
     }
 

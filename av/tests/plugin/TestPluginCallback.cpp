@@ -16,11 +16,13 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <gtest/gtest.h>
+#include <pluginimpl/HealthStatus.h>
 #include <tests/common/LogInitializedTests.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
 
+using namespace Plugin;
 namespace fs = sophos_filesystem;
 using json = nlohmann::json;
 
@@ -378,11 +380,33 @@ TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup_fileDoesNotExist) //NOLINT
     EXPECT_EQ(telemetry["sxl4-lookup"], true);
 }
 
+TEST_F(TestPluginCallback, getTelemetry_threatHealth) //NOLINT
+{
+    m_pluginCallback->setThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(initialTelemetry["threatHealth"], E_THREAT_HEALTH_STATUS_GOOD);
+
+    m_pluginCallback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(modifiedTelemetry["threatHealth"], E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+}
+
+TEST_F(TestPluginCallback, getTelemetry_threatHealth_fileDoesNotExist) //NOLINT
+{
+    json telemetry = json::parse(m_pluginCallback->getTelemetry());
+
+    EXPECT_EQ(telemetry["threatHealth"], E_THREAT_HEALTH_STATUS_GOOD);
+}
+
 TEST_F(TestPluginCallback, getTelemetry_health) //NOLINT
 {
     json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
-    ASSERT_EQ(initialTelemetry["health"], 1);
+    ASSERT_EQ(initialTelemetry["health"], E_HEALTH_STATUS_BAD);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
@@ -408,7 +432,7 @@ TEST_F(TestPluginCallback, getTelemetry_health) //NOLINT
 
     json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
-    ASSERT_EQ(modifiedTelemetry["health"], 0);
+    ASSERT_EQ(modifiedTelemetry["health"], E_HEALTH_STATUS_GOOD);
 }
 
 TEST_F(TestPluginCallback, getHealthReturnsZeroWhenCalculateHealthSuccessful) //NOLINT
@@ -435,7 +459,7 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenCalculateHealthSuccessful) //
     EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
     EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Return(cmdlineProcContents));
 
-    long expectedResult = 0;
+    long expectedResult = E_HEALTH_STATUS_GOOD;
     long result = m_pluginCallback->calculateHealth();
 
     ASSERT_EQ(result, expectedResult);
@@ -451,7 +475,7 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenShutdownFileIsValid) //NOLINT
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Return(std::time(nullptr) - 7));
 
-    long expectedResult = 0;
+    long expectedResult = E_HEALTH_STATUS_GOOD;
     long result = m_pluginCallback->calculateHealth();
 
     ASSERT_EQ(result, expectedResult);
@@ -472,7 +496,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Throw(
             Common::FileSystem::IFileSystemException("File does not exist.")));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -496,7 +520,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Throw(
             Common::FileSystem::IFileSystemException("File does not exist.")));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -519,7 +543,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidFileContentsAreMalforme
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(badPidContents));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -543,7 +567,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidDirectoryInProcIsMissin
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
     EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(false));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -568,7 +592,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfAccessingPidDirectoryHasAF
     EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Throw(
             Common::FileSystem::IFileSystemException("Cannot check this directory.")));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -595,7 +619,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusUidMalformed) //
     EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(badProcStatusContents));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -627,7 +651,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfUidUsernameDoesNotCorrespo
     EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
     EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(unexpectedUsername));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -654,7 +678,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusFileFailsToBeRea
     EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -686,7 +710,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenGet
     EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Throw(
             Common::FileSystem::IFileSystemException("File does not exist.")));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -720,7 +744,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenCmdlineArgOfPidIsNotSophosThre
     EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
     EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Return(wrongCmdlineProcContents));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -754,7 +778,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneOnWhenCmdlineProcFileCannotB
     EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
     EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Return(cmdlineProcContents));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -788,7 +812,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenAcc
     EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Throw(
             Common::FileSystem::IFileSystemException("File does not exist.")));
 
-    long expectedResult = 1;
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();

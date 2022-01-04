@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -43,9 +43,10 @@ namespace Plugin
             const std::string& threatEventPublisherSocketPath,
             int waitForPolicyTimeout = 5);
         void mainLoop();
-        void processScanComplete(std::string& scanCompletedXml) override;
+        void processScanComplete(std::string& scanCompletedXml, int exitCode) override;
         void processThreatReport(const std::string& threatDetectedXML);
         void publishThreatEvent(const std::string& threatDetectedJSON);
+        void publishThreatHealth(long threatStatus);
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
 
     private:

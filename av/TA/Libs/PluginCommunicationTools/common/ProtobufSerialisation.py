@@ -21,6 +21,7 @@ class Messages(Enum):
     SEND_EVENT = PluginAPIMessage.SendEvent
     SEND_STATUS = PluginAPIMessage.SendStatus
     REQUEST_POLICY = PluginAPIMessage.RequestCurrentPolicy
+    SEND_THREAT_HEALTH = PluginAPIMessage.SendThreatHealth
     INVALID_COMMAND = PluginAPIMessage.InvalidCommand
     # both
     ACK = b'ACK'

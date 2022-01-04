@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -10,5 +10,5 @@ class IScanComplete
 {
 public:
     virtual ~IScanComplete() = default;
-    virtual void processScanComplete(std::string& scanCompletedXml)=0;
+    virtual void processScanComplete(std::string& scanCompletedXml, int exitCode)=0;
 };

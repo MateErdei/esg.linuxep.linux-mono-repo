@@ -100,6 +100,7 @@ Threat Detector Restarts When /etc/hosts changed
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
     Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}
 
+
 Threat Detector restarts if no scans requested within the configured timeout
     Stop sophos_threat_detector
     Create File  ${AV_PLUGIN_PATH}/chroot/etc/threat_detector_config  {"shutdownTimeout":15}

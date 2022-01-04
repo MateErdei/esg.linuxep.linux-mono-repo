@@ -12,6 +12,7 @@ def check_telemetry(telemetry):
     assert "version" in av_dict, "No AV Version Number in telemetry"
     assert "sxl4-lookup" in av_dict, "No SXL4 Lookup setting in telemetry"
     assert "health" in av_dict, "No Health value in telemetry"
+    assert "threatHealth" in av_dict, "No Threat Health value in telemetry"
     assert av_dict["lr-data-hash"] != "unknown", "LR Data Hash is set to unknown in telemetry"
     assert av_dict["ml-lib-hash"] != "unknown", "ML Lib Hash is set to unknown in telemetry"
     assert av_dict["ml-pe-model-version"] != "unknown", "No ML-PE Model is set to unknown in telemetry"
@@ -19,3 +20,4 @@ def check_telemetry(telemetry):
     assert av_dict["vdl-version"] != "unknown", "No VDL Version is set to unknown in telemetry"
     assert av_dict["sxl4-lookup"] is True, "SXL4 Lookup is defaulting to True in telemetry"
     assert av_dict["health"] is 0, "Health is not set to 0 in telemetry, showing bad AV Plugin Health"
+    assert av_dict["threatHealth"] is 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"

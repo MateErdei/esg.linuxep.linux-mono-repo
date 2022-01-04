@@ -6,6 +6,7 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "HealthStatus.h"
 #include "QueueTask.h"
 
 #include "datatypes/sophos_filesystem.h"
@@ -32,12 +33,14 @@ namespace Plugin
 
         std::string getTelemetry() override;
         std::string getHealth() override;
+
         long calculateHealth();
 
         void sendStatus(const std::string& revID);
         void setRunning(bool running);
         bool isRunning();
         void setSXL4Lookups(bool sxl4Lookup);
+        void setThreatHealth(long threatStatus);
 
     private:
         std::string generateSAVStatusXML();
@@ -73,5 +76,6 @@ namespace Plugin
         std::atomic_bool m_running = false;
         bool m_lookupEnabled = true;
         int m_allowedShutdownTime = 15;
+        long m_threatStatus = E_THREAT_HEALTH_STATUS_GOOD;
     };
 }; // namespace Plugin
