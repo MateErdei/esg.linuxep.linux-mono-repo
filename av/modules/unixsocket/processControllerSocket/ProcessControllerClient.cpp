@@ -79,6 +79,7 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
     {
         if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
+            //in fuzz mode this causes, implicit instantiation of undefined template for stringstream
             #ifndef USING_LIBFUZZER
                 std::stringstream errMsg;
                 errMsg << "Failed to write Process Control Client to socket [" << errno << "]";

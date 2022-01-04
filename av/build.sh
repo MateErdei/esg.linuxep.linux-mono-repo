@@ -133,10 +133,11 @@ do
             shift
             EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DPLUGINAPIPATH=$1"
             ;;
-          --fuzz)
+        --fuzz)
             export USE_LIBFUZZER=1
             CMAKE_BUILD_TYPE=Debug
             UNITTEST=0
+            LOCAL_CMAKE=1
             ;;
         --plugin-api-tar)
             shift
@@ -393,10 +394,7 @@ function build()
         (( LOCAL_GCC == 0 )) && set_gcc_make
     fi
 
-    if [[ ! $USE_LIBFUZZER ]]
-    then
-      addpath "$REDIST/cmake/bin"
-    fi
+    (( LOCAL_CMAKE == 0 )) && addpath "$REDIST/cmake/bin"
 
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
