@@ -108,8 +108,8 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenStatusFileFailsToWri
         isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
         .WillOnce(Return(false));
     EXPECT_CALL(m_mockPluginManager, getRegisteredPluginNames()).Times(3).WillRepeatedly(Return(std::vector<std::string>{"pluginone"}));
-    EXPECT_CALL(m_mockPluginManager, getHealthStatusForPlugin("pluginone")).Times(2).WillRepeatedly(Return(pluginHealthBad));
-    EXPECT_CALL(m_mockPluginManager, getHealthStatusForPlugin("pluginone")).WillOnce(Return(pluginHealthGood)).RetiresOnSaturation();
+    EXPECT_CALL(m_mockPluginManager, getHealthStatusForPlugin("pluginone", false)).Times(2).WillRepeatedly(Return(pluginHealthBad));
+    EXPECT_CALL(m_mockPluginManager, getHealthStatusForPlugin("pluginone", false)).WillOnce(Return(pluginHealthGood)).RetiresOnSaturation();
     auto healthStatus = std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>();
     EXPECT_CALL(m_mockPluginManager, getSharedHealthStatusObj()).WillRepeatedly(Return(healthStatus));
 

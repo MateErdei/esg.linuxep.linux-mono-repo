@@ -25,12 +25,27 @@ namespace ManagementAgent
         {
             LOGDEBUG("Process health task");
 
+            std::map<std::string, PluginCommunication::PluginHealthStatus> prevServiceHealth =
+                m_pluginManager.getSharedHealthStatusObj()->getPluginServiceHealthLists();
+            std::map<std::string, PluginCommunication::PluginHealthStatus> prevThreatServiceHealth =
+                m_pluginManager.getSharedHealthStatusObj()->getPluginThreatServiceHealthLists();
+
             m_pluginManager.getSharedHealthStatusObj()->resetPluginHealthLists();
 
             for (const auto& pluginName : m_pluginManager.getRegisteredPluginNames())
             {
+                bool prevHealthMissing = false;
+
+                PluginCommunication::PluginHealthStatus prevPluginServiceHealth = prevServiceHealth[pluginName];
+                PluginCommunication::PluginHealthStatus prevPluginThreatServiceHealth = prevThreatServiceHealth[pluginName];
+
+                if (prevPluginServiceHealth.healthValue == 2 || prevPluginThreatServiceHealth.healthValue == 2)
+                {
+                    prevHealthMissing = true;
+                }
+
                 ManagementAgent::PluginCommunication::PluginHealthStatus pluginHealthStatus =
-                    m_pluginManager.getHealthStatusForPlugin(pluginName);
+                    m_pluginManager.getHealthStatusForPlugin(pluginName, prevHealthMissing);
 
                 m_pluginManager.getSharedHealthStatusObj()->addPluginHealth(pluginName, pluginHealthStatus);
             }

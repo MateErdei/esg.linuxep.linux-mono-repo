@@ -43,7 +43,7 @@ public:
     MOCK_METHOD1(
         setThreatHealthReceiver,
         void(std::shared_ptr<ManagementAgent::PluginCommunication::IThreatHealthReceiver>& receiver));
-    MOCK_METHOD1(getHealthStatusForPlugin, ManagementAgent::PluginCommunication::PluginHealthStatus(const std::string& pluginName));
+    MOCK_METHOD2(getHealthStatusForPlugin, ManagementAgent::PluginCommunication::PluginHealthStatus(const std::string& pluginName, bool prevHealthMissing));
     MOCK_METHOD0(getSharedHealthStatusObj, std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus>());
 
 public:

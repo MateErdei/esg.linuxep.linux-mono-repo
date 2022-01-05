@@ -351,7 +351,7 @@ namespace ManagementAgent
             return pluginNameList;
         }
 
-        ManagementAgent::PluginCommunication::PluginHealthStatus PluginManager::getHealthStatusForPlugin(const std::string& pluginName)
+        ManagementAgent::PluginCommunication::PluginHealthStatus PluginManager::getHealthStatusForPlugin(const std::string& pluginName, bool prevHealthMissing)
         {
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
             auto plugin = getPlugin(pluginName);
@@ -383,10 +383,18 @@ namespace ManagementAgent
             try
             {
                 health = plugin->getHealth();
+                if (prevHealthMissing)
+                {
+                    LOGINFO("Health restored for service " << plugin->getDisplayPluginName());
+                }
             }
             catch (const Common::PluginCommunication::IPluginCommunicationException&)
             {
-                LOGWARN("Could not get health for service " << plugin->getDisplayPluginName());
+                if (!prevHealthMissing)
+                {
+                    LOGWARN("Could not get health for service " << plugin->getDisplayPluginName());
+                }
+
                 pluginHealthStatus.healthValue = 2;
                 return pluginHealthStatus;
             }

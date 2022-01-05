@@ -44,6 +44,16 @@ namespace ManagementAgent
             }
         }
 
+        std::map<std::string, PluginCommunication::PluginHealthStatus> HealthStatus::getPluginServiceHealthLists()
+        {
+            return m_pluginServiceHealth;
+        }
+
+        std::map<std::string, PluginCommunication::PluginHealthStatus> HealthStatus::getPluginThreatServiceHealthLists()
+        {
+            return m_pluginThreatServiceHealth;
+        }
+
         void HealthStatus::addPluginHealth(
             const std::string& pluginName,
             const PluginCommunication::PluginHealthStatus& status)

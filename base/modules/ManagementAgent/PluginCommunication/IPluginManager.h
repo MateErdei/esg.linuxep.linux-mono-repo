@@ -176,9 +176,10 @@ namespace ManagementAgent
             /**
              * used to identify if a plugin needs to contribute to periodic health check
              * @param pluginName
+             * @param prevHealthMissing refers to whether the previous health status was missing
              * @return true if should contribute, false otherwise
              */
-            virtual ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(const std::string& pluginName) = 0;
+            virtual ManagementAgent::PluginCommunication::PluginHealthStatus getHealthStatusForPlugin(const std::string& pluginName, bool prevHealthMissing) = 0;
 
             /**
              * An accessor to expose the shared health object. Needed so that other parts of

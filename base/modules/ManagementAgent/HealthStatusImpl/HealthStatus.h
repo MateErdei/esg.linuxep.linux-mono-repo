@@ -33,6 +33,16 @@ namespace ManagementAgent
             void resetThreatDetectionHealth();
 
             /**
+             * Function to get the plugin service health map
+             */
+            std::map<std::string, PluginCommunication::PluginHealthStatus> getPluginServiceHealthLists();
+
+            /**
+             * Function to get the plugin threat service health map
+             */
+            std::map<std::string, PluginCommunication::PluginHealthStatus> getPluginThreatServiceHealthLists();
+
+            /**
              * Add plugin health status object to the health status information used to generate the health status xml
              * @param pluginName
              * @param status the PluginHealthStatus object containing the health status and type of health.
