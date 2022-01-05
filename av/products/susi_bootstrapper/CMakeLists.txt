@@ -1,6 +1,3 @@
-if (DEFINED ENV{USE_LIBFUZZER})
-    return()
-endif (DEFINED ENV{USE_LIBFUZZER})
 find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
 
 get_filename_component(ABS_SUSI_LIB ${SUSI_LIB} REALPATH)

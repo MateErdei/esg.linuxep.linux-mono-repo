@@ -1,6 +1,3 @@
-if (DEFINED ENV{USE_LIBFUZZER})
-    return()
-endif (DEFINED ENV{USE_LIBFUZZER})
 configure_file(install.sh.in ${PROJECT_BINARY_DIR}/install.sh @ONLY )
 configure_file(cleanuprealm.dat.in ${PROJECT_BINARY_DIR}/cleanuprealm.dat @ONLY )
 configure_file(plugin.json.in ${PROJECT_BINARY_DIR}/${PLUGIN_NAME}.json @ONLY )
