@@ -16,6 +16,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/PluginCommunicationImpl/PluginProxy.h>
 #include <Common/UtilityImpl/ProjectNames.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
@@ -207,12 +208,12 @@ namespace ManagementAgent
         bool PluginManager::isThreatResetTask(std::string filePath)
         {
             auto fs = Common::FileSystem::fileSystem();
-            std::string expectedActionFileContents = "<action type=\"sophos.core.threat.reset\"/>";
+            std::string expectedActionFileContents = "type=\"sophos.core.threat.reset\"";
             Path fullPath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(), filePath);
             try
             {
                 std::string actionFileContents = fs->readFile(fullPath);
-                if (actionFileContents == expectedActionFileContents)
+                if (Common::UtilityImpl::StringUtils::isSubstring(actionFileContents, expectedActionFileContents))
                 {
                     return true;
                 }
