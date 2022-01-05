@@ -698,6 +698,17 @@ class LogUtils(object):
             self.dump_managementagent_log()
             raise AssertionError("Marked managementagent log did not contain: " + string_to_contain)
 
+    def check_marked_managementagent_log_contains_string_n_times(self, string_to_contain, expected_occurrence):
+        managementagent_log = self.managementagent_log()
+        contents = get_log_contents(managementagent_log)
+
+        contents = contents[self.marked_managementagent_logs:]
+
+        num_occurrences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain)
+        if num_occurrences != int(expected_occurrence):
+            raise AssertionError(
+                f"Marked Management Agent Log Contains: \"{string_to_contain}\" - {num_occurrences} times not the requested {expected_occurrence} times")
+
     def check_log_contains_string_at_least_n_times(self, log_path, log_name, string_to_contain, expected_occurence):
         contents = get_log_contents(log_path)
 

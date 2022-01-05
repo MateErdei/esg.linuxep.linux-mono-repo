@@ -94,6 +94,47 @@ Verify Management Agent does not check health when suldownloader is running
     # clean up
     Stop Management Agent
 
+Verify Log Behaviour When Plugin Health Retrieval Fails
+    [Tags]    MANAGEMENT_AGENT
+    # make sure no previous status xml file exists.
+    Remove Status Xml Files
+
+    Setup Plugin Registry
+    Start Management Agent
+    Start Plugin
+
+    Wait Until Keyword Succeeds
+    ...  40
+    ...  5
+    ...  Check Management Agent Log Contains   Starting service health checks
+
+    Stop Plugin
+    Sleep  60s
+
+    Check Management Agent Log Contains String N Times  Could not get health for service FakePlugin  1
+
+    Start Plugin
+    Wait Until Keyword Succeeds
+    ...  40
+    ...  5
+    ...  Check Management Agent Log Contains   Health restored for service FakePlugin
+
+    Mark Management Agent Log
+    Stop Plugin
+    Sleep  60s
+
+    Check Marked Management Agent Log Contains String N Times  Could not get health for service FakePlugin  1
+
+    Start Plugin
+    Wait Until Keyword Succeeds
+    ...  40
+    ...  5
+    ...  Check Management Agent Log Contains   Health restored for service FakePlugin
+
+    # clean up
+    Stop Plugin
+    Stop Management Agent
+
 *** Keywords ***
 Service Sleep Teardown
     Revert Service  sophos-spl-update.service
