@@ -108,6 +108,7 @@ namespace manager::scheduler
         std::string m_name;
         DaySet m_days;
         TimeSet m_times;
+//causes: error: ‘maybe_unused’ attribute ignored [-Werror=attributes], when building in fuzz mode
 #ifdef USING_LIBFUZZER
         [[maybe_unused]] time_t m_lastRunTime;
 #else
