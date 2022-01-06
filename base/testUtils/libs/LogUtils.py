@@ -719,6 +719,7 @@ class LogUtils(object):
                                                                                    string_to_contain,
                                                                                    num_occurences,
                                                                                    expected_occurence))
+        return num_occurences
 
 
     def check_log_contains_string_n_times(self, log_path, log_name, string_to_contain, expected_occurence):
