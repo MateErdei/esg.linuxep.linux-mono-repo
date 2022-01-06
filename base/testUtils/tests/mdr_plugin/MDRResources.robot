@@ -185,6 +185,18 @@ Kill OSQuery
     ...  3 secs
     ...  1 secs
     ...  Check Osquery Executable Not Running
+    Dump All Sophos Processes
+
+Kill OSQuery And Wait Until Osquery Running Again
+    #TODO LINUXDAR-3974 : timeouts in this keyword are very long to smooth flakiness out of tests.
+    # When/if a product change is made please reduce them to more reasonable lengths.
+    Kill OSQuery
+    # We expect edr to restart osquery ~10s after noticing it's died, but osquery 5.0.1 can trigger backoffs on launching the osquery worker
+    # process which throws our timing off. the product does reliably stabilise though.
+    Wait Until EDR OSQuery Running  40
+    # osquery 5.0.1 is behaving differently and can take longer to stabilize when restarting quickly, this sleep forces
+    # the test to give it time to stabilize before continuing
+    sleep  10
 
 Create Fake MDR Executable Contents
     ${script} =     Catenate    SEPARATOR=\n
