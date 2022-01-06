@@ -556,7 +556,7 @@ class MCS:
         migrate_comms = None
         try:
             migration_data.read_migrate_action(self.__m_mcs_adapter.get_migrate_action())
-            migrate_config = copy.copy(live_config)
+            migrate_config = copy.deepcopy(live_config)
             migrate_comms = mcs_connection.MCSConnection(
                 migrate_config,
                 install_dir=path_manager.install_dir(),
