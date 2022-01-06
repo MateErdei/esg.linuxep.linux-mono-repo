@@ -35,9 +35,17 @@ namespace ManagementAgent
             for (const auto& pluginName : m_pluginManager.getRegisteredPluginNames())
             {
                 bool prevHealthMissing = false;
+                PluginCommunication::PluginHealthStatus prevPluginServiceHealth;
+                PluginCommunication::PluginHealthStatus prevPluginThreatServiceHealth;
 
-                PluginCommunication::PluginHealthStatus prevPluginServiceHealth = prevServiceHealth[pluginName];
-                PluginCommunication::PluginHealthStatus prevPluginThreatServiceHealth = prevThreatServiceHealth[pluginName];
+                if (prevServiceHealth.count(pluginName) != 0)
+                {
+                    prevPluginServiceHealth = prevServiceHealth[pluginName];
+                }
+                if (prevThreatServiceHealth.count(pluginName) != 0)
+                {
+                    prevPluginThreatServiceHealth = prevThreatServiceHealth[pluginName];
+                }
 
                 if (prevPluginServiceHealth.healthValue == 2 || prevPluginThreatServiceHealth.healthValue == 2)
                 {
