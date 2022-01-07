@@ -480,6 +480,26 @@ AV Plugin Can Send Telemetry
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
+AV Plugin sends non-zero processInfo to Telemetry
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+
+    ${memUsage}=    Get From Dictionary   ${avDict}   threatMemoryUsage
+    ${processAge}=    Get From Dictionary   ${avDict}   threatProcessAge
+
+    Should Not Be Equal As Integers  ${memUsage}  0
+    Should Not Be Equal As Integers  ${processAge}  0
+
 AV plugin Saves and Restores Scan Now Counter
     # Run telemetry to reset counters to 0
     Prepare To Run Telemetry Executable

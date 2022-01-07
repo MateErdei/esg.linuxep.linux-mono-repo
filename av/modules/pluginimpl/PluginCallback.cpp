@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021 Sophos Limited.  All rights reserved.
+Copyright 2020-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -18,6 +18,7 @@ Copyright 2020-2021 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <thirdparty/nlohmann-json/json.hpp>
+#include <datatypes/SysCallsImpl.h>
 
 #include <fstream>
 
@@ -86,11 +87,6 @@ namespace Plugin
         m_threatStatus = threatStatus;
     }
 
-    long PluginCallback::getThreatHealth()
-    {
-        return m_threatStatus;
-    }
-
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
@@ -105,9 +101,12 @@ namespace Plugin
         telemetry.set("health", calculateHealth());
         telemetry.set("threatHealth", m_threatStatus);
 
-        std::string telemetryJson = telemetry.serialiseAndReset();
-        telemetry.set("threatHealth", m_threatStatus);
-        return telemetryJson;
+        auto sysCalls = std::make_shared<datatypes::SysCallsImpl>();
+        auto processInfo = getThreatScannerProcessinfo(sysCalls);
+        telemetry.set("threatMemoryUsage", processInfo.first);
+        telemetry.set("threatProcessAge", processInfo.second);
+
+        return telemetry.serialiseAndReset();
     }
 
     std::string PluginCallback::getLrDataHash()
@@ -314,15 +313,12 @@ namespace Plugin
 
     long PluginCallback::calculateHealth()
     {
-        auto fileSystem = Common::FileSystem::fileSystem();
         auto filePermissions = Common::FileSystem::filePermissions();
+        auto fileSystem = Common::FileSystem::fileSystem();
 
         int pid;
-        std::string pidAsString;
         std::optional<std::string> statusFileContents;
         std::optional<std::string> procFileCmdlineContent;
-
-        Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
 
         if (shutdownFileValid())
         {
@@ -330,37 +326,14 @@ namespace Plugin
             return E_HEALTH_STATUS_GOOD;
         }
 
-        try
+        pid = getThreatDetectorPID(fileSystem);
+
+        if (pid == 0)
         {
-            pidAsString = fileSystem->readFile(threatDetectorPidFile);
-            std::pair<int, std::string> stringToIntResult =
-                Common::UtilityImpl::StringUtils::stringToInt(pidAsString);
-            if (!stringToIntResult.second.empty())
-            {
-                LOGWARN("Failed to read Pid file to int due to: " << stringToIntResult.second);
-                return E_HEALTH_STATUS_BAD;
-            }
-            pid = stringToIntResult.first;
-        }
-        catch (const Common::FileSystem::IFileSystemException& e)
-        {
-            LOGWARN("Error accessing threat detector pid file: " << threatDetectorPidFile << " due to: " << e.what());
+            LOGWARN("Health encountered a error resolving pid for ThreatDetector");
             return E_HEALTH_STATUS_BAD;
         }
 
-        try
-        {
-            if (!fileSystem->isDirectory("/proc/" + pidAsString))
-            {
-                LOGDEBUG("Health found previous Sophos Threat Detector process no longer running: " << pidAsString);
-                return E_HEALTH_STATUS_BAD;
-            }
-        }
-        catch (const Common::FileSystem::IFileSystemException& e)
-        {
-            LOGWARN("Error accessing proc directory of pid: " << pidAsString << " due to: " << e.what());
-            return E_HEALTH_STATUS_BAD;
-        }
 
         try
         {
@@ -424,6 +397,103 @@ namespace Plugin
         nlohmann::json j;
         j["Health"] = calculateHealth();
         return j.dump();
+    }
+
+
+    std::pair<unsigned long , unsigned long> PluginCallback::getThreatScannerProcessinfo(std::shared_ptr<datatypes::ISysCalls> sysCalls)
+    {
+        const int expectedStatFileSize = 52;
+        const int rssEntryInStat = 24;
+        const int startTimeEntryInStat = 22;
+
+        double memoryUsage = 0;
+        double runTime = 0;
+        std::optional<std::string> statFileContents;
+
+        auto fileSystem = Common::FileSystem::fileSystem();
+        int pid = getThreatDetectorPID(fileSystem);
+
+        if (pid == 0)
+        {
+            return std::pair(0,0);
+        }
+
+        try
+        {
+            statFileContents = fileSystem->readProcFile(pid, "stat");
+            auto procStat = Common::UtilityImpl::StringUtils::splitString(statFileContents.value(), { ' ' });
+            if (procStat.size() != expectedStatFileSize) {
+                LOGWARN("The proc stat for " << pid << " is not of expected size");
+                return std::pair(0, 0);
+            }
+
+            memoryUsage = std::stol(procStat.at(rssEntryInStat - 1));
+
+            auto sysUpTime = sysCalls->getSystemUpTime();
+            if (sysUpTime.first == -1)
+            {
+                LOGWARN("Failed to retrieve system info, cant calculate process duration.");
+                return std::pair(memoryUsage, 0);
+            }
+
+            runTime = sysUpTime.second - std::stol(procStat.at(startTimeEntryInStat - 1));
+
+        }
+        catch (const std::bad_optional_access& e)
+        {
+            LOGWARN("Stat file of Pid: " << pid << " is empty. Cannot report on Threat Detector Process to Telemetry: " << e.what());
+            return std::pair(0,0);
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGWARN("Error reading threat detector stat proc file due to: " << e.what());
+            return std::pair(0,0);
+        }
+
+        return std::pair(memoryUsage, runTime);
+    }
+
+    int PluginCallback::getThreatDetectorPID(Common::FileSystem::IFileSystem* fileSystem)
+    {
+        int pid = 0;
+        std::string pidAsString = "";
+
+        Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
+
+        try
+        {
+            pidAsString = fileSystem->readFile(threatDetectorPidFile);
+
+            std::pair<int, std::string> pidStringToIntResult =
+                    Common::UtilityImpl::StringUtils::stringToInt(pidAsString);
+            if (!pidStringToIntResult.second.empty())
+            {
+                LOGWARN("Failed to read Pid file to int due to: " << pidStringToIntResult.second);
+                return 0;
+            }
+            pid = pidStringToIntResult.first;
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGWARN("Error accessing threat detector pid file: " << threatDetectorPidFile << " due to: " << e.what());
+            return 0;
+        }
+
+        try
+        {
+            if (!fileSystem->isDirectory("/proc/" + pidAsString))
+            {
+                LOGDEBUG("Sophos Threat Detector process no longer running: " << pidAsString);
+                return 0;
+            }
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGWARN("Error accessing proc directory of pid: " << pidAsString << " due to: " << e.what());
+            return 0;
+        }
+
+        return pid;
     }
 
 } // namespace Plugin

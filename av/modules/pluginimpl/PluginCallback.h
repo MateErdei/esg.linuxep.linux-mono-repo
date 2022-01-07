@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2021 Sophos Limited.  All rights reserved.
+Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -16,6 +16,10 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include <common/PluginUtils.h>
 
 #include <atomic>
+
+namespace datatypes {
+    class ISysCalls;
+}
 
 namespace Plugin
 {
@@ -35,6 +39,7 @@ namespace Plugin
         std::string getHealth() override;
 
         long calculateHealth();
+        std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(std::shared_ptr<datatypes::ISysCalls> sysCalls);
 
         void sendStatus(const std::string& revID);
         void setRunning(bool running);
@@ -50,6 +55,8 @@ namespace Plugin
         std::string getMlLibHash();
         std::string getMlModelVersion();
         std::string getVirusDataVersion();
+
+        int getThreatDetectorPID(Common::FileSystem::IFileSystem* fileSystem);
         bool shutdownFileValid();
 
         /**
