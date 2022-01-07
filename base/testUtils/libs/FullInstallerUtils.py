@@ -795,8 +795,13 @@ def version_ini_file_contains_proper_format_for_product_name(file, product_name)
     name_pattern = "^PRODUCT_NAME = "+product_name+"\n\Z"
     version_pattern = "^PRODUCT_VERSION = ([0-9]*\.)*[0-9]*\n\Z"
     date_pattern = "^BUILD_DATE = [0-9]{4}\-[0-9]{2}\-[0-9]{2}\n\Z"
+    git_commit_pattern = "^COMMIT_HASH = [0-9a-fA-F]{40}\n\Z"
 
-    patterns = [name_pattern, version_pattern, date_pattern]
+    # TODO: LINUXDAR-3920 Update this to expect git commit hashes for all version files
+    if product_name == "Sophos Server Protection Linux - Base Component":
+        patterns = [name_pattern, version_pattern, date_pattern, git_commit_pattern]
+    else:
+        patterns = [name_pattern, version_pattern, date_pattern]
 
 
     lines = []
@@ -808,9 +813,9 @@ def version_ini_file_contains_proper_format_for_product_name(file, product_name)
 
     n = 0
     for line in lines:
-        if re.match(patterns[n],line) is None:
+        if re.match(patterns[n], line) is None:
             logger.info("line = ||{}||".format(line))
-            logger.info("{} does not match {}".format(line,patterns[n]))
+            logger.info("{} does not match {}".format(line, patterns[n]))
             raise AssertionError
         n += 1
 

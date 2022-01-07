@@ -14,7 +14,7 @@ Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../mcs_router/McsRouterResources.robot
 Resource  ../thin_installer/ThinInstallerResources.robot
-Default Tags  INSTALLER
+Default Tags  INSTALLER  TAP_TESTS
 
 *** Test Cases ***
 
