@@ -473,6 +473,7 @@ Product Test Teardown
     run teardown functions
 
     Component Test TearDown
+    Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
     #Run clear logs only after we stopped all the processes
     ${result} =   Check If The Logs Are Close To Rotating
     run keyword if  ${result}   Clear Logs

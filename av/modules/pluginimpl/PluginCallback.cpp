@@ -86,6 +86,11 @@ namespace Plugin
         m_threatStatus = threatStatus;
     }
 
+    long PluginCallback::getThreatHealth()
+    {
+        return m_threatStatus;
+    }
+
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
@@ -100,7 +105,9 @@ namespace Plugin
         telemetry.set("health", calculateHealth());
         telemetry.set("threatHealth", m_threatStatus);
 
-        return telemetry.serialiseAndReset();
+        std::string telemetryJson = telemetry.serialiseAndReset();
+        telemetry.set("threatHealth", m_threatStatus);
+        return telemetryJson;
     }
 
     std::string PluginCallback::getLrDataHash()

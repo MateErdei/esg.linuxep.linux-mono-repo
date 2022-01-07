@@ -7,12 +7,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "StringUtils.h"
 
 #include "Logger.h"
+#include "HealthStatus.h"
 
 #include "ThreatDetected.capnp.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Time.h"
 
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include "Common/UtilityImpl/StringUtils.h"
 
 #include <boost/locale.hpp>
@@ -92,4 +94,31 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ServerTh
     threatEvent["items"] = items;
 
     return threatEvent.dump();
+}
+
+long pluginimpl::getThreatStatus()
+{
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+    std::string  storedtelemetry = telemetry.serialise();
+    json j = json::parse(storedtelemetry);
+
+    if (j.find("threatHealth") != j.end())
+    {
+        try
+        {
+            long health = static_cast<long long>(j["threatHealth"]);
+            return health;
+        }
+        catch (std::exception& exception)
+        {
+            LOGWARN("Could not initialise threatHealth value from stored telemetry due to error: "<< exception.what());
+            return (Plugin::E_THREAT_HEALTH_STATUS_GOOD);
+        }
+
+    }
+    else
+    {
+        LOGDEBUG("No stored threatHealth");
+        return (Plugin::E_THREAT_HEALTH_STATUS_GOOD);
+    }
 }

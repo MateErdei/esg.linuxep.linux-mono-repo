@@ -100,6 +100,7 @@ namespace Plugin
             LOGINFO("Failed to get ALC policy at startup (" << e.what() << ")");
         }
 
+        m_callback->setThreatHealth(pluginimpl::getThreatStatus());
         startupPolicyProcessing();
 
         ThreadRunner scheduler(

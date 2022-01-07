@@ -76,6 +76,19 @@ Clean CLS Result Does Not Reset Threat Health
 
     Check Threat Health is Reporting Correctly    2
 
+Bad Threat Health is preserved after av plugin restarts
+    Check Threat Health is Reporting Correctly    1
+
+    Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
+
+    Configure and check scan now with offset
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+
+    Check Threat Health is Reporting Correctly    2
+    Stop AV Plugin
+    Start AV Plugin
+    Wait until AV Plugin running
+    Check Threat Health is Reporting Correctly    2
 
 Clean Scan Now Result Resets Threat Health
     Check Threat Health is Reporting Correctly    1

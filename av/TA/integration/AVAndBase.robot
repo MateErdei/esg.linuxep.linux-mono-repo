@@ -505,6 +505,7 @@ AV plugin Saves and Restores Scan Now Counter
     ${backupJson}=    Evaluate     json.loads("""${backupfileContents}""")    json
     ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
     Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   1
+    Dictionary Should Contain Item   ${rootkeyDict}   threatHealth   1
 
     Mark AV Log
     Start AV Plugin
@@ -523,6 +524,7 @@ AV plugin Saves and Restores Scan Now Counter
     ${avDict}=    Set Variable     ${telemetryJson['av']}
 
     Dictionary Should Contain Item   ${avDict}   scan-now-count   1
+    Dictionary Should Contain Item   ${avDict}   threatHealth   1
 
 
 AV plugin increments Scan Now Counter after Save and Restore

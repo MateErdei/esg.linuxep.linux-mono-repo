@@ -41,6 +41,7 @@ namespace Plugin
         bool isRunning();
         void setSXL4Lookups(bool sxl4Lookup);
         void setThreatHealth(long threatStatus);
+        long getThreatHealth();
 
     private:
         std::string generateSAVStatusXML();

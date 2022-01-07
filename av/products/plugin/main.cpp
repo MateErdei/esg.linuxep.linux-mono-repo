@@ -4,21 +4,35 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "config.h"
+#include "../common/config.h"
 
-#include <Common/FileSystem/IFileSystem.h>
+#include "modules/datatypes/sophos_filesystem.h"
+
 #include <Common/Logging/PluginLoggingSetup.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/ErrorCodes.h>
-#include <modules/pluginimpl/Logger.h>
-#include <modules/pluginimpl/PluginAdapter.h>
+#include <Common/ZeroMQWrapper/IIPCTimeoutException.h>
 
-const char* PluginName = PLUGIN_NAME;
+#include <pluginimpl/Logger.h>
+#include <pluginimpl/PluginAdapter.h>
+
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+
+static const char* PluginName = PLUGIN_NAME; // NOLINT
+
+namespace fs = sophos_filesystem;
 
 int main()
 {
+    // PLUGIN_INSTALL
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
+    fs::path pluginInstall = sophosInstall / "plugins" / PluginName;
+    appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+
     using namespace Plugin;
     int ret = 0;
     Common::Logging::PluginLoggingSetup loggerSetup(PluginName);
@@ -37,22 +51,76 @@ int main()
     }
     catch (const Common::PluginApi::ApiException & apiException)
     {
-        LOGERROR("Plugin Api could not be instantiated: " << apiException.what());
+        LOGERROR("Failed to instantiate Plugin Api: " << apiException.what());
+        return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
+    }
+    catch (const Common::ZeroMQWrapper::IIPCTimeoutException& ex)
+    {
+        LOGERROR("Failed to instantiate Plugin Api (IIPCTimeoutException): " << ex.what());
+        return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
+    }
+    catch (const Common::ZeroMQWrapper::IIPCException& ex)
+    {
+        LOGERROR("Failed to instantiate Plugin Api (IIPCException): " << ex.what());
+        return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
+    }
+    catch (const Common::Exceptions::IException& ex)
+    {
+        LOGERROR("Failed to instantiate Plugin Api (IException): " << ex.what());
+        return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
+    }
+    catch (const std::exception& ex)
+    {
+        LOGERROR("Failed to instantiate Plugin Api (std::exception): " << ex.what());
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
+    fs::path threatEventPublisherSocketPath = pluginInstall / "var/threatEventPublisherSocketPath";
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, threatEventPublisherSocketPath);
+
+    // If this is the first time restoring this will also set the telemetry backup file name
+    Common::Telemetry::TelemetryHelper::getInstance().restore("av");
 
     try
     {
         pluginAdapter.mainLoop();
     }
+    catch (const Common::PluginApi::ApiException & apiException)
+    {
+        LOGERROR("Exception caught from plugin at top level (ApiException): " << apiException.what());
+        ret = 45;
+    }
+    catch (const Common::ZeroMQWrapper::IIPCTimeoutException& ex)
+    {
+        LOGERROR("Exception caught from plugin at top level (IIPCTimeoutException): " << ex.what());
+        ret = 44;
+    }
+    catch (const Common::ZeroMQWrapper::IIPCException& ex)
+    {
+        LOGERROR("Exception caught from plugin at top level (IIPCException): " << ex.what());
+        ret = 43;
+    }
+    catch (const Common::Exceptions::IException& ex)
+    {
+        LOGERROR("Exception caught from plugin at top level (IException): " << ex.what());
+        ret = 42;
+    }
+    catch (const std::runtime_error& ex)
+    {
+        LOGERROR("Exception caught from plugin at top level (std::runtime_error): " << ex.what());
+        ret = 41;
+    }
     catch (const std::exception& ex)
     {
-        LOGERROR("Plugin threw an exception at top level: " << ex.what());
+        LOGERROR("Exception caught from plugin at top level (std::exception): " << ex.what());
         ret = 40;
     }
+
+    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+    telemetry.set("threatHealth",sharedPluginCallBack->getThreatHealth());
+    telemetry.save();
+
+    LOGINFO("Exiting AV plugin");
     sharedPluginCallBack->setRunning(false);
-    LOGINFO("Plugin Finished.");
     return ret;
 }

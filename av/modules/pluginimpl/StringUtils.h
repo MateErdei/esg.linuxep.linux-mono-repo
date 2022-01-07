@@ -15,4 +15,5 @@ namespace pluginimpl
 {
     std::string generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection);
     std::string generateThreatDetectedJson(const scan_messages::ServerThreatDetected& detection);
+    long getThreatStatus();
 }
