@@ -47,6 +47,8 @@ Check Diagnose Base Output
     Should Contain  ${Files}    sophos_managementagent.log
     Should Contain  ${Files}    updatescheduler.log
     Should Contain  ${Files}    watchdog.log
+    Should Contain  ${Files}    watchdog.log.1
+    Should Contain  ${Files}    backup.log
     Should Contain  ${Files}    wdctl.log
     Should Contain  ${Files}    managementagent.json
     Should Contain  ${Files}    updatescheduler.json
@@ -98,6 +100,7 @@ Check Diagnose Output For Additional LR Plugin Files
     ${LRLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/liveresponse
     Should Contain   ${LRLogFiles}   liveresponse.log
     Should Contain   ${LRLogFiles}   sessions.log
+    Should Contain   ${LRLogFiles}   backup.log
 
 Check Diagnose Output For Additional RuntimeDetections Plugin Files
     ${RuntimeDetectionsFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/runtimedetections
@@ -175,8 +178,12 @@ Mimic LR Component Files
     [Documentation]  Creates files to simulate LR plugin being installed and run
     [Arguments]     ${installLocation}
     Create File  ${installLocation}/plugins/liveresponse/log/sessions.log
+    Create File  ${installLocation}/plugins/liveresponse/log/downgrade-backup/backup.log
 
 Mimic Base Component Files
     [Documentation]  Creates files to simulate Full Base plugin being installed
     [Arguments]     ${installLocation}
     Create File  ${installLocation}/base/etc/sophosspl/current_proxy
+    Create Directory  ${installLocation}/logs/base/downgrade-backup
+    Create File  ${installLocation}/logs/base/downgrade-backup/watchdog.log
+    Create File  ${installLocation}/logs/base/downgrade-backup/backup.log

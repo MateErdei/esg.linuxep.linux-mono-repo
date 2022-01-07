@@ -253,6 +253,12 @@ namespace diagnose
                 copyAllOfInterestFromDir(pluginLogDir, pluginDestinationLogDir);
             }
 
+            Path pluginLogDowngradedDir = Common::FileSystem::join(pluginsDir, pluginName, "log/downgrade-backup");
+
+            if (m_fileSystem->isDirectory(pluginLogDowngradedDir))
+            {
+                copyAllOfInterestFromDir(pluginLogDowngradedDir, pluginDestinationLogDir);
+            }
             copyPluginSubDirectoryFiles(pluginsDir, pluginName, destination);
         }
     }
