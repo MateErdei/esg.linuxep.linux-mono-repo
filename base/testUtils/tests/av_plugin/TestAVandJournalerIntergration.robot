@@ -51,8 +51,19 @@ Test av can publish events and that journaler can receive them after av restart
     ...  2 secs
     ...  Check Logs Detected EICAR Event  1
 
+    Mark Sophos Threat Detector Log
+
     Stop AV Plugin
     Start AV Plugin
+
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check AV Plugin Running
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  2 secs
+    ...  Check Marked Sophos Threat Detector Log Contains  SophosThreatDetectorImpl <> Starting USR1 monitor
 
     Mark Livequery Log
 

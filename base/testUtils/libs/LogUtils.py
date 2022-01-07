@@ -50,7 +50,7 @@ class LogUtils(object):
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
         self.av_log = os.path.join(self.install_path, "plugins", "av", "log", "av.log")
         self.ej_log = os.path.join(self.install_path, "plugins", "eventjournaler", "log", "eventjournaler.log")
-        self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "log", "sophos_threat_detector.log")
+        self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "chroot", "log", "sophos_threat_detector.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.edr_osquery_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr_osquery.log")
         self.livequery_log = os.path.join(self.install_path, "plugins", "edr", "log", "livequery.log")
@@ -640,7 +640,7 @@ class LogUtils(object):
         sophos_threat_detector_log = self.sophos_threat_detector_log
         contents = get_log_contents(sophos_threat_detector_log)
 
-        contents = contents[self.sophos_threat_detector_log:]
+        contents = contents[self.marked_sophos_threat_detector_log:]
 
         if string_to_contain not in contents:
             self.dump_log(sophos_threat_detector_log)
