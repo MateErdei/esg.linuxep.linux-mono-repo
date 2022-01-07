@@ -45,7 +45,7 @@ ${SOPHOS_THREAT_DETECTOR_BINARY}                ${SOPHOS_INSTALL}/plugins/${COMP
 ${SOPHOS_THREAT_DETECTOR_LAUNCHER}              ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 ${EXPORT_FILE}                                  /etc/exports
 ${AV_INSTALL_LOG}                               /tmp/avplugin_install.log
-${AV_RESTORED_LOGS_DIRECTORY}                   ${AV_PLUGIN_PATH}/log/downgrade_backup/
+${AV_RESTORED_LOGS_DIRECTORY}                   ${AV_PLUGIN_PATH}/log/downgrade-backup/
 ${NORMAL_DIRECTORY}                             /home/vagrant/this/is/a/directory/for/scanning
 ${MCS_DIR}                                      ${SOPHOS_INSTALL}/base/mcs
 

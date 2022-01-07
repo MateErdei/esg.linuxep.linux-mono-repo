@@ -61,7 +61,7 @@ rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
 
 if (( DOWNGRADE == 1 ))
 then
-    RESTORE_DIR=${UNINSTALLDIR}/log/downgrade_backup
+    RESTORE_DIR=${UNINSTALLDIR}/log/downgrade-backup
     mkdir -p "$RESTORE_DIR"
     for entry in "$SAVE_DIR"/*
     do
