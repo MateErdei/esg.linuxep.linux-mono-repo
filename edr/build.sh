@@ -296,7 +296,7 @@ function build()
         unzip ${INPUT}/sqlite-amalgamation/*.zip -d "${REDIST}/sqlite"
 
         mkdir -p "$REDIST"/osquery
-        cp  -r ${INPUT}/osquery/osquery/*  "$REDIST"/osquery
+        cp  -r ${INPUT}/osquery/osquery-5.1.0_1.linux_x86_64/*  "$REDIST"/osquery   # TEMP: fix osquery artefact name
         cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
 
         cp -r ${INPUT}/linux-x64-extension  "$REDIST"/linux-x64-extension
