@@ -143,3 +143,70 @@ TEST_F(TestOsqueryDataManager, purgeDatabase_willRemoveAllFilesInDirectory) // N
     dataManager.purgeDatabase();
 }
 
+TEST_F(TestOsqueryDataManager, buildLimitQueryString_returnsCorrectQueryString) // NOLINT
+{
+    OsqueryDataManager dataManager;
+    std::string query = dataManager.buildLimitQueryString(123);
+
+    // Left text alignment needed for test
+    std::string expectedQuery =
+R"(WITH time_values AS (
+SELECT (SELECT time FROM process_events ORDER BY time DESC LIMIT 1 OFFSET 123) AS oldest_time
+union
+SELECT(SELECT time FROM user_events ORDER BY time DESC LIMIT 1 OFFSET 123) AS oldest_time
+union
+SELECT(SELECT time FROM selinux_events ORDER BY time DESC LIMIT 1 OFFSET 123) AS oldest_time
+union
+SELECT(SELECT time FROM socket_events ORDER BY time DESC LIMIT 1 OFFSET 123) AS oldest_time
+union
+SELECT(SELECT time FROM syslog_events ORDER BY time DESC LIMIT 1 OFFSET 123) AS oldest_time
+)
+SELECT MIN(oldest_time) AS time_to_keep FROM time_values WHERE oldest_time > 0)";
+    ASSERT_EQ(query, expectedQuery);
+}
+
+TEST_F(TestOsqueryDataManager, buildLimitQueryString_returnsCorrectQueryStringUnderBound) // NOLINT
+{
+    OsqueryDataManager dataManager;
+    std::string query = dataManager.buildLimitQueryString(0);
+
+    // Left text alignment needed for test
+    std::string expectedQuery =
+        R"(WITH time_values AS (
+SELECT (SELECT time FROM process_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+union
+SELECT(SELECT time FROM user_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+union
+SELECT(SELECT time FROM selinux_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+union
+SELECT(SELECT time FROM socket_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+union
+SELECT(SELECT time FROM syslog_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+)
+SELECT MIN(oldest_time) AS time_to_keep FROM time_values WHERE oldest_time > 0)";
+    ASSERT_EQ(query, expectedQuery);
+}
+
+TEST_F(TestOsqueryDataManager, buildLimitQueryString_returnsCorrectQueryStringOverBound) // NOLINT
+{
+    OsqueryDataManager dataManager;
+
+    // 5 million events is above current limit.
+    std::string query = dataManager.buildLimitQueryString(5000000);
+
+    // Left text alignment needed for test
+    std::string expectedQuery =
+        R"(WITH time_values AS (
+SELECT (SELECT time FROM process_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+union
+SELECT(SELECT time FROM user_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+union
+SELECT(SELECT time FROM selinux_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+union
+SELECT(SELECT time FROM socket_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+union
+SELECT(SELECT time FROM syslog_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
+)
+SELECT MIN(oldest_time) AS time_to_keep FROM time_values WHERE oldest_time > 0)";
+    ASSERT_EQ(query, expectedQuery);
+}

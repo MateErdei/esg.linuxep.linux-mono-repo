@@ -234,8 +234,6 @@ namespace Plugin
                     sendLiveQueryStatus();
                 }
 
-
-
                 time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
                 if (hasScheduleEpochEnded(now))
                 {
@@ -248,12 +246,9 @@ namespace Plugin
                 }
             }
 
-            auto timeNow = std::chrono::steady_clock::now();
-
             if (!osqueryDataRetentionCheckState->running)
             {
                 osqueryDataManager.asyncCheckAndReconfigureDataRetention(osqueryDataRetentionCheckState);
-
                 if (osqueryDataRetentionCheckState->numberOfRetries == 0)
                 {
                     LOGINFO("Failed to reconfigure osquery.");
@@ -262,9 +257,9 @@ namespace Plugin
                     osqueryDataManager.purgeDatabase();
                     m_restartNoDelay = true;
                 }
-
             }
 
+            auto timeNow = std::chrono::steady_clock::now();
             Task task;
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {

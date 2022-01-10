@@ -3,6 +3,8 @@
 Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#pragma once
+
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -108,7 +110,7 @@ namespace Plugin
         static void disableQueryPack(const std::string& queryPackFilePath);
         static void disableAllQueryPacks();
 
-
+        static unsigned int getEventsMaxFromConfig();
 
         inline static const std::string MODE_IDENTIFIER = "running_mode";
         inline static const std::string NETWORK_TABLES_AVAILABLE = "network_tables";

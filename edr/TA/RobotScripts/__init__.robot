@@ -31,6 +31,7 @@ Global Setup Tasks
 
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
     Create Directory  ${TEST_INPUT_PATH}/lp/
+    Should Exist  ${TEST_INPUT_PATH}/lp_tar/sophos-query-pack.tar.gz
     ${result} =   Run Process   tar    xzf    ${TEST_INPUT_PATH}/lp_tar/sophos-query-pack.tar.gz   -C    ${TEST_INPUT_PATH}/lp/
     Log  ${result.stdout}
     Log  ${result.stderr}

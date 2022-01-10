@@ -444,4 +444,42 @@ namespace Plugin
         return customQueries != oldCustomQueries;
     }
 
+    unsigned int PluginUtils::getEventsMaxFromConfig()
+    {
+        unsigned int eventsMaxValue = MAXIMUM_EVENTED_RECORDS_ALLOWED;
+        try
+        {
+            std::pair<std::string,std::string> eventsMax = Common::UtilityImpl::FileUtils::extractValueFromFile(Plugin::edrConfigFilePath(), "events_max");
+            if (!eventsMax.first.empty())
+            {
+                if (PluginUtils::isInteger(eventsMax.first))
+                {
+                    LOGINFO("Setting events_max to " << eventsMax.first << " as per value in " << Plugin::edrConfigFilePath());
+                    eventsMaxValue = stoul(eventsMax.first);
+                }
+                else
+                {
+                    LOGWARN("events_max value in '" << Plugin::edrConfigFilePath() << "' not an integer, so using default of " << eventsMaxValue);
+                }
+            }
+            else
+            {
+                if (Common::UtilityImpl::StringUtils::startswith(eventsMax.second, "No such node"))
+                {
+                    LOGDEBUG("No events_max value specified in " << Plugin::edrConfigFilePath() << " so using default of " << eventsMaxValue);
+                }
+                else
+                {
+                    LOGWARN("Failed to retrieve events_max value from " << Plugin::edrConfigFilePath() << " with error: " << eventsMax.second);
+                }
+            }
+        }
+        catch (const std::exception& exception)
+        {
+            LOGWARN("Failed to retrieve events_max value from " << Plugin::edrConfigFilePath() << " with exception: " << exception.what());
+        }
+
+        return eventsMaxValue;
+    }
+
 }

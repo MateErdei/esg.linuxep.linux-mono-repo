@@ -9,7 +9,7 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <OsquerySDK/OsquerySDK.h>
 #include <osqueryclient/IOsqueryClient.h>
-
+#include "PluginUtils.h"
 #include <future>
 
 struct OsqueryDataRetentionCheckState
@@ -24,14 +24,17 @@ struct OsqueryDataRetentionCheckState
 class OsqueryDataManager
 {
 public:
+    OsqueryDataManager();
     void cleanUpOsqueryLogs();
     void removeOldWarningFiles();
-    void rotateFiles(std::string path, int limit);
+    void rotateFiles(const std::string& path, int limit);
 
     void reconfigureDataRetentionParameters(unsigned long currentEpochTime, unsigned long oldestRecordTime);
     unsigned long getOldestAllowedTimeForCurrentEventedData();
     void asyncCheckAndReconfigureDataRetention(std::shared_ptr<OsqueryDataRetentionCheckState> osqueryDataRetentionCheckState);
     void purgeDatabase();
+    std::string buildLimitQueryString(unsigned int limit);
+
 private:
     std::optional<OsquerySDK::QueryData> runQuery(const std::string& query);
     bool connectToOsquery();
@@ -43,5 +46,9 @@ private:
     const unsigned int FILE_LIMIT = 10;
     const unsigned long MAX_EVENTED_DATA_RETENTION_TIME = 604800; // 7 days in seconds.
 
+    const unsigned long EVENT_MAX_DEFAULT = Plugin::PluginUtils::MAXIMUM_EVENTED_RECORDS_ALLOWED; // 100k events
+    const unsigned long EVENT_MAX_LOWER_LIMIT = 1; // 1 event
+    const unsigned long EVENT_MAX_UPPER_LIMIT = 1000000; // 1M events
+    unsigned long m_eventsMaxFromConfigAtStart;
 };
 

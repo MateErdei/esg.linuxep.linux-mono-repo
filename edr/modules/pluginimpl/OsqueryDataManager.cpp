@@ -53,7 +53,7 @@ void OsqueryDataManager::removeOldWarningFiles()
     std::vector<std::string> infoFiles;
     try
     {
-        for (const auto file : files)
+        for (const auto& file : files)
         {
             std::string filename = Common::FileSystem::basename(file);
             if (filename.find("osqueryd.WARNING.") != std::string::npos)
@@ -70,9 +70,9 @@ void OsqueryDataManager::removeOldWarningFiles()
         {
             std::sort(infoFiles.begin(), infoFiles.end());
 
-            int infoFilesToDelete = infoFiles.size() - FILE_LIMIT;
+            unsigned int infoFilesToDelete = infoFiles.size() - FILE_LIMIT;
 
-            for (int i = 0; i < infoFilesToDelete; i++)
+            for (unsigned int i = 0; i < infoFilesToDelete; i++)
             {
                 ifileSystem->removeFile(infoFiles[i]);
                 LOGINFO("Removed old osquery INFO file: " << Common::FileSystem::basename(infoFiles[i]));
@@ -83,8 +83,8 @@ void OsqueryDataManager::removeOldWarningFiles()
         {
             std::sort(warningFiles.begin(), warningFiles.end());
 
-            int warningFilesToDelete = warningFiles.size() - FILE_LIMIT;
-            for (int i = 0; i < warningFilesToDelete; i++)
+            unsigned int warningFilesToDelete = warningFiles.size() - FILE_LIMIT;
+            for (unsigned int i = 0; i < warningFilesToDelete; i++)
             {
                 ifileSystem->removeFile(warningFiles[i]);
                 LOGINFO("Removed old osquery WARNING file: " << Common::FileSystem::basename(warningFiles[i]));
@@ -97,7 +97,7 @@ void OsqueryDataManager::removeOldWarningFiles()
     }
 }
 
-void OsqueryDataManager::rotateFiles(std::string path, int limit)
+void OsqueryDataManager::rotateFiles(const std::string& path, int limit)
 {
     auto* ifileSystem = Common::FileSystem::fileSystem();
     int iterator = limit;
@@ -136,33 +136,18 @@ void OsqueryDataManager::reconfigureDataRetentionParameters(unsigned long curren
         LOGDEBUG("Data retention time is being set to : " << newRetentionDataTimeInSeconds);
     }
 
-    Plugin::OsqueryConfigurator osqueryConfigurator;
     std::string configFile = Common::FileSystem::join(Plugin::osqueryConfigDirectoryPath(), "options.conf");
-    osqueryConfigurator.regenerateOsqueryOptionsConfigFile(configFile, newRetentionDataTimeInSeconds);
+    Plugin::OsqueryConfigurator::regenerateOsqueryOptionsConfigFile(configFile, newRetentionDataTimeInSeconds);
 }
 
 unsigned long OsqueryDataManager::getOldestAllowedTimeForCurrentEventedData()
 {
+    LOGDEBUG("Checking for time of oldest event, up to " << m_eventsMaxFromConfigAtStart << " events.");
     /**
-     * The following query will obtain the time stamp of the 100000 record (if it exists) in each evented table and then
-     * return the lowest time across the result for each table.
+     * If limit is 100k then the following query will obtain the time stamp of the 100000th record (if it exists) in
+     * each evented table and then return the lowest time across the result for each table.
      */
-    std::string queryString =
-        R"(
-            WITH time_values AS (
-            SELECT (SELECT time FROM process_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
-            union
-            SELECT(SELECT time FROM user_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
-            union
-            SELECT(SELECT time FROM selinux_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
-            union
-            SELECT(SELECT time FROM socket_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
-            union
-            SELECT(SELECT time FROM syslog_events ORDER BY time DESC LIMIT 1 OFFSET 100000) AS oldest_time
-            )
-            SELECT MIN(oldest_time) AS time_to_keep FROM time_values WHERE oldest_time > 0
-        )";
-
+    std::string queryString = buildLimitQueryString(m_eventsMaxFromConfigAtStart);
 
     auto resultData = runQuery(queryString);
 
@@ -287,7 +272,7 @@ void OsqueryDataManager::purgeDatabase()
 void OsqueryDataManager::asyncCheckAndReconfigureDataRetention(std::shared_ptr<OsqueryDataRetentionCheckState> osqueryDataRetentionCheckState)
 {
     auto timeNow = std::chrono::steady_clock::now();
-    if(osqueryDataRetentionCheckState->firstRun ||
+    if (osqueryDataRetentionCheckState->firstRun ||
     ((osqueryDataRetentionCheckState->numberOfRetries != 5) ||
      (timeNow > (osqueryDataRetentionCheckState->lastOSQueryDataCheck + osqueryDataRetentionCheckState->osqueryDataCheckPeriod))))
     {
@@ -319,7 +304,6 @@ void OsqueryDataManager::asyncCheckAndReconfigureDataRetention(std::shared_ptr<O
                     try
                     {
                         LOGDEBUG("Running Reconfigure osquery data retention times");
-
                         osqueryDataManager.reconfigureDataRetentionParameters(
                             currentepochTime, osqueryDataManager.getOldestAllowedTimeForCurrentEventedData());
                         osqueryDataRetentionCheckState->numberOfRetries = 5;
@@ -337,4 +321,33 @@ void OsqueryDataManager::asyncCheckAndReconfigureDataRetention(std::shared_ptr<O
                 osqueryDataRetentionCheckState->running = false;
             });
     }
+}
+
+std::string OsqueryDataManager::buildLimitQueryString(unsigned int limit)
+{
+    // Check event max is a sensible value
+    if (limit < EVENT_MAX_LOWER_LIMIT || limit > EVENT_MAX_UPPER_LIMIT)
+    {
+        limit = EVENT_MAX_DEFAULT;
+    }
+
+    std::stringstream queryString;
+    queryString << "WITH time_values AS (" << std::endl
+       << "SELECT (SELECT time FROM process_events ORDER BY time DESC LIMIT 1 OFFSET " << limit << ") AS oldest_time" << std::endl
+        << "union" << std::endl
+        << "SELECT(SELECT time FROM user_events ORDER BY time DESC LIMIT 1 OFFSET " << limit << ") AS oldest_time" << std::endl
+        << "union" << std::endl
+        << "SELECT(SELECT time FROM selinux_events ORDER BY time DESC LIMIT 1 OFFSET " << limit << ") AS oldest_time" << std::endl
+        << "union" << std::endl
+        << "SELECT(SELECT time FROM socket_events ORDER BY time DESC LIMIT 1 OFFSET " << limit << ") AS oldest_time" << std::endl
+        << "union" << std::endl
+        << "SELECT(SELECT time FROM syslog_events ORDER BY time DESC LIMIT 1 OFFSET " << limit << ") AS oldest_time" << std::endl
+        << ")" << std::endl
+        << "SELECT MIN(oldest_time) AS time_to_keep FROM time_values WHERE oldest_time > 0";
+    return queryString.str();
+}
+
+OsqueryDataManager::OsqueryDataManager()
+    : m_eventsMaxFromConfigAtStart(Plugin::PluginUtils::getEventsMaxFromConfig())
+{
 }

@@ -137,33 +137,7 @@ namespace Plugin
                                          "--verbose",
                                          "--config_refresh=3600"};
 
-        std::string eventsMaxValue = "100000";
-        std::pair<std::string,std::string> eventsMax = Common::UtilityImpl::FileUtils::extractValueFromFile(Plugin::edrConfigFilePath(), "events_max");
-        if (!eventsMax.first.empty())
-        {
-
-            if (PluginUtils::isInteger(eventsMax.first))
-            {
-                LOGINFO("Setting events_max to " << eventsMax.first << " as per value in " << Plugin::edrConfigFilePath());
-                eventsMaxValue = eventsMax.first;
-            }
-            else
-            {
-                LOGWARN("events_max value in '" << Plugin::edrConfigFilePath() << "' not an integer, so using default of " << eventsMaxValue);
-            }
-
-        }
-        else
-        {
-            if (Common::UtilityImpl::StringUtils::startswith(eventsMax.second, "No such node"))
-            {
-                LOGDEBUG("No events_max value specified in " << Plugin::edrConfigFilePath() << " so using default of " << eventsMaxValue);
-            }
-            else
-            {
-                LOGWARN("Failed to retrieve events_max value from " << Plugin::edrConfigFilePath() << " with error: " << eventsMax.second);
-            }
-        }
+        std::string eventsMaxValue = std::to_string(PluginUtils::getEventsMaxFromConfig());
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
         telemetry.set(plugin::telemetryEventsMax, eventsMaxValue);
         flags.push_back("--events_max=" + eventsMaxValue);
