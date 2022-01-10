@@ -95,6 +95,7 @@ void manager::scheduler::ScanScheduler::run()
         if (now >= m_nextScheduledScanTime && m_nextScheduledScanTime != INVALID_TIME)
         {
             // timeout - run scan
+            Common::Telemetry::TelemetryHelper::getInstance().increment("scheduled-scan-count", 1ul);
             runNextScan(m_nextScheduledScan);
         }
     }

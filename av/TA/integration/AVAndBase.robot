@@ -122,6 +122,29 @@ AV plugin runs scheduled scan
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
+AV plugin runs scheduled scan and updates telemetry
+    Mark AV Log
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                 ...  10 secs
+                 ...  1 secs
+                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   1
+
+
 AV plugin runs multiple scheduled scans
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude File Name Too Long For Cloud Scan
