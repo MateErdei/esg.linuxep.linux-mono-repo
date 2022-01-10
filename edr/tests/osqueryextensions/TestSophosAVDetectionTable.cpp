@@ -218,7 +218,7 @@ public:
         return R"({"path":"/bin/bash","primary":true,"sha256":"","spid":"0ca01a43-6f53-4b09-bce0-1d9922262eaa-1467-5681","type":1})";
     }
 
-    static const uint32_t EXPECTED_MAX_EVENTS_PER_QUERY = 5000;
+    static const uint32_t EXPECTED_MAX_EVENTS_PER_QUERY = 2500;
 };
 
 TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNoEventJournalFilesWillReturnEmptyTableCorrectly)
