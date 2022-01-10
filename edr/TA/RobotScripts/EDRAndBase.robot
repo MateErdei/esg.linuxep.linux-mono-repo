@@ -267,7 +267,7 @@ EDR Plugin Can Run Event Journal Scheduled Queries And Create Jrl When Data Is G
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  5 secs
-    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  0  5000
+    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  0  2500
 
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
     File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
@@ -280,7 +280,7 @@ EDR Plugin Can Run Event Journal Scheduled Queries And Create Jrl When Data Is G
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  5 secs
-    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  0  2680
+    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  0  2500
 
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
     File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
