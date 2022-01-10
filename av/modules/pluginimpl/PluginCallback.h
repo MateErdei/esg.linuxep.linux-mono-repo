@@ -11,7 +11,6 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 #include "datatypes/sophos_filesystem.h"
 
-#include <avscanner/mountinfoimpl/SystemCallWrapper.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/PluginApi/IPluginCallbackApi.h>
 #include <common/PluginUtils.h>
@@ -20,7 +19,7 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 namespace avscanner {
     namespace mountinfoimpl {
-        class SystemCallWrapper;
+        class ISystemCallWrapper;
     }
 }
 
