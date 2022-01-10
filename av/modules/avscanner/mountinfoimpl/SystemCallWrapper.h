@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <sys/fcntl.h>
 #include <sys/ioctl.h>
+#include <sys/sysinfo.h>
 
 namespace avscanner::mountinfoimpl
 {
@@ -29,6 +30,14 @@ namespace avscanner::mountinfoimpl
         int _open(const char *file, int oflag, mode_t mode) override
         {
             return ::open(file, oflag, mode);
+        }
+
+        std::pair<const int, const long> getSystemUpTime() override
+        {
+            struct sysinfo systemInfo;
+            int res = sysinfo(&systemInfo);
+            long upTime = res == -1 ? 0 : systemInfo.uptime;
+            return std::pair(res, upTime);
         }
     };
 }

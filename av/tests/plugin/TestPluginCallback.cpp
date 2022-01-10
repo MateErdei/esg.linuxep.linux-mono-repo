@@ -4,9 +4,9 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "MockSysCalls.h"
+#include "tests/avscanner/mountinfoimpl/MockSysCalls.h"
 #include "datatypes/sophos_filesystem.h"
-#include "datatypes/SysCallsImpl.h"
+#include "avscanner/mountinfoimpl/SystemCallWrapper.h"
 #include "pluginimpl/PluginCallback.h"
 #include "pluginimpl/QueueTask.h"
 
@@ -874,7 +874,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesWhenPidFileDoesNotExist) /
 
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
 
-    auto sysCallsMock = std::make_shared<StrictMock<MockSysCallsWrapper>>();
+    auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -896,7 +896,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidFileContentsAreMalfor
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::string badPidContents = "notanint";
 
-    auto sysCallsMock = std::make_shared<StrictMock<MockSysCallsWrapper>>();
+    auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -919,7 +919,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidDirectoryInProcIsMiss
     std::string pidFileContents = "1234";
     Path pidProcDirectory = "/proc/1234";
 
-    auto sysCallsMock = std::make_shared<StrictMock<MockSysCallsWrapper>>();
+    auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -943,7 +943,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfAccessingPidDirectoryHas
     std::string pidFileContents = "1234";
     Path pidProcDirectory = "/proc/1234";
 
-    auto sysCallsMock = std::make_shared<StrictMock<MockSysCallsWrapper>>();
+    auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -969,7 +969,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfStatFileSizeIsIncorrect)
     int pidFileContentsConverted = 1234;
     std::string statProcContents = "1 2 3";
 
-    auto sysCallsMock = std::make_shared<StrictMock<MockSysCallsWrapper>>();
+    auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -996,7 +996,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsMemoryCorrectAgeZeroWithInvalidS
     std::optional<std::string> statProcContents = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 100 23 500 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52";
     std::pair<int, long> sysCallUptime(-1, 0);
 
-    auto sysCallsMock = std::make_shared<StrictMock<MockSysCallsWrapper>>();
+    auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
 
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -1026,7 +1026,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsCorrectValuesWhenSuccessful) //N
     std::optional<std::string> statProcContents = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 450 23 500 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52";
     std::pair<int, long> sysCallUptime(0, 1000);
 
-    auto sysCallsMock = std::make_shared<StrictMock<MockSysCallsWrapper>>();
+    auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -1053,7 +1053,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfProcStatFileFailsToBeRea
     int pidFileContentsConverted = 1234;
     std::optional<std::string> statProcContents = std::nullopt;
 
-    auto sysCallsMock = std::make_shared<StrictMock<MockSysCallsWrapper>>();
+    auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -1078,7 +1078,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenA
     Path pidProcDirectory = "/proc/1234";
     int pidFileContentsConverted = 1234;
 
-    auto sysCallsMock = std::make_shared<StrictMock<MockSysCallsWrapper>>();
+    auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto filesystemMock = new StrictMock<MockFileSystem>();
     auto filePermissionsMock = new StrictMock<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};

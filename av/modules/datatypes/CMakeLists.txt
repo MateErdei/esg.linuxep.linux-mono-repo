@@ -6,9 +6,6 @@ add_library(datatypes SHARED
         sophos_filesystem.h
         Time.cpp
         Time.h
-        ISysCalls.h
-        SysCallsImpl.cpp
-        SysCallsImpl.h
         )
 
 install(TARGETS datatypes

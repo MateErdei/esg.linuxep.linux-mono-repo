@@ -18,13 +18,14 @@ Copyright 2020-2021 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <thirdparty/nlohmann-json/json.hpp>
-#include <datatypes/SysCallsImpl.h>
+#include <avscanner/mountinfoimpl/SystemCallWrapper.h>
 
 #include <fstream>
 
 #include <unistd.h>
 
 namespace fs = sophos_filesystem;
+
 
 namespace Plugin
 {
@@ -106,7 +107,7 @@ namespace Plugin
         telemetry.set("health", calculateHealth());
         telemetry.set("threatHealth", m_threatStatus);
 
-        auto sysCalls = std::make_shared<datatypes::SysCallsImpl>();
+        auto sysCalls = std::make_shared<avscanner::mountinfoimpl::SystemCallWrapper>();
         auto processInfo = getThreatScannerProcessinfo(sysCalls);
         telemetry.set("threatMemoryUsage", processInfo.first);
         telemetry.set("threatProcessAge", processInfo.second);
@@ -404,7 +405,7 @@ namespace Plugin
         return j.dump();
     }
 
-    std::pair<unsigned long , unsigned long> PluginCallback::getThreatScannerProcessinfo(std::shared_ptr<datatypes::ISysCalls> sysCalls)
+    std::pair<unsigned long , unsigned long> PluginCallback::getThreatScannerProcessinfo(std::shared_ptr<avscanner::mountinfoimpl::ISystemCallWrapper> sysCalls)
     {
         const int expectedStatFileSize = 52;
         const int rssEntryInStat = 24;

@@ -11,14 +11,17 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 #include "datatypes/sophos_filesystem.h"
 
+#include <avscanner/mountinfoimpl/SystemCallWrapper.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/PluginApi/IPluginCallbackApi.h>
 #include <common/PluginUtils.h>
 
 #include <atomic>
 
-namespace datatypes {
-    class ISysCalls;
+namespace avscanner {
+    namespace mountinfoimpl {
+        class SystemCallWrapper;
+    }
 }
 
 namespace Plugin
@@ -39,7 +42,7 @@ namespace Plugin
         std::string getHealth() override;
 
         long calculateHealth();
-        std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(std::shared_ptr<datatypes::ISysCalls> sysCalls);
+        std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(std::shared_ptr<avscanner::mountinfoimpl::ISystemCallWrapper> sysCalls);
 
         void sendStatus(const std::string& revID);
         void setRunning(bool running);

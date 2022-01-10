@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "avscanner/mountinfoimpl/SystemCallWrapperFactory.h"
 
 #include "tests/common/LogInitializedTests.h"
+#include "MockSysCalls.h"
 
 #include <gmock/gmock.h>
 #include <linux/magic.h>
@@ -31,13 +32,6 @@ enum deviceType
     SYSTEM
 };
 
-class MockSystemCallWrapper : public ISystemCallWrapper
-{
-public:
-    MOCK_METHOD3(_ioctl, int(int __fd, unsigned long int __request, char* buffer));
-    MOCK_METHOD2(_statfs, int(const char *__file, struct ::statfs *__buf));
-    MOCK_METHOD3(_open, int(const char *__file, int __oflag, mode_t mode));
-};
 
 class MockSystemCallWrapperFactory : public ISystemCallWrapperFactory
 {
