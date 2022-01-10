@@ -273,6 +273,8 @@ namespace Plugin
                     if (pluginMemoryAboveThreshold())
                     {
                         LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
+                        Common::Telemetry::TelemetryHelper::getInstance().increment(
+                                plugin::telemetryEdrRestartsMemory, 1UL);
                         stopOsquery();
                         return;
                     }

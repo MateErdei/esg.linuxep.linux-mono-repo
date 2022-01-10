@@ -33,4 +33,5 @@ namespace plugin
     const char* const telemetrySelinuxEventsMaxHit = "reached-max-selinux-events";
     const char* const telemetryFoldableQueries = "foldable-queries";
     const char* const telemetryFoldedCount = "folded-count";
+    const char* const telemetryEdrRestartsMemory = "edr-restarts-memory";
 }
