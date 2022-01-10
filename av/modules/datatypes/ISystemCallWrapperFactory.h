@@ -6,15 +6,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ISystemCallWrapperFactory.h"
+#include "ISystemCallWrapper.h"
 
 #include <memory>
 
-namespace avscanner::mountinfoimpl
+namespace datatypes
 {
-    class SystemCallWrapperFactory : public mountinfoimpl::ISystemCallWrapperFactory
+    class ISystemCallWrapperFactory
     {
     public:
-        mountinfoimpl::ISystemCallWrapperSharedPtr createSystemCallWrapper() override;
+        virtual ~ISystemCallWrapperFactory() = default;
+        virtual ISystemCallWrapperSharedPtr createSystemCallWrapper() = 0;
     };
+
+    using ISystemCallWrapperFactorySharedPtr = std::shared_ptr<ISystemCallWrapperFactory>;
 }

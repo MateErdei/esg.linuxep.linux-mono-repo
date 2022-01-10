@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <sys/statfs.h>
 
-namespace avscanner::mountinfoimpl
+namespace datatypes
 {
     class ISystemCallWrapper
     {

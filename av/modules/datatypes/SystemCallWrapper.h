@@ -12,9 +12,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>
 
-namespace avscanner::mountinfoimpl
+namespace datatypes
 {
-    class SystemCallWrapper : public mountinfoimpl::ISystemCallWrapper
+    class SystemCallWrapper : public ISystemCallWrapper
     {
     public:
         int _ioctl(int fd, unsigned long int request, char* buffer) override

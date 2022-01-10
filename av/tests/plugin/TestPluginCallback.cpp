@@ -4,9 +4,6 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "tests/avscanner/mountinfoimpl/MockSysCalls.h"
-#include "datatypes/sophos_filesystem.h"
-#include "avscanner/mountinfoimpl/SystemCallWrapper.h"
 #include "pluginimpl/PluginCallback.h"
 #include "pluginimpl/QueueTask.h"
 
@@ -20,8 +17,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <pluginimpl/HealthStatus.h>
 #include <tests/common/LogInitializedTests.h>
+#include <tests/datatypes/MockSysCalls.h>
 #include <thirdparty/nlohmann-json/json.hpp>
-#include <sys/sysinfo.h>
 
 #include <fstream>
 

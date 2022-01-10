@@ -5,17 +5,19 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "avscanner/mountinfoimpl/DeviceUtil.h"
-#include "avscanner/mountinfoimpl/SystemCallWrapperFactory.h"
+#include "datatypes/SystemCallWrapperFactory.h"
 
 #include "tests/common/LogInitializedTests.h"
-#include "MockSysCalls.h"
+#include <tests/datatypes/MockSysCalls.h>
 
 #include <gmock/gmock.h>
 #include <linux/magic.h>
 
 #include <sys/statfs.h>
 
+using namespace datatypes;
 using namespace avscanner::mountinfoimpl;
+
 
 using ::testing::Return;
 using ::testing::SetArgPointee;

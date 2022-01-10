@@ -23,6 +23,7 @@ extern "C"
 }
 
 using namespace avscanner::mountinfoimpl;
+using namespace datatypes;
 
 DeviceUtil::DeviceUtil(const ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory)
 : DeviceUtil(systemCallWrapperFactory->createSystemCallWrapper())

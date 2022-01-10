@@ -4,13 +4,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "SystemCallWrapperFactory.h"
+#pragma once
 
-#include "SystemCallWrapper.h"
+#include "ISystemCallWrapperFactory.h"
 
-using namespace avscanner::mountinfoimpl;
+#include <memory>
 
-ISystemCallWrapperSharedPtr SystemCallWrapperFactory::createSystemCallWrapper()
+namespace datatypes
 {
-    return std::make_shared<SystemCallWrapper>();
+    class SystemCallWrapperFactory : public ISystemCallWrapperFactory
+    {
+    public:
+        ISystemCallWrapperSharedPtr createSystemCallWrapper() override;
+    };
 }

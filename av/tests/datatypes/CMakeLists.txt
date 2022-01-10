@@ -3,6 +3,7 @@ include(GoogleTest)
 SophosAddTest(TestDatatypes
         TestTime.cpp
         TestAutoFD.cpp
+        MockSysCalls.h
         PROJECTS datatypes
         LIBS ${datatypes} rt
         INC_DIRS

@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Mounts.h"
 
-#include "SystemCallWrapperFactory.h"
+#include "datatypes/SystemCallWrapperFactory.h"
 
 #include "Logger.h"
 
@@ -403,9 +403,9 @@ avscanner::mountinfo::IMountPointSharedVector Mounts::mountPoints()
 // DRIVE
 //======================================================================================================================
 
-static avscanner::mountinfoimpl::ISystemCallWrapperSharedPtr createSystemCallWrapper()
+static datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper()
 {
-    static auto factory = std::make_shared<avscanner::mountinfoimpl::SystemCallWrapperFactory>();
+    static auto factory = std::make_shared<datatypes::SystemCallWrapperFactory>();
     return factory->createSystemCallWrapper();
 }
 

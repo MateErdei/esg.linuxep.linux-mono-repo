@@ -17,10 +17,8 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 #include <atomic>
 
-namespace avscanner {
-    namespace mountinfoimpl {
+namespace datatypes {
         class ISystemCallWrapper;
-    }
 }
 
 namespace Plugin
@@ -41,7 +39,7 @@ namespace Plugin
         std::string getHealth() override;
 
         long calculateHealth();
-        std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(std::shared_ptr<avscanner::mountinfoimpl::ISystemCallWrapper> sysCalls);
+        std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(std::shared_ptr<datatypes::ISystemCallWrapper> sysCalls);
 
         void sendStatus(const std::string& revID);
         void setRunning(bool running);

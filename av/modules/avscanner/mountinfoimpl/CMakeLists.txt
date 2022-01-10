@@ -1,15 +1,10 @@
 add_library(mountinfoimpl SHARED
         DeviceUtil.cpp
         DeviceUtil.h
-        ISystemCallWrapper.h
-        ISystemCallWrapperFactory.h
         Logger.cpp
         Logger.h
         Mounts.cpp
         Mounts.h
-        SystemCallWrapper.h
-        SystemCallWrapperFactory.cpp
-        SystemCallWrapperFactory.h
         SystemPaths.h
         SystemPathsFactory.cpp
         SystemPathsFactory.h

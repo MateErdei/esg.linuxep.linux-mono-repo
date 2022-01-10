@@ -6,8 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ISystemCallWrapperFactory.h"
-#include "SystemCallWrapper.h"
+#include "datatypes/ISystemCallWrapperFactory.h"
+#include "datatypes/SystemCallWrapper.h"
 
 #include <memory>
 #include <string>
@@ -17,8 +17,8 @@ namespace avscanner::mountinfoimpl
     class DeviceUtil
     {
     public:
-        explicit DeviceUtil(const mountinfoimpl::ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory);
-        explicit DeviceUtil(mountinfoimpl::ISystemCallWrapperSharedPtr systemCallWrapper);
+        explicit DeviceUtil(const datatypes::ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory);
+        explicit DeviceUtil(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
 
         /**
          * Determine if the device specified is a floppy drive.
@@ -105,7 +105,7 @@ namespace avscanner::mountinfoimpl
             const std::string& filesystemType = "");
 
     private:
-        mountinfoimpl::ISystemCallWrapperSharedPtr m_systemCallWrapper;
+        datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
     };
 
     using DeviceUtilSharedPtr = std::shared_ptr<DeviceUtil>;
