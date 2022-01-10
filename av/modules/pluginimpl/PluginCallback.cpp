@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2022 Sophos Limited.  All rights reserved.
+Copyright 2020-2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -87,6 +87,11 @@ namespace Plugin
         m_threatStatus = threatStatus;
     }
 
+    long PluginCallback::getThreatHealth()
+    {
+        return m_threatStatus;
+    }
+
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received get telemetry request");
@@ -106,7 +111,9 @@ namespace Plugin
         telemetry.set("threatMemoryUsage", processInfo.first);
         telemetry.set("threatProcessAge", processInfo.second);
 
-        return telemetry.serialiseAndReset();
+        std::string telemetryJson = telemetry.serialiseAndReset();
+        telemetry.set("threatHealth", m_threatStatus);
+        return telemetryJson;
     }
 
     std::string PluginCallback::getLrDataHash()
@@ -316,7 +323,6 @@ namespace Plugin
         auto filePermissions = Common::FileSystem::filePermissions();
         auto fileSystem = Common::FileSystem::fileSystem();
 
-        int pid;
         std::optional<std::string> statusFileContents;
         std::optional<std::string> procFileCmdlineContent;
 
@@ -326,14 +332,13 @@ namespace Plugin
             return E_HEALTH_STATUS_GOOD;
         }
 
-        pid = getThreatDetectorPID(fileSystem);
+        int pid = getThreatDetectorPID(fileSystem);
 
         if (pid == 0)
         {
             LOGWARN("Health encountered a error resolving pid for ThreatDetector");
             return E_HEALTH_STATUS_BAD;
         }
-
 
         try
         {
@@ -399,15 +404,14 @@ namespace Plugin
         return j.dump();
     }
 
-
     std::pair<unsigned long , unsigned long> PluginCallback::getThreatScannerProcessinfo(std::shared_ptr<datatypes::ISysCalls> sysCalls)
     {
         const int expectedStatFileSize = 52;
         const int rssEntryInStat = 24;
         const int startTimeEntryInStat = 22;
 
-        double memoryUsage = 0;
-        double runTime = 0;
+        unsigned long memoryUsage = 0;
+        unsigned long runTime = 0;
         std::optional<std::string> statFileContents;
 
         auto fileSystem = Common::FileSystem::fileSystem();
@@ -423,7 +427,8 @@ namespace Plugin
             statFileContents = fileSystem->readProcFile(pid, "stat");
             auto procStat = Common::UtilityImpl::StringUtils::splitString(statFileContents.value(), { ' ' });
             if (procStat.size() != expectedStatFileSize) {
-                LOGWARN("The proc stat for " << pid << " is not of expected size");
+                LOGDEBUG("The proc stat for " << pid << " is not of expected size");
+                LOGERROR("Failed to get Sophos Threat Detector Process Info");
                 return std::pair(0, 0);
             }
 
@@ -432,7 +437,7 @@ namespace Plugin
             auto sysUpTime = sysCalls->getSystemUpTime();
             if (sysUpTime.first == -1)
             {
-                LOGWARN("Failed to retrieve system info, cant calculate process duration.");
+                LOGWARN("Failed to retrieve system info, cant calculate process duration. Returning memory usage only.");
                 return std::pair(memoryUsage, 0);
             }
 
@@ -441,12 +446,12 @@ namespace Plugin
         }
         catch (const std::bad_optional_access& e)
         {
-            LOGWARN("Stat file of Pid: " << pid << " is empty. Cannot report on Threat Detector Process to Telemetry: " << e.what());
+            LOGERROR("Stat file of Pid: " << pid << " is empty. Cannot report on Threat Detector Process to Telemetry: " << e.what());
             return std::pair(0,0);
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
-            LOGWARN("Error reading threat detector stat proc file due to: " << e.what());
+            LOGERROR("Error reading threat detector stat proc file due to: " << e.what());
             return std::pair(0,0);
         }
 
