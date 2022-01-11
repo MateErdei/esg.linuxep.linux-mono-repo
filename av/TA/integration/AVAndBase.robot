@@ -123,6 +123,15 @@ AV plugin runs scheduled scan
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
 AV plugin runs scheduled scan and updates telemetry
+    # Run telemetry to reset counters to 0
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                ...  10 secs
+                ...  1 secs
+                ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Remove File   ${TELEMETRY_OUTPUT_JSON}
+
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
