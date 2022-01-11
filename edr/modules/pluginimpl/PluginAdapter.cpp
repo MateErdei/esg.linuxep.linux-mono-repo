@@ -275,6 +275,9 @@ namespace Plugin
                         LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
                         Common::Telemetry::TelemetryHelper::getInstance().increment(
                                 plugin::telemetryEdrRestartsMemory, 1UL);
+                        // TODO https://sophos.atlassian.net/browse/LINUXDAR-4006 improve hanlding of shutdown to ensure
+                        // telemetry is persisted
+                        Common::Telemetry::TelemetryHelper::getInstance().save();
                         stopOsquery();
                         return;
                     }
