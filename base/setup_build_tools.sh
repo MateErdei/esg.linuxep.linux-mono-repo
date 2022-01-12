@@ -13,7 +13,7 @@ TAP_VENV="tap_venv"
 
 # Install python3 venv for TAP and then install TAP
 
-if ! apt list python3-venv | grep -q python3-venv
+if ! apt list --installed python3-venv | grep -q python3-venv
 then
   sudo apt-get install python3-venv -y
 fi
