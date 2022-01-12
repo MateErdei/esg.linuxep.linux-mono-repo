@@ -1,86 +1,35 @@
-<?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-base" version="1.1.8">
+<?xml version='1.0' encoding='utf-8'?>
+<package name="sspl-base" version="1.1.9">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
     <inputs>
         <workingdir>.</workingdir>
-        <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="/build/input">
-            <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
-        </package>
-        <package name="openssllinux11" version="1-1-1l-1/222963/output" dest="/build/input">
-            <include src="openssl.tar" dest="."/>
-        </package>
-        <package name="cmakelinux"
-                 version="3-11-2-4/213056/cmakelinux" dest="/build/input">
-            <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
-        </package>
-        <package name="versig" version="2-0-0-92/222980/output" dest="/build/input">
-            <include src="versig.tar" dest="."/>
-        </package>
-        <package name="curllinux11" version="7-78-0-3/222970/output" dest="/build/input">
-            <include src="curl.tar" dest="."/>
-        </package>
-        <package name="sullinux11" version="1-0-0-76/222976/output" dest="/build/input">
-            <include src="SUL.tar" dest="."/>
-        </package>
-        <package name="boostlinux11" version="1-77-0-1/222969/output" dest="/build/input">
-            <include src="boost.tar" dest="."/>
-        </package>
-        <package name="expatlinux11" version="2-4-1-1/222964/output" dest="/build/input">
-            <include src="expat.tar" dest="."/>
-        </package>
-        <package name="protobuflinux11" version="3-17-3-1/222971/output" dest="/build/input">
-            <include src="protobuf.tar" dest="."/>
-        </package>
-        <package name="zeromqlinux11" version="4-3-4-9/222030/output" dest="/build/input">
-            <include src="zeromq.tar" dest="."/>
-        </package>
-        <package name="log4cpluslinux11" version="2-0-5-19/220731/output" dest="/build/input">
-            <include src="log4cplus.tar" dest="."/>
-        </package>
-        <package name="zliblinux11" version="1-2-11-4/219630/output" dest="/build/input">
-            <include src="zlib.tar" dest="."/>
-        </package>
-        <package name="pscerts" version="1-0-1/67228/ps_certificates" dest="/build/input">
-            <include src="ps_rootca.crt" dest="."/>
-        </package>
-        <package name="pythonlinux11" version="3-9-7-1/222972/output" dest="/build/input">
-            <include src="python.tar" dest="." />
-        </package>
-        <package name="python-watchdog" version="2-0-2-3/222028/watchdog" dest="/build/input">
-            <include src="python-watchdog.tar" dest="." />
-        </package>
-        <package name="python-pathtools" version="0-1-1-9/216281/pathtools" dest="/build/input">
-            <include src="python-pathtools.tar" dest="." />
-        </package>
-        <package name="pycryptodomelinux11" version="3-9-8-3/221638/pycryptodome" dest="/build/input">
-            <include src="pycryptodome.tar" dest="." />
-        </package>
-        <package name="googletest" version="1-8-1/EES-8928" dest="/build/input">
-            <include src="googletest-release-1.8.1.tar.gz" dest="."/>
-        </package>
-        <package name="python-certifi" version="2020-12-5-1/222027/certifi" dest="/build/input">
-            <include src="python-certifi.tar" dest="."/>
-        </package>
-        <package name="python-urllib3" version="1-25-8-13/218622/urllib3" dest="/build/input">
-            <include src="python-urllib3.tar" dest="."/>
-        </package>
-        <package name="python-six" version="1-14-0-14/218620/six" dest="/build/input">
-            <include src="python-six.tar" dest="."/>
-        </package>
-        <package name="python-requests" version="2-22-0-10/218619/requests" dest="/build/input">
-            <include src="python-requests.tar" dest="."/>
-        </package>
-        <package name="python-idna" version="3-1-0-3/222032/idna" dest="/build/input">
-            <include src="python-idna.tar" dest="."/>
-        </package>
-        <package name="python-chardet" version="3-0-4-3/218617/chardet" dest="/build/input">
-            <include src="python-chardet.tar" dest="."/>
-        </package>
-        <package name="python-sseclient" version="0-0-23-19/218716/sseclient" dest="/build/input">
-            <include src="python-sseclient.tar" dest="."/>
-        </package>
+        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/openssllinux11/1-1-1l-1/222963/output/openssl.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/versig/2-0-0-92/222980/output/versig.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/curllinux11/7-78-0-3/222970/output/curl.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/sullinux11/1-0-0-76/222976/output/SUL.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/boostlinux11/1-77-0-1/222969/output/boost.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/expatlinux11/2-4-1-1/222964/output/expat.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/protobuflinux11/3-17-3-1/222971/output/protobuf.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/zeromqlinux11/4-3-4-9/222030/output/zeromq.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/log4cpluslinux11/2-0-5-19/220731/output/log4cplus.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/zliblinux11/1-2-11-4/219630/output/zlib.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/pythonlinux11/3-9-7-1/222972/output/python.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/python-watchdog/2-0-2-3/222028/watchdog/python-watchdog.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/python-pathtools/0-1-1-9/216281/pathtools/python-pathtools.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/pycryptodomelinux11/3-9-8-3/221638/pycryptodome/pycryptodome.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/python-certifi/2020-12-5-1/222027/certifi/python-certifi.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/python-urllib3/1-25-8-13/218622/urllib3/python-urllib3.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/python-six/1-14-0-14/218620/six/python-six.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/python-requests/2-22-0-10/218619/requests/python-requests.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/python-idna/3-1-0-3/222032/idna/python-idna.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/python-chardet/3-0-4-3/218617/chardet/python-chardet.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/python-sseclient/0-0-23-19/218716/sseclient/python-sseclient.tar" dest-dir="/build/input/"/>
         <build-asset project="thirdparty" repo="minizip">
             <release-version branch="release/linux-3.0.2" build-id="20210622151109-45729c01a79b678f7a29cf76cf770128ef856e2e-7mmYMo"/>
             <development-version branch="sophos/linux-sspl-master"/>
