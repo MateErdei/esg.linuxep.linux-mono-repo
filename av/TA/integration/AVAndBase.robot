@@ -498,7 +498,7 @@ AV Plugin Saves Logs On Downgrade
     Check Logs Saved On Downgrade
 
 AV Plugin Can Send Telemetry
-    Prepare To Run Telemetry Executable
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4431}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
     Wait Until Keyword Succeeds
@@ -513,7 +513,7 @@ AV Plugin Can Send Telemetry
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin sends non-zero processInfo to Telemetry
-    Prepare To Run Telemetry Executable
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4432}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
                  ...  10 secs
@@ -534,7 +534,7 @@ AV Plugin sends non-zero processInfo to Telemetry
 
 AV plugin Saves and Restores Scan Now Counter
     # Run telemetry to reset counters to 0
-    Prepare To Run Telemetry Executable
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4433}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
                  ...  10 secs
@@ -562,7 +562,7 @@ AV plugin Saves and Restores Scan Now Counter
     Mark AV Log
     Start AV Plugin
     Wait Until AV Plugin Log Contains With Offset  Restoring telemetry from disk for plugin: av
-    Prepare To Run Telemetry Executable
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4434}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
                  ...  10 secs
@@ -581,7 +581,7 @@ AV plugin Saves and Restores Scan Now Counter
 
 AV plugin increments Scan Now Counter after Save and Restore
     # Run telemetry to reset counters to 0
-    Prepare To Run Telemetry Executable
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4435}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
                  ...  10 secs

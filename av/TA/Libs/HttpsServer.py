@@ -6,11 +6,14 @@
 
 import ssl
 import subprocess
+import sys
 import threading
 
 import http.server
 
 from ArgParserUtils import tls_from_string
+
+from robot.api import logger
 
 
 class HttpsHandler(http.server.SimpleHTTPRequestHandler):
@@ -51,25 +54,60 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
         self.handle_get_request()
 
 
+class SophosHTTPServer(http.server.HTTPServer):
+    def handle_timeout(self):
+        logger.error("Timeout waiting for HTTPS request")
+
+
+OPENSSL="/usr/bin/openssl"
+
+
 class HttpsServer(object):
     def __init__(self):
         self.thread = None
+        self.m_last_port = None
+        self.m_keyfile_path = None
+        self.m_server = None
+
+    def __generate_key(self, certfile_path):
+        if self.m_keyfile_path is None:
+            keyfile_path = "/tmp/key.pem"
+            subprocess.check_call([
+                OPENSSL,
+                'genrsa',
+                '-out', keyfile_path,
+                '4096'])
+            self.m_keyfile_path = keyfile_path
+
+        subject = "/C=GB/ST=London/L=London/O=Sophos/OU=ESG/CN=localhost"
+        subprocess.check_call('/usr/bin/openssl req -x509 -key {} -out {} -days 2 -nodes -subj "{}"'
+                              .format(self.m_keyfile_path, certfile_path, subject), shell=True)
+
+        return self.m_keyfile_path
 
     def start_https_server(self, certfile_path, port=443, protocol_string=None):
+        """
+        Starts a one-shot HTTPS server - only serves one request
+        :param certfile_path:
+        :param port:
+        :param protocol_string:
+        :return:
+        """
+        if self.thread is not None:
+            self.stop_https_server()
 
         port = int(port)
         print("Start Simple HTTPS Server localhost:{}".format(port))
+        self.m_last_port = port
 
-        keyfile_path = "/tmp/key.pem"
-        subject = "/C=GB/ST=London/L=London/O=Sophos/OU=ESG/CN=localhost"
-        subprocess.call('/usr/bin/openssl req -x509 -newkey rsa:4096 -keyout {} -out {} -days 365 -nodes -subj "{}"'
-                        .format(keyfile_path, certfile_path, subject), shell=True)
-
-        httpd = http.server.HTTPServer(('', port), HttpsHandler)
+        httpd = SophosHTTPServer(('', port), HttpsHandler)
+        httpd.timeout = 60  # stop server after timeout
 
         protocol = tls_from_string(protocol_string)
         if not protocol:
             protocol = ssl.PROTOCOL_TLS
+
+        keyfile_path = self.__generate_key(certfile_path)
 
         httpd.socket = ssl.wrap_socket(httpd.socket,
                                        server_side=True,
@@ -80,7 +118,14 @@ class HttpsServer(object):
         self.thread = threading.Thread(target=httpd.handle_request)
         self.thread.daemon = True
         self.thread.start()
+        self.m_server = httpd
 
     def stop_https_server(self):
+        if self.m_server:
+            self.m_server.server_close()
+            self.m_server = None
+
         if self.thread:
             self.thread.join()
+            self.thread = None
+            self.m_last_port = None

@@ -4,6 +4,7 @@ Library         ../Libs/BaseInteractionTools/DiagnoseUtils.py
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/HttpsServer.py
+Library         ../Libs/OnFail.py
 Library         String
 Library         DateTime
 
@@ -88,10 +89,12 @@ Prepare To Run Telemetry Executable
     Prepare To Run Telemetry Executable With HTTPS Protocol
 
 Prepare To Run Telemetry Executable With HTTPS Protocol
-    [Arguments]  ${port}=443  ${TLSProtocol}=tlsv1_2
+    [Arguments]  ${port}=${443}  ${TLSProtocol}=tlsv1_2
     HttpsServer.Start Https Server  ${CERT_PATH}  ${port}  ${TLSProtocol}
+    register cleanup  Stop Https Server
+
     Wait Until Keyword Succeeds  10 seconds  1.0 seconds  File Should Exist  ${MACHINE_ID_FILE}
-    Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  ${CERT_PATH}
+    Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  ${CERT_PATH}  port=${port}
 
 Run Telemetry Executable
     [Arguments]  ${telemetryConfigFilePath}  ${expectedResult}   ${checkResult}=1
