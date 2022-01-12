@@ -124,7 +124,8 @@ AV plugin runs scheduled scan
 
 AV plugin runs scheduled scan and updates telemetry
     # Run telemetry to reset counters to 0
-    Prepare To Run Telemetry Executable
+    Register On Fail  Run Process  ls  -ld  ${SSPL_BASE}/bin/telemetry  ${SSPL_BASE}/bin  ${SSPL_BASE}/bin/telemetry.*
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4421}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
                 ...  10 secs
@@ -138,7 +139,7 @@ AV plugin runs scheduled scan and updates telemetry
 
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
-    Prepare To Run Telemetry Executable
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4421}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
                  ...  10 secs
