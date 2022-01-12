@@ -277,7 +277,7 @@ void OsqueryDataManager::asyncCheckAndReconfigureDataRetention(std::shared_ptr<O
      (timeNow > (osqueryDataRetentionCheckState->lastOSQueryDataCheck + osqueryDataRetentionCheckState->osqueryDataCheckPeriod))))
     {
         osqueryDataRetentionCheckState->firstRun = false;
-        std::async(
+        m_dataCheckThreadMonitor = std::async(
             std::launch::async,
             [osqueryDataRetentionCheckState, timeNow]
             {

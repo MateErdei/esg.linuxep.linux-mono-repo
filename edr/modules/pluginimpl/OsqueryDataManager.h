@@ -39,6 +39,7 @@ private:
     std::optional<OsquerySDK::QueryData> runQuery(const std::string& query);
     bool connectToOsquery();
 
+    std::future<void> m_dataCheckThreadMonitor;
     static const int QUERY_SUCCESS = 0;
     std::unique_ptr<osqueryclient::IOsqueryClient> m_osqueryClient;
     bool m_clientAlive = false;
