@@ -96,7 +96,7 @@ def send_log_line_to_db(line, log_path, db, ip, hostname, latest_time, last_id, 
     else:
 
         extracted_time_as_date = datetime.datetime.strptime(extracted_time, '%Y-%m-%d %H:%M:%S')
-        if latest_time > extracted_time_as_date:
+        if latest_time >= extracted_time_as_date:
             print("Not inserting log line we have already seen from: {}".format(extracted_time))
             return last_id
         if extracted_time_as_date < (datetime.datetime.now() - datetime.timedelta(days=10)):
