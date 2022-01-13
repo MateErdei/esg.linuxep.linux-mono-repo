@@ -27,6 +27,10 @@ Test Teardown   AV And Base Teardown
 AVAndBase Suite Setup
     Install With Base SDDS
 
+Log Telemetry files
+    ${result} =  Run Process  ls -ld ${SSPL_BASE}/bin/telemetry ${SSPL_BASE}/bin ${SSPL_BASE}/bin/telemetry.*  shell=True  stdout=/tmp/telemetry.files  stderr=STDOUT
+    Log  Telemetry files: ${result.stdout} code ${result.rc}
+
 *** Test Cases ***
 
 AV plugin Can Start sophos_threat_detector
@@ -124,7 +128,7 @@ AV plugin runs scheduled scan
 
 AV plugin runs scheduled scan and updates telemetry
     # Run telemetry to reset counters to 0
-    Register On Fail  Run Process  ls  -ld  ${SSPL_BASE}/bin/telemetry  ${SSPL_BASE}/bin  ${SSPL_BASE}/bin/telemetry.*
+    Register On Fail  Log Telemetry files
     Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4421}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
