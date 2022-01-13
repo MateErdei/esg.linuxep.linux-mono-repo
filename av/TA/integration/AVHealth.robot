@@ -20,22 +20,6 @@ AV Health Teardown
     AV And Base Teardown
     Uninstall All
 
-Check AV Threat Health Telemetry
-    [Arguments]    ${threatStatus}
-    Prepare To Run Telemetry Executable
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
-
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
-
-    Log    ${telemetryJson}
-    Dictionary Should Contain Key    ${telemetryJson}    av
-    Dictionary Should Contain Item   ${telemetryJson["av"]}   threatHealth   ${threatStatus}
-
 SHS Status File Contains
     [Arguments]  ${content_to_contain}
     ${shsStatus} =  Get File   ${MCS_DIR}/status/SHS_status.xml

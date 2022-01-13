@@ -108,3 +108,19 @@ Run Telemetry Executable
 
     Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code: ${result.stderr}
 
+Check AV Telemetry
+    [Arguments]    ${telemetryKey}    ${telemetryValue}
+    Prepare To Run Telemetry Executable
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
+
+    Log    ${telemetryJson}
+    Dictionary Should Contain Key    ${telemetryJson}    av
+    Dictionary Should Contain Item   ${telemetryJson["av"]}   ${telemetryKey}   ${telemetryValue}
+
