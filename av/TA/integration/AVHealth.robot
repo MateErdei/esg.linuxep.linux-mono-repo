@@ -8,12 +8,17 @@ Resource        ../shared/ErrorMarkers.robot
 Suite Setup     AV Health Suite Setup
 Suite Teardown  Uninstall All
 
-Test Setup      AV And Base Setup
+Test Setup      AV Health Test Setup
 Test Teardown   AV Health Teardown
 
 *** Keywords ***
 AV Health Suite Setup
     Install With Base SDDS
+
+AV Health Test Setup
+    AV And Base Setup
+    Wait Until AV Plugin running
+    Wait Until threat detector running
 
 AV Health Teardown
     Remove File    /tmp_test/naughty_eicar
@@ -25,13 +30,25 @@ SHS Status File Contains
     ${shsStatus} =  Get File   ${MCS_DIR}/status/SHS_status.xml
     Log  ${shsStatus}
     Should Contain  ${shsStatus}  ${content_to_contain}
+    
+Check Status Health is Reporting Correctly
+    [Arguments]    ${healthStatus}
+    Wait Until Keyword Succeeds
+    ...  40 secs
+    ...  5 secs
+    ...  Check AV Telemetry    health    ${healthStatus}
+
+    Wait Until Keyword Succeeds
+    ...  40 secs
+    ...  5 secs
+    ...  SHS Status File Contains   <detail name="Sophos Linux AntiVirus" value="${healthStatus}" />
 
 Check Threat Health is Reporting Correctly
     [Arguments]    ${threatStatus}
     Wait Until Keyword Succeeds
     ...  40 secs
     ...  5 secs
-    ...  Check AV Threat Health Telemetry    ${threatStatus}
+    ...  Check AV Telemetry    threatHealth    ${threatStatus}
 
     Wait Until Keyword Succeeds
     ...  40 secs
@@ -39,6 +56,29 @@ Check Threat Health is Reporting Correctly
     ...  SHS Status File Contains   <item name="threat" value="${threatStatus}" />
 
 *** Test Cases ***
+AV Not Running Triggers Bad Status Health
+    Check Status Health is Reporting Correctly    0
+
+    Stop AV Plugin
+    Wait Until Keyword Succeeds
+    ...  40 secs
+    ...  5 secs
+    ...  SHS Status File Contains   <detail name="Sophos Linux AntiVirus" value="2" />
+
+    Start AV Plugin
+    Wait until AV Plugin running
+    Check Status Health is Reporting Correctly    0
+
+Sophos Threat Detector Not Running Triggers Bad Status Health
+    Check Status Health is Reporting Correctly    0
+
+    Stop sophos_threat_detector
+    Check Status Health is Reporting Correctly    1
+
+    Start sophos_threat_detector
+    Wait until threat detector running
+    Check Status Health is Reporting Correctly    0
+
 Clean CLS Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    1
 
