@@ -3,7 +3,7 @@
 # Copyright (C) 2019-2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
-
+import os
 import ssl
 import subprocess
 import sys
@@ -59,31 +59,43 @@ class SophosHTTPServer(http.server.HTTPServer):
         logger.error("Timeout waiting for HTTPS request")
 
 
-OPENSSL="/usr/bin/openssl"
+OPENSSL = "/usr/bin/openssl"
+KEY_FILE_PATH = None
+
+def _generate_key():
+    """
+    Generate the key once
+    :return:
+    """
+    global KEY_FILE_PATH
+    if KEY_FILE_PATH is not None:
+        return KEY_FILE_PATH
+
+    keyfile_path = "/tmp/key.pem"
+    if not os.path.isfile(keyfile_path):
+        subprocess.check_call([
+            OPENSSL,
+            'genrsa',
+            '-out', keyfile_path,
+            '4096'])
+    KEY_FILE_PATH = keyfile_path
+    return KEY_FILE_PATH
 
 
 class HttpsServer(object):
     def __init__(self):
         self.thread = None
         self.m_last_port = None
-        self.m_keyfile_path = None
         self.m_server = None
 
     def __generate_key(self, certfile_path):
-        if self.m_keyfile_path is None:
-            keyfile_path = "/tmp/key.pem"
-            subprocess.check_call([
-                OPENSSL,
-                'genrsa',
-                '-out', keyfile_path,
-                '4096'])
-            self.m_keyfile_path = keyfile_path
+        keyfile_path = _generate_key()
 
         subject = "/C=GB/ST=London/L=London/O=Sophos/OU=ESG/CN=localhost"
-        subprocess.check_call('/usr/bin/openssl req -x509 -key {} -out {} -days 2 -nodes -subj "{}"'
-                              .format(self.m_keyfile_path, certfile_path, subject), shell=True)
+        subprocess.check_call('{} req -x509 -key {} -out {} -days 2 -nodes -subj "{}"'
+                              .format(OPENSSL, keyfile_path, certfile_path, subject), shell=True)
 
-        return self.m_keyfile_path
+        return keyfile_path
 
     def start_https_server(self, certfile_path, port=443, protocol_string=None):
         """
