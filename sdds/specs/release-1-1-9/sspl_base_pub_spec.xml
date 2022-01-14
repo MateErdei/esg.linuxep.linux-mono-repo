@@ -131,11 +131,8 @@
                                line="rd_rules" tag="LATEST" warehousename="runtime_detection"/>
 		</component>
       </line>
-      <line id="ServerProtectionLinux-Plugin-Heartbeat">
-		<component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.121"/>
-      </line>
       <line id="ServerProtectionLinux-Plugin-AV">
-          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.4.156">
+          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.5.19">
               <releasetag baseversion="" tag="RECOMMENDED"/>
               <genericsupplement
                       decodepath="files/plugins/av/chroot/susi/update_source/vdl"
@@ -145,7 +142,7 @@
                       line="LocalRepData" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
               <genericsupplement
                       decodepath="files/plugins/av/chroot/susi/update_source/model"
-                      line="ML_MODEL2_LINUX" tag="LINUX_SCAN" warehousename="ml_models"/>
+                      line="ML_MODEL2_LINUX" tag="LINUX_SCAN" warehousename="ml_models2"/>
           </component>
           <component importreference="ServerProtectionLinux-Plugin-AV-1.0.4.3">
               <genericsupplement
