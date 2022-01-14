@@ -1,4 +1,7 @@
 import json
+import subprocess
+
+from robot.api import logger
 
 def check_telemetry(telemetry):
     telemetry_dict = json.loads(telemetry)
@@ -20,7 +23,24 @@ def check_telemetry(telemetry):
     assert av_dict["ml-pe-model-version"] != "unknown", "No ML-PE Model is set to unknown in telemetry"
     assert av_dict["vdl-ide-count"] != "unknown", "No IDE Count is set to unknown in telemetry"
     assert av_dict["vdl-version"] != "unknown", "No VDL Version is set to unknown in telemetry"
-    assert av_dict["sxl4-lookup"] is True, "SXL4 Lookup is defaulting to True in telemetry"
-    assert av_dict["health"] is 0, "Health is not set to 0 in telemetry, showing bad AV Plugin Health"
-    assert av_dict["threatHealth"] is 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"
+    assert av_dict["sxl4-lookup"], "SXL4 Lookup is defaulting to True in telemetry"
+    assert av_dict["health"] == 0, "Health is not set to 0 in telemetry, showing bad AV Plugin Health"
+    assert av_dict["threatHealth"] == 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"
 
+def debug_telemetry(telemetry_symlink):
+    ldd = subprocess.run(['sudo', "-u", "sophos-spl-user", "ldd", telemetry_symlink],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
+    logger.error("LDD: %d: %s" % (ldd.returncode, ldd.stdout))
+    r = subprocess.run(['sudo', "-u", "sophos-spl-user", telemetry_symlink],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
+    logger.error("Run: %d: %s" % (r.returncode, r.stdout))
+    ls = subprocess.run(['sudo', "-u", "sophos-spl-user", "ls", telemetry_symlink],
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT)
+    logger.error("ls: %d: %s" % (ls.returncode, ls.stdout))
+    strace = subprocess.run(['sudo', "-u", "sophos-spl-user", "strace", telemetry_symlink],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT)
+    logger.error("strace: %d: %s" % (strace.returncode, strace.stdout))

@@ -30,6 +30,7 @@ AVAndBase Suite Setup
 Log Telemetry files
     ${result} =  Run Process  ls -ld ${SSPL_BASE}/bin/telemetry ${SSPL_BASE}/bin ${SSPL_BASE}/bin/telemetry.*  shell=True  stdout=/tmp/telemetry.files  stderr=STDOUT
     Log  Telemetry files: ${result.stdout} code ${result.rc}
+    Debug Telemetry  ${SSPL_BASE}/bin/telemetry
 
 *** Test Cases ***
 
