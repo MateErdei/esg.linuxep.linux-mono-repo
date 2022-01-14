@@ -137,10 +137,14 @@ def pytest_task(machine: tap.Machine):
     install_requirements(machine)
     pytest_task_with_env(machine)
 
-@tap.timeout(task_timeout=5400)
+
+AWS_TIMEOUT = 3 * 3600
+
+
+@tap.timeout(task_timeout=AWS_TIMEOUT)
 def aws_task(machine: tap.Machine):
     try:
-        machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", timeout=5400)
+        machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", timeout=(AWS_TIMEOUT-10))
     finally:
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
