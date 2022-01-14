@@ -9,22 +9,22 @@
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/Version_1_1_9" build-id="20220111115616-63e343f79cd351f4b766d0f4697fff50969105d6-T8rvVv"/>
             <development-version branch="develop" />
-            <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
-            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
-            <include artifact-path="sspl-base/fake-management" dest-dir="input/fake-management"/>
+            <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input" />
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
+            <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
             <release-version branch="release/SED_3.0.1_linux_libs" build-id="20210929204637-2500f58d99d60db61f6c2f61f9f2a02c533f50da-GFlHOK" />
             <development-version branch="develop"/>
-            <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="input"/>
-            <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="input"/>
+            <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
+            <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="/build/input"/>
         </build-asset>
 
-        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/capnprotolinux11/0-8-0-17/222740/capnproto/capnproto.tar" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/xzutilslinux/5-2-4-25/222750/output/xzutils.tar" dest-dir="input/."/>
+        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="/build/input/."/>
+        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="/build/input/."/>
+        <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="/build/input/."/>
+        <trusted-asset artifact-path="filer5-migrate/capnprotolinux11/0-8-0-17/222740/capnproto/capnproto.tar" dest-dir="/build/input/."/>
+        <trusted-asset artifact-path="filer5-migrate/xzutilslinux/5-2-4-25/222750/output/xzutils.tar" dest-dir="/build/input/."/>
     </inputs>
     <buildcommands>
         <command mode="release">

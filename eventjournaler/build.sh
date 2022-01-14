@@ -155,18 +155,13 @@ done
 
 export NO_REMOVE_GCC=1
 
-INPUT=$BASE/input
+INPUT=/build/input
 
 if [[ ! -d "$INPUT" ]]
 then
-    if [[ -d "$BASE/sspl-eventjournaler-plugin-build" ]]
-    then
-        INPUT="$BASE/sspl-eventjournaler-plugin-build/input"
-    else
-        MESSAGE_PART1="You need to run the following to setup your input folder: "
-        MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
-        exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
-    fi
+    MESSAGE_PART1="You need to run the following to setup your input folder: "
+    MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
+    exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
 fi
 
 function untar_input()
@@ -270,7 +265,7 @@ function build()
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
     fi
 
-    REDIST=$BASE/redist
+    REDIST=/build/redist
 
     if [[ -z "$NO_UNPACK" ]]
     then
