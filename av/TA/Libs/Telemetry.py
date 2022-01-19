@@ -32,14 +32,29 @@ def debug_telemetry(telemetry_symlink):
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     logger.error("id: %d: %s" % (id_proc.returncode, id_proc.stdout))
+    id_proc = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", "--command=id"],
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+    logger.error("id2: %d: %s" % (id_proc.returncode, id_proc.stdout))
+
     ldd = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "ldd", telemetry_symlink],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     logger.error("LDD: %d: %s" % (ldd.returncode, ldd.stdout))
+    ldd = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", '--command="ldd %s' % telemetry_symlink],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
+    logger.error("LDD2: %d: %s" % (ldd.returncode, ldd.stdout))
+
     r = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", telemetry_symlink],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     logger.error("Run: %d: %s" % (r.returncode, r.stdout))
+    r = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", '--command=%s' % telemetry_symlink],
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT)
+    logger.error("Run2: %d: %s" % (r.returncode, r.stdout))
+
     ls = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "ls", "-l", telemetry_symlink],
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT)
