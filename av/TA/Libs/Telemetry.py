@@ -28,19 +28,23 @@ def check_telemetry(telemetry):
     assert av_dict["threatHealth"] == 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"
 
 def debug_telemetry(telemetry_symlink):
-    ldd = subprocess.run(['sudo', "-u", "sophos-spl-user", "ldd", telemetry_symlink],
+    id_proc = subprocess.run(['sudo', "-u", "sophos-spl-user", "id"],
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
+    logger.error("id: %d: %s" % (id_proc.returncode, id_proc.stdout))
+    ldd = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "ldd", telemetry_symlink],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     logger.error("LDD: %d: %s" % (ldd.returncode, ldd.stdout))
-    r = subprocess.run(['sudo', "-u", "sophos-spl-user", telemetry_symlink],
+    r = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", telemetry_symlink],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     logger.error("Run: %d: %s" % (r.returncode, r.stdout))
-    ls = subprocess.run(['sudo', "-u", "sophos-spl-user", "ls", telemetry_symlink],
+    ls = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "ls", "-l", telemetry_symlink],
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT)
     logger.error("ls: %d: %s" % (ls.returncode, ls.stdout))
-    strace = subprocess.run(['sudo', "-u", "sophos-spl-user", "strace", telemetry_symlink],
+    strace = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "strace", telemetry_symlink],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.STDOUT)
     logger.error("strace: %d: %s" % (strace.returncode, strace.stdout))
