@@ -1178,6 +1178,9 @@ CLS Scans file on NFS
 
 
 CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
+    Clear logs
+    Mark AV Log
+    Mark Sophos Threat Detector Log
 
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
 
