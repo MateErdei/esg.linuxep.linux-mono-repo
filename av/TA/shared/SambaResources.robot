@@ -30,12 +30,12 @@ Create Local SMB Share
 
     Reload Samba
 
-     ${result} =  Wait Until Keyword Succeeds
-    ...  1 secs
-    ...  10 ms
-    ...  Run Process   mount  -t  cifs  //localhost/testSamba  ${destination}  -o  guest
+    Wait Until Keyword Succeeds
+    ...  10x
+    ...  100 ms
+    ...  Mount Samba Share  ${destination}
 
-    Should Be Equal As Integers  ${result.rc}  ${0}  "Failed to mount local SMB share.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
+
     Register Cleanup  Remove Local SMB Share   ${source}   ${destination}
 
 Restore Samba config
@@ -57,3 +57,9 @@ Restart Samba
 
 Reload Samba
     Run Process  smbcontrol  all  reload-config
+
+
+Mount Samba Share
+    [Arguments]  ${destination}
+    ${result} =  Run Process   mount  -t  cifs  //localhost/testSamba  ${destination}  -o  guest
+    Should Be Equal As Integers  ${result.rc}  ${0}  "Failed to mount local SMB share.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
