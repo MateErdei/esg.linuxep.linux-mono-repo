@@ -28,8 +28,13 @@ Create Local SMB Share
 
     Allow Samba To Access Share  ${source}
 
-    Restart Samba
-    ${result} =  Run Process   mount  -t  cifs  //localhost/testSamba  ${destination}  -o  guest
+    Reload Samba
+
+     ${result} =  Wait Until Keyword Succeeds
+    ...  1 secs
+    ...  10 ms
+    ...  Run Process   mount  -t  cifs  //localhost/testSamba  ${destination}  -o  guest
+
     Should Be Equal As Integers  ${result.rc}  ${0}  "Failed to mount local SMB share.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
     Register Cleanup  Remove Local SMB Share   ${source}   ${destination}
 
@@ -49,3 +54,6 @@ Restart Samba
         ...   Run Shell Process   systemctl restart smb  OnError=Failed to restart SMB server
         ...   ELSE
         ...   Run Shell Process   systemctl restart smbd   OnError=Failed to restart SMB server
+
+Reload Samba
+    Run Process  smbcontrol  all  reload-config
