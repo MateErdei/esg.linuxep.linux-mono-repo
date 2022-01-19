@@ -32,6 +32,13 @@ Log Telemetry files
     Log  Telemetry files: ${result.stdout} code ${result.rc}
     Debug Telemetry  ${SSPL_BASE}/bin/telemetry
 
+Remove Users Stop Processes
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep av
+    Run Process   /bin/kill   -SIGKILL   ${output}
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+    Run Process   /bin/kill   -SIGKILL   ${output}
+    Run Process  /usr/sbin/userdel   sophos-spl-av
+    Run Process  /usr/sbin/userdel   sophos-spl-threat-detector
 *** Test Cases ***
 
 AV plugin Can Start sophos_threat_detector
@@ -496,6 +503,9 @@ AV Plugin uninstalls
     Register Cleanup    Install With Base SDDS
     Check avscanner in /usr/local/bin
     Run plugin uninstaller
+    #LINUXDAR-3861. Remove when this ticket has been closed
+    Remove Users Stop Processes
+    #end
     Check avscanner not in /usr/local/bin
     Check AV Plugin Not Installed
 
@@ -504,6 +514,9 @@ AV Plugin Saves Logs On Downgrade
     Register Cleanup  Install With Base SDDS
     Check AV Plugin Running
     Run plugin uninstaller with downgrade flag
+    #LINUXDAR-3861. Remove when this ticket has been closed
+    Remove Users Stop Processes
+    #end
     Check AV Plugin Not Installed
     Check Logs Saved On Downgrade
 
@@ -1128,3 +1141,4 @@ Sophos Threat Detector always writes susi startup settings following a restart
     Wait Until File exists  ${SUSI_STARTUP_SETTINGS_FILE}
     Wait Until File exists  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Threat Detector Does Not Log Contain  Turning Live Protection on as default - no susi startup settings found
+
