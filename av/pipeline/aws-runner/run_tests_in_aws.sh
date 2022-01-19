@@ -2,6 +2,8 @@
 
 set -x
 
+INCLUDE_TAG="$1"
+
 SSHLocation=${SSHLocation:-"195.171.192.0/24"}
 
 IDENTITFIER=`hostname`-`date +%F`-`date +%H``date +%M`
@@ -85,6 +87,11 @@ function compress()
         "$1" \
         "$2" || failure "Unable to compress template $1: $?"
 }
+
+if [[ -n $INCLUDE_TAG ]]
+then
+    echo $INCLUDE_TAG >argFile
+fi
 
 TEMPLATE=sspl-system.template
 ## Copy to template to s3

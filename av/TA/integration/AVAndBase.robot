@@ -135,6 +135,7 @@ AV plugin runs scheduled scan
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
 AV plugin runs scheduled scan and updates telemetry
+    [Tags]  SLOW  RHEL7  TELEMETRY
     # Run telemetry to reset counters to 0
     Register On Fail  Log Telemetry files
     Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4421}

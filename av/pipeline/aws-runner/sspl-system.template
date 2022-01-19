@@ -57,6 +57,11 @@
               "Description" : "name of folder to dump tests into",
               "Type": "String",
               "Default": ""
+            },
+            "IncludeTag": {
+              "Description" : "If not empty then a tag to include instead of normal tags",
+              "Type": "String",
+              "Default": ""
             }
   },
 

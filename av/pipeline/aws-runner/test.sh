@@ -2,6 +2,8 @@
 
 set -x
 
+INCLUDE_TAG="${1:-INTEGRATION OR PRODUCT}"
+
 function failure()
 {
     local CODE=$1
@@ -75,7 +77,7 @@ python3 -m pip install -r $SCRIPT_DIR/requirements.txt
 
 echo "Running tests on $HOSTNAME"
 RESULT=0
-python3 -m robot --include "INTEGRATION OR PRODUCT" \
+python3 -m robot --include "${INCLUDE_TAG}" \
     --exclude "OSTIA OR MANUAL OR DISABLED OR STRESS" \
     $PLATFORM_EXCLUDE_TAG \
     $SAMBA_EXCLUDE_TAG \
