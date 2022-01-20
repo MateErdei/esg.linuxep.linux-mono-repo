@@ -351,6 +351,12 @@ aws s3 cp --recursive --exclude "*" --include "*-output.xml" "s3://sspl-testbuck
 python3 delete_old_results.py ${STACK}
 aws s3 rm ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME}
 
+if ! [ "$(ls -A results)" ]
+then
+    echo "No results found!"
+    exit 2
+fi
+
 combineResults()
 {
 
