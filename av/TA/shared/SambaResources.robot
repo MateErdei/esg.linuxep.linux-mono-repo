@@ -55,6 +55,13 @@ Restart Samba
         ...   ELSE
         ...   Run Shell Process   systemctl restart smbd   OnError=Failed to restart SMB server
 
+Start Samba
+    ${result} =  Run Process  which  yum
+    Run Keyword If  "${result.rc}" == "0"
+        ...   Run Shell Process   systemctl start smb  OnError=Failed to start SMB server
+        ...   ELSE
+        ...   Run Shell Process   systemctl start smbd   OnError=Failed to start SMB server
+
 Reload Samba
     Run Process  smbcontrol  all  reload-config
 

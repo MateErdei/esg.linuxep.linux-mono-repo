@@ -206,6 +206,7 @@ AV Plugin Can Disable Scanning Of Mounted NFS Shares
 AV Plugin Can Disable Scanning Of Mounted SMB Shares
     [Timeout]  10 minutes
     [Tags]  SMB
+    Start Samba
     Register On Fail   Dump Log  /var/log/samba/log.smbd
     Register On Fail   Dump Log  /var/log/samba/log.nmbd
     ${source} =       Set Variable  /tmp_test/smbshare
