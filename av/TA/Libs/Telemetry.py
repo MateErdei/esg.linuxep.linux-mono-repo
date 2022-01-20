@@ -1,4 +1,9 @@
+#!/bin/python3
+
+import grp
 import json
+import os
+import pwd
 import subprocess
 
 from robot.api import logger
@@ -28,44 +33,101 @@ def check_telemetry(telemetry):
     assert av_dict["health"] == 0, "Health is not set to 0 in telemetry, showing bad AV Plugin Health"
     assert av_dict["threatHealth"] == 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"
 
+def _su_supports_group():
+    return os.path.isfile("/etc/redhat-release")
 
 def debug_telemetry(telemetry_symlink):
     id_proc = subprocess.run(['sudo', "-u", "sophos-spl-user", "id"],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
-    logger.error("id: %d: %s" % (id_proc.returncode, id_proc.stdout))
-    id_proc = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", "--command=id"],
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
-    logger.error("id2: %d: %s" % (id_proc.returncode, id_proc.stdout))
+    logger.info("id: %d: %s" % (id_proc.returncode, id_proc.stdout))#
+    if _su_supports_group():
+        id_proc = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", "--command=id"],
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT)
+        logger.info("id2: %d: %s" % (id_proc.returncode, id_proc.stdout))
 
-    ldd = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "ldd", telemetry_symlink],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-    logger.error("LDD: %d: %s" % (ldd.returncode, ldd.stdout))
-    ldd = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group",
-                          '--command="ldd %s"' % telemetry_symlink],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
-    logger.error("LDD2: %d: %s" % (ldd.returncode, ldd.stdout))
+    # ldd = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "ldd", telemetry_symlink],
+    #                      stdout=subprocess.PIPE,
+    #                      stderr=subprocess.STDOUT)
+    # logger.error("LDD: %d: %s" % (ldd.returncode, ldd.stdout))
+    # ldd = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group",
+    #                       '--command="ldd %s"' % telemetry_symlink],
+    #                      stdout=subprocess.PIPE,
+    #                      stderr=subprocess.STDOUT)
+    # logger.error("LDD2: %d: %s" % (ldd.returncode, ldd.stdout))
 
     r = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", telemetry_symlink],
                        stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT)
-    logger.error("Run: %d: %s" % (r.returncode, r.stdout))
-    r = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", '--command=%s' % telemetry_symlink],
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT)
-    logger.error("Run2: %d: %s" % (r.returncode, r.stdout))
+    logger.info("Run: %d: %s" % (r.returncode, r.stdout))
+    if _su_supports_group():
+        r = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", '--command=%s' % telemetry_symlink],
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT)
+        logger.info("Run2: %d: %s" % (r.returncode, r.stdout))
 
-    ls = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "ls", "-l", telemetry_symlink],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.STDOUT)
-    logger.error("ls: %d: %s" % (ls.returncode, ls.stdout))
-    strace = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "strace", telemetry_symlink],
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    logger.error("strace: %d: %s" % (strace.returncode, strace.stdout))
+    # ls = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "ls", "-l", telemetry_symlink],
+    #                     stdout=subprocess.PIPE,
+    #                     stderr=subprocess.STDOUT)
+    # logger.error("ls: %d: %s" % (ls.returncode, ls.stdout))
+    # strace = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "strace", telemetry_symlink],
+    #                         stdout=subprocess.PIPE,
+    #                         stderr=subprocess.STDOUT)
+    # logger.error("strace: %d: %s" % (strace.returncode, strace.stdout))
 
     # sudoers = open("/etc/sudoers").read()
     # logger.error("sudoers: %s" % sudoers)
+
+class Result:
+    pass
+
+def _sophos_spl_user_primary_group_is_sophos_spl_group():
+    # Check if sophos-spl-user's primary group is sophos-spl-group?
+    try:
+        expected_gid = grp.getgrnam("sophos-spl-group").gr_gid
+    except KeyError:
+        logger.error("Failed to get sophos-spl-group")
+        return False
+
+    try:
+        actual_gid = pwd.getpwnam("sophos-spl-user").pw_gid
+    except KeyError:
+        logger.error("Failed to get sophos-spl-user")
+        return False
+
+    if actual_gid == expected_gid:
+        return True
+
+    logger.error("sophos-spl-user Primary group isn't sophos-spl-group - actual %d vs expected %d" %
+                 (
+                     actual_gid,
+                     expected_gid
+                 ))
+    return False
+
+def run_telemetry(telemetry_symlink, telemetry_config):
+    if _sophos_spl_user_primary_group_is_sophos_spl_group():
+        # run with sudo
+        command = [
+            'sudo', '-u', 'sophos-spl-user', telemetry_symlink, telemetry_config
+        ]
+    elif _su_supports_group():
+        #  run with su
+        command = ['su', 'sophos-spl-user', '--group=sophos-spl-group', '--command="%s %s"' % (
+            telemetry_symlink,
+            telemetry_config
+        )]
+    else:
+        # try sudo with group
+        command = [
+            'sudo', '-u', 'sophos-spl-user', '-g', 'sophos-spl-group', telemetry_symlink, telemetry_config
+        ]
+
+    logger.info("Running telemetry using %s" % (str(command)))
+    r = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    result = Result()
+    result.rc = r.returncode
+    result.stdout = r.stdout
+    logger.info("Result %d: %s" % (result.rc, result.stdout))
+    return result

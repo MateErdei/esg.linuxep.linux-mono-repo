@@ -136,14 +136,11 @@ AV plugin runs scheduled scan
 
 AV plugin runs scheduled scan and updates telemetry
     [Tags]  SLOW  RHEL7  TELEMETRY
-    # Run telemetry to reset counters to 0
-    Register On Fail  Log Telemetry files
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4421}
-
+#    Register On Fail  Log Telemetry files
     Log Telemetry files
-    ${result} =  Run Process  sudo  -u  sophos-spl-user  id  stderr=STDOUT
-    Log  "id sophos-spl-user = ${result.stdout}"
 
+    # Run telemetry to reset counters to 0
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4421}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
                 ...  10 secs

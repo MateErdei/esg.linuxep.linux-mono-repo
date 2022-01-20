@@ -5,6 +5,7 @@ Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/HttpsServer.py
 Library         ../Libs/OnFail.py
+Library         ../Libs/Telemetry.py
 Library         String
 Library         DateTime
 
@@ -101,11 +102,9 @@ Run Telemetry Executable
 
     Remove File  ${TELEMETRY_EXECUTABLE_LOG}
 
-    ${result} =  Run Process  su  sophos-spl-user  --group\=sophos-spl-group  --command\="${SSPL_BASE}/bin/telemetry ${telemetryConfigFilePath}"  stderr=STDOUT
+    ${result}=  Telemetry.run_telemetry  ${SSPL_BASE}/bin/telemetry  ${telemetryConfigFilePath}
 
-    Log  "Telemetry output = ${result.stdout}"
-
-    Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code: ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code: ${result.stdout}
 
 Check AV Telemetry
     [Arguments]    ${telemetryKey}    ${telemetryValue}
