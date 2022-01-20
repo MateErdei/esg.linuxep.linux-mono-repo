@@ -142,8 +142,7 @@ AWS_TIMEOUT = 3 * 3600
 
 
 @tap.timeout(task_timeout=AWS_TIMEOUT)
-def aws_task(machine: tap.Machine):
-    include_tag = machine.include_tag
+def aws_task(machine: tap.Machine, include_tag: str):
     try:
         machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag, timeout=(AWS_TIMEOUT-10))
     finally:
@@ -430,4 +429,4 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         test_inputs = get_inputs(context, av_build, pipeline=True)
         machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
         machine.include_tag = parameters.aws_include_tag
-        stage.task("aws_tests", func=aws_task, machine=machine)
+        stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
