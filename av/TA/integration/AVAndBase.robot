@@ -140,6 +140,7 @@ AV plugin runs scheduled scan and updates telemetry
     Register On Fail  Log Telemetry files
     Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4421}
 
+    Log Telemetry files
     ${result} =  Run Process  sudo  -u  sophos-spl-user  id  stderr=STDOUT
     Log  "id sophos-spl-user = ${result.stdout}"
 

@@ -41,7 +41,7 @@ def debug_telemetry(telemetry_symlink):
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     logger.error("LDD: %d: %s" % (ldd.returncode, ldd.stdout))
-    ldd = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", '--command="ldd %s' % telemetry_symlink],
+    ldd = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", '--command="ldd %s"' % telemetry_symlink],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     logger.error("LDD2: %d: %s" % (ldd.returncode, ldd.stdout))
@@ -63,3 +63,6 @@ def debug_telemetry(telemetry_symlink):
                         stdout=subprocess.PIPE,
                         stderr=subprocess.STDOUT)
     logger.error("strace: %d: %s" % (strace.returncode, strace.stdout))
+
+    sudoers = open("/etc/sudoers").read()
+    logger.error("sudoers: %s" % sudoers)

@@ -101,7 +101,7 @@ Run Telemetry Executable
 
     Remove File  ${TELEMETRY_EXECUTABLE_LOG}
 
-    ${result} =  Run Process  sudo  -u  sophos-spl-user  ${SSPL_BASE}/bin/telemetry  ${telemetryConfigFilePath}
+    ${result} =  Run Process  su  sophos-spl-user  --group=sophos-spl-group  --command="${SSPL_BASE}/bin/telemetry ${telemetryConfigFilePath}"
 
     Log  "stdout = ${result.stdout}"
     Log  "stderr = ${result.stderr}"
