@@ -5,6 +5,8 @@ Suite Teardown   Suite Teardown
 Test Setup       Test Setup
 Test Teardown    Test Teardown
 
+Test Timeout  10 mins
+
 Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
@@ -776,7 +778,7 @@ Check Installed Version In Status Message Is Correctly Reported Based On Version
     ...   5 secs
     ...   File Should Exist  ${status_file}
 
-    Override Local LogConf File for a component   DEBUG  global
+    Override Local LogConf File for a component   INFO  global
     Run Process  systemctl  restart  sophos-spl
 
     # Tigger update to make sure everything has settle down foe test, i.e. we do not want files to be updated

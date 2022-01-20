@@ -323,6 +323,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
     Mark Sul Log
+    Trigger Update Now
 
     Wait Until Keyword Succeeds
     ...  120 secs

@@ -261,6 +261,12 @@ def get_spec_xml_dict_from_filer6():
 
     return files_on_filer6_dict
 
+def get_version_from_sdds_import_file(path):
+    with open(path) as file:
+        contents = file.read()
+        xml = ET.fromstring(contents)
+        return xml.find(".//Version").text
+
 def get_version_of_component_with_tag_from_spec_xml(rigidname, tag, spec_xml_dict, relevant_sdds_names):
     for sdds_name in relevant_sdds_names:
         # print(sdds_name)
@@ -715,6 +721,11 @@ class WarehouseUtils(object):
         return get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigidname, tag, self.WAREHOUSE_SPEC_XML, relevant_sdds_files)
 
     def get_version_for_rigidname_in_vut_warehouse(self, rigidname):
+        if rigidname == "ServerProtectionLinux-Base":
+            if not os.environ.get("BALLISTA_VUT"):
+                # dev warehouse hard code version
+                return "1.0.0"
+            return get_version_from_sdds_import_file(os.path.join(PathManager.SYSTEM_PRODUCT_TEST_INPUTS, "sspl-componentsuite", "SDDS-Import.xml"))
         warehouse_root = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse", "develop", "warehouse", "warehouse")
         product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
         version = subprocess.check_output(f'grep -r "PRODUCT_NAME = {product_name}" /tmp/system-product-test-inputs/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/ | awk -F: \'{{print $1}}\' | xargs grep "PRODUCT_VERSION" | sed "s/PRODUCT_VERSION\ =\ //"', shell=True)
