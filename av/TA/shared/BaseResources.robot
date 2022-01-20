@@ -101,10 +101,9 @@ Run Telemetry Executable
 
     Remove File  ${TELEMETRY_EXECUTABLE_LOG}
 
-    ${result} =  Run Process  su  sophos-spl-user  --group=sophos-spl-group  --command="${SSPL_BASE}/bin/telemetry ${telemetryConfigFilePath}"
+    ${result} =  Run Process  su  sophos-spl-user  --group\=sophos-spl-group  --command\="${SSPL_BASE}/bin/telemetry ${telemetryConfigFilePath}"  stderr=STDOUT
 
-    Log  "stdout = ${result.stdout}"
-    Log  "stderr = ${result.stderr}"
+    Log  "Telemetry output = ${result.stdout}"
 
     Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code: ${result.stderr}
 
