@@ -3,6 +3,7 @@ import subprocess
 
 from robot.api import logger
 
+
 def check_telemetry(telemetry):
     telemetry_dict = json.loads(telemetry)
     assert "av" in telemetry_dict, "No AV section in telemetry"
@@ -27,10 +28,11 @@ def check_telemetry(telemetry):
     assert av_dict["health"] == 0, "Health is not set to 0 in telemetry, showing bad AV Plugin Health"
     assert av_dict["threatHealth"] == 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"
 
+
 def debug_telemetry(telemetry_symlink):
     id_proc = subprocess.run(['sudo', "-u", "sophos-spl-user", "id"],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
     logger.error("id: %d: %s" % (id_proc.returncode, id_proc.stdout))
     id_proc = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", "--command=id"],
                              stdout=subprocess.PIPE,
@@ -41,14 +43,15 @@ def debug_telemetry(telemetry_symlink):
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     logger.error("LDD: %d: %s" % (ldd.returncode, ldd.stdout))
-    ldd = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", '--command="ldd %s"' % telemetry_symlink],
+    ldd = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group",
+                          '--command="ldd %s"' % telemetry_symlink],
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     logger.error("LDD2: %d: %s" % (ldd.returncode, ldd.stdout))
 
     r = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", telemetry_symlink],
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT)
     logger.error("Run: %d: %s" % (r.returncode, r.stdout))
     r = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", '--command=%s' % telemetry_symlink],
                        stdout=subprocess.PIPE,
@@ -56,13 +59,13 @@ def debug_telemetry(telemetry_symlink):
     logger.error("Run2: %d: %s" % (r.returncode, r.stdout))
 
     ls = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "ls", "-l", telemetry_symlink],
-                       stdout=subprocess.PIPE,
-                       stderr=subprocess.STDOUT)
-    logger.error("ls: %d: %s" % (ls.returncode, ls.stdout))
-    strace = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "strace", telemetry_symlink],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.STDOUT)
+    logger.error("ls: %d: %s" % (ls.returncode, ls.stdout))
+    strace = subprocess.run(['sudo', "-u", "sophos-spl-user", "-g", "sophos-spl-group", "strace", telemetry_symlink],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
     logger.error("strace: %d: %s" % (strace.returncode, strace.stdout))
 
-    sudoers = open("/etc/sudoers").read()
-    logger.error("sudoers: %s" % sudoers)
+    # sudoers = open("/etc/sudoers").read()
+    # logger.error("sudoers: %s" % sudoers)
