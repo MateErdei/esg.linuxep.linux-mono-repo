@@ -1,15 +1,22 @@
 #!/bin/bash
 
-#set -x
+set -x
 set -e
 
 if [[ $(id -u) == 0 ]]
 then
-    echo "You don't need to run the entire script as root"
+    echo "You don't need to run the entire script as root, sudo will prompt you if needed."
     exit 1
 fi
 
-TAP_VENV="tap_venv"
+BASEDIR=$(dirname "$0")
+
+# Just in case this script ever gets symlinked
+BASEDIR=$(readlink -f "$BASEDIR")
+cd "$BASEDIR"
+
+# Where the TAP Python venv will be put
+TAP_VENV="$BASEDIR/tap_venv"
 
 # Install python3 venv for TAP and then install TAP
 
@@ -38,6 +45,7 @@ else
   python3 -m pip install tap
 fi
 
+# Not sure why tap needs this, seems to never be used?
 TAP_CACHE="/SophosPackages"
 if [ -d "$TAP_CACHE" ]
 then
@@ -52,4 +60,104 @@ tap --version
 tap ls
 tap fetch sspl_base.build.release
 
-#TODO export CC and CXX, tell user this has ben done
+BUILD_TOOLS_DIR="build_tools"
+FETCHED_INPUTS_DIR="input"
+[[ -d "$BUILD_TOOLS_DIR" ]] || mkdir "$BUILD_TOOLS_DIR"
+
+# GCC
+# input/gcc-8.1.0-linux.tar.gz
+GCC_TARFILE=$(ls $FETCHED_INPUTS_DIR/gcc-*.tar.gz)
+GCC_TARFILE_HASH=$(md5sum "$GCC_TARFILE" | cut -d ' ' -f 1)
+GCC_DIR="$BUILD_TOOLS_DIR/gcc"
+
+function unpack_gcc()
+{
+  mkdir "$GCC_DIR"
+#  tar -xzf "$GCC_TARFILE" -C "$GCC_DIR"
+  tar -xzf "$GCC_TARFILE" -C "$BUILD_TOOLS_DIR"
+  touch "$GCC_DIR/$GCC_TARFILE_HASH"
+}
+
+if [[ -d "$GCC_DIR" ]]
+then
+  if [[ -f "$GCC_DIR/$GCC_TARFILE_HASH" ]]
+  then
+    echo "Already unpacked GCC"
+  else
+    echo "Removing old GCC build tools"
+    rm -rf "$GCC_DIR"
+    unpack_gcc
+  fi
+else
+   unpack_gcc
+fi
+"$GCC_DIR/bin/gcc" --version
+"$GCC_DIR/bin/g++" --version
+
+
+# CMAKE
+# input/cmake-3.11.2-linux.tar.gz
+CMAKE_TARFILE=$(ls $FETCHED_INPUTS_DIR/cmake-*.tar.gz)
+CMAKE_TARFILE_HASH=$(md5sum "$CMAKE_TARFILE" | cut -d ' ' -f 1)
+CMAKE_DIR="$BUILD_TOOLS_DIR/cmake"
+
+function unpack_cmake()
+{
+  mkdir "$CMAKE_DIR"
+#  tar -xzf "$CMAKE_TARFILE" -C "$CMAKE_DIR"
+  tar -xzf "$CMAKE_TARFILE" -C "$BUILD_TOOLS_DIR"
+  touch "$CMAKE_DIR/$CMAKE_TARFILE_HASH"
+}
+
+if [[ -d "$CMAKE_DIR" ]]
+then
+  if [[ -f "$CMAKE_DIR/$CMAKE_TARFILE_HASH" ]]
+  then
+    echo "Already unpacked cmake"
+  else
+    echo "Removing old cmake build tools"
+    rm -rf "$CMAKE_DIR"
+    unpack_cmake
+  fi
+else
+   unpack_cmake
+fi
+"$CMAKE_DIR/bin/cmake" --version
+
+
+# Make
+# TODO
+# Make is not yet available in artifactory so for now we'll install it directly
+if ! apt list --installed make | grep -q make
+then
+  sudo apt-get install make -y
+fi
+MAKE_DIR="$BUILD_TOOLS_DIR/make"
+mkdir -p "$MAKE_DIR"
+which make
+pushd "$MAKE_DIR"
+ln -fs "$(which make)" "make"
+popd
+"$MAKE_DIR/make" --version
+
+
+# AS (assembler)
+# TODO
+# AS (assembler) is not yet available in artifactory so for now we'll install it directly
+if ! apt list --installed binutils | grep -q binutils
+then
+  sudo apt-get install binutils -y
+fi
+AS_DIR="$BUILD_TOOLS_DIR/as"
+mkdir -p "$AS_DIR"
+which as
+pushd "$AS_DIR"
+ln -fs "$(which as)" "as"
+popd
+"$AS_DIR/as" --version
+
+
+[[ -f /etc/profile.d/setup_env_vars.sh ]] || sudo ln -s "$BASEDIR/setup_env_vars.sh" /etc/profile.d/setup_env_vars.sh
+#source ./setup_env_vars.sh?
+
+echo "Please reboot build machine to apply env changes or source $BASEDIR/setup_env_vars.sh"
