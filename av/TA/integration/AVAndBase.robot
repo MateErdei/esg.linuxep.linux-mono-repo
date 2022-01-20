@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Integration tests for AVP and Base
-Force Tags      INTEGRATION
+Force Tags      INTEGRATION  AV_AND_BASE
 Library         Collections
 Library         OperatingSystem
 Library         Process
