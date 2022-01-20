@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import absolute_import,print_function,division,unicode_literals
+from __future__ import absolute_import, print_function, division, unicode_literals
 
 import json
 import os
@@ -30,12 +30,12 @@ def checkMachinesAllTerminated(stack, uuid=TEST_PASS_UUID):
         "tag:TestImage": "true"
         })
     for instance in instances:
-        print("Checking instance %s %s ip %s"%(
-            instance.id,
-            instance.tags.get('Name',"<unknown>"),
-            instance.ip_address
-            ))
         if instance.state != "terminated":
+            print("Checking instance %s %s ip %s"%(
+                instance.id,
+                instance.tags.get('Name', "<unknown>"),
+                instance.ip_address
+            ))
             return False
 
     return True
