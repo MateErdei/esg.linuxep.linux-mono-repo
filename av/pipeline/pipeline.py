@@ -428,5 +428,5 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     if run_aws_tests:
         test_inputs = get_inputs(context, av_build, pipeline=True)
         machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-        machine.include_tag = parameters.aws_include_tag
+        include_tag = parameters.aws_include_tag
         stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
