@@ -376,6 +376,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     run_aws_tests = decide_whether_to_run_aws_tests(parameters, context)
     do_coverage: bool = decide_whether_to_do_coverage(parameters, context)
     do_cppcheck: bool = decide_whether_to_run_cppcheck(parameters, context)
+    do_999_build: bool = parameters.do_999_build != 'false'
 
     coverage_build = context.artifact.build()
 
@@ -390,9 +391,10 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                 av_cpp_check = stage.artisan_build(name="cpp-check", component=component, image=build_image,
                                                    mode="cppcheck", release_package=release_package)
 
-            nine_nine_nine_mode = '999'
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
-                                                       mode=nine_nine_nine_mode, release_package=release_package)
+            if do_999_build:
+                nine_nine_nine_mode = '999'
+                nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
+                                                           mode=nine_nine_nine_mode, release_package=release_package)
 
             av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
                                            mode=parameters.mode, release_package=release_package)
