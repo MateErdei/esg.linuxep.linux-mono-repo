@@ -34,13 +34,13 @@ def check_telemetry(telemetry):
     assert av_dict["threatHealth"] == 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"
 
 def _su_supports_group():
-    return os.path.isfile("/etc/redhat-release")
+    return os.path.isfile("/etc/redhat-release") and os.path.isfile("/bin/su")
 
 def debug_telemetry(telemetry_symlink):
     id_proc = subprocess.run(['sudo', "-u", "sophos-spl-user", "id"],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
-    logger.info("id: %d: %s" % (id_proc.returncode, id_proc.stdout))#
+    logger.info("id: %d: %s" % (id_proc.returncode, id_proc.stdout))
     if _su_supports_group():
         id_proc = subprocess.run(['su', "sophos-spl-user", "--group=sophos-spl-group", "--command=id"],
                                  stdout=subprocess.PIPE,
