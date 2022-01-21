@@ -48,7 +48,7 @@ Endpoint Updates Via Update Cache Without Errors
     ...  300 secs
     ...  5 secs
     ...  Directory Should Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
-    Check Log Contains  Successfully connected to: Update cache at lnxdarwin01uc3  ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Successfully connected to: Update cache at  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Wait Until Keyword Succeeds
     ...  200 secs
@@ -76,7 +76,9 @@ Endpoint Updates Via Update Cache Without Errors
 
 ALC contains Update Cache
     ${alc} =  Get File  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
-    Should Contain  ${alc}  hostname="lnxdarwin01uc3
+    Should Contain  ${alc}  hostname="
+    Should Contain  ${alc}  priority="
+    Should Contain  ${alc}  <update_cache>
 
 
 Check Installed Correctly
