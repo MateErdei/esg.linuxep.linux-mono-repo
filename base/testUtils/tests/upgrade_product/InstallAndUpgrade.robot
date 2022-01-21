@@ -281,9 +281,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     # Note when downgrading from a release with live response to a release without live response
     # results in a second update.
     Override LogConf File as Global Level  DEBUG
-    Create File  ${SOPHOS_INSTALL}/base/mcs/action/testfile
-    Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
-    Run Process  chown  -R  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action/testfile
 
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVDogfoodPolicy}
     Wait Until Keyword Succeeds
@@ -300,7 +297,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   10 secs
     ...   Check Log Contains   Update success    /tmp/preserve-sul-downgrade   suldownloader log
 
-    Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
     Run Keyword If  ${ExpectBaseDowngrade}
     ...  Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
