@@ -195,6 +195,8 @@ namespace Plugin
         std::unique_ptr<WaitUpTo> m_delayedRestart;
 
         auto lastCleanUpTime = std::chrono::steady_clock::now();
+        auto lastMemoryCheckTime = std::chrono::steady_clock::now();
+        auto memoryCheckPeriod = std::chrono::minutes (5);
         auto cleanupPeriod = std::chrono::minutes(10);
 
         OsqueryDataManager osqueryDataManager;
@@ -261,6 +263,19 @@ namespace Plugin
 
             auto timeNow = std::chrono::steady_clock::now();
             Task task;
+
+            if (timeNow > (lastMemoryCheckTime + memoryCheckPeriod))
+            {
+                lastMemoryCheckTime = timeNow;
+                if (pluginMemoryAboveThreshold())
+                {
+                    LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
+                    // Push stop task onto the task queue, to ensure shutdown cleanly, and ensures a
+                    // constant flow of tasks being put onto the queue does not prevent shutdown.
+                    m_queueTask->pushStop();
+                }
+            }
+
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
 
@@ -270,17 +285,6 @@ namespace Plugin
                     lastCleanUpTime = timeNow;
                     LOGDEBUG("Cleanup time elapsed , checking files");
                     cleanUpOldOsqueryFiles();
-                    if (pluginMemoryAboveThreshold())
-                    {
-                        LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
-                        Common::Telemetry::TelemetryHelper::getInstance().increment(
-                                plugin::telemetryEdrRestartsMemory, 1UL);
-                        // TODO https://sophos.atlassian.net/browse/LINUXDAR-4006 improve hanlding of shutdown to ensure
-                        // telemetry is persisted
-                        Common::Telemetry::TelemetryHelper::getInstance().save();
-                        stopOsquery();
-                        return;
-                    }
                 }
             }
             else
