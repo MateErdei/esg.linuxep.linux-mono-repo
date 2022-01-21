@@ -4,7 +4,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <redist/boost/include/boost/assert.hpp>
+#include <boost/assert.hpp>
 #include "OsqueryStarted.h"
 
 namespace Plugin{
