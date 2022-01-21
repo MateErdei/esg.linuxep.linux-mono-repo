@@ -12,10 +12,10 @@ install(FILES
         ${CMAKE_BINARY_DIR}/tests/manualTools/UseCommsComponent
         ${CMAKE_BINARY_DIR}/tests/manualTools/RunHttpRequest
         ${CMAKE_BINARY_DIR}/tests/manualTools/EventPubSub
-        ${CMAKE_SOURCE_DIR}/redist/openssl/lib64/libcrypto.so.1.1
-        ${CMAKE_SOURCE_DIR}/redist/openssl/lib64/libssl.so.1.1
-        ${CMAKE_SOURCE_DIR}/redist/gcc/lib64/libssp.so.0.0.0
-        ${CMAKE_SOURCE_DIR}/redist/openssl/64/bin/openssl
+        /build/redist/openssl/lib64/libcrypto.so.1.1
+        /build/redist/openssl/lib64/libssl.so.1.1
+        /build/redist/gcc/lib64/libssp.so.0.0.0
+        /build/redist/openssl/64/bin/openssl
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 

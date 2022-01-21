@@ -100,7 +100,7 @@ find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
 
 if(NOT DEFINED INPUT)
-    set( INPUT ${CMAKE_SOURCE_DIR}/redist )
+    set( INPUT /build/redist )
 endif()
 
 if(NOT EXISTS ${INPUT})

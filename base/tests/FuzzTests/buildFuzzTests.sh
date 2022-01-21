@@ -33,8 +33,8 @@ CMAKE_BUILD_DIR=cmake-afl-fuzz
 CMAKE_BUILD_FULL_PATH="${SOURCE_DIR}/${CMAKE_BUILD_DIR}"
 
 BASE=${SOURCE_DIR}
-REDIST=$BASE/redist
-INPUT=$BASE/input
+REDIST=/build/redist
+INPUT=/build/input
 
 [[ -f "$BASE"/build/common.sh ]] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build/common.sh

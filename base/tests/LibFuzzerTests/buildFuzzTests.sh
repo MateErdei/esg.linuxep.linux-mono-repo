@@ -61,7 +61,7 @@ pushd libprotobuf-mutator
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_INSTALL_PREFIX=${PROJECT_ROOT_SOURCE}/thirdparty/output \
     -DLIB_PROTO_MUTATOR_TESTING=OFF \
-    -DINPUT=${PROJECT_ROOT_SOURCE}/redist
+    -DINPUT=/build/redist
   make -j4
   make install
 popd # libprotobuf-mutator

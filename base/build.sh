@@ -36,7 +36,7 @@ BULLSEYE=0
 BULLSEYE_UPLOAD=0
 BULLSEYE_SYSTEM_TESTS=0
 export NO_REMOVE_GCC=1
-INPUT=$BASE/input
+INPUT=/build/input
 
 COVFILE="/tmp/root/sspl-base-unittest.cov"
 BULLSEYE_SYSTEM_TEST_BRANCH=develop
@@ -262,7 +262,7 @@ function build()
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
     fi
 
-    REDIST=$BASE/redist
+    REDIST=/build/redist
 
     if [[ -z "$NO_UNPACK" ]]
     then

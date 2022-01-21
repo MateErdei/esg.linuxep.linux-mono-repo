@@ -1,4 +1,4 @@
-set(EXCLUDED_DIRS ${CMAKE_SOURCE_DIR}/tests/googletest ${CMAKE_SOURCE_DIR}/cmake-build-debug ${CMAKE_SOURCE_DIR}/redist
+set(EXCLUDED_DIRS ${CMAKE_SOURCE_DIR}/tests/googletest ${CMAKE_SOURCE_DIR}/cmake-build-debug
         ${CMAKE_SOURCE_DIR}/CMakeFiles ${CMAKE_SOURCE_DIR}/sspl-base-build ${CMAKE_SOURCE_DIR}/thirdparty
         ${CMAKE_SOURCE_DIR}/build64 ${CMAKE_SOURCE_DIR}/modules/Common/Logging ${CMAKE_SOURCE_DIR}/tests/Common/Helpers
         ${CMAKE_SOURCE_DIR}/tests/Common/HelpersTest
