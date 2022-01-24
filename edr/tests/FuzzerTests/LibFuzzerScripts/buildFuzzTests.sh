@@ -23,8 +23,8 @@ BASE=${PROJECT_ROOT_SOURCE}
 source "$BASE"/build-files/common.sh
 
 
-REDIST=$BASE/redist
-INPUT=$BASE/input
+REDIST=/build/redist
+INPUT=/build/input
 
 CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
 if [[ -f "$CMAKE_TAR" ]]
@@ -63,7 +63,7 @@ pushd libprotobuf-mutator
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_INSTALL_PREFIX=${PROJECT_ROOT_SOURCE}/thirdparty/output \
     -DLIB_PROTO_MUTATOR_TESTING=OFF \
-    -DINPUT=${PROJECT_ROOT_SOURCE}/redist
+    -DINPUT=/build/redist
   make -j4
   make install
 popd # libprotobuf-mutator
