@@ -140,9 +140,9 @@
 	  		     shortdic="Sophos Linux Event Journaler"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-RuntimeDetections">
-      <component id="ServerProtectionLinux-Plugin-RuntimeDetections-4.10.0.67"
-				 version="4.10.0.67"
-				 artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--version_4_10_0/20220114211147-da284643305202d7636ff44c1aa4f418b72904f0-da4gUv/SDDS-COMPONENT"
+      <component id="ServerProtectionLinux-Plugin-RuntimeDetections-4.10.0.79"
+				 version="4.10.0.79"
+				 artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--version_4_10_0/20220124095821-2a721e97bdc8983991a57424b6c849b029338502-M7XjIK/SDDS-COMPONENT"
 				 longdic="Sophos Linux Runtime Detection Plugin"
 				 shortdic="Sophos Linux Runtime Detection Plugin"/>
       <component id="ServerProtectionLinux-Plugin-RuntimeDetections-4.9.0.134"
