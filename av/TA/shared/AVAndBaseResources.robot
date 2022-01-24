@@ -9,7 +9,7 @@ AV and Base Setup
     Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     Remove Directory  /tmp/DiagnoseOutput  true
     register cleanup      Check All Product Logs Do Not Contain Error
-    ${result} =  Run Process  sudo  -u  sophos-spl-user  id  stderr=STDOUT
+    ${result} =  Run Process  id  sophos-spl-user  stderr=STDOUT
     Log  "id sophos-spl-user = ${result.stdout}"
 
 Check avscanner in /usr/local/bin
