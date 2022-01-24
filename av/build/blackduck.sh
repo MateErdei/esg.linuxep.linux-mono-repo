@@ -12,5 +12,6 @@ exec bash <(curl -s -L https://detect.synopsys.com/detect.sh) \
     --blackduck.api.token="${BLACKDUCK_API_TOKEN}" \
     --detect.project.name='SSPL-AV' \
     --detect.project.version.name="${VERSION}" \
-    --detect.detector.search.exclusion.paths=TA/resources/file_samples
+    --detect.detector.search.exclusion.paths=TA/resources/file_samples,tapvenv
+
 
