@@ -7,11 +7,14 @@ set -ex
 BLACKDUCK_API_TOKEN="${BLACKDUCK_API_TOKEN:-$1}"
 VERSION=${VERSION:-develop}
 
+
 exec bash <(curl -s -L https://detect.synopsys.com/detect.sh) \
     --blackduck.url=https://sophos.app.blackduck.com \
     --blackduck.api.token="${BLACKDUCK_API_TOKEN}" \
     --detect.project.name='SSPL-AV' \
     --detect.project.version.name="${VERSION}" \
-    --detect.detector.search.exclusion.paths=TA/resources/file_samples,tapvenv
+    $EXTRA_ARGS
+
+#    --detect.detector.search.exclusion.paths=TA/resources/file_samples,tapvenv
 
 
