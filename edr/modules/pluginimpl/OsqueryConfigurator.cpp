@@ -127,7 +127,7 @@ namespace Plugin
                                          "--audit_allow_process_events=true",
                                          "--audit_allow_fim_events=false",
                                          "--audit_allow_selinux_events=true",
-                                         "--audit_allow_sockets=true",
+                                         "--audit_allow_sockets=false", // socket events can be extremely expensive
                                          "--audit_allow_user_events=true",
                                          "--syslog_events_expiry=604800",
                                          "--events_expiry=604800",
