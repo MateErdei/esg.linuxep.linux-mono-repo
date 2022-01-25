@@ -45,7 +45,7 @@ else
   python3 -m pip install tap
 fi
 
-# Not sure why tap needs this, seems to never be used?
+# TODO - raise ticket to get this dependency removed - Not sure why tap needs this, seems to never be used?
 TAP_CACHE="/SophosPackages"
 if [ -d "$TAP_CACHE" ]
 then
@@ -56,13 +56,31 @@ else
   sudo chown "$USER" "$TAP_CACHE"
 fi
 
+# Temporary - When in monorepo we will not need to do this and have it in / and created by root, we'll be able to have
+# it in the root of the repo dir or similar
+ROOT_LEVEL_BUILD_DIR="/build"
+if [ -d "$ROOT_LEVEL_BUILD_DIR" ]
+then
+  echo "Root level dir already exists: $ROOT_LEVEL_BUILD_DIR"
+else
+  echo "Creating Root level dir: $ROOT_LEVEL_BUILD_DIR"
+  sudo mkdir "$ROOT_LEVEL_BUILD_DIR"
+  sudo chown "$USER" "$ROOT_LEVEL_BUILD_DIR"
+fi
+
 tap --version
 tap ls
 tap fetch sspl_base.build.release
 
-BUILD_TOOLS_DIR="build_tools"
-FETCHED_INPUTS_DIR="input"
-[[ -d "$BUILD_TOOLS_DIR" ]] || mkdir "$BUILD_TOOLS_DIR"
+BUILD_TOOLS_DIR="$ROOT_LEVEL_BUILD_DIR/build_tools"
+FETCHED_INPUTS_DIR="$ROOT_LEVEL_BUILD_DIR/input"
+if [[ ! -d "$FETCHED_INPUTS_DIR" ]]
+then
+  echo "$FETCHED_INPUTS_DIR does not exist"
+  exit 1
+fi
+
+[[ -d "$BUILD_TOOLS_DIR" ]] || mkdir -p "$BUILD_TOOLS_DIR"
 
 # GCC
 # input/gcc-8.1.0-linux.tar.gz
@@ -156,8 +174,24 @@ ln -fs "$(which as)" "as"
 popd
 "$AS_DIR/as" --version
 
+# libc6-dev (libc dev packages)
+# TODO - try and use crosstoolng to build a GCC toolchain
+# This install works around this error:
+# /usr/bin/ld: cannot find crt1.o: No such file or directory
+if ! apt list --installed libc6-dev | grep -q libc6-dev
+then
+  sudo apt-get install libc6-dev -y
+fi
 
-[[ -f /etc/profile.d/setup_env_vars.sh ]] || sudo ln -s "$BASEDIR/setup_env_vars.sh" /etc/profile.d/setup_env_vars.sh
+if ! apt list --installed zip | grep -q zip
+then
+  sudo apt install zip -y
+fi
+
+
+
+# TODO For SSPL only dev machines this may be ok but might break other things?
+# [[ -f /etc/profile.d/setup_env_vars.sh ]] || sudo ln -s "$BASEDIR/setup_env_vars.sh" /etc/profile.d/setup_env_vars.sh
 #source ./setup_env_vars.sh?
 
-echo "Please reboot build machine to apply env changes or source $BASEDIR/setup_env_vars.sh"
+#echo "Please reboot build machine to apply env changes or source $BASEDIR/setup_env_vars.sh"
