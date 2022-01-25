@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Blackduck scan should take minutes.
+# If it takes longer than 1 hour it's probably stuck
+# Look in ~/blackduck/runs/<date-time>/scan/BlackDuckScanOutput/<date-time>/CLI_Output.txt
+
 set -ex
 
 # MTUyNTdjMmItYWU0NS00MTM2LWIzN2QtNmFiZmI5NDVkMWJmOjExMDI0NDE5LWM1ZmMtNDRmNC05NDBhLTY2YzRiMDg2MmZmZA==
@@ -13,6 +17,7 @@ exec bash <(curl -s -L https://detect.synopsys.com/detect.sh) \
     --blackduck.api.token="${BLACKDUCK_API_TOKEN}" \
     --detect.project.name='SSPL-AV' \
     --detect.project.version.name="${VERSION}" \
+    --detect.blackduck.signature.scanner.exclusion.name.patterns=tapvenv,file_samples,base-sdds \
     $EXTRA_ARGS
 
 #    --detect.detector.search.exclusion.paths=TA/resources/file_samples,tapvenv
