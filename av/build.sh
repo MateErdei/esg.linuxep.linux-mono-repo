@@ -119,7 +119,7 @@ do
         --local-cmake|--no-cmake)
             LOCAL_CMAKE=1
             ;;
-        --no-unpack)
+        --no-unpack|--nounpack)
             NO_UNPACK=1
             ;;
         --no-dump-last-test-on-failure)
