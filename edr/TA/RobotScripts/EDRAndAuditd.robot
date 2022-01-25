@@ -35,7 +35,7 @@ EDR By Default Will Configure Audit Option
     ${contents}=  Get File  ${EDR_PLUGIN_PATH}/etc/osquery.flags
     Should contain  ${contents}  --disable_audit=false
     Should contain  ${contents}  --audit_allow_process_events=true
-    Should contain  ${contents}  --audit_allow_sockets=true
+    Should contain  ${contents}  --audit_allow_sockets=false
     Should contain  ${contents}  --audit_allow_user_events=true
 
     # Default behaviour is that Auditd will be stopped and disabled.
