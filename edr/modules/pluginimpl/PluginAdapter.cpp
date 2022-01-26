@@ -270,6 +270,8 @@ namespace Plugin
                 if (pluginMemoryAboveThreshold())
                 {
                     LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(
+                        plugin::telemetryEdrRestartsMemory, 1UL);
                     // Push stop task onto the task queue, to ensure shutdown cleanly, and ensures a
                     // constant flow of tasks being put onto the queue does not prevent shutdown.
                     m_queueTask->pushStop();
