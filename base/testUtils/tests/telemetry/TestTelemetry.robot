@@ -58,6 +58,9 @@ Telemetry Test Setup With Broken Put Requests
 
 
 Telemetry Test Teardown
+    Remove Environment Variable  https_proxy
+    Stop Proxy Servers
+    Stop Proxy If Running
     Kill Telemetry If Running
     Reset MachineID Permissions
     General Test Teardown
@@ -99,6 +102,35 @@ Telemetry Executable Generates Cloud Platform Metadata
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}
     File Should Contain  ${TELEMETRY_OUTPUT_JSON}  "cloud-platform":"AWS"
+
+Telemetry Executable Generates mcs-connection when message relay
+    [Tags]  SMOKE  TELEMETRY
+    [Teardown]  Teardown With Proxy Clear
+    Start Simple Proxy Server    3000
+    Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3000' address='localhost' id='no_auth_proxy'/>
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3000
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    File Should Contain  ${TELEMETRY_OUTPUT_JSON}  "mcs-connection":"Message Relay"
+
+Telemetry Executable Generates mcs-connection when proxy
+    [Tags]  SMOKE  TELEMETRY
+    [Teardown]  Teardown With Proxy Clear
+    Start Simple Proxy Server    3000
+    Set Environment Variable  https_proxy   http://localhost:3000
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:3000
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    File Should Contain  ${TELEMETRY_OUTPUT_JSON}  "mcs-connection":"Proxy"
 
 Telemetry Executable Generates Update Scheduler Telemetry
     # Make sure there are no left over update telemetry items.
