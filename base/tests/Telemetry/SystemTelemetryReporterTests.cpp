@@ -40,7 +40,7 @@ TEST_F(SystemTelemetryReporterTests, getTelemetryEmptyOK) // NOLINT
     Telemetry::SystemTelemetryReporter reporter(std::move(mockCollector));
     auto sysTelemetryJSON = reporter.getTelemetry();
 
-    ASSERT_EQ(sysTelemetryJSON, "{}");
+    ASSERT_EQ(sysTelemetryJSON, "{\"mcs-connection\":\"Direct\"}");
 }
 
 TEST_F(SystemTelemetryReporterTests, getTelemetryOk) // NOLINT
