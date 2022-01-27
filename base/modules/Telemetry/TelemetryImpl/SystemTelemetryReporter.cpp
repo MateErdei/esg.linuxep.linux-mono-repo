@@ -42,6 +42,9 @@ namespace Telemetry
             jsonConverter.set("cloud-platform", cloudPlatform);
         }
 
+        std::string mcsProxy = TelemetryUtils::getMCSProxy();
+        jsonConverter.set("mcs-connection", mcsProxy);
+
         return jsonConverter.serialise();
     }
 

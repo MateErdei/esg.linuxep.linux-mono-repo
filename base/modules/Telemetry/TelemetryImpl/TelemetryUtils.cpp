@@ -54,4 +54,32 @@ namespace Telemetry
         }
         return "";
     }
+
+    std::string TelemetryUtils::getMCSProxy()
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        std::string proxyFile = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+        try
+        {
+            if (fs->isFile(proxyFile))
+            {
+                std::string contents = fs->readFile(proxyFile);
+                nlohmann::json j = nlohmann::json::parse(contents);
+
+                if (j.find("relay_id") != j.end())
+                {
+                    return "Message Relay";
+                }
+                if (j.find("proxy") != j.end())
+                {
+                    return "Proxy";
+                }
+            }
+        }
+        catch (Common::FileSystem::IFileSystemException& e)
+        {
+            LOGWARN("Could not access " << proxyFile << " due to error: " << e.what());
+        }
+        return "Direct";
+    }
 }

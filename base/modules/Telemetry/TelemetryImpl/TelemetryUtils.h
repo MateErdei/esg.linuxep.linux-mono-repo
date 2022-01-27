@@ -13,5 +13,6 @@ namespace Telemetry
         TelemetryUtils() = default;
 
         static std::string getCloudPlatform();
+        static std::string getMCSProxy();
     };
 }

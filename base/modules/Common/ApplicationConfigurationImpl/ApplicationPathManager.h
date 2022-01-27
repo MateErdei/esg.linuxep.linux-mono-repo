@@ -32,7 +32,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getMcsStatusFilePath() const override;
         std::string getMcsEventFilePath() const override;
         std::string getMcsConfigFolderPath() const override;
-
+        std::string getMcsCurrentProxyFilePath() const override;
         std::string getManagementAgentStatusCacheFilePath() const override;
 
         std::string getLocalWarehouseRepository() const override;

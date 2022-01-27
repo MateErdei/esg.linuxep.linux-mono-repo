@@ -106,7 +106,10 @@ namespace Common
         {
             return Common::FileSystem::join(sophosInstall(), "base/etc/sophosspl");
         }
-
+        std::string ApplicationPathManager::getMcsCurrentProxyFilePath() const
+        {
+            return Common::FileSystem::join(getMcsConfigFolderPath(), "current_proxy");
+        }
         std::string ApplicationPathManager::getManagementAgentStatusCacheFilePath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/mcs/status/cache");
