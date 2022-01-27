@@ -87,3 +87,31 @@ def get_install():
             return os.environ.get("SOPHOS_INSTALL", "/opt/sophos-spl")
         except KeyError:
             return "/opt/sophos-spl"
+
+
+def get_tenant_id_or_default(default=None):
+    try:
+        return _get_tenant_id()
+    except Exception as ex:
+        logger.info(f"Could not find tenant ID - Returning default, error: {str(ex)}")
+        return default
+
+
+# This can throw
+def _get_tenant_id():
+    mcs_config_location = os.path.join(BuiltIn().get_variable_value("${SOPHOS_INSTALL}"), "base", "etc", "sophosspl", "mcs.config")
+    return get_value_from_ini_file(mcs_config_location, "tenant_id")
+
+
+def get_device_id_or_default(default=None):
+    try:
+        return _get_device_id()
+    except Exception as ex:
+        logger.info(f"Could not find device ID - Returning default, error: {str(ex)}")
+        return default
+
+
+# This can throw
+def _get_device_id():
+    mcs_config_location = os.path.join(BuiltIn().get_variable_value("${SOPHOS_INSTALL}"), "base", "etc", "sophosspl", "mcs.config")
+    return get_value_from_ini_file(mcs_config_location, "device_id")

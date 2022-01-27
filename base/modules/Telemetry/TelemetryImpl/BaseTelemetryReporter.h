@@ -32,6 +32,8 @@ namespace Telemetry
     private:
         static std::optional<std::string> getCustomerId();
         static std::optional<std::string> getEndpointId();
+        static std::optional<std::string> getTenantId();
+        static std::optional<std::string> getDeviceId();
         static std::optional<std::string> getMachineId();
         static std::optional<std::string> getVersion();
     };

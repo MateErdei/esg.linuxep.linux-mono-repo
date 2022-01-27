@@ -91,6 +91,8 @@ class TelemetryUtils:
         machine_id = base_info.get_machine_id_or_default()
         customer_id = base_info.get_customer_id_or_default()
         endpoint_id = base_info.get_endpoint_id_or_default()
+        tenant_id = base_info.get_tenant_id_or_default()
+        device_id = base_info.get_device_id_or_default()
         version = base_info.get_base_version_or_default()
 
         telemetry = {}
@@ -103,6 +105,12 @@ class TelemetryUtils:
 
         if endpoint_id is not None:
             telemetry["endpointId"] = endpoint_id
+
+        if tenant_id is not None:
+            telemetry["tenantId"] = tenant_id
+
+        if device_id is not None:
+            telemetry["deviceId"] = device_id
 
         if version is not None:
             telemetry["version"] = version

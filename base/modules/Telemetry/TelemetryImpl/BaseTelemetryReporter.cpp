@@ -43,6 +43,8 @@ namespace Telemetry
         TelemetryObject root;
         updateTelemetryRoot(root, "customerId", getCustomerId);
         updateTelemetryRoot(root, "endpointId", getEndpointId);
+        updateTelemetryRoot(root, "tenantId", getTenantId);
+        updateTelemetryRoot(root, "deviceId", getDeviceId);
         updateTelemetryRoot(root, "machineId", getMachineId);
         updateTelemetryRoot(root, "version", getVersion);
 
@@ -82,6 +84,18 @@ namespace Telemetry
     {
         Path configFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsConfigFilePath();
         return extractValueFromFile(configFilePath, "MCSID");
+    }
+
+    std::optional<std::string> BaseTelemetryReporter::getTenantId()
+    {
+        Path configFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsConfigFilePath();
+        return extractValueFromFile(configFilePath, "tenant_id");
+    }
+
+    std::optional<std::string> BaseTelemetryReporter::getDeviceId()
+    {
+        Path configFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsConfigFilePath();
+        return extractValueFromFile(configFilePath, "device_id");
     }
 
     std::optional<std::string> extractValueFromFile(const Path& filePath, const std::string& key)
