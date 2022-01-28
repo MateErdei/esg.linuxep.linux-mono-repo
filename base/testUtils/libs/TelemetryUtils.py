@@ -42,7 +42,7 @@ class TelemetryUtils:
         self.telemetry_supplementary_filepath = os.path.join(base_info.get_install(), 'base/etc/telemetry-config.json')
         self.telemetry_exe_config_filepath = os.path.join(base_info.get_install(), 'base/telemetry/var/telemetry-exe.json')
 
-    def generate_system_telemetry_dict(self):
+    def generate_system_telemetry_dict(self,MCSProxy="Direct"):
         def update_system_telemetry_dict(telemetry_dict, key, getfunc):
             try:
                 value = getfunc()
@@ -65,7 +65,7 @@ class TelemetryUtils:
         update_system_telemetry_dict(telemetry, "selinux", system_info.get_selinux_status)
         update_system_telemetry_dict(telemetry, "apparmor", system_info.get_apparmor_status)
         update_system_telemetry_dict(telemetry, "auditd", system_info.get_auditd_status)
-        telemetry["mcs-connection"] = "Direct"
+        telemetry["mcs-connection"] = MCSProxy
         return telemetry
 
     def generate_watchdog_telemetry_dict(self, expected_times):
@@ -251,8 +251,8 @@ class TelemetryUtils:
         # only comparing filesystem types as free space changes
         return expected_fstypes != actual_fstypes
 
-    def check_system_telemetry_json_is_correct(self, json_string, missing_key=None):
-        expected_system_telemetry_dict = self.generate_system_telemetry_dict()
+    def check_system_telemetry_json_is_correct(self, json_string, missing_key=None,MCSProxy="Direct"):
+        expected_system_telemetry_dict = self.generate_system_telemetry_dict(MCSProxy)
         actual_system_telemetry_dict = json.loads(json_string)["system-telemetry"]
 
         # an extra tmpfs block can appear in the actual, pop it and compare the rest

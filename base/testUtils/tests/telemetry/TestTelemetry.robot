@@ -365,7 +365,7 @@ Test With Proxy
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Check System Telemetry Json Is Correct  ${telemetryFileContents}
+    Check System Telemetry Json Is Correct  ${telemetryFileContents}  None  Proxy
 
     Check Log Contains   Setup proxy for the connection: localhost:3000    ${SOPHOS_INSTALL}/var/sophos-spl-comms/logs/comms_network.log    comms network
 
