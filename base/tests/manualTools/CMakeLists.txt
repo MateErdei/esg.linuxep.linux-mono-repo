@@ -11,7 +11,9 @@ add_executable(PickYourPoison
 add_executable(JailBreakerTest
         JailBreakerTest.cpp
 )
-
+add_executable(ignoreSignals
+        ignoreSignals.cpp
+        )
 add_executable(RunHttpRequest
         RunHttpRequest.cpp)
 

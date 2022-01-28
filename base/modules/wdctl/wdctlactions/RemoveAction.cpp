@@ -7,6 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "RemoveAction.h"
 
 #include "Logger.h"
+#include "StopAction.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -22,6 +23,10 @@ RemoveAction::RemoveAction(const Action::Arguments& args) : ZMQAction(args) {}
 int RemoveAction::run()
 {
     LOGINFO("Attempting to remove " << m_args.m_argument);
+    std::unique_ptr<wdctl::wdctlactions::Action> action;
+    action.reset(new wdctl::wdctlactions::StopAction(m_args));
+    action->run();
+
     std::string pluginRegistry = Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath();
 
     Path destination =

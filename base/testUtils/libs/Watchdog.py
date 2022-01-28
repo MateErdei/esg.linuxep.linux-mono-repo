@@ -5,6 +5,7 @@
 
 import json
 import os
+import shutil
 import subprocess
 
 import signal
@@ -54,6 +55,23 @@ class Watchdog(object):
         }
         open(testPluginRegistry, "w").write(json.dumps(data))
 
+    def setup_test_plugin_config_with_given_executable(self, path, pluginName=None, pluginFileName="testPlugin"):
+        testPluginExe = os.path.join(get_install(), pluginFileName)
+        shutil.copy(path,testPluginExe)
+        subprocess.check_call(["chmod", "0700", testPluginExe])
+
+        dest = os.path.join(get_install(), "base", "pluginRegistry")
+        if pluginName is None:
+            pluginName = "fakePlugin"
+
+        testPluginRegistry = os.path.join(dest, pluginName+".json")
+        data = {
+            "executableFullPath": testPluginExe,
+            "pluginName": pluginName,
+            "executableUserAndGroup": "root:root",
+            "secondsToShutDown":5
+        }
+        open(testPluginRegistry, "w").write(json.dumps(data))
     def wait_for_marker_to_be_created(self, p, duration):
         duration = float(duration)
         start = time.time()

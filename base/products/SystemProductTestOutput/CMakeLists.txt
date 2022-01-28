@@ -8,6 +8,7 @@ install(FILES
         ${CMAKE_SOURCE_DIR}/modules/mcsrouter/engine/qa_mcs_rootca.crt
         ${CMAKE_BINARY_DIR}/tests/manualTools/FaultInjectionLogger
         ${CMAKE_BINARY_DIR}/tests/manualTools/PickYourPoison
+        ${CMAKE_BINARY_DIR}/tests/manualTools/ignoreSignals
         ${CMAKE_BINARY_DIR}/tests/manualTools/JailBreakerTest
         ${CMAKE_BINARY_DIR}/tests/manualTools/UseCommsComponent
         ${CMAKE_BINARY_DIR}/tests/manualTools/RunHttpRequest

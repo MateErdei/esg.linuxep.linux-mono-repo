@@ -440,7 +440,7 @@ namespace Common
             {
                 return;
             }
-            LOGSUPPORT("Killing process " << m_pid);
+            LOGDEBUG("Killing process " << m_pid);
             m_child->terminate();
             cacheResult();
         }
