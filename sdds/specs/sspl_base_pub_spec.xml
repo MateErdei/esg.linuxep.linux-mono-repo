@@ -2,6 +2,13 @@
 <publicationspec importspec="sspl_base_import_spec.xml">
   <componentsuites>
     <line id="ServerProtectionLinux-Base">
+    <componentsuite importreference="ServerProtectionLinux-Base-1.1.9.5">
+        <component importreference="ServerProtectionLinux-Base-component-1.1.9.25" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
+        <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.1.9" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
+        <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.1.2" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
+        <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-4.10.0.109" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
+        <component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.325" line="ServerProtectionLinux-Plugin-Heartbeat" mountpoint="ServerProtectionLinux-Plugin-Heartbeat"/>
+    </componentsuite>
 	<componentsuite importreference="ServerProtectionLinux-Base-1.1.9.4">
         <component importreference="ServerProtectionLinux-Base-component-1.1.9.25" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
         <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.1.9" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
@@ -131,7 +138,22 @@
                                line="rd_rules" tag="LATEST" warehousename="runtime_detection"/>
 		</component>
       </line>
+      <line id="ServerProtectionLinux-Plugin-Heartbeat">
+        <component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.325"/>
+      </line>
       <line id="ServerProtectionLinux-Plugin-AV">
+          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.6.12">
+              <releasetag baseversion="" tag="RECOMMENDED"/>
+              <genericsupplement
+                      decodepath="files/plugins/av/chroot/susi/update_source/vdl"
+                      line="VDL" tag="LATEST" warehousename="VDB_supp"/>
+              <genericsupplement
+                      decodepath="files/plugins/av/chroot/susi/update_source/reputation"
+                      line="LocalRepData" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
+              <genericsupplement
+                      decodepath="files/plugins/av/chroot/susi/update_source/model"
+                      line="ML_MODEL2_LINUX" tag="LINUX_SCAN" warehousename="ml_models2"/>
+          </component>
           <component importreference="ServerProtectionLinux-Plugin-AV-1.0.5.19">
               <releasetag baseversion="" tag="RECOMMENDED"/>
               <genericsupplement
