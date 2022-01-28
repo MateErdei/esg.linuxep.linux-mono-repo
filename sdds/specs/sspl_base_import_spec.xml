@@ -1,10 +1,15 @@
 <?xml version="1.0" ?>
 <importspec>
   <warehouses>
-    <warehouse id="sspl"   name="SSPL_1_1_9"/>
+    <warehouse id="sspl"   name="DNR_SSPL_SPRINT_2022_06"/>
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Base">
+	  <componentsuite id="ServerProtectionLinux-Base-1.1.9.5"
+				 version="1.1.9.5"
+				 artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--Version_1_1_9/20220128165259-d0f7bea07e25da0d0caca61f778c6e4fa39ac327-YJMORf/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
+				 longdic="Sophos Linux Base"
+				 shortdic="Sophos Linux Base"/>
 	  <componentsuite id="ServerProtectionLinux-Base-1.1.9.4"
                  version="1.1.9.4"
                  artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--Version_1_1_9/20220127170530-d0f7bea07e25da0d0caca61f778c6e4fa39ac327-U6ZibK/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
@@ -151,7 +156,19 @@
 				 longdic="Sophos Linux Runtime Detection Plugin"
 				 shortdic="Sophos Linux Runtime Detection Plugin"/>
     </line>
+    <line id="ServerProtectionLinux-Plugin-Heartbeat">
+	  <component id="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.325"
+				 version="1.0.0.325"
+				 artifact="esg-releasable-candidate/linuxep.heartbeat/release--2022-06/20220128134831-d97d5583b6de4759839fcef44653274a4f05a7da-yOuOx7/sspl-plugin-heartbeat/SDDS-COMPONENT"
+				 longdic="Sophos Linux Heartbeat Plugin"
+				 shortdic="Sophos Linux Heartbeat Plugin"/>
+    </line>
 	<line id="ServerProtectionLinux-Plugin-AV">
+	  <component id="ServerProtectionLinux-Plugin-AV-1.0.6.12"
+				   version="1.0.6.12"
+				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--Version_1_0_6/20220124083036-456cab846cb54ab9b2a4fc9010dd2b5f36172941-qlKqHZ/sspl-plugin-anti-virus/SDDS-COMPONENT"
+				   longdic="Sophos Linux AntiVirus"
+				   shortdic="Sophos Linux AntiVirus"/>
       <component id="ServerProtectionLinux-Plugin-AV-1.0.5.19"
 				   version="1.0.5.19"
 				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--version_1_0_5/20220113110146-e13148f3347ef1dc284d5d2b955dadd3dfb8a049-1i4fP3/sspl-plugin-anti-virus/SDDS-COMPONENT"
