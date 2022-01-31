@@ -107,7 +107,6 @@ Telemetry Executable Generates mcs-connection when message relay
     [Tags]  SMOKE  TELEMETRY
     [Teardown]  Teardown With Proxy Clear
     Start Simple Proxy Server    3000
-    Register With Local Cloud Server
     Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='3000' address='localhost' id='no_auth_proxy'/>
     Wait Until Keyword Succeeds
     ...  30 secs
