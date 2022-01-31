@@ -155,7 +155,6 @@
                       line="ML_MODEL2_LINUX" tag="LINUX_SCAN" warehousename="ml_models2"/>
           </component>
           <component importreference="ServerProtectionLinux-Plugin-AV-1.0.5.19">
-              <releasetag baseversion="" tag="RECOMMENDED"/>
               <genericsupplement
                       decodepath="files/plugins/av/chroot/susi/update_source/vdl"
                       line="VDL" tag="LATEST" warehousename="VDB_supp"/>
