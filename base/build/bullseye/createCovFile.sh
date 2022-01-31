@@ -103,8 +103,8 @@ function exclude()
     covselect --add $@ || failure 3 "Failed to add exclusion $*"
 }
 
-echo "Excluding \!../../redist/"
-covselect --quiet --add \!../../redist/ || failure 4 "Failed to exclude /redist"
+echo "Excluding \!../../build/redist/"
+covselect --quiet --add \!../../build/redist/ || failure 4 "Failed to exclude /build/redist"
 echo "Excluding \!../../opt/"
 covselect --quiet --add \!../../opt/ || failure 5 "Failed to exclude /opt"
 echo "Excluding \!../../lib/"
@@ -120,7 +120,6 @@ SRC_TEST_DIR=${SRC_DIR}/tests
 exclude \!../..${SRC_DIR}/thirdparty/
 exclude \!../..${SRC_DIR}/build/
 exclude \!../..${SRC_DIR}/build64/
-exclude \!../..${SRC_DIR}/redist/
 exclude \!../..${SRC_DIR}/sspl-base-build/
 exclude \!../..${SRC_TEST_DIR}/
 
