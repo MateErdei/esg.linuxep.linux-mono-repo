@@ -166,7 +166,7 @@
 	<line id="ServerProtectionLinux-Plugin-AV">
 	  <component id="ServerProtectionLinux-Plugin-AV-1.0.6.12"
 				   version="1.0.6.12"
-				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--Version_1_0_6/20220124083036-456cab846cb54ab9b2a4fc9010dd2b5f36172941-qlKqHZ/sspl-plugin-anti-virus/SDDS-COMPONENT"
+				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2022-06/20220131111552-4c25caaefe05a656a152aeac56437b29725b23dd-H2AV5K/sspl-plugin-anti-virus/SDDS-COMPONENT"
 				   longdic="Sophos Linux AntiVirus"
 				   shortdic="Sophos Linux AntiVirus"/>
       <component id="ServerProtectionLinux-Plugin-AV-1.0.5.19"
