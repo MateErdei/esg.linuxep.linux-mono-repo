@@ -330,6 +330,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
 
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  UnixSocket <> Failed to write Process Control Request to socket. Exception caught: Environment interruption
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
