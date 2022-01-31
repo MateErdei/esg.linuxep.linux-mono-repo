@@ -83,7 +83,7 @@ namespace Plugin
         std::string m_revID;
         std::atomic_bool m_running = false;
         bool m_lookupEnabled = true;
-        int m_allowedShutdownTime = 20;
+        int m_allowedShutdownTime = 60;
         long m_threatStatus = E_THREAT_HEALTH_STATUS_GOOD;
     };
 }; // namespace Plugin

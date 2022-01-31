@@ -494,7 +494,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Return(std::time(nullptr) - 20));
+    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Return(std::time(nullptr) - 60));
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Throw(
             Common::FileSystem::IFileSystemException("File does not exist.")));
 
