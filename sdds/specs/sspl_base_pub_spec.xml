@@ -46,7 +46,7 @@
   <warehouses>
     <warehouse furcatedentitlement="LINUX_SSPL" id="sspl">
       <line id="ServerProtectionLinux-Base">
-		<component importreference="ServerProtectionLinux-Base-1.1.9.5">
+		<component importreference="ServerProtectionLinux-Base-1.1.9.6">
             <releasetag baseversion="" tag="BETA2"/>
             <releasetag baseversion="" tag="RECOMMENDED"/>
             <releasetag baseversion="" tag="BETA"/>
