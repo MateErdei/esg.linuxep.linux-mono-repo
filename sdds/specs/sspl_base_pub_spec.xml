@@ -2,7 +2,7 @@
 <publicationspec importspec="sspl_base_import_spec.xml">
   <componentsuites>
     <line id="ServerProtectionLinux-Base">
-    <componentsuite importreference="ServerProtectionLinux-Base-1.1.9.5">
+    <componentsuite importreference="ServerProtectionLinux-Base-1.1.9.6">
         <component importreference="ServerProtectionLinux-Base-component-1.1.9.25" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
         <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.1.9" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
         <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.1.2" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
