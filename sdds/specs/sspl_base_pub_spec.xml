@@ -141,7 +141,7 @@
 		</component>
       </line>
       <line id="ServerProtectionLinux-Plugin-Heartbeat">
-        <component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.325"/>
+        <component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.336"/>
       </line>
       <line id="ServerProtectionLinux-Plugin-AV">
           <component importreference="ServerProtectionLinux-Plugin-AV-1.0.6.22">
