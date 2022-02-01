@@ -472,7 +472,7 @@ class WarehouseUtils(object):
     ROBOT_LISTENER_API_VERSION = 2
     os.environ['VUT_PREV_RELEASE']= "CSP7I0S0GZZE:CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=:db55fcf8898da2b3f3c06f26e9246cbb"
     os.environ['VUT_PREV_DOGFOOD']= "QA767596:CCCirMa73nCbF+rU9aHeyqCasmwZR9GpWyPav3N0ONhr56KqcJR8L7OdlrmdHJLXc08=:105f4d87e14c91142561bf3d022e55b9"
-    os.environ['BALLISTA_VUT'] = "CSP220117093800:CCD39ifESiMgQUd9ALWR6BDWs2PumtgZztutINHr+dh/a0UnovpwujoUI4ig1WsRXh0=:85ae2feff4a7926d6efd52a3bcd44421:internal"
+    os.environ['BALLISTA_VUT'] = "CSP220127174318:CCBwxrIQX8XH5CmHeo/N1YkNd+bmocbVGjIVMhyvIAMjzNfGoFM4fsvPkQAExrzT/XA=:e9c9d6869e7e6c7f301110f3724a871b:internal"
 
     WAREHOUSE_SPEC_XML = get_spec_xml_dict_from_filer6()
     template_configuration_values = {
