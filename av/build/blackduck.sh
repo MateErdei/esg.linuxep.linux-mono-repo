@@ -15,7 +15,7 @@ VERSION=${VERSION:-develop}
 exec bash <(curl -s -L https://detect.synopsys.com/detect.sh) \
     --blackduck.url=https://sophos.app.blackduck.com \
     --blackduck.api.token="${BLACKDUCK_API_TOKEN}" \
-    --detect.project.name='SSPL-AV' \
+    --detect.project.name='ESG\ -\ EP\ -\ AV\ Plugin\ SSPL' \
     --detect.project.version.name="${VERSION}" \
     --detect.blackduck.signature.scanner.exclusion.name.patterns=tapvenv,file_samples,base-sdds,tests,TA,tools,pipeline \
     $EXTRA_ARGS
