@@ -186,6 +186,7 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
     Check All Product Logs Do Not Contain Critical
 
 Install master of base and edr and mtr and upgrade to edr 999
+    [Timeout]  10 minutes
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
