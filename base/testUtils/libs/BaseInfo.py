@@ -59,7 +59,7 @@ def get_base_overall_health_or_default(default=None):
         logger.info("Could not find overall health - Returning default, error: {}".format(str(ex)))
         return default
 
-# This can throw, use either get_base_overall_health_or_default
+# This can throw, use get_base_overall_health_or_default
 def _get_base_overall_health():
     shs_status_file_path = os.path.join(BuiltIn().get_variable_value("${SOPHOS_INSTALL}"), "base", "mcs", "status", "SHS_status.xml")
     with open(shs_status_file_path, "r") as shs_status_file:
