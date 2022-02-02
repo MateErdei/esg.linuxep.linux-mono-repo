@@ -198,12 +198,17 @@ Install master of base and edr and mtr and upgrade to edr 999
     Wait for first update
 
     Mark Edr Log
+    Mark Sul Log
     Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
 
     Wait Until Keyword Succeeds
     ...  150 secs
     ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
+    ...  Check Marked Sul Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  Check Marked Sul Log Contains     Update Success
 
     Wait Until Keyword Succeeds
     ...  30 secs
