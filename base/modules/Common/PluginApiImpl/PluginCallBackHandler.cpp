@@ -29,6 +29,12 @@ namespace Common
         {
         }
 
+        PluginCallBackHandler::~PluginCallBackHandler()
+        {
+            LOGDEBUG("Saving plugin telemetry before shutdown");
+            Common::Telemetry::TelemetryHelper::getInstance().save();
+        }
+
         std::string PluginCallBackHandler::GetContentFromPayload(
             Common::PluginProtocol::Commands commandType,
             const std::string& payload) const
@@ -149,8 +155,6 @@ namespace Common
 
         void PluginCallBackHandler::onShutdownRequested()
         {
-            LOGDEBUG("Saving plugin telemetry before shutdown");
-            Common::Telemetry::TelemetryHelper::getInstance().save();
             m_pluginCallback->onShutdown();
             stop();
         }

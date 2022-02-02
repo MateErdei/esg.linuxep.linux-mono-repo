@@ -25,6 +25,7 @@ namespace Common
                 std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback,
                 Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY policy =
                     Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::HANDLESHUTDOWN);
+            ~PluginCallBackHandler() override;
 
         private:
             Common::PluginProtocol::DataMessage process(
