@@ -155,7 +155,7 @@ EDR Recovers From Incomplete Database Purge
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  5 secs
-    ...  Number Of SST Database Files Is Greater Than  1
+    ...  Number Of SST Database Files Is Greater Than  0
 
     ${canary_file}=  Set Variable  ${COMPONENT_ROOT_PATH}/var/osquery.db/file_should_be_deleted
     Create File  ${canary_file}  foo
@@ -215,7 +215,7 @@ EDR Plugin Can Run Queries For Event Journal Detection Table And Create Jrl
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  5 secs
-    ...  Number Of SST Database Files Is Greater Than  1
+    ...  Number Of SST Database Files Is Greater Than  0
 
     Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/event-journals/test1
     Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/event_journal  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/
@@ -238,7 +238,7 @@ EDR Plugin Returns Query Error If Event Journal Contains Too Many Detections
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  5 secs
-    ...  Number Of SST Database Files Is Greater Than  1
+    ...  Number Of SST Database Files Is Greater Than  0
 
     Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
     Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
@@ -258,7 +258,7 @@ EDR Plugin Can Run Event Journal Scheduled Queries And Create Jrl When Data Is G
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  5 secs
-    ...  Number Of SST Database Files Is Greater Than  1
+    ...  Number Of SST Database Files Is Greater Than  0
 
     Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
     Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
@@ -296,7 +296,7 @@ EDR Plugin Can Run Queries For Event Journal Detection Table With Start Time
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  5 secs
-    ...  Number Of SST Database Files Is Greater Than  1
+    ...  Number Of SST Database Files Is Greater Than  0
 
     Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
     Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
@@ -316,7 +316,7 @@ EDR Plugin Can Run Queries For Event Journal Detection Table With End Time
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  5 secs
-    ...  Number Of SST Database Files Is Greater Than  1
+    ...  Number Of SST Database Files Is Greater Than  0
 
     Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
     Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
@@ -336,7 +336,7 @@ EDR Plugin Can Run Queries For Event Journal Detection Table With Start Time And
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  5 secs
-    ...  Number Of SST Database Files Is Greater Than  1
+    ...  Number Of SST Database Files Is Greater Than  0
 
     Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
     Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
@@ -358,7 +358,7 @@ EDR Plugin Can Run Queries For Event Journal Detection Table With End Time And C
     Wait Until Keyword Succeeds
     ...  100 secs
     ...  5 secs
-    ...  Number Of SST Database Files Is Greater Than  1
+    ...  Number Of SST Database Files Is Greater Than  0
 
     Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
     Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections

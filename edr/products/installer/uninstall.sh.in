@@ -85,6 +85,28 @@ do
 done
 pgrep -f ${OSQUERY_PATH} | xargs -i echo "Could not kill OSQuery process after 3 attempts: {}"
 
+function restartRsyslog()
+{
+    RyslogRestarted=1
+    local RESTART_TRIES=0
+    while [ $RyslogRestarted -eq 1 ] && [ ${RESTART_TRIES} -le 3 ]
+    do
+        RESTART_TRIES=$((RESTART_TRIES+1))
+        COMMAND_FAILED=0
+        systemctl restart rsyslog ||  COMMAND_FAILED=1
+        if [[ $COMMAND_FAILED -eq 1 ]]
+        then
+            sleep 5
+        else
+            RyslogRestarted=0
+        fi
+    done
+    if [[ $RyslogRestarted -eq 1 ]]
+    then
+        echo "Failed to restart rsyslog"
+    fi
+}
+
 # remove rsyslog configuration for osquery named pipe which allows rsyslog to send syslog event to osquery.
 if [[ -f /etc/rsyslog.d/rsyslog_sophos-spl.conf ]]
 then
@@ -96,7 +118,7 @@ then
       fi
     fi
     rm -f /etc/rsyslog.d/rsyslog_sophos-spl.conf
-    systemctl restart rsyslog
+    restartRsyslog
 fi
 
 
