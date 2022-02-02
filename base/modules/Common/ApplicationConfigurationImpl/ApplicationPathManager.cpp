@@ -355,6 +355,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "var/sophosspl/ThreatHealth.json");
         }
 
+        std::string ApplicationPathManager::getShsStatusFilePath() const
+        {
+            return Common::FileSystem::join(getMcsStatusFilePath(), "SHS_status.xml");
+        }
+
     } // namespace ApplicationConfigurationImpl
 
     namespace ApplicationConfiguration

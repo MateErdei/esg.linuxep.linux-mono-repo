@@ -108,6 +108,8 @@ namespace Common::ApplicationConfiguration
         virtual std::string getSophosAliasFilePath() const = 0;
 
         virtual std::string getThreatHealthJsonFilePath() const = 0;
+
+        virtual std::string getShsStatusFilePath() const = 0;
     };
 
     IApplicationPathManager& applicationPathManager();

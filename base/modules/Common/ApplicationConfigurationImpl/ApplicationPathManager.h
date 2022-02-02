@@ -88,6 +88,7 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getCloudMetadataJsonPath() const override;
         std::string getThreatHealthJsonFilePath() const override;
+        std::string getShsStatusFilePath() const override;
 
 
     private:

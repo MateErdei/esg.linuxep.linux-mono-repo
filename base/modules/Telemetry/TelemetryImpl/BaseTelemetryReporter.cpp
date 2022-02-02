@@ -47,6 +47,7 @@ namespace Telemetry
         updateTelemetryRoot(root, "deviceId", getDeviceId);
         updateTelemetryRoot(root, "machineId", getMachineId);
         updateTelemetryRoot(root, "version", getVersion);
+        updateTelemetryRoot(root, "overall-health", getOverallHealth);
 
         return TelemetrySerialiser::serialise(root);
     }
@@ -96,6 +97,18 @@ namespace Telemetry
     {
         Path configFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsConfigFilePath();
         return extractValueFromFile(configFilePath, "device_id");
+    }
+
+    std::optional<std::string> BaseTelemetryReporter::getOverallHealth()
+    {
+        Path shsStatusFilepath = Common::ApplicationConfiguration::applicationPathManager().getShsStatusFilePath();
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->isFile(shsStatusFilepath))
+        {
+            return extractOverallHealth(fs->readFile(shsStatusFilepath));
+        }
+        LOGWARN("Could not find the SHS status file at: " << shsStatusFilepath);
+        return std::nullopt;
     }
 
     std::optional<std::string> extractValueFromFile(const Path& filePath, const std::string& key)
@@ -152,6 +165,39 @@ namespace Telemetry
         catch (Common::XmlUtilities::XmlUtilitiesException& ex)
         {
             LOGWARN("Invalid policy received. Error: " << ex.what());
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::string> extractOverallHealth(const std::string& shsStatusXml)
+    {
+        try
+        {
+            Common::XmlUtilities::AttributesMap attributesMap = Common::XmlUtilities::parseXml(shsStatusXml);
+
+            std::string items = "health/item";
+            auto matchingPaths = attributesMap.entitiesThatContainPath(items);
+            if (matchingPaths.empty())
+            {
+                LOGWARN("No Health items present in the SHS status XML");
+                return std::nullopt;
+            }
+
+            std::string expectedName = "health";
+            for (auto& matchingPath : matchingPaths)
+            {
+                Common::XmlUtilities::Attributes attributes = attributesMap.lookup(matchingPath);
+                std::string name = attributes.value("name");
+                if (name == expectedName)
+                {
+                    return attributes.value("value");
+                }
+            }
+            LOGWARN("Overall Health not present in the SHS status XML");
+        }
+        catch (Common::XmlUtilities::XmlUtilitiesException& ex)
+        {
+            LOGWARN("Invalid status XML received. Error: " << ex.what());
         }
         return std::nullopt;
     }

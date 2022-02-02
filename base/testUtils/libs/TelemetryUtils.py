@@ -94,6 +94,7 @@ class TelemetryUtils:
         tenant_id = base_info.get_tenant_id_or_default()
         device_id = base_info.get_device_id_or_default()
         version = base_info.get_base_version_or_default()
+        overall_health = base_info.get_base_overall_health_or_default()
 
         telemetry = {}
 
@@ -114,6 +115,9 @@ class TelemetryUtils:
 
         if version is not None:
             telemetry["version"] = version
+
+        if overall_health is not None:
+            telemetry["overall-health"] = overall_health
 
         return telemetry
 

@@ -52,6 +52,22 @@ def _get_customer_id():
         customer_id = customer_element.getAttribute("id")
         return customer_id
 
+def get_base_overall_health_or_default(default=None):
+    try:
+        return _get_base_overall_health()
+    except Exception as ex:
+        logger.info("Could not find overall health - Returning default, error: {}".format(str(ex)))
+        return default
+
+# This can throw, use either get_base_overall_health_or_default
+def _get_base_overall_health():
+    shs_status_file_path = os.path.join(BuiltIn().get_variable_value("${SOPHOS_INSTALL}"), "base", "mcs", "status", "SHS_status.xml")
+    with open(shs_status_file_path, "r") as shs_status_file:
+        dom = xml.dom.minidom.parseString(shs_status_file.read())
+        item_elements = dom.getElementsByTagName("item")
+        for item in item_elements:
+            if item.getAttribute("name") == "health":
+                return item.getAttribute("value")
 
 def get_base_version_or_default(default=None):
     try:

@@ -18,6 +18,7 @@ namespace Telemetry
 {
     std::optional<std::string> extractValueFromFile(const Path& filePath, const std::string& key);
     std::optional<std::string> extractCustomerId(const std::string& policyXml);
+    std::optional<std::string> extractOverallHealth(const std::string& shsStatusXml);
     /**
      * Class for reporting system telemetry as JSON for base
      */
@@ -36,5 +37,6 @@ namespace Telemetry
         static std::optional<std::string> getDeviceId();
         static std::optional<std::string> getMachineId();
         static std::optional<std::string> getVersion();
+        static std::optional<std::string> getOverallHealth();
     };
 } // namespace Telemetry

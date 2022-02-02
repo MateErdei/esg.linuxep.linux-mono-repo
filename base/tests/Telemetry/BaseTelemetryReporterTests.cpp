@@ -104,3 +104,101 @@ TEST_F(BaseTelemetryReporterTests, extractValueFromIniFileMissingIniFile) // NOL
     auto endPointId = Telemetry::extractValueFromFile(testFilePath, "endpointId");
     EXPECT_FALSE( endPointId.has_value());
 }
+
+TEST_F(BaseTelemetryReporterTests, extractOverallHealthInvalidXml) // NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    std::string shsStatusXml =
+        R"(<?xml version="1.0" encoding="utf-8" ?>
+            <health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId="">
+                <item name="health" value="1" />
+                <item name="service" value="1" >
+                    <detail name="Sophos MCS Client" value="0" />
+                    <detail name="Sophos Linux AntiVirus" value="0" />
+                    <detail name="Update Scheduler" value="0" />
+                </item>
+                <item name="threatService" value="1" >
+                    <detail name="Sophos MCS Client" value="0" />
+                    <detail name="Sophos Linux AntiVirus" value="0" />
+                    <detail name="Update Scheduler" value="0" />
+                </item>
+                <item name="threat" value="1" />
+        )";
+
+    auto overallHealth = Telemetry::extractOverallHealth(shsStatusXml);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("WARN Invalid status XML received. Error: Error parsing xml: "));
+    ASSERT_FALSE( overallHealth.has_value());
+}
+
+TEST_F(BaseTelemetryReporterTests, extractOverallHealthNoItemsInXml) // NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    std::string shsStatusXml =
+        R"(<?xml version="1.0" encoding="utf-8" ?>
+            <health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId="">
+            </health>
+        )";
+
+    auto overallHealth = Telemetry::extractOverallHealth(shsStatusXml);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("WARN No Health items present in the SHS status XML"));
+    ASSERT_FALSE( overallHealth.has_value());
+}
+
+TEST_F(BaseTelemetryReporterTests, extractOverallHealthExpectedNameNotInXml) // NOLINT
+{
+    testing::internal::CaptureStderr();
+
+    std::string shsStatusXml =
+        R"(<?xml version="1.0" encoding="utf-8" ?>
+            <health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId="">
+                <item name="service" value="1" >
+                    <detail name="Sophos MCS Client" value="0" />
+                    <detail name="Sophos Linux AntiVirus" value="0" />
+                    <detail name="Update Scheduler" value="0" />
+                </item>
+                <item name="threatService" value="1" >
+                    <detail name="Sophos MCS Client" value="0" />
+                    <detail name="Sophos Linux AntiVirus" value="0" />
+                    <detail name="Update Scheduler" value="0" />
+                </item>
+                <item name="threat" value="1" />
+            </health>
+        )";
+
+    auto overallHealth = Telemetry::extractOverallHealth(shsStatusXml);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("WARN Overall Health not present in the SHS status XML"));
+    ASSERT_FALSE( overallHealth.has_value());
+}
+
+TEST_F(BaseTelemetryReporterTests, extractOverallHealthFindsOverallHealthXml) // NOLINT
+{
+    std::string shsStatusXml =
+        R"(<?xml version="1.0" encoding="utf-8" ?>
+            <health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId="">
+                <item name="health" value="1" />
+                <item name="service" value="1" >
+                    <detail name="Sophos MCS Client" value="0" />
+                    <detail name="Sophos Linux AntiVirus" value="0" />
+                    <detail name="Update Scheduler" value="0" />
+                </item>
+                <item name="threatService" value="1" >
+                    <detail name="Sophos MCS Client" value="0" />
+                    <detail name="Sophos Linux AntiVirus" value="0" />
+                    <detail name="Update Scheduler" value="0" />
+                </item>
+                <item name="threat" value="1" />
+            </health>
+        )";
+
+    auto overallHealth = Telemetry::extractOverallHealth(shsStatusXml);
+    std::string expectedValue = "1";
+    ASSERT_EQ(overallHealth, expectedValue);
+}
