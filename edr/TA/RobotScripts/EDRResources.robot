@@ -273,6 +273,7 @@ Common Teardown
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/plugins/edr/extensions/extensions.load
+    Get all sophos processes
     Run Keyword If Test Failed  Log File  ${EDR_LOG_PATH}
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${LIVEQUERY_LOG_PATH}
@@ -306,11 +307,20 @@ Check EDR Executable Running
 
 Check EDR Executable Not Running
     ${result} =    Run Process  pgrep  -a  edr
-    Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
+    Run Keyword If  ${result.rc}==0   Get edr process info
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
+
 Get Osquery pid
     ${edr_osquery_pid} =    Run Process  pgrep -a osquery | grep plugins/edr | grep -v osquery.conf | head -n1 | cut -d " " -f1  shell=true
     [Return]  ${edr_osquery_pid.stdout}
+
+Get edr process info
+    ${result} =  Run Process  ps -ef | grep edr  shell=true
+    Log  ${result.stdout}
+
+Get all sophos processes
+    ${result} =  Run Process  ps -ef | grep sophos  shell=true
+    Log  ${result.stdout}
 
 Restart EDR
     ${mark} =  Mark File  ${EDR_LOG_PATH}
