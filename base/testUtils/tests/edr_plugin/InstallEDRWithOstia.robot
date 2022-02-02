@@ -208,7 +208,7 @@ Install master of base and edr and mtr and upgrade to edr 999
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  Check Marked Sul Log Contains     Update Success
+    ...  Check Marked Sul Log Contains     Update success
 
     Wait Until Keyword Succeeds
     ...  30 secs
