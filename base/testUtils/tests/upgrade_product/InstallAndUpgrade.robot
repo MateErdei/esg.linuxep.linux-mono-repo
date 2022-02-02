@@ -164,9 +164,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Check Watchdog Service File Has Correct Kill Mode
 
-    Check Mtr Reconnects To Management Agent After Upgrade
-    Check for Management Agent Failing To Send Message To MTR And Check Recovery
-
     Mark Known Upgrade Errors
 
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
