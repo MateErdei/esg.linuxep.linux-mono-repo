@@ -8,8 +8,8 @@ set -ex
 
 if [[ -z $NO_BUILD ]]
 then
-    bash build.sh --setup
-    bash build.sh --dev --no-unpack
+    bash ./build.sh --setup
+    bash ./build.sh --dev --no-unpack
 fi
 
 # MTUyNTdjMmItYWU0NS00MTM2LWIzN2QtNmFiZmI5NDVkMWJmOjExMDI0NDE5LWM1ZmMtNDRmNC05NDBhLTY2YzRiMDg2MmZmZA==
