@@ -88,6 +88,13 @@ Reset MachineID Permissions
 Telemetry Executable Generates System Base and Watchdog Telemetry
     [Tags]  SMOKE  TELEMETRY  TAP_TESTS
     [Documentation]    Telemetry Executable Generates Telemetry
+
+    Mark Management Agent Log
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  10 secs
+    ...  Check Marked Managementagent Log Contains     Starting service health checks
+
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}
