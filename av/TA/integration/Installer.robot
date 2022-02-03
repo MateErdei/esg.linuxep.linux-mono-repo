@@ -39,7 +39,7 @@ IDE update doesnt restart av processes
     # This test also proves that SUSI is configured to scan executables
     Check Threat Detected  peend.exe  PE/ENDTEST
 
-IDE update only copies updated ide
+IDE update copies updated ide
     #[Timeout]  10 minutes
     Mark Sophos Threat Detector Log
     Mark Susi Debug Log
@@ -57,7 +57,7 @@ IDE update only copies updated ide
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     ${WRITTEN_TO_DISK_AFTER} =  Get Amount Written To Disk
     ${WRITTEN_TO_DISK_DURING} =  Evaluate  ${WRITTEN_TO_DISK_AFTER} - ${WRITTEN_TO_DISK_BEFORE}
-    Should Be True  ${WRITTEN_TO_DISK_DURING} < 10000
+    Should Be True  ${WRITTEN_TO_DISK_DURING} < 100000
 
 
 Restart then Update Sophos Threat Detector
