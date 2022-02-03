@@ -6,6 +6,8 @@
 
 set -ex
 
+source tapvenv/bin/activate
+
 if [[ -z $NO_BUILD ]]
 then
     bash ./build.sh --setup
