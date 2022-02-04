@@ -6,6 +6,7 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 from tap._backend import Input
 
+## TAP Pipeline API : https://docs.sophos-ops.com/pipeline.html
 
 COVFILE_UNITTEST = '/opt/test/inputs/av/sspl-plugin-av-unit.cov'
 COVFILE_PYTEST = '/opt/test/inputs/av/sspl-plugin-av-pytest.cov'
@@ -160,7 +161,6 @@ def unified_artifact(context: tap.PipelineContext, component: str, branch: str, 
 
 
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False, pipeline=False) -> Dict[str, Input]:
-    print(str(build))
     supplement_branch = "released"
     output = 'output'
     # override the av input and get the bullseye coverage build instead
@@ -367,7 +367,7 @@ def get_base_version():
     raise Exception("Failed to extract version from release-package.xml")
 
 
-@tap.pipeline(component='sspl-plugin-anti-virus', root_sequential=False)
+@tap.pipeline(root_sequential=False)
 def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     global BRANCH_NAME
     BRANCH_NAME = context.branch
@@ -378,33 +378,25 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     do_cppcheck: bool = decide_whether_to_run_cppcheck(parameters, context)
     do_999_build: bool = parameters.do_999_build != 'false'
 
-    coverage_build = context.artifact.build()
+    component = tap.Component(name='sspl-plugin-anti-virus', base_version=get_base_version())
+    build_image = 'JenkinsLinuxTemplate6'
+    release_package = "./build-files/release-package.xml"
+    with stage.parallel('build'):
+        if do_cppcheck:
+            av_cpp_check = stage.artisan_build(name="cpp-check", component=component, image=build_image,
+                                               mode="cppcheck", release_package=release_package)
 
-    # section include to allow classic build to continue to work. To run unified pipeline local because of this check
-    # export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
-    if parameters.mode:
-        component = tap.Component(name='sspl-plugin-anti-virus', base_version=get_base_version())
-        build_image = 'JenkinsLinuxTemplate6'
-        release_package = "./build-files/release-package.xml"
-        with stage.parallel('build'):
-            if do_cppcheck:
-                av_cpp_check = stage.artisan_build(name="cpp-check", component=component, image=build_image,
-                                                   mode="cppcheck", release_package=release_package)
+        if do_999_build:
+            nine_nine_nine_mode = '999'
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
+                                                       mode=nine_nine_nine_mode, release_package=release_package)
 
-            if do_999_build:
-                nine_nine_nine_mode = '999'
-                nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
-                                                           mode=nine_nine_nine_mode, release_package=release_package)
+        av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
+                                       mode=parameters.mode or "release", release_package=release_package)
 
-            av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
-                                           mode=parameters.mode, release_package=release_package)
-
-            if do_coverage:
-                coverage_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
-                                               mode="coverage", release_package=release_package)
-    else:
-        # Non-unified build
-        av_build = context.artifact.build()
+        if do_coverage:
+            coverage_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
+                                           mode="coverage", release_package=release_package)
 
     if run_tests:
         with stage.parallel('testing'):
@@ -426,9 +418,11 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                                         inputs=coverage_inputs,
                                                         platform=tap.Platform.Linux)
                     stage.task(task_name='ubuntu1804_x64_combined', func=bullseye_coverage_task, machine=machine_bullseye_test)
+                    ## TODO: use stage.publish_bullseye_coverage(...) here?
 
     if run_aws_tests:
         test_inputs = get_inputs(context, av_build, pipeline=True)
         machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
-        include_tag = parameters.aws_include_tag
+        # default to empty string to allow --get-input to work.
+        include_tag = parameters.aws_include_tag or ""
         stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)

@@ -86,7 +86,7 @@ do
             CMAKE_BUILD_TYPE=Debug
             LOCAL_GCC=1
             LOCAL_CMAKE=1
-            NPROC=4
+            #NPROC=4
             CLEAN=0
             UNITTEST=1
             DUMP_LAST_TEST_ON_FAILURE=0
@@ -449,7 +449,7 @@ function build()
     [[ $CLEAN == 1 ]] && rm -rf build${BITS}
     mkdir -p build${BITS}
     cd build${BITS}
-    [[ -n ${NPROC:-} ]] || NPROC=2
+    [[ -n ${NPROC:-} ]] || NPROC=$(nproc || echo 2)
     which cmake
     LD_LIBRARY_PATH= \
         cmake \
