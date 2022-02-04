@@ -1,9 +1,10 @@
-
 import os
 import pwd
 import grp
 import subprocess
-import sys
+import psutil
+import pathlib
+
 from robot.api import logger
 
 try:
@@ -42,10 +43,22 @@ def create_symlink(src, dst):
     os.symlink(src, dst)
 
 
-def get_amount_written_to_disk():
+def get_amount_written_to_disk(path):
+    disc = find_sdiskpart(path)
+    split_disc = disc.__str__().split("/")
     with open("/proc/diskstats", "r") as f:
         lines = f.readlines()
         for line in lines:
-            if "sda" in line:
+            if split_disc[len(split_disc)-1] in line:
                 split_line = line.split(" ")
                 return int(split_line[len(split_line)-1])
+
+
+def find_sdiskpart(path):
+    while not os.path.ismount(path):
+        path = os.path.dirname(path)
+
+    for entry in psutil.disk_partitions():
+        if entry.mountpoint == path.__str__():
+            disc = pathlib.Path(entry.device).resolve()
+            return disc

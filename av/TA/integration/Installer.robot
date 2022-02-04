@@ -51,11 +51,11 @@ IDE update copies updated ide
 
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    ${WRITTEN_TO_DISK_BEFORE} =  Get Amount Written To Disk
+    ${WRITTEN_TO_DISK_BEFORE} =  Get Amount Written To Disk  /opt/
     Install IDE  ${IDE_NAME}
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-    ${WRITTEN_TO_DISK_AFTER} =  Get Amount Written To Disk
+    ${WRITTEN_TO_DISK_AFTER} =  Get Amount Written To Disk  /opt/
     ${WRITTEN_TO_DISK_DURING} =  Evaluate  ${WRITTEN_TO_DISK_AFTER} - ${WRITTEN_TO_DISK_BEFORE}
     Should Be True  ${WRITTEN_TO_DISK_DURING} < 100000
 
@@ -553,6 +553,9 @@ Check installer removes sophos_threat_detector log symlink
 
     File Should Not Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
 
+Test Test
+    Get Amount Written To Disk  /opt
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE2_NAME}        pemid.ide
@@ -633,3 +636,4 @@ Check no duplicate files in directory
     Log    ${output}
     ${count} =   Get Line Count   ${output}
     Should Be Equal As Integers  ${count}  ${0}
+
