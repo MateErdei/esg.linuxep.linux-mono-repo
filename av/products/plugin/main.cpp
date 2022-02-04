@@ -47,6 +47,8 @@ int main()
 
     try
     {
+        // Also does Telemetry restore for PluginName
+        // If this is the first time restoring this will also set the telemetry backup file name
         baseService = resourceManagement->createPluginAPI(PluginName, sharedPluginCallBack);
     }
     catch (const Common::PluginApi::ApiException & apiException)
@@ -78,8 +80,6 @@ int main()
     fs::path threatEventPublisherSocketPath = pluginInstall / "var/threatEventPublisherSocketPath";
     PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, threatEventPublisherSocketPath);
 
-    // If this is the first time restoring this will also set the telemetry backup file name
-    Common::Telemetry::TelemetryHelper::getInstance().restore("av");
 
     try
     {
