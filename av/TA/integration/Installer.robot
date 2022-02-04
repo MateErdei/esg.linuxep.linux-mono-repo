@@ -553,9 +553,6 @@ Check installer removes sophos_threat_detector log symlink
 
     File Should Not Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
 
-Test Test
-    Get Amount Written To Disk  /opt
-
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE2_NAME}        pemid.ide

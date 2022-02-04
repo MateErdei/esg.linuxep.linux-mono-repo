@@ -1,4 +1,5 @@
 pyzmq
+pyutil
 protobuf
 pytest-html
 Cython
