@@ -433,7 +433,7 @@ namespace Plugin
                 return std::pair(0, 0);
             }
 
-            memoryUsage = std::stol(procStat.at(rssEntryInStat - 1));
+            memoryUsage = Common::UtilityImpl::StringUtils::stringToLong(procStat.at(rssEntryInStat - 1)).first;
 
             auto sysUpTime = sysCalls->getSystemUpTime();
             if (sysUpTime.first == -1)
@@ -442,7 +442,7 @@ namespace Plugin
                 return std::pair(memoryUsage, 0);
             }
 
-            runTime = sysUpTime.second - std::stol(procStat.at(startTimeEntryInStat - 1));
+            runTime = sysUpTime.second - Common::UtilityImpl::StringUtils::stringToLong(procStat.at(startTimeEntryInStat - 1)).first;
 
         }
         catch (const std::bad_optional_access& e)
