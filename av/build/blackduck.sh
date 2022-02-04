@@ -14,7 +14,7 @@ then
     bash ./build.sh --dev --no-unpack
 fi
 
-# MTUyNTdjMmItYWU0NS00MTM2LWIzN2QtNmFiZmI5NDVkMWJmOjExMDI0NDE5LWM1ZmMtNDRmNC05NDBhLTY2YzRiMDg2MmZmZA==
+# Token: https://pwstate.green.sophos/pid=65762
 
 BLACKDUCK_API_TOKEN="${BLACKDUCK_API_TOKEN:-$1}"
 VERSION=${VERSION:-develop}
