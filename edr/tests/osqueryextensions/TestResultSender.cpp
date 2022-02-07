@@ -929,35 +929,3 @@ TEST_F(TestResultSender, saveBatchResultsSavesEmptyStringIfResultAreEmpty) // NO
     EXPECT_NO_THROW(resultsSender.SaveBatchResults(results));
 }
 
-TEST_F(TestResultSenderTelemetry, saveBatchResultsUpdatesFoldingTelemetry) // NOLINT
-{
-    const std::string result = R"([{"folded":5,"name":"test_folding_query"},{"folded":13,"name":"test_folding_query2"},{"name":"test_nonfolding_query"}])";
-
-    EXPECT_CALL(*m_mockFileSystem, writeFile(INTERMEDIARY_PATH, result));
-
-    m_resultsSender->SaveBatchResults(parseJson(result));
-
-    EXPECT_EQ(getTelemetry().serialiseAndReset(), "{\"scheduled-queries\":{\"test_folding_query\":{\"folded-count\":5},\"test_folding_query2\":{\"folded-count\":13}}}");
-}
-
-TEST_F(TestResultSenderTelemetry, saveBatchResultsNoFoldingTelemetry) // NOLINT
-{
-    const std::string result = R"([{"name":"test_nonfolding_query"}])";
-
-    EXPECT_CALL(*m_mockFileSystem, writeFile(INTERMEDIARY_PATH, result));
-
-    m_resultsSender->SaveBatchResults(parseJson(result));
-
-    EXPECT_EQ(getTelemetry().serialiseAndReset(), "{}");
-}
-
-TEST_F(TestResultSenderTelemetry, saveBatchResultsInvalidFoldingNoTelemetry) // NOLINT
-{
-    const std::string invalid = R"([{"folded":"","name":"test_folding_query"}])";
-
-    EXPECT_CALL(*m_mockFileSystem, writeFile(INTERMEDIARY_PATH, invalid));
-
-    m_resultsSender->SaveBatchResults(parseJson(invalid));
-
-    EXPECT_EQ(getTelemetry().serialiseAndReset(), "{}");
-}

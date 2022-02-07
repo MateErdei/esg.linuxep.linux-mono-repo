@@ -9,11 +9,11 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <json/json.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
-#include <modules/pluginimpl/TelemetryConsts.h>
+
 
 #include <iostream>
 
@@ -59,7 +59,6 @@ ResultsSender::ResultsSender(
 std::string ResultsSender::PrepareSingleResult(const std::string& result)
 {
     LOGDEBUG("Adding XDR results to intermediary file: " << result);
-    auto& telemetryHelper = Common::Telemetry::TelemetryHelper::getInstance();
 
     Json::Value logLine;
     std::string queryName;
@@ -87,12 +86,6 @@ std::string ResultsSender::PrepareSingleResult(const std::string& result)
         return "";
     }
 
-    std::stringstream key;
-    key << plugin::telemetryScheduledQueries << "." << queryName;
-    std::string scheduledQueryKey = key.str();
-
-    telemetryHelper.appendStat(scheduledQueryKey + "." + plugin::telemetryRecordSize, result.length());
-    telemetryHelper.increment(scheduledQueryKey + "." + plugin::telemetryRecordsCount, 1L);
 
     std::stringstream ss;
     Json::StreamWriterBuilder writerBuilder;
@@ -326,10 +319,6 @@ void ResultsSender::SaveBatchResults(const Json::Value& results)
         return;
     }
 
-    if (!updateFoldingTelemetry(results))
-    {
-        return;
-    }
 
     try
     {
@@ -387,37 +376,4 @@ Json::Value ResultsSender::PrepareBatchResults()
         }
     }
     return batchResults;
-}
-
-bool ResultsSender::updateFoldingTelemetry(const Json::Value& results)
-{
-    auto& telemetryHelper = Common::Telemetry::TelemetryHelper::getInstance();
-
-    try
-    {
-        for (const auto& result : results)
-        {
-            if (result.isMember("folded") && result.isMember("name"))
-            {
-                if (!result["name"].isString() || !result["folded"].isUInt())
-                {
-                    LOGWARN("Unexpected type for query folded count");
-                    continue;
-                }
-
-                std::string name = result["name"].asString();
-                unsigned long count = result["folded"].asUInt();
-
-                std::string scheduledQueryKey = plugin::telemetryScheduledQueries + std::string(".") + name;
-                telemetryHelper.increment(scheduledQueryKey + "." + plugin::telemetryFoldedCount, count);
-            }
-        }
-    }
-    catch (const std::exception& exception)
-    {
-        LOGERROR("Failed to get folded count: " << exception.what());
-        return false;
-    }
-
-    return true;
 }

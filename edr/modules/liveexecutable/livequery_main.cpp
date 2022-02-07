@@ -37,6 +37,7 @@ namespace livequery{
             std::cerr << "The query failed to execute with errorcode " << returnCode << std::endl;
             return 3;
         }
+        // edr plugin reads the stout of livequery exe to update query count telemetry
         std::cout << queryResponder.getTelemetry();
         return 0;
     }

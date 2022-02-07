@@ -13,6 +13,7 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
+#include <thirdparty/nlohmann-json/json.hpp>
 #include <unistd.h>
 
 namespace Plugin
@@ -116,16 +117,21 @@ namespace Plugin
         {
             telemetry.set(plugin::telemetryOSQueryDatabaseSize, osqueryDatabaseSize.value());
         }
-        //TODO LINUXDAR-2484 remove this function call
         plugin::readOsqueryInfoFiles();
-        telemetry.updateTelemetryWithStats();
-        telemetry.updateTelemetryWithAllStdDeviationStats();
+
         long health = 0;
         if (m_osqueryShouldBeRunning && !m_osqueryRunning )
         {
             health = 1;
         }
         telemetry.set(plugin::health,health);
+        std::string storedTelemetry = telemetry.serialise();
+
+        if (storedTelemetry.find(plugin::telemetryUploadLimitHitQueries) == std::string::npos)
+        {
+            std::string key = std::string(plugin::telemetryScheduledQueries)+ "." + plugin::telemetryUploadLimitHitQueries;
+            telemetry.set(key,false);
+        }
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 

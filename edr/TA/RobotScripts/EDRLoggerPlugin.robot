@@ -122,11 +122,6 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
     ${foldable_queries} =  Set Variable  ${telemetry_json['foldable-queries']}
     List Should Contain Value  ${foldable_queries}  uptime
-    ${query_json} =  Set Variable  ${telemetry_json['scheduled-queries']['uptime']}
-    Dictionary Should Contain Key  ${query_json}  folded-count
-    ${folded_count} =  Get From Dictionary  ${query_json}  folded-count
-    Should Be True  ${folded_count} > 1
-    Should Be True  ${folded_count} < 100
 
 EDR Plugin Applies Folding Rules Based Column Value
     [Setup]  Install EDR Directly from SDDS With Random Queries
@@ -153,11 +148,7 @@ EDR Plugin Applies Folding Rules Based Column Value
     ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
     ${foldable_queries} =  Set Variable  ${telemetry_json['foldable-queries']}
     List Should Contain Value  ${foldable_queries}  random
-    ${query_json} =  Set Variable  ${telemetry_json['scheduled-queries']['random']}
-    Dictionary Should Contain Key  ${query_json}  folded-count
-    ${folded_count} =  Get From Dictionary  ${query_json}  folded-count
-    Should Be True  ${folded_count} > 1
-    Should Be True  ${folded_count} < 100
+
 
 EDR Plugin Applies Regex Folding Rules
     [Setup]  Install EDR Directly from SDDS With Random Queries
@@ -182,11 +173,7 @@ EDR Plugin Applies Regex Folding Rules
     ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
     ${foldable_queries} =  Set Variable  ${telemetry_json['foldable-queries']}
     List Should Contain Value  ${foldable_queries}  random
-    ${query_json} =  Set Variable  ${telemetry_json['scheduled-queries']['random']}
-    Dictionary Should Contain Key  ${query_json}  folded-count
-    ${folded_count} =  Get From Dictionary  ${query_json}  folded-count
-    Should Be True  ${folded_count} > 1
-    Should Be True  ${folded_count} < 100
+
 
 EDR Plugin Runs All Canned Queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
@@ -309,8 +296,15 @@ EDR Plugin Respects Data Limit
     ...  20 secs
     ...  10 secs
     ...  EDR Plugin Log Contains   XDR data limit for this period exceeded
-
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  EDR Plugin Log Contains  Restarting osquery, reason: XDR data limit exceeded
     Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>true</dailyDataLimitExceeded>
+    ${edr_telemetry} =  Get Plugin Telemetry  edr
+    ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
+    ${uploadLimit} =  Set Variable  ${telemetry_json['scheduled-queries']['upload-limit-hit']}
+    Should Be Equal  ${uploadLimit}  ${True}
 
 EDR Plugin Rolls ScheduleEpoch Over When The Previous One Has Elapsed
     Enable XDR

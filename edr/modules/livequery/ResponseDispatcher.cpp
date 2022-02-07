@@ -262,14 +262,9 @@ namespace livequery
         serializedJson << R"(
 })";
 
-        std::string strippedQueryName =
-                Common::UtilityImpl::StringUtils::replaceAll(response.metaData().getQueryName(), ".", "-");
-
         nlohmann::json telemetryJson;
-        telemetryJson["name"] = strippedQueryName;
         telemetryJson["errorcode"] = livequery::ResponseStatus::errorCodeName(response.status().errorCode());
-        telemetryJson["duration"] = queryMetaData.value("durationMillis",0);
-        telemetryJson["rowcount"] = queryMetaData.value("rows",0);
+
 
         setTelemetry(safeDumpJson(telemetryJson));
         return serializedJson.str();

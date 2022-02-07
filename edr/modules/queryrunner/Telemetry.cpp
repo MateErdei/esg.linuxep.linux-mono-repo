@@ -13,28 +13,25 @@ void Telemetry::processLiveQueryResponseStats(const queryrunner::QueryRunnerStat
 {
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
-    std::string strippedQueryName =
-        Common::UtilityImpl::StringUtils::replaceAll(response.name, ".", "-");
-    std::string livequeryKey = "live-query." + strippedQueryName;
+
+    std::string livequeryKey = std::string(plugin::telemetryLiveQueries) + ".";
 
     switch (response.errorCode)
     {
         case livequery::ErrorCode::SUCCESS:
-            telemetry.increment(livequeryKey + "." + plugin::telemetrySuccessfulQueries, 1L);
-            telemetry.appendStat(livequeryKey + ".duration", response.queryDuration);
-            telemetry.appendStat(livequeryKey + ".rowcount", response.rowCount);
+            telemetry.increment(livequeryKey  + plugin::telemetrySuccessfulQueries, 1L);
             break;
         case livequery::ErrorCode::EXTENSIONEXITEDWHILERUNNING:
-            telemetry.increment(livequeryKey + "." + plugin::telemetryFailedQueriesOsqueryDied, 1L);
+            telemetry.increment(livequeryKey +  plugin::telemetryFailedQueries, 1L);
             break;
         case livequery::ErrorCode::OSQUERYERROR:
-            telemetry.increment(livequeryKey + "." + plugin::telemetryFailedQueriesOsqueryError, 1L);
+            telemetry.increment(livequeryKey + plugin::telemetryFailedQueries, 1L);
             break;
         case livequery::ErrorCode::RESPONSEEXCEEDLIMIT:
-            telemetry.increment(livequeryKey + "." + plugin::telemetryFailedQueriesLimitExceeded, 1L);
+            telemetry.increment(livequeryKey +  plugin::telemetryFailedQueries, 1L);
             break;
         case livequery::ErrorCode::UNEXPECTEDERROR:
-            telemetry.increment(livequeryKey + "." + plugin::telemetryFailedQueriesUnexpected, 1L);
+            telemetry.increment(livequeryKey +  plugin::telemetryFailedQueries, 1L);
             break;
     }
 }

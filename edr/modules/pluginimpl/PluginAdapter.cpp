@@ -632,9 +632,12 @@ namespace Plugin
         LOGWARN("Datafeed limit has been hit. Disabling scheduled queries");
         PluginUtils::disableAllQueryPacks();
         sendLiveQueryStatus();
+        std::string key = std::string(plugin::telemetryScheduledQueries)+ "." + plugin::telemetryUploadLimitHitQueries;
+        Common::Telemetry::TelemetryHelper::getInstance().set(key, true);
         // Thread safe osquery and extensions stop call, osquery and all extensions will be restarted automatically
         m_callback->setOsqueryShouldBeRunning(false);
         m_queueTask->pushOsqueryRestart("XDR data limit exceeded");
+
     }
 
     void PluginAdapter::telemetryResetCallback(Common::Telemetry::TelemetryHelper& telemetry)
