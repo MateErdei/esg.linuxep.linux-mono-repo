@@ -227,7 +227,7 @@ TEST_P(SpecialMountParameterizedTest, TestIsSystem_noTypeButSpecialMount) // NOL
 {
     std::string devicePath = "/dev/abc";
     std::string mountPoint = "/mnt/special";
-    struct statfs sfs;
+    struct statfs sfs{};
     sfs.f_type = GetParam();
 
     EXPECT_CALL(*m_systemCallWrapper, _statfs(mountPoint.c_str(), _)).WillRepeatedly(DoAll(SetArgPointee<1>(sfs), Return(0)));

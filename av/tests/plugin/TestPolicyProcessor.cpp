@@ -34,12 +34,20 @@ namespace
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
             appConfig.setData("PLUGIN_INSTALL", m_testDir );
+            
+            m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
+            m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
+            m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
         }
 
         void TearDown() override
         {
             fs::remove_all(m_testDir);
         }
+        
+        std::string m_susiStartupConfigPath;
+        std::string m_susiStartupConfigChrootPath;
+        std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
     };
 }
 
@@ -145,15 +153,14 @@ TEST_F(TestPolicyProcessor, getCustomerIdFromClearAttributeMap) // NOLINT
 
 TEST_F(TestPolicyProcessor, processAlcPolicyNoChangePolicy) // NOLINT
 {
-    // Setup Mock filesystem
-    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+
 
     const std::string expectedMd5 = "5e259db8da3ae4df8f18a2add2d3d47d";
     const std::string customerIdFilePath1 = m_testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(m_testDir / "chroot") + customerIdFilePath1;
-    EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Return(expectedMd5));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Return(expectedMd5));
 
-    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     Plugin::PolicyProcessor proc;
 
@@ -168,21 +175,20 @@ TEST_F(TestPolicyProcessor, processAlcPolicyNoChangePolicy) // NOLINT
 
 TEST_F(TestPolicyProcessor, processAlcPolicyChangedPolicy) // NOLINT
 {
-    // Setup Mock filesystem
-    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+
 
     const std::string expectedMd5_1 = "5e259db8da3ae4df8f18a2add2d3d47d";
     const std::string expectedMd5_2 = "a1c0f318e58aad6bf90d07cabda54b7d";
     const std::string customerIdFilePath1 = m_testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(m_testDir / "chroot") + customerIdFilePath1;
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
-    EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_1)).Times(1);
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_1)).Times(1);
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_2)).Times(1);
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_2)).Times(1);
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_1)).Times(1);
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_1)).Times(1);
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_2)).Times(1);
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_2)).Times(1);
 
-    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     Plugin::PolicyProcessor proc;
 
@@ -408,13 +414,12 @@ TEST_F(TestPolicyProcessor, getCustomerIdFromBlankAttributeMap) // NOLINT
 
 TEST_F(TestPolicyProcessor, processAlcPolicyInvalid) // NOLINT
 {
-    // Setup Mock filesystem
-    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+
 
     const std::string expectedMd5 = "5e259db8da3ae4df8f18a2add2d3d47d";
-    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillOnce(Return(expectedMd5));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(expectedMd5));
 
-    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     Plugin::PolicyProcessor proc;
 
@@ -435,12 +440,14 @@ TEST_F(TestPolicyProcessor, processAlcPolicyInvalid) // NOLINT
 
 TEST_F(TestPolicyProcessor, processSavPolicy) // NOLINT
 {
-    // Setup Mock filesystem
-    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
 
-    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
 
-    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+    
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     Plugin::PolicyProcessor proc;
 
@@ -453,8 +460,7 @@ TEST_F(TestPolicyProcessor, processSavPolicy) // NOLINT
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    bool changed = proc.processSavPolicy(attributeMap);
-    EXPECT_FALSE(changed);
+    EXPECT_TRUE(proc.processSavPolicy(attributeMap));
 }
 
 TEST_F(TestPolicyProcessor, defaultSXL4lookupValueIsTrue)
@@ -465,16 +471,15 @@ TEST_F(TestPolicyProcessor, defaultSXL4lookupValueIsTrue)
 
 TEST_F(TestPolicyProcessor, processSavPolicyChanged) // NOLINT
 {
-    // Setup Mock filesystem
-    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
 
-    const std::string susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
-    const std::string susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + susiStartupConfigPath;
-    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+    
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
 
-    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     Plugin::PolicyProcessor proc;
 
@@ -498,26 +503,22 @@ TEST_F(TestPolicyProcessor, processSavPolicyChanged) // NOLINT
     auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
     proc.processSavPolicy(attributeMapTrue);
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
-    bool changed = proc.processSavPolicy(attributeMapFalse);
+    bool changed = proc.processSavPolicy(attributeMapFalse, true);
     EXPECT_FALSE(proc.getSXL4LookupsEnabled());
     EXPECT_TRUE(changed);
 }
 
 TEST_F(TestPolicyProcessor, processSavPolicyMissing) // NOLINT
 {
-    // Setup Mock filesystem
-    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
 
-    const std::string susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
-    const std::string susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + susiStartupConfigPath;
 
-    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
 
-    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     Plugin::PolicyProcessor proc;
 
@@ -537,25 +538,21 @@ TEST_F(TestPolicyProcessor, processSavPolicyMissing) // NOLINT
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     auto attributeMapInvalid = Common::XmlUtilities::parseXml(policyXmlInvalid);
     proc.processSavPolicy(attributeMap);
-    bool changed = proc.processSavPolicy(attributeMapInvalid);
+    bool changed = proc.processSavPolicy(attributeMapInvalid, true);
     EXPECT_TRUE(changed);
 }
 
 TEST_F(TestPolicyProcessor, processSavPolicyInvalid) // NOLINT
 {
-    // Setup Mock filesystem
-    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
 
-    const std::string susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
-    const std::string susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + susiStartupConfigPath;
+    
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
 
-    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     Plugin::PolicyProcessor proc;
 
@@ -578,6 +575,6 @@ TEST_F(TestPolicyProcessor, processSavPolicyInvalid) // NOLINT
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     auto attributeMapInvalid = Common::XmlUtilities::parseXml(policyXmlInvalid);
     proc.processSavPolicy(attributeMap);
-    bool changed = proc.processSavPolicy(attributeMapInvalid);
+    bool changed = proc.processSavPolicy(attributeMapInvalid, true);
     EXPECT_TRUE(changed);
 }
