@@ -137,8 +137,8 @@ class TelemetryUtils:
                                     num_extension_restarts_memory,
                                     xdr_is_enabled,
                                     events_max,
-                                    queries,
-                                    scheduled_queries,
+                                    failed_count,
+                                    successful_count,
                                     folded_query):
         version = get_plugin_version("edr")
         telemetry = {
@@ -161,44 +161,14 @@ class TelemetryUtils:
             telemetry["osquery-restarts-memory"] = int(num_osquery_restarts_memory)
         if folded_query:
             telemetry['foldable-queries'] = ['running_processes_windows_sophos', 'stopped_processes_windows_sophos']
-        if scheduled_queries:
-            telemetry["scheduled-queries"] = {}
-            for query in scheduled_queries:
-                # because robot can't seem to pass dictionaries in parse string to dict here.
-                query = json.loads(query)
-                queryName = query["name"]
-                telemetry["scheduled-queries"][queryName] = {}
-                if "records-count" in query:
-                    telemetry["scheduled-queries"][query["name"]]["record-size-std-deviation"] = query["record-size-std-deviation"]
-                    telemetry["scheduled-queries"][query["name"]]["records-count"] = query["records-count"]
-                if "query-error-count" in query:
-                    telemetry["scheduled-queries"][query["name"]]["query-error-count"] = query["query-error-count"]
 
-        if queries:
-            telemetry["live-query"] = {}
-            for query in queries:
-                # because robot can't seem to pass dictionaries in parse string to dict here.
-                query = json.loads(query)
-                queryName = query["name"]
-                telemetry["live-query"][queryName] = {}
-                if "successful-count" in query:
-                    telemetry["live-query"][query["name"]]["rowcount-avg"] = query["rowcount-avg"]
-                    telemetry["live-query"][query["name"]]["rowcount-std-deviation"] = query["rowcount-std-deviation"]
-                    telemetry["live-query"][query["name"]]["rowcount-max"] = query["rowcount-max"]
-                    telemetry["live-query"][query["name"]]["rowcount-min"] = query["rowcount-min"]
-                    telemetry["live-query"][query["name"]]["successful-count"] = query["successful-count"]
+        telemetry["scheduled-queries"] = {}
+        telemetry["scheduled-queries"]['upload-limit-hit'] = False
 
-                if "failed-exceed-limit-count" in query:
-                    telemetry["live-query"][query["name"]]["failed-exceed-limit-count"] = query["failed-exceed-limit-count"]
-                if "failed-osquery-died-count" in query:
-                    telemetry["live-query"][query["name"]]["failed-osquery-died-count"] = query["failed-osquery-died-count"]
-                if "failed-osquery-error-count" in query:
-                    telemetry["live-query"][query["name"]]["failed-osquery-error-count"] = query["failed-osquery-error-count"]
-                if "failed-unexpected-error-count" in query:
-                    telemetry["live-query"][query["name"]]["failed-unexpected-error-count"] = query["failed-unexpected-error-count"]
-
-
-
+        if failed_count:
+            telemetry["live-query"] = {"failed-count" : int(failed_count)}
+        if successful_count:
+            telemetry["live-query"] = {"successful-count" : int(successful_count)}
 
         return telemetry
 
@@ -431,8 +401,8 @@ class TelemetryUtils:
                                             ignore_memory_restarts=False,
                                             ignore_mtr_extension_restarts=True,
                                             ignore_scheduled_queries=True,
-                                            queries=None,
-                                            scheduled_queries=None,
+                                            failed_count=None,
+                                            successful_count=None,
                                             ignore_xdr=True,
                                             ignore_process_events=True,
                                             ignore_selinux_events=True,
@@ -448,8 +418,8 @@ class TelemetryUtils:
                                                                        num_extension_restarts_memory,
                                                                        xdr_is_enabled,
                                                                        events_max,
-                                                                       queries,
-                                                                       scheduled_queries,
+                                                                       failed_count,
+                                                                       successful_count,
                                                                        folded_query)
         actual_edr_telemetry_dict = json.loads(json_string)["edr"]
         actual_edr_telemetry_dict.pop("health", None)
@@ -467,6 +437,7 @@ class TelemetryUtils:
             scheduled_queries_key = "scheduled-queries"
             expected_edr_telemetry_dict.pop(scheduled_queries_key, None)
             actual_edr_telemetry_dict.pop(scheduled_queries_key, None)
+
         if ignore_mtr_extension_restarts:
             # OSQuery 5.0.1 has changed logging, so we cannot directly tell when the mtr extension stops
             # All we can do is tell when os query starts the mtr extension.
@@ -477,23 +448,6 @@ class TelemetryUtils:
         if actual_edr_telemetry_dict[osquery_db_size_key] < 1:
             raise AssertionError("EDR telemetry doesn't contain a valid osquery database size field")
         actual_edr_telemetry_dict.pop(osquery_db_size_key, None)
-
-        if "live-query" in actual_edr_telemetry_dict:
-            # pop all durations from actual query because these values will change, so they need to be removed for tests.
-            # Duration values are tested in unit tests.
-            for (queryName, queryData) in actual_edr_telemetry_dict["live-query"].items():
-                if "duration-avg" in queryData:
-                    queryData.pop("duration-avg")
-                    queryData.pop("duration-min")
-                    queryData.pop("duration-max")
-                    queryData.pop("duration-std-deviation")
-        if "scheduled-queries" in actual_edr_telemetry_dict:
-            # pop all durations from actual query because these values will change, so they need to be removed for tests.
-            for (queryName, queryData) in actual_edr_telemetry_dict["scheduled-queries"].items():
-                if "record-size-avg" in queryData:
-                    queryData.pop("record-size-avg")
-                    queryData.pop("record-size-min")
-                    queryData.pop("record-size-max")
 
         if ignore_xdr:
             xdr_key = "xdr-is-enabled"

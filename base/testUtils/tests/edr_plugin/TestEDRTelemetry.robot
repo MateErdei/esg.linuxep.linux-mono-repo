@@ -176,10 +176,7 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
 
-    ${query}=  Set Variable  {"name":"Crash", "failed-osquery-died-count":1}
-    @{queries}=  create list   ${query}
-
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  1  0  0  0  0  queries=@{queries}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  1  1  0  0  0  0  failed_count=1
 
 EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
     Run Live Query  ${SIMPLE_QUERY_1_ROW}   simple
@@ -200,10 +197,8 @@ EDR Reports Telemetry And Stats Correctly After Plugin Restart For Live Query
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
 
-    # ignoring duration as it will vary too much to reliably test - it's covered in unit tests.
-    ${query1}=  Set Variable  {"name":"simple", "rowcount-std-deviation":1.5,"rowcount-avg":2.5, "rowcount-min":1, "rowcount-max":4, "successful-count":2}
-    @{queries}=  create list   ${query1}
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  0  0  queries=@{queries}
+
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  0  0  0  0  0  0  successful_count=2
 
 EDR Reports Telemetry Correctly When Events Max Limit Is Hit For A Table
 
@@ -255,12 +250,10 @@ EDR Plugin Reports Telemetry Correctly For OSQuery CPU Restarts And Restarts by 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
 
-    ${query}=  Set Variable  {"name":"Crash", "failed-osquery-died-count":1, "osquery-restarts":2}
-    @{queries}=  create list   ${query}
-    # ${times} is expected to be 3, but may be up to 6 due to
+
     #TODO LINUXDAR-3974
     Should Be True  ${times} < 7  More restarts than is reasonable were found
-    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  ${times}  1  0  0  0  0  queries=@{queries}
+    Check EDR Telemetry Json Is Correct  ${telemetryFileContents}  ${times}  1  0  0  0  0  failed_count=1
 
 
 EDR Plugin Produces Telemetry With OSQuery Max Events Override Value
