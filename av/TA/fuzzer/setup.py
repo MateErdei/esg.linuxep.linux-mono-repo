@@ -5,7 +5,7 @@ import os
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--vault-address", type=str,
-                    default= "https://euw2.vault.sst.sophosapps.com/",
+                    default= "https://use2.vault.sst.sophosapps.com/",
                     help = "The address of the vault server.")
 
 parser.add_argument("--vault-token", type=str,
@@ -31,4 +31,3 @@ sec_name = ''
 
 token = get_vault_secret(my_path,mount_point, client, 'token')
 print(token)
-os.environ["TAP_JWT"] = token
