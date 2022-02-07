@@ -8,6 +8,7 @@ Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
+Library         ../Libs/Telemetry.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ../shared/ErrorMarkers.robot
@@ -84,6 +85,8 @@ AV Plugin Scan Now Updates Telemetry Count
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
 
     Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   1
+
+    av_log_contains_only_one_no_saved_telemetry_per_start
 
 
 Scan Now Configuration Is Correct

@@ -65,7 +65,7 @@ class LogUtils(object):
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
         self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "chroot", "log", "sophos_threat_detector.log")
-        self.av_log = os.path.join(self.install_path, "plugins", "av", "log", "av.log")
+        self.av_log = os.path.join(self.av_plugin_logs_dir, "av.log")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.marked_mcsrouter_logs = 0
         self.marked_mcs_envelope_logs = 0

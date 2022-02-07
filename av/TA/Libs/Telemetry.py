@@ -7,6 +7,7 @@ import pwd
 import subprocess
 
 from robot.api import logger
+import robot.libraries.BuiltIn
 
 
 def check_telemetry(telemetry):
@@ -131,3 +132,51 @@ def run_telemetry(telemetry_symlink, telemetry_config):
     result.stdout = r.stdout
     logger.info("Result %d: %s" % (result.rc, result.stdout))
     return result
+
+def _get_variable(varName, defaultValue=None):
+    try:
+        return robot.libraries.BuiltIn.BuiltIn().get_variable_value("${%s}" % varName) or defaultValue
+    except robot.libraries.BuiltIn.RobotNotRunningError:
+        return os.environ.get(varName, defaultValue)
+
+
+def _get_sophos_install():
+    return _get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
+
+def _get_av_log_by_run():
+    """
+    Get av.log split into runs (based on 0 timestamp)
+    :return:
+    """
+    av_log_dir = os.path.join(_get_sophos_install(), "plugins", "av", "log")
+    av_log = os.path.join(av_log_dir, "av.log")
+    # Load av log
+    data = open(av_log).read()
+    # Split into lines
+    lines = data.splitlines()
+    # Split lines into runs
+    runs = []
+    for line in lines:
+        line = line.strip()
+        if line.startswith("0 ") or len(runs) == 0:
+            runs.append([])
+        runs[-1].append(line)
+    return runs
+
+
+def av_log_contains_only_one_no_saved_telemetry_per_start():
+    runs = _get_av_log_by_run()
+
+    # Verify that
+    # "TelemetryHelperImpl <> There is no saved telemetry at: /opt/sophos-spl/base/telemetry/cache/av-telemetry.json"
+    # only appears once per run
+    logger.debug("Found %d runs" % len(runs))
+    for run in runs:
+        found = False
+        for line in run:
+            if "There is no saved telemetry at" in line:
+                if found:
+                    # Duplicate Telemetry line
+                    raise Exception("Found duplicate 'There is no saved telemetry at' line")
+                logger.debug("Found saved telemetry line in run")
+                found = True
