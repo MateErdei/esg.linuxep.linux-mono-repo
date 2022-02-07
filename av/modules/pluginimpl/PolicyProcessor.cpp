@@ -143,13 +143,14 @@ namespace Plugin
     }
 
 
-    bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool firstPolicy)
+    bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed)
     {
         bool oldLookupEnabled = m_lookupEnabled;
         m_lookupEnabled = isLookupEnabled(policy);
-        if (!firstPolicy && m_lookupEnabled == oldLookupEnabled)
+        if (isSAVPolicyAlreadyProcessed && m_lookupEnabled == oldLookupEnabled)
         {
             // Only restart sophos_threat_detector if it is the first policy or it has changed
+
             return false;
         }
 

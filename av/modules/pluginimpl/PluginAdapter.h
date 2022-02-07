@@ -42,6 +42,7 @@ namespace Plugin
             std::shared_ptr<PluginCallback> callback,
             const std::string& threatEventPublisherSocketPath,
             int waitForPolicyTimeout = 5);
+        bool m_isSavPolicyProcessed = false;
         void mainLoop();
         void processScanComplete(std::string& scanCompletedXml, int exitCode) override;
         void processThreatReport(const std::string& threatDetectedXML);
@@ -55,7 +56,7 @@ namespace Plugin
          * @param policyXml
          * @return true if a new policy has arrived false otherwise
          */
-        bool processPolicy(const std::string& policyXml, bool firstPolicy = false);
+        bool processPolicy(const std::string& policyXml);
         void processAction(const std::string& actionXml);
         void innerLoop();
         void processSUSIRestartRequest();
