@@ -90,7 +90,7 @@ function compress()
 
 if [[ -n $INCLUDE_TAG ]]
 then
-    echo $INCLUDE_TAG >argFile
+    printf '%s\n' $INCLUDE_TAG >argFile
 fi
 
 TEMPLATE=sspl-system.template
