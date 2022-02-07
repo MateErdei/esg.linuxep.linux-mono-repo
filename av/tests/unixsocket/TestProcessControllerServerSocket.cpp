@@ -6,6 +6,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
+#include "datatypes/sophos_filesystem.h"
 #include "tests/common/TestFile.h"
 #include "tests/common/WaitForEvent.h"
 #include <unixsocket/processControllerSocket/ProcessControllerServerSocket.h>
@@ -18,12 +19,36 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <unistd.h>
 
+namespace fs = sophos_filesystem;
+
 namespace
 {
     class TestProcessControllerServerSocket : public UnixSocketMemoryAppenderUsingTests
     {
+        void SetUp() override
+        {
+            const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+            m_testDir = fs::temp_directory_path();
+            m_testDir /= test_info->test_case_name();
+            m_testDir /= test_info->name();
+            fs::remove_all(m_testDir);
+            fs::create_directories(m_testDir);
+
+            fs::current_path(m_testDir);
+
+            m_socketPath = m_testDir / "process_control_socket";
+        }
+
+        void TearDown() override
+        {
+            fs::current_path(fs::temp_directory_path());
+            fs::remove_all(m_testDir);
+        }
+
+        fs::path m_testDir;
+
     public:
-        std::string m_socketPath = "/tmp/process_control_socket";
+        std::string m_socketPath;
     };
 }
 
@@ -35,7 +60,8 @@ TEST_F(TestProcessControllerServerSocket, testConstructor) //NOLINT
 TEST_F(TestProcessControllerServerSocket, testSendMessageNoServer)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    unixsocket::ProcessControllerClientSocket processControllerClient(m_socketPath);
+    const struct timespec sleepTime {0,1'000'000};
+    unixsocket::ProcessControllerClientSocket processControllerClient(m_socketPath, sleepTime);
     scan_messages::ProcessControlSerialiser processControlRequest;
     EXPECT_NO_THROW(processControllerClient.sendProcessControlRequest(processControlRequest));
     EXPECT_FALSE(appenderContains("Failed to write Process Control Request to socket. Exception caught: "));
