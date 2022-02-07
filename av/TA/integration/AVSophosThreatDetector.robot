@@ -498,10 +498,6 @@ restart sophos_threat_detector
     Log  Restarted PID: ${END_SOPHOS_THREAT_DETECTOR_PID}
     Should Not Be Equal As Integers  ${INITIAL_SOPHOS_THREAT_DETECTOR_PID}  ${END_SOPHOS_THREAT_DETECTOR_PID}
 
-scan GR test file
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/gui.exe
-    run keyword if  ${rc} != ${0}  Log  ${output}
-    BuiltIn.Should Be Equal As Integers  ${rc}  ${0}  Failed to scan gui.exe
 
 check sophos_threat_dector log for successful global rep lookup
     Susi Debug Log Contains  =GR= Connection \#0 to host 4.sophosxl.net left intact

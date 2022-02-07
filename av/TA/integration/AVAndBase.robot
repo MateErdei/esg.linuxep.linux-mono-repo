@@ -249,15 +249,37 @@ AV plugin sends Scan Complete event and (fake) Report To Central
 
 AV Gets SAV Policy When Plugin Restarts
     # Doesn't mark AV log since it removes it
+    Mark Sophos Threat Detector Log
     Send Sav Policy With No Scheduled Scans
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    register cleanup  remove file   ${MCS_PATH}/policy/SAV-2_policy.xml
+    register cleanup  remove file   ${SUSI_STARTUP_SETTINGS_FILE}
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Stop AV Plugin
     Remove File    ${AV_LOG_PATH}
     Start AV Plugin
     Wait Until AV Plugin Log Contains  SAV policy received for the first time.
     Wait Until AV Plugin Log Contains  Processing SAV Policy
+    File Should Exist    ${SUSI_STARTUP_SETTINGS_FILE}
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans: 0
+    Scan GR Test File
+    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
+
+Av Plugin Processes First Policy Correctly After Start Up
+    Mark Sophos Threat Detector Log
+    Stop AV Plugin
+    File Should Not Exist   ${SUSI_STARTUP_SETTINGS_FILE}
+    File Should Not Exist    ${MCS_PATH}/policy/SAV-2_policy.xml
+    Remove File    ${AV_LOG_PATH}
+    Start AV Plugin
+    Wait Until AV Plugin Log Contains   SAV policy has not been sent to the plugin
+    Send Sav Policy With No Scheduled Scans
+    Wait Until AV Plugin Log Contains  Processing SAV Policy
+    Wait Until File exists    ${SUSI_STARTUP_SETTINGS_FILE}
+    Dump log    ${AV_LOG_PATH}
+    Scan GR Test File
+    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
+
 
 AV Gets ALC Policy When Plugin Restarts
     Register Cleanup    Exclude UpdateScheduler Fails

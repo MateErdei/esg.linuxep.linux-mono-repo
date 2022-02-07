@@ -125,3 +125,8 @@ Restart sophos_threat_detector and mark logs
     Mark Sophos Threat Detector Log
     Start sophos_threat_detector
     Wait until threat detector running with offset
+
+Scan GR Test File
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/gui.exe
+    Log  ${output}
+    BuiltIn.Should Be Equal As Integers  ${rc}  ${0}  Failed to scan gui.exe
