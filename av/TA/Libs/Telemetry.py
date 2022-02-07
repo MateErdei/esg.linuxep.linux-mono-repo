@@ -5,6 +5,7 @@ import json
 import os
 import pwd
 import subprocess
+import sys
 
 from robot.api import logger
 import robot.libraries.BuiltIn
@@ -143,29 +144,44 @@ def _get_variable(varName, defaultValue=None):
 def _get_sophos_install():
     return _get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
 
-def _get_av_log_by_run():
+def _get_av_log_by_run(path=None):
     """
     Get av.log split into runs (based on 0 timestamp)
     :return:
     """
-    av_log_dir = os.path.join(_get_sophos_install(), "plugins", "av", "log")
-    av_log = os.path.join(av_log_dir, "av.log")
+    if path is None:
+        av_log_dir = os.path.join(_get_sophos_install(), "plugins", "av", "log")
+        av_log = os.path.join(av_log_dir, "av.log")
+    else:
+        av_log = path
+
     # Load av log
     data = open(av_log).read()
     # Split into lines
     lines = data.splitlines()
     # Split lines into runs
-    runs = []
+    runs = [[]]
+    previous = -1
     for line in lines:
         line = line.strip()
-        if line.startswith("0 ") or len(runs) == 0:
-            runs.append([])
+        if line == "":
+            continue
+
+        parts = line.split()
+        try:
+            timestamp = int(parts[0])
+            if timestamp < previous:
+                runs.append([])
+            previous = timestamp
+        except ValueError:
+            pass
+
         runs[-1].append(line)
     return runs
 
 
-def av_log_contains_only_one_no_saved_telemetry_per_start():
-    runs = _get_av_log_by_run()
+def av_log_contains_only_one_no_saved_telemetry_per_start(path=None):
+    runs = _get_av_log_by_run(path)
 
     # Verify that
     # "TelemetryHelperImpl <> There is no saved telemetry at: /opt/sophos-spl/base/telemetry/cache/av-telemetry.json"
@@ -180,3 +196,17 @@ def av_log_contains_only_one_no_saved_telemetry_per_start():
                     raise Exception("Found duplicate 'There is no saved telemetry at' line")
                 logger.debug("Found saved telemetry line in run")
                 found = True
+
+
+def __p(s):
+    print(s)
+
+
+def __main(argv):
+    logger.debug = __p
+    av_log_contains_only_one_no_saved_telemetry_per_start(argv[1])
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(__main(sys.argv))
