@@ -8,6 +8,7 @@ Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
 
 Library         ../Libs/OnFail.py
+Library         ../Libs/ProcessUtils.py
 
 Suite Setup     AVSophosThreatDetector Suite Setup
 Suite Teardown  AVSophosThreatDetector Suite TearDown
@@ -81,13 +82,17 @@ Threat detector aborts if logging symlink cannot be created
 
 
 Threat Detector Restarts When /etc/hosts changed
-    register cleanup   Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}  encoding_errors=replace
     Wait until threat detector running
     ${SOPHOS_THREAT_DETECTOR_PID_AT_START} =  Get Sophos Threat Detector PID From File
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+
+    # Can't mark logs at this point, since services have already been started
+
     Wait Until AV Plugin Log Contains With Offset  Starting sophos_threat_detector monitor
     Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120
+
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
     Alter Hosts
 
     # wait for AV log
@@ -517,6 +522,8 @@ AVSophosThreatDetector Test Setup
     register on fail  dump log  ${WATCHDOG_LOG}
     register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/wdctl.log
     register on fail  dump log  ${SOPHOS_INSTALL}/plugins/av/log/av.log
+    register on fail  dump threads  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    register on fail  dump threads  ${PLUGIN_BINARY}
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude MCS Router is dead

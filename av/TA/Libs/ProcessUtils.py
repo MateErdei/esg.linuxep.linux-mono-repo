@@ -4,9 +4,11 @@
 # All rights reserved.
 
 import os
+import subprocess
 import sys
 import time
 
+from robot.api import logger
 
 def pidof(executable):
     for d in os.listdir("/proc"):
@@ -47,6 +49,38 @@ def wait_for_different_pid(executable, original_pid, timeout=5):
     if pid == original_pid:
         raise AssertionError("Process {} (exe:{}) still running".format(original_pid, executable))
     raise AssertionError("Executable {} no longer running {}".format(executable, pid))
+
+
+def dump_threads(executable):
+    """
+    Run gdb to get thread backtrace for the specified process (for the argument executable)
+    """
+    pid = pidof(executable)
+    if pid == -1:
+        logger.info("%s not running" % executable)
+        return
+
+    # write script out
+    script = b"""set pagination 0
+thread apply all bt
+quit
+"""
+    # run gdb
+    proc = subprocess.Popen([b'gdb', b'/proc/%d/exe' % pid, str(pid)],
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+
+    output = proc.communicate(script)[0].decode("UTF-8")
+    exitcode = proc.wait()
+
+    # Get rid of boilerplate before backtraces
+    output = output.split("(gdb)", 1)[-1]
+
+    logger.info("pstack (%d):" % ( exitcode))
+    for line in output.splitlines():
+        logger.info(line)
+
 
 def __main(argv):
     print(pidof(argv[1]))

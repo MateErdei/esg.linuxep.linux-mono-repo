@@ -547,14 +547,19 @@ E  ", search_list)
         return contents
 
     def check_marked_av_log_contains(self, string_to_contain, mark):
+        """
+        :param string_to_contain:
+        :param mark: IGNORED - number of lines to skip
+        :return: True if string_to_contain in marked log
+        """
         av_log = self.av_log
         contents = _get_log_contents(av_log)
-
         contents = contents[self.marked_av_log:]
 
         if string_to_contain not in contents:
             self.dump_log(av_log)
-            raise AssertionError("av.log log did not contain: " + string_to_contain)
+            raise AssertionError("av.log log did not contain: '" +
+                                 string_to_contain+"', starting from '"+contents[:50]+"'")
 
     def check_marked_sophos_threat_detector_log_contains(self, string_to_contain, mark):
         contents = self.get_marked_sophos_threat_detector_log()
