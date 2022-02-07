@@ -15,6 +15,7 @@ set(WARNING_FLAGS "-Wall -Wextra -Werror -Wnon-virtual-dtor -fstack-protector -W
 
 if (DEFINED ENV{USE_LIBFUZZER})
     message("fuzz mode")
+    set(WARNING_FLAGS "-Wall -Wextra -Werror -Wnon-virtual-dtor -fstack-protector")
     set(FUZZING_FLAGS -DUSING_LIBFUZZER=1 -g -O1 -Wall -Wextra -Werror -fstack-protector -fno-omit-frame-pointer -fsanitize=fuzzer,address,undefined)
     add_compile_options(${FUZZING_FLAGS})
     add_link_options(${FUZZING_FLAGS})
