@@ -46,8 +46,8 @@ def create_symlink(src, dst):
 
 def get_amount_written_to_disk(path):
     disc = find_sdiskpart(path)
-    split_disc = disc.__str__().split("/")
     assert disc is not None, "Failed to identify disc"
+    split_disc = disc.__str__().split("/")
 
     with open("/proc/diskstats", "r") as f:
         lines = f.readlines()
