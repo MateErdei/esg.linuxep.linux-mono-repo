@@ -24,7 +24,7 @@ elif [[ -f /usr/local/bullseye/bin/covselect ]]
 then
     BULLSEYE_DIR=/usr/local/bullseye
 else
-  exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+  exitFailure $FAILURE_BULLSEYE "Failed to find bullseye"
 fi
 
 echo "Bullseye location: $BULLSEYE_DIR"
@@ -42,6 +42,6 @@ $BULLSEYE_DIR/bin/covhtml \
     --verbose             \
     "$htmldir"            \
     </dev/null            \
-    || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+    || exitFailure $FAILURE_BULLSEYE "Failed to generate bullseye html"
 
 chmod -R a+rX "$htmldir"

@@ -6,11 +6,11 @@ import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 from tap._backend import Input
 
-## TAP Pipeline API : https://docs.sophos-ops.com/pipeline.html
+# TAP Pipeline API : https://docs.sophos-ops.com/pipeline.html
 
 COVFILE_UNITTEST = '/opt/test/inputs/av/sspl-plugin-av-unit.cov'
 COVFILE_PYTEST = '/opt/test/inputs/av/sspl-plugin-av-pytest.cov'
-COVFILE_ROBOT = '/tmp/sspl-plugin-av-robot.cov' ## Move to /tmp, so that everyone can access it
+COVFILE_ROBOT = '/tmp/sspl-plugin-av-robot.cov'  # Move to /tmp, so that everyone can access it
 COVFILE_COMBINED = '/opt/test/inputs/av/sspl-plugin-av-combined.cov'
 BULLSEYE_SCRIPT_DIR = '/opt/test/inputs/bullseye_files'
 UPLOAD_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadResults.sh')
@@ -24,12 +24,10 @@ logger = logging.getLogger(__name__)
 
 BRANCH_NAME = "master"
 
-def has_coverage_build(branch_name):
-    """If the branch name does an analysis mode build"""
-    return branch_name in ('master', "develop") or branch_name.endswith('coverage') or "release" in branch_name
 
 def is_debian_based(machine: tap.Machine):
     return machine.template.startswith("ubuntu")
+
 
 def is_redhat_based(machine: tap.Machine):
     return machine.template.startswith("centos")
@@ -90,7 +88,7 @@ def robot_task_with_env(machine: tap.Machine, test_type=None, environment=None, 
 
         if test_type == "product" or test_type == "coverage":
             robot_exclusion_tags.remove('PRODUCT')
-            #run VQA only with product tests
+            # run VQA only with product tests
             if BRANCH_NAME == "develop" or "vqa" in BRANCH_NAME:
                 robot_exclusion_tags.remove('VQA')
 
@@ -110,15 +108,18 @@ def robot_task_with_env(machine: tap.Machine, test_type=None, environment=None, 
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/report.html",
                     "robot" + get_suffix() + "_" + machine_name + "_" + test_type + "-report.html")
 
+
 @tap.timeout(task_timeout=5400)
 def robot_task_product(machine: tap.Machine):
     install_requirements(machine)
     robot_task_with_env(machine, "product")
 
+
 @tap.timeout(task_timeout=5400)
 def robot_task_integration(machine: tap.Machine):
     install_requirements(machine)
     robot_task_with_env(machine, "integration")
+
 
 def pytest_task_with_env(machine: tap.Machine, environment=None):
     try:
@@ -153,9 +154,9 @@ def aws_task(machine: tap.Machine, include_tag: str):
 
 
 def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
-    """Return an input artifact from an unified pipeline build"""
+    """Return an input artifact from a unified pipeline build"""
     artifact = context.artifact.from_component(component, branch, org='', storage='esg-build-tested')
-    # Using the truediv operator to set the sub directory forgets the storage option
+    # Using the truediv operator to set the subdirectory forgets the storage option
     artifact.sub_directory = sub_directory
     return artifact
 
@@ -187,29 +188,30 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
 
     return test_inputs
 
+
 @tap.timeout(task_timeout=5400)
 def bullseye_coverage_task(machine: tap.Machine):
     suffix = get_suffix()
+    coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
 
     try:
         exception = None
 
         install_requirements(machine)
 
-        coverage_results_dir = os.path.join(RESULTS_DIR, 'coverage')
         machine.run('rm', '-rf', coverage_results_dir)
         machine.run('mkdir', coverage_results_dir)
 
         # upload unit test coverage html results to allegro
-        unitest_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage_html')
+        unittest_htmldir = os.path.join(INPUTS_DIR, 'av', 'coverage_html')
         machine.run('bash', UPLOAD_SCRIPT,
                     environment={
                         'COV_HTML_BASE': 'sspl-plugin-av-unittest' + suffix,
                         'UPLOAD_ONLY': 'UPLOAD',
-                        'htmldir': unitest_htmldir,
+                        'htmldir': unittest_htmldir,
                     })
         # publish unit test coverage file and results to artifactory results/coverage
-        machine.run('mv', unitest_htmldir, coverage_results_dir)
+        machine.run('mv', unittest_htmldir, coverage_results_dir)
         machine.run('cp', COVFILE_UNITTEST, coverage_results_dir)
 
         machine.run('cp', COVFILE_UNITTEST, COVFILE_PYTEST)
@@ -306,6 +308,7 @@ def bullseye_coverage_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact(coverage_results_dir, 'coverage')
 
+
 def get_test_machines(test_inputs, parameters: tap.Parameters):
     test_environments = {'ubuntu1804': 'ubuntu1804_x64_server_en_us',
                          'ubuntu2004': 'ubuntu2004_x64_server_en_us',
@@ -323,6 +326,7 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
         ))
     return ret
 
+
 def decide_whether_to_run_aws_tests(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
     if parameters.force_run_aws_tests != 'false':
         return True
@@ -338,7 +342,7 @@ def decide_whether_to_do_coverage(parameters: tap.Parameters, context: tap.Pipel
     if parameters.inhibit_run_coverage != 'false':
         return False
     branch = context.branch
-    return has_coverage_build(branch)
+    return branch in ('master', "develop") or branch.startswith("release/") or branch.endswith('coverage')
 
 
 def decide_whether_to_run_cppcheck(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:

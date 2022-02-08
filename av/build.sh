@@ -412,7 +412,7 @@ function build()
     then
         BULLSEYE_DIR=/opt/BullseyeCoverage
         [[ -d $BULLSEYE_DIR ]] || BULLSEYE_DIR=/usr/local/bullseye
-        [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bulleye"
+        [[ -d $BULLSEYE_DIR ]] || exitFailure $FAILURE_BULLSEYE "Failed to find bullseye"
         addpath ${BULLSEYE_DIR}/bin
         export LD_LIBRARY_PATH=${BULLSEYE_DIR}/lib:${LD_LIBRARY_PATH}
         export COVFILE
@@ -537,22 +537,23 @@ function build()
     fi
 
 
-    htmldir=$BASE/output/coverage_html
-    export BASE
-    export htmldir
-    cd "$BASE"
-    if (( BULLSEYE_UPLOAD == 1 ))
+    if (( BULLSEYE == 1 ))
     then
-        ## Process bullseye output
-        ## upload unit tests
-        bash -x build/bullseye/uploadResults.sh || exit $?
-    elif (( BULLSEYE == 1 ))
-    then
-        bash -x build/bullseye/generateResults.sh || exit $?
-        cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
-        # copy the source into output, so that tests can generate detailed coverage reports
-        mkdir -p output/src
-        cp -a modules products output/src/
+      export BASE
+      export htmldir=$BASE/output/coverage_html
+      cd "$BASE"
+      if (( BULLSEYE_UPLOAD == 1 ))
+      then
+          ## Process bullseye output
+          ## upload unit tests
+          bash -x build/bullseye/uploadResults.sh || exit $?
+      else
+          bash -x build/bullseye/generateResults.sh || exit $?
+          cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
+          # copy the source into output, so that tests can generate detailed coverage reports
+          mkdir -p output/src
+          cp -a modules products output/src/
+      fi
     fi
 
     echo "Build Successful"

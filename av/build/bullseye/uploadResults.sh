@@ -25,7 +25,7 @@ PRIVATE_KEY=${SCRIPT_DIR}/private.key
 
 if [[ -z ${UPLOAD_ONLY} ]]
 then
-  bash ${0%/*}/generateResults.sh || exitFailure $FAILURE_BULLSEYE "Failed to generate bulleye html"
+  bash ${0%/*}/generateResults.sh || exitFailure $FAILURE_BULLSEYE "Failed to generate bullseye html"
 fi
 
 ## Ensure ssh won't complain about private key permissions:
@@ -33,4 +33,4 @@ chmod 600 ${PRIVATE_KEY}
 rsync -az --rsh="ssh -i ${PRIVATE_KEY}  -o StrictHostKeyChecking=no" --delete ${htmldir}/ \
     upload@allegro.eng.sophos:public_html/bullseye/${COV_HTML_BASE}/  \
     </dev/null \
-    || exitFailure $FAILURE_BULLSEYE "Failed to upload bulleye html"
+    || exitFailure $FAILURE_BULLSEYE "Failed to upload bullseye html"
