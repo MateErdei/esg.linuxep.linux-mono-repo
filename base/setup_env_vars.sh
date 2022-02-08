@@ -11,11 +11,12 @@ export   CC=$BUILD_TOOLS_DIR/gcc/bin/gcc
 export  CXX=$BUILD_TOOLS_DIR/gcc/bin/g++
 export PATH=$BUILD_TOOLS_DIR/gcc/bin:$PATH
 export PATH=$BUILD_TOOLS_DIR/cmake/bin:$PATH
-# TODO make and as
+# TODO 'make' and 'as' when not installed via pkg manager
 
-
-# TODO TEMP until we can sort out a better self contained built toolchain
-export LIBRARY_PATH=$BUILD_TOOLS_DIR/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
+# TODO TEMP until we can sort out a better self contained built toolchain we need /usr/lib/x86_64-linux-gnu:
+export LD_LIBRARY_PATH=$BUILD_TOOLS_DIR/gcc/lib64:${LD_LIBRARY_PATH}
+export LIBRARY_PATH=$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
+#export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}
 export CPLUS_INCLUDE_PATH=$BUILD_TOOLS_DIR/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
 export CPATH=$BUILD_TOOLS_DIR/gcc/include/:${CPATH}
 

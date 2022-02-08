@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+#set -x
 set -e
 
 if [[ $(id -u) == 0 ]]
@@ -19,8 +19,8 @@ cd "$BASEDIR"
 TAP_VENV="$BASEDIR/tap_venv"
 
 # Install python3 venv for TAP and then install TAP
-
-if ! apt list --installed python3-venv | grep -q python3-venv
+# TODO deal with OSs with python3.6 as deafult = e.g. 18.04
+if ! apt list --installed python3-venv 2>/dev/null | grep -q python3-venv
 then
   sudo apt-get install python3-venv -y
 fi
@@ -39,6 +39,7 @@ else
   source "$TAP_VENV/bin/activate"
   echo "Using python:"
   which python
+  python3 -m pip install pip --upgrade
   python3 -m pip install wheel
   ##python3 -m pip install build_scripts
   python3 -m pip install keyrings.alt
@@ -109,7 +110,9 @@ then
 else
    unpack_gcc
 fi
+echo "---"
 "$GCC_DIR/bin/gcc" --version
+echo "---"
 "$GCC_DIR/bin/g++" --version
 
 
@@ -140,13 +143,14 @@ then
 else
    unpack_cmake
 fi
+echo "---"
 "$CMAKE_DIR/bin/cmake" --version
 
 
 # Make
 # TODO
 # Make is not yet available in artifactory so for now we'll install it directly
-if ! apt list --installed make | grep -q make
+if ! apt list --installed make 2>/dev/null | grep -q make
 then
   sudo apt-get install make -y
 fi
@@ -156,13 +160,14 @@ which make
 pushd "$MAKE_DIR"
 ln -fs "$(which make)" "make"
 popd
+echo "---"
 "$MAKE_DIR/make" --version
 
 
 # AS (assembler)
 # TODO
 # AS (assembler) is not yet available in artifactory so for now we'll install it directly
-if ! apt list --installed binutils | grep -q binutils
+if ! apt list --installed binutils 2>/dev/null | grep -q binutils
 then
   sudo apt-get install binutils -y
 fi
@@ -172,26 +177,32 @@ which as
 pushd "$AS_DIR"
 ln -fs "$(which as)" "as"
 popd
+echo "---"
 "$AS_DIR/as" --version
 
 # libc6-dev (libc dev packages)
 # TODO - try and use crosstoolng to build a GCC toolchain
 # This install works around this error:
 # /usr/bin/ld: cannot find crt1.o: No such file or directory
-if ! apt list --installed libc6-dev | grep -q libc6-dev
+if ! apt list --installed libc6-dev 2>/dev/null | grep -q libc6-dev
 then
   sudo apt-get install libc6-dev -y
 fi
 
-if ! apt list --installed zip | grep -q zip
+# zip is used when packing up mcs router
+if ! apt list --installed zip 2>/dev/null | grep -q zip
 then
   sudo apt install zip -y
 fi
 
-
+echo "---"
+echo "Done, please 'source setup_env_vars.sh'"
 
 # TODO For SSPL only dev machines this may be ok but might break other things?
 # [[ -f /etc/profile.d/setup_env_vars.sh ]] || sudo ln -s "$BASEDIR/setup_env_vars.sh" /etc/profile.d/setup_env_vars.sh
 #source ./setup_env_vars.sh?
 
 #echo "Please reboot build machine to apply env changes or source $BASEDIR/setup_env_vars.sh"
+
+
+#TODO try using build-tools-package.xml only

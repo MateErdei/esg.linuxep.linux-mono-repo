@@ -1,4 +1,5 @@
 
+
 configure_file(PRODUCT_NAME.in PRODUCT_NAME @ONLY )
 configure_file(RIGID_NAME.in RIGID_NAME @ONLY )
 configure_file(DEFAULT_HOME_FOLDER.in DEFAULT_HOME_FOLDER @ONLY )
@@ -12,11 +13,35 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
         OUTPUT_VARIABLE libgcc_s_path)
 string(STRIP "${libgcc_s_path}" libgcc_s_path )
 
-execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libatomic.so.1
-        OUTPUT_VARIABLE libatomic_path)
-string(STRIP "${libatomic_path}" libatomic_path )
+set(third_party_libs ${libstdcpp_path} ${libgcc_s_path})
 
-set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${libatomic_path})
+set(DISTRIBUTION_TOOL_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
+set(ADD_SYMBOLS_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/addSymbols.sh)
+set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
+set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImportAndManifestDat.py)
+
+add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
+        COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
+        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        )
+
+add_custom_target(
+        dist
+        COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
+        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+)
+
+
+add_custom_target(
+        forcedist
+        COMMAND rm -f ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
+        COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
+        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+)
 
 INCLUDE(FindLibraryFullPath)
 
@@ -32,8 +57,11 @@ endforeach(LIB)
 
 add_third_party_library(minizip ${MINIZIP_INPUT}/lib)
 add_third_party_library(curl ${CURL_INPUT}/lib64)
+
 add_third_party_library(expat ${EXPAT_INPUT}/lib64)
+
 add_third_party_library(z  ${ZLIB_INPUT}/lib64)
+
 add_third_party_library(zmq ${ZEROMQ_INPUT}/lib)
 
 foreach (LIB crypto ssl)
@@ -45,6 +73,7 @@ foreach (LIB SUL retailer_lib xmlcpp aesclib saucrypto)
 endforeach(LIB)
 
 add_third_party_library(protobuf ${Protobuf_root}/lib)
+
 add_third_party_library(log4cplus ${LOG4CPLUS_INPUT}/lib)
 
 install(FILES ${third_party_libs}
@@ -53,21 +82,10 @@ install(FILES ${third_party_libs}
 install(FILES ${VERSIG_INPUT}/bin64/versig
         DESTINATION files/base/update)
 
-# libasan and libubsan are only used during debug builds and needed for unit tests to run but we do not want to add
-# them to the shipped third party library list, so create a separate list of build time only libs
-execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libasan.so
-        OUTPUT_VARIABLE libasan_path)
-string(STRIP "${libasan_path}" libasan_path)
-execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libubsan.so
-        OUTPUT_VARIABLE libubsan_path)
-string(STRIP "${libubsan_path}" libubsan_path )
-set(build_time_only_libs ${libasan_path} ${libubsan_path})
-
-# Put all needed libs into <build dir>/libs so that unit tests can link against them without setting LD_LIBARY_PATH.
 add_custom_target(
         copy_libs
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
-        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs} ${build_time_only_libs}
+        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
 )
 if (DEFINED ENV{VERSION_OVERRIDE})
     set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
@@ -90,10 +108,10 @@ execute_process(
 
 configure_file(VERSION.ini.in VERSION.ini @ONLY)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
+install(FILES ${CMAKE_BINARY_DIR}/products/distribution/VERSION.ini
         DESTINATION files/base/)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
+install(FILES ${CMAKE_BINARY_DIR}/products/distribution/VERSION.ini
         DESTINATION .)
 
 install(FILES datafeed-config-scheduled_query.json

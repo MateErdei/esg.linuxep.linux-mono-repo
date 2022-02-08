@@ -41,8 +41,7 @@ FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
 FindLibraryFullPath( zlibfull  z   ${ZLIB_INPUT}/lib64)
 configure_file(PluginAPICommitHash.in PluginAPICommitHash @ONLY)
 
-add_custom_target(
-        plugintar ALL
+add_custom_target(plugintar ALL
         COMMAND mkdir -p pluginapi/include pluginapi/lib64
         COMMAND mkdir -p pluginapi/include/Common/ApplicationConfiguration
         COMMAND mkdir -p pluginapi/include/Common/DirectoryWatcher
@@ -65,16 +64,16 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/tests/include/Common/Helpers
         COMMAND mkdir -p pluginapi/include/thirdparty/nlohmann-json
         COMMAND mkdir -p pluginapi/tests/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/thirdparty/nlohmann-json pluginapi/include/thirdparty/nlohmann-json
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy ${expatfull}    pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy ${zlibfull}    pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sharedtesthelpers> pluginapi/tests/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy PluginAPICommitHash pluginapi
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/thirdparty/nlohmann-json pluginapi/include/thirdparty/nlohmann-json
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:pluginapi> pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${zmqfull} pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${log4cplusfull} pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${protobuffull} pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${expatfull}    pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${zlibfull}    pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sharedtesthelpers> pluginapi/tests/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different PluginAPICommitHash pluginapi
         DEPENDS testhelpers
 )
 
@@ -88,7 +87,7 @@ function(add_copy_directory base)
             POST_BUILD
             #            COMMAND echo ${base}
             #            COMMAND echo ${tempfiles}
-            COMMAND ${CMAKE_COMMAND} -E copy ${tempfiles} pluginapi/include/${base}/
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${tempfiles} pluginapi/include/${base}/
     )
 endfunction()
 
@@ -102,7 +101,7 @@ function(add_copy_test_directory base)
             POST_BUILD
             #            COMMAND echo ${base}
             #            COMMAND echo ${tempfiles}
-            COMMAND ${CMAKE_COMMAND} -E copy ${tempfiles} pluginapi/tests/include/${base}/
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${tempfiles} pluginapi/tests/include/${base}/
     )
 endfunction()
 
@@ -138,9 +137,11 @@ add_custom_command(
         TARGET plugintar
         POST_BUILD
         COMMAND mkdir -p pluginapi/distribution
-        COMMAND ${CMAKE_COMMAND} -E copy ${distributionfiles} pluginapi/distribution/
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${distributionfiles} pluginapi/distribution/
 )
 
+
+# TODO make this better - only run if files have changed
 add_custom_command(
         TARGET plugintar
         POST_BUILD

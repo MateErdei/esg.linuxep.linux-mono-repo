@@ -72,7 +72,7 @@ include (CTest)
 enable_testing()
 
 if(NOT GCC_INPUT)
-    set (GCC_INPUT "/build/input/gcc")
+    set (GCC_INPUT "/build/build_tools/gcc")
 endif(NOT GCC_INPUT)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -264,7 +264,20 @@ if(NOT DEFINED PYCRYPTODOME_INPUT)
     set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
 endif()
 
+# Telemetry config is different for dev vs prod builds
+set(TELEMETRY_CONFIG_SOURCE "${CMAKE_SOURCE_DIR}/build/dev-telemetry-config.json")
+if (DEFINED ENV{SOURCE_CODE_BRANCH})
+    if ($ENV{SOURCE_CODE_BRANCH} MATCHES "^release/")
+        set(TELEMETRY_CONFIG_SOURCE "${CMAKE_SOURCE_DIR}/build/prod-telemetry-config.json")
+    endif()
+endif()
+
 set ( TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
+
+# TODO make this better, e.g. a custom target that depends on ${TELEMETRY_CONFIG_SOURCE}
+configure_file(${TELEMETRY_CONFIG_SOURCE} ${TELEMETRY_CONFIG_FILE} COPYONLY)
+
+message("Telemetry config: ${TELEMETRY_CONFIG_SOURCE} -> ${TELEMETRY_CONFIG_FILE}")
 
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
 
