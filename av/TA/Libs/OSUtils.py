@@ -47,6 +47,8 @@ def create_symlink(src, dst):
 def get_amount_written_to_disk(path):
     disc = find_sdiskpart(path)
     split_disc = disc.__str__().split("/")
+    assert disc is not None, "Failed to identify disc"
+
     with open("/proc/diskstats", "r") as f:
         lines = f.readlines()
         for line in lines:
@@ -58,6 +60,8 @@ def get_amount_written_to_disk(path):
 def find_sdiskpart(path):
     while not os.path.ismount(path):
         path = os.path.dirname(path)
+
+    path = pathlib.Path(path).resolve()
 
     for entry in psutil.disk_partitions():
         if entry.mountpoint == path.__str__():
