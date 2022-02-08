@@ -4,17 +4,30 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "IPluginCallbackApi.h"
+#include "FileSystemImpl/FileSystemImpl.h"
+#include "PluginApiImpl/PluginCallBackHandler.h"
+#include "TelemetryHelperImpl/TelemetryHelper.h"
+#include "ZeroMQWrapper/IReadWrite.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
-#include "TelemetryHelperImpl/TelemetryHelper.h"
-#include "IPluginCallbackApi.h"
-#include "ZMQWrapperApi/IContext.h"
-#include "ZeroMQWrapper/IReadWrite.h"
-#include "PluginApiImpl/PluginCallBackHandler.h"
-#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 
 namespace Common::PluginApiImpl
 {
+    class ScopeInsertFSMock{
+        Common::Telemetry::TelemetryHelper & m_helper;
+    public:
+        explicit ScopeInsertFSMock( IFileSystem * mock, Common::Telemetry::TelemetryHelper & helper):
+            m_helper(helper)
+        {
+            m_helper.replaceFS(std::unique_ptr<Common::FileSystem::IFileSystem>(mock));
+        }
+        ~ScopeInsertFSMock()
+        {
+            m_helper.replaceFS(std::unique_ptr<Common::FileSystem::IFileSystem>(new Common::FileSystem::FileSystemImpl()));
+        }
+    };
+
     class PluginCallBackHandlerTests : public LogInitializedTests
     {
     };
@@ -23,20 +36,17 @@ namespace Common::PluginApiImpl
     {
         testing::internal::CaptureStderr();
 
-        std::string pluginName = "Test";
-
         MockFileSystem* mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
         EXPECT_CALL(*mockFileSystem, isDirectory(_)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, writeFileAtomically(_, R"({"rootkey":{"array":[{"key1":1}]},"statskey":{}})", "/opt/sophos-spl/tmp"));
 
         Common::Telemetry::TelemetryHelper& helper = Common::Telemetry::TelemetryHelper::getInstance();
+        ScopeInsertFSMock s(mockFileSystem, helper);
         helper.reset();
-        helper.replaceFS(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));
         helper.appendObject("array", "key1", 1L);
-        std::shared_ptr<Common::PluginApi::IPluginCallbackApi> dummy;
 
-        auto context = Common::ZMQWrapperApi::createContext();
+        std::string pluginName = "Test";
+        std::shared_ptr<Common::PluginApi::IPluginCallbackApi> dummy;
         std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> replier;
 
         // Creating PluginCallBackHandler in scope so that we force the destructor to be called
