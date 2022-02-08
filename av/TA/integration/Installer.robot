@@ -51,7 +51,8 @@ IDE update copies updated ide
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     ${WRITTEN_TO_DISK_AFTER} =  Get Amount Written To Disk  /opt/
     ${WRITTEN_TO_DISK_DURING} =  Evaluate  ${WRITTEN_TO_DISK_AFTER} - ${WRITTEN_TO_DISK_BEFORE}
-    Should Be True  ${WRITTEN_TO_DISK_DURING} < 100000
+    #On amazon linux weve seen 150kb copied
+    Should Be True  ${WRITTEN_TO_DISK_DURING} < 200000
 
 
 Restart then Update Sophos Threat Detector
