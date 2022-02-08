@@ -489,8 +489,8 @@ class MCS:
         if self.__m_comms:
             # If we already have a JWT token
             if self.__m_comms.m_jwt_token and self.__m_comms.m_device_id and self.__m_comms.m_tenant_id:
-                # The current JWT token has not expired
-                if time.time() < self.__m_comms.m_jwt_expiration_timestamp:
+                # The current JWT token has more than 10 minutes before expiration
+                if time.time() < self.__m_comms.m_jwt_expiration_timestamp - 600:
                     return False
         return True
 
