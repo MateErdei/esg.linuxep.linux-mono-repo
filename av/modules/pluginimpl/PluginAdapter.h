@@ -42,7 +42,7 @@ namespace Plugin
             std::shared_ptr<PluginCallback> callback,
             const std::string& threatEventPublisherSocketPath,
             int waitForPolicyTimeout = 5);
-        bool m_isSavPolicyProcessed = false;
+        bool m_isSavPolicyAlreadyProcessed = false;
         void mainLoop();
         void processScanComplete(std::string& scanCompletedXml, int exitCode) override;
         void processThreatReport(const std::string& threatDetectedXML);

@@ -265,7 +265,7 @@ AV Gets SAV Policy When Plugin Restarts
     Scan GR Test File
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
 
-Av Plugin Processes First Policy Correctly After Start Up
+Av Plugin Processes First SAV Policy Correctly After Initial Wait For Policy Fails
     Mark Sophos Threat Detector Log
     Stop AV Plugin
     File Should Not Exist   ${SUSI_STARTUP_SETTINGS_FILE}

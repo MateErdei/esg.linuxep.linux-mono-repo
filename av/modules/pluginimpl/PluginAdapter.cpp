@@ -117,7 +117,7 @@ namespace Plugin
         if (!policySAVXml.empty())
         {
             m_restartSophosThreatDetector = processPolicy(policySAVXml);
-            m_isSavPolicyProcessed = true;
+            m_isSavPolicyAlreadyProcessed = true;
         }
 
         auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "1", "ALC");
@@ -215,7 +215,7 @@ namespace Plugin
 
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
-        auto savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap, m_isSavPolicyProcessed);
+        auto savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap, m_isSavPolicyAlreadyProcessed);
 
         m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
 
