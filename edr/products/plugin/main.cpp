@@ -112,6 +112,11 @@ int main()
         LOGERROR("Plugin threw an exception at top level: " << ex.what());
         ret = 40;
     }
+    catch (...)
+    {
+        LOGERROR("Plugin threw an unhandled exception at top level");
+        ret = 41;
+    }
     LOGINFO("Plugin Finished.");
     sharedPluginCallBack->setRunning(false);
     return ret;
