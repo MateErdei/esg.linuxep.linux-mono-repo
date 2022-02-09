@@ -335,6 +335,8 @@ function build()
         untar_input python-urllib3
         untar_input pycryptodome
         untar_input $GOOGLETESTTAR
+        cp -r ${INPUT}/sdds3 "$REDIST"/sdds3 && chmod +x "$REDIST"/sdds3/*
+
 
         mkdir -p ${REDIST}/certificates
         if [[ -f ${INPUT}/ps_rootca.crt ]]
@@ -487,6 +489,7 @@ function build()
 
     rm -rf output/SDDS-COMPONENT
     cp -a build${BITS}/distribution/ output/SDDS-COMPONENT || exitFailure 21 "Failed to copy SDDS package: $?"
+    cp -a build${BITS}/SDDS3-PACKAGE output/SDDS3-PACKAGE || exitFailure 21 "Failed to copy SDDS3-PACKAGE: $?"
     cp -a build${BITS}/products/PluginApi/pluginapi.tar.gz output/pluginapi.tar.gz || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
     pushd build${BITS}
     tar -zcvf ../output/SystemProductTestOutput.tar.gz SystemProductTestOutput/ || exitFailure 23 "Failed to tar SystemProductTestOutput package: $?"
