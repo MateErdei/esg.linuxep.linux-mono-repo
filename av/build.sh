@@ -24,7 +24,6 @@ BASE=$(pwd)
 export BASE
 OUTPUT=$BASE/output
 export OUTPUT
-mkdir -p ${OUTPUT} || exit 1
 
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
@@ -449,6 +448,9 @@ function build()
     export CC
     export CXX
 
+    rm -rf output
+    mkdir -p output
+
     [[ $CLEAN == 1 ]] && rm -rf build${BITS}
     mkdir -p build${BITS}
     cd build${BITS}
@@ -472,7 +474,8 @@ function build()
     if (( BULLSEYE == 1 ))
     then
       # copy empty covfile into output
-      cp -a ${COVFILE} ${OUTPUT}/
+      cp -a ${COVFILE} ${OUTPUT}/  \
+          || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
     fi
 
     if (( ${VALGRIND} == 1 ))
@@ -502,8 +505,6 @@ function build()
     make sdds CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create sdds component $PRODUCT"
     cd ..
 
-    rm -rf output
-    mkdir -p output
     echo "STARTINGDIR=$STARTINGDIR" >output/STARTINGDIR
     echo "BASE=$BASE" >output/BASE
     echo "PATH=$PATH" >output/PATH
