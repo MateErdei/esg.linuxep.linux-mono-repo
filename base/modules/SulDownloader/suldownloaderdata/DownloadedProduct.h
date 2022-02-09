@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ConfigurationData.h"
 #include "ProductMetadata.h"
-#include "WarehouseError.h"
+#include "RepositoryError.h"
 
 namespace SulDownloader
 {
@@ -69,9 +69,9 @@ namespace SulDownloader
              *
              * @param error Description of the Failure related to the product.
              */
-            void setError(const WarehouseError& error);
+            void setError(const RepositoryError& error);
 
-            WarehouseError getError() const;
+            RepositoryError getError() const;
 
             /**
              * The Distribute path is the local directory where the product files and the installer is found.
@@ -164,7 +164,7 @@ namespace SulDownloader
                 Installed,
                 HasError
             } m_state;
-            WarehouseError m_error;
+            RepositoryError m_error;
             ProductMetadata m_productMetadata;
             std::string m_distributePath;
             bool m_productHasChanged;

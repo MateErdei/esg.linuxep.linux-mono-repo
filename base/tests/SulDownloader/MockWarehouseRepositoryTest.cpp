@@ -8,22 +8,22 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include "TestWarehouseHelper.h"
 
-#include "SulDownloader/WarehouseRepositoryFactory.h"
+#include "SulDownloader/warehouse/WarehouseRepositoryFactory.h"
 
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
-#include <SulDownloader/suldownloaderdata/WarehouseError.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
+#include <SulDownloader/suldownloaderdata/RepositoryError.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 
 class MockWarehouseRepositoryTest: public LogOffInitializedTests{};
 
 TEST_F(MockWarehouseRepositoryTest, DemonstrateMockWarehouse) // NOLINT
 {
     MockWarehouseRepository mock;
-    suldownloaderdata::WarehouseError error;
+    suldownloaderdata::RepositoryError error;
     error.Description = "Nothing";
     error.status = SulDownloader::suldownloaderdata::SUCCESS;
     suldownloaderdata::ConfigurationData configurationData({ "https://sophos.com/warehouse" });

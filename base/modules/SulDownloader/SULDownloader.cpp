@@ -4,10 +4,12 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "SulDownloader.h"
+
 #include "ProductUninstaller.h"
-#include "SULRaii.h"
-#include "WarehouseRepository.h"
-#include "WarehouseRepositoryFactory.h"
+#include "warehouse/SULRaii.h"
+#include "warehouse/WarehouseRepository.h"
+#include "warehouse/WarehouseRepositoryFactory.h"
 
 #include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
 #include "suldownloaderdata/Logger.h"
@@ -64,11 +66,10 @@ namespace SulDownloader
         // We also need to force re-install if the list of products and warehouse components are empty
         // this means we are in a state which could result in reporting success, when an install failed previously
         // due to loosing this information on connection failure.
-        if (previousDownloadReport.getStatus() == WarehouseStatus::UNSPECIFIED ||
-            previousDownloadReport.getStatus() == WarehouseStatus::DOWNLOADFAILED ||
-            (previousDownloadReport.getStatus() == WarehouseStatus::CONNECTIONERROR &&
-             previousDownloadReport.getProducts().empty() &&
-             previousDownloadReport.getWarehouseComponents().empty()))
+        if (previousDownloadReport.getStatus() == RepositoryStatus::UNSPECIFIED ||
+            previousDownloadReport.getStatus() == RepositoryStatus::DOWNLOADFAILED ||
+            (previousDownloadReport.getStatus() == RepositoryStatus::CONNECTIONERROR &&
+             previousDownloadReport.getProducts().empty() && previousDownloadReport.getRepositoryComponents().empty()))
         {
             LOGDEBUG("Force reinstall because previous report failed.");
             return true;
@@ -133,96 +134,20 @@ namespace SulDownloader
         return warehouseRepository->hasImmediateFailError();
     }
 
-    DownloadReport runSULDownloader(
-        const ConfigurationData& configurationData,
-        const ConfigurationData& previousConfigurationData,
-        const DownloadReport& previousDownloadReport,
-        bool supplementOnly)
+    suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(const bool success,
+                                                                         IRepositoryPtr repository,
+                                                                         TimeTracker& timeTracker,
+                                                                         const ConfigurationData& configurationData,
+                                                                         const DownloadReport& previousDownloadReport,
+                                                                         const bool forceReinstallAllProducts,
+                                                                         const bool supplementOnly)
     {
-        // Mark which products need to be forced to re/install.
-        bool forceReinstallAllProducts =
-            SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
-                configurationData, previousConfigurationData, false);
-
-        SULInit init;
-        assert(configurationData.isVerified());
-        TimeTracker timeTracker;
-        timeTracker.setStartTime(TimeUtils::getCurrTime());
-        auto warehouseRepository = WarehouseRepositoryFactory::instance().createWarehouseRepository();
-        assert(warehouseRepository);
-
-        if (supplementOnly)
-        {
-            LOGINFO("Doing supplement-only update");
-        }
-        else
-        {
-            LOGINFO("Doing product and supplement update");
-        }
-
-        // connect and read metadata
-        if (forceReinstallAllProducts)
-        {
-            // If we need to reinstall products, then we can't do a supplement-only update
-            LOGINFO("Forcing product update due previous update failure or change in configuration");
-            supplementOnly = false;
-        }
-
-        bool success = false;
-
-        ConnectionSelector connectionSelector;
-        auto candidates = connectionSelector.getConnectionCandidates(configurationData);
-        for (const auto& connectionSetup : candidates)
-        {
-            success =
-                internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
-            if (success)
-            {
-                LOGDEBUG("Successfully ran SUL Downloader");
-                break;
-            }
-            else if (isImmediateFailure(warehouseRepository))
-            {
-                // Immediate failures: currently UPDATESOURCEMISSING
-                // Currently no immediate failures are possible for supplement-only updating - but need to abort if
-                // supplementOnly=False
-                assert(!supplementOnly); // currently never-supplement only - change message if this changes
-                LOGERROR("Immediate failure of updating");
-                break; // would still try updating products, if it were supplementOnly
-            }
-        }
-        if (supplementOnly && !success)
-        {
-            LOGINFO("Retry with product update, in case the supplement config has changed");
-            // retry with product update, in case the supplement config has changed
-            // also if we get an immediate failure from the supplement-only update, we retry product-update
-            // (This can't happen currently, since the only immediate failure can't happen with local meta-data)
-            supplementOnly = false;
-            for (const auto& connectionSetup : candidates)
-            {
-                success =
-                    internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
-                if (success)
-                {
-                    LOGDEBUG("Successfully ran SUL Downloader");
-                    break;
-                }
-                else if (isImmediateFailure(warehouseRepository))
-                {
-                    // Immediate failures: currently UPDATESOURCEMISSING
-                    LOGERROR("Immediate failure of updating");
-                    break;
-                }
-            }
-        }
         if (!success)
         {
-            // Failed to download from SDDS
-            warehouseRepository->dumpLogs();
-            DownloadReport report = DownloadReport::Report(*warehouseRepository, timeTracker);
-            if(report.getProducts().empty() && report.getWarehouseComponents().empty())
+            DownloadReport report = DownloadReport::Report(*repository, timeTracker);
+            if(report.getProducts().empty() && report.getRepositoryComponents().empty())
             {
-                // Populate report products arehouse components from previous report, so that any issues from previously update are
+                // Populate report products warehouse components from previous report, so that any issues from previously update are
                 // carried over into the next update.
                 report.combinePreviousReportIfRequired(previousDownloadReport);
             }
@@ -231,8 +156,8 @@ namespace SulDownloader
 
         assert(success);
 
-        auto products = warehouseRepository->getProducts();
-        std::string sourceURL = warehouseRepository->getSourceURL();
+        auto products = repository->getProducts();
+        std::string sourceURL = repository->getSourceURL();
 
         for (auto& product : products)
         {
@@ -309,8 +234,8 @@ namespace SulDownloader
             {
                 LOGSUPPORT(
                     "Mark product to be reinstalled. Reason: AllProducts: "
-                    << forceReinstallAllProducts << ", This Product: " << forceReinstallThisProduct
-                    << ". Product = " << product.getLine());
+                        << forceReinstallAllProducts << ", This Product: " << forceReinstallThisProduct
+                        << ". Product = " << product.getLine());
                 product.setForceProductReinstall(true);
                 productChanging = true;
             }
@@ -332,7 +257,7 @@ namespace SulDownloader
                 sourceURL,
                 products,
                 {},
-                warehouseRepository->listInstalledSubscriptions(),
+                repository->listInstalledSubscriptions(),
                 &timeTracker,
                 DownloadReport::VerifyState::VerifyFailed,
                 false);
@@ -362,7 +287,7 @@ namespace SulDownloader
         // between component registration and product un-installation when upgrading Base.
         SulDownloader::ProductUninstaller uninstallManager;
         std::vector<DownloadedProduct> uninstalledProducts =
-            uninstallManager.removeProductsNotDownloaded(products, *warehouseRepository);
+            uninstallManager.removeProductsNotDownloaded(products, *repository);
         for (auto& uninstalledProduct : uninstalledProducts)
         {
             products.push_back(uninstalledProduct);
@@ -448,17 +373,132 @@ namespace SulDownloader
         // the report also contains the successful ones.
 
         LOGDEBUG("Triggering purge");
-        warehouseRepository->purge();
+        repository->purge();
         return DownloadReport::Report(
             sourceURL,
             products,
-            warehouseRepository->listInstalledProducts(),
-            warehouseRepository->listInstalledSubscriptions(),
+            repository->listInstalledProducts(),
+            repository->listInstalledSubscriptions(),
             &timeTracker,
             DownloadReport::VerifyState::VerifyCorrect,
             supplementOnly,
             setForceInstallForAllProducts);
     }
+
+    std::pair<bool, IRepositoryPtr> updateFromSDDS2Warehouse( const ConfigurationData& configurationData,
+                                                              bool supplementOnly)
+    {
+
+        SULInit init;
+
+        auto warehouseRepository = WarehouseRepositoryFactory::instance().createWarehouseRepository();
+        assert(warehouseRepository);
+
+        bool success = false;
+
+        ConnectionSelector connectionSelector;
+        auto candidates = connectionSelector.getConnectionCandidates(configurationData);
+
+        for (const auto& connectionSetup : candidates)
+        {
+            success =
+                internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
+            if (success)
+            {
+                LOGDEBUG("Successfully ran SUL Downloader");
+                break;
+            }
+            else if (isImmediateFailure(warehouseRepository))
+            {
+                // Immediate failures: currently UPDATESOURCEMISSING
+                // Currently no immediate failures are possible for supplement-only updating - but need to abort if
+                // supplementOnly=False
+                assert(!supplementOnly); // currently never-supplement only - change message if this changes
+                LOGERROR("Immediate failure of updating");
+                break; // would still try updating products, if it were supplementOnly
+            }
+        }
+
+        if (supplementOnly && !success)
+        {
+            LOGINFO("Retry with product update, in case the supplement config has changed");
+            // retry with product update, in case the supplement config has changed
+            // also if we get an immediate failure from the supplement-only update, we retry product-update
+            // (This can't happen currently, since the only immediate failure can't happen with local meta-data)
+            supplementOnly = false;
+            for (const auto& connectionSetup : candidates)
+            {
+                success =
+                    internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
+                if (success)
+                {
+                    LOGDEBUG("Successfully ran SUL Downloader");
+                    break;
+                }
+                else if (isImmediateFailure(warehouseRepository))
+                {
+                    // Immediate failures: currently UPDATESOURCEMISSING
+                    LOGERROR("Immediate failure of updating");
+                    break;
+                }
+            }
+        }
+
+        if(!success)
+        {
+            // Failed to download from SDDS
+            warehouseRepository->dumpLogs();
+        }
+
+        return std::make_pair(success, std::move(warehouseRepository));
+
+
+    }
+
+    DownloadReport runSULDownloader(
+        const ConfigurationData& configurationData,
+        const ConfigurationData& previousConfigurationData,
+        const DownloadReport& previousDownloadReport,
+        bool supplementOnly)
+    {
+        // Mark which products need to be forced to re/install.
+        bool forceReinstallAllProducts =
+            SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
+                configurationData, previousConfigurationData, false);
+        assert(configurationData.isVerified());
+
+        if (supplementOnly)
+        {
+            LOGINFO("Doing supplement-only update");
+        }
+        else
+        {
+            LOGINFO("Doing product and supplement update");
+        }
+
+        // connect and read metadata
+        if (forceReinstallAllProducts)
+        {
+            // If we need to reinstall products, then we can't do a supplement-only update
+            LOGINFO("Forcing product update due previous update failure or change in configuration");
+            supplementOnly = false;
+        }
+
+        TimeTracker timeTracker;
+        timeTracker.setStartTime(TimeUtils::getCurrTime());
+
+        auto repositoryResult = updateFromSDDS2Warehouse(configurationData, supplementOnly);
+
+        return processRepositoryAndGenerateReport(repositoryResult.first,
+                                                  std::move(repositoryResult.second),
+                                                  timeTracker,
+                                                  configurationData,
+                                                  previousDownloadReport,
+                                                  forceReinstallAllProducts,
+                                                  supplementOnly);
+
+    }
+
 
     std::tuple<int, std::string, bool> configAndRunDownloader(
         const std::string& inputFilePath,

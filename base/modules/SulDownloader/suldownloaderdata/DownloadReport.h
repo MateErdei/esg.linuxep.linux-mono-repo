@@ -6,7 +6,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IWarehouseRepository.h"
-#include "WarehouseError.h"
+#include "RepositoryError.h"
 
 #include <ctime>
 #include <string>
@@ -69,14 +69,14 @@ namespace SulDownloader
             static std::vector<ProductReport> combineProductsAndSubscriptions(
                 const std::vector<suldownloaderdata::DownloadedProduct>&,
                 const std::vector<suldownloaderdata::SubscriptionInfo>&,
-                const WarehouseStatus& warehouseStatus);
+                const RepositoryStatus& repositoryStatus);
 
-            static DownloadReport Report(const IWarehouseRepository&, const TimeTracker& timeTracker);
+            static DownloadReport Report(const IRepository&, const TimeTracker& timeTracker);
 
             static DownloadReport Report(
                 const std::string& sourceURL,
                 const std::vector<suldownloaderdata::DownloadedProduct>& products,
-                const std::vector<suldownloaderdata::ProductInfo>& componentsToALCStatus,
+                const std::vector<suldownloaderdata::ProductInfo>& components,
                 const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsToALCStatus,
                 TimeTracker* timeTracker,
                 VerifyState verify,
@@ -93,7 +93,7 @@ namespace SulDownloader
 
             static DownloadReport toReport(const std::string& serializedVersion);
 
-            WarehouseStatus getStatus() const;
+            RepositoryStatus getStatus() const;
 
             const std::string& getDescription() const;
 
@@ -107,7 +107,7 @@ namespace SulDownloader
 
             const std::vector<ProductReport>& getProducts() const;
 
-            const std::vector<ProductInfo>& getWarehouseComponents() const;
+            const std::vector<ProductInfo>& getRepositoryComponents() const;
 
             const std::string getSourceURL() const;
 
@@ -132,14 +132,13 @@ namespace SulDownloader
             }
             static std::string getInstalledVersion(const std::string& rigidName);
         private:
-            void setError(const WarehouseError& error);
+            void setError(const RepositoryError& error);
             void setTimings(const TimeTracker&);
             void setProducts(const std::vector<ProductReport>& products);
-            void setWarehouseComponents(const std::vector<ProductInfo>& warehouseComponents);
-            static const std::vector<ProductInfo> updateWarehouseComponentInstalledVersion(const std::vector<ProductInfo>& warehouseComponents);
+            void setRepositoryComponents(const std::vector<ProductInfo>& repositoryComponents);
+            static const std::vector<ProductInfo> updateRepositoryComponentInstalledVersion(const std::vector<ProductInfo>& repositoryComponents);
 
-
-            WarehouseStatus m_status= WarehouseStatus::UNSPECIFIED;
+            RepositoryStatus m_status= RepositoryStatus::UNSPECIFIED;
             std::string m_description;
             std::string m_sulError;
             std::string m_startTime;
@@ -148,7 +147,7 @@ namespace SulDownloader
             std::string m_urlSource;
 
             std::vector<ProductReport> m_productReport;
-            std::vector<ProductInfo> m_warehouseComponents;
+            std::vector<ProductInfo> m_repositoryComponents;
 
             bool m_processedReport = false;
             bool m_supplementOnly = false;

@@ -12,7 +12,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
-#include <SulDownloader/suldownloaderdata/WarehouseError.h>
+#include <SulDownloader/suldownloaderdata/RepositoryError.h>
 
 using namespace ::testing;
 using namespace SulDownloader;
@@ -22,7 +22,7 @@ class MockWarehouseRepository : public suldownloaderdata::IWarehouseRepository
 public:
     MOCK_CONST_METHOD0(hasError, bool(void));
     MOCK_CONST_METHOD0(hasImmediateFailError, bool(void));
-    MOCK_CONST_METHOD0(getError, suldownloaderdata::WarehouseError(void));
+    MOCK_CONST_METHOD0(getError, suldownloaderdata::RepositoryError(void));
     MOCK_METHOD1(synchronize, void(suldownloaderdata::ProductSelection&));
     MOCK_METHOD0(distribute, void(void));
     MOCK_CONST_METHOD0(purge, void(void));

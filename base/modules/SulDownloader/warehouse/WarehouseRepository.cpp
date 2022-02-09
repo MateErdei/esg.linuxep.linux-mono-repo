@@ -10,7 +10,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "SULUtils.h"
 
 #include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
-#include "suldownloaderdata/Logger.h"
+#include "SulDownloader/suldownloaderdata/Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
@@ -215,7 +215,7 @@ namespace SulDownloader
             SULUtils::displayLogs(session(), m_sulLogs);
             LOGINFO("Failed to connect to: " << m_connectionSetup->toString());
             setError("Failed to connect to warehouse");
-            m_error.status = WarehouseStatus::CONNECTIONERROR;
+            m_error.status = RepositoryStatus::CONNECTIONERROR;
             m_session.reset();
             return false;
         }
@@ -266,7 +266,7 @@ namespace SulDownloader
         return m_error.status == PACKAGESOURCEMISSING;
     }
 
-    WarehouseError WarehouseRepository::getError() const { return m_error; }
+    RepositoryError WarehouseRepository::getError() const { return m_error; }
 
     void WarehouseRepository::synchronize(ProductSelection& selection)
     {
@@ -373,7 +373,7 @@ namespace SulDownloader
             }
 
             setError(error);
-            m_error.status = WarehouseStatus::DOWNLOADFAILED; //
+            m_error.status = RepositoryStatus::DOWNLOADFAILED; //
             return;
         }
 
@@ -391,7 +391,7 @@ namespace SulDownloader
                 listOfSourcesMissing += missing;
             }
             setError("Missing product from warehouse");
-            m_error.status = WarehouseStatus::PACKAGESOURCEMISSING;
+            m_error.status = RepositoryStatus::PACKAGESOURCEMISSING;
 
             m_error.Description = listOfSourcesMissing;
             return;
@@ -420,7 +420,7 @@ namespace SulDownloader
             LOGERROR(failedProductErrorMessage.str());
             SULUtils::displayLogs(session(), m_sulLogs);
             setError(failedProductErrorMessage.str());
-            m_error.status = WarehouseStatus::DOWNLOADFAILED;
+            m_error.status = RepositoryStatus::DOWNLOADFAILED;
         }
     }
     void WarehouseRepository::purge() const
@@ -444,7 +444,7 @@ namespace SulDownloader
             LOGERROR("Failed to distribute products");
             SULUtils::displayLogs(session(), m_sulLogs);
             setError("Failed to distribute products");
-            m_error.status = WarehouseStatus ::DOWNLOADFAILED;
+            m_error.status = RepositoryStatus ::DOWNLOADFAILED;
         }
 
         bool distSucceeded = true;
@@ -467,7 +467,7 @@ namespace SulDownloader
             LOGERROR(failedProductErrorMessage.str());
             SULUtils::displayLogs(session(), m_sulLogs);
             setError(failedProductErrorMessage.str());
-            m_error.status = WarehouseStatus::DOWNLOADFAILED;
+            m_error.status = RepositoryStatus::DOWNLOADFAILED;
         }
         LOGINFO("Products downloaded and synchronized with warehouse.");
 
@@ -520,14 +520,14 @@ namespace SulDownloader
         m_state = State::Failure;
     }
 
-    WarehouseError WarehouseRepository::fetchSulError(const std::string& description) const
+    RepositoryError WarehouseRepository::fetchSulError(const std::string& description) const
     {
-        WarehouseError error;
+        RepositoryError error;
         error.Description = description;
-        error.status = WarehouseStatus::UNSPECIFIED;
+        error.status = RepositoryStatus::UNSPECIFIED;
         if (m_session)
         {
-            std::tie(error.status, error.SulError) = getSulCodeAndDescription(session());
+            std::tie(error.status, error.LibError) = getSulCodeAndDescription(session());
         }
         return error;
     }

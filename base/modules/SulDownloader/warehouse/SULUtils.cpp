@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SULUtils.h"
 
-#include "suldownloaderdata/Logger.h"
+#include "SulDownloader/suldownloaderdata/Logger.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include <iostream>
 #include <vector>
@@ -40,25 +40,25 @@ namespace
         SU_Handle m_session;
     };
 
-    SulDownloader::suldownloaderdata::WarehouseStatus fromSulCode(SU_Result sulCode)
+    SulDownloader::suldownloaderdata::RepositoryStatus fromSulCode(SU_Result sulCode)
     {
         switch (sulCode)
         {
             case SU_Result_OK:
             case SU_Result_continue:
-                return SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
+                return SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS;
             case SU_Result_proxyAuthenticationFailure:
             case SU_Result_credentialsInvalid:
-                return SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR;
+                return SulDownloader::suldownloaderdata::RepositoryStatus::CONNECTIONERROR;
             case SU_Result_cancelled:
             case SU_Result_corruptData:
             case SU_Result_sourceOutOfDate:
-                return SulDownloader::suldownloaderdata::WarehouseStatus::DOWNLOADFAILED;
+                return SulDownloader::suldownloaderdata::RepositoryStatus::DOWNLOADFAILED;
             case SU_Result_productNotFound:
             case SU_Result_productMissing:
             case SU_Result_noPackages:
             case SU_Result_fixedVersionMissing:
-                return SulDownloader::suldownloaderdata::WarehouseStatus::PACKAGESOURCEMISSING;
+                return SulDownloader::suldownloaderdata::RepositoryStatus::PACKAGESOURCEMISSING;
             case SU_Result_invalid:
             case SU_Result_notSupported:
             case SU_Result_unspecifiedFailure:
@@ -67,7 +67,7 @@ namespace
             case SU_Result_failed:
             case SU_Result_nullSuccess:
             default:
-                return SulDownloader::suldownloaderdata::WarehouseStatus::UNSPECIFIED;
+                return SulDownloader::suldownloaderdata::RepositoryStatus::UNSPECIFIED;
         }
     }
 
@@ -134,10 +134,10 @@ namespace SulDownloader
         return logs;
     }
 
-    std::pair<suldownloaderdata::WarehouseStatus, std::string> getSulCodeAndDescription(SU_Handle session)
+    std::pair<suldownloaderdata::RepositoryStatus, std::string> getSulCodeAndDescription(SU_Handle session)
     {
-        std::pair<suldownloaderdata::WarehouseStatus, std::string> sulStatus(
-            suldownloaderdata::WarehouseStatus::UNSPECIFIED, "");
+        std::pair<suldownloaderdata::RepositoryStatus, std::string> sulStatus(
+            suldownloaderdata::RepositoryStatus::UNSPECIFIED, "");
         if (session == nullptr)
         {
             return sulStatus;

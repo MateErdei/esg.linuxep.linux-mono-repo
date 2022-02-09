@@ -8,7 +8,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "TestWarehouseHelper.h"
 
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <SulDownloader/WarehouseRepositoryFactory.h>
+#include <SulDownloader/warehouse/WarehouseRepositoryFactory.h>
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
@@ -183,9 +183,9 @@ public:
 
     std::pair< std::vector<suldownloaderdata::DownloadedProduct>, std::vector<suldownloaderdata::SubscriptionInfo> > componentSuiteSubscriptionReferencingTwoProducts()
     {
-        suldownloaderdata::WarehouseError wErr;
+        suldownloaderdata::RepositoryError wErr;
         wErr.Description = "Error P1";
-        wErr.status = suldownloaderdata::WarehouseStatus::UNINSTALLFAILED;
+        wErr.status = suldownloaderdata::RepositoryStatus::UNINSTALLFAILED;
         std::vector<suldownloaderdata::DownloadedProduct> downloadedProducts;
         auto metadata = createTestProductMetaData();
         metadata.setLine("P1");
@@ -194,7 +194,7 @@ public:
         downloadedProducts[0].setProductIsBeingUninstalled(true);
 
         wErr.Description = "Error P2";
-        wErr.status = suldownloaderdata::WarehouseStatus::INSTALLFAILED;
+        wErr.status = suldownloaderdata::RepositoryStatus::INSTALLFAILED;
 
         metadata.setLine("P2");
         downloadedProducts.push_back(createTestDownloadedProduct(metadata));
@@ -225,7 +225,7 @@ TEST_F(DownloadReportTest, fromReportWithReportCreatedFromErrorDescriptionShould
 TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldReportSuccess) // NOLINT
 {
     MockWarehouseRepository mockWarehouseRepository;
-    WarehouseError error;
+    RepositoryError error;
     error.Description = "";
 
     auto metadata = createTestProductMetaData();
@@ -243,7 +243,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
 
     auto report = DownloadReport::Report(mockWarehouseRepository, timeTracker);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::SUCCESS);
     checkReportValue(report, metadata);
     ASSERT_EQ(report.getProducts().size(), 1);
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(), "");
@@ -255,9 +255,9 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
 {
     MockWarehouseRepository mockWarehouseRepository;
     std::string errorString = "Some Error";
-    WarehouseError error;
+    RepositoryError error;
     error.Description = errorString;
-    error.status = WarehouseStatus::DOWNLOADFAILED;
+    error.status = RepositoryStatus::DOWNLOADFAILED;
 
     auto metadata = createTestProductMetaData();
 
@@ -278,7 +278,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldRepo
 
     auto report = DownloadReport::Report(mockWarehouseRepository, timeTracker);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::DOWNLOADFAILED);
     checkReportValue(report, metadata);
     EXPECT_EQ(report.getProducts()[0].productStatus, ProductReport::ProductStatus::SyncFailed);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -291,9 +291,9 @@ TEST_F( // NOLINT
 {
     MockWarehouseRepository mockWarehouseRepository;
     std::string errorString = "Some Error";
-    WarehouseError error;
+    RepositoryError error;
     error.Description = errorString;
-    error.status = WarehouseStatus::PACKAGESOURCEMISSING;
+    error.status = RepositoryStatus::PACKAGESOURCEMISSING;
 
     auto metadata = createTestProductMetaData();
 
@@ -314,7 +314,7 @@ TEST_F( // NOLINT
 
     auto report = DownloadReport::Report(mockWarehouseRepository, timeTracker);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::PACKAGESOURCEMISSING);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::PACKAGESOURCEMISSING);
     checkReportValue(report, metadata);
     EXPECT_EQ(report.getProducts()[0].productStatus, ProductReport::ProductStatus::SyncFailed);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
@@ -327,13 +327,13 @@ TEST_F( // NOLINT
 {
     MockWarehouseRepository mockWarehouseRepository;
     std::string errorString = "Some Error";
-    WarehouseError error;
+    RepositoryError error;
     error.Description = errorString;
-    error.status = WarehouseStatus::UNSPECIFIED;
+    error.status = RepositoryStatus::UNSPECIFIED;
 
     auto report = DownloadReport::Report(errorString);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::UNSPECIFIED);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::UNSPECIFIED);
     EXPECT_EQ(report.getProducts().size(), 0);
     EXPECT_NO_THROW(DownloadReport::fromReport(report)); // NOLINT
 }
@@ -341,7 +341,7 @@ TEST_F( // NOLINT
 TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalledFailedWhenProductHasErrors) // NOLINT
 {
     std::string errorString = "Update failed";
-    WarehouseError error;
+    RepositoryError error;
     error.Description = errorString;
 
     auto metadata = createTestProductMetaData();
@@ -365,7 +365,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalled
         DownloadReport::VerifyState::VerifyCorrect,
         false);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
     checkReportValue(report, metadata);
 
@@ -377,7 +377,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldReportInstalled
 TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCreateAValidReportForSuccess) // NOLINT
 {
     MockWarehouseRepository mockWarehouseRepository;
-    WarehouseError error;
+    RepositoryError error;
     error.Description = "";
 
     auto metadata = createTestProductMetaData();
@@ -397,7 +397,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCrea
 
     auto report = DownloadReport::Report(mockWarehouseRepository, timeTracker);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::SUCCESS);
     checkReportValue(report, metadata);
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(), "");
 
@@ -414,9 +414,9 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCrea
 
     std::string errorString = "Failed";
 
-    WarehouseError error;
+    RepositoryError error;
     error.Description = errorString;
-    error.status = WarehouseStatus::DOWNLOADFAILED;
+    error.status = RepositoryStatus::DOWNLOADFAILED;
 
     auto metadata = createTestProductMetaData();
     SulDownloader::suldownloaderdata::DownloadedProduct downloadedProduct = createTestDownloadedProduct(metadata);
@@ -436,7 +436,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCrea
 
     auto report = DownloadReport::Report(mockWarehouseRepository, timeTracker);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::DOWNLOADFAILED);
     checkReportValue(report, metadata);
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(), errorString.c_str());
     EXPECT_EQ(report.getProducts()[0].productStatus, ProductReport::ProductStatus::SyncFailed);
@@ -451,7 +451,7 @@ TEST_F(DownloadReportTest, fromReportWarehouseRepositoryAndTimeTrackerShouldCrea
 TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenFails) // NOLINT
 {
     std::string errorString = "Update failed";
-    WarehouseError error;
+    RepositoryError error;
     error.Description = errorString;
 
     auto metadata = createTestProductMetaData();
@@ -475,7 +475,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
         DownloadReport::VerifyState::VerifyCorrect,
         false);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
     checkReportValue(report, metadata);
 
@@ -493,7 +493,7 @@ TEST_F( // NOLINT
     fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenFailsWithMultipleProducts)
 {
     std::string errorString = "Update failed";
-    WarehouseError error;
+    RepositoryError error;
     error.Description = errorString;
 
     auto metadata = createTestProductMetaData();
@@ -525,7 +525,7 @@ TEST_F( // NOLINT
         &timeTracker,
         DownloadReport::VerifyState::VerifyCorrect);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), errorString.c_str());
     EXPECT_EQ(report.getProducts().size(), 2);
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(), errorString.c_str());
@@ -553,7 +553,7 @@ TEST_F(DownloadReportTest, fromReportProductsAndTimeTrackerShouldCreateAValidRep
         &timeTracker,
         DownloadReport::VerifyState::VerifyCorrect);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::DOWNLOADFAILED);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::DOWNLOADFAILED);
 
     EXPECT_EQ(report.getProducts().size(), 0);
 
@@ -569,7 +569,7 @@ TEST_F( // NOLINT
     fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallAndUninstallProductSucceeds)
 {
     std::string errorString; // = "";
-    WarehouseError error;
+    RepositoryError error;
     error.Description = errorString;
 
     auto metadata = createTestProductMetaData();
@@ -613,7 +613,7 @@ TEST_F( // NOLINT
         &timeTracker,
         DownloadReport::VerifyState::VerifyCorrect);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::SUCCESS);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::SUCCESS);
 
     EXPECT_STREQ(report.getDescription().c_str(), "");
 
@@ -621,7 +621,7 @@ TEST_F( // NOLINT
 
     EXPECT_STREQ(report.getProducts()[0].errorDescription.c_str(), errorString.c_str());
 
-    EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, warehouseComponents, report.getWarehouseComponents());
+    EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, warehouseComponents, report.getRepositoryComponents());
 
     auto jsonReport = DownloadReport::CodeAndSerialize(report);
 
@@ -635,7 +635,7 @@ TEST_F( // NOLINT
     fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductSucceedsAndUninstallProductFails)
 {
     std::string errorString; // = "";
-    WarehouseError error;
+    RepositoryError error;
     error.Description = errorString;
 
     auto metadata = createTestProductMetaData();
@@ -656,7 +656,7 @@ TEST_F( // NOLINT
     metadata3.setLine("ProductLine3");
 
     std::string uninstallErrorString = "Uninstall Error";
-    WarehouseError uninstallError;
+    RepositoryError uninstallError;
     uninstallError.Description = uninstallErrorString;
 
     DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
@@ -677,7 +677,7 @@ TEST_F( // NOLINT
         &timeTracker,
         DownloadReport::VerifyState::VerifyCorrect);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::UNINSTALLFAILED);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::UNINSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Uninstall failed");
 
     EXPECT_EQ(report.getProducts().size(), 3);
@@ -696,7 +696,7 @@ TEST_F( // NOLINT
     fromReportProductsAndTimeTrackerShouldCreateAValidReportWhenInstallProductsFailAndUninstallProductFailsWithCorrectWHStatus)
 {
     std::string errorString = "Install Failed";
-    WarehouseError error;
+    RepositoryError error;
     error.Description = errorString;
 
     auto metadata = createTestProductMetaData();
@@ -717,7 +717,7 @@ TEST_F( // NOLINT
     metadata3.setLine("ProductLine3");
 
     std::string uninstallErrorString = "Uninstall Error";
-    WarehouseError uninstallError;
+    RepositoryError uninstallError;
     uninstallError.Description = uninstallErrorString;
 
     DownloadedProduct uninstalledProduct = createTestUninstalledProduct(metadata3);
@@ -738,7 +738,7 @@ TEST_F( // NOLINT
         &timeTracker,
         DownloadReport::VerifyState::VerifyCorrect);
 
-    EXPECT_EQ(report.getStatus(), WarehouseStatus::INSTALLFAILED);
+    EXPECT_EQ(report.getStatus(), RepositoryStatus::INSTALLFAILED);
     EXPECT_STREQ(report.getDescription().c_str(), "Update failed");
 
     EXPECT_EQ(report.getProducts().size(), 3);
@@ -786,13 +786,13 @@ TEST_F(DownloadReportTest, shouldExtractTheWarehouseSubComponents)
     "syncTime": "20180821 121220"
 })sophos" };
     DownloadReport report = DownloadReport::toReport(serializedReportWithSubComponents);
-    std::vector<suldownloaderdata::ProductInfo> warehouseComponents = report.getWarehouseComponents();
+    std::vector<suldownloaderdata::ProductInfo> warehouseComponents = report.getRepositoryComponents();
     EXPECT_EQ(warehouseComponents.size(), 2);
     std::vector<suldownloaderdata::ProductInfo> expected = { { "rn1", "p1", "v1", "v1" }, { "rn2", "p2", "v2", "v2"} };
     EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, warehouseComponents);
     std::string reSerialize = DownloadReport::fromReport(report);
     DownloadReport reportAgain = DownloadReport::toReport(reSerialize);
-    EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, reportAgain.getWarehouseComponents());
+    EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, reportAgain.getRepositoryComponents());
 }
 
 TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldReconcileSubscriptionsAndReportTheSubscriptionInsteadOftheUnderliningProducts)
@@ -800,7 +800,7 @@ TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldReconcileSubscr
     auto [downloadedProducts, subscriptions] = componentSuiteSubscriptionReferencingTwoProducts();
 
     auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
-        downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS);
+        downloadedProducts, subscriptions, suldownloaderdata::RepositoryStatus::SUCCESS);
     
     // given that there is an uninstallation, the uninstalled products will also be reported. 
     ASSERT_EQ(reportProducts.size(), 2);
@@ -824,7 +824,7 @@ TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldIgnoreProductsN
     subscriptions[0].subProducts.clear(); 
 
     auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
-        downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS);
+        downloadedProducts, subscriptions, suldownloaderdata::RepositoryStatus::SUCCESS);
 
     ASSERT_EQ(reportProducts.size(), 1);
     EXPECT_EQ(reportProducts[0].rigidName, "P1");
@@ -848,7 +848,7 @@ TEST_F(DownloadReportTest, combineProductsAndSubscriptions_ShouldReportOnAllProd
     
     // the subscriptions have 2 entries matching the downloaded entries. Both will be reported in the combined report
     auto reportProducts = DownloadReport::combineProductsAndSubscriptions(
-        downloadedProducts, subscriptions, suldownloaderdata::WarehouseStatus::SUCCESS);
+        downloadedProducts, subscriptions, suldownloaderdata::RepositoryStatus::SUCCESS);
 
     ASSERT_EQ(reportProducts.size(), 2);
     EXPECT_EQ(reportProducts[0].rigidName, "P1");

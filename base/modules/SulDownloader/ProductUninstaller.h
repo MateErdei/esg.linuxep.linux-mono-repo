@@ -28,7 +28,7 @@ namespace SulDownloader
          */
         std::vector<suldownloaderdata::DownloadedProduct> removeProductsNotDownloaded(
             const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts,
-            suldownloaderdata::IWarehouseRepository& iWarehouseRepository);
+            suldownloaderdata::IRepository& iRepository);
 
         /***
          * @brief This function will run the provided uninstall script passing in the hardcoded flag --downgrade

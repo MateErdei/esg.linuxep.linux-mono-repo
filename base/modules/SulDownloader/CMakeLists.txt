@@ -3,20 +3,20 @@ cmake_minimum_required(VERSION 3.8)
 add_subdirectory(suldownloaderdata)
 
 add_library(suldownloaderimpl SHARED
-    SULRaii.h
-    SULUtils.cpp
-    SULUtils.h
-    WarehouseRepository.cpp
-    WarehouseRepository.h
-    WarehouseRepositoryFactory.cpp
-    WarehouseRepositoryFactory.h
-    suldownloaderdata/IWarehouseRepository.h
-    SULDownloader.cpp
-    SulDownloader.h
-    ProductUninstaller.cpp
-    ProductUninstaller.h
-    Logger.cpp
-    Logger.h
+        warehouse/SULRaii.h
+        warehouse/SULUtils.cpp
+        warehouse/SULUtils.h
+        warehouse/WarehouseRepository.cpp
+        warehouse/WarehouseRepository.h
+        warehouse/WarehouseRepositoryFactory.cpp
+        warehouse/WarehouseRepositoryFactory.h
+        suldownloaderdata/IWarehouseRepository.h
+        SULDownloader.cpp
+        SulDownloader.h
+        ProductUninstaller.cpp
+        ProductUninstaller.h
+        Logger.cpp
+        Logger.h
         )
 
 

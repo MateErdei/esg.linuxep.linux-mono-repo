@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <SulDownloader/suldownloaderdata/WarehouseError.h>
+#include <SulDownloader/suldownloaderdata/RepositoryError.h>
 
 extern "C"
 {
@@ -23,7 +23,7 @@ namespace SulDownloader
     std::string SulQueryProductMetadata(SU_PHandle product, const std::string& attribute, SU_Int index);
     bool SulSetLanguage(SU_Handle session, SU_ConstString language);
 
-    std::pair<suldownloaderdata::WarehouseStatus, std::string> getSulCodeAndDescription(SU_Handle session);
+    std::pair<suldownloaderdata::RepositoryStatus, std::string> getSulCodeAndDescription(SU_Handle session);
 
     class SULUtils
     {

@@ -315,7 +315,7 @@ TEST_F(TestDownloadReportAnalyser, ThirdAndSecondEventNotUpgradeDoNotSendEvent) 
 TEST_F(TestDownloadReportAnalyser, SingleFailureConnectionErrorAreReported) // NOLINT
 {
     auto report = DownloadReportTestBuilder::badReport(
-        DownloadReportTestBuilder::UseTime::Later, WarehouseStatus::CONNECTIONERROR, "failed2connect");
+        DownloadReportTestBuilder::UseTime::Later, RepositoryStatus::CONNECTIONERROR, "failed2connect");
 
     DownloadReportsAnalyser::DownloadReportVector reports{ report };
 

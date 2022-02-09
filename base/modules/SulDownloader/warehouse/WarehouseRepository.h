@@ -10,8 +10,8 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/ConnectionSelector.h>
 #include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
+#include <SulDownloader/suldownloaderdata/RepositoryError.h>
 #include <SulDownloader/suldownloaderdata/Tag.h>
-#include <SulDownloader/suldownloaderdata/WarehouseError.h>
 
 extern "C"
 {
@@ -97,7 +97,7 @@ namespace SulDownloader
          *
          * @return struct containing the error description, sul error and status
          */
-        suldownloaderdata::WarehouseError getError() const override;
+        suldownloaderdata::RepositoryError getError() const override;
 
         /**
          * Configure sul to download/synchronize the selection of products
@@ -166,7 +166,7 @@ namespace SulDownloader
             const std::string& distributePath);
         void verifyDistributeProduct(std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct>& productPair);
 
-        suldownloaderdata::WarehouseError fetchSulError(const std::string& description) const;
+        suldownloaderdata::RepositoryError fetchSulError(const std::string& description) const;
 
         std::string getRootDistributionPath() const;
         void setRootDistributionPath(const std::string& rootDistributionPath);
@@ -174,7 +174,7 @@ namespace SulDownloader
         void createSession();
 
         SU_Handle session() const;
-        suldownloaderdata::WarehouseError m_error;
+        suldownloaderdata::RepositoryError m_error;
         std::vector<std::pair<SU_PHandle, suldownloaderdata::DownloadedProduct>> m_products;
         std::unique_ptr<SULSession> m_session;
         std::unique_ptr<suldownloaderdata::ConnectionSetup> m_connectionSetup;

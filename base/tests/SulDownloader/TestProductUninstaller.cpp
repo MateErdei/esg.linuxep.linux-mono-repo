@@ -191,8 +191,8 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
     EXPECT_TRUE(actualProductList[0].getError().Description.find("ProcessThrow") != std::string::npos);
-    EXPECT_EQ(actualProductList[0].getError().status, suldownloaderdata::WarehouseStatus::UNINSTALLFAILED);
-    EXPECT_EQ(actualProductList[0].getError().SulError, "");
+    EXPECT_EQ(actualProductList[0].getError().status, suldownloaderdata::RepositoryStatus::UNINSTALLFAILED);
+    EXPECT_EQ(actualProductList[0].getError().LibError, "");
 }
 
 TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallProductReturnsNonZeroErrorCode) // NOLINT
@@ -219,8 +219,8 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
     EXPECT_TRUE(
         actualProductList[0].getError().Description.find("Process did not complete successfully") != std::string::npos);
-    EXPECT_EQ(actualProductList[0].getError().status, suldownloaderdata::WarehouseStatus::UNINSTALLFAILED);
-    EXPECT_EQ(actualProductList[0].getError().SulError, "");
+    EXPECT_EQ(actualProductList[0].getError().status, suldownloaderdata::RepositoryStatus::UNINSTALLFAILED);
+    EXPECT_EQ(actualProductList[0].getError().LibError, "");
 }
 
 TEST_F( // NOLINT

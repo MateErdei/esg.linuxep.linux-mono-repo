@@ -41,9 +41,9 @@ void DownloadedProduct::verify(const ConfigurationData& configurationData)
 
     if (iVersig->verify(configurationData, m_distributePath) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
     {
-        WarehouseError error;
+        RepositoryError error;
         error.Description = std::string("Product ") + getLine() + " failed signature verification";
-        error.status = WarehouseStatus::INSTALLFAILED;
+        error.status = RepositoryStatus::INSTALLFAILED;
         LOGERROR(error.Description);
         setError(error);
     }
@@ -106,9 +106,9 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
                 LOGERROR("Failed to run the installer. Hint: check first line starts with #!/bin/bash");
             }
 
-            WarehouseError error;
+            RepositoryError error;
             error.Description = std::string("Product ") + getLine() + " failed to install";
-            error.status = WarehouseStatus::INSTALLFAILED;
+            error.status = RepositoryStatus::INSTALLFAILED;
             setError(error);
         }
         else
@@ -119,9 +119,9 @@ void DownloadedProduct::install(const std::vector<std::string>& installArgs)
     else
     {
         LOGERROR("Invalid installer path: " << installShFile);
-        WarehouseError error;
+        RepositoryError error;
         error.Description = "Invalid installer";
-        error.status = WarehouseStatus::INSTALLFAILED;
+        error.status = RepositoryStatus::INSTALLFAILED;
         setError(error);
     }
 }
@@ -131,13 +131,13 @@ bool DownloadedProduct::hasError() const
     return !m_error.Description.empty();
 }
 
-void DownloadedProduct::setError(const WarehouseError& error)
+void DownloadedProduct::setError(const RepositoryError& error)
 {
     m_state = State::HasError;
     m_error = error;
 }
 
-WarehouseError DownloadedProduct::getError() const
+RepositoryError DownloadedProduct::getError() const
 {
     return m_error;
 }

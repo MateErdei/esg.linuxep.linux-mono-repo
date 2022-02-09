@@ -13,8 +13,8 @@ add_library(suldownloaderdata SHARED
         DownloadedProduct.h
         TimeTracker.cpp
         TimeTracker.h
-        WarehouseError.cpp
-        WarehouseError.h
+        RepositoryError.cpp
+        RepositoryError.h
         SulDownloaderException.h
         SulDownloaderException.cpp
         DownloadReport.cpp

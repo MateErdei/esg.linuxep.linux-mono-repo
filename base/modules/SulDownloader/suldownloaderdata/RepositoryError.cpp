@@ -1,12 +1,12 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "WarehouseError.h"
+#include "RepositoryError.h"
 
-std::string SulDownloader::suldownloaderdata::toString(WarehouseStatus status)
+std::string SulDownloader::suldownloaderdata::toString(RepositoryStatus status)
 {
     switch (status)
     {
@@ -30,7 +30,7 @@ std::string SulDownloader::suldownloaderdata::toString(WarehouseStatus status)
     }
 }
 
-void SulDownloader::suldownloaderdata::fromString(const std::string& serializedStatus, WarehouseStatus* status)
+void SulDownloader::suldownloaderdata::fromString(const std::string& serializedStatus, RepositoryStatus* status)
 {
     if (serializedStatus == "SUCCESS")
     {

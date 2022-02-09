@@ -42,7 +42,7 @@ using SulDownloaderProto::ConfigurationSettings;
 
 struct SimplifiedDownloadReport
 {
-    SulDownloader::suldownloaderdata::WarehouseStatus Status;
+    SulDownloader::suldownloaderdata::RepositoryStatus Status;
     std::string Description;
     std::vector<ProductReport> Products;
     bool shouldContainSyncTime;
@@ -410,7 +410,7 @@ public:
         }
 
         return listProductInfoIsEquivalent(
-            m_expr, n_expr, expected.WarehouseComponents, resulted.getWarehouseComponents());
+            m_expr, n_expr, expected.WarehouseComponents, resulted.getRepositoryComponents());
     }
 
     std::string productsToString(const ProductReportVector& productsReport)
@@ -507,7 +507,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS),true);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),true);
     std::string baseInstallPath = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     EXPECT_CALL(fileSystemMock, isDirectory(baseInstallPath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(baseInstallPath));
@@ -593,7 +593,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS),false);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),false);
 
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -655,7 +655,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS),false);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),false);
 
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -725,7 +725,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS),false);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),false);
 
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
@@ -795,7 +795,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::UNINSTALLFAILED),false);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED),false);
 
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
@@ -813,7 +813,7 @@ TEST_F( // NOLINT
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
     EXPECT_EQ(
-        SulDownloader::main_entry(3, args.argc()), SulDownloader::suldownloaderdata::WarehouseStatus::UNINSTALLFAILED);
+        SulDownloader::main_entry(3, args.argc()), SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED);
 }
 
 // the other execution paths were covered in main_entry_* tests.
@@ -853,11 +853,11 @@ TEST_F( // NOLINT
     EXPECT_THAT(
         reportContent,
         ::testing::Not(::testing::HasSubstr(
-            SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS))));
+            SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS))));
     EXPECT_THAT(
         reportContent,
         ::testing::HasSubstr(SulDownloader::suldownloaderdata::toString(
-            SulDownloader::suldownloaderdata::WarehouseStatus::UNSPECIFIED)));
+            SulDownloader::suldownloaderdata::RepositoryStatus::UNSPECIFIED)));
 }
 
 // runSULDownloader
@@ -867,9 +867,9 @@ TEST_F( // NOLINT
 {
     setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked();
-    SulDownloader::suldownloaderdata::WarehouseError wError;
+    SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
-    wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR;
+    wError.status = SulDownloader::suldownloaderdata::RepositoryStatus::CONNECTIONERROR;
     std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
     DownloadedProductVector emptyProducts;
 
@@ -909,9 +909,9 @@ TEST_F( // NOLINT
 {
     setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked();
-    SulDownloader::suldownloaderdata::WarehouseError wError;
+    SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
-    wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR;
+    wError.status = SulDownloader::suldownloaderdata::RepositoryStatus::CONNECTIONERROR;
     std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
     DownloadedProductVector emptyProducts;
     DownloadedProductVector products = defaultProducts();
@@ -968,9 +968,9 @@ TEST_F( // NOLINT
 {
     setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked(2);  // reset called another time
-    SulDownloader::suldownloaderdata::WarehouseError wError;
+    SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
-    wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::CONNECTIONERROR;
+    wError.status = SulDownloader::suldownloaderdata::RepositoryStatus::CONNECTIONERROR;
     std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
     DownloadedProductVector emptyProducts;
 
@@ -1010,9 +1010,9 @@ TEST_F( // NOLINT
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked();
-    SulDownloader::suldownloaderdata::WarehouseError wError;
+    SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
-    wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::PACKAGESOURCEMISSING;
+    wError.status = SulDownloader::suldownloaderdata::RepositoryStatus::PACKAGESOURCEMISSING;
     std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
     DownloadedProductVector emptyProducts;
 
@@ -1053,15 +1053,15 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     MockWarehouseRepository& mock = warehouseMocked();
-    SulDownloader::suldownloaderdata::WarehouseError wError;
+    SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
-    wError.status = SulDownloader::suldownloaderdata::WarehouseStatus::DOWNLOADFAILED;
+    wError.status = SulDownloader::suldownloaderdata::RepositoryStatus::DOWNLOADFAILED;
     std::string statusError = SulDownloader::suldownloaderdata::toString(wError.status);
     DownloadedProductVector products = defaultProducts();
 
-    SulDownloader::suldownloaderdata::WarehouseError productError;
+    SulDownloader::suldownloaderdata::RepositoryError productError;
     productError.Description = "Product Error description";
-    productError.status = SulDownloader::suldownloaderdata::WarehouseStatus::DOWNLOADFAILED;
+    productError.status = SulDownloader::suldownloaderdata::RepositoryStatus::DOWNLOADFAILED;
 
     products[0].setError(productError);
     products[1].setError(productError);
@@ -1142,7 +1142,7 @@ TEST_F( // NOLINT
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -1224,7 +1224,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
 
     SimplifiedDownloadReport expectedDownloadReport{
-        SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED, "Update failed", productReports, false, {}
+        SulDownloader::suldownloaderdata::RepositoryStatus::INSTALLFAILED, "Update failed", productReports, false, {}
     };
 
     expectedDownloadReport.Products[1].errorDescription = "Product ServerProtectionLinux-Plugin-EDR failed signature verification";
@@ -1313,7 +1313,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::INSTALLFAILED,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::INSTALLFAILED,
                                                      "Update failed",
                                                      productReports,
                                                      false,
@@ -1406,7 +1406,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -1498,7 +1498,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -1611,7 +1611,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -1723,7 +1723,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -1816,7 +1816,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions)
         .WillOnce(Return(subscriptionsInfo({ products[0] }))); // only product 0 in the subscriptions
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -1913,7 +1913,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -2011,7 +2011,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -2105,7 +2105,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -2206,7 +2206,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -2300,7 +2300,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -2353,7 +2353,7 @@ TEST_F( // NOLINT
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,
@@ -2410,7 +2410,7 @@ TEST_F( // NOLINT
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
-    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS,
+    SimplifiedDownloadReport expectedDownloadReport{ SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS,
                                                      "",
                                                      productReports,
                                                      true,

@@ -6,6 +6,10 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "suldownloaderdata/IRepository.h"
+
+#include <SulDownloader/suldownloaderdata/TimeTracker.h>
+
 #include <string>
 #include <tuple>
 namespace SulDownloader
@@ -15,6 +19,18 @@ namespace SulDownloader
         class ConfigurationData;
         class DownloadReport;
     } // namespace suldownloaderdata
+
+    suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(const bool successs,
+                                                                         suldownloaderdata::IRepositoryPtr repository,
+                                                                         suldownloaderdata::TimeTracker& timeTracker,
+                                                                         const suldownloaderdata::ConfigurationData& configurationData,
+                                                                         const suldownloaderdata::DownloadReport& previousDownloadReport,
+                                                                         const bool forceReinstallAllProducts,
+                                                                         const bool supplementOnly);
+
+    std::pair<bool, suldownloaderdata::IRepositoryPtr> updateFromSDDS2Warehouse(
+        const suldownloaderdata::ConfigurationData& configurationData,
+        bool supplementOnly=false);
 
     /**
      * Executes the core functionality of SULDownloader.

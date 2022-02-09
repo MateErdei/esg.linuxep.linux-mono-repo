@@ -85,36 +85,36 @@ bool SulDownloader::suldownloaderdata::operator< (SulDownloader::suldownloaderda
 namespace SulDownloader
 {
     using namespace Common::UtilityImpl;
-    DownloadReport::DownloadReport() : m_status(WarehouseStatus::UNSPECIFIED) {}
+    DownloadReport::DownloadReport() : m_status(RepositoryStatus::UNSPECIFIED) {}
 
     DownloadReport DownloadReport::Report(
-        const suldownloaderdata::IWarehouseRepository& warehouse,
+        const suldownloaderdata::IRepository& repository,
         const suldownloaderdata::TimeTracker& timeTracker)
     {
         DownloadReport report;
         report.setTimings(timeTracker);
         report.m_supplementOnly = false;
-        if (warehouse.hasError())
+        if (repository.hasError())
         {
-            report.setError(warehouse.getError());
+            report.setError(repository.getError());
         }
         else
         {
-            report.m_status = WarehouseStatus::SUCCESS;
+            report.m_status = RepositoryStatus::SUCCESS;
             report.m_description = "";
         }
 
 
-        report.m_urlSource = warehouse.getSourceURL();
+        report.m_urlSource = repository.getSourceURL();
         report.m_productReport = combineProductsAndSubscriptions(
-            warehouse.getProducts(), warehouse.listInstalledSubscriptions(), report.m_status);
+            repository.getProducts(), repository.listInstalledSubscriptions(), report.m_status);
         return report;
     }
 
     DownloadReport DownloadReport::Report(
         const std::string& sourceURL,
         const std::vector<suldownloaderdata::DownloadedProduct>& products,
-        const std::vector<suldownloaderdata::ProductInfo>& warehouseComponents,
+        const std::vector<suldownloaderdata::ProductInfo>& components,
         const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsToALCStatus,
         TimeTracker* timeTracker,
         VerifyState verifyState,
@@ -125,7 +125,7 @@ namespace SulDownloader
 
         DownloadReport report;
 
-        report.m_status = WarehouseStatus::SUCCESS;
+        report.m_status = RepositoryStatus::SUCCESS;
         report.m_description = "";
         report.m_urlSource = sourceURL;
         report.m_supplementOnly = supplementOnly;
@@ -134,7 +134,7 @@ namespace SulDownloader
         if (products.empty())
         {
             // empty list means no products should have been downloaded.
-            report.m_status = WarehouseStatus::DOWNLOADFAILED;
+            report.m_status = RepositoryStatus::DOWNLOADFAILED;
         }
 
         for (const auto& product : products)
@@ -144,13 +144,13 @@ namespace SulDownloader
                 if (!product.getProductIsBeingUninstalled())
                 {
                     report.m_description = "Update failed";
-                    report.m_status = WarehouseStatus::INSTALLFAILED;
+                    report.m_status = RepositoryStatus::INSTALLFAILED;
                     break; // Install failures are a higher error than uninstalled.
                 }
                 else
                 {
                     report.m_description = "Uninstall failed";
-                    report.m_status = WarehouseStatus::UNINSTALLFAILED;
+                    report.m_status = RepositoryStatus::UNINSTALLFAILED;
                 }
             }
         }
@@ -165,14 +165,14 @@ namespace SulDownloader
             }
         }
 
-        if (report.m_status == WarehouseStatus::SUCCESS)
+        if (report.m_status == RepositoryStatus::SUCCESS)
         {
             timeTracker->setSyncTime();
         }
 
         report.setTimings(*timeTracker);
 
-        report.m_warehouseComponents = updateWarehouseComponentInstalledVersion(warehouseComponents);
+        report.m_repositoryComponents = updateRepositoryComponentInstalledVersion(components);
 
         return report;
     }
@@ -184,7 +184,7 @@ namespace SulDownloader
         tt.setStartTime(TimeUtils::getCurrTime());
         report.setTimings(tt);
         report.m_description = errorDescription;
-        report.m_status = WarehouseStatus::UNSPECIFIED;
+        report.m_status = RepositoryStatus::UNSPECIFIED;
         return report;
     }
 
@@ -212,7 +212,7 @@ namespace SulDownloader
         return previousReportFiles;
     }
 
-    WarehouseStatus DownloadReport::getStatus() const { return m_status; }
+    RepositoryStatus DownloadReport::getStatus() const { return m_status; }
 
     const std::string& DownloadReport::getDescription() const { return m_description; }
 
@@ -227,7 +227,7 @@ namespace SulDownloader
     void DownloadReport::combinePreviousReportIfRequired(const DownloadReport& previousReport)
     {
         setProducts(previousReport.getProducts());
-        setWarehouseComponents(previousReport.getWarehouseComponents());
+        setRepositoryComponents(previousReport.getRepositoryComponents());
     }
 
     void DownloadReport::setProducts(const std::vector<ProductReport>& products)
@@ -242,38 +242,38 @@ namespace SulDownloader
         }
     }
 
-    void DownloadReport::setWarehouseComponents(const std::vector<ProductInfo>& warehouseComponents)
+    void DownloadReport::setRepositoryComponents(const std::vector<ProductInfo>& repositoryComponents)
     {
-        // only allow updateing of warehouse components if the list is empty.
-        if (m_warehouseComponents.empty())
+        // only allow updateing of repository components if the list is empty.
+        if (m_repositoryComponents.empty())
         {
-            for (auto& warehouseComponent : warehouseComponents)
+            for (auto& repositoryComponent : repositoryComponents)
             {
-                m_warehouseComponents.push_back(warehouseComponent);
+                m_repositoryComponents.push_back(repositoryComponent);
             }
         }
     }
 
-    const std::vector<ProductInfo> DownloadReport::updateWarehouseComponentInstalledVersion(const std::vector<ProductInfo>& warehouseComponents)
+    const std::vector<ProductInfo> DownloadReport::updateRepositoryComponentInstalledVersion(const std::vector<ProductInfo>& repositoryComponents)
     {
-        std::vector<ProductInfo> updatedWareohuseComponents;
+        std::vector<ProductInfo> updatedRepositoryComponents;
 
-        for(auto& warehouseComponent : warehouseComponents)
+        for(auto& repositoryComponent : repositoryComponents)
         {
-            ProductInfo warehouseproductInfo;
-            warehouseproductInfo.m_rigidName = warehouseComponent.m_rigidName;
-            warehouseproductInfo.m_productName = warehouseComponent.m_productName;
-            warehouseproductInfo.m_version = warehouseComponent.m_version;
-            warehouseproductInfo.m_installedVersion = getInstalledVersion(warehouseComponent.m_rigidName);
-            updatedWareohuseComponents.push_back(warehouseproductInfo);
+            ProductInfo repositoryProductInfo;
+            repositoryProductInfo.m_rigidName = repositoryComponent.m_rigidName;
+            repositoryProductInfo.m_productName = repositoryComponent.m_productName;
+            repositoryProductInfo.m_version = repositoryComponent.m_version;
+            repositoryProductInfo.m_installedVersion = getInstalledVersion(repositoryComponent.m_rigidName);
+            updatedRepositoryComponents.push_back(repositoryProductInfo);
         }
-        return updatedWareohuseComponents;
+        return updatedRepositoryComponents;
     }
 
     std::vector<ProductReport> DownloadReport::combineProductsAndSubscriptions(
         const std::vector<suldownloaderdata::DownloadedProduct>& products,
         const std::vector<suldownloaderdata::SubscriptionInfo>& subscriptionsInfo,
-        const WarehouseStatus& warehouseStatus)
+        const RepositoryStatus& repositoryStatus)
     {
         std::unordered_map<std::string, ProductReport> productReport;
         std::vector<ProductReport> productsRep;
@@ -289,8 +289,8 @@ namespace SulDownloader
             productReportEntry.errorDescription = wError.Description;
 
             // Set product status appropriately
-            if ((warehouseStatus == WarehouseStatus::DOWNLOADFAILED) ||
-                (warehouseStatus == WarehouseStatus::PACKAGESOURCEMISSING))
+            if ((repositoryStatus == RepositoryStatus::DOWNLOADFAILED) ||
+                (repositoryStatus == RepositoryStatus::PACKAGESOURCEMISSING))
             {
                 productReportEntry.productStatus = ProductReport::ProductStatus::SyncFailed;
             }
@@ -418,11 +418,11 @@ namespace SulDownloader
 
     const std::string& DownloadReport::getSulError() const { return m_sulError; }
 
-    void DownloadReport::setError(const WarehouseError& error)
+    void DownloadReport::setError(const RepositoryError& error)
     {
         m_description = error.Description;
         m_status = error.status;
-        m_sulError = error.SulError;
+        m_sulError = error.LibError;
     }
 
     int DownloadReport::getExitCode() const { return static_cast<int>(m_status); }
@@ -452,13 +452,13 @@ namespace SulDownloader
             productReport->set_productstatus(convert(product.productStatus));
         }
 
-        for (const auto& warehouseComponent : report.getWarehouseComponents())
+        for (const auto& repositoryComponent : report.getRepositoryComponents())
         {
             SulDownloaderProto::WarehouseComponent* warehouseComponentProto = protoReport.add_warehousecomponents();
-            warehouseComponentProto->set_productname(warehouseComponent.m_productName);
-            warehouseComponentProto->set_rigidname(warehouseComponent.m_rigidName);
-            warehouseComponentProto->set_installedversion(warehouseComponent.m_installedVersion);
-            warehouseComponentProto->set_warehouseversion(warehouseComponent.m_version);
+            warehouseComponentProto->set_productname(repositoryComponent.m_productName);
+            warehouseComponentProto->set_rigidname(repositoryComponent.m_rigidName);
+            warehouseComponentProto->set_installedversion(repositoryComponent.m_installedVersion);
+            warehouseComponentProto->set_warehouseversion(repositoryComponent.m_version);
         }
 
         return Common::ProtobufUtil::MessageUtility::protoBuf2Json(protoReport);
@@ -512,7 +512,7 @@ namespace SulDownloader
             productInfo.m_rigidName = warehouseComponentProto.rigidname();
             productInfo.m_version = warehouseComponentProto.warehouseversion();
             productInfo.m_installedVersion = warehouseComponentProto.installedversion();
-            report.m_warehouseComponents.push_back(productInfo);
+            report.m_repositoryComponents.push_back(productInfo);
         }
 
         report.m_processedReport = false; // default
@@ -528,7 +528,7 @@ namespace SulDownloader
 
     const std::string DownloadReport::getSourceURL() const { return m_urlSource; }
 
-    const std::vector<ProductInfo>& DownloadReport::getWarehouseComponents() const { return m_warehouseComponents; }
+    const std::vector<ProductInfo>& DownloadReport::getRepositoryComponents() const { return m_repositoryComponents; }
 
     bool DownloadReport::isProcessedReport() const { return m_processedReport; }
 
@@ -540,7 +540,7 @@ namespace SulDownloader
         {
             return false;
         }
-        return getStatus() == SulDownloader::suldownloaderdata::WarehouseStatus::SUCCESS;
+        return getStatus() == SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS;
     }
 
     std::string ProductReport::statusToString() const

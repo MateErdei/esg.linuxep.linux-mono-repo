@@ -8,7 +8,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
 #include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
-#include <SulDownloader/WarehouseRepositoryFactory.h>
+#include <SulDownloader/warehouse/WarehouseRepositoryFactory.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

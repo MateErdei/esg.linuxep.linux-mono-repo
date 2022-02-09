@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <string>
 
-using SulDownloader::suldownloaderdata::WarehouseStatus;
+using SulDownloader::suldownloaderdata::RepositoryStatus;
 
 namespace SulDownloader
 {
@@ -70,7 +70,7 @@ namespace SulDownloader
                 const std::string& sourceURL = "")
             {
                 SulDownloader::suldownloaderdata::DownloadReport report;
-                report.m_status = WarehouseStatus::SUCCESS;
+                report.m_status = RepositoryStatus::SUCCESS;
                 if (sourceURL.empty())
                 {
                     report.m_urlSource = SophosURL;
@@ -113,7 +113,7 @@ namespace SulDownloader
                 productInfo.m_version = baseMetadata.downloadedVersion;
                 productInfo.m_installedVersion = baseMetadata.installedVersion;
                 productInfo.m_rigidName = baseMetadata.rigidName;
-                report.m_warehouseComponents.push_back(productInfo);
+                report.m_repositoryComponents.push_back(productInfo);
 
                 return report;
             }
@@ -152,7 +152,7 @@ namespace SulDownloader
 
             static SulDownloader::suldownloaderdata::DownloadReport badReport(
                 UseTime useTime,
-                WarehouseStatus status,
+                RepositoryStatus status,
                 std::string errorDescription)
             {
                 SulDownloader::suldownloaderdata::DownloadReport report;
@@ -172,7 +172,7 @@ namespace SulDownloader
                 }
                 report.m_sync_time = report.m_finishedTime;
 
-                if (status != WarehouseStatus::CONNECTIONERROR)
+                if (status != RepositoryStatus::CONNECTIONERROR)
                 {
                     report.m_productReport = goodProducts();
                     for (auto& product : report.m_productReport)
@@ -186,7 +186,7 @@ namespace SulDownloader
 
             static SulDownloader::suldownloaderdata::DownloadReport getPluginFailedToInstallReport(UseTime useTime)
             {
-                auto report = badReport(useTime, WarehouseStatus::INSTALLFAILED, "");
+                auto report = badReport(useTime, RepositoryStatus::INSTALLFAILED, "");
                 report.m_productReport[0].productStatus = suldownloaderdata::ProductReport::ProductStatus::Upgraded;
                 report.m_productReport[1].productStatus = suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
                 report.m_productReport[1].errorDescription = "Plugin failed to install";
@@ -209,7 +209,7 @@ namespace SulDownloader
 
             static SulDownloader::suldownloaderdata::DownloadReport installFailedTwoProducts()
             {
-                auto report = badReport(UseTime::Later, WarehouseStatus::INSTALLFAILED, "");
+                auto report = badReport(UseTime::Later, RepositoryStatus::INSTALLFAILED, "");
                 report.m_productReport[0].productStatus = suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
                 report.m_productReport[1].productStatus = suldownloaderdata::ProductReport::ProductStatus::SyncFailed;
                 report.m_productReport[0].errorDescription = "Base failed to install";
@@ -219,13 +219,13 @@ namespace SulDownloader
 
             static SulDownloader::suldownloaderdata::DownloadReport installCaughtError()
             {
-                auto report = badReport(UseTime::Later, WarehouseStatus::UNSPECIFIED, "Error associated to install");
+                auto report = badReport(UseTime::Later, RepositoryStatus::UNSPECIFIED, "Error associated to install");
                 return report;
             }
 
             static SulDownloader::suldownloaderdata::DownloadReport downloadFailedError()
             {
-                auto report = badReport(UseTime::Later, WarehouseStatus::DOWNLOADFAILED, "https://my.update.site/");
+                auto report = badReport(UseTime::Later, RepositoryStatus::DOWNLOADFAILED, "https://my.update.site/");
                 // When we get a download failure, we can't tell which product had the failure.
                 // To match this the unit test also doesn't put errorDescription in the product reports.
                 report.m_productReport[0].productStatus = suldownloaderdata::ProductReport::ProductStatus::UpToDate;
@@ -238,21 +238,21 @@ namespace SulDownloader
 
             static SulDownloader::suldownloaderdata::DownloadReport baseProductMissing()
             {
-                auto report = badReport(UseTime::Later, WarehouseStatus::PACKAGESOURCEMISSING, "BaseName");
+                auto report = badReport(UseTime::Later, RepositoryStatus::PACKAGESOURCEMISSING, "BaseName");
 
                 return report;
             }
 
             static SulDownloader::suldownloaderdata::DownloadReport bothProductsMissing()
             {
-                auto report = badReport(UseTime::Later, WarehouseStatus::PACKAGESOURCEMISSING, "BaseName;PluginName");
+                auto report = badReport(UseTime::Later, RepositoryStatus::PACKAGESOURCEMISSING, "BaseName;PluginName");
 
                 return report;
             }
 
             static SulDownloader::suldownloaderdata::DownloadReport connectionError()
             {
-                auto report = badReport(UseTime::Later, WarehouseStatus::CONNECTIONERROR, "Failed to synchronize");
+                auto report = badReport(UseTime::Later, RepositoryStatus::CONNECTIONERROR, "Failed to synchronize");
                 return report;
             }
         };

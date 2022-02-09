@@ -46,7 +46,7 @@ namespace SulDownloader
 {
     std::vector<suldownloaderdata::DownloadedProduct> ProductUninstaller::removeProductsNotDownloaded(
         const std::vector<suldownloaderdata::DownloadedProduct>& downloadedProducts,
-        suldownloaderdata::IWarehouseRepository& iWarehouseRepository)
+        suldownloaderdata::IRepository& iRepository)
     {
         std::vector<std::string> installedProducts = getInstalledProductPathsList();
         std::map<std::string, suldownloaderdata::DownloadedProduct> productsToRemove;
@@ -71,7 +71,7 @@ namespace SulDownloader
                 suldownloaderdata::ProductMetadata metadata;
                 metadata.setLine(productLine);
                 suldownloaderdata::DownloadedProduct product(metadata);
-                product.setDistributePath(iWarehouseRepository.getProductDistributionPath(product));
+                product.setDistributePath(iRepository.getProductDistributionPath(product));
                 productsToRemove.insert(
                     std::pair<std::string, suldownloaderdata::DownloadedProduct>(installedProduct, product));
             }
@@ -161,8 +161,8 @@ namespace SulDownloader
 
             if (!errorMessage.str().empty())
             {
-                suldownloaderdata::WarehouseError error;
-                error.status = suldownloaderdata::WarehouseStatus::UNINSTALLFAILED;
+                suldownloaderdata::RepositoryError error;
+                error.status = suldownloaderdata::RepositoryStatus::UNINSTALLFAILED;
                 error.Description = errorMessage.str();
                 uninstallProduct.second.setError(error);
                 LOGERROR(errorMessage.str());
