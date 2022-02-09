@@ -37,6 +37,7 @@ namespace Common
 
             Common::PluginProtocol::MessageBuilder m_messageBuilder;
             std::shared_ptr<Common::PluginApi::IPluginCallbackApi> m_pluginCallback;
+            bool m_shutdownRequested = false;
         };
     } // namespace PluginApiImpl
 } // namespace Common
