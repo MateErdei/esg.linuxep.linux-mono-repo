@@ -222,8 +222,6 @@ def bullseye_coverage_robot_task(machine: tap.Machine, include_tag: str):
 
     machine.run('rm', '-f', '/tmp/BullseyeCoverageEnv.txt')
 
-    machine.output_artifact('/opt/test/results', 'results')
-    machine.output_artifact('/opt/test/logs', 'logs')
     machine.run('cp', covfile, COVERAGE_DIR)
     machine.output_artifact(COVERAGE_DIR, output=machine.outputs.covfile)
 
