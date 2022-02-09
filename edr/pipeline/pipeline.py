@@ -171,6 +171,7 @@ def get_inputs(context: tap.PipelineContext, edr_build: ArtisanInput, mode: str)
 
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+    BUILD_TEMPLATE = 'JenkinsLinuxTemplate7'
     release_mode = 'release'
     analysis_mode = 'analysis'
     coverage_mode = 'coverage'
@@ -182,18 +183,18 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
     edr_build = None
     with stage.parallel('build'):
         if mode == release_mode or mode == analysis_mode:
-            edr_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate6',
+            edr_build = stage.artisan_build(name=release_mode, component=component, image=BUILD_TEMPLATE,
                                             mode=release_mode, release_package='./build-files/release-package.xml')
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate6',
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=BUILD_TEMPLATE,
                                                        mode=nine_nine_nine_mode, release_package='./build-files/release-package.xml')
-            edr_analysis_build = stage.artisan_build(name=analysis_mode, component=component, image='JenkinsLinuxTemplate6',
+            edr_analysis_build = stage.artisan_build(name=analysis_mode, component=component, image=BUILD_TEMPLATE,
                                                      mode=analysis_mode, release_package='./build-files/release-package.xml')
         elif mode == coverage_mode:
-            release_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate6',
+            release_build = stage.artisan_build(name=release_mode, component=component, image=BUILD_TEMPLATE,
                                                 mode=release_mode, release_package='./build-files/release-package.xml')
-            edr_build = stage.artisan_build(name=coverage_mode, component=component, image='JenkinsLinuxTemplate6',
+            edr_build = stage.artisan_build(name=coverage_mode, component=component, image=BUILD_TEMPLATE,
                                             mode=coverage_mode, release_package='./build-files/release-package.xml')
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate6',
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=BUILD_TEMPLATE,
                                                        mode=nine_nine_nine_mode, release_package='./build-files/release-package.xml')
 
     if mode == analysis_mode:
