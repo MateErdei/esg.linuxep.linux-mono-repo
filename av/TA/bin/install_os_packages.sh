@@ -5,7 +5,7 @@ set -ex
 if [[ -x $(which apt) ]]
 then
     apt-get update
-    apt install -y nfs-kernel-server zip unzip samba
+    DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba
 elif [[ -x $(which yum) ]]
 then
     if [[ -f /etc/os-release ]]; then

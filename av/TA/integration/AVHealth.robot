@@ -1,5 +1,5 @@
 *** Settings ***
-Force Tags      INTEGRATION
+Force Tags      INTEGRATION  AV_HEALTH
 Library         Collections
 
 Resource        ../shared/AVAndBaseResources.robot

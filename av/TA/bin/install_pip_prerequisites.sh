@@ -14,7 +14,7 @@ function apt_install()
     for x in 1 2 3 4 5
     do
         wait_for_apt
-        apt-get install -y "$@" && return
+        DEBIAN_FRONTEND=noninteractive apt-get install -y "$@" && return
     done
     echo "Failed to install $*"
     exit 1
