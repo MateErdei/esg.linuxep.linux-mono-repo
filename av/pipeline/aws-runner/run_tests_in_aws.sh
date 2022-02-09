@@ -6,8 +6,8 @@ INCLUDE_TAG="$1"
 
 SSHLocation=${SSHLocation:-"195.171.192.0/24"}
 
-IDENTITFIER=`hostname`-`date +%F`-`date +%H``date +%M`
-[[ -n $STACK ]] || STACK=ssplav-system-tests-${IDENTITFIER}-$(echo "$@"-${RANDOM} | md5sum | cut -f 1 -d " " )
+IDENTIFIER=`hostname`-`date +%F`-`date +%H``date +%M`
+[[ -n $STACK ]] || STACK=ssplav-system-tests-${IDENTIFIER}-$(echo "$@"-${RANDOM} | md5sum | cut -f 1 -d " " )
 
 function failure()
 {
@@ -359,7 +359,6 @@ fi
 
 combineResults()
 {
-
   rm -rf results-combine-workspace
   mkdir results-combine-workspace
   python3 -m robot.rebot --merge -o ./results-combine-workspace/amazonlinux2x64-output.xml -l none -r none -N amazonlinux2x64  ./results/amazonlinux2x64*
@@ -371,10 +370,15 @@ combineResults()
   python3 -m robot.rebot -l ./results/combined-log.html -r ./results/combined-report.html -N combined ./results-combine-workspace/*
 }
 combineResults
-LOG_RESULT_DIR=${LOG_RESULT_DIR:-/opt/test/logs}
-mkdir -p ${LOG_RESULT_DIR}
-cp ./results/combined-log.html ${LOG_RESULT_DIR}/log.html
-cp ./results/combined-report.html ${LOG_RESULT_DIR}/report.html
+
+RESULTS_DIR=${RESULTS_DIR:-/opt/test/results}
+mkdir -p ${RESULTS_DIR}
+cp ./results/*.xml ${RESULTS_DIR}/
+
+LOGS_DIR=${LOGS_DIR:-/opt/test/logs}
+mkdir -p ${LOGS_DIR}
+cp ./results/combined-log.html ${LOGS_DIR}/log.html
+cp ./results/combined-report.html ${LOGS_DIR}/report.html
 
 # window.output["stats"] = [[{"elapsed":"04:55:20","fail":6,"label":"All Tests","pass":1082,"skip":0}]
 FAIL_COUNT=$(sed -ne's/window\.output\["stats"\][^f]*"fail":\([0-9][0-9]*\).*/\1/p' ./results/combined-log.html)

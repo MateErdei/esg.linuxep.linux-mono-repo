@@ -98,7 +98,7 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, environment=None
                     "robot" + get_suffix() + "_" + machine_name + "_" + include_tag + "-report.html")
 
 
-@tap.timeout(task_timeout=5400)
+@tap.timeout(task_timeout=120)
 def robot_task(machine: tap.Machine, include_tag: str):
     install_requirements(machine)
     robot_task_with_env(machine, include_tag)
@@ -124,14 +124,15 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 
-AWS_TIMEOUT = 3 * 3600
+AWS_TIMEOUT = 120
 
 
 @tap.timeout(task_timeout=AWS_TIMEOUT)
 def aws_task(machine: tap.Machine, include_tag: str):
     try:
-        machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag, timeout=(AWS_TIMEOUT-10))
+        machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag, timeout=((AWS_TIMEOUT-10)*60))
     finally:
+        machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
                     "robot" + get_suffix() + "_aws-log.html")
@@ -194,6 +195,7 @@ def bullseye_coverage_pytest_task(machine: tap.Machine):
     machine.output_artifact(COVERAGE_DIR, output=machine.outputs.covfile)
 
 
+@tap.timeout(task_timeout=120)
 def bullseye_coverage_robot_task(machine: tap.Machine, include_tag: str):
     install_requirements(machine)
 
@@ -420,8 +422,8 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             coverage_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
                                                  mode="coverage", release_package=release_package)
 
-    if run_tests:
-        with stage.parallel('testing'):
+    with stage.parallel('testing'):
+        if run_tests:
             test_inputs = get_inputs(context, av_build)
             with stage.parallel('TA'):
                 for (name, machine) in get_test_machines(test_inputs, parameters):
@@ -478,8 +480,8 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                func=bullseye_coverage_combine_task,
                                machine=machine_bullseye_combine)
 
-    if run_aws_tests:
-        aws_test_inputs = get_inputs(context, av_build, aws=True)
-        machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=aws_test_inputs, platform=tap.Platform.Linux)
-        include_tag = parameters.aws_include_tag or "integration product"
-        stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
+        if run_aws_tests:
+            aws_test_inputs = get_inputs(context, av_build, aws=True)
+            machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=aws_test_inputs, platform=tap.Platform.Linux)
+            include_tag = parameters.aws_include_tag or "integration product"
+            stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
