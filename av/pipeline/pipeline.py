@@ -13,6 +13,7 @@ LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
 COVERAGE_DIR = '/opt/test/coverage'
 COVSRCDIR = os.path.join(INPUTS_DIR, 'av', 'src')
+COVFILE_BASE = os.path.join(INPUTS_DIR, 'av', 'sspl-plugin-av.cov')
 COVFILE_UNITTEST = os.path.join(INPUTS_DIR, 'av', 'sspl-plugin-av-unit.cov')
 BULLSEYE_SCRIPT_DIR = os.path.join(INPUTS_DIR, 'bullseye_files')
 UPLOAD_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadResults.sh')
@@ -181,11 +182,7 @@ def bullseye_coverage_pytest_task(machine: tap.Machine):
     machine.run('mkdir', '-p', COVERAGE_DIR)
     covfile = os.path.join(COVERAGE_DIR, "sspl-plugin-av-pytest.cov")
 
-    machine.run('cp', COVFILE_UNITTEST, covfile)
-    machine.run('covclear', environment={
-        'COVFILE': covfile,
-        'COVSRCDIR': COVSRCDIR,
-    })
+    machine.run('cp', COVFILE_BASE, covfile)
 
     pytest_task_with_env(machine, environment={
         'COVFILE': covfile,
@@ -204,11 +201,7 @@ def bullseye_coverage_robot_task(machine: tap.Machine, include_tag: str):
 
     # use /tmp so that it's accessible to all users/processes
     covfile = os.path.join("/tmp", "sspl-plugin-av-robot-" + include_tag + ".cov")
-    machine.run('cp', COVFILE_UNITTEST, covfile)
-    machine.run('covclear', environment={
-        'COVFILE': covfile,
-        'COVSRCDIR': COVSRCDIR,
-    })
+    machine.run('cp', COVFILE_BASE, covfile)
     machine.run('chmod', '666', covfile)
 
     # set bullseye environment in a file, so that daemons pick up the settings too

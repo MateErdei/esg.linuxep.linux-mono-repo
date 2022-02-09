@@ -48,7 +48,8 @@ UNITTEST=1
 export ENABLE_STRIP=1
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
-COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
+COVFILE="/tmp/root/sspl-plugin-${PRODUCT}.cov"
+COVFILE_UNIT="sspl-plugin-${PRODUCT}-unit.cov"
 COV_HTML_BASE=sspl-plugin-${PRODUCT}-unittest-dev
 VALGRIND=0
 GOOGLETESTTAR=googletest-release-1.8.1
@@ -420,7 +421,8 @@ function build()
         export COV_HTML_BASE
         export BULLSEYE_DIR
         [[ $CLEAN == 1 ]] && rm -f "$COVFILE"
-        bash -x "$BASE/build/bullseye/createCovFile.sh" || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
+        bash -x "$BASE/build/bullseye/createCovFile.sh" \
+            || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to create covfile: $?"
         export CC=$BULLSEYE_DIR/bin/gcc
         export CXX=$BULLSEYE_DIR/bin/g++
         covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
@@ -466,6 +468,12 @@ function build()
     make -j${NPROC} "CXX=$CXX" "CC=$CC" "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" \
         || exitFailure 15 "Failed to build $PRODUCT"
 
+    if (( BULLSEYE == 1 ))
+    then
+      # copy empty covfile into output
+      cp -a ${COVFILE} output/
+    fi
+
     if (( ${VALGRIND} == 1 ))
     then
         ## -VV --debug
@@ -507,18 +515,21 @@ function build()
     then
         echo "Separate SDDS component"
         [[ -f $SDDS/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
-        cp -rL "$SDDS" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
+        cp -rL "$SDDS" output/SDDS-COMPONENT \
+            || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
     else
         exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to find SDDS component in build"
     fi
     if [[ -d "${INPUT}/base-sdds" ]]
     then
-        cp -rL "${INPUT}/base-sdds"  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
+        cp -rL "${INPUT}/base-sdds"  output/base-sdds \
+            || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
         chmod 755 output/base-sdds/{install.sh,files/bin/*,files/base/bin/*}
     fi
     if [[ -d build64/componenttests ]]
     then
-        cp -rL build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
+        cp -rL build64/componenttests output/componenttests \
+            || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     fi
     if [[ -x build64/tools/avscanner/mountinfoimpl/PrintMounts ]]
     then
@@ -539,20 +550,24 @@ function build()
 
     if (( BULLSEYE == 1 ))
     then
+      cp -a ${COVFILE} output/${COVFILE_UNIT} \
+          || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
+
       export BASE
       export htmldir=$BASE/output/coverage_html
       cd "$BASE"
+
+      bash -x build/bullseye/generateResults.sh || exit $?
+
+      # copy the source into output, so that tests can generate detailed coverage reports
+      mkdir -p output/src
+      cp -a modules products output/src/
+
       if (( BULLSEYE_UPLOAD == 1 ))
       then
           ## Process bullseye output
           ## upload unit tests
-          bash -x build/bullseye/uploadResults.sh || exit $?
-      else
-          bash -x build/bullseye/generateResults.sh || exit $?
-          cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
-          # copy the source into output, so that tests can generate detailed coverage reports
-          mkdir -p output/src
-          cp -a modules products output/src/
+          UPLOAD_ONLY=1 bash -x build/bullseye/uploadResults.sh || exit $?
       fi
     fi
 
