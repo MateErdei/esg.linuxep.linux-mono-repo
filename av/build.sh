@@ -471,7 +471,7 @@ function build()
     if (( BULLSEYE == 1 ))
     then
       # copy empty covfile into output
-      cp -a ${COVFILE} output/
+      cp -a ${COVFILE} ${OUTPUT}/
     fi
 
     if (( ${VALGRIND} == 1 ))
@@ -550,18 +550,18 @@ function build()
 
     if (( BULLSEYE == 1 ))
     then
-      cp -a ${COVFILE} output/${COVFILE_UNIT} \
+      cp -a ${COVFILE} ${OUTPUT}/${COVFILE_UNIT} \
           || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
 
       export BASE
-      export htmldir=$BASE/output/coverage_html
+      export htmldir=${OUTPUT}/coverage_html
       cd "$BASE"
 
       bash -x build/bullseye/generateResults.sh || exit $?
 
       # copy the source into output, so that tests can generate detailed coverage reports
-      mkdir -p output/src
-      cp -a modules products output/src/
+      mkdir -p ${OUTPUT}/src
+      cp -a modules products ${OUTPUT}/src/
 
       if (( BULLSEYE_UPLOAD == 1 ))
       then
