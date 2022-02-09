@@ -119,6 +119,7 @@ Clean Scan Now Result Resets Threat Health
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
 
+    Mark AV Log
     Configure and check scan now with offset
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
@@ -127,6 +128,7 @@ Clean Scan Now Result Resets Threat Health
     Remove File  /tmp_test/naughty_eicar
     Register Cleanup    Remove File  /tmp_test/naughty_eicar
 
+    Mark AV Log
     Configure and check scan now with offset
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
