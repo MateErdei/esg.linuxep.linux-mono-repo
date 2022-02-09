@@ -24,6 +24,7 @@ BASE=$(pwd)
 export BASE
 OUTPUT=$BASE/output
 export OUTPUT
+mkdir -p ${OUTPUT} || exit 1
 
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
