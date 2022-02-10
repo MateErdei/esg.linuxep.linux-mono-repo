@@ -270,6 +270,8 @@ function build()
     PATH=$REDIST/cmake/bin:$PATH
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
+    cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
+
     if [[ ${BULLSEYE} == 1 ]]
     then
         BULLSEYE_DIR=/opt/BullseyeCoverage
@@ -360,6 +362,7 @@ function build()
 
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
+    cp -a build64/SDDS3-PACKAGE output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS3-PACKAGE to output"
     mkdir -p  output/manualTools/
     cp -a build64/products/manualTools/EventPubSub output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventPubSub Tool to output"
     cp -a build64/products/manualTools/EventJournalWriter output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventJournalWriter Tool to output"

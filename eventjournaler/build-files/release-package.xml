@@ -19,6 +19,10 @@
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="/build/input"/>
         </build-asset>
+        <build-asset project="winep" repo="sau">
+            <release-version branch="release/WINEP-2022.06" build-id="20220128115031-a862cc637baabe31c7c0807ca7b4836ed21d7bf1-YQAQrA"/>
+            <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
+        </build-asset>
 
         <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="/build/input/."/>
         <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="/build/input/."/>
@@ -57,6 +61,7 @@
         <workingdir>.</workingdir>
         <!--   Release outputs   -->
         <release-asset artifact-path="eventjournaler/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release" />
+        <release-asset artifact-path="eventjournaler/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
 
         <!--   non-release outputs   -->
         <build-asset artifact-path="eventjournaler/manualTools" source-dir="output/manualTools" mode="release" />
