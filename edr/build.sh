@@ -277,6 +277,8 @@ function build()
         mkdir -p "${REDIST}/sqlite"
         unzip ${INPUT}/sqlite-amalgamation/*.zip -d "${REDIST}/sqlite"
 
+        cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
+
         mkdir -p "$REDIST"/osquery
         cp  -r ${INPUT}/osquery/osquery-5.1.0_1.linux_x86_64/*  "$REDIST"/osquery   # TODO: LINUXDAR-4003 revert osquery dir name on next osquery upgrade
         cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
@@ -404,6 +406,7 @@ function build()
 
     [[ -f build64/sdds/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
     cp -a build64/sdds output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS component to output"
+    cp -a build64/SDDS3-PACKAGE output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS3-PACKAGE to output"
     cp -a ${INPUT}/base-sdds  output/base-sdds  || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy base SDDS component to output"
     cp -a build64/componenttests output/componenttests    || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     cp -a build64/schema output/schema || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy schema to output"
