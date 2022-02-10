@@ -388,6 +388,8 @@ function build()
 
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
+    cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
+
     if (( RUN_CPPCHECK == 1 ))
     then
       cppcheck_build || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
@@ -506,8 +508,8 @@ function build()
     then
         echo "Separate SDDS component"
         [[ -f $SDDS/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
-        cp -rL "$SDDS" output/SDDS-COMPONENT \
-            || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
+        cp -rL "$SDDS" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
+        cp -rL "$SDDS" output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS3 package to output"
     else
         exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to find SDDS component in build"
     fi

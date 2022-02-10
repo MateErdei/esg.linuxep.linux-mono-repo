@@ -44,25 +44,12 @@ set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
 set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
 set(GENERATE_TOOL ${LOCAL_TOOL_DIR}/generateSDDSImportAndManifestDat.py )
 
-add_custom_command(OUTPUT ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND ${PYTHON} ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
-        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND ${PYTHON} ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR} ${DISTRIBUTION_TOOL_DIR}
-        )
-
 add_custom_target(
         dist
         COMMAND ${PYTHON} ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
         COMMAND ${PYTHON} ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR} ${DISTRIBUTION_TOOL_DIR}
-)
-
-add_custom_target(
-        forcedist
-        COMMAND rm -f ${DIST}/SDDS-Import.xml ${DIST}/manifest.dat
-        COMMAND ${PYTHON} ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
-        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND ${PYTHON} ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR} ${DISTRIBUTION_TOOL_DIR}
+        COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/SDDS-Import.xml --nonce f112e78508
 )
 
 set(SDDS "${CMAKE_BINARY_DIR}/sdds")

@@ -15,6 +15,10 @@
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
+        <build-asset project="winep" repo="sau">
+            <release-version branch="release/WINEP-2022.06" build-id="20220128115031-a862cc637baabe31c7c0807ca7b4836ed21d7bf1-YQAQrA"/>
+            <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="input/sdds3"/>
+        </build-asset>
 
         <trusted-asset artifact-path="filer5-migrate/boostlinux11/1-77-0-1/222969/output/boost.tar" dest-dir="input/."/>
         <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="input/."/>
@@ -105,6 +109,7 @@
         <destdir>sspl-plugin-anti-virus</destdir>
 
         <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
+        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
         <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
 
         <build-asset artifact-path="output" source-dir="output" mode="release,debug">
