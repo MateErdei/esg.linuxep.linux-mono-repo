@@ -1033,7 +1033,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsCorrectValuesWhenSuccessful) //N
     EXPECT_CALL(*sysCallsMock, getSystemUpTime()).WillOnce(Return(sysCallUptime));
 
     long expectedMemoryValue = 500;
-    long expectedAgeValue = 550;
+    long expectedAgeValue = 996;
     std::pair<long, long> expectedResult(expectedMemoryValue,expectedAgeValue);
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
