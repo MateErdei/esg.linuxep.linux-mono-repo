@@ -557,6 +557,7 @@ AV Plugin Can Send Telemetry
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin sends non-zero processInfo to Telemetry
+    Restart sophos_threat_detector
     Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4432}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
@@ -574,7 +575,7 @@ AV Plugin sends non-zero processInfo to Telemetry
     ${processAge}=    Get From Dictionary   ${avDict}   threatProcessAge
 
     Should Not Be Equal As Integers  ${memUsage}  0
-    Should Not Be Equal As Integers  ${processAge}  0
+    Should Be True  ${processAge} > 0 and ${processAge} < 10
 
 AV plugin Saves and Restores Scan Now Counter
     # Run telemetry to reset counters to 0

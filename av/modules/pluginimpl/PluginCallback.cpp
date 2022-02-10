@@ -441,8 +441,8 @@ namespace Plugin
                 LOGWARN("Failed to retrieve system info, cant calculate process duration. Returning memory usage only.");
                 return std::pair(memoryUsage, 0);
             }
-
-            runTime = sysUpTime.second - Common::UtilityImpl::StringUtils::stringToLong(procStat.at(startTimeEntryInStat - 1)).first;
+            long startTime = Common::UtilityImpl::StringUtils::stringToLong(procStat.at(startTimeEntryInStat - 1)).first/sysconf(_SC_CLK_TCK);
+            runTime = sysUpTime.second - startTime;
 
         }
         catch (const std::bad_optional_access& e)
