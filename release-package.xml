@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package name="linux-mono-repo" version="1.0.0">
+    <versioning>
+        <workingdir>.</workingdir>
+    </versioning>
+    <inputs>
+        <workingdir>.</workingdir>
+    </inputs>
+    <buildcommands>
+        <command mode="release">
+            <program>/bin/bash</program>
+            <args>-c echo hello</args>
+            <workingdir>.</workingdir>
+        </command>
+    </buildcommands>
+    <publish>
+        <workingdir>.</workingdir>
+        <publishbranches>master,feature,release,develop,bugfix</publishbranches>
+    </publish>
+</package>
