@@ -1,0 +1,4 @@
+@Library("tap-pipe")
+
+def params = []
+CIPipeline { pipelineEntryPoint = 'linux_mono_repo'; buildParameters = params; skipInitialBuild = 'true' }
