@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<suite name="ServerProtectionLinux-Plugin-EDR" version="1.1.9.7" nonce="DNR" marketing-version="1.1.9.7">
+
+    <package-ref src="SophosEndpointDetectionandResponseplug-in_1.1.5.15.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+        <name>Sophos Endpoint Detection and Response plug-in</name>
+        <version>1.1.5.15</version>
+        <line-id>ServerProtectionLinux-Plugin-EDR</line-id>
+        <nonce>DNR</nonce>
+        <description>Sophos Linux Protection Base Component v1.1.5.15</description>
+        <decode-path>ServerProtectionLinux-Plugin-EDR</decode-path>
+        <features>
+            <feature name="LIVEQUERY" />
+        </features>
+        <platforms>
+            <platform name="LINUX_INTEL_LIBC6" />
+        </platforms>
+        <supplement-ref src="ScheduledQueryPack" tag="LATEST" decode-path="scheduled_query_pack_latest" />
+        <supplement-ref src="ScheduledQueryPack" tag="NEXT" decode-path="scheduled_query_pack_next" />
+    </package-ref>
+</suite>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package
+  name="sspl-warehouse"
+  version="1.0.0">
+
+    <!-- Components are fetched directly by the warehouse generation scripts according to the specs in the
+           warehouse definition file. These inputs are the tools that are needed and a couple of oddball
+           components.
+
+           All modes:
+            release-package
+            release-package-edr-999
+            release-package-mdr-999
+            release-package-edr-mdr-999
+      -->
+
+    <inputs>
+        <workingdir>.</workingdir>
+
+        <build-asset project="winep" repo="sau">
+            <!-- Import a specific release version of SDDS3 tools, because we don't want the sdds3 repo rebuilding for each SAU build. -->
+            <development-version branch="develop"/>
+            <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="redist/sdds3"/>
+        </build-asset>
+
+        <build-asset project="linuxep" repo="everest-base" >
+            <development-version branch="release--Version_1_1_9" build-id="20220111115616-63e343f79cd351f4b766d0f4697fff50969105d6-T8rvVv"/>
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/package/sspl-base"/>
+        </build-asset>
+
+        <build-asset project="linuxep" repo="capsule8-sensor" >
+            <development-version branch="release--version_4_10_0" build-id="20220202230147-153c90b52dfc3e9d3c40d151c789bfd00b38f5c5-I9yzI3"/>
+            <include artifact-path="SDDS-COMPONENT" dest-dir="redist/package/runtimedetections"/>
+        </build-asset>
+
+<!--        commented out due to not being in integr8 phase 2-->
+<!--        <build-asset project="linuxep" repo="sspl-plugin-heartbeat" >-->
+<!--            <development-version branch="develop"/>-->
+<!--            <include artifact-path="sspl-plugin-heartbeat/SDDS-COMPONENT" dest-dir="redist/package/sspl-plugin-heartbeat"/>-->
+<!--        </build-asset>-->
+
+        <build-asset project="winep" repo="liveterminal" >
+            <development-version branch="release--version_1_5_1" build-id="20220113114734-2e0533633cdcbb4bd71c63f90217793804a2ed27-1IE4Bn" />
+            <include artifact-path="liveterminal/sdds" dest-dir="redist/package/liveterminal"/>
+        </build-asset>
+
+        <build-asset project="linuxep" repo="sspl-plugin-edr-component">
+            <development-version branch="release--version_1_1_5" build-id="20220125200542-816e9518ada05b441819e66a7e5699f448a1335b-sVF733"/>
+            <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/package/sspl-plugin-edr-component"/>
+        </build-asset>
+
+        <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
+            <development-version branch="release--version_1_0_1" build-id="20220112090118-a0b366a56367125c50b912ae16bdd69b1ba5b3ed-2pHh1A"/>
+            <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="redist/package/sspl-plugin-event-journaler"/>
+        </build-asset>
+        <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
+            <development-version branch="release--version_1_0_11" build-id="20220113170647-2046b6949bdddaaaab2ea763e98caae45ce778f0-X1b4m9"/>
+            <include artifact-path="output/SDDS-SSPL-DBOS-COMPONENT" dest-dir="redist/package/sspl-plugin-mdr-componentsuite/SDDS-SSPL-DBOS-COMPONENT"/>
+            <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT" dest-dir="redist/package/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT"/>
+            <include artifact-path="output/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="redist/package/sspl-plugin-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE"/>
+        </build-asset>
+
+        <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
+            <development-version branch="release--version_1_0_5" build-id="20220113110146-e13148f3347ef1dc284d5d2b955dadd3dfb8a049-1i4fP3"/>
+            <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/package/sspl-plugin-anti-virus"/>
+        </build-asset>
+
+        <build-asset project="em" repo="esg">
+            <development-version branch="develop"/>
+            <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/supplement/scheduled-query-pack-sdds"/>
+        </build-asset>
+        <!-- Use a different branch to test that the query back is changed on upgrading the
+         query pack in develop should be different to the one in release branch chosen here-->
+        <!-- Common Packages -->
+
+<!--        <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">-->
+<!--            <development-version branch="release&#45;&#45;Version_1_1_9" build-id="20220203134128-d0f7bea07e25da0d0caca61f778c6e4fa39ac327-bKt1t7"/>-->
+<!--            <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-edr-componentsuite"/>-->
+<!--        </build-asset>-->
+        <build-asset project="linuxep" repo="sspl-flags">
+            <development-version branch="develop"/>
+            <include artifact-path="sspl-flags/SDDS-SSPL-FLAGS" dest-dir="redist/supplement/sspl-flags"/>
+        </build-asset>
+
+    </inputs>
+
+    <buildcommands>
+        <command>
+            <program>/bin/bash</program>
+            <args>sdds3/tools/build_sdds3.sh</args>
+            <workingdir>.</workingdir>
+        </command>
+    </buildcommands>
+
+    <publish>
+
+        <!--dev version-->
+<!--        <build-asset artifact-path="sdds3-repo" source-dir="output\repo" mode="dev"/>-->
+<!--        <build-asset artifact-path="sdds3-launchdarkly" source-dir="output\launchdarkly" mode="dev"/>-->
+        <!--prod version-->
+        <build-asset artifact-path="prod-sdds3-repo" source-dir="output\repo"/>
+        <build-asset artifact-path="prod-sdds3-launchdarkly" source-dir="output\launchdarkly"/>
+
+    </publish>
+
+</package>

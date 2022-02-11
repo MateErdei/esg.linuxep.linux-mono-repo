@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<suite name="ServerProtectionLinux-Base" version="1.1.9.7" nonce="DNR" marketing-version="1.1.9.7">
+    <package-ref src="SophosEndpointDetectionandResponseplug-in_1.1.5.15.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+        <name>Sophos Endpoint Detection and Response plug-in</name>
+        <version>1.1.5.15</version>
+        <line-id>ServerProtectionLinux-Plugin-EDR</line-id>
+        <nonce>DNR</nonce>
+        <description>Sophos Linux Protection Base Component v1.1.5.15</description>
+        <decode-path>ServerProtectionLinux-Plugin-EDR</decode-path>
+        <features>
+            <feature name="LIVEQUERY" />
+        </features>
+        <platforms>
+            <platform name="LINUX_INTEL_LIBC6" />
+        </platforms>
+    </package-ref>
+
+    <package-ref src="SophosServerProtectionLinux-BaseComponent_1.1.9.25.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+        <name>Sophos Server Protection Linux - Base Component</name>
+        <version>1.1.9.25</version>
+        <line-id>ServerProtectionLinux-Base-component</line-id>
+        <nonce>DNR</nonce>
+        <description>Sophos Linux Protection Base Component v1.1.9.25</description>
+        <decode-path>ServerProtectionLinux-Base-component</decode-path>
+        <features>
+            <feature name="CORE" />
+        </features>
+        <platforms>
+            <platform name="LINUX_INTEL_LIBC6" />
+        </platforms>
+    </package-ref>
+
+    <package-ref src="SophosLiveResponse_1.5.1.9.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+        <name>Sophos Live Response</name>
+        <version>1.5.1.9</version>
+        <line-id>ServerProtectionLinux-Plugin-liveresponse</line-id>
+        <nonce>DNR</nonce>
+        <description>Sophos Linux Protection Base Component v1.5.1.9</description>
+        <decode-path>ServerProtectionLinux-Plugin-liveresponse</decode-path>
+        <features>
+            <feature name="CORE" />
+        </features>
+        <platforms>
+            <platform name="LINUX_INTEL_LIBC6" />
+        </platforms>
+    </package-ref>
+
+    <package-ref src="SophosLinuxRuntimeDetectionPlugin_4.10.0.139.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+        <name>Sophos Linux Runtime Detection Plugin</name>
+        <version>4.10.0.139</version>
+        <line-id>ServerProtectionLinux-Plugin-RuntimeDetections</line-id>
+        <nonce>DNR</nonce>
+        <description>Sophos Linux Protection Base Component v4.10.0.139</description>
+        <decode-path>ServerProtectionLinux-Plugin-RuntimeDetections</decode-path>
+        <features>
+            <feature name="CORE" />
+        </features>
+        <platforms>
+            <platform name="LINUX_INTEL_LIBC6" />
+        </platforms>
+    </package-ref>
+
+    <package-ref src="EventJournaler_1.0.1.2.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+        <name>EventJournaler</name>
+        <version>1.0.1.2</version>
+        <line-id>ServerProtectionLinux-Plugin-EventJournaler</line-id>
+        <nonce>DNR</nonce>
+        <description>Sophos Linux Protection Base Component v1.0.1.2</description>
+        <decode-path>ServerProtectionLinux-Plugin-EventJournaler</decode-path>
+        <features>
+            <feature name="CORE" />
+        </features>
+        <platforms>
+            <platform name="LINUX_INTEL_LIBC6" />
+        </platforms>
+    </package-ref>
+
+</suite>
