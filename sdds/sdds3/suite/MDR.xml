@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <suite name="ServerProtectionLinux-Plugin-MDR" version="1.0.11.4" nonce="DNR" marketing-version="1.0.11.4">
-    <package-ref src="ServerProtectionLinux-MDR_1.0.11.4.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+    <package-ref src="ServerProtectionLinux-MDR_1.0.11.4.DNR.zip" size="15841" sha256="af214b95f7154c06603fb6569c20eb28048c0196464c51d2c6ef68d0d7f9862f">
         <name>ServerProtectionLinux-MDR</name>
         <version>1.0.11.4</version>
         <line-id>ServerProtectionLinux-Plugin-MDR</line-id>
@@ -15,7 +15,7 @@
         </platforms>
     </package-ref>
 
-    <package-ref src="SophosManagedThreatResponseplug-in_1.0.11.1.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+    <package-ref src="SophosManagedThreatResponseplug-in_1.0.11.1.DNR.zip" size="2145676" sha256="8656899d50031b21f8b9df0926d1db6d95692b45102d9045aec01fb3d41660f5">
         <name>Sophos Managed Threat Response plug-in</name>
         <version>1.0.11.1</version>
         <line-id>ServerProtectionLinux-MDR-Control-Component</line-id>
@@ -30,7 +30,7 @@
         </platforms>
     </package-ref>
 
-    <package-ref src="SophosManagedThreatResponseplug-in_1.0.11.1.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+    <package-ref src="ServerProtectionLinux-MDR-DBOS-Component_2.4.0.12.DNR.zip" size="4703859" sha256="4b4739de129b6dd0e71894b027d6938c06aa9e6857fab9ee2238a8b1b09804a7">
         <name>ServerProtectionLinux-MDR-DBOS-Component</name>
         <version>1.0.11.1</version>
         <line-id>ServerProtectionLinux-MDR-DBOS-Component</line-id>
