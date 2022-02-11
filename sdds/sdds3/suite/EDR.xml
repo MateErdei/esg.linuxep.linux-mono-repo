@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <suite name="ServerProtectionLinux-Plugin-EDR" version="1.1.9.7" nonce="DNR" marketing-version="1.1.9.7">
 
-    <package-ref src="SophosEndpointDetectionandResponseplug-in_1.1.5.15.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+    <package-ref src="SophosEndpointDetectionandResponseplug-in_1.1.5.15.DNR.zip" size="19978667" sha256="d1af8f9fcfdbd5362dbb188e37e07cd67a25ebfc314867815e136532897f903e">
         <name>Sophos Endpoint Detection and Response plug-in</name>
         <version>1.1.5.15</version>
         <line-id>ServerProtectionLinux-Plugin-EDR</line-id>
