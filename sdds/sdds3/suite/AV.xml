@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<suite name="ServerProtectionLinux-Plugin-AV" version="1.0.5.19" nonce="DNR" marketing-version="1.0.5.19">
+    <package-ref src="SophosServerProtectionLinux-av_1.0.5.19.DNR.zip" size="6771611" sha256="b97b40015b6b0bb64d1209d217146b1951171b76e1fb58dad9980056644b3daa">
+        <name>Sophos Server Protection Linux - av</name>
+        <version>1.0.5.19</version>
+        <line-id>ServerProtectionLinux-Plugin-AV</line-id>
+        <nonce>DNR</nonce>
+        <description>Sophos Linux Protection Base Component v1.0.5.19</description>
+        <decode-path>ServerProtectionLinux-Plugin-AV</decode-path>
+        <features>
+            <feature name="AV" />
+        </features>
+        <platforms>
+            <platform name="LINUX_INTEL_LIBC6" />
+        </platforms>
+    </package-ref>
+</suite>

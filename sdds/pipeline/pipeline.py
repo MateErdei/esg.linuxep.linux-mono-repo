@@ -16,6 +16,14 @@ def build_dev_warehouse(stage: tap.Root, name="release-package", image='Warehous
                                release_package='./build/dev.xml',
                                mode=name)
 
+def build_sdds3_warehouse(stage: tap.Root, name="sdds3", image='Warehouse'):
+    component = tap.Component(name='sdds3-warehouse-'+name, base_version='1.0.0')
+    return stage.artisan_build(name=name,
+                               component=component,
+                               image=image,
+                               release_package='./build/sdds3.xml',
+                               mode=name)
+
 
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput) -> Dict[str, Input]:
     print(str(build))
@@ -67,8 +75,8 @@ def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap
 @tap.pipeline(root_sequential=False)
 def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     spec_only = parameters.spec_only != 'false'
-    if spec_only:
-        return
+    # if spec_only:
+    #     return
 
     mdr999 = parameters.mdr_999 != 'false'
     edr999 = parameters.edr_999 != 'false'
@@ -92,6 +100,7 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         if zero_six_zero:
             build_dev_warehouse(stage=stage, name="release-package-060")
         build_dev_warehouse(stage=stage, name="localwarehouse", image='JenkinsLinuxTemplate6')
+        build_sdds3_warehouse(stage=stage)
 
 
     if build and run_tests:

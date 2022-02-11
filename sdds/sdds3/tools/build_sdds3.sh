@@ -1,15 +1,5 @@
 #!/bin/bash
-
-set -x
-
-
-env
-
 REDIST=./redist
-tar xvzf redist/gcc/gcc-8.1.0-linux.tar.gz -C redist/gcc/
-export LD_LIBRARY_PATH="${REDIST}/gcc/gcc/lib64/:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
-#objdump -x binary-or-library |grep RPATH
-#readelf -d binary-or-library |head -20
 
 SDDS3_BUILDER=${REDIST}/sdds3/sdds3-builder
 chmod +x ${SDDS3_BUILDER}
