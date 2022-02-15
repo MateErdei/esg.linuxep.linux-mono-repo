@@ -86,22 +86,28 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     run_tests = parameters.run_tests != 'false'
 
     with stage.parallel('build'):
-        build = build_dev_warehouse(stage=stage, name="release-package")
-        if base999:
-            build_dev_warehouse(stage=stage, name="release-package-base-999")
-        if query_pack:
-            build_dev_warehouse(stage=stage, name="release-package-query-pack")
-        if edr999:
-            build_dev_warehouse(stage=stage, name="release-package-edr-999")
-        if mdr999:
-            build_dev_warehouse(stage=stage, name="release-package-mdr-999")
-        if edr999 and mdr999:
-            build_dev_warehouse(stage=stage, name="release-package-edr-mdr-999")
-        if zero_six_zero:
-            build_dev_warehouse(stage=stage, name="release-package-060")
-        build_dev_warehouse(stage=stage, name="localwarehouse", image='JenkinsLinuxTemplate6')
+        branch = context.branch
+        is_release_branch = branch.startswith('release-') or branch.startswith('hotfix-')
+        if not is_release_branch:
+            build = build_dev_warehouse(stage=stage, name="release-package")
+            if base999:
+                build_dev_warehouse(stage=stage, name="release-package-base-999")
+            if query_pack:
+                build_dev_warehouse(stage=stage, name="release-package-query-pack")
+            if edr999:
+                build_dev_warehouse(stage=stage, name="release-package-edr-999")
+            if mdr999:
+                build_dev_warehouse(stage=stage, name="release-package-mdr-999")
+            if edr999 and mdr999:
+                build_dev_warehouse(stage=stage, name="release-package-edr-mdr-999")
+            if zero_six_zero:
+                build_dev_warehouse(stage=stage, name="release-package-060")
+            build_dev_warehouse(stage=stage, name="localwarehouse", image='JenkinsLinuxTemplate6')
+            run_tests
+        else:
+            build = False
         build_sdds3_warehouse(stage=stage)
 
 
-    if build and run_tests:
-        run_tap_tests(stage, context, parameters, build)
+        if run_tests and build:
+            run_tap_tests(stage, context, parameters, build)
