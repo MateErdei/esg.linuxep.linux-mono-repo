@@ -5,9 +5,12 @@ set -x
 
 env
 
-export LIBRARY_PATH="${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu"
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu"
 REDIST=./redist
+export LIBRARY_PATH="${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu"
+tar xvzf redist/gcc/gcc-8.1.0-linux.tar.gz -C redist/gcc/
+export LD_LIBRARY_PATH="${REDIST}/gcc/gcc/lib64/:/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
+#objdump -x binary-or-library |grep RPATH
+#readelf -d binary-or-library |head -20
 
 ## debug
 ls -l /usr/lib/x86_64-linux-gnu

@@ -22,6 +22,8 @@
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="redist/sdds3"/>
         </build-asset>
+        <!-- gcc -->
+        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="redist/gcc"/>
 
         <build-asset project="linuxep" repo="everest-base" >
             <development-version branch="release--Version_1_1_9" build-id="20220111115616-63e343f79cd351f4b766d0f4697fff50969105d6-T8rvVv"/>
