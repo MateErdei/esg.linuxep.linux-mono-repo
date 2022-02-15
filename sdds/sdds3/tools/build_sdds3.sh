@@ -6,10 +6,18 @@ set -ex
 env
 
 export LIBRARY_PATH="${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu"
 REDIST=./redist
+
+## debug
+ls -l /usr/lib/x86_64-linux-gnu
+find /lib64/
+find / -name "libstdc++.so*"
 
 SDDS3_BUILDER=${REDIST}/sdds3/sdds3-builder
 chmod +x ${SDDS3_BUILDER}
+
+ldd "$SDDS3_BUILDER"
 
 OUTPUT=./output
 rm -rf ${OUTPUT}
