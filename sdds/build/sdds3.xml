@@ -1,19 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package
-  name="sspl-warehouse"
+  name="sdds3"
   version="1.0.0">
-
-    <!-- Components are fetched directly by the warehouse generation scripts according to the specs in the
-           warehouse definition file. These inputs are the tools that are needed and a couple of oddball
-           components.
-
-           All modes:
-            release-package
-            release-package-edr-999
-            release-package-mdr-999
-            release-package-edr-mdr-999
-      -->
-
     <inputs>
         <workingdir>.</workingdir>
 
@@ -67,23 +55,6 @@
             <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/package/sspl-plugin-anti-virus"/>
         </build-asset>
 
-        <build-asset project="em" repo="esg">
-            <development-version branch="develop"/>
-            <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/supplement/scheduled-query-pack-sdds"/>
-        </build-asset>
-        <!-- Use a different branch to test that the query back is changed on upgrading the
-         query pack in develop should be different to the one in release branch chosen here-->
-        <!-- Common Packages -->
-
-<!--        <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">-->
-<!--            <development-version branch="release&#45;&#45;Version_1_1_9" build-id="20220203134128-d0f7bea07e25da0d0caca61f778c6e4fa39ac327-bKt1t7"/>-->
-<!--            <include artifact-path="sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE" dest-dir="redist/sspl-plugin-edr-componentsuite"/>-->
-<!--        </build-asset>-->
-        <build-asset project="linuxep" repo="sspl-flags">
-            <development-version branch="develop"/>
-            <include artifact-path="sspl-flags/SDDS-SSPL-FLAGS" dest-dir="redist/supplement/sspl-flags"/>
-        </build-asset>
-
     </inputs>
 
     <buildcommands>
@@ -100,9 +71,13 @@
 <!--        <build-asset artifact-path="sdds3-repo" source-dir="output\repo" mode="dev"/>-->
 <!--        <build-asset artifact-path="sdds3-launchdarkly" source-dir="output\launchdarkly" mode="dev"/>-->
         <!--prod version-->
-        <build-asset artifact-path="prod-sdds3-repo" source-dir="output\repo"/>
-        <build-asset artifact-path="prod-sdds3-launchdarkly" source-dir="output\launchdarkly"/>
-
+        <release-asset artifact-path="prod-sdds3-repo" source-dir="output/repo">
+            <include glob="package/**"/>
+            <include glob="suite/**"/>
+        </release-asset>
+        <release-asset artifact-path="prod-sdds3-launchdarkly" source-dir="output/launchdarkly">
+            <include glob="*.json"/>
+        </release-asset>
     </publish>
 
 </package>
