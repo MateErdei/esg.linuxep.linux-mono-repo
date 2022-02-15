@@ -65,6 +65,12 @@ if(NOT DEFINED PRODUCT_LINE_ID)
     set(PRODUCT_LINE_ID ServerProtectionLinux-Plugin-EDR)
 endif()
 
+execute_process(
+        COMMAND git rev-parse HEAD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_COMMIT_HASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
