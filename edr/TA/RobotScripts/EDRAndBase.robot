@@ -162,7 +162,7 @@ EDR Recovers From Incomplete Database Purge
 
     Stop EDR
     Remove File  ${COMPONENT_ROOT_PATH}/VERSION.ini
-    Create File  ${COMPONENT_ROOT_PATH}/VERSION.ini  PRODUCT_NAME = Sophos Endpoint Detection and Response plug-in\nPRODUCT_VERSION = 1.1.1.1\nBUILD_DATE = 2021-05-21
+    Create File  ${COMPONENT_ROOT_PATH}/VERSION.ini  PRODUCT_NAME = Sophos Endpoint Detection and Response plug-in\nPRODUCT_VERSION = 1.1.1.1\nBUILD_DATE = 2021-05-21\nCOMMIT_HASH = bef8c41c4f3a8cd0458f91bed3a076e81428e394\nPLUGIN_API_COMMIT_HASH = 93b8ec8736dcb5b4266f85b1b08110ebe19c7f03
     Create Debug Level Logger Config File
     ${sstFiles}=  List Files In Directory  ${COMPONENT_ROOT_PATH}/var/osquery.db  *.sst
     Remove File  ${COMPONENT_ROOT_PATH}/var/osquery.db/${sstFiles[0]}
