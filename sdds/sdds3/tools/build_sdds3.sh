@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -ex
+
 REDIST=./redist
 
 SDDS3_BUILDER=${REDIST}/sdds3/sdds3-builder
