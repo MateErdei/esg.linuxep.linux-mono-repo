@@ -50,12 +50,14 @@ int pass_on_capability(cap_value_t cap)
     if (ret != 0)
     {
         perror("Failed to cap_set_flag");
+        cap_free(caps);
         return E_CAP_SET_FLAG;
     }
     ret = cap_set_proc(caps);
     if (ret != 0)
     {
         perror("Failed to cap_set_proc");
+        cap_free(caps);
         return E_CAP_SET_PROC;
     }
     ret = cap_free(caps);
