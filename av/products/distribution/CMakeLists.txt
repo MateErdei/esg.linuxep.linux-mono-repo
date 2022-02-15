@@ -111,6 +111,12 @@ execute_process(
         OUTPUT_VARIABLE BUILD_DATE
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process(
+        COMMAND cat ${PLUGINAPIPATH}/PluginAPICommitHash
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE PLUGIN_API_COMMIT_HASH
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 configure_file(VERSION.ini.in VERSION.ini @ONLY)
 
 install(FILES ../../build64/products/distribution/VERSION.ini

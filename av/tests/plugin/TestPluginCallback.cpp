@@ -52,6 +52,8 @@ namespace
             versionFileStream << "PRODUCT_NAME = Sophos Server Protection Linux - av" << std::endl;
             versionFileStream << "PRODUCT_VERSION = " << m_initialExpectedVersion << std::endl;
             versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
+            versionFileStream << "COMMIT_HASH = " << m_initialExpectedCommitHash << std::endl;
+            versionFileStream << "PLUGIN_API_COMMIT_HASH = " << m_initialExpectedPluginApiCommitHash << std::endl;
             versionFileStream.close();
 
             //creating initial ml library file
@@ -185,6 +187,8 @@ namespace
         unsigned long m_initialExpectedVdlIdeCount = 3;
         std::string m_initialExpectedVdlVersion = "5.78";
         std::string m_initialExpectedVersion = "1.2.3.456";
+        std::string m_initialExpectedCommitHash = "dd9f7b10bb62c4b5f8eee1fede4bb4f4100a75c5";
+        std::string m_initialExpectedPluginApiCommitHash = "93b8ec8736dcb5b4266f85b1b08110ebe19c7f03";
     };
 }
 
@@ -201,6 +205,8 @@ TEST_F(TestPluginCallback, getTelemetry_version) //NOLINT
     versionFileStream << "PRODUCT_NAME = Sophos Server Protection Linux - av" << std::endl;
     versionFileStream << "PRODUCT_VERSION = " << modifiedVersion << std::endl;
     versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
+    versionFileStream << "COMMIT_HASH = " << m_initialExpectedCommitHash << std::endl;
+    versionFileStream << "PLUGIN_API_COMMIT_HASH = " << m_initialExpectedPluginApiCommitHash << std::endl;
     versionFileStream.close();
 
     json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
