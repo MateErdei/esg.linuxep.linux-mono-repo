@@ -16,7 +16,7 @@ def build_dev_warehouse(stage: tap.Root, name="release-package", image='Warehous
                                release_package='./build/dev.xml',
                                mode=name)
 
-def build_sdds3_warehouse(stage: tap.Root, name="sdds3", image='JenkinsLinuxTemplate6'):
+def build_sdds3_warehouse(stage: tap.Root, name="sdds3", image='centos79_x64_bazel_20211025'):
     component = tap.Component(name='sdds3-warehouse-'+name, base_version='1.0.0')
     return stage.artisan_build(name=name,
                                component=component,
