@@ -62,6 +62,7 @@ export TEST_TAR=./ssplav-test-$STACK.tgz
 ## Gather files
 if [[ -z "$SKIP_GATHER" ]]
 then
+    rm -f ./ssplav-test-*.tgz
     bash -x ./gather.sh || failure "Failed to gather test files: $?"
 fi
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
