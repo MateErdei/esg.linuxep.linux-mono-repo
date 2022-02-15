@@ -62,6 +62,7 @@ export TEST_TAR=./ssplav-test-$STACK.tgz
 ## Gather files
 if [[ -z "$SKIP_GATHER" ]]
 then
+    rm -f ./ssplav-test-*.tgz
     bash -x ./gather.sh || failure "Failed to gather test files: $?"
 fi
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
@@ -362,6 +363,7 @@ combineResults()
   rm -rf results-combine-workspace
   mkdir results-combine-workspace
   python3 -m robot.rebot --merge -o ./results-combine-workspace/amazonlinux2x64-output.xml -l none -r none -N amazonlinux2x64  ./results/amazonlinux2x64*
+  python3 -m robot.rebot --merge -o ./results-combine-workspace/amazonlinux2022x64-output.xml -l none -r none -N amazonlinux2022x64  ./results/amazonlinux2022x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/centosstreamx64-output.xml -l none -r none -N centosstreamx64  ./results/centosstreamx64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel78x64-output.xml -l none -r none -N rhel78x64  ./results/rhel78x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel81x64-output.xml -l none -r none -N rhel81x64  ./results/rhel81x64*

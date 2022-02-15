@@ -1,0 +1,66 @@
+{
+  "amazonlinux2022x64" : {
+    "Type" : "AWS::EC2::Instance",
+    "Condition" :  "RunAmazonLinux2022x64" ,
+    "Properties" : {
+      "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
+      "KeyName" : { "Ref" : "KeyName" },
+      "ImageId" : "ami-0039ded895084ada0",
+      "InstanceType": "c4.large",
+      "InstanceInitiatedShutdownBehavior": "terminate",
+      "Tags" : [
+        {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
+        {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
+        {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+        {"Key" : "SupportEmail", "Value" : "ukdevvlx@sophos.com"},
+        {"Key" : "BusinessUnit", "Value" : "ESG"},
+        {"Key" : "CostCentre", "Value" : "GB11601200"},
+        {"Key" : "Project", "Value" : { "Ref" : "Project" } },
+        {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+        {"Key" : "Environment", "Value" : "development"},
+        {"Key" : "AutomationExcluded", "Value" : "true"},
+        {"Key" : "SecurityClassification", "Value" : "none low"},
+        {"Key" : "TestImage", "Value" : "true"},
+        {"Key" : "Codeline", "Value" : { "Ref" : "Project" } },
+        {"Key" : "Branch", "Value" : { "Ref" : "Project" } },
+        {"Key" : "Name", "Value" : "amazonlinux2022x64" }
+      ],
+      "NetworkInterfaces" : [{
+        "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
+        "AssociatePublicIpAddress" : "true",
+        "DeviceIndex"              : "0",
+        "DeleteOnTermination"      : "true",
+        "SubnetId"                 : { "Ref" : "Subnet1" }
+      }],
+      "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
+        "#!/bin/bash\n",
+        "echo 'Testing ", {"Ref": "BuildName"},"'\n",
+        "echo 'Setting up the system for tests ...' >>/tmp/cloudFormationInit.log\n",
+        "export HOSTNAME=@HOSTNAMEGOESHERE@", "\n",
+        "nmcli general hostname ${HOSTNAME}\n",
+        "hostnamectl set-hostname ${HOSTNAME}\n",
+        "sed -i -e '/^HOSTNAME=/ s/=.*/='$HOSTNAME'/' /etc/sysconfig/network\n",
+        "hostname ${HOSTNAME}\n",
+        "echo $'#cloud-config\nhostname: '${HOSTNAME} $'\nfqdn: '${HOSTNAME} >/etc/cloud/cloud.cfg.d/99_hostname.cfg\n",
+        "sed -i 's/127.0.0.1/127.0.0.1 '$HOSTNAME'/' /etc/hosts\n",
+        "yum -y install make gcc python-devel nfs-utils kernel-devel fuse-libs gdb rpm-build cifs-utils wget attr psmisc gcc-c++ samba &>>/tmp/cloudFormationInit.log\n",
+        "yum -y install libnsl python-pip python3-devel python3-pip &>>/tmp/cloudFormationInit.log\n",
+        "python3 -m pip install --upgrade robotframework psutil pytest-html pyzmq zmq protobuf paramiko watchdog cryptography==3.3.1 python-dateutil requests enum34 packaging Cython pycapnp &>>/tmp/cloudFormationInit.log\n",
+        "service rpcbind start &>>/tmp/cloudFormationInit.log\n",
+        "systemctl start nfs &>>/tmp/cloudFormationInit.log\n",
+        "systemctl status nfs-server.service &>>/tmp/cloudFormationInit.log\n",
+        "getenforce &>>/tmp/cloudFormationInit.log\n",
+        "export OVERRIDE_CLOUD_IP=", {"Ref": "cloudIpAddress"}, "\n",
+        "echo ", {"Ref": "cloudIpAddress"}, " >/root/OVERRIDE_CLOUD_IP\n",
+        "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' &>>/tmp/cloudFormationInit.log\n",
+        "echo 'Created aws config. Now grabbing tests...' &>>/tmp/cloudFormationInit.log\n",
+        "aws s3 cp s3://sspl-testbucket/ssplhbt/ssplhbt-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz &>>/tmp/cloudFormationInit.log\n",
+        "tar xvzf /opt/sspl-test.tgz -C /opt &>>/tmp/cloudFormationInit.log\n",
+        "bash /opt/test/inputs/test_scripts/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ &>>/tmp/cloudFormationInit.log\n",
+        "echo 'Finished.' &>>/tmp/cloudFormationInit.log\n",
+        "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
+        "poweroff\n"
+      ]]}}
+    }
+  }
+}

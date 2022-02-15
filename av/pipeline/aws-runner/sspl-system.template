@@ -90,6 +90,11 @@
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "amazonlinux2x64"]}
         ]},
+    "RunAmazonLinux2022x64" : {"Fn::Or": [
+          {"Condition" : "RunAmazon"},
+          {"Condition" : "RunAll"},
+          {"Fn::Equals" : [{"Ref" : "RunOne"}, "amazonlinux2022x64"]}
+        ]},
     "RunCentosStreamx64" : {"Fn::Or": [
         {"Condition" : "RunCentosStream"},
         {"Condition" : "RunAll"},
