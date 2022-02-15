@@ -5,6 +5,7 @@ set -ex
 
 env
 
+export LIBRARY_PATH="${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu"
 REDIST=./redist
 
 SDDS3_BUILDER=${REDIST}/sdds3/sdds3-builder
