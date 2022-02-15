@@ -15,14 +15,15 @@
         {"Key" : "SupportEmail", "Value" : "ukdevvlx@sophos.com"},
         {"Key" : "BusinessUnit", "Value" : "ESG"},
         {"Key" : "CostCentre", "Value" : "GB11601200"},
-        {"Key" : "Project", "Value" : { "Ref" : "Project" } },
+        {"Key" : "Project", "Value" : "SSPLAV"},
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+        {"Key" : "BaseAmi", "Value" : "ami-00bf48b7ee136ea5b"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
         {"Key" : "TestImage", "Value" : "true"},
-        {"Key" : "Codeline", "Value" : { "Ref" : "Project" } },
-        {"Key" : "Branch", "Value" : { "Ref" : "Project" } },
+        {"Key" : "Codeline", "Value" : "SSPLAV" },
+        {"Key" : "Branch", "Value" : "SSPLAV" },
         {"Key" : "Name", "Value" : "amazonlinux2022x64" }
       ],
       "NetworkInterfaces" : [{
