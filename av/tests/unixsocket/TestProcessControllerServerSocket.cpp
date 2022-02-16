@@ -70,21 +70,21 @@ TEST_F(TestProcessControllerServerSocket, testSendMessageNoServer)
 TEST_F(TestProcessControllerServerSocket, testSocketConstruction) // NOLINT
 {
     unixsocket::ProcessControllerServerSocket processController(m_socketPath, 0660);
-    EXPECT_FALSE(processController.triggered());
+    EXPECT_FALSE(processController.triggeredShutdown());
 }
 
 TEST_F(TestProcessControllerServerSocket, testTriggerNotified) // NOLINT
 {
     unixsocket::ProcessControllerServerSocket processControllerServer(m_socketPath, 0660);
     processControllerServer.start();
-    EXPECT_GT(processControllerServer.monitorFd(), -1);
+    EXPECT_GT(processControllerServer.monitorShutdownFd(), -1);
 
     unixsocket::ProcessControllerClientSocket processControllerClient(m_socketPath);
     scan_messages::ProcessControlSerialiser processControlRequest;
     processControllerClient.sendProcessControlRequest(processControlRequest);
 
     int retries=0;
-    while (!processControllerServer.triggered())
+    while (!processControllerServer.triggeredShutdown())
     {
         if (retries > 10)
         {
@@ -97,5 +97,5 @@ TEST_F(TestProcessControllerServerSocket, testTriggerNotified) // NOLINT
     processControllerServer.requestStop();
     processControllerServer.join();
 
-    EXPECT_TRUE(processControllerServer.triggered());
+    EXPECT_TRUE(processControllerServer.triggeredShutdown());
 }

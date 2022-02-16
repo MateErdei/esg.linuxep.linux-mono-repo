@@ -19,18 +19,22 @@ namespace unixsocket
         ProcessControllerServerSocket(
             const std::string& path,
             const mode_t mode);
-        int monitorFd();
-        bool triggered();
+        int monitorShutdownFd();
+        int monitorReloadFd();
+        bool triggeredShutdown();
+        bool triggeredReload();
 
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            return std::make_unique<ProcessControllerServerConnectionThread>(fd, m_shutdownPipe);
+            return std::make_unique<ProcessControllerServerConnectionThread>(fd, m_shutdownPipe, m_reloadPipe);
         }
 
     private:
         std::shared_ptr<Common::Threads::NotifyPipe> m_shutdownPipe;
-        bool m_signalled = false;
+        std::shared_ptr<Common::Threads::NotifyPipe> m_reloadPipe;
+        bool m_signalledShutdown = false;
+        bool m_signalledReload = false;
     };
 }
 

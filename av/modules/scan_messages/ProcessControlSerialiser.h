@@ -15,7 +15,8 @@ namespace scan_messages
 {
     enum E_COMMAND_TYPE: int
     {
-        E_SHUTDOWN = 1
+        E_SHUTDOWN = 1,
+        E_RELOAD = 2
     };
 
     class ProcessControlSerialiser

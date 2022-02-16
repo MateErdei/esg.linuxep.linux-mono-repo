@@ -13,19 +13,34 @@ ProcessControllerServerSocket::ProcessControllerServerSocket(
     const mode_t mode)
     : ProcessControllerServerSocketBase(path, mode)
     , m_shutdownPipe(std::make_shared<Common::Threads::NotifyPipe>())
+    , m_reloadPipe(std::make_shared<Common::Threads::NotifyPipe>())
 {
 }
 
-int ProcessControllerServerSocket::monitorFd()
+int ProcessControllerServerSocket::monitorShutdownFd()
 {
     return m_shutdownPipe->readFd();
 }
 
-bool ProcessControllerServerSocket::triggered()
+int ProcessControllerServerSocket::monitorReloadFd()
+{
+    return m_reloadPipe->readFd();
+}
+
+bool ProcessControllerServerSocket::triggeredShutdown()
 {
     while (m_shutdownPipe->notified())
     {
-        m_signalled = true;
+        m_signalledShutdown = true;
     }
-    return m_signalled;
+    return m_signalledShutdown;
+}
+
+bool ProcessControllerServerSocket::triggeredReload()
+{
+    while (m_reloadPipe->notified())
+    {
+        m_signalledReload = true;
+    }
+    return m_signalledReload;
 }

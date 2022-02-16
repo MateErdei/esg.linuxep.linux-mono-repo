@@ -25,7 +25,10 @@ namespace unixsocket
         ProcessControllerServerConnectionThread(const ProcessControllerServerConnectionThread&) = delete;
         ProcessControllerServerConnectionThread& operator=(const ProcessControllerServerConnectionThread&) = delete;
         explicit ProcessControllerServerConnectionThread(
-            datatypes::AutoFd& fd, std::shared_ptr<Common::Threads::NotifyPipe> shutdownPipe);
+            datatypes::AutoFd& fd,
+            std::shared_ptr<Common::Threads::NotifyPipe> shutdownPipe,
+            std::shared_ptr<Common::Threads::NotifyPipe> reloadPipe);
+
         void run() override;
 
     private:
@@ -33,6 +36,7 @@ namespace unixsocket
 
         datatypes::AutoFd m_fd;
         std::shared_ptr<Common::Threads::NotifyPipe> m_shutdownPipe;
+        std::shared_ptr<Common::Threads::NotifyPipe> m_reloadPipe;
     };
 }
 

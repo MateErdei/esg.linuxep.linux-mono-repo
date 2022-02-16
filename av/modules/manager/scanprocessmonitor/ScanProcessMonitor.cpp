@@ -59,6 +59,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     max_fd = FDUtils::addFD(&readfds, m_notifyPipe.readFd(), max_fd);
     max_fd = FDUtils::addFD(&readfds, m_config_changed.readFd(), max_fd);
 
+    //this is also triggering the m_config_changed pipe
     m_config_monitor.start();
 
     announceThreadStarted();
@@ -90,6 +91,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         if (FDUtils::fd_isset(m_config_changed.readFd(), &tempReadfds))
         {
             clearPipe(m_config_changed);
+            // is it a request for shutdown or a request for reload?
             requestShutdownOfThreatDetector();
         }
     }

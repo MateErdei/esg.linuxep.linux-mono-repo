@@ -25,9 +25,13 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 using namespace unixsocket;
 
 ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread(datatypes::AutoFd& fd,
-                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> shutdownPipe)
+                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> shutdownPipe,
+                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> reloadPipe)
         : m_fd(std::move(fd))
         , m_shutdownPipe(std::move(shutdownPipe))
+        , m_reloadPipe(std::move(reloadPipe))
+
+        //init pipe
 {
     if (m_fd < 0)
     {
@@ -37,6 +41,11 @@ ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread
     if (m_shutdownPipe.get() == nullptr)
     {
         throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null shutdown pipe");
+    }
+
+    if (reloadPipe.get() == nullptr)
+    {
+        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null reload pipe");
     }
 }
 
@@ -185,6 +194,12 @@ void ProcessControllerServerConnectionThread::inner_run()
             {
                 m_shutdownPipe->notify();
                 break;
+            }
+            else if(processControlReader.getCommandType() == scan_messages::E_RELOAD)
+            {
+                //trigger reload pipe
+                m_reloadPipe->notify();
+                continue;
             }
             else
             {

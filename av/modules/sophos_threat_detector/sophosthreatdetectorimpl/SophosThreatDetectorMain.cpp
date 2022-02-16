@@ -400,8 +400,8 @@ static int inner_main()
 
     max = FDUtils::addFD(&readFDs, sigTermMonitor.monitorFd(), max);
     max = FDUtils::addFD(&readFDs, usr1Monitor.monitorFd(), max);
-    max = FDUtils::addFD(&readFDs, processController.monitorFd(), max);
-
+    max = FDUtils::addFD(&readFDs, processController.monitorShutdownFd(), max);
+    max = FDUtils::addFD(&readFDs, processController.monitorReloadFd(), max);
     while (true)
     {
         fd_set tempRead = readFDs;
@@ -464,13 +464,22 @@ static int inner_main()
             break;
         }
 
-        if (FDUtils::fd_isset(processController.monitorFd(), &tempRead))
+        if (FDUtils::fd_isset(processController.monitorShutdownFd(), &tempRead))
         {
             LOGINFO("Sophos Threat Detector received shutdown request");
             create_shutdown_notice_file(pluginInstall);
-            processController.triggered();
+            processController.triggeredReload();
             break;
         }
+        // handle reload pipe, copy the above ^
+        // only reload when susi is loaded
+        if (FDUtils::fd_isset(processController.monitorReloadFd(), &tempRead)  && scannerFactory->susiIsInitialized())
+        {
+            LOGINFO("Sophos Threat Detector received reload request");
+            processController.triggeredShutdown();
+            continue;
+        }
+
     }
     processController.requestStop();
     processController.join();

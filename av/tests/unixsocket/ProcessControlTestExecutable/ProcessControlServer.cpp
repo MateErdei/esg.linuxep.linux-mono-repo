@@ -41,8 +41,9 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
     datatypes::AutoFd clientFd(socket_fds[1]);
 
     //start a process controller socket
-    auto pipe = std::make_shared<Common::Threads::NotifyPipe>();
-    unixsocket::ProcessControllerServerConnectionThread connectionThread(serverFd, pipe);
+    auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    unixsocket::ProcessControllerServerConnectionThread connectionThread(serverFd, shutdownPipe,reloadPipe);
     connectionThread.start();
 
     // send our request
