@@ -22,7 +22,8 @@ namespace scan_messages
     class ProcessControlSerialiser
     {
     public:
-        explicit ProcessControlSerialiser();
+        ProcessControlSerialiser() = delete;
+        explicit ProcessControlSerialiser(E_COMMAND_TYPE requestType);
 
         void setCommandType(E_COMMAND_TYPE commandType);
 

@@ -74,9 +74,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 
 static int writeSampleFile(std::string filename)
 {
-    scan_messages::ProcessControlSerialiser shutDownRequest;
-
-    shutDownRequest.setCommandType(scan_messages::E_SHUTDOWN);
+    scan_messages::ProcessControlSerialiser shutDownRequest(scan_messages::E_SHUTDOWN);
 
     std::string request_str = shutDownRequest.serialise();
     PRINT("request string: " << request_str);

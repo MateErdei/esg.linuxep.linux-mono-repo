@@ -14,8 +14,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace scan_messages;
 
-ProcessControlSerialiser::ProcessControlSerialiser()
-        : m_commandType(E_SHUTDOWN)
+ProcessControlSerialiser::ProcessControlSerialiser(E_COMMAND_TYPE requestType)
+        : m_commandType(requestType)
 {
 }
 

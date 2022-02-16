@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace scan_messages;
 
 ProcessControlDeserialiser::ProcessControlDeserialiser(Sophos::ssplav::ProcessControl::Reader& reader)
+    : ProcessControlSerialiser(static_cast<E_COMMAND_TYPE>(reader.getCommandType()))
 {
     m_commandType = static_cast<E_COMMAND_TYPE>(reader.getCommandType());
 }
