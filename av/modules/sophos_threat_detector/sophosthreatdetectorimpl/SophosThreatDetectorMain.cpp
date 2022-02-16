@@ -471,8 +471,7 @@ static int inner_main()
             processController.triggeredReload();
             break;
         }
-        // handle reload pipe, copy the above ^
-        // only reload when susi is loaded
+
         if (FDUtils::fd_isset(processController.monitorReloadFd(), &tempRead)  && scannerFactory->susiIsInitialized())
         {
             LOGINFO("Sophos Threat Detector received reload request");

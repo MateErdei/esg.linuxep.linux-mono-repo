@@ -30,20 +30,18 @@ ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread
         : m_fd(std::move(fd))
         , m_shutdownPipe(std::move(shutdownPipe))
         , m_reloadPipe(std::move(reloadPipe))
-
-        //init pipe
 {
     if (m_fd < 0)
     {
         throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with invalid socket fd");
     }
 
-    if (m_shutdownPipe.get() == nullptr)
+    if (m_shutdownPipe == nullptr)
     {
         throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null shutdown pipe");
     }
 
-    if (reloadPipe.get() == nullptr)
+    if (m_reloadPipe == nullptr)
     {
         throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null reload pipe");
     }
